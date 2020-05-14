@@ -1,0 +1,6 @@
+#
+# XNJS IO capabilities of UAS Core
+#
+
+de.fzj.unicore.uas.util.CoreCapabilities
+de.fzj.unicore.uas.xtreemfs.XtreemFSCapabilities

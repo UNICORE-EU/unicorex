@@ -1,0 +1,302 @@
+=== IDB syntax description
+
+Starting with UNICORE 8.0, the IDB is written in JSON. This documentation focuses
+on the JSON format.
+
+[NOTE]
+==========
+The older XML format is deprecated, but still supported. It is limited
+to a single partition, i.e. a single set of resource limits (number of
+nodes / CPUs etc). For reference, the schema for the XM̀L IDB can be found at
+http://svn.code.sf.net/p/unicore/svn/xnjs/trunk/src/main/schema/idb.xsd
+==========
+
+The IDB contains Partitions, Applications, Submit/Excute script
+templates and Info elements, all of which will be described
+below. Additionally the administrator can customize the script
+template that is used to
+
+Applications can also be defined in separate files (if using a directory)
+
+-----------------
+{
+"Partitions" : {},
+
+"Info" : {},
+
+"Applications" : [],
+
+"ExecuteScriptTemplate" : "...",
+
+"SubmitScriptTemplate"  : "...",
+
+}
+-----------------
+
+==== Partitions
+
+Each Partition corresponds essentially to a batch queue. Each
+partition may have its own runtime limits, number of CPUs etc.
+
+Let's look at an example first. In the IDB file
+
+----------------------
+{
+"Partitions": {
+
+ "batch" : {
+    "IsDefaultPartition": "true",
+    "Description": "Default batch queue",
+    "OperatingSystem": "LINUX",
+    "OperatingSystemVersion": "4.15.0-62-generic / Ubuntu 18.04",
+    "CPUArchitecture": "x86_64",
+    "Resources": {
+      "Nodes": "1-64:1",
+      "CPUsPerNode": "4",
+      "TotalCPUs": "4-256",
+      "Runtime": "1-72000:3600",
+    },
+ },
+ 
+  "dev" : {
+    "Description": "Development queue",
+    "OperatingSystem": "LINUX",
+    "CPUArchitecture": "x86_64",
+    "Resources": {
+      "Nodes": "1-4:1",
+      "CPUsPerNode": "4",
+      "TotalCPUs": "4-16",
+      "Runtime": "1-3600:10m",
+    },
+ },
+
+}
+----------------------
+
+If you have more than one Partition, make sure to set one as the default using
+the element
+
+-----------
+  "IsDefaultPartition": "true",
+-----------
+
+
+===== Resources
+ 
+Here you can specify things like number of nodes, job runtime (wall
+time!)  CPUs per node, total number of CPUs, etc.
+
+Integer-valued capabilities are specified with a range and an
+optional default, for example:
+
+--------------------------------------
+ "Nodes" : "1-64:1",
+--------------------------------------
+
+or in a more verbose style:
+
+--------------------------------------
+  "Nodes" : {
+    "Range": "1-64",
+    "Default": "1",
+ }
+--------------------------------------
+
+If a default is specified, the resource is part of the site's default
+resource set, and a value will be always be sent to the TSI.
+
+If NO default is specified, the resource request will only be sent to
+the TSI if the user has requested it in her job.
+
+A number of standard resource names exist, which a system should
+adhere to, in order to make user jobs as portable as possible. You may
+choose to not specify some of them, if they do not make sense on your
+system. For example, some sites do not allow the user to explicitely
+select nodes and processors per node, but only "total number of CPUs",
+or only "Nodes".
+
+ - +Runtime+ : The wall clock time (integer). You can use the usual units ("m", "h", "d"),
+  e.g. "12h"
+
+ - +Nodes+ : The number of nodes (integer)
+
+ - +CPUsPerNode+ : The number of CPUs per node (integer)
+
+ - +TotalCPUs+ : The total number of CPUs (integer)
+
+ - +Memory+ : The amount of memory per node in bytes (integer). You can use the usual units
+   ("k", "M", G"), e.g. "128G"
+
+ - +NodeConstraints+ : Identifiers for requesting specific node types
+   (list of values)
+
+ - +QoS+ : Quality of service required by the job
+   (list of values)
+
+------
+ "NodeConstraints" : {
+  "Type": "CHOICE",
+  "AllowedValues" : ["gpu", "mc"],
+ }
+------
+
+
+===== Support for array jobs
+
+Many resource managers support submission of job arrays, i.e. multiple similar jobs
+are submitted at the same time, where the user can control two things:
+how many jobs are submitted, and how many jobs run at the same time.
+
+To enable this feature, the site administrator needs to define two resources
+in the IDB partition(s), named "ArraySize" and "ArrayLimit".
+
+Consider the following example:
+
+--------------------------
+
+ "ArraySize"  : "1-100:1",
+ "ArrayLimit" : "1-100:10",
+
+------------------------
+
+The array size and limit are passed to the TSI via
+
+---------------
+#TSI_ARRAY 0-99
+#TSI_ARRAY_LIMIT 10
+---------------
+
+The TSI also sets an environment variable in the job script that corresponds to the "task id", i.e.
+the ID of the current job instance:
+
+--------------
+UC_ARRAY_TASK_ID = "22"; export UC_ARRAY_TASK_ID
+-------------
+
+
+==== Other types of resources
+
+Most HPC sites have special settings that cannot be mapped to the
+generic resource elements shown in the previous section. Therefore
+UNICORE allows to define custom system settings and allow users to
+request these in their UNICORE jobs.
+
+
+UNICORE/X will send these to the TSI in upper case,
+with a "#TSI_SSR_" prefix, e.g.
+
+------------------
+#!/bin/sh
+#TSI_SUBMIT
+# ...
+#TSI_SSR_GPUS 4
+# ....
+
+------------------
+
+
+==== Script templates
+
+If you need to modify the scripts that are generated by UNICORE/X and sent to the TSI, 
+you can achieve this using two entries in the IDB.
+
+-----------------
+"SubmitScriptTemplate" : "#!/bin/sh \
+#COMMAND \
+#RESOURCES \
+#SCRIPT
+",
+
+"ExecuteScriptTemplate" : "#!/bin/sh \
+#COMMAND \
+#RESOURCES \
+#SCRIPT \
+"
+-----------------
+
+The single backslash '\' is used to denote a line break.
+
+The SubmitScriptTemplate is used for batch job submission, the ExecuteScriptTemplate is used for
+everything else (e.g. creating directories, resolving user's home, etc)
+  
+UNICORE/X generates the TSI script as follows:
+
+ - "#COMMAND" entry will be replaced by the action for the TSI, e.g. "#TSI_SUBMIT". 
+ - (for submit)the "#RESOURCES" will be replaced by the resource requirements, e.g. "#TSI_NODES=..."
+ - "#SCRIPT" will be the user script / the executed command
+ 
+Modifying these templates can be used to perform special actions, such as loading modules,
+or changing the shell (but use something compatible to 'sh'). For example, to add some
+special directory to the path for user scripts submitted in batch mode, you could use
+
+-----------------
+"SubmitScriptTemplate" :
+"#!/bin/bash \
+#COMMAND \
+#RESOURCES \
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/openmpi-2.1/lib; export LD_LIBRARY_PATH \
+PATH=$PATH:/opt/openmpi-2.1/bin; export PATH \
+#SCRIPT \
+",
+-----------------
+
+[NOTE]
+========
+Make sure that the commands added to the ExecuteScriptTemplate DO NOT generate 
+any output on standard out or standard error! Always redirect any output to /dev/null
+========
+
+For example
+-----------------
+"ExecuteScriptTemplate" :
+"#!/bin/bash \
+#COMMAND \
+module load java-11 > /dev/null 2>&1 \
+#SCRIPT \
+",
+-----------------
+
+
+==== Info
+
+Simple key-value pairs can be entered into the IDB which are then
+accessible client-side. This is very useful for conveying
+system-specifics to client code and also to users.
+
+Here is an example
+
+-----------
+{
+   "Info" : {
+     "ssh-host"    : "login.cluster.com",
+     "admin-email" : "root@cluster.com",
+   },
+}
+------------
+
+These pieces of information are accessible client side as part of the
+target system properties.
+
+==== Summary
+
+
+.Translation of standard resource names to TSI parameters 
+[options="header"]
+|===============================
+|Resource                       | TSI parameter
+|Name of the selected partition | #TSI_QUEUE
+|Accounting project (from job)  | #TSI_PROJECT
+2+^e| 
+|Runtime                        | #TSI_TIME
+|Nodes                          | #TSI_NODES
+|CPUsPerNode                    | #TSI_PROCESSORS_PER_NODE
+|TotalCPUs                      | #TSI_TOTAL_PROCESSORS
+|NodeConstraints                | #TSI_BSS_NODES_FILTER
+|QoS				| #TSI_QOS
+|MemoryPerNode                  | #TSI_MEMORY
+2+^e| 
+|ArraySize                      | #TSI_ARRAY
+|ArrayLimit                     | #TSI_ARRAY_LIMIT
+2+^e| 
+|Other resources                | #TSI_SSR_<name>
+|===============================

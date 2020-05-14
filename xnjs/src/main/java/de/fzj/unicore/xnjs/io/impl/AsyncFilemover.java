@@ -1,0 +1,282 @@
+package de.fzj.unicore.xnjs.io.impl;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.log4j.Logger;
+
+import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.io.IFileTransfer;
+import de.fzj.unicore.xnjs.io.IFileTransferEngine;
+import de.fzj.unicore.xnjs.io.TransferInfo.Status;
+import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import de.fzj.unicore.xnjs.io.TransferInfo;
+import de.fzj.unicore.xnjs.io.XnjsFile;
+import de.fzj.unicore.xnjs.tsi.TSI;
+import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
+import de.fzj.unicore.xnjs.util.FileMonitor;
+import de.fzj.unicore.xnjs.util.IOUtils;
+import de.fzj.unicore.xnjs.util.LogUtil;
+import de.fzj.unicore.xnjs.util.Observer;
+import de.fzj.unicore.xnjs.util.ResultHolder;
+import eu.unicore.security.Client;
+import eu.unicore.util.Log;
+
+/**
+ * common base class for data movement using some external executable (wget, curl, globus-url-copy etc)
+ * 
+ * @author schuller
+ */
+public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile> {
+
+	protected static final Logger logger=LogUtil.getLogger(LogUtil.IO,AsyncFilemover.class);
+
+	//metrics/usage logger
+	protected static final Logger usageLogger=Logger.getLogger(Log.SERVICES+".datatransfer.USAGE");
+
+	protected final String workingDirectory;
+
+	protected final Client client;
+
+	protected final XNJS configuration;
+
+	protected AsyncCommandHelper ach;
+
+	protected FileMonitor monitor=null;
+	
+	protected IStorageAdapter storageAdapter;
+
+	protected OverwritePolicy overwrite;
+
+	protected volatile boolean abort=false;
+
+	protected long startTime=System.currentTimeMillis();
+
+	protected final TransferInfo info;
+
+	public AsyncFilemover(Client client, String workingDirectory, String source, String target, XNJS config){
+		this.configuration=config;
+		this.workingDirectory=workingDirectory;
+		this.client=client;
+		this.info = new TransferInfo(UUID.randomUUID().toString(), source, target);
+	}
+
+	public TransferInfo getInfo(){
+		return info;
+	}
+
+	/**
+	 * generate the commandline to execute
+	 */
+	protected abstract String makeCommandline()throws Exception;
+
+	/**
+	 * invoked immediately before submitting the async command.<br/>
+	 * It can be used to customize, e.g. set environment variables.<br/>
+	 * (The default implementation does nothing)
+	 */
+	protected void preSubmit()throws Exception{
+	}
+
+	protected abstract boolean isImport();
+
+	public void run() {
+		//update to compensate for potential waiting in executor
+		startTime=System.currentTimeMillis();
+
+		if(abort){
+			info.setStatus(Status.ABORTED, "Aborted");
+			return;
+		}
+		info.setStatus(Status.RUNNING, "Running");
+
+		logger.info("Submitting "+this);
+
+		try{
+			//register a listener on the target file
+			if(isImport()){
+				monitor=new FileMonitor(workingDirectory,info.getTarget(),client,configuration,3,TimeUnit.SECONDS);
+				monitor.registerObserver(this);
+			}
+			doRun();
+			//force a last update on the file info
+			if(monitor!=null)monitor.run();
+			reportUsage();
+			configuration.get(IFileTransferEngine.class).updateInfo(info);
+		}catch(Exception ex){
+			reportFailure("Could not do transfer", ex);
+			LogUtil.logException("Could not do transfer",ex,logger);
+		}
+		finally{
+			if(monitor!=null)monitor.dispose();
+		}
+	}
+
+	protected void doRun() throws Exception {
+		String cmd=makeCommandline();
+		ach=new AsyncCommandHelper(configuration,cmd,info.getUniqueId(),info.getParentActionID(),client);
+		preSubmit();
+		ach.submit();
+		while(!ach.isDone()){
+			Thread.sleep(2000);
+		}
+
+		ResultHolder res=ach.getResult();
+		if(res.getExitCode()!=null && res.getExitCode()==0){
+			logger.info("Async transfer "+info.getSource()+" -> "+info.getTarget()+" is DONE.");
+			info.setStatus(Status.DONE);
+		}
+		else{
+			String statusMessage="Transfer failed.";
+			try{
+				if(res!=null && res.getResult().getErrorMessage()!=null){
+					statusMessage+=" Error message: "+res.getResult().getErrorMessage();
+				}
+				String error=res.getStdErr();
+				if(error!=null && error.trim().length()>0){
+					statusMessage+=" Error details: "+error;
+				}
+			}catch(IOException ex){
+				LogUtil.logException("Could not read stderr",ex,logger);
+			}
+			info.setStatus(Status.FAILED, statusMessage);
+		}
+	}
+	
+	public void update(XnjsFile xinfo){
+		if(xinfo!=null){
+			info.setTransferredBytes(xinfo.getSize());
+		}
+		if(info.getDataSize()<0){
+			if(isImport() && Status.DONE==info.getStatus()){
+				try{
+					TSI tsi=configuration.getTargetSystemInterface(client);
+					tsi.setStorageRoot(workingDirectory);
+					info.setDataSize(tsi.getProperties(info.getTarget()).getSize());
+				}catch(Exception ex){}
+			}
+			else{
+				try{
+					TSI tsi=configuration.getTargetSystemInterface(client);
+					tsi.setStorageRoot(workingDirectory);
+					info.setDataSize(tsi.getProperties(info.getSource()).getSize());
+				}catch(Exception ex){}
+			}
+		}
+	}
+
+	public void setStorageAdapter(IStorageAdapter adapter) {
+		this.storageAdapter=adapter;
+	}
+
+	@Override
+	public void setOverwritePolicy(OverwritePolicy overwrite) {
+		this.overwrite=overwrite;
+	}
+
+	@Override
+	public void setImportPolicy(ImportPolicy policy){
+		// NOP
+	}
+
+	@Override
+	public void abort() {	
+		abort=true;
+		if(ach!=null){
+			try{
+				ach.abort();
+			}
+			catch(ExecutionException ee){
+				LogUtil.logException("Can't abort file transfer program", ee ,logger);
+			}
+		}
+	}
+
+	public ResultHolder getResult(){
+		return ach!=null ? ach.getResult() : null;
+	}
+
+	//copy all data from an input stream to an output stream, while tracking progress via
+	//the transferredBytes field
+	protected void copyTrackingTransferedBytes(InputStream in, OutputStream out)throws Exception{
+		int bufferSize=65536;
+		byte[] buffer = new byte[bufferSize];
+		int len=0;
+		long transferredBytes=0;
+		while (!abort) {
+			len=in.read(buffer,0,bufferSize);
+			if(len<0)break;
+			out.write(buffer,0,len);
+			transferredBytes+=len;
+			info.setTransferredBytes(transferredBytes);
+		}
+	}
+
+	public String toString(){
+		return getDescription();
+	}
+
+	protected String getDescription(){
+		StringBuilder sb=new StringBuilder();
+		sb.append("Filetransfer ").append(info.getUniqueId());
+		sb.append(" '").append(info.getSource()).append("' -> '").append(info.getTarget());
+		sb.append("' workdir='").append(workingDirectory).append("'");
+		if(client!=null){
+			sb.append(" client='").append(client.getDistinguishedName()+"'");
+		}
+		return sb.toString();
+	}
+
+	public String getWorkingDirectory() {
+		return workingDirectory;
+	}
+
+	/**
+	 * sets the status to FAILED, and the statusMessage to the failure cause
+	 * (created using {@link Log#createFaultMessage(String, Throwable)}
+	 * @param message - error message
+	 * @param cause - the error cause
+	 */
+	protected void reportFailure(String message, Throwable cause){
+		info.setStatus(Status.FAILED, Log.createFaultMessage(message, cause));
+	}
+
+	/**
+	 * Computes transfer rates, bytes transferred and
+	 * logs it to the USAGE logger at INFO level<br/>
+	 * (If needed, Log4j can be configured to send these log messages to a 
+	 * specific file instead of the standard logfile)
+	 * <p>
+	 * The format is:
+	 * [clientDN] [Sent|Received] [bytes] [kb/sec] [SMS URL] [source] [target] [protocol] [parentJobID]   
+	 * <p>
+	 * NOTE: if you override the #run() method, you should call this method after your transfer finishes
+	 */
+	protected void reportUsage(){
+		if(Status.DONE!=info.getStatus()){
+			return;
+		}
+		long finishTime=System.currentTimeMillis();
+		long dataSize = info.getDataSize();
+		long consumedMillis=finishTime-startTime;
+		String r=IOUtils.format(consumedMillis>0?(float)dataSize/(float)consumedMillis:0,2);
+		String what=isImport()?"received":"sent";
+		String dn=client!=null?client.getDistinguishedName():"anonymous";
+		String url="";
+
+		if(logger.isDebugEnabled()){
+			logger.debug(what+dataSize+" bytes in "+consumedMillis+" milliseconds, data rate= "+r + " kB/s");
+		}
+		//usage logging
+		if(usageLogger.isInfoEnabled()){
+			usageLogger.info("["+dn+"]" + " ["+what+"]" + " ["+dataSize+"]" + " ["+r+" kB/s]" +" ["+url+"]"
+					+" ["+info.getSource()+"]" + " ["+info.getTarget()+"]" 
+					+" ["+info.getProtocol()+"]" + " ["+info.getParentActionID()+"]");
+		}
+	}
+
+}

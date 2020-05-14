@@ -1,0 +1,5 @@
+#
+# provides FT params
+#
+
+de.fzj.unicore.uas.client.MockFTParamsProvider

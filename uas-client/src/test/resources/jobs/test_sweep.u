@@ -1,0 +1,8 @@
+{
+
+  ApplicationName: foo, 
+  ApplicationVersion: 1.0,
+
+  Arguments: ["-v", { Values: ["fox","dog","cat"], },
+  ],
+} 

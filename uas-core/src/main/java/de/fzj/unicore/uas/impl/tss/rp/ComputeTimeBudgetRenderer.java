@@ -1,0 +1,78 @@
+/*********************************************************************************
+ * Copyright (c) 2006-2007 Forschungszentrum Juelich GmbH 
+ * All rights reserved.
+ * 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ * (1) Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the disclaimer at the end. Redistributions in
+ * binary form must reproduce the above copyright notice, this list of
+ * conditions and the following disclaimer in the documentation and/or other
+ * materials provided with the distribution.
+ * 
+ * (2) Neither the name of Forschungszentrum Juelich GmbH nor the names of its 
+ * contributors may be used to endorse or promote products derived from this 
+ * software without specific prior written permission.
+ * 
+ * DISCLAIMER
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ ********************************************************************************/
+
+
+package de.fzj.unicore.uas.impl.tss.rp;
+
+import java.math.BigInteger;
+import java.util.List;
+
+import org.unigrids.x2006.x04.services.tss.AllocationDocument.Allocation;
+import org.unigrids.x2006.x04.services.tss.ComputeTimeBudgetDocument;
+
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
+import de.fzj.unicore.wsrflite.Resource;
+import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
+import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import de.fzj.unicore.xnjs.ems.BudgetInfo;
+import eu.unicore.security.Client;
+
+/**
+ * represents the user's remaining compute time (number of core hours) 
+ * on a TargetSystemFactory and TargetSystem resource<br/>
+ *
+ * TODO update schema
+ */
+public class ComputeTimeBudgetRenderer extends ValueRenderer {
+	
+	public ComputeTimeBudgetRenderer(Resource res) {
+		super(res, ComputeTimeBudgetDocument.type.getDocumentElementName());
+	}
+
+	@Override
+	protected ComputeTimeBudgetDocument getValue(){
+		ComputeTimeBudgetDocument budgetD = ComputeTimeBudgetDocument.Factory.newInstance();
+		ComputeTimeBudgetDocument.ComputeTimeBudget ctb = budgetD.addNewComputeTimeBudget();
+		try {
+			Client c = AuthZAttributeStore.getClient();
+			List<BudgetInfo> budget = ((BaseResourceImpl)parent).getXNJSFacade().getComputeTimeBudget(c);
+			for(BudgetInfo alloc: budget) {
+				Allocation a = ctb.addNewAllocation();
+				a.setName(alloc.getProjectName());
+				a.setRemaining(BigInteger.valueOf(alloc.getRemaining()));
+				a.setUnits(alloc.getUnits());
+				a.setPercentRemaining(BigInteger.valueOf(alloc.getPercentRemaining()));
+			}
+		}catch(Exception ex) {}
+		return budgetD;
+	}
+}

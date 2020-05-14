@@ -1,0 +1,55 @@
+[[ux_xtreemfs]]
+   
+XtreemFS support
+----------------
+
+XtreemFS is a distributed filesystem (see http://www.xtreemfs.org).
+
+XtreemFS can be mounted locally at more than one UNICORE site, making
+it desirable to have an optimized way of moving files used in UNICORE 
+jobs into and out of XtreemFS.
+
+To achieve this, UNICORE supports a special URL scheme "xtreemfs://"
+for data staging (i.e. moving data into the job directory prior to execution,
+and moveing data out of the job directory after execution).
+
+As an example, in their jobs users can write (using a UCC example):
+
+-----
+{
+
+  Imports:
+  [
+   { From: "xtreemfs://CN=test/test.txt", To: "infile", },
+  ]
+
+}
+-----
+
+to have a file staged in from XtreemFS.
+
+
+Site setup
+~~~~~~~~~~
+
+At a site that wishes to support XtreemFS, two ways of providing 
+access are possible. If XtreemFS is mounted locally and accessible to
+the UNICORE TSI, it is required to define the mount point 
+in +CONF/uas.config+ :
+
+----
+ coreServices.xtreemfs.mountpoint=...
+----
+
+In this case, data will simply be copied by the TSI.
+
+If XtreemFS is not mounted locally, it is possible to define the
+URL of a UNICORE Storage which provides access to XtreemFS
+
+----
+  coreServices.xtreemfs.url=https://...
+----
+
+In this case, data will be moved using the usual UNICORE file transfer
+mechanism.
+

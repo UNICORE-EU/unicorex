@@ -1,0 +1,62 @@
+{
+
+  ApplicationName: foo, 
+  ApplicationVersion: 1.0,
+
+  Executable: "/bin/date",
+
+  Arguments: ["-v", "-d"],
+
+  Environment: ["SHELL=/bin/bash", "JAVA_OPTS=-v"],
+
+  Imports: [ 
+    {
+	  From: myfile,
+	  To: uspaceFile,
+	  FailOnError: false,
+	}
+  ],
+
+  Exports: [ 
+    {
+	  From: uspaceOutFile,
+	  To: "localName"
+	},
+	{
+	File: otherUspaceOutFile,
+	To: "otherLocalName"
+	}
+  ],
+  
+  Stage in: [
+  	{
+  	  From: "BFT:http://localhost:8080/XNJS/etcetc",
+	  To: "uspaceFileName"
+	}
+  ],
+  
+  
+  Stage out: [
+  	{
+  	  From: stdout,
+	  To: "BFT:http://someserver/someresource",
+	  FailOnError: "false";
+	}
+  ],
+
+  User name: somebody,
+
+  Project: "my_project",
+
+  Tags: ["foo", "bar", ],
+
+  Site: DEMO-SITE,
+ 
+  Resources: {
+    Memory: 128000000,
+    CPUsPerNode: 32,
+    Nodes: 4,
+    Runtime: 3600,
+    Special: 64738,
+  }
+} 

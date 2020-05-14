@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<jsdl:JobDefinition xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+ <jsdl:JobDescription>
+  <jsdl:JobIdentification>
+    <jsdl:JobName>my test job</jsdl:JobName>
+    <jsdl:JobProject>testing_project</jsdl:JobProject>
+  </jsdl:JobIdentification>
+  <jsdl:Application>
+  <jsdl:ApplicationName>Date</jsdl:ApplicationName>
+  </jsdl:Application>
+   <jsdl:Resources>
+    <jsdl:IndividualCPUTime>
+     <jsdl:Exact>30.0</jsdl:Exact>
+   </jsdl:IndividualCPUTime>
+  </jsdl:Resources>
+ </jsdl:JobDescription>
+</jsdl:JobDefinition>

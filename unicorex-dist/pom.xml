@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.unicore</groupId>
+  <artifactId>unicorex-distribution</artifactId>
+  <packaging>pom</packaging>
+  <description>Build UNICORE/X distribution</description>
+  <inceptionYear>2011</inceptionYear>
+  <url>http://www.unicore.eu</url>
+
+  <name>Distribution of the UNICORE/X server</name>
+
+  <!-- this is the "release" version -->
+  <version>8.0.3</version>
+
+  <parent>
+    <groupId>eu.unicore</groupId>
+    <artifactId>unicorex-parent</artifactId>
+    <version>2.0.3</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <distributionManagement>
+<!-- where the website is deployed -->
+    <site>
+      <id>unicore.eu</id>
+      <url>dav:https://unicore-dev.zam.kfa-juelich.de/documentation/unicorex-${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <properties>
+    <!-- package version and release index -->
+    <package.version>${project.version}</package.version>
+    <package.release>1</package.release>
+    <!-- this is the UNICORE/X version we are packaging -->
+    <ux.version>${project.parent.version}</ux.version>
+    <!-- configuration of the "docman" tool -->
+    <docman.enabled/>
+    <doc.src>src/doc/manual.txt</doc.src>
+    <doc.target>unicorex-manual</doc.target>
+    <doc.template>plain</doc.template>
+    <!-- generate doc on configuration properties -->
+    <doc.includeBundle>file:src/doc/ux-documentation.properties</doc.includeBundle>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>eu.unicore</groupId>
+      <artifactId>uas-core</artifactId>
+      <version>${ux.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.unicore</groupId>
+      <artifactId>uas-metadata</artifactId>
+      <version>${ux.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.unicore</groupId>
+      <artifactId>uas-jclouds</artifactId>
+      <version>${ux.version}</version>
+    </dependency> 
+  </dependencies>
+
+  <build>
+    <plugins>
+       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>2.2</version>
+       </plugin>
+     </plugins>
+  </build>
+
+</project>

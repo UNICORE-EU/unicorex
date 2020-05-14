@@ -1,0 +1,65 @@
+[[ux_mailto]]
+   
+Mail support
+~~~~~~~~~~~~
+
+UNICORE supports file staging out using email. An existing SMPT server 
+or some other working email mechanism is required for this to work.
+
+In the JSDL job description, a stage out using email is specified as 
+follows:
+
+-----
+<?xml version="1.0"?>
+<p:JobDefinition xmlns:p="http://schemas.ggf.org/jsdl/2005/11/jsdl" 
+                 xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+  <p:JobDescription>
+
+    <!-- example stage-out using email -->
+    <p:DataStaging>
+      <p:FileName>stdout</p:FileName>
+      <p:Target>
+        <p:URI>mailto:user@domain?subject=Your output is ready</p:URI>
+      </p:Target>
+    </p:DataStaging>
+
+  </p:JobDescription>
+</p:JobDefinition>
+-----
+
+The "mailto" URI consists of the email address and an OPTIONAL user-defined subject.
+
+Site setup
+++++++++++
+
+Without any configuration, UNICORE will use JavaMail and attempt 
+to use an SMTP server running on the UNICORE/X host, 
+expected to be listening on port 25 (the default SMTP port).
+
+To change this behaviour, the following properties can be defined (in
+the XNJS config file). See the next section if you do not want to use
+an SMTP server directly.
+
+ * XNJS.staging.mailHost: the host of the SMTP server
+ * XNJS.staging.mailPort : the port of the SMTP server
+ * XNJS.staging.mailUser : the user name of the mail account which sends email
+ * XNJS.staging.mailPassword : the password of the mail account which sends email
+ * XNJS.staging.mailSSL : to use SSL, see the XNJS/TSI SSL setup page on how to setup SSL
+
+Email wrapper script
+++++++++++++++++++++
+
+As an alternative to using JavaMail, the site admin can define a script
+which is executed (as the current UNICORE user) to send email.
+
+----
+# mailto wrapper script, defining this will disable JavaMail
+XNJS.staging.mailSendScript=/path/to/mail-wrapper.sh
+----
+
+This is expected to takes three parameters: email address, file to send and a subject.
+An example invocation is
+
+----
+mail-wrapper.sh "user@somehost.eu" "outfile" "Result file from your job"
+----

@@ -1,0 +1,6 @@
+#
+# capabilities implementation for UAS Core
+#
+
+de.fzj.unicore.uas.util.CoreCapabilities
+

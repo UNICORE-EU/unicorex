@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+    targetNamespace="http://unigrids.org/2006/04/services/jms"
+    xmlns:jms="http://unigrids.org/2006/04/services/jms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing"
+    xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+    xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    xmlns:unigrids="http://unigrids.org/2006/04/types"
+    xmlns:ogsa-bp="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+    
+  <!--  ========== Import BaseFaults Types ============ --> 
+  <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+    
+  <!--  ========== Import WS-Addressing Types ============ --> 
+  <xsd:import namespace="http://www.w3.org/2005/08/addressing"/>
+   
+  <!--  ========== Import Base Profile Types ============ -->
+  <xsd:import namespace="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"/>
+  
+  <!--  ========== Import Lifetime ============ --> 
+  <xsd:import namespace="http://docs.oasis-open.org/wsrf/rl-2"/>
+  
+  <!--  ========== Import JSDL ============ -->
+  <xsd:import namespace="http://schemas.ggf.org/jsdl/2005/11/jsdl"/>
+  
+  <!--  ========== Import Unigrids Types ============ -->
+  <xsd:import namespace="http://unigrids.org/2006/04/types"/>
+
+  <!--  ========== Job Resource Properties  ============ -->
+ 
+  <xsd:element name="OriginalJSDL" type="jsdl:JobDefinition_Type"/>
+  <xsd:element name="ExecutionJSDL" type="jsdl:JobDefinition_Type"/>
+  <xsd:element name="Log" type="xsd:string"/>
+  <xsd:element name="TargetSystemReference" type="wsa:EndpointReferenceType"/>
+  <xsd:element name="WorkingDirectoryReference" type="wsa:EndpointReferenceType"/>
+  <xsd:element name="StageInReference" type="wsa:EndpointReferenceType"/>
+  <xsd:element name="StageOutReference" type="wsa:EndpointReferenceType"/>
+  <xsd:element name="StdErr" type="xsd:string"/>
+  <xsd:element name="StdOut" type="xsd:string"/>
+  <xsd:element name="SubmissionTime" type="xsd:dateTime"/>
+  <xsd:element name="EstimatedEndTime" type="xsd:dateTime"/>
+  <xsd:element name="Queue" type="xsd:string"/>
+
+  <xsd:element name="JobProperties">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="jms:SubmissionTime"/>
+        <xsd:element ref="jms:OriginalJSDL" minOccurs="0"/>
+        <xsd:element ref="jms:ExecutionJSDL" minOccurs="0"/>
+        <xsd:element ref="jms:Log"/>
+        <xsd:element ref="jms:TargetSystemReference"/>
+        <xsd:element ref="jms:WorkingDirectoryReference"/>
+        <xsd:element ref="jms:StageInReference" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="jms:StageOutReference" minOccurs="0"  maxOccurs="unbounded"/>
+        <xsd:element ref="jms:StdOut"/>
+        <xsd:element ref="jms:StdErr"/>
+        <xsd:element ref="jms:Queue" minOccurs="0"/>
+        <xsd:element ref="jms:EstimatedEndTime" minOccurs="0"/>
+        <xsd:element ref="unigrids:StorageReference" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element ref="unigrids:StatusInfo"/>
+        <xsd:element ref="unigrids:Version"/>
+        <xsd:element ref="ogsa-bp:ResourcePropertyNames"/>
+        <xsd:element ref="ogsa-bp:FinalWSResourceInterface"/>
+        <xsd:element ref="ogsa-bp:WSResourceInterfaces"/>
+        <xsd:element ref="ogsa-bp:ResourceEndpointReference"/>
+        <xsd:element ref="wsrf-rl:CurrentTime"/>
+        <xsd:element ref="wsrf-rl:TerminationTime" minOccurs="0"/>
+        <xsd:element ref="unigrids:Security" minOccurs="0"/>
+        <xsd:element ref="unigrids:Tags" minOccurs="0"/>
+        <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!--  ========== Message Types for Start  ============ --> 
+  <xsd:element name="Start">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:element name="StartResponse">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:complexType name="JobNotStartedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="JobNotStartedFault" 
+               type="jms:JobNotStartedFaultType"/> 
+
+  <!--  ========== Message Types for Restart  ============ --> 
+  <xsd:element name="Restart">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:element name="RestartResponse">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:complexType name="JobNotRestartedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="JobNotRestartedFault" 
+               type="jms:JobNotRestartedFaultType"/> 
+    
+  <!--  ========== Message Types for Abort  ============ --> 
+  <xsd:element name="Abort">
+    <xsd:complexType/>
+  </xsd:element>
+   
+  <xsd:element name="AbortResponse">
+    <xsd:complexType/>
+  </xsd:element>
+    
+  <xsd:complexType name="JobNotAbortedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="JobNotAbortedFault" 
+               type="jms:JobNotAbortedFaultType"/> 
+                
+  <!--  ========== Message Types for Hold  ============ --> 
+  <xsd:element name="Hold">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:element name="HoldResponse">
+    <xsd:complexType/>
+  </xsd:element>
+    
+  <xsd:complexType name="JobNotHeldFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="JobNotHeldFault" 
+               type="jms:JobNotHeldFaultType"/> 
+                 
+  <!--  ========== Message Types for Resume  ============ --> 
+  <xsd:element name="Resume">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:element name="ResumeResponse">
+    <xsd:complexType/>
+  </xsd:element>
+  
+  <xsd:complexType name="JobNotResumedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="JobNotResumedFault" 
+               type="jms:JobNotResumedFaultType"/> 
+
+</xsd:schema>

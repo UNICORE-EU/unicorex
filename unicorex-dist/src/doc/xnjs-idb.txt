@@ -1,0 +1,82 @@
+[[ux_idb]]
+
+The UNICORE IDB (incarnation database) contains information on the
+target system capabilities (like number of nodes, CPUs etc) and
+allowing to check client resource requests against these.
+
+The second IDB function is to define abstract application definitions
+that are then mapped onto concrete executables. This process (called
+"incarnation") is performed by the XNJS component.
+
+=== Defining the IDB location
+
+The IDB file is defined by the property "XNJS.idbfile", which must
+point to a file or directory on the UNICORE/X machine which is
+readable by the UNICORE/X process.
+
+==== Using an IDB directory
+
+While the IDB can be put into a single file, it can be convenient to
+use multiple files. In this case, the property "XNJS.idbfile" points to
+a directory. The information from all files in this directory is merged.
+
+When using a directory, you can optionally specify a "main" IDB file
+containing applications, resources, properties etc.  From other files,
+only Applications will be read. A main IDB file is defined via
+"XNJS.idbfile.main"
+
+
+==== User-specific applications (IDB extensions)
+
+Sometimes it is required to define special applications for (groups
+of) users, and even let users define their own applications. This
+means that the set of available applications differs between users.
+
+User specific applications can be defined using additional properties, 
+for example like this:
+
+---------
+XNJS.idbfile.ext.1=/opt/staff/unicore/*.xml
+XNJS.idbfile.ext.2=$HOME/.unicore/*.xml
+XNJS.idbfile.ext.3=$WORK/projects/apps/*.xml
+---------
+
+These paths are resolved on the TSI machine, NOT on UNICORE/X. As you
+can see, they can contain variables (using +$VARIABLE+ syntax WITHOUT
+curly braces!).  Make sure that the numbering is consistent
+(ext.1,ext.2,...).
+
+[NOTE]
+========
+Some UNICORE features such as brokering in workflows might not (yet) work with
+user-specific applications!
+========
+
+
+==== Examples for IDB setup
+
+Here are a few common IDB config examples
+
+Single IDB file (default)
+---------
+XNJS.idbfile=/etc/unicore/unicorex/simpleidb
+---------
+
+IDB directory, all files are merged
+---------
+XNJS.idbfile=/etc/unicore/unicorex/idb/
+---------
+
+IDB directory, main file defined, read apps from all other files
+---------
+XNJS.idbfile=/etc/unicore/unicorex/applications/
+XNJS.idbfile.main=/etc/unicore/unicorex/simpleidb
+---------
+
+IDB directory, main file defined, user-specific extension
+---------
+XNJS.idbfile=/etc/unicore/unicorex/applications/
+XNJS.idbfile.main=/etc/unicore/unicorex/simpleidb
+XNJS.idbfile.ext.1=$HOME/.unicore/apps/*.xml
+---------
+

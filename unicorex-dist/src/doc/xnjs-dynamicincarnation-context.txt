@@ -1,0 +1,93 @@
+[[xnjs-dynamicincarnation-context]]
+   
+=== Incarnation tweaking context
+
+Dynamic incarnation tweaker conditions and also all actions are provided with access 
+to all relevant data structures which are available at XNJS during incarnation. 
+
+The following variables are present:
+ 
+  - +Client client+ provides access to authorization material: xlogin, roles, attributes etc. 
+  NOTE: In general it makes sense to modify only the xlogin field in the Client object, 
+  the rest are available only for information purposes. E.g. there is a +queue+ field, 
+  but changing it in the incarnation tweaker rules will have no effect on incarnation. 
+  Use the +queue+ property available from +resources+ variable instead.
+  You can read client's queue to check what queue settings were defined in attribute 
+  sources for the user.     
+   https://sourceforge.net/p/unicore/securityLibrary/ci/master/tree/src/main/java/eu/unicore/security/Client.java[The source]
+  - +ApplicationInfo app+ provides access to information about application to be executed 
+  (both abstract IDB name and actual target system executable). You can change the values here
+  to influence the incarnation. Remember that changing the user's DN here won't influence authorization
+  layer as authorization was already done for each request at this stage.
+  https://sourceforge.net/p/unicore/svn/HEAD/tree/xnjs/trunk/src/main/java/de/fzj/unicore/xnjs/idb/ApplicationInfo.java[The source]
+  - +ResourcesWrapper resources+ provides access to resource requirements of the application.
+  https://sourceforge.net/p/unicore/svn/HEAD/tree/xnjs/trunk/src/main/java/de/fzj/unicore/xnjs/incarnation/ResourcesWrapper.java[The source]
+ 
+  - +ExecutionContext ec+ provides access to the application environment: interactive setting,
+  environment variables, working directory and stdin/out/err files.
+  https://sourceforge.net/p/unicore/svn/HEAD/tree/xnjs/trunk/src/main/java/de/fzj/unicore/xnjs/ems/ExecutionContext.java?view=markup[The source]
+ 
+  - +IncarnationDataBase idb+ provides an (read only) access to the contents of the IDB.
+  https://sourceforge.net/p/unicore/svn/HEAD/tree/xnjs/trunk/src/main/java/de/fzj/unicore/xnjs/idb/IDBImpl.java [The source]
+
+Each of the available variables has many properties that you can access. It is best to
+check source code of the class to get a complete list of them. You can read property X
+if it has a corresponding Java +public Type getX()+ method. You can set a property Y
+if it has a corresponding Java +public void setY(Type value)+ method. 
+
+==== Simple example
+
+Let's consider the variable +client+. In the +Client+ class you can find methods: 
+
+-----
+public String getDistinguishedName()
+
+public void setDistinguishedName(String distinguishedName)   
+-----
+
+This means that the following SpEL condition is correct:
+
+------
+client.distinguishedName != null and client.distinguishedName == "CN=Roger Zelazny,C=US"
+------
+
+Note that it is always a safe bet to check first if the value of a property is not null.
+ 
+Moreover you can also set the value of the distinguished name in an action (this example
+is correct for both SpEL and Groovy):
+
+------
+client.distinguishedName="CN=Roger Zelazny,C=US"
+------
+
+==== Advanced example
+
+Often the interesting property is not available directly under one of the above enumerated 
+variables. In case of the +client+ variable one example may be the +xlogin+
+property holding the list of available local accounts and groups and the ones which were selected
+among them.
+
+Example of condition checking the local user id:
+ 
+------
+client.xlogin.userName != null and client.xlogin.userName == "roger"
+------
+ 
+Setting can also be done in an analogous way. However always pay attention to the fact
+that not always setting a value will succeed. E.g. for Xlogin it is possible to set a selected
+xlogin only to one of those defined as available (see contents if the 
+respective +setSelectedLogin()+ method). Therefore to change local login to 
+a fixed value it is best to just override the whole XLogin object like this (SpEL):
+
+------
+client.xlogin=new eu.unicore.security.Xlogin(new String[] {"roger"}, new String{"users"})
+------ 
+
+==== Resources variable
+
+As it is bit difficult to manipulate the resources requirements object which is natively
+used by UNICORE, it is wrapped to provide an easier to use interface. The only exposed properties 
+are those requirements which are actually used by UNICORE when the TSI script is created.
+
+You can access the low level (and complicated) original resources object through
+the +resources.allResources+ property.

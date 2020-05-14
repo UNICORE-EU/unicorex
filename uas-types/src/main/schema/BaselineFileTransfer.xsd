@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+    targetNamespace="http://unigrids.org/2006/04/services/bfts"
+    xmlns:bfts="http://unigrids.org/2006/04/services/bfts"
+    xmlns:fts="http://unigrids.org/2006/04/services/fts"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+    
+    <!--  ========== FileTransfer ============ -->
+    <xsd:import namespace="http://unigrids.org/2006/04/services/fts"/>
+    
+    <!--  ========== Resource Properties for BaselineFileTransfer  ============ -->
+    
+    <xsd:element name="FileContent" type="xsd:base64Binary"/>
+
+    <xsd:element name="BaselineFileTransferProperties">
+        <xsd:complexType>
+            <xsd:complexContent>
+                <xsd:extension base="fts:FileTransferPropertiesType">
+                    <xsd:sequence>
+                        <xsd:element ref="bfts:FileContent" minOccurs="1"/>
+                    </xsd:sequence>
+                </xsd:extension>
+            </xsd:complexContent>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

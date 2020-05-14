@@ -1,0 +1,100 @@
+[[ux_install]]
+Getting started
+---------------
+
+Prerequisites
+~~~~~~~~~~~~~ 
+ 
+To run UNICORE/X, you need Java (OpenJDK, Oracle or IBM).
+We recommend using the latest version of the OpenJDK.
+
+If not installed on your system, you can download it from
+http://www.oracle.com/technetwork/java/javase/downloads/index.html
+
+UNICORE/X has been developed and most extensively tested on Linux-like
+systems, but runs on MacOS/X and even Windows well
+
+Please note that
+
+ - to integrate into secure production environments, you will need 
+access to a certificate authority and generate certificates for
+all your UNICORE servers.
+
+ - to interface with a resource management system like Slurm or SGE,
+you need to install and configure the UNICORE TSI server.
+
+ - to make your resources easily accessible outside of your firewalls,
+you should setup and configure a UNICORE Gateway.
+
+All these configuration options will be explained in the manual below.
+
+Installation
+~~~~~~~~~~~~
+
+UNICORE/X can be installed from either a tar.gz or zip archive, or 
+(on Linux) from rpm/deb packages.
+
+To install from the tar.gz or zip archive, unpack the archive in a 
+directory of your choice. You should then review the config files
+in the conf/ directory, and adapt paths, hostname and ports. 
+The config files are commented, and you can also
+check xref:ux_configuration[].
+
+To install from a Linux package, please use the package manager of your
+system to install the archive.
+
+[NOTE]
+===========
+Using the Linux packages, you can install only a single UNICORE/X instance per machine (without
+manual changes). The tar.gz / zip archives are self contained, and you can easily install
+multiple servers per machine.
+===========
+
+The following table gives an overview of the file locations for both tar.gz and Linux bundles.
+
+
+.Directory Layout
+[options="header"]
+|========================
+| Name in this manual |tar.gz,  zip      | rpm                               | Description
+| CONF | <basedir>/conf/    |/etc/unicore/unicorex             | Config files
+| LIB  | <basedir>/lib/     |/usr/share/unicore/unicorex/lib   | Java libraries
+| LOG  | <basedir>/log/     |/var/log/unicore/unicorex/        | Log files
+| BIN  | <basedir>/bin/     |/usr/sbin/                        | Start/stop scripts 
+|========================
+
+
+==== Starting/Stopping
+
+There are two scripts that expect to be run from the installation directory. To start, do
+  
+--------
+cd <basedir>
+bin/start.sh
+--------
+
+Startup can take some time. After a successful start, the log files (e.g. +LOG/startup.log+) 
+contain a message "Server started." and a report on the status of any connections to 
+other servers (e.g. the TSI or global registry).
+
+To stop the server, do:
+  
+--------
+cd <basedir>
+bin/stop.sh
+--------
+
+Using systemd on Linux, you would do (as root)
+
+----------------
+systemctl start unicore-unicorex.service
+----------------
+
+
+==== Log files
+
+UNICORE/X writes its log file(s) to the LOG directory. By default, log files are rolled daily, 
+There is no automated removal of old logs, if required you will have to do this yourself.
+
+Details about the logging configuration are given in xref:ux_logging[].
+

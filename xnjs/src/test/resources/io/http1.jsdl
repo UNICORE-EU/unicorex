@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<jsdl:JobDefinition xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+ <jsdl:JobDescription>
+ <jsdl:DataStaging>
+ <jsdl:FileName>test</jsdl:FileName>
+ <jsdl:Source>
+ <jsdl:URI>http://www.fz-juelich.de</jsdl:URI>
+ </jsdl:Source>
+ </jsdl:DataStaging>
+ </jsdl:JobDescription>
+</jsdl:JobDefinition>

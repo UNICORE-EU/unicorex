@@ -1,0 +1,120 @@
+package de.fzj.unicore.uas.cdmi;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.unigrids.services.atomic.types.ProtocolType;
+
+import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
+import de.fzj.unicore.uas.impl.sms.StorageDescription;
+import de.fzj.unicore.uas.impl.sms.StorageInitParameters;
+import de.fzj.unicore.wsrflite.InitParameters;
+import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.security.XACMLAttribute;
+
+public class CDMIStorageImpl extends SMSBaseImpl {
+
+	public static final String CDMI_ATTRIBUTE_PREFIX = "cdmi.";
+	
+	@Override
+	public void initialise(InitParameters initobjs)
+			throws Exception {
+		if(model == null){
+			model = new CDMIModel();
+		}
+		StorageInitParameters init = (StorageInitParameters)initobjs;
+		
+		CDMIModel model = getModel();
+		StorageDescription sd = init.storageDescription;
+		sd.setEnableTrigger(false);
+		sd.setDisableMetadata(true);
+		
+		Map<String,String> props = sd.getAdditionalProperties();
+		
+		Map<String,String> userSettings = init.userParameters; 
+		boolean allowUserDefinedEndpoint = 
+				Boolean.parseBoolean(getSetting("allowUserDefinedEndpoint", props));
+
+		if(!allowUserDefinedEndpoint){
+			if(userSettings.get("endpoint")!=null)
+				throw new IllegalArgumentException("You are not allowed to set the CDMI endpoint.");
+		}
+		props.putAll(userSettings);
+
+		model.setUsername(getSetting("username",props));
+		model.setPassword(getSetting("password",props));
+		model.setEndpoint(getSetting("endpoint",props));
+		model.setTokenEndpoint(getSetting("tokenEndpoint",props));
+		
+		super.initialise(initobjs);
+
+		String workdir = sd.getPathSpec();
+		if(workdir==null)workdir="/";
+		if(!workdir.endsWith(getSeparator()))workdir+=getSeparator();
+		if(init.appendUniqueID){
+			workdir=workdir+getUniqueID();
+		}
+		model.setWorkdir(workdir);
+	}
+
+	public CDMIModel getModel(){
+		return (CDMIModel)model;
+	}
+	
+	@Override
+	protected String getStorageRoot() throws ExecutionException {
+		return getModel().getWorkdir();
+	}
+	
+	@Override
+	public IStorageAdapter getStorageAdapter()throws Exception{
+		IStorageAdapter sms = getStorageAdapterFactory().createStorageAdapter(this);
+		sms.setStorageRoot(getStorageRoot());
+		return sms;
+	}
+
+	@Override
+	protected CDMIStorageAdapterFactory getStorageAdapterFactory() {
+		return new CDMIStorageAdapterFactory();
+	}
+
+	@Override
+	protected String getSeparator(){
+		return "/";
+	}
+
+
+	static final List<ProtocolType.Enum> cdmiProtocols = new ArrayList<>();
+	
+	static{
+		cdmiProtocols.add(ProtocolType.BFT);
+	}
+	
+	@Override
+	public List<ProtocolType.Enum>getAvailableProtocols(){
+		return cdmiProtocols;
+	}
+	
+
+	// retrieve a value from the current user context, if not set,
+	// use the one from the incoming properties
+	public String getSetting(String key, Map<String,String> props){
+		String res = getUserAttributeValue(CDMI_ATTRIBUTE_PREFIX, key);
+		return res!=null ? res : props.get(key);
+	}
+	
+	private String getUserAttributeValue(String prefix,String key){
+		if(prefix!=null)key = prefix+key; 
+		try{
+			for(XACMLAttribute attr: getClient().getSubjectAttributes().getXacmlAttributes()){
+				if(key.equals(attr.getName())){
+					return attr.getValue();
+				}
+			}
+		}
+		catch(Exception e){}
+		return null;
+	}
+}

@@ -1,0 +1,479 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema
+    targetNamespace="http://unigrids.org/2006/04/services/sms"
+    xmlns:sms="http://unigrids.org/2006/04/services/sms"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+    xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"
+    xmlns:unigrids="http://unigrids.org/2006/04/types"
+    xmlns:ogsa-bp="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+  
+  <!--  ========== Import BaseFaults Types ============ --> 
+  <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2" />
+  
+  <!--  ========== Import WS-Addressing Types ============ -->
+  <xsd:import namespace="http://www.w3.org/2005/08/addressing"/>
+  
+  <!--  ========== Import JSDL types============ --> 
+  <xsd:import namespace="http://schemas.ggf.org/jsdl/2005/11/jsdl"/>
+  
+  <!--  ========== Import Base Profile Types ============ -->
+  <xsd:import namespace="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"/>
+
+  
+  <!--  ========== Import Lifetime ============ --> 
+  <xsd:import 
+    namespace="http://docs.oasis-open.org/wsrf/rl-2"/>
+
+  <!--  ========== Import Unigrids Types ============ -->
+  <xsd:import
+    namespace="http://unigrids.org/2006/04/types"/>
+      
+  <!--  ========== Storage Resource Properties  ============ --> 
+
+  <xsd:element name="StorageProperties">
+    <xsd:complexType>
+	  <xsd:sequence>
+	    <xsd:element ref="jsdl:FileSystem"/>
+	    <xsd:element ref="unigrids:Protocol" minOccurs="0" maxOccurs="unbounded"/>
+	    <xsd:element ref="unigrids:Version" />
+	    <xsd:element ref="sms:MetadataServiceReference" minOccurs="0"/>
+	    <xsd:element ref="sms:FiletransferEnumerationReference" minOccurs="0"/>
+	    <xsd:element ref="ogsa-bp:ResourcePropertyNames"/>
+	    <xsd:element ref="ogsa-bp:FinalWSResourceInterface"/>
+	    <xsd:element ref="ogsa-bp:WSResourceInterfaces"/>
+	    <xsd:element ref="ogsa-bp:ResourceEndpointReference"/>
+	    <xsd:element ref="wsrf-rl:CurrentTime"/>
+	    <xsd:element ref="wsrf-rl:TerminationTime" minOccurs="0"/>
+	    <xsd:element ref="unigrids:Security"/>
+	    <xsd:element ref="sms:ACLSupported" minOccurs="0"/>
+	    <xsd:element ref="unigrids:Umask"/>
+	    <xsd:element ref="sms:TriggeringSupported" minOccurs="0"/>
+	    <xsd:element ref="unigrids:ServiceStatus"/>
+            <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+	  </xsd:sequence>
+	</xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="MetadataServiceReference" type="wsa:EndpointReferenceType"/>
+
+  <xsd:element name="FiletransferEnumerationReference" type="wsa:EndpointReferenceType"/>
+
+  <xsd:element name="ACLSupported" type="xsd:boolean"/>
+
+  <xsd:element name="TriggeringSupported" type="xsd:boolean"/>
+  
+  <!--  ========== ListDirectory Types  ============ --> 
+  <xsd:element name="ListDirectory">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="path" type="xsd:string"/>
+        <xsd:element name="limit" type="xsd:nonNegativeInteger" minOccurs="0"/>
+        <xsd:element name="offset" type="xsd:nonNegativeInteger" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="ListDirectoryResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="unigrids:GridFile" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+ 
+  <xsd:complexType name="DirectoryNotListedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType" /> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="DirectoryNotListedFault" 
+               type="sms:DirectoryNotListedFaultType" /> 
+
+  <!--  ========== ListProperties Types  ============ --> 
+
+  <xsd:element name="ListProperties"> 
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="path" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="ListPropertiesResponse"> 
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="unigrids:GridFile"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="PropertiesNotListedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType" />
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="PropertiesNotListedFault"
+               type="sms:PropertiesNotListedFaultType"/>  
+                               
+  <!--  ========== Copy Types  ============ --> 
+  <xsd:element name="Copy">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="source" type="xsd:string"/>
+        <xsd:element name="destination" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+    
+  <xsd:element name="CopyResponse">
+    <xsd:complexType/>
+  </xsd:element>
+  
+  <xsd:complexType name="FileNotCopiedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType" /> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="FileNotCopiedFault" 
+               type="sms:FileNotCopiedFaultType" /> 
+    
+  <!--  ========== CreateDirectory Types  ============ --> 
+  <xsd:element name="CreateDirectory">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="path" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="CreateDirectoryResponse">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:complexType name="DirectoryNotCreatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="DirectoryNotCreatedFault"
+               type="sms:DirectoryNotCreatedFaultType"/>
+                   
+  <!--  ========== Delete Types  ============ --> 
+  <xsd:element name="Delete">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="path" type="xsd:string" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+      
+  <xsd:element name="DeleteResponse">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:complexType name="FileNotDeletedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="FileNotDeletedFault" 
+               type="sms:FileNotDeletedFaultType"/>
+
+  <!--  ========== Rename Types  ============ --> 
+  <xsd:element name="Rename">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="source" type="xsd:string"/>
+        <xsd:element name="destination" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="RenameResponse">
+    <xsd:complexType/>
+  </xsd:element>
+      
+  <xsd:complexType name="FileNotRenamedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType" /> 
+    </xsd:complexContent> 
+  </xsd:complexType>
+  <xsd:element name="FileNotRenamedFault" 
+               type="sms:FileNotRenamedFaultType" /> 
+
+  <!--  ========== ChangePermissions Types  ============ --> 
+  <xsd:element name="ChangePermissions">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="path" type="xsd:string"/>
+        
+        <!-- the legacy, deprecated 'permissions' element allow for setting 
+        owner permissions only. It is suggested to use the new syntax, using the below element.-->
+        <xsd:element name="permissions" type="unigrids:PermissionsType"/>
+        
+        <!-- alternative, rich change syntax, if present the legacy 'permissions'
+        element is ignored. -->
+        <xsd:element name="extendedPermissions" type="sms:ExtendedChangePermissionsType" minOccurs="0"/>
+        
+        <!-- This can be used along with any kind of the above operations, however it is 
+        strongly suggested to use it with 'extendedPermissions' only, as then it is possible
+        to set ACLs without changing base file permissions. -->
+        <xsd:element name="ACL" type="sms:ChangeACLType" minOccurs="0"/>
+        
+        <!-- If present the owning group is will be changed -->
+        <xsd:element name="changeOwningGroup" type="xsd:string" minOccurs="0"/>
+        
+        <!-- This applies to all operations except the legacy, assuming the path is a directory. If not present
+        or the path is not a directory it is ignored. -->
+        <xsd:element name="recursive" type="xsd:boolean" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="PermissionsClassType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="USER"/>
+      <xsd:enumeration value="GROUP"/>
+      <xsd:enumeration value="OTHER"/>
+    </xsd:restriction>  
+  </xsd:simpleType>
+
+  <xsd:simpleType name="PermissionsChangeModeType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="SET"/>
+      <xsd:enumeration value="ADD"/>
+      <xsd:enumeration value="SUBTRACT"/>
+    </xsd:restriction>  
+  </xsd:simpleType>
+
+  <xsd:simpleType name="ACLChangeModeType">
+    <xsd:restriction base="xsd:string">
+      <xsd:enumeration value="REMOVE"/>
+      <xsd:enumeration value="MODIFY"/>
+    </xsd:restriction>  
+  </xsd:simpleType>
+  
+  <xsd:complexType name="ChangePermissionsEntryType">
+    <xsd:sequence>
+        <xsd:element name="kind" type="sms:PermissionsClassType" minOccurs="1" maxOccurs="1"/>
+        <xsd:element name="mode" type="sms:PermissionsChangeModeType" minOccurs="1" maxOccurs="1"/>
+        <xsd:element name="permissions" type="unigrids:FilePermissionsPartType" minOccurs="1" maxOccurs="1"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ExtendedChangePermissionsType">
+    <xsd:sequence>
+        <xsd:element name="ChangePermissionsEntry" type="sms:ChangePermissionsEntryType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ChangeACLEntryType">
+    <xsd:sequence>
+        <xsd:element name="kind" type="unigrids:ACLEntryTypeType" minOccurs="1" maxOccurs="1"/>
+        <xsd:element name="mode" type="sms:ACLChangeModeType" minOccurs="1" maxOccurs="1"/>
+        <xsd:element name="subject" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+		<!-- must be present if mode value is "MODIFY" -->
+        <xsd:element name="permissions" type="unigrids:FilePermissionsPartType" minOccurs="0" maxOccurs="1"/>
+        <xsd:element name="defaultACL" type="xsd:boolean" minOccurs="0" maxOccurs="1" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="ChangeACLType">
+    <xsd:sequence>
+      <!-- if this element is present and value is true then all ACLs are removed, 
+      prior performing any other ACL operations -->
+      <xsd:element name="clearACL" type="xsd:boolean" minOccurs="0" maxOccurs="1"/>
+      <xsd:element name="changeACLEntry" type="sms:ChangeACLEntryType" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="ChangePermissionsResponse">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:complexType name="PermissionsNotChangedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="PermissionsNotChangedFault" 
+               type="sms:PermissionsNotChangedFaultType"/>
+         
+  <!--  === extra parameters type for import/export etc === -->
+   <xsd:element name="ExtraParameters">
+   <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="Parameter" type="unigrids:PropertyType" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+         
+  <!--  ========== Import Types  ============ --> 
+  
+  <xsd:element name="ImportFile">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="destination" type="xsd:string"/>
+        <xsd:element name="overwrite" type="xsd:boolean" minOccurs="0"/>
+        <xsd:element ref="unigrids:Protocol"/>
+        <xsd:element ref="sms:ExtraParameters" minOccurs="0"/>
+        <xsd:element name="numBytes" type="xsd:integer" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ImportFileResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="importEPR" type="wsa:EndpointReferenceType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+      
+  <xsd:complexType name="ImportFileResourceNotCreatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="ImportFileResourceNotCreatedFault" 
+               type="sms:ImportFileResourceNotCreatedFaultType"/>
+
+  <!--  ========== ExportFile Types  ============ -->
+
+  <xsd:element name="ExportFile">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="source" type="xsd:string"/>
+        <xsd:element ref="unigrids:Protocol"/>
+        <xsd:element ref="sms:ExtraParameters" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ExportFileResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="exportEPR" type="wsa:EndpointReferenceType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="ExportFileResourceNotCreatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="ExportFileResourceNotCreatedFault"
+               type="sms:ExportFileResourceNotCreatedFaultType"/>
+
+
+  <!--  ========== ReceiveFile Types  ============ -->
+
+  <xsd:element name="ReceiveFile">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="source" type="xsd:anyURI"/>
+        <xsd:element name="destination" type="xsd:string"/>
+        <xsd:element ref="sms:ExtraParameters" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="ReceiveFileResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="receiveFileEPR" type="wsa:EndpointReferenceType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="ReceiveFileResourceNotCreatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="ReceiveFileResourceNotCreatedFault"
+               type="sms:ReceiveFileResourceNotCreatedFaultType"/>
+
+  <!--  ========== SendFile Types  ============ -->
+
+  <xsd:element name="SendFile">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="source" type="xsd:string"/>
+        <xsd:element name="destination" type="xsd:anyURI"/>
+        <xsd:element ref="sms:ExtraParameters" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="SendFileResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="sendFileEPR" type="wsa:EndpointReferenceType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="SendFileResourceNotCreatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="SendFileResourceNotCreatedFault"
+               type="sms:SendFileResourceNotCreatedFaultType"/>
+
+
+  <!--  ========== Find Types  ============ -->
+  
+  <xsd:element name="Find">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="base" type="xsd:string"/>
+        <xsd:element name="limit" type="xsd:nonNegativeInteger" minOccurs="0"/>
+        <xsd:element name="offset" type="xsd:nonNegativeInteger" minOccurs="0"/>
+        <xsd:element name="recurse" type="xsd:boolean" minOccurs="0"/>
+        <xsd:element ref="sms:filter" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="FindResponse"> 
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="unigrids:GridFile" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="FindFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+
+  <xsd:element name="FindFault"
+               type="sms:FindFaultType"/>
+
+  <!-- Filter definition. The elements in this filter are all matched.
+       Can contain sub-filters (combined using "OR" and "AND") 
+   -->
+  <xsd:element name="filter" type="sms:filterType"/> 
+
+  <xsd:complexType name="filterType"> 
+    <xsd:sequence>
+      <xsd:element name="before" type="xsd:dateTime" minOccurs="0"/>
+      <xsd:element name="after" type="xsd:dateTime" minOccurs="0"/>
+      <xsd:element name="nameMatch" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="nameMatchRegExp" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="orFilter" type="sms:filterType" minOccurs="0"/>
+      <xsd:element name="andFilter" type="sms:filterType" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+</xsd:schema>

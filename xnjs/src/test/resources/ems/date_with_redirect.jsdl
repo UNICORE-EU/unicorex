@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+    <jsdl:JobDefinition xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl" xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+      <jsdl:JobDescription>
+        <jsdl:Application>
+           <jsdl-posix:POSIXApplication>
+  		     <jsdl-posix:Executable>/bin/date</jsdl-posix:Executable>
+  		     <jsdl-posix:Output>myout</jsdl-posix:Output>
+  		     <jsdl-posix:Error>myerr</jsdl-posix:Error>
+	       </jsdl-posix:POSIXApplication>
+        </jsdl:Application>
+      </jsdl:JobDescription>
+    </jsdl:JobDefinition>

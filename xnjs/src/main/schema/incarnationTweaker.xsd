@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://eu.unicore/xnjs/incarnationTweaker" 
+	xmlns:tns="http://eu.unicore/xnjs/incarnationTweaker"
+	attributeFormDefault="unqualified" elementFormDefault="qualified">
+
+	<!-- Configuration of the subsystem allowing to influence the incarnation 
+		dynamically. -->
+
+	<xsd:element name="incarnationTweaker">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element minOccurs="0" maxOccurs="1" ref="tns:beforeScript" />
+				<xsd:element minOccurs="0" maxOccurs="1" ref="tns:afterScript" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="beforeScript">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element minOccurs="0" maxOccurs="unbounded" ref="tns:rule" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="afterScript">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element minOccurs="0" maxOccurs="unbounded" ref="tns:rule" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:complexType name="abstractRule" abstract="true">
+		<xsd:sequence>
+			<xsd:element name="condition" type="xsd:string"	maxOccurs="1" minOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="finishOnHit" type="xsd:boolean" use="optional"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="action" >
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="type" type="xsd:string" use="optional"/>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+
+	<xsd:element name="rule">
+		<xsd:complexType>
+			<xsd:complexContent>
+				<xsd:extension base="tns:abstractRule">
+					<xsd:sequence>
+						<xsd:element name="action" type="tns:action" maxOccurs="unbounded" minOccurs="1"/>
+					</xsd:sequence>
+				</xsd:extension>
+			</xsd:complexContent>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

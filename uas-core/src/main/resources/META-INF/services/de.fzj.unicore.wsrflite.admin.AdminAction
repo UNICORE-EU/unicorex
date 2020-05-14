@@ -1,0 +1,6 @@
+# available admin actions in uas-core
+
+de.fzj.unicore.uas.admin.ToggleJobSubmission
+de.fzj.unicore.uas.admin.ShowServerUsageOverview
+de.fzj.unicore.uas.admin.ShowJobDetails
+de.fzj.unicore.uas.admin.AbortJob

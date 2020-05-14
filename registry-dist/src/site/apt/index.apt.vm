@@ -1,0 +1,17 @@
+   ------------
+UNICORE Registry
+   ------------
+
+UNICORE Registry version ${package.version}
+
+  The UNICORE Registry server provides information about available
+services to clients and other servers.
+
+  For more information about UNICORE visit http://www.unicore.eu[http://www.unicore.eu].
+
+Full manual
+
+ * {{{./registry-manual.html}HTML format}} 
+
+ * {{{./registry-manual.pdf}PDF format}} 
+

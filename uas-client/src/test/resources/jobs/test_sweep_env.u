@@ -1,0 +1,10 @@
+{
+
+  ApplicationName: foo, 
+  ApplicationVersion: 1.0,
+  Environment: ["foo=bar"],
+  Parameters: { 
+  	"TESTPARAM": { Values: ["fox","dog","cat"], },
+  },
+
+} 

@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema
+    targetNamespace="http://unigrids.org/2006/04/services/metadata"
+    xmlns:metadata="http://unigrids.org/2006/04/services/metadata"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing"
+    xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+    xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"
+    xmlns:unigrids="http://unigrids.org/2006/04/types"
+    xmlns:ogsa-bp="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+  
+  <!--  ========== Import BaseFaults Types ============ --> 
+  <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2" />
+  
+  <!--  ========== Import WS-Addressing Types ============ -->
+  <xsd:import namespace="http://www.w3.org/2005/08/addressing"/>
+  
+  <!--  ========== Import Base Profile Types ============ -->
+  <xsd:import namespace="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"/>
+  
+  <!--  ========== Import Lifetime ============ --> 
+  <xsd:import namespace="http://docs.oasis-open.org/wsrf/rl-2"/>
+
+  <!--  ========== Import Unigrids Types ============ -->
+  <xsd:import namespace="http://unigrids.org/2006/04/types" />
+      
+  <!--  ========== Metadata management resource properties  ============ -->
+  <xsd:element name="MetadataManagementProperties">
+   <xsd:complexType>
+	<xsd:sequence>
+        <xsd:element ref="unigrids:Version"/>
+		<xsd:element ref="ogsa-bp:ResourcePropertyNames"/>
+		<xsd:element ref="ogsa-bp:FinalWSResourceInterface"/>
+		<xsd:element ref="ogsa-bp:WSResourceInterfaces"/>
+		<xsd:element ref="ogsa-bp:ResourceEndpointReference"/>
+		<xsd:element ref="wsrf-rl:CurrentTime"/>
+		<xsd:element ref="wsrf-rl:TerminationTime" minOccurs="0"/>
+		<xsd:element ref="unigrids:Security" minOccurs="0"/>
+		<xsd:any minOccurs="0" maxOccurs="unbounded"/>
+	 </xsd:sequence>
+	</xsd:complexType>
+  </xsd:element>
+ 
+<!--  ========== Create Metadata  ============ -->
+  
+  <xsd:element name="CreateMetadata">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ResourceName" type="xsd:string"/>
+        <xsd:element ref="unigrids:Metadata"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="CreateMetadataResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="MetadataCreated" type="xsd:boolean"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+   <xsd:complexType name="MetadataNotCreatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:element name="MetadataNotCreatedFault" 
+               type="metadata:MetadataNotCreatedFaultType"/>
+                 
+<!--  ========== Update Metadata  ============ -->
+  
+  <xsd:element name="UpdateMetadata">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ResourceName" type="xsd:string"/>
+        <xsd:element ref="unigrids:Metadata"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="UpdateMetadataResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="MetadataUpdated" type="xsd:boolean"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="MetadataNotUpdatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:element name="MetadataNotUpdatedFault" 
+               type="metadata:MetadataNotUpdatedFaultType"/>
+   
+               
+  <!--  ========== Search Metadata By Content ============ -->
+  
+  <xsd:element name="SearchMetadata">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="SearchString" type="xsd:string"/>
+        <xsd:element name="IsAdvanced" type="xsd:boolean"/>
+       </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="SearchMetadataResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="metadata:SearchResult"  minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <!-- TODO -->
+   <xsd:element name="SearchResult">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ResourceName" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="SearchMetadataFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:element name="SearchMetadataFault" type="metadata:SearchMetadataFaultType"/>         
+
+  <!--  ========== Delete Metadata By name ============ -->
+  
+  <xsd:element name="DeleteMetadata">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ResourceName" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="DeleteMetadataResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="MetadataDeleted" type="xsd:boolean"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="DeleteMetadataFaultType">
+   <xsd:complexContent>
+     <xsd:extension base="wsrf-bf:BaseFaultType"/>
+   </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="DeleteMetadataFault" type="metadata:DeleteMetadataFaultType"/> 
+               
+  <!--  ========== Get TopN Tag terms ============ -->
+  
+  <xsd:element name="TopNTerms">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="N" type="xsd:int"/>
+       </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="TopNTermsResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="Term" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+   <xsd:complexType name="TopNTermsFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="TopNTermsFault" 
+               type="metadata:TopNTermsFaultType"/>      
+                 
+<!--  ========== Get Metadata by Name  ============ -->
+  
+  <xsd:element name="GetMetadata">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ResourceName" type="xsd:string"/>
+         
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="GetMetadataResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="unigrids:Metadata"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:complexType name="GetMetadataFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:element name="GetMetadataFault" type="metadata:GetMetadataFaultType"/>
+
+               
+ <!--  ========== Trigger Metadata AutoExtraction ============ -->
+  
+  <xsd:element name="StartMetadataExtraction">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="metadata:Directory" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="File" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <!-- next two are deprecated, keep for backwards compatibility -->
+        <xsd:element name="BasePath" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="DepthLimit" type="xsd:unsignedInt" minOccurs="0"/>
+       </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Directory">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="BasePath" type="xsd:string"/>
+        <xsd:element name="DepthLimit" type="xsd:unsignedInt"/>
+       </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+ <!-- response is the EPR of a asynchronous Task -->
+  <xsd:element name="StartMetadataExtractionResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+         <xsd:element name="TaskReference" type="wsa:EndpointReferenceType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+   <xsd:complexType name="StartMetadataExtractionFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+  <xsd:element name="StartMetadataExtractionFault" type="metadata:StartMetadataExtractionFaultType"/>    
+
+  <xsd:element name="ExtractionStatistics">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="DocumentsProcessed" type="xsd:integer"/>
+        <xsd:element name="DurationMillis" type="xsd:integer"/>
+        <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!--  ========== Federated Metadata Search ============ -->
+  
+<xsd:element name="FederatedMetadataSearch">
+    <xsd:complexType>
+      <xsd:sequence>
+	<xsd:element name="SearchString" type="xsd:string"/>
+	<xsd:element name="StoragesList" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+	<xsd:element name="IsAdvanced" type="xsd:boolean"/>
+	</xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>	 
+  
+  <xsd:element name="FederatedMetadataSearchResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+	<xsd:element name="TaskReference" type="wsa:EndpointReferenceType"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="FederatedSearchResult">
+     <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="StorageURL" type="xsd:string"/>
+	<xsd:element name="ResourceName" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="FederatedSearchResultCollection">
+   <xsd:complexType>
+     <xsd:sequence>
+       <xsd:element name="SearchStartTime" type="xsd:date"/>
+       <xsd:element name="SearchEndTime" type="xsd:date"/>
+       <xsd:element name="StorageCount" type="xsd:integer"/>
+       <xsd:element name="ResourceCount" type="xsd:integer"/>
+       <xsd:element name="FederatedSearchResults" minOccurs="0"   
+                    maxOccurs="unbounded">
+	  <xsd:complexType>
+	    <xsd:sequence>
+	      <xsd:element ref="metadata:FederatedSearchResult"/>
+	    </xsd:sequence>
+	  </xsd:complexType>
+	</xsd:element>
+     </xsd:sequence>
+   </xsd:complexType>
+  </xsd:element>
+ 
+</xsd:schema>
+

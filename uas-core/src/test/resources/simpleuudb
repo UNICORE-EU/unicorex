@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<fileAttributeSource>
+
+   <entry key="CN=Demo User, O=UNICORE, C=EU">
+      <attribute name="role">
+        <value>user</value>
+		<value>admin</value>
+      </attribute>
+      <attribute name="xlogin">
+		<value>tester</value>
+		<value>tester_2</value>
+      </attribute>
+      <attribute name="group">
+		<value>users</value>
+		<value>audio</value>
+      </attribute>
+   </entry>
+   
+   <entry key="CN=Demo User 2, O=UNICORE">
+      <attribute name="role">
+         <value>user</value>
+      </attribute>
+      <attribute name="xlogin">
+         <value>demo2</value>
+      </attribute>
+   </entry>
+
+</fileAttributeSource>

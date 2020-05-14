@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<jsdl:JobDefinition xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+ <jsdl:JobDescription>
+ 
+ </jsdl:JobDescription>
+</jsdl:JobDefinition>

@@ -1,0 +1,56 @@
+[[ux_uftp]]
+
+UFTP setup
+------------
+
+UFTP is a high-performance file transfer protocol.  For using UFTP as
+a data staging and file upload/download solution in UNICORE, a
+separate server (uftpd) is required. This is installed on a host with
+direct access to the file system, usually this is a cluster login
+node, but it can also be a separate host.
+
+In a UFTP transfer, one side acts as a client and the other side is
+the uftpd server. UNICORE/X will run the client code via the TSI
+(recommended) or in-process (with lower performance)
+
+For details on how to install the uftpd server please refer to the
+separate UFTPD manual available on unicore.eu, which provides all
+information required to install and configure the UFTPD.
+
+[NOTE]
+=================
+If UFTPD is not running on the same host(s) as the TSI,
+you will need to copy the UTFPD libs and client executable to
+the TSI machine(s).
+==================
+
+The minimal required UNICORE/X configuration consists of
+the listen and command addresses of the UFTPD server
+and the location of the client executable on the TSI host.
+
+----------------------------
+# Listener (pseudo-FTP) socket of UFTPD
+coreServices.uftp.server.host=uftp.yoursite.edu
+coreServices.uftp.server.port=64434
+
+# Command socket of UFTPD
+coreServices.uftp.command.host=uftp.yoursite.edu
+coreServices.uftp.command.port=64435
+
+# Full path to the 'uftp.sh' client executable
+# installed on the TSI node
+coreServices.uftp.client.executable=/usr/share/unicore/uftpd/bin/uftp.sh
+-----------------------------
+
+If you want to run the client code in the UNICORE/X process, set
+
+------------------------------------
+coreServices.uftp.client.local=true
+------------------------------------
+
+
+The following table shows all the available configuration options
+for UFTP.
+
+include::uftpProperties.txt[]
+

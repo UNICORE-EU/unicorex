@@ -1,0 +1,21 @@
+UNICORE Registry Manual
+======================
+UNICORE Team <unicore-support@lists.sourceforge.net>
+v7.1.0, 2013
+:revnumber: 1.0.0
+:numbered:
+
+The UNICORE Registry server provides information about available
+services to clients and other services. It is a specially configured
+UNICORE/X server, so please make sure to refer to the general
+UNICORE/X manual as well.
+
+Multiple UNICORE/X sites can share a Registry, greatly simplifying the
+use of UNICORE services. Since such a registry is vital to the
+functioning of a UNICORE-based federation, you can have more than one.
+
+For more information about UNICORE visit
+http://www.unicore.eu[http://www.unicore.eu].
+
+include::registry.txt[]
+

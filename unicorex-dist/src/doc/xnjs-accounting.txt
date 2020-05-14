@@ -1,0 +1,19 @@
+[[xnjs-accounting]]
+   
+=== Support for the UNICORE RUS Accounting
+
+XNJS can produce accounting data and send it (using JMS messaging) to the UNICORE RUS Accounting which is 
+a sophisticated and production ready system. The rus-job-processor module from this system 
+is included in the Unicore/X release. Note that this system is supposed to work only when the 
+classic (Perl) TSI is deployed.  
+
+Additionally to set up the whole UNICORE RUS Accounting, at least two additional components 
+are needed to be installed 
+(rus-service with a records database and rus-bssadapter that collects resource usage data from LRMS). 
+
+Further information on the RUS Accounting system is available in its 
+http://unicore-dev.zam.kfa-juelich.de/documentation/rus-accounting-1.6.0[documentation].
+Configuration of the rus-job-processor is available in this documentation too, in the respective section.
+
+Other components of the RUS Accounting system can be downloaded from the UNICORE Life project,
+http://sourceforge.net/projects/unicore-life/files/[files section].

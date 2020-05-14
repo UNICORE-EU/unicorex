@@ -1,0 +1,10 @@
+{
+
+  ApplicationName: foo, 
+
+  Parameters: {
+  	foo: bar,
+  	ham: spam,
+  	debug : "",
+  }
+} 

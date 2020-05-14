@@ -1,0 +1,5 @@
+{
+    "Name" : "Date",
+    "Version" : "1.0",
+    "Executable" : "/bin/date",
+}

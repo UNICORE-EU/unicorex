@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<JobDefinition xmlns="http://schemas.ggf.org/jsdl/2005/11/jsdl">
+  <JobDescription>
+    <JobIdentification>
+      <JobName/>
+      <JobProject/>
+    </JobIdentification>
+    <Application>
+      <HPCProfileApplication xmlns="http://schemas.ogf.org/jsdl/2006/07/jsdl-hpcpa">
+        <Executable>bin/stdin.txt</Executable>
+        <Argument>-rn</Argument>
+        <Output>stdout.txt</Output>
+        <Error>stderr.txt</Error>
+      </HPCProfileApplication>
+    </Application>
+    <Resources>
+      <ExclusiveExecution>true</ExclusiveExecution>
+      <OperatingSystem>
+        <OperatingSystemType>
+          <OperatingSystemName>WINNT</OperatingSystemName>
+        </OperatingSystemType>
+      </OperatingSystem>
+      <CPUArchitecture>
+        <CPUArchitectureName>x86</CPUArchitectureName>
+      </CPUArchitecture>
+      <TotalCPUCount>
+        <Exact>1</Exact>
+      </TotalCPUCount>
+    </Resources>
+    <DataStaging>
+      <FileName>bin/stdin.txt</FileName>
+      <CreationFlag>overwrite</CreationFlag>
+      <Source>
+        <URI>ftp://sunfire2.cs.virginia.edu:5213/gridsam.sh</URI>
+      </Source>
+      <Credential xmlns="http://schemas.ogf.org/hpcp/2007/01/fs">
+        <UsernameToken xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+          <Username/>
+          <Password/>
+        </UsernameToken>
+      </Credential>
+      <StagingSchedule>AfterSubmission</StagingSchedule>
+    </DataStaging>
+    <DataStaging>
+      <FileName>stdout.txt</FileName>
+      <CreationFlag>overwrite</CreationFlag>
+      <Target>
+        <URI>ftp://sunfire2.cs.virginia.edu:5213/enter_file_name_here.out</URI>
+      </Target>
+      <Credential xmlns="http://schemas.ogf.org/hpcp/2007/01/fs">
+        <UsernameToken xmlns="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+          <Username/>
+          <Password/>
+        </UsernameToken>
+      </Credential>
+      <StagingSchedule>BeforeSubmission</StagingSchedule>
+    </DataStaging>
+  </JobDescription>
+</JobDefinition>

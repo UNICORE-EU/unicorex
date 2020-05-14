@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ a sample idb file 
+ -->
+
+<idb:IDB xmlns:idb="http://www.fz-juelich.de/unicore/xnjs/idb" 
+         xmlns:jsdl-u="http://www.unicore.eu/unicore/jsdl-extensions">
+  
+  <!-- Applications -->
+  
+  <idb:IDBApplication>
+    <idb:ApplicationName>Date</idb:ApplicationName>
+    <idb:ApplicationVersion>1.0</idb:ApplicationVersion>
+    <jsdl:POSIXApplication xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+      <jsdl:Executable>/bin/date</jsdl:Executable>
+    </jsdl:POSIXApplication>
+    <idb:Metadata>
+      <x:test xmlns:x="test.metadata">some test metadata</x:test>
+    </idb:Metadata>
+  </idb:IDBApplication>
+
+  <!-- Resources -->
+  
+  <idb:TargetSystemProperties>
+    <jsdl:Resources xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl">
+      <jsdl:CPUArchitecture>
+        <jsdl:CPUArchitectureName>x86</jsdl:CPUArchitectureName>
+      </jsdl:CPUArchitecture>
+
+      <!-- O/S -->
+      <jsdl:OperatingSystem>
+       <jsdl:OperatingSystemType>
+         <jsdl:OperatingSystemName>LINUX</jsdl:OperatingSystemName>
+       </jsdl:OperatingSystemType>
+       <jsdl:OperatingSystemVersion>2.6.13</jsdl:OperatingSystemVersion>
+       <jsdl:Description>A free UNIX clone</jsdl:Description>
+      </jsdl:OperatingSystem>
+
+      <!-- cpu time (per cpu) in seconds -->
+      <jsdl:IndividualCPUTime>
+        <jsdl:Exact>3600</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1</jsdl:LowerBound>
+         <jsdl:UpperBound>86400</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualCPUTime>
+
+      <!-- CPUs per node -->
+      <jsdl:IndividualCPUCount>
+        <jsdl:Exact>1.0</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1.0</jsdl:LowerBound>
+         <jsdl:UpperBound>1.0</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualCPUCount>
+
+      <!-- total CPUs -->
+      <jsdl:TotalCPUCount>
+        <jsdl:Exact>1.0</jsdl:Exact>
+      </jsdl:TotalCPUCount>
+
+      <!-- Memory per node (bytes) -->
+      <jsdl:IndividualPhysicalMemory>
+        <jsdl:Exact>268435456</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1024576</jsdl:LowerBound>
+         <jsdl:UpperBound>1073741824</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualPhysicalMemory>
+
+      <!-- Nodes -->
+      <jsdl:TotalResourceCount>
+        <jsdl:Exact>1.0</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1.0</jsdl:LowerBound>
+         <jsdl:UpperBound>1.0</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:TotalResourceCount>
+
+    </jsdl:Resources>
+    
+  </idb:TargetSystemProperties>
+     
+   
+</idb:IDB>

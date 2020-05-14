@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+    <jsdl:JobDefinition xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl" xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+      <jsdl:JobDescription>
+        <jsdl:Application>
+           <jsdl-posix:POSIXApplication>
+  		<jsdl-posix:Executable>/bin/sleep</jsdl-posix:Executable>
+  		<jsdl-posix:Argument>20</jsdl-posix:Argument>
+	  </jsdl-posix:POSIXApplication>
+        </jsdl:Application>
+      </jsdl:JobDescription>
+ </jsdl:JobDefinition>

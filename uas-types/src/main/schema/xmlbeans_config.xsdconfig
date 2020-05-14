@@ -1,0 +1,43 @@
+<!-- configure java package names -->
+
+<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
+
+    <!-- Use the "namespace" element to map a namespace to the Java package-->
+    
+
+    
+    <!-- UnigridS core-->
+    
+    <xb:namespace uri="http://unigrids.org/2006/04/types">
+        <xb:package>org.unigrids.services.atomic.types</xb:package>
+ </xb:namespace>
+    <xb:namespace uri="http\://unigrids.org/2006/04/types">
+        <xb:package>org.unigrids.services.atomic.broker.selection</xb:package>
+ </xb:namespace>
+
+    <!-- OGSA Base Profile -->
+    
+    <xb:namespace uri="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp">
+        <xb:package>org.ggf.baseprofile</xb:package>
+    </xb:namespace>
+
+
+   <!-- OGSA Naming RNS 1.1 -->
+    
+    <xb:namespace uri="http://schemas.ogf.org/rns/2009/12/rns">
+        <xb:package>org.ggf.rns</xb:package>
+    </xb:namespace>
+
+    <!-- JSDL -->
+    
+    <xb:namespace uri="http://schemas.ggf.org/jsdl/2005/11/jsdl">
+        <xb:package>org.ggf.jsdl</xb:package>
+    </xb:namespace>
+    
+    <!-- specific U6 file transfer things -->
+    
+    <xb:namespace uri="http://www.unicore.eu/unicore6/filetransfer/http">
+        <xb:package>de.fzj.unicore.uas.ft.http</xb:package>
+    </xb:namespace>
+    
+</xb:config>

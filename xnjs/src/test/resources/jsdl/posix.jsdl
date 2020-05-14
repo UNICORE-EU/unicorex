@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<jsdl:JobDefinition xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+ <jsdl:JobDescription>
+ <jsdl:Application>
+  <jsdl-posix:POSIXApplication>
+     <jsdl-posix:Executable>/bin/date</jsdl-posix:Executable>
+     <jsdl-posix:Input>stdin</jsdl-posix:Input>
+     <jsdl-posix:Output>stdout</jsdl-posix:Output>
+     <jsdl-posix:Error>stderr</jsdl-posix:Error>
+     <jsdl-posix:Argument>-v</jsdl-posix:Argument>
+     <jsdl-posix:Environment name="test">test_value</jsdl-posix:Environment>
+     <jsdl-posix:Environment name="foo">bar</jsdl-posix:Environment>
+  </jsdl-posix:POSIXApplication>
+  </jsdl:Application>
+ </jsdl:JobDescription>
+</jsdl:JobDefinition>

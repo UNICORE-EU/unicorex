@@ -1,0 +1,3 @@
+<jsdl:IndividualCPUCount xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl">
+<jsdl:Exact>1.0</jsdl:Exact>
+</jsdl:IndividualCPUCount>

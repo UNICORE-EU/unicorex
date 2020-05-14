@@ -1,0 +1,14 @@
+#
+# Username/password file for user authentication 
+# for the REST API
+#
+# Username/password authentication is enabled/disabled in uas.config !
+# 
+
+#
+# format:
+#
+# username : hash : salt : DN
+#
+# (check the manual to learn how to generate a salted hash!)
+

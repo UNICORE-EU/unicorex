@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  XML Schema for the HTTP filetransfer
+-->
+
+<xsd:schema
+    xmlns="http://schemas.ggf.org/byteio/2005/10/byte-io"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.unicore.eu/unicore6/filetransfer/http"
+    xmlns:http="http://www.unicore.eu/unicore6/filetransfer/http"
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified">
+
+<!-- ==== Resource Property Related ==== -->
+            <xsd:element name="HTTPFileTransferRP">
+                <xsd:complexType>
+                    <xsd:sequence>
+						 <xsd:element ref="http:AccessURL"/>
+                        <xsd:any namespace="##other" minOccurs="0" 
+                            maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+    <xsd:element name="AccessURL" type="xsd:anyURI"/>
+
+</xsd:schema>

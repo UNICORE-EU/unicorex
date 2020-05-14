@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+    name="TargetSystem"
+    targetNamespace="http://unigrids.org/2006/04/services/tss"
+    xmlns:tss="http://unigrids.org/2006/04/services/tss"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsrf-rp="http://docs.oasis-open.org/wsrf/rp-2"
+    xmlns:wsrf-rw="http://docs.oasis-open.org/wsrf/rw-2">
+
+  <wsdl:import 
+    namespace="http://docs.oasis-open.org/wsrf/rw-2"
+    location="../../specs/wsrf/resource/rw-2.wsdl"/>
+  
+  <wsdl:types>
+    <xsd:schema
+        targetNamespace="http://unigrids.org/2006/04/services/tss">
+	    <xsd:include schemaLocation="TargetSystem.xsd"/>
+	  
+    </xsd:schema>
+  </wsdl:types>
+  
+  <!--  ========== Messages for Submit  ============ --> 
+  <wsdl:message name="SubmitRequest">
+    <wsdl:part name="SubmitRequest"  element="tss:Submit"/>
+  </wsdl:message>
+  <wsdl:message name="SubmitResponse">
+    <wsdl:part name="SubmitResponse" element="tss:SubmitResponse"/>
+  </wsdl:message>
+  <wsdl:message name="JobNotSubmittedFault">
+    <wsdl:part name="JobNotSubmittedFault" element="tss:JobNotSubmittedFault"/>
+  </wsdl:message>
+  
+  <!--  ========== Target System Port Type  ============ --> 
+  <wsdl:portType name="TargetSystem"
+      wsrf-rp:ResourceProperties="tss:TargetSystemProperties">
+   
+    <wsdl:operation name="Submit">
+      <wsdl:input  name="SubmitRequest" message="tss:SubmitRequest"/>
+      <wsdl:output name="SubmitResponse" message="tss:SubmitResponse"/>
+      <wsdl:fault  name="ResourceUnknownFault" message="wsrf-rw:ResourceUnknownFault"/>
+      <wsdl:fault  name="JobNotSubmittedFault" message="tss:JobNotSubmittedFault"/>
+    </wsdl:operation>
+	
+  </wsdl:portType>
+</wsdl:definitions>

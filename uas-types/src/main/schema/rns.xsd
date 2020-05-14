@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+	xmlns="http://schemas.ogf.org/rns/2009/12/rns"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:wsa="http://www.w3.org/2005/08/addressing"
+	xmlns:rns="http://schemas.ogf.org/rns/2009/12/rns"
+	xmlns:wsbf="http://docs.oasis-open.org/wsrf/bf-2"
+	targetNamespace="http://schemas.ogf.org/rns/2009/12/rns"
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+
+	<xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+
+	<xsd:import namespace="http://www.w3.org/2005/08/addressing"/>
+
+<!-- Faults -->
+	<xsd:complexType name="ReadNotPermittedFaultType">
+		<xsd:complexContent>
+			<xsd:extension base="wsbf:BaseFaultType"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="ReadNotPermittedFault"
+		type="rns:ReadNotPermittedFaultType"/>
+
+	<xsd:complexType name="WriteNotPermittedFaultType">
+		<xsd:complexContent>
+			<xsd:extension base="wsbf:BaseFaultType"/>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="WriteNotPermittedFault"
+		type="rns:WriteNotPermittedFaultType"/>
+
+	<xsd:complexType name="RNSEntryExistsFaultType">
+		<xsd:complexContent>
+			<xsd:extension base="wsbf:BaseFaultType">
+				<xsd:sequence>
+					<xsd:element name="entry-name" type="xsd:string"
+						minOccurs="1" maxOccurs="1"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="RNSEntryExistsFault"
+		type="rns:RNSEntryExistsFaultType"/>
+
+	<xsd:complexType name="RNSEntryDoesNotExistFaultType">
+		<xsd:complexContent>
+			<xsd:extension base="wsbf:BaseFaultType">
+				<xsd:sequence>
+					<xsd:element name="entry-name" type="xsd:string"
+						minOccurs="1" maxOccurs="1"/>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="RNSEntryDoesNotExistFault"
+		type="rns:RNSEntryDoesNotExistFaultType"/>
+
+	<!-- Resource Properties -->
+	<xsd:element name="elementCount" type="xsd:unsignedLong" nillable="false"/>
+	<xsd:element name="createTime" type="xsd:dateTime" nillable="true"/>
+	<xsd:element name="accessTime" type="xsd:dateTime" nillable="true"/>
+	<xsd:element name="modificationTime" type="xsd:dateTime" nillable="true"/>
+	<xsd:element name="readable" type="xsd:boolean" nillable="false"/>
+	<xsd:element name="writable" type="xsd:boolean" nillable="false"/>
+
+	<!-- Helper Types -->
+	<xsd:simpleType name="EntryNameType">
+		<xsd:restriction base="xsd:string"/>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="RNSSupportType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="true"/>
+			<xsd:enumeration value="false"/>
+			<xsd:enumeration value="unknown"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="SupportsRNSType">
+		<xsd:attribute name="value" type="rns:RNSSupportType" use="required"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="RNSMetadataType">
+		<xsd:sequence>
+			<xsd:element name="supports-rns" type="rns:SupportsRNSType"
+				minOccurs="1" maxOccurs="1"/>
+			<xsd:any namespace="##other" processContents="lax"
+				minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="RNSEntryType">
+		<xsd:sequence>
+			<xsd:element name="endpoint" type="wsa:EndpointReferenceType"
+				minOccurs="0" maxOccurs="1" nillable="true"/>
+			<xsd:element name="metadata" type="rns:RNSMetadataType"
+				minOccurs="0" maxOccurs="1" nillable="true"/>
+		</xsd:sequence>
+		<xsd:attribute name="entry-name" type="rns:EntryNameType"
+			use="required"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="RNSEntryResponseType">
+		<xsd:sequence>
+			<xsd:element name="endpoint" type="wsa:EndpointReferenceType"
+				minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="metadata" type="rns:RNSMetadataType"
+				minOccurs="0" maxOccurs="1" nillable="true"/>
+			<xsd:element name="fault" type="wsbf:BaseFaultType"
+				minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+		<xsd:attribute name="entry-name" type="rns:EntryNameType"
+			use="required"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="NameMappingType">
+		<xsd:attribute name="source-name" type="rns:EntryNameType"
+			use="required"/>
+		<xsd:attribute name="target-name" type="rns:EntryNameType"
+			use="required"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="MetadataMappingType">
+		<xsd:complexContent>
+			<xsd:extension base="rns:RNSMetadataType">
+				<xsd:attribute name="entry-name" type="rns:EntryNameType"
+					use="required"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+
+	<!-- Messages -->
+	<xsd:complexType name="AddRequestType">
+		<xsd:sequence>
+			<xsd:element name="entry" type="rns:RNSEntryType"
+				minOccurs="1" maxOccurs="unbounded" nillable="false"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="AddRequest" type="rns:AddRequestType"/>
+
+	<xsd:complexType name="AddResponseType">
+		<xsd:sequence>
+			<xsd:element name="entry-response" type="rns:RNSEntryResponseType"
+				minOccurs="1" maxOccurs="unbounded" nillable="false"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="AddResponse" type="rns:AddResponseType"/>
+
+	<xsd:complexType name="LookupRequestType">
+		<xsd:sequence>
+			<xsd:element name="entry-name" type="rns:EntryNameType"
+				minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="LookupRequest" type="rns:LookupRequestType"/>
+
+	<xsd:complexType name="LookupResponseType">
+		<xsd:sequence>
+			<xsd:element name="entry-response" type="rns:RNSEntryResponseType"
+				minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="iterator" type="wsa:EndpointReferenceType"
+				minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="LookupResponse" type="rns:LookupResponseType"/>
+
+	<xsd:complexType name="RemoveRequestType">
+		<xsd:sequence>
+			<xsd:element name="entry-name" type="rns:EntryNameType"
+				minOccurs="1" maxOccurs="unbounded" nillable="false"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="RemoveRequest" type="rns:RemoveRequestType"/>
+
+	<xsd:complexType name="RemoveResponseType">
+		<xsd:sequence>
+			<xsd:element name="entry-response" type="rns:RNSEntryResponseType"
+				minOccurs="1" maxOccurs="unbounded" nillable="false"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="RemoveResponse" type="rns:RemoveResponseType"/>
+
+	<xsd:complexType name="RenameRequestType">
+		<xsd:sequence>
+			<xsd:element name="rename-request" type="rns:NameMappingType"
+				minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="RenameRequest" type="rns:RenameRequestType"/>
+
+	<xsd:complexType name="RenameResponseType">
+		<xsd:sequence>
+			<xsd:element name="entry-response" type="rns:RNSEntryResponseType"
+				minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="RenameResponse" type="rns:RenameResponseType"/>
+
+	<xsd:complexType name="SetMetadataRequestType">
+		<xsd:sequence>
+			<xsd:element name="set-metadata-request"
+				type="rns:MetadataMappingType" minOccurs="1"
+				maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="SetMetadataRequest" type="rns:SetMetadataRequestType"/>
+
+	<xsd:complexType name="SetMetadataResponseType">
+		<xsd:sequence>
+			<xsd:element name="entry-response"
+				type="rns:RNSEntryResponseType" minOccurs="1"
+				maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="SetMetadataResponse" type="rns:SetMetadataResponseType"/>
+</xsd:schema>

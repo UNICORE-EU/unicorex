@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- modified for FZJ use -->
+<xsd:schema
+    targetNamespace="http://unigrids.org/2006/04/services/tsf"
+    xmlns:tsf="http://unigrids.org/2006/04/services/tsf"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing"
+    xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+    xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"
+    xmlns:ogsa-bp="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"
+    xmlns:tss="http://unigrids.org/2006/04/services/tss"
+    xmlns:unigrids="http://unigrids.org/2006/04/types"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    xmlns:jsdl-unicore="http://www.unicore.eu/unicore/jsdl-extensions"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+   	
+  <xsd:import 
+      namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+   
+  <xsd:import
+    namespace="http://www.w3.org/2005/08/addressing" />
+  
+  <xsd:import 
+      namespace="http://docs.oasis-open.org/wsrf/rl-2"/>
+  
+  <!--  ========== Import JSDL ============ -->
+  <xsd:import
+      namespace="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix" />
+      
+
+  <!--  ========== Import OGSA-WSRF Basic Profile Types ============ -->
+  <xsd:import
+      namespace="http://schemas.ggf.org/ogsa/2006/01/wsrf-bp"/>
+
+  <!--  ========== Import UniGridS types============ -->
+  <xsd:import
+      namespace="http://unigrids.org/2006/04/types" />
+
+  <!--  ========== Import TSS types============ -->
+  <xsd:import
+      namespace="http://unigrids.org/2006/04/services/tss"/>
+      
+  <!--  ========== Import JSDL Extensions ============ -->
+  <xsd:import namespace="http://www.unicore.eu/unicore/jsdl-extensions"/>
+      
+  <!--  ========== TSF Properties============ -->
+
+  <xsd:element name="TargetSystemFactoryProperties">
+   <xsd:complexType>
+	<xsd:sequence>
+          <xsd:element ref="tsf:Name"/>
+          <xsd:element ref="tsf:TargetSystemReference" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element ref="tsf:AccessibleTargetSystemReference" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="tss:ApplicationResource" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element ref="unigrids:UpSince"/>
+	  <xsd:element ref="jsdl:Description" minOccurs="0"/>
+	  <xsd:element ref="jsdl:IndividualPhysicalMemory" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element ref="jsdl:IndividualCPUTime" minOccurs="0"/>
+          <xsd:element ref="jsdl:IndividualCPUCount" minOccurs="0"/>
+	  <xsd:element ref="jsdl:TotalResourceCount" minOccurs="0"/>
+	  <xsd:element ref="jsdl:TotalCPUCount" minOccurs="0"/>
+	  <xsd:element ref="jsdl:OperatingSystem" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="unigrids:Processor" minOccurs="0"/>
+	  <xsd:element ref="unigrids:TextInfo" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="unigrids:ContextInfo" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="unigrids:NumericInfo" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="unigrids:SiteResource" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="unigrids:AvailableResource" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="jsdl-unicore:ExecutionEnvironmentDescription" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="tss:SupportsReservation" />
+          <xsd:element ref="tss:Xlogin" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element ref="tss:Xgroup" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element ref="unigrids:Version"/>
+	  <xsd:element ref="ogsa-bp:ResourcePropertyNames"/>
+	  <xsd:element ref="ogsa-bp:FinalWSResourceInterface"/>
+	  <xsd:element ref="ogsa-bp:WSResourceInterfaces"/>
+	  <xsd:element ref="ogsa-bp:ResourceEndpointReference"/>
+	  <xsd:element ref="wsrf-rl:CurrentTime"/>
+	  <xsd:element ref="wsrf-rl:TerminationTime" minOccurs="0"/>
+	  <xsd:element ref="unigrids:Security" minOccurs="0"/>
+	  <xsd:element ref="tsf:PerformanceData" minOccurs="0" maxOccurs="unbounded"/>
+	  <xsd:element ref="tsf:SupportsVirtualImages" minOccurs="0"/>
+	  <xsd:element ref="tss:ComputeTimeBudget" minOccurs="0"/>
+	  <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+	</xsd:sequence>
+   </xsd:complexType>
+  </xsd:element>
+ 
+  <xsd:element name="TargetSystemReference" type="wsa:EndpointReferenceType"/>
+  <xsd:element name="AccessibleTargetSystemReference" type="wsa:EndpointReferenceType"/>
+  <xsd:element name="Name" type="xsd:string"/>
+  <xsd:element name="SupportsVirtualImages" type="xsd:boolean"/>
+  <xsd:element name="VirtualImageURL" type="xsd:string"/>
+  
+  <xsd:element name="PerformanceData">
+	<xsd:complexType>
+	  <xsd:sequence>
+	  	<xsd:element name="TSSType" type="xsd:string" minOccurs="0"/>
+	  	<xsd:element name="MeanTimeQueued" type="xsd:integer" minOccurs="0"/>
+	  	<xsd:element ref="tsf:QueueInfo" minOccurs="0" maxOccurs="unbounded"/>
+	  	<xsd:any minOccurs="0" maxOccurs="unbounded"/>
+	  </xsd:sequence>
+	</xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="QueueInfo">
+	<xsd:complexType>
+	  <xsd:sequence>
+	  	<xsd:element name="QueueName" type="xsd:string" />
+	  	<xsd:element name="ActiveJobs" type="xsd:integer" />
+	  	<xsd:any minOccurs="0" maxOccurs="unbounded"/>
+	  </xsd:sequence>
+	</xsd:complexType>
+  </xsd:element>
+  
+  <!--  ========== Message Types for CreateTSR  ============ -->
+  <xsd:complexType name="TargetSystemDescriptionType">
+  	<xsd:sequence>
+		<xsd:element ref="jsdl:Description" minOccurs="0"/>
+		<xsd:element ref="jsdl:IndividualPhysicalMemory" minOccurs="0"/>
+		<xsd:element ref="jsdl:OperatingSystem" minOccurs="0"/>
+		<xsd:element ref="tss:ApplicationResource" minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element ref="unigrids:Processor" minOccurs="0"/>
+		<xsd:element ref="unigrids:TextInfo" minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element ref="unigrids:ContextInfo" minOccurs="0" maxOccurs="unbounded"/>
+		<xsd:element ref="unigrids:NumericInfo" minOccurs="0" maxOccurs="unbounded"/>
+		<!-- Virtual image URL -->
+		<xsd:element ref="tsf:VirtualImageURL" minOccurs="0"/>
+		<xsd:any minOccurs="0" maxOccurs="unbounded"/>
+  	</xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="TargetSystemDescription" type="tsf:TargetSystemDescriptionType"/>
+  
+  <xsd:element name="CreateTSR">
+	<xsd:complexType>
+	  <xsd:sequence>
+	  	<xsd:element ref="tsf:TargetSystemDescription" minOccurs="0"/>
+	  	<xsd:element ref="wsrf-rl:TerminationTime" minOccurs="0" />
+	  </xsd:sequence>
+	</xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="CreateTSRResponse">
+    <xsd:complexType>
+	  <xsd:sequence>
+	    <xsd:element name="tsrReference" type="wsa:EndpointReferenceType"/>
+	  </xsd:sequence>
+	</xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="TSRNotCreatedFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/>
+    </xsd:complexContent>
+  </xsd:complexType>
+  <xsd:element name="TSRNotCreatedFault" 
+       type="tsf:TSRNotCreatedFaultType"/>
+</xsd:schema>

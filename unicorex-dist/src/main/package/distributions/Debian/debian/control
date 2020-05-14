@@ -1,0 +1,15 @@
+Source: @component-prefix@@component-name@@component-suffix@
+Section: contrib/misc
+Priority: extra
+Maintainer: Piotr Piernik <unicore-support@lists.sourceforge.net> 
+Standards-Version: 3.6.2
+Homepage: http://www.unicore.eu
+@build_depends@
+
+Package: @component-prefix@@component-name@@component-suffix@
+Architecture: @component-architecture@
+Suggests: openjdk-@java-main-version@-jre 
+Description: UNICORE (UNiform Interface to COmputing REsources)
+ makes distributed computing and data resources available
+ in a seamless and secure way in intranets and the internet.
+ This package contains the UNICORE/X server.

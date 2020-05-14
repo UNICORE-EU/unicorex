@@ -1,0 +1,80 @@
+[[ux_security_concepts]]
+Security concepts in UNICORE/X
+------------------------------
+
+This section describes the basic security concepts and architecture used in 
+UNICORE/X. The overall procedure performed by the security infrastructure 
+can be summarised as follows:
+
+  - the incoming message is authenticated by the SSL layer
+
+  - extract the information used for authorisation from the
+    message sent to the server. This information includes: originator of the message(in
+    case the message passed through a UNICORE gateway), trust delegation tokens,
+    incoming VO membership assertions, etc.
+    
+  - deal with trust delegation
+  
+  - generate or lookup attributes to be used used for authorisation in the configured 
+    attribute sources
+  
+  - perform policy check by executing a PDP request
+
+All these steps can be switched on/off, and use pluggable components. Thus, the security level
+of a UNICORE/X server is widely configurable
+
+Security concepts
+~~~~~~~~~~~~~~~~~
+
+==== Identity
+  
+A server has a certificate, which is used to identify the server when
+it makes a web service request. This certificate resides in the server keystore, and can be 
+configured in the usual config file (see xref:ux_configuration[]).
+
+==== Security tokens
+
+When a client makes a request to UNICORE/X, a number of tokens are read from the 
+message headers. These are placed in the security context that each WSRF instance has.
+Currently, tokens are the certificates for the UNICORE consignor and user, if available.
+Also, trust delegation assertions are read, and it is checked if the message is signed.
+
+==== Resource ownership 
+
+Each service is 'owned' by some entity identified by a distinguished name (X500 Principal).
+By default, the server is the owner. When a resource is created on user request (for example
+when submitting a job), the user is the owner.
+
+
+==== Trust delegation
+  
+When the user and consignor are not the same, UNICORE/X will check whether the consignor
+has the right to act on behalf of the user. This is done by checking whether a trust 
+delegation assertion has been supplied and is valid.
+
+==== Attributes
+
+UNICORE/X retrieves user attributes using either a local component or a remote service.
+In the default configuration, the XUUDB attribute service is contacted.
+See xref:use_aip[] for more information. 
+
+==== Policy checks
+
+Each request is checked based on the following information.
+  
+  - available security tokens
+  
+  - the resource owner
+  
+  - the resource accessed (e.g. service name + WSRF instance id)
+  
+  - the activity to be performed (the web method name such as GetResourceProperty)
+  
+The validation is performed by the PDP (Policy Decision Point). The default PDP uses 
+a list of rules expressed in XACML 2.0 format that are 
+configured for the server. The xref:use_pdp[] describes how to configure different 
+engines for policy evaluation including a remote one.
+
+==== Authorisation
+
+A request is allowed, if the PDP allows it, based on the user's attributes.

@@ -1,0 +1,99 @@
+%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+Buildroot: %{_builddir}/%{name}-root
+Name: unicore-@component-name@@component-suffix@
+Version: @component-version@
+Release: @component-release@@component-disttag@
+Obsoletes: unicore-@component-name@
+Provides: unicore-@component-name@
+Summary: UNICORE/X Server
+License: BSD
+Distribution: RedHat
+Group: System Environment/Daemons
+URL: http://www.unicore.eu
+Requires: java-1.@java-main-version@.0-openjdk
+AutoReqProv: no
+BuildArch: @component-architecture@
+Packager: UNICORE unicore-support@lists.sourceforge.net
+@preamble@
+
+%description
+UNICORE (UNiform Interface to COmputing REsources)
+makes distributed computing and data resources available
+in a seamless and secure way in intranets and the internet.
+
+This package contains the UNICORE/X server.
+
+%changelog
+* Fri Sep 30 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
+-Fixed init script
+* Mon Sep 5 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
+-Updated packaging code to use the packman tool
+* Sun  Feb 20 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
+-Updated for 6.4.0 release
+* Wed Oct 06 2010 Andre Giesler <unicore-support@lists.sourceforge.net> 
+-Initial rpm package
+
+@install_command@
+
+%files
+
+#
+# Config files
+#
+%dir %attr(755 unicore unicore) "/etc/unicore/unicorex/"
+%dir %attr(755 unicore unicore) "/etc/unicore/unicorex/xacml2Policies"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/startup.properties"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/logging.properties"
+%config(noreplace) %attr(0644 unicore unicore)"/etc/unicore/unicorex/simpleidb"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/simpleuudb"
+%config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/rest-users.txt"
+%config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/uas.config"
+%config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/vo.config"
+%config %attr(0644 unicore unicore) "/etc/unicore/unicorex/votruststore.jks"
+%config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/container.properties"
+%config(noreplace) %attr(0600 unicore unicore)"/etc/unicore/unicorex/xnjs.properties"
+%config %attr(0644 unicore unicore)"/etc/unicore/unicorex/xacml2.config"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/01coreServices.xml"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/02restServices.xml"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/99finalDeny.xml"
+
+%attr(0644 unicore unicore) "/usr/lib/systemd/system/unicore-unicorex.service"
+%attr(0744 unicore unicore) "/usr/sbin/unicore-unicorex-start.sh"
+%attr(0744 unicore unicore) "/usr/sbin/unicore-unicorex-stop.sh"
+%attr(0744 unicore unicore) "/usr/sbin/unicore-unicorex-status.sh"
+
+#
+# Documentation
+#
+%docdir %attr(755 root root) "/usr/share/doc/unicore/unicorex/"
+%attr(644 root root) "/usr/share/doc/unicore/unicorex/*"
+
+#
+# jar files
+#
+%attr(755 root root) %dir "/usr/share/unicore/unicorex/lib"
+%attr(644 root root) "/usr/share/unicore/unicorex/lib/*.jar"
+
+#
+# logs
+#
+%dir %attr(0755 unicore unicore) "/var/log/unicore"
+%dir %attr(0755 unicore unicore) "/var/log/unicore/unicorex"
+%dir %attr(0755 unicore unicore) "/var/run/unicore"
+%dir %attr(0750 unicore unicore) "/var/lib/unicore"
+%dir %attr(0750 unicore unicore) "/var/lib/unicore/unicorex"
+
+
+%pre
+/usr/sbin/groupadd -r unicore 2>/dev/null || :
+/usr/sbin/useradd -c "UNICORE" -g unicore \
+    -s /sbin/nologin -r -d /usr/share/unicore unicore 2>/dev/null || :
+
+%post
+systemctl enable unicore-unicorex.service
+
+%preun
+if [ "$1" = "0" ]; then
+    systemctl stop unicore-unicorex.service  >/dev/null 2>&1
+    systemctl disable unicore-unicorex.service
+fi

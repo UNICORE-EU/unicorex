@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+    targetNamespace="http://www.unicore.eu/unicore6/task"
+    xmlns:task="http://www.unicore.eu/unicore6/task"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:wsa="http://www.w3.org/2005/08/addressing"
+    xmlns:wsrf-bf="http://docs.oasis-open.org/wsrf/bf-2"
+    xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"
+    xmlns:unigrids="http://unigrids.org/2006/04/types"
+    xmlns:ogsa-bp="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+    
+    <!-- 
+      Interface to monitor an asynchronous, potentially long-running 
+      task in a WSRF based way.     
+   	  
+   	  The Task has resource properties for status, error messages and the eventual 
+   	  result.
+   	  
+   	  The Task can be cancelled.
+   	  
+   	  TODO The Task also supports base notification.
+     -->
+    
+  <!--  ========== Import BaseFaults Types ============ --> 
+  <xsd:import namespace="http://docs.oasis-open.org/wsrf/bf-2"/>
+    
+  <!--  ========== Import WS-Addressing Types ============ --> 
+  <xsd:import namespace="http://www.w3.org/2005/08/addressing"/>
+   
+  <!--  ========== Import Base Profile Types ============ -->
+  <xsd:import namespace="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"/>
+  
+  <!--  ========== Import Lifetime ============ --> 
+  <xsd:import 
+    namespace="http://docs.oasis-open.org/wsrf/rl-2"/>
+  
+  <!--  ========== Task Resource Properties  ============ -->
+ 
+  <xsd:element name="SubmissionServiceReference" type="wsa:EndpointReferenceType"/>
+  <xsd:element name="SubmissionTime" type="xsd:dateTime"/>
+  <xsd:element name="Result">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:any  namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  
+  <xsd:element name="TaskProperties">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="task:SubmissionTime"/>
+        <xsd:element ref="task:SubmissionServiceReference"/>
+        <xsd:element ref="unigrids:StatusInfo"/>
+        <xsd:element ref="task:Result" minOccurs="0"/>
+        <xsd:element ref="unigrids:Version"/>
+        <xsd:element ref="ogsa-bp:ResourcePropertyNames"/>
+        <xsd:element ref="ogsa-bp:FinalWSResourceInterface"/>
+        <xsd:element ref="ogsa-bp:WSResourceInterfaces"/>
+        <xsd:element ref="ogsa-bp:ResourceEndpointReference"/>
+        <xsd:element ref="wsrf-rl:CurrentTime"/>
+        <xsd:element ref="wsrf-rl:TerminationTime" minOccurs="0"/>
+        <xsd:element ref="unigrids:Security" minOccurs="0"/>
+        <xsd:any minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+      				  
+    
+  <!--  ========== Message Types for Cancel  ============ --> 
+  <xsd:element name="CancelRequest">
+    <xsd:complexType/>
+  </xsd:element>
+   
+  <xsd:element name="CancelResponse">
+    <xsd:complexType/>
+  </xsd:element>
+    
+  <xsd:complexType name="TaskNotCancelledFaultType">
+    <xsd:complexContent>
+      <xsd:extension base="wsrf-bf:BaseFaultType"/> 
+    </xsd:complexContent>
+  </xsd:complexType>
+  
+</xsd:schema>

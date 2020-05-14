@@ -1,0 +1,12 @@
+{
+
+  ApplicationName: Date, 
+  ApplicationVersion: 1.0,
+
+  Arguments: ["-v", "-d"],
+
+  Environment: {"SHELL": "/bin/bash", 
+                "JAVA_OPTS" : "-v" },
+
+  Parameters:  {"foo": "bar",},
+} 

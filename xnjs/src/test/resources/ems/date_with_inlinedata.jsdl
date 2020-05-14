@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<jsdl:JobDefinition xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+ <jsdl:JobDescription>
+  <jsdl:JobIdentification>
+    <jsdl:JobName>my test job</jsdl:JobName>
+  </jsdl:JobIdentification>
+  <jsdl:Application>
+  <jsdl:ApplicationName>Date</jsdl:ApplicationName>
+  <jsdl:ApplicationVersion>1.0</jsdl:ApplicationVersion>
+  </jsdl:Application>
+  <jsdl:DataStaging>
+      <jsdl:FileName>infile.txt</jsdl:FileName>
+      <jsdl:Source>
+        <jsdl:URI>inline://dummy</jsdl:URI>
+       </jsdl:Source>
+       <x:InlineData xmlns:x="http://www.unicore.eu/unicore/jsdl-extensions">test data</x:InlineData>
+   </jsdl:DataStaging>
+ </jsdl:JobDescription>
+</jsdl:JobDefinition>

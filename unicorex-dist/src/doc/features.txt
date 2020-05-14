@@ -1,0 +1,124 @@
+[[ux_features]]
+
+
+Features provided by UNICORE/X
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+The functionality of the UNICORE/X server is organised into "features", where
+each feature can combine services, startup code and the like.
+
+Features are enabled by default.
+
+Features can be disabled via configuration. It is also possible to
+disable single services in a feature.
+
+
+==== JobManagement
+
+This feature deals with job submission and management, as well as
+those storage services required for job processing.
+
+To disable the whole feature
+
+----------
+container.feature.JobManagement.enable=false
+----------
+
+.UNICORE/X JobManagement feature
+[options="header"]
+|===============================
+|Service name               | usage
+|TargetSystemFactoryService | High level compute service
+|TargetSystemService        | Per-user compute service instances
+|JobManagement              | Per job service instance
+|ReservationManagement      | Make and edit reservations
+|StorageManagement          | Access to storages
+|ServerServerFileTransfer   | Server-server file transfers
+|ClientServerFileTransfer   | Data upload/download
+|===============================
+
+
+==== StorageAccess
+
+This feature provides storage access, storage factory service,
+metadata management and file transfers.
+
+
+.UNICORE/X StorageAccess feature
+[options="header"]
+|===============================
+|Service name             | usage					
+|StorageManagement        | Access to storages
+|StorageFactory           | Dynamically create new storage endpoints
+|MetadataManagement       | Metadata service
+|ServerServerFileTransfer | Server-server file transfers
+|ClientServerFileTransfer | Data upload/download
+|===============================
+
+To disable the whole feature
+
+--------------
+container.feature.StorageAccess.enable=false
+--------------
+
+To disable only one service, e.g. the Storage Factory
+
+
+--------------
+container.feature.StorageAccess.StorageFactory.enable=false
+--------------
+
+
+==== Base
+
+This feature provides low-level services, but also contains the
+RESTful APIs for jobs and data management.
+
+
+.UNICORE/X Base feature
+[options="header"]
+|===============================
+|Service name      | usage					
+|core              | RESTful APIs for jobs and data
+|Enumeration       | SOAP/XML service for long lists (jobs, ...)
+|Task              | SOAP/XML service for async tasks (metadata extraction)
+|===============================
+
+
+==== Admin
+
+This feature provides the Admin service (see xref:ux_admin_service[])
+
+.UNICORE/X Admin feature
+[options="header"]
+|===============================
+|Service name      | usage					
+|admin             | RESTful API to the admin service
+|AdminService      | SOAP/XML API to the admin service
+|===============================
+
+==== Registry
+
+This feature provides the Registry service. This covers both the
+"internal" version running in every UNICORE/X server, as well as the
+shared Registry that is used to store information about multiple
+UNICORE servers.
+
+A setting
+
+--------------
+container.feature.Registry.mode=shared
+--------------
+
+will enable "shared" mode. Don't do this on a "normal" UNICORE/X server.
+
+
+.UNICORE/X Registry feature
+[options="header"]
+|===============================
+|Service name      | usage					
+|registries        | RESTful API to the Registry service
+|Registry          | Registry service and SOAP/XML API
+|ServiceGroupEntry | Registry entries service and SOAP/XML API
+|===============================

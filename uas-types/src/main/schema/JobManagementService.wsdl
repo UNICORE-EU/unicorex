@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+    name="JobManagementService"
+    targetNamespace="http://unigrids.org/2006/04/services/jms"
+    xmlns:binding="http://unigrids.org/2006/04/services/jms"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  
+  <wsdl:import 
+      namespace="http://unigrids.org/2006/04/services/jms"
+      location="JobManagementBindings.wsdl" />
+  
+  <!--  ========== JMS Service ============ --> 
+  <wsdl:service name="JobManagementService">
+    <wsdl:port binding="binding:JobManagementSoapBinding" name="JobManagementService">
+	  <soap:address location="http://localhost:8080/axis/services/JobManagementService" /> 
+    </wsdl:port>
+  </wsdl:service>
+    
+</wsdl:definitions>

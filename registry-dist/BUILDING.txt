@@ -1,0 +1,31 @@
+#
+# Building HTML/PDF documentation
+#
+
+To build the docs:
+
+ mvn site
+
+(point your browser to target/site/index.html)
+
+To deploy the docs to unicore-dev:
+
+ mvn site:deploy
+
+
+#
+# Building UNICORE/X packages
+#
+
+The following commands create the distribution packages
+in deb and rpm formats
+
+#deb
+ mvn package -DskipTests -Ppackman -Dpackage.type=deb -Ddistribution=Debian
+
+#rpm (RedHat)
+ mvn package -DskipTests -Ppackman -Dpackage.type=rpm -Ddistribution=RedHat
+
+#tgz
+ mvn package -DskipTests -Ppackman -Dpackage.type=bin.tar.gz
+

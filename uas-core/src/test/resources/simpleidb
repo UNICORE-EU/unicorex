@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ a sample idb file 
+ -->
+
+<idb:IDB xmlns:idb="http://www.fz-juelich.de/unicore/xnjs/idb" 
+         xmlns:jsdl-u="http://www.unicore.eu/unicore/jsdl-extensions">
+  
+  <!-- Applications -->
+  
+  <idb:IDBApplication>
+    <idb:ApplicationName>Date</idb:ApplicationName>
+    <idb:ApplicationVersion>1.0</idb:ApplicationVersion>
+    <jsdl:POSIXApplication xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+      <jsdl:Executable>/bin/date</jsdl:Executable>
+    </jsdl:POSIXApplication>
+    <idb:Metadata>
+      <x:test xmlns:x="test.metadata">some test metadata</x:test>
+    </idb:Metadata>
+  </idb:IDBApplication>
+
+  <idb:IDBApplication>
+    <idb:ApplicationName>Cat</idb:ApplicationName>
+    <idb:ApplicationVersion>1.0</idb:ApplicationVersion>
+    <jsdl:POSIXApplication xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+      <jsdl:Executable>/bin/cat</jsdl:Executable>
+      <!-- with inline metadata -->
+      <jsdl:Argument Type="string">infile</jsdl:Argument>
+    </jsdl:POSIXApplication>
+  </idb:IDBApplication>
+
+
+<!-- povray -->
+  <idb:IDBApplication>
+    <idb:ApplicationName>POVRay</idb:ApplicationName>
+    <idb:ApplicationVersion>3.5</idb:ApplicationVersion>
+    <jsdl:POSIXApplication xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+      <jsdl:Executable>/usr/bin/povray</jsdl:Executable>
+      <jsdl:Argument>+I$SOURCE?</jsdl:Argument>
+      <jsdl:Argument>+O$TARGET?</jsdl:Argument>
+      <jsdl:Argument Type="int" Default="320" Description="Width of the rendered image">+W$WIDTH?</jsdl:Argument>
+      <jsdl:Argument Type="int" Default="200" Description="Height of the rendered image">+H$HEIGHT?</jsdl:Argument>
+      <jsdl:Argument Type="int">+A$ANTIALIASING_THRESHOLD?</jsdl:Argument>
+      <jsdl:Argument Type="int">+KFI$INITIAL_FRAME_NUMBER?</jsdl:Argument>
+      <jsdl:Argument Type="int" DependsOn="INITIAL_FRAME_NUMBER">+KFF$FINAL_FRAME_NUMBER?</jsdl:Argument>
+      <jsdl:Argument Type="int" DependsOn="INITIAL_FRAME_NUMBER">+SF$SUBSET_START?</jsdl:Argument>
+      <jsdl:Argument Type="int" DependsOn="INITIAL_FRAME_NUMBER">+EF$SUBSET_END?</jsdl:Argument>
+      <jsdl:Argument Type="double" DependsOn="INITIAL_FRAME_NUMBER">+KI$INITIAL_CLOCK_VALUE?</jsdl:Argument>
+      <jsdl:Argument Type="double" DependsOn="INITIAL_FRAME_NUMBER">+KF$FINAL_CLOCK_VALUE?</jsdl:Argument>
+      <jsdl:Argument Type="choice" ValidValues="StaticGray GrayScale StaticColor PseudoColor TrueColor DirectColor">-visual $VISUAL?</jsdl:Argument>
+      <jsdl:Argument>$ARGUMENTS?</jsdl:Argument>
+    </jsdl:POSIXApplication>
+  </idb:IDBApplication>
+
+  
+    
+  <!-- Resources -->
+  
+  <idb:TargetSystemProperties>
+    <jsdl:Resources xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl">
+      <jsdl:CPUArchitecture>
+        <jsdl:CPUArchitectureName>x86</jsdl:CPUArchitectureName>
+      </jsdl:CPUArchitecture>
+
+      <!-- O/S -->
+      <jsdl:OperatingSystem>
+       <jsdl:OperatingSystemType>
+         <jsdl:OperatingSystemName>LINUX</jsdl:OperatingSystemName>
+       </jsdl:OperatingSystemType>
+       <jsdl:OperatingSystemVersion>2.6.13</jsdl:OperatingSystemVersion>
+       <jsdl:Description>A free UNIX clone</jsdl:Description>
+      </jsdl:OperatingSystem>
+
+      <!-- cpu time (per cpu) in seconds -->
+      <jsdl:IndividualCPUTime>
+        <jsdl:Exact>3600</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1</jsdl:LowerBound>
+         <jsdl:UpperBound>86400</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualCPUTime>
+
+      <!-- CPUs per node -->
+      <jsdl:IndividualCPUCount>
+        <jsdl:Exact>1.0</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1.0</jsdl:LowerBound>
+         <jsdl:UpperBound>1.0</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualCPUCount>
+
+      <!-- total CPUs -->
+      <jsdl:TotalCPUCount>
+        <jsdl:Exact>1.0</jsdl:Exact>
+      </jsdl:TotalCPUCount>
+
+      <!-- Memory per node (bytes) -->
+      <jsdl:IndividualPhysicalMemory>
+        <jsdl:Exact>268435456</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1024576</jsdl:LowerBound>
+         <jsdl:UpperBound>1073741824</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualPhysicalMemory>
+
+      <!-- Nodes -->
+      <jsdl:TotalResourceCount>
+        <jsdl:Exact>1.0</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1.0</jsdl:LowerBound>
+         <jsdl:UpperBound>1.0</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:TotalResourceCount>
+
+      <!-- Queue -->
+      <idb:Resource>
+        <idb:Name>Queue</idb:Name>
+        <idb:Description>The queue to use</idb:Description>
+        <idb:Type>choice</idb:Type>
+        <idb:Default>normal</idb:Default>
+        <idb:AllowedValue>small</idb:AllowedValue>
+        <idb:AllowedValue>normal</idb:AllowedValue>
+        <idb:AllowedValue>large</idb:AllowedValue>
+      </idb:Resource>
+
+      <!-- Example boolean resource -->
+      <idb:Resource>
+        <idb:Name>PriviledgedGoldCustomerExecution</idb:Name>
+        <idb:Description>Fake boolean resource</idb:Description>
+        <idb:Type>boolean</idb:Type>
+        <idb:Default>false</idb:Default>
+      </idb:Resource>
+
+    </jsdl:Resources>
+    
+    <idb:Info Name="TEST1">This is a test value</idb:Info>
+    <idb:Info Name="TEST2">This is a second test value</idb:Info>
+    
+  </idb:TargetSystemProperties>
+
+</idb:IDB>

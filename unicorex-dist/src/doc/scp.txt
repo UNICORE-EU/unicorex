@@ -1,0 +1,112 @@
+[[ux_scp]]
+   
+SCP support
+~~~~~~~~~~~ 
+
+UNICORE supports file staging in/out using SCP, as defined in the 
+Open Grid Forum's "HPC File staging profile" (GFD.135).
+
+In the JSDL job description, an scp stage in is specified as 
+follows:
+
+-----
+<?xml version="1.0"?>
+<p:JobDefinition xmlns:p="http://schemas.ggf.org/jsdl/2005/11/jsdl" 
+                 xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+  <p:JobDescription>
+    <p:Application>
+      <jsdl-posix:POSIXApplication>
+        <jsdl-posix:Executable>/bin/ls</jsdl-posix:Executable>
+        <jsdl-posix:Argument>-l</jsdl-posix:Argument>
+      </jsdl-posix:POSIXApplication>
+    </p:Application>
+    <p:DataStaging>
+      <p:FileName>input</p:FileName>
+      <p:CreationFlag>overwrite</p:CreationFlag>
+      <p:Source>
+        <p:URI>scp://HOST:PORT:filepath</p:URI>
+      </p:Source>
+      <ac:Credential xmlns:ac="http://schemas.ogf.org/hpcp/2007/11/ac">
+        <wsse:UsernameToken xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+          <wsse:Username>***</wsse:Username>
+          <wsse:Password>***</wsse:Password>
+        </wsse:UsernameToken>
+      </ac:Credential>
+    </p:DataStaging>
+  </p:JobDescription>
+</p:JobDefinition>
+-----
+
+As you can see, username and password required to invoke SCP are embedded into the 
+job description, and the URL schema is "scp://"
+
+Site setup
+++++++++++
+
+At a site that wishes to support SCP, the UNICORE server needs to 
+be configured with the path of an scp wrapper script that can
+pass the password to scp, if necessary. 
+
+If not already pre-configured during installation, you can configure this 
+path manually in the XNJS config file
+
+----
+# scp wrapper script
+XNJS.staging.scpWrapper=/path/to/scp-wrapper.sh
+----
+
+SCP wrapper script
+++++++++++++++++++
+
+A possible scp wrapper script written in TCL is provided in the
+"extras" folder of the core server bundle, for your convenience it is
+reproduced here. It requires TCL and Expect.  You may need to modify
+the first line depending on how Expect is installed on your system.
+
+------
+#!/usr/bin/expect -f
+
+# this is a wrapper around scp
+#
+# it automates the interaction required to enter the password. 
+#
+# Prerequisites: 
+# The TCL Expect tool is used. 
+#
+# Arguments:
+# 1: source, 2: target, 3: password
+
+set source [lindex $argv 0]
+set target [lindex $argv 1]
+set password [lindex $argv 2]
+set timeout 10
+
+# start the scp process
+spawn scp "$source" "$target"
+
+# handle the interaction
+expect {
+   "passphrase" {
+     send "$password\r"
+     exp_continue
+    } "password:" {
+     send "$password\r"
+     exp_continue
+    } "yes/no)?" {
+     send "yes\r"
+     exp_continue
+    } timeout {
+      puts "Timeout."
+      exit
+    } -re "." {
+      exp_continue
+    } eof {
+      exit
+    }
+}
+----------------
+
+
+Similar scripts may also be written in other scripting languages such
+as Python.
+

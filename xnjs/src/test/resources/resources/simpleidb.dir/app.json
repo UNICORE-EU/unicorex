@@ -1,0 +1,5 @@
+{
+    "Name" : "json-date",
+    "Version" : "1.0",
+    "Executable" : "/bin/date",
+}

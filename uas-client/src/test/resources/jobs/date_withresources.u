@@ -1,0 +1,16 @@
+{
+
+  ApplicationName: Date,
+  ApplicationVersion: "1.0",  
+  
+  Resources: {
+  
+    Memory: 128000000,
+    CPUs: 32,
+    Nodes: 4,
+    Runtime: 3600,
+    Operating system: "GNU_Hurd",
+    
+  },
+  
+} 

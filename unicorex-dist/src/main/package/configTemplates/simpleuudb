@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+The format is as follows:
+
+<fileAttributeSource>
+   <entry key="USER DN">
+      <attribute name="role">
+         <value>user</value>
+      </attribute>
+      <attribute name="xlogin">
+         <value>unixuser</value>
+         <value>nobody</value>
+         ...
+      </attribute>
+      ...
+   </entry>
+   ...
+</fileAttributeSource>
+
+If matching mode is set in attribute source configuration to 'regexp' then you can use Java regular expressions
+as <entry>'s 'key' values.  
+
+You can use the following attributes: 
+
+xlogin, role, group, supplementaryGroups, addOsGroups and queue.
+
+Attributes with those names (case insensitive) are handled as special UNICORE attributes 
+(e.g. xlogin is used to provide available local OS user names for the client). 
+Other attributes are treated as authorization attributes and are presented to XACML 
+authorization stack. All such authorization attributes are assumed to be subject attributes
+of XACML type String.
+-->
+
+
+<fileAttributeSource>
+
+   <entry key="CN=Demo User, O=UNICORE, C=EU">
+      <attribute name="role">
+         <value>user</value>
+      </attribute>
+      <attribute name="xlogin">
+         <value>${USER_NAME}</value>
+      </attribute>
+   </entry>
+
+</fileAttributeSource>

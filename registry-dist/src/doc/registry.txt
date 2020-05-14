@@ -1,0 +1,158 @@
+Installation
+------------
+
+Prerequisites
+~~~~~~~~~~~~~ 
+
+To run the Registry, you need the OpenJDK or Oracle Java (JRE or SDK). 
+We recommend using the latest version of Java 8.
+
+UNICORE has been most extensively tested on Linux-like systems, 
+but runs on MacOS/X and Windows as well.
+
+Please note that
+
+ - to integrate into secure production environments, you will need
+access to a certificate authority and generate server certificates for
+all your UNICORE servers.
+
+ - to make your UNICORE servers accessible outside of your firewalls,
+you should setup and configure a UNICORE Gateway.
+
+
+A note on paths
+~~~~~~~~~~~~~~~
+
+The Registry can be installed either from a Linux package (i.e. RPM or deb), 
+from a tar.gz or even from the UNICORE core server bundle package.
+
+[NOTE] 
+=========== 
+Using the Linux packages, you can install only a
+single Registry instance per machine (without manual changes).
+===========
+
+
+The following table gives an overview of the file locations for both
+tar.gz and Linux packages.
+
+
+.Directory Layout
+[options="header"]
+|========================
+| Name in this manual | tar.gz,  zip | rpm                    | Description
+| CONF |<basedir>/conf/    |/etc/unicore/registry             | Config files
+| LIB  |<basedir>/lib/     |/usr/share/unicore/registry/lib   | Java libraries
+| LOG  |<basedir>/log/     |/var/log/unicore/registry/        | Log files
+| BIN  |<basedir>/bin/     |/usr/sbin/                        | Start/stop scripts 
+| --   | --                |/etc/init.d/unicore-registry      | Init script
+|========================
+
+
+Registry configuration
+----------------------
+
+A Registry is running in a "normal" UNICORE/X container, however, you
+should use a dedicated UNICORE/X instance for the Registry, making
+sure no other services are running.
+
+Thus, most of the UNICORE/X documentation regarding access control,
+keystores, etc also applies to the Registry. Please, make sure to read
+the UNICORE/X documentation as well.
+
+
+Registry configuration (CONF/uas.config)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Apart from hostname, port, and other properties, the uas.config file 
+must contain the following entry
+
+------------------
+
+container.feature.Registry.mode=shared
+
+--------------------
+
+This setting configures the container to operate as a shared Registry.
+
+
+Starting and stopping
+~~~~~~~~~~~~~~~~~~~~~
+
+The Registry is started and stopped like any other UNICORE/X container
+using the scripts in the "bin" folder.
+
+Access control
+~~~~~~~~~~~~~~
+
+It is vital that the Registry only contains trusted entries. Therefore
+access control is enabled by default. It is configured in
+CONF/uas.config
+
+------------------
+ container.security.accesscontrol.Registry=true
+-----------------
+
+This will check the security policy (CONF/xacml2Policies/*.xml) for
+each request.  By default, this policy allows to add entries only for
+callers with the role "server".
+
+If using an XUUDB or other attribute source, you will need to add the
+certificates / DNs of all servers wishing to publish into the registry
+as having the role "server".  Please check the UNICORE/X documentation
+on how to do that.
+
+
+Gateway configuration
+~~~~~~~~~~~~~~~~~~~~
+
+If running the Registry behind a Gateway, you'll need to add an entry
+to the Gateway's site list file (connections.properties) that points
+to your Registry server. Another option is to use dynamic
+registration. In the following, we assume the Registry is named
+"REGISTRY".
+
+
+UNICORE/X configuration
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To publish the services in a shared registry, configure the
+address of the registry in uas.config :
+
+-----------------------
+# switch on use of external registry 
+container.externalregistry.use=true
+
+# URL
+container.externalregistry.url=https://...
+
+# optionally you can have more registries
+container.externalregistry.url.2=https://...
+
+-----------------------
+
+The entries in the global Registry are updated at a specified
+interval. To control this interval, edit a property in
+CONF/container.properties
+
+-----------------------
+# default termination time for registry entries in seconds
+container.wsrf.sg.defaulttermtime=1800
+-----------------------
+
+
+
+# manually provide url and epr of the external registry
+# url:
+container.externalregistry.url=https://localhost:8080/REGISTRY/services/Registry?res=default_registry
+
+# optionally you can have more registries
+container.externalregistry.url.2=https://localhost:8080/REGISTRY-BACKUP/services/Registry?res=default_registry
+-----------------------
+
+
+  
+Client configuration
+~~~~~~~~~~~~~~~~~~~
+
+Make sure your clients use the global, shared Registry.

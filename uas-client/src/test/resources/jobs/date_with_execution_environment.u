@@ -1,0 +1,16 @@
+{
+
+  ApplicationName: Date,
+  ApplicationVersion: "1.0",  
+  
+  Execution environment: {
+    Name: TIME,
+    Arguments: { verbose: true, testing: true },
+    Options: [TEST,],
+    Precommands:[ PRE1, PRE2 ],
+    Postcommands:[ POST1, POST2 ],
+    User precommand:  "echo 123",
+    User postcommand:  "touch 456",
+  },
+  
+} 

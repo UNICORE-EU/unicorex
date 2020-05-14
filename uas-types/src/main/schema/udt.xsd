@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema
+    targetNamespace="http://www.unicore.eu/unicore6/filetransfer/udt"
+    xmlns:fts="http://unigrids.org/2006/04/services/fts"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:udt="http://www.unicore.eu/unicore6/filetransfer/udt"
+    xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl"
+    xmlns:wsrf-rl="http://docs.oasis-open.org/wsrf/rl-2"
+    xmlns:unigrids="http://unigrids.org/2006/04/types"
+    xmlns:ogsa-bp="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+      
+  <!--  ========== Import UniGridS types============ --> 
+  <xsd:import
+    namespace="http://unigrids.org/2006/04/types"/>
+
+  <!--  ========== Import JSDL types============ --> 
+  <xsd:import
+    namespace="http://schemas.ggf.org/jsdl/2005/11/jsdl"/>
+
+  <!--  ========== Import Lifetime ============ -->
+  <xsd:import
+      namespace="http://docs.oasis-open.org/wsrf/rl-2"/>
+  
+  <!--  ========== Import Base Profile Types ============ -->
+  <xsd:import
+    namespace="http://schemas.ggf.org/ogsa/2006/05/wsrf-bp"/>
+  
+     <xsd:element name="ExchangeParametersRequest" type="udt:ExchangeParametersRequestType"/>
+     <xsd:element name="ExchangeParametersResponse" type="udt:ExchangeParametersResponseType"/>
+   
+    <xsd:complexType name="ExchangeParametersRequestType">
+      <xsd:sequence>
+		      <xsd:element name="ClientHost" type="xsd:string"/>
+		      <xsd:element name="ClientPort" type="xsd:integer"/>
+		  </xsd:sequence>
+       </xsd:complexType>
+
+    <xsd:complexType name="ExchangeParametersResponseType">
+      <xsd:sequence>
+		      <xsd:element name="ServerHost" type="xsd:string"/>
+		      <xsd:element name="ServerPort" type="xsd:integer"/>
+		  </xsd:sequence>
+       </xsd:complexType>
+
+
+  <xsd:element name="TransferredBytes" type="xsd:long"/>
+  
+  <!--  ========== Resource Properties for UDT File Transfer  ============ -->
+
+  <xsd:complexType name="UDTPropertiesType">
+      <xsd:sequence>
+        <xsd:element ref="fts:TransferredBytes"/>
+        <xsd:element ref="fts:Size"/>
+        <xsd:element ref="jsdl:Target"/>
+        <xsd:element ref="jsdl:Source"/>
+        <xsd:element ref="unigrids:StorageEndpointReference"/>
+        <xsd:element ref="unigrids:Protocol"/>
+        <xsd:element ref="udt:Host"/>
+        <xsd:element ref="udt:IsSender"/>
+        <xsd:element ref="udt:Statistics"/>
+        <xsd:element ref="ogsa-bp:ResourcePropertyNames"/>
+        <xsd:element ref="ogsa-bp:FinalWSResourceInterface"/>
+        <xsd:element ref="ogsa-bp:WSResourceInterfaces"/>
+        <xsd:element ref="ogsa-bp:ResourceEndpointReference"/>
+        <xsd:element ref="wsrf-rl:CurrentTime"/>
+        <xsd:element ref="wsrf-rl:TerminationTime"/>
+        <xsd:any minOccurs="0" maxOccurs="unbounded"/>  
+      </xsd:sequence>
+   </xsd:complexType>
+  
+   <xsd:element name="UDTTransferProperties" type="udt:UDTPropertiesType"/>
+
+   <xsd:complexType name="StatisticsType">
+      <xsd:sequence>
+        <xsd:any minOccurs="0" maxOccurs="unbounded"/>  
+      </xsd:sequence>
+   </xsd:complexType>
+  
+   <xsd:element name="Statistics" type="udt:StatisticsType"/>
+
+   <xsd:element name="Host" type="xsd:string"/>
+
+   <xsd:element name="IsSender" type="xsd:boolean"/>
+
+
+</xsd:schema>

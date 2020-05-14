@@ -1,0 +1,26 @@
+{
+
+Rules:[
+
+  {
+    Name: noop1,
+    Match: ".*pdf",
+    Action: 
+    {
+       Type: NOOP,
+    },
+  },
+
+  {
+    Name: local1,
+    Match: ".*jpg",
+    Action: 
+    {
+       Type: LOCAL,
+       Command: "ls -l ${UC_FILE_NAME}",
+    },
+  }
+
+],
+
+}

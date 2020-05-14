@@ -1,0 +1,10 @@
+{
+
+  ApplicationName: Date, 
+  ApplicationVersion: 1.0,
+
+  User precommand:  "pre",
+  RunUserPrecommandOnLoginNode:  "false",
+  User postcommand:  "post",
+  RunUserPostcommandOnLoginNode:  "true",
+} 

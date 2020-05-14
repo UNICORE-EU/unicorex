@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:incarnationTweaker xmlns:tns="http://eu.unicore/xnjs/incarnationTweaker"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<tns:beforeScript>
+	</tns:beforeScript>
+
+	<tns:afterScript>
+		<tns:rule>
+			<tns:condition>true</tns:condition>
+			<tns:action type="groovy">
+throw new de.fzj.unicore.xnjs.ems.ExecutionException(de.fzj.unicore.xnjs.util.ErrorCode.ERR_EXECUTABLE_FORBIDDEN, "Test ERROR");
+			</tns:action>
+		</tns:rule>
+	</tns:afterScript>
+</tns:incarnationTweaker>

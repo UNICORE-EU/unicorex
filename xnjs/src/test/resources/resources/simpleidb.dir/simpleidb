@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ a sample idb file 
+ -->
+
+<idb:IDB xmlns:idb="http://www.fz-juelich.de/unicore/xnjs/idb">
+  
+  <!-- Applications -->
+  
+  <idb:IDBApplication>
+    <idb:ApplicationName>Date</idb:ApplicationName>
+    <idb:ApplicationVersion>1.0</idb:ApplicationVersion>
+    <jsdl:POSIXApplication xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
+      <jsdl:Executable>/bin/date</jsdl:Executable>
+      <jsdl:Argument>$ARGUMENTS?</jsdl:Argument>
+    </jsdl:POSIXApplication>
+  </idb:IDBApplication>
+    <!-- Resources -->
+  
+  <idb:TargetSystemProperties>
+    <jsdl:Resources xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl">
+      <jsdl:CPUArchitecture>
+        <jsdl:CPUArchitectureName>x86</jsdl:CPUArchitectureName>
+      </jsdl:CPUArchitecture>
+      
+      <!-- O/S -->
+      <jsdl:OperatingSystem>
+       <jsdl:OperatingSystemType>
+       <jsdl:OperatingSystemName>LINUX</jsdl:OperatingSystemName>
+       </jsdl:OperatingSystemType>
+       <jsdl:OperatingSystemVersion>2.6.13</jsdl:OperatingSystemVersion>
+       <jsdl:Description>A free UNIX clone</jsdl:Description>
+      </jsdl:OperatingSystem>
+
+      <!-- cpu time (per cpu) in seconds -->
+      <jsdl:IndividualCPUTime>
+        <jsdl:Exact>3600</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1</jsdl:LowerBound>
+         <jsdl:UpperBound>86400</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualCPUTime>
+
+      
+      <!-- CPUs per node -->
+      <jsdl:IndividualCPUCount>
+        <jsdl:Exact>1.0</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1.0</jsdl:LowerBound>
+         <jsdl:UpperBound>2.0</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualCPUCount>
+
+      <!-- total CPUs -->
+      <jsdl:TotalCPUCount>
+       <!-- this exact value is redundant and will be ignored -->
+       <jsdl:Exact>1.0</jsdl:Exact>
+       <jsdl:Range>
+         <jsdl:LowerBound>1.0</jsdl:LowerBound>
+         <jsdl:UpperBound>4.0</jsdl:UpperBound>
+       </jsdl:Range>
+      </jsdl:TotalCPUCount>
+
+      <!-- Memory per node (bytes) -->
+      <jsdl:IndividualPhysicalMemory>
+        <jsdl:Exact>268435456</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1024576</jsdl:LowerBound>
+         <jsdl:UpperBound>1073741824</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:IndividualPhysicalMemory>
+      
+      <!-- Nodes -->
+      <jsdl:TotalResourceCount>
+      <jsdl:Exact>1.0</jsdl:Exact>
+        <jsdl:Range>
+         <jsdl:LowerBound>1.0</jsdl:LowerBound>
+         <jsdl:UpperBound>2.0</jsdl:UpperBound>
+        </jsdl:Range>
+      </jsdl:TotalResourceCount>
+      
+     <idb:Resource>
+     <idb:Name>GPUsPerNode</idb:Name>
+     <idb:Description>Number of GPUs per node</idb:Description>
+     <idb:Type>int</idb:Type>
+     <idb:Min>1</idb:Min>
+     <idb:Max>16</idb:Max>
+     <idb:Default>1</idb:Default>
+   </idb:Resource>
+  
+   </jsdl:Resources>
+ 
+    <!-- file systems -->
+    <idb:FileSystem Name="Test1" IncarnatedPath="/tmp/test1"/>
+    <idb:FileSystem Name="Test2" IncarnatedPath="/tmp/test2"/>
+    
+    <!-- text infos -->
+    <idb:Info Name="CPMD_LIBRARY_PATH">/usr/share/lib/cpmd.so</idb:Info>
+    <idb:Info Name="VISIT_PROXY">/opt/visit/proxy</idb:Info>
+
+  </idb:TargetSystemProperties> 
+  
+
+   <!-- execution environments -->    
+    <ee:ExecutionEnvironment xmlns:ee="http://www.unicore.eu/unicore/jsdl-extensions">
+    <ee:Name>TIME</ee:Name>
+    <ee:Version>1.0</ee:Version>
+    <ee:Description>Execute a command and record execution times</ee:Description>
+    <ee:ExecutableName>/usr/bin/time</ee:ExecutableName>
+    <ee:Option>
+      <ee:Name>VERBOSE</ee:Name>
+      <ee:Description>Increased verbosity</ee:Description>
+      <ee:IncarnatedValue>-v</ee:IncarnatedValue>
+    </ee:Option>
+   </ee:ExecutionEnvironment>
+       
+  
+       
+ <!-- XNJS scripts -->
+    <idb:XNJSScript Name="xnjs-test-script"><![CDATA[#!/bin/sh
+echo $$SESSION$$
+]]></idb:XNJSScript>
+    
+
+</idb:IDB>

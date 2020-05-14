@@ -1,0 +1,34 @@
+{
+    "Info" : {
+      "ssh-host": "localhost",
+    },
+    
+    "Partitions" : {
+		"normal": {
+	   		"Description" : "Default partition",
+	    	"OperatingSystem" : "GNU/Linux",
+	    	"CPUArchitecture" : "powerpc",
+	    	"Resources" : {
+				"Nodes" : {
+		    		"Range"  : "1-8",
+		    		"Default" : "1",
+				},
+				"CPUsPerNode" : "1-64:2",
+	    	},
+		},
+    },
+    
+    "ExecuteScriptTemplate" : 
+"#!/bin/bash \
+#COMMAND \
+FOO=bar \
+#SCRIPT",
+
+    "SubmitScriptTemplate" : 
+"#!/bin/bash \
+#COMMAND \
+#RESOURCES \
+FOO=bar \
+#SCRIPT",
+
+}
