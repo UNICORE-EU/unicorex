@@ -31,6 +31,8 @@
     <uftp.version>2.7.2</uftp.version>
     <metrics.version>3.2.6</metrics.version>
     <groovy.version>2.4.16</groovy.version>
+    <lucene.version>7.1.0</lucene.version>
+    <tika.version>1.22</tika.version>
   </properties>
 
   <modules>
@@ -38,16 +40,16 @@
     <module>uas-types</module>
     <module>uas-core</module>
     <module>uas-client</module>
-    <module>uas-metadata</module>    
+    <!--module>uas-metadata</module-->    
     <module>uas-jclouds</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
       <dependency>
-      <groupId>eu.unicore.services</groupId>
-      <artifactId>use-restclient</artifactId>
-      <version>${use.version}</version>
+	<groupId>eu.unicore.services</groupId>
+	<artifactId>use-restclient</artifactId>
+	<version>${use.version}</version>
       </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
@@ -141,7 +143,36 @@
       <artifactId>jsch</artifactId>
       <version>0.1.53</version>
     </dependency>
-   </dependencies>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+      <version>${lucene.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-core</artifactId>
+      <version>${tika.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-parsers</artifactId>
+      <version>${tika.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-jdk15</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcmail-jdk15</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.xmlbeans</groupId>
+          <artifactId>xmlbeans</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    </dependencies>
   </dependencyManagement>
   <repositories>
     <repository>
