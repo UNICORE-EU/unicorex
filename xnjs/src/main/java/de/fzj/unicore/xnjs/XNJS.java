@@ -225,9 +225,13 @@ public class XNJS {
 	private Reporter createReporter() throws Exception {
 		Reporter r = config.getMetricReporter();
 		if(r==null){
-			JmxReporter jr = JmxReporter.forRegistry(metricRegistry).inDomain("xnjs-" + uniqueID + "-metrics").build();
-			jr.start();
-			r = jr;
+			try {
+				JmxReporter jr = JmxReporter.forRegistry(metricRegistry).inDomain("xnjs-" + uniqueID + "-metrics").build();
+				jr.start();
+				r = jr;
+			}catch(Exception ex) {
+				logger.error("Could not create JmxReporter", ex);
+			}
 		}
 		return r;
 	}
