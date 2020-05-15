@@ -22,6 +22,10 @@
 
   <dependencies>
     <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
       <groupId>eu.unicore</groupId>
       <artifactId>uas-core</artifactId>
       <version>${project.version}</version>

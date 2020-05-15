@@ -42,11 +42,15 @@ import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
@@ -54,7 +58,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.lucene.util.Version;
 import org.apache.tika.metadata.Metadata;
 
 import de.fzj.unicore.uas.metadata.SearchResult;
@@ -97,12 +100,12 @@ public class LuceneIndexer {
 	private final String dataDirectory;
 	private final Directory directory;
 
-	private static final Version VER = Version.LUCENE_34;
-	private final QueryParser parser = new QueryParser(VER, SEARCH_KEY, new StandardAnalyzer(VER));
-	private final IndexWriter indexWriter;
+	private final QueryParser parser = new QueryParser(SEARCH_KEY, new StandardAnalyzer());
 
 	private final static Map<String, LuceneIndexer>indexers=new HashMap<String, LuceneIndexer>();
 
+	private final IndexWriter indexWriter;
+	
 	/**
 	 * @param id - the id of the indexer, usually equal to the storage UUID
 	 * @param indexDir - the base directory for the indexes
@@ -194,7 +197,7 @@ public class LuceneIndexer {
 	 */
 	public void moveMetadata(String source, String target) throws IOException {
 		Document doc = getDocument(source);
-		if (doc == null) {
+		if (doc == null || doc.getFields().size()==0) {
 			throw new IllegalArgumentException("No metadata indexed for " + source + ": unable to move");
 		}
 		removeMetadata(source);
@@ -210,7 +213,8 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public List<SearchResult> search(String queryString, int maximalHits) throws IOException {
-		try(IndexSearcher searcher = new IndexSearcher(directory)) {
+		IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
+		try {
 			List<SearchResult> ret = new ArrayList<SearchResult>();
 			Query query = parser.parse(queryString);
 			TopDocs results = searcher.search(query, maximalHits);
@@ -241,7 +245,6 @@ public class LuceneIndexer {
 		for (String queryString : queryStrings) {
 			List<SearchResult> partialResult = search(queryString, numberOfrecords);
 			lstMetadataFiles.addAll(partialResult);
-			//            logger.debug(String.format("Searching for [%s]: [%d] results found",queryString,partialResult.size()));
 		}
 
 		return lstMetadataFiles;
@@ -260,8 +263,7 @@ public class LuceneIndexer {
 	 * @throws java.io.IOException
 	 */
 	public void optimizeIndex() throws IOException {
-		indexWriter.commit();
-		indexWriter.optimize();
+		commit();
 	}
 
 	/**
@@ -270,6 +272,7 @@ public class LuceneIndexer {
 	 */
 	public void deleteAll()throws IOException{
 		indexWriter.deleteAll();
+		indexWriter.commit();
 	}
 
 	/**
@@ -281,8 +284,9 @@ public class LuceneIndexer {
 	 * @throws IOException  if the search index cannot be initialized
 	 */
 	protected Document getDocument(final String resourceName) throws IOException {
-		try(IndexSearcher searcher = new IndexSearcher(directory)) {
-			Query query = new TermQuery(new Term(Metadata.RESOURCE_NAME_KEY, resourceName));
+		IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
+		try {
+			Query query = new TermQuery(new Term(Metadata.RESOURCE_NAME_KEY, resourceName)); 
 			//XXX: it might be possible that there are more documents for the resourceName... should we merge?
 			TopDocs result = searcher.search(query, 1);
 			//XXX: return empty or throw an exception?
@@ -290,19 +294,11 @@ public class LuceneIndexer {
 				return null;
 			}
 			return searcher.doc(result.scoreDocs[0].doc);
+		}finally {
+		
 		}
 	}
-
-	/**
-	 * Returns the number of documents currently indexed.
-	 * 
-	 * @return number of documents currently in index
-	 * @throws IOException
-	 */
-	protected int getNumberOfDocuments() throws IOException {
-		return indexWriter.numDocs();
-	}
-
+	
 	private Directory initalizeDataDirectory() throws IOException {
 		File chkDir = new File(dataDirectory);
 		boolean mkdirs = true;
@@ -313,7 +309,7 @@ public class LuceneIndexer {
 		if (!mkdirs || !chkDir.isDirectory()) {
 			throw new IOException(String.format("Unable to create/find: %s Lucene index directory", dataDirectory));
 		}
-		return new NIOFSDirectory(new File(dataDirectory));
+		return new NIOFSDirectory(new File(dataDirectory).toPath());
 	}
 
 	private IndexWriter initializeIndex() throws IOException {
@@ -321,14 +317,8 @@ public class LuceneIndexer {
 		// Sometimes a server crash may leave the lock file, so check and unlock if necessary
 		// This is only called when creating the LuceneIndexer, and indexers are per-storage,
 		// so it should be safe to forcibly unlock
-		boolean locked = IndexWriter.isLocked(directory);
-		if (locked) {
-			IndexWriter.unlock(directory);
-			locked = IndexWriter.isLocked(directory);
-			LOG.debug(String.format("Directory %s locked status: %s", dataDirectory, String.valueOf(locked)));
-		}
-		IndexWriterConfig cfg = new IndexWriterConfig(VER, new StandardAnalyzer(VER));
-		cfg.setWriteLockTimeout(10000);
+	
+		IndexWriterConfig cfg = new IndexWriterConfig(new StandardAnalyzer());
 		IndexWriter indexWriter=new IndexWriter(directory, cfg);
 		//create index files (to avoid errors when searching is started before files are added)
 		indexWriter.commit();
@@ -371,21 +361,22 @@ public class LuceneIndexer {
 		if (resource == null || resource.trim().isEmpty()) {
 			throw new IllegalArgumentException("Resource name cannot be null or empty");
 		}
-
+		
 		Document doc = new Document();
 		for (Map.Entry<String, String> entry : metadata.entrySet()) {
-			doc.add(new Field(entry.getKey(), entry.getValue(), Field.Store.YES,
-					Field.Index.ANALYZED));
+			doc.add(new Field(entry.getKey(), entry.getValue(), TextField.TYPE_STORED));
 		}
+		
 		//it might be already in the metadata: update
 		doc.removeField(Metadata.RESOURCE_NAME_KEY);
-		doc.add(new Field(Metadata.RESOURCE_NAME_KEY, resource,
-				Field.Store.YES, Field.Index.NOT_ANALYZED));
-
+		FieldType type = new FieldType();
+		type.setTokenized(false);
+		type.setStored(true);
+		type.setIndexOptions(IndexOptions.DOCS);
+		doc.add(new Field(Metadata.RESOURCE_NAME_KEY, resource, type));
 
 		if (contents != null && !contents.trim().isEmpty()) {
-			doc.add(new Field(LuceneIndexer.CONTENT_KEY, contents, Field.Store.NO,
-					Field.Index.ANALYZED));
+			doc.add(new Field(LuceneIndexer.CONTENT_KEY, contents, TextField.TYPE_NOT_STORED));
 		}
 
 		return doc;

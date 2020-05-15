@@ -26,12 +26,13 @@
 
   <properties>
     <compiler.fork>false</compiler.fork>
+    <guice.version>4.2.2</guice.version>
     <use.version>4.0.3</use.version>
     <persistence.version>0.103</persistence.version>
     <uftp.version>2.7.2</uftp.version>
     <metrics.version>3.2.6</metrics.version>
     <groovy.version>2.4.16</groovy.version>
-    <lucene.version>7.1.0</lucene.version>
+    <lucene.version>8.5.1</lucene.version>
     <tika.version>1.22</tika.version>
   </properties>
 
@@ -40,12 +41,17 @@
     <module>uas-types</module>
     <module>uas-core</module>
     <module>uas-client</module>
-    <!--module>uas-metadata</module-->    
+    <module>uas-metadata</module>    
     <module>uas-jclouds</module>
   </modules>
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+	<groupId>com.google.inject</groupId>
+	<artifactId>guice</artifactId>
+	<version>${guice.version}</version>
+      </dependency>
       <dependency>
 	<groupId>eu.unicore.services</groupId>
 	<artifactId>use-restclient</artifactId>
@@ -146,6 +152,11 @@
     <dependency>
       <groupId>org.apache.lucene</groupId>
       <artifactId>lucene-core</artifactId>
+      <version>${lucene.version}</version>
+    </dependency>
+   <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-queryparser</artifactId>
       <version>${lucene.version}</version>
     </dependency>
     <dependency>
