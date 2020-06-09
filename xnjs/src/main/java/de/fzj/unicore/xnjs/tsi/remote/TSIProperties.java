@@ -34,6 +34,7 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String TSI_MYPORT="replyport";
 	public static final String TSI_BSSUSER="priveduser";
 	public static final String TSI_TIMEOUT="socket.timeout";
+	public static final String TSI_NO_CHECK="socket.no_check_matching_ips";
 	public static final String TSI_CONNECT_TIMEOUT="socket.connect.timeout";
 	public static final String TSI_DISABLE_SSL="ssl.disable";
 	public static final String TSI_WORKER_LIMIT ="limitTSIConnections";
@@ -88,6 +89,10 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Read timeout (seconds) on the TSI connection. Set to '0' for no timeout."));	
 		META.put(TSI_CONNECT_TIMEOUT, new PropertyMD("10").setInt().setBounds(0, Integer.MAX_VALUE).
 				setDescription("Connection timeout (seconds) on when establishing (or checking) the TSI connection. Set to '0' for no timeout."));	
+		
+		META.put(TSI_NO_CHECK, new PropertyMD("false").
+				setDescription("Disable checking if IP address(es) of command/data socket callbacks are as expected."));
+	
 		META.put(TSI_BSSUSER, new PropertyMD("unicore").
 				setDescription("Account used for getting statuses of all batch jobs (cannot be 'root')."));	
 		META.put(TSI_DISABLE_SSL, new PropertyMD("true").setBoolean().

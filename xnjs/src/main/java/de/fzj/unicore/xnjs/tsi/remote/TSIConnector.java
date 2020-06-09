@@ -86,18 +86,28 @@ public class TSIConnector {
 		Socket commands_socket = server.accept();
 		Socket data_socket = server.accept();
 
+		boolean no_check = properties.getBooleanValue(TSIProperties.TSI_NO_CHECK);
+		
 		// Make sure that pair comes from same machine
-		if(!commands_socket.getInetAddress().equals(data_socket.getInetAddress())) {
+		if(!no_check && !commands_socket.getInetAddress().equals(data_socket.getInetAddress())) {
+			String msg = "TSI problem: data/command socket address mismatch"
+					+ "Data: "+data_socket.getInetAddress()
+					+ "Cmd:  " +commands_socket.getInetAddress()
+					+ ". Contact site administration!";
 			IOUtils.closeQuietly(data_socket);
 			IOUtils.closeQuietly(commands_socket);
-			throw new IOException("TSI problem: data/command socket address mismatch");
+			throw new IOException(msg);
 		}
 
 		// and want them both to be from the correct place
-		if(!commands_socket.getInetAddress().equals(actualTSIAddress)) {
+		if(!no_check && !commands_socket.getInetAddress().equals(actualTSIAddress)) {
+			String msg = "Invalid new TSI connection (wrong machine). "
+					+ "Expected: "+actualTSIAddress
+					+ "Got: " +commands_socket.getInetAddress()
+					+ ". Contact site administration!";
 			IOUtils.closeQuietly(data_socket);
 			IOUtils.closeQuietly(commands_socket);
-			throw new IOException("Invalid new TSI connection (wrong machine). Contact site administration!"); // ?? OK
+			throw new IOException(msg);
 		}
 
 		newConn = new TSIConnection(commands_socket, data_socket, factory, this);
