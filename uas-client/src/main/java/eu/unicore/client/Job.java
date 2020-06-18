@@ -182,6 +182,11 @@ public class Job {
 		return this;
 	}
 	
+	public Job wait_for_client_stage_in() {
+		JSONUtil.putQuietly(json, "haveClientStageIn", "true");
+		return this;
+	}
+
 	public static class Stage {
 
 		protected final JSONObject stage;

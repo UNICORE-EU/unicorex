@@ -9,14 +9,12 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
 import de.fzj.unicore.uas.util.DefaultOnStartup;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.wsrflite.Home;
 import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
-import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
 import de.fzj.unicore.wsrflite.security.ACLEntry;
 import de.fzj.unicore.wsrflite.security.ACLEntry.MatchType;
 import eu.unicore.security.OperationType;
@@ -73,16 +71,7 @@ public class InitSharedStorages implements Runnable{
 				
 				for(Map.Entry<String,StorageDescription> entry: storageConfigurations.entrySet()){
 					StorageDescription desc = entry.getValue();
-					String id = desc.getName();
-					try{
-						// this will throw ResourceUnknowException if resource does not exist
-						smsHome.get(id);
-						UASWSResourceImpl sms=(UASWSResourceImpl)smsHome.get(id);
-						// It exists, so force re-publish
-						sms.publish();
-						continue;
-					}
-					catch(ResourceUnknownException e){}
+					desc.setCleanup(false);
 					doCreateSMS(smsHome, desc);
 				}
 			}finally{

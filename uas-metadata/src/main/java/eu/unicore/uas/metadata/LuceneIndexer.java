@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
@@ -313,6 +314,21 @@ public class LuceneIndexer {
 	}
 
 	private IndexWriter initializeIndex() throws IOException {
+		int attempts = 0;
+		while(attempts < 2) {
+			try {
+				return do_initializeIndex();
+			}catch(org.apache.lucene.index.IndexFormatTooOldException e) {
+				LOG.info(String.format("Old / unsupported Lucene index file detected in: %s, cleanup & retry ...", dataDirectory));
+				FileUtils.deleteQuietly(new File(dataDirectory));
+				attempts++;
+			}
+		}
+		throw new IOException(String.format("Could not create Lucene index in: %s", dataDirectory));
+	}
+	
+	
+	private IndexWriter do_initializeIndex() throws IOException {
 		
 		// Sometimes a server crash may leave the lock file, so check and unlock if necessary
 		// This is only called when creating the LuceneIndexer, and indexers are per-storage,

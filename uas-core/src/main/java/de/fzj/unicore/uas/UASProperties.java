@@ -315,20 +315,31 @@ public class UASProperties extends PropertiesHelper {
 
 		Map<String, StorageDescription> ret = new HashMap<String, StorageDescription>();
 		for(String id: storageIds) {
-			String pfx = PREFIX+prefixComponent + id + ".";
-
-			SMSProperties smsProps = new SMSProperties(pfx, properties);
-			Class<? extends StorageManagement> cl = smsProps.getClassValue(SMSProperties.CLASS, StorageManagement.class);
-			String clazz = cl != null ? cl.getName() : null; 
-			String path = smsProps.getValue(SMSProperties.PATH);
-			if(path == null)path = smsProps.getValue(SMSProperties.WORKDIR);
-			
-			StorageDescription asd = new StorageDescription(id,
-					smsProps.getValue(SMSProperties.NAME),
-					smsProps.getEnumValue(SMSProperties.TYPE, StorageTypes.class),
-					clazz); 
-			configureCommon(asd, smsProps, path, !disableExistenceCheck); 
-			ret.put(id, asd);
+			try {
+				String pfx = PREFIX+prefixComponent + id + ".";
+				SMSProperties smsProps = new SMSProperties(pfx, properties);
+				Class<? extends StorageManagement> cl = smsProps.getClassValue(SMSProperties.CLASS, StorageManagement.class);
+				String clazz = cl != null ? cl.getName() : null; 
+				String path = smsProps.getValue(SMSProperties.PATH);
+				if(path == null)path = smsProps.getValue(SMSProperties.WORKDIR);
+				String typeS = smsProps.getValue(SMSProperties.TYPE);
+				if(typeS==null) {
+					if(path!=null && path.contains("$")) {
+						typeS = StorageTypes.VARIABLE.toString();
+					}
+					else {
+						typeS = StorageTypes.FIXEDPATH.toString();
+					}
+				}
+				StorageDescription asd = new StorageDescription(id,
+						smsProps.getValue(SMSProperties.NAME),
+						StorageTypes.valueOf(typeS),
+						clazz); 
+				configureCommon(asd, smsProps, path, !disableExistenceCheck); 
+				ret.put(id, asd);
+			}catch(Exception ex) {
+				throw new ConfigurationException("Could not parse Storage <"+id+">", ex);
+			}
 		}
 		return ret;
 	}
@@ -348,9 +359,18 @@ public class UASProperties extends PropertiesHelper {
 		String clazz = cl != null ? cl.getName() : null;
 		String path = smsProps.getValue(SMSProperties.PATH);
 		if(path == null)path = smsProps.getValue(SMSProperties.WORKDIR);
+		String typeS = smsProps.getValue(SMSProperties.TYPE);
+		if(typeS==null) {
+			if(path!=null && path.contains("$")) {
+				typeS = StorageTypes.VARIABLE.toString();
+			}
+			else {
+				typeS = StorageTypes.FIXEDPATH.toString();
+			}
+		}
 		StorageDescription asd = new StorageDescription(id,
 				smsProps.getValue(SMSProperties.NAME),
-				smsProps.getEnumValue(SMSProperties.TYPE, StorageTypes.class),
+				StorageTypes.valueOf(typeS),
 				clazz);
 		boolean checkExistence = !factory && smsProps.getBooleanValue(SMSProperties.CHECK_EXISTENCE);
 		configureCommon(asd, smsProps, path, checkExistence);

@@ -416,15 +416,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		if(!transactionInProgress)
 			assertIsDirectory(dir,"Could not create directory.");
 	}
-	
-	@Override
-	public void mkfifo(String fifo) throws ExecutionException {
-		begin();
-		String target = makeQuotedTarget(fifo);
-		commands.append(tsiProperties.getValue(TSIProperties.TSI_MKFIFO) + " " + target + "\n");
-		commands.append(tsiProperties.getValue(TSIProperties.TSI_CHMOD) + " " + TSIUtils.getFilePerm(umask) + " " + target + "\n");
-		commit();
-	}
 
 	@Override
 	public String getFileSeparator(){

@@ -54,13 +54,11 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.UASWSResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
-import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
-import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.security.Client;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
@@ -224,20 +222,6 @@ public abstract class FileTransferImpl extends UASWSResourceImpl implements Data
 	protected OutputStream createNewOutputStream(boolean append)throws IOException,ExecutionException{
 		OutputStream os=getStorageAdapter().getOutputStream(getModel().getTarget(),append);
 		return os;
-	}
-
-	protected void createFIFO()throws ExecutionException{
-		FileTransferModel m = getModel(); 
-		TSI tsi=XNJSFacade.get(m.getXnjsReference(), kernel).getTSI(getClient());
-		tsi.setStorageRoot(m.getWorkdir());
-		tsi.mkfifo(m.getTarget());
-	}
-
-	protected void destroyFIFO()throws ExecutionException{
-		FileTransferModel m = getModel(); 
-		TSI tsi=XNJSFacade.get(m.getXnjsReference(), kernel).getTSI(getClient());
-		tsi.setStorageRoot(m.workdir);
-		tsi.rm(m.target);
 	}
 
 	/*

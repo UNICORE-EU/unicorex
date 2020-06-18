@@ -68,10 +68,12 @@ public class SMSProperties extends PropertiesHelper {
 	static {
 		META.put(NAME, new PropertyMD().
 				setDescription("Storage name. If not set then the internal unique identifier is used."));
-		META.put(TYPE, new PropertyMD(StorageTypes.FIXEDPATH).
-				setDescription("Storage type. FIXEDPATH: mapped to a fixed directory, VARIABLE: resolved using an environmental variable lookup, CUSTOM: specified class is used."));
+		META.put(TYPE, new PropertyMD().
+				setDescription("Storage type. FIXEDPATH: mapped to a fixed directory, "
+						+ "VARIABLE: resolved using an environmental variable lookup, "
+						+ "CUSTOM: specified class is used."));
 		META.put(PATH, new PropertyMD().
-				setDescription("Denotes a storage base path or the name of an environment variable in case of the VARIABLE type."));
+				setDescription("Denotes the storage base path."));
 		META.put(CLASS, new PropertyMD().setClass(StorageManagement.class).
 				setDescription("Storage implementation class used (and mandatory) in case of the CUSTOM type."));
 		META.put(FILTER_LISTING, new PropertyMD("false").setUpdateable().

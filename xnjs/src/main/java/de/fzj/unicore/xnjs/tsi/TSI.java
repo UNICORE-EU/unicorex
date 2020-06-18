@@ -63,13 +63,6 @@ public interface TSI extends IStorageAdapter{
 	 * @return true if filesystem is local
 	 */
 	public boolean isLocal();
-	
-	/**
-	 * create a named pipe (FIFO) (probably Unix only)
-	 * 
-	 * @throws ExecutionException
-	 */
-	public void mkfifo(String name) throws ExecutionException;
 
 	/**
 	 * get the HOME directory of the current client

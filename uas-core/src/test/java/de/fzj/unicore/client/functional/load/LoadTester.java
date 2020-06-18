@@ -237,7 +237,7 @@ public class LoadTester extends TestCase {
 		r.run();
 		long e=System.currentTimeMillis();
 		printStats(msg+" ["+(e-s)+" ms], running threads="+running);
-		responseTimes.add(new Long(e-s));
+		responseTimes.add(Long.valueOf(e-s));
 	}
 	
 	protected static synchronized void printStats(String s, boolean echo)throws Exception {
