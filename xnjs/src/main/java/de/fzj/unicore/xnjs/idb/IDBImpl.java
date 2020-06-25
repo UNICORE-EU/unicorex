@@ -404,10 +404,15 @@ public class IDBImpl implements IDB {
 	}
 
 	private long lastDirectoryHash = 0;
+
 	/**
 	 * checks whether the IDB has changed since the last time it was read
 	 */
 	protected synchronized boolean idbWasModified(){
+		if(mainFile!=null && mainFile.lastModified() > lastUpdate) {
+			return true;
+		}
+
 		if(isDirectory && lastUpdate>0){
 			if(lastDirectoryHash+30000>System.currentTimeMillis()){
 				return false;
