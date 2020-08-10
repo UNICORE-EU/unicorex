@@ -232,11 +232,14 @@ public class LuceneMetadataManager implements StorageMetadataManager {
     @Override
     public Future<ExtractionStatistics> startAutoMetadataExtraction(final List<String>files, final List<Pair<String,Integer>>dirs) throws InstantiationException, IllegalAccessException {
         isStorageReady();
-
-        MetadataCrawler metaCrawler = new MetadataCrawler(this, storage, files, dirs, kernel);
-        Future<ExtractionStatistics> future= kernel.getContainerProperties().getThreadingServices().
-        		getExecutorService().submit(metaCrawler);
-        return future;
+        try {
+            MetadataCrawler metaCrawler = new MetadataCrawler(this, storage, files, dirs, kernel);
+            Future<ExtractionStatistics> future= kernel.getContainerProperties().getThreadingServices().
+                getExecutorService().submit(metaCrawler);
+            return future;
+        }catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
     
     @Override

@@ -27,7 +27,7 @@
   <properties>
     <compiler.fork>false</compiler.fork>
     <guice.version>4.2.2</guice.version>
-    <use.version>4.0.3</use.version>
+    <use.version>4.0.4</use.version>
     <persistence.version>0.103</persistence.version>
     <uftp.version>2.7.2</uftp.version>
     <metrics.version>3.2.6</metrics.version>

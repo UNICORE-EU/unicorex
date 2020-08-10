@@ -1,10 +1,8 @@
 package de.fzj.unicore.uas.impl.sms;
 
-import java.io.File;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,11 +27,6 @@ import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.Permissions;
 import de.fzj.unicore.xnjs.util.URIUtils;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.DiskStoreConfiguration;
-import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 
 /**
  * utility methods for the SMS
@@ -152,31 +145,6 @@ public class SMSUtils {
 		}
 	}
 
-
-	/**
-	 * Create an in-memory cache for remembering file transfer protocol choices
-	 * for remote storages. We use a shared (static) instance of this cache.
-	 */
-	public static Cache createProtocolCache()
-	{
-		net.sf.ehcache.config.Configuration cmCfg = new net.sf.ehcache.config.Configuration();
-		CacheConfiguration def = new CacheConfiguration();
-		cmCfg.addDefaultCache(def);
-		//EHCache doesn't accept 2 CMs with same (even null) disk path even when nothing
-		//is stored on disk ;-(
-		DiskStoreConfiguration dsCfg = new DiskStoreConfiguration();
-		dsCfg.setPath(System.getProperty("java.io.tmpdir") + File.separator + 
-				"protocolCache" + new Random().nextLong());
-		cmCfg.addDiskStore(dsCfg);
-		CacheManager cacheMan = new CacheManager(cmCfg);
-
-		Cache result = new Cache(
-				"protocolCache", 
-				100, MemoryStoreEvictionPolicy.LFU,
-				false, null, false, 300, 300, false, 60, null);
-		cacheMan.addCache(result);
-		return result;
-	}
 
 	private static final String[]jsonPermKinds = {"OWNER","GROUP","OTHER"};
 

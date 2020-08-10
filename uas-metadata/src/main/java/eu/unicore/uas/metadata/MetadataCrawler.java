@@ -60,8 +60,8 @@ import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
-import eu.unicore.util.Log;
 import eu.unicore.uas.metadata.MetadataFile.MD_State;
+import eu.unicore.util.Log;
 
 /**
  * Crawlers through the file system and collect metadata for files
@@ -105,7 +105,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	 * @throws IllegalAccessException  thrown when parser instantiation fails
 	 */
 	public MetadataCrawler(LuceneMetadataManager metadataManager, IStorageAdapter storage, List<String> files, List<Pair<String,Integer>>dirs, Kernel kernel) 
-	throws InstantiationException, IllegalAccessException {
+	throws Exception {
 		this.files = files;
 		this.dirs = dirs;
 		this.metadataManager = metadataManager;
@@ -114,7 +114,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		MetadataProperties cfg = kernel.getAttribute(MetadataProperties.class);
 		Class<? extends Parser> parserClass = cfg.getClassValue(MetadataProperties.PARSER_CLASSNAME, 
 				Parser.class);
-		parser = parserClass.newInstance();
+		parser = parserClass.getConstructor().newInstance();
 	}
 
 	@Override
