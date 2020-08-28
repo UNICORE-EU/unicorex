@@ -209,7 +209,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	 * 
 	 * the assumed URI format is
 	 *   
-	 *   u6protocol:protocol://host:port/rest/core/storages/resourceID/files/filespec
+	 *   unicore_protocol:http(s)://host:port/rest/core/storages/resourceID/files/filespec
 	 * 
 	 * @param clazz 
 	 * @param client
@@ -254,14 +254,15 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		}
 	}
 	
-	private static final Pattern restURLPattern = Pattern.compile("(.*)://(.*/rest/core/storages/[^/]*)/files/.*");
+	private static final Pattern restURLPattern = Pattern.compile("(.*)://(.*/rest/core/storages/.*)/files/.*");
 	
 	/**
 	 * extracts the storage part from a REST staging URL
 	 */
 	
 	public static Pair<String,String>extractUrlInfo(URI url){
-		Matcher m = restURLPattern.matcher(url.toString());
+		String urlString = url.toString();
+		Matcher m = restURLPattern.matcher(urlString);
 		if(!m.matches())throw new IllegalArgumentException("Improperly formed storage URL <"+url+">");
 		String schemeSpec=m.group(1);
 		String protocol, scheme;

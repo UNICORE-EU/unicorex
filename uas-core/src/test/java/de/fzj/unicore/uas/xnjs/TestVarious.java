@@ -49,5 +49,10 @@ public class TestVarious {
 		assertEquals("BFT", spec.getM1());
 		assertEquals("https://localhost:8080/rest/core/storages/WORK", spec.getM2());
 		
+		u1 = "https://localhost:8080/rest/core/storages/WORK//files/some/test.txt";
+		spec = UFileTransferCreator.extractUrlInfo(new URI(u1));
+		assertEquals("BFT", spec.getM1());
+		assertEquals("https://localhost:8080/rest/core/storages/WORK/", spec.getM2());
+		
 	}
 }

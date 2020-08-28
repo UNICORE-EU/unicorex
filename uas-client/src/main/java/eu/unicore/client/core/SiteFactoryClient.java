@@ -48,13 +48,17 @@ public class SiteFactoryClient extends BaseServiceClient {
 	}
 
 	public SiteClient getOrCreateSite() throws Exception {
-		EnumerationClient ec = getOrCreateSiteList();
-		List<String>urls = ec.getUrls(0, 1);
-		if(urls.size()==0) {
-			return createSite();
-		}
-		else {
-			return new SiteClient(endpoint.cloneTo(urls.get(0)), security, auth);
+		// "global" sync to avoid creating more sites than required
+		// TODO more controlled locking behavior
+		synchronized (getClass()) {
+			EnumerationClient ec = getOrCreateSiteList();
+			List<String>urls = ec.getUrls(0, 1);
+			if(urls.size()==0) {
+				return createSite();
+			}
+			else {
+				return new SiteClient(endpoint.cloneTo(urls.get(0)), security, auth);
+			}
 		}
 	}
 	
