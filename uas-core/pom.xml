@@ -21,7 +21,7 @@
   </parent>
 
   <properties>
-    <specification.version>8.0.3</specification.version>
+    <specification.version>8.0.4</specification.version>
   </properties>
 
   <dependencies>
@@ -40,7 +40,7 @@
       <version>${project.parent.version}</version>
     </dependency>
     <dependency>
-      <groupId>eu.unicore</groupId>
+      <groupId>eu.unicore.uftp</groupId>
       <artifactId>uftp-core</artifactId>
     </dependency>
     <dependency>

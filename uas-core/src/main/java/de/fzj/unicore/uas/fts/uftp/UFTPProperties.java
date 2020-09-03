@@ -24,7 +24,9 @@ public class UFTPProperties extends PropertiesHelper {
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UASProperties.PREFIX + "uftp.";
-	
+
+	public static final String PARAM_ENABLE_UFTP = "enable";
+
 	
 	/**
 	 * extra property for configuring the UFTP client side:
@@ -115,6 +117,10 @@ public class UFTPProperties extends PropertiesHelper {
 	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	static {
+		
+		META.put(PARAM_ENABLE_UFTP, new PropertyMD("true").setBoolean().
+			setDescription("Controls whether UFTP should be enabled for this server."));
+	
 		META.put(PARAM_CLIENT_LOCAL, new PropertyMD("false").
 				setDescription("Controls whether, the Java UFTP client code should be run directly within the JVM, which will work only if the UNICORE/X has access to the target file system, or, if set to false, in the TSI."));
 		META.put(PARAM_CLIENT_EXECUTABLE, new PropertyMD("uftp.sh").

@@ -8,9 +8,11 @@ import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransfer;
 import de.fzj.unicore.uas.fts.FileTransferHomeImpl;
+import de.fzj.unicore.uas.fts.uftp.UFTPStartupTask;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl;
 import de.fzj.unicore.uas.metadata.MetadataManagementHomeImpl;
+import de.fzj.unicore.uas.xtreemfs.XtreemFSStartupTask;
 import de.fzj.unicore.wsrflite.DeploymentDescriptor;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.utils.deployment.DeploymentDescriptorImpl;
@@ -24,13 +26,15 @@ import eu.unicore.services.ws.cxf.CXFService;
  */
 public class StorageAccessFeature extends FeatureImpl {
 	
-	public StorageAccessFeature(Kernel kernel) {
-		this();
-		setKernel(kernel);
-	}
-	
 	public StorageAccessFeature() {
 		this.name = "StorageAccess";
+	}
+
+	@Override
+	public void setKernel(Kernel kernel) {
+		super.setKernel(kernel);
+		getInitTasks().add(new UFTPStartupTask(kernel));
+		getInitTasks().add(new XtreemFSStartupTask(kernel));	
 	}
 
 	public List<DeploymentDescriptor> getServices(){
@@ -40,8 +44,8 @@ public class StorageAccessFeature extends FeatureImpl {
 		services.add(new StorageFactory(kernel));		
 		services.add(new Metadata(kernel));		
 		
-		services.add(new ServerServerFTS(kernel));		
 		services.add(new ClientFileTransfer(kernel));
+		services.add(new ServerServerFTS(kernel));		
 		
 		return services;
 	}
@@ -115,12 +119,8 @@ public class StorageAccessFeature extends FeatureImpl {
 	public static class ClientFileTransfer extends DeploymentDescriptorImpl {
 
 		public ClientFileTransfer(Kernel kernel){
-			this();
-			setKernel(kernel);
-		}
-		
-		public ClientFileTransfer() {
 			super();
+			setKernel(kernel);
 			this.name = UAS.CLIENT_FTS;
 			this.type = CXFService.TYPE;
 			this.implementationClass = FileTransferHomeImpl.class;

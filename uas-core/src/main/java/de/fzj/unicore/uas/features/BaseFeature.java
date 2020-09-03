@@ -22,11 +22,6 @@ import eu.unicore.services.ws.cxf.CXFService;
  * @author schuller
  */
 public class BaseFeature extends FeatureImpl {
-
-	public BaseFeature(Kernel kernel) {
-		this();
-		setKernel(kernel);
-	}
 	
 	public BaseFeature() {
 		this.name = "Base";

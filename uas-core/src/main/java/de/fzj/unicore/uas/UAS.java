@@ -103,7 +103,7 @@ public class UAS extends USEContainer {
 			System.out.println("Reading config from " + args[0]);
 			UAS uas=new UAS(args[0]);
 			uas.startSynchronous();
-		}catch(Exception ex){
+		}catch(Throwable ex){
 			Logger.getLogger("unicore").fatal(ex);
 			String msg = Log.createFaultMessage("ERROR during server startup, server NOT started", ex);
 			Logger.getLogger("unicore").fatal(msg);

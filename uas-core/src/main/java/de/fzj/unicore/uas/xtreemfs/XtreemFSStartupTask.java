@@ -4,16 +4,24 @@
  */
 package de.fzj.unicore.uas.xtreemfs;
 
-import de.fzj.unicore.wsrflite.server.AbstractStartupTask;
+import de.fzj.unicore.wsrflite.Kernel;
 
 /**
  * Loads configuration.
  * @author K. Benedyczak
  */
-public class XtreemFSStartupTask extends AbstractStartupTask {
+public class XtreemFSStartupTask implements Runnable {
+	
+	private Kernel kernel;
+	
+	public XtreemFSStartupTask(Kernel kernel) {
+		this.kernel = kernel;
+	}
+	
+	
 	@Override
 	public void run() {
-		XtreemProperties cfg = new XtreemProperties(getKernel().getContainerProperties().getRawProperties());
-		getKernel().addConfigurationHandler(XtreemProperties.class, cfg);
+		XtreemProperties cfg = new XtreemProperties(kernel.getContainerProperties().getRawProperties());
+		kernel.addConfigurationHandler(XtreemProperties.class, cfg);
 	}
 }

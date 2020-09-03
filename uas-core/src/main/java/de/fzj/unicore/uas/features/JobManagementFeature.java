@@ -25,11 +25,6 @@ import eu.unicore.services.ws.cxf.CXFService;
  */
 public class JobManagementFeature extends FeatureImpl {
 
-	public JobManagementFeature(Kernel kernel) {
-		this();
-		setKernel(kernel);
-	}
-	
 	public JobManagementFeature() {
 		this.name = "JobManagement";
 	}

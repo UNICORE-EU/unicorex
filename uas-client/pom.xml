@@ -45,7 +45,7 @@
      <artifactId>commons-io</artifactId>
     </dependency>
     <dependency>
-     <groupId>eu.unicore</groupId>
+     <groupId>eu.unicore.uftp</groupId>
      <artifactId>uftp-core</artifactId>
     </dependency>
   </dependencies>
