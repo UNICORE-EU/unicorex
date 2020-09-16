@@ -246,10 +246,11 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	 */
 	protected void createParentDirectories(String target)throws ExecutionException{
 		String s = getParentOfLocalFilePath(target);
-		XnjsFile parent=getStorageAdapter().getProperties(s);
+		IStorageAdapter sms = getStorageAdapter();
+		XnjsFile parent=sms.getProperties(s);
 		if(parent==null){
 			//create
-			getStorageAdapter().mkdir(s);
+			sms.mkdir(s);
 		}
 		else if(!parent.isDirectory()){
 			throw new ExecutionException("Parent <"+s+"> is not a directory");

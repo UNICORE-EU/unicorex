@@ -19,6 +19,7 @@ import de.fzj.unicore.xnjs.io.FileSet;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
+import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.util.Log;
@@ -180,6 +181,9 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 			IStorageAdapter s=getStorageAdapter();
 			String sRoot=s.getStorageRoot();
 			String sUmask=s.getUmask();
+			if(s instanceof TSI && tgt.contains("$")) {
+				tgt = ((TSI)s).resolve(tgt);
+			}
 			try{
 				s.setStorageRoot("/");
 				s.setUmask(targetUmask);
