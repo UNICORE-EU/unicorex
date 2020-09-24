@@ -15,12 +15,12 @@ public class SiteNameFilter implements AddressFilter {
 	}
 	@Override
 	public boolean accept(Endpoint epr) {
-		return true;
+		return name==null || epr.getUrl().contains("/"+name+"/");
 	}
 
 	@Override
 	public boolean accept(String uri) {
-		return true;
+		return name==null || uri.contains("/"+name+"/");
 	}
 
 	@Override
