@@ -17,7 +17,7 @@ import de.fzj.unicore.xnjs.io.XNJSSocketFactory;
  */
 public class TSISocketFactory extends XNJSSocketFactory {
 	
-	private final ServerSocket server;
+	private ServerSocket server;
 
 	private final int myPort;
 
@@ -30,7 +30,7 @@ public class TSISocketFactory extends XNJSSocketFactory {
 		this.myPort=myPort;
 		TSIProperties tsiProps = xnjs.get(TSIProperties.class);
 		disableSSL=tsiProps.getBooleanValue(TSIProperties.TSI_DISABLE_SSL);
-		server=init();
+		server = init();
 	}
 
 	private ServerSocket init()throws Exception{
@@ -42,6 +42,14 @@ public class TSISocketFactory extends XNJSSocketFactory {
 		}
 	}
 
+	/**
+	 * close and re-open the server socket - use wisely
+	 */
+	public void reInit() throws Exception {
+		server.close();
+		server = init();
+	}
+	
 	private ServerSocket createPlainServer()throws IOException{
 		return new ServerSocket(myPort);
 	}
