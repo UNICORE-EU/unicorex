@@ -21,14 +21,14 @@
     "ExecuteScriptTemplate" : 
 "#!/bin/bash \
 #COMMAND \
-FOO=bar \
+FOO=bar\
 #SCRIPT",
 
-    "SubmitScriptTemplate" : 
-"#!/bin/bash \
-#COMMAND \
-#RESOURCES \
-FOO=bar \
-#SCRIPT",
-
+    "SubmitScriptTemplate" : [
+		"#!/bin/bash",
+		"#COMMAND",
+		"#RESOURCES",
+		"FOO=bar",
+		"#SCRIPT",
+	]
 }

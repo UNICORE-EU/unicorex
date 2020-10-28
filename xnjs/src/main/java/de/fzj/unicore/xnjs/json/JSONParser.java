@@ -62,6 +62,10 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return meta;
 	}
 	
+	public String parseScriptTemplate(String key, JSONObject idb) {
+		return JSONUtils.readMultiLine(key, null, idb);
+	}
+
 	public List<ResourceRequest> parseResourceRequest(JSONObject source) throws Exception {
 		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
 		if(source!=null) {

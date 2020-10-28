@@ -34,4 +34,21 @@ public class JSONUtils {
 		}
 		return res;
 	}
+	
+	public static String readMultiLine(String key, String defaultValue, JSONObject source){
+		JSONArray a = source.optJSONArray(key);
+		if(a==null) {
+			return source.optString(key, defaultValue);
+		}
+		else if(a.length()>0){
+			StringBuilder sb = new StringBuilder();
+			for(int i=0;i<a.length();i++) {
+				String v = a.optString(i, "");
+				sb.append(v);
+				if(!v.endsWith("\n"))sb.append("\n");
+			}
+			return sb.toString();
+		}
+		else return defaultValue;
+	}
 }

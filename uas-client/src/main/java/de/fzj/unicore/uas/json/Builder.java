@@ -362,7 +362,7 @@ public class Builder {
 		d.setFileName(target);
 		d.addNewSource().setURI(source);
 		if(source.toLowerCase().startsWith("inline:")){
-			String data = jObj.optString("Data", "");
+			String data = JSONUtil.readMultiLine("Data", "", jObj);
 			InlineDataDocument dataDoc = InlineDataDocument.Factory.newInstance();
 			dataDoc.setInlineData(data);
 			WSUtilities.append(dataDoc, d);

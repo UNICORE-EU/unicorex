@@ -48,7 +48,6 @@ import de.fzj.unicore.xnjs.io.ACLEntry;
 import de.fzj.unicore.xnjs.io.ACLEntry.Type;
 import de.fzj.unicore.xnjs.io.ChangeACL;
 import de.fzj.unicore.xnjs.io.ChangeACL.ACLChangeMode;
-import de.fzj.unicore.xnjs.tsi.remote.RemoteTSI;
 import de.fzj.unicore.xnjs.io.XnjsFileImpl;
 
 /**

@@ -9,6 +9,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -126,4 +127,17 @@ public class TestJSONParser {
 		System.out.println(r);
 	}
 	
+	@Test
+	public void testTemplates() throws Exception {
+		JSONObject idb = new JSONObject();
+		idb.put("singleLine", "test123");
+		JSONArray array = new JSONArray();
+		array.put("foo");
+		array.put("bar");
+		idb.put("multiLine", array);
+		
+		String t1 = new JSONParser().parseScriptTemplate("singleLine", idb);
+		assertEquals("test123", t1);
+	}
+
 }

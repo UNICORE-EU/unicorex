@@ -47,10 +47,6 @@ import de.fzj.unicore.xnjs.BaseModule;
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.ems.EMSTestBase;
 import de.fzj.unicore.xnjs.tsi.local.LocalExecution.DataMover;
-import de.fzj.unicore.xnjs.tsi.remote.DefaultTSIConnectionFactory;
-import de.fzj.unicore.xnjs.tsi.remote.RemoteTSI;
-import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
-import de.fzj.unicore.xnjs.tsi.remote.TSIProperties;
 
 /**
  * this  starts a TSI server (on ports 65431/65432)

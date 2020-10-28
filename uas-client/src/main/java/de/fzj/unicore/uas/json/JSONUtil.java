@@ -194,5 +194,33 @@ public class JSONUtil {
 		}
 		return obj;
 	}
+
+	/**
+	 * read a string value that can optionally be an array
+	 * of strings, and return it as a single string
+	 * (with '\n' after each line)
+	 *
+	 * @param key - the JSON element name
+	 * @param defaultValue - a default value (can be null)
+	 * @param source - source JSON object
+	 * @return
+	 */
+	public static String readMultiLine(String key, String defaultValue, JSONObject source){
+		JSONArray a = source.optJSONArray(key);
+		if(a==null) {
+			return source.optString(key, defaultValue);
+		}
+		else if(a.length()>0){
+			StringBuilder sb = new StringBuilder();
+			for(int i=0;i<a.length();i++) {
+				String v = a.optString(i, "");
+				sb.append(v);
+				if(!v.endsWith("\n"))sb.append("\n");
+			}
+			return sb.toString();
+		}
+		else return defaultValue;
+	}
+
 }
 

@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus.Status;
-import de.fzj.unicore.xnjs.tsi.remote.Reservation;
 
 public class TestReservation {
 

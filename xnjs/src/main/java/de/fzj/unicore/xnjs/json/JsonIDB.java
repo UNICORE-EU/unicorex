@@ -56,8 +56,8 @@ public class JsonIDB implements IDBParser {
 		readPartitions(jsonidb.optJSONObject("Partitions"));
 		readApplications(jsonidb, idb.getIdb());
 		readInfo(jsonidb.optJSONObject("Info"));
-		idb.setExecuteTemplate(jsonidb.optString("ExecuteScriptTemplate", null));
-		idb.setSubmitTemplate(jsonidb.optString("SubmitScriptTemplate", null));
+		idb.setExecuteTemplate(new JSONParser().parseScriptTemplate("ExecuteScriptTemplate", jsonidb));
+		idb.setSubmitTemplate(new JSONParser().parseScriptTemplate("SubmitScriptTemplate", jsonidb));
 	}
 	
 	protected void readPartitions(JSONObject source) throws Exception {

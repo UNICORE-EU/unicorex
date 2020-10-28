@@ -332,14 +332,23 @@ public class TestUtils {
 		assertEquals("core-h", b1.getUnits());
 		assertEquals(100, b1.getRemaining());
 		
-		BudgetInfo b2 = new BudgetInfo("hpc 100 10 node-h"); // old style
+		BudgetInfo b2 = new BudgetInfo("hpc 100 10 node-h");
 		assertEquals("hpc", b2.getProjectName());
 		assertEquals("node-h", b2.getUnits());
 		assertEquals(100, b2.getRemaining());
 		assertEquals(10, b2.getPercentRemaining());
 		
 		try {
-			new BudgetInfo("hpc 100 110 node-h"); // old style
+			new BudgetInfo("hpc 100 110 node-h");
 		}catch(IllegalArgumentException e) {}
+		
+		String[] budgetInfos = new String[] {
+				"HPC 1231 12 core-h",
+				"HPC 1231 12.2 core-h"
+		};
+		for(String b: budgetInfos) {
+			assertEquals(12, new BudgetInfo(b).getPercentRemaining());
+		}
 	}
+
 }

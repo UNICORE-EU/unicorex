@@ -32,7 +32,10 @@
 
 package de.fzj.unicore.xnjs.tsi.remote;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -62,26 +65,20 @@ import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.idb.IDB;
+import de.fzj.unicore.xnjs.idb.IDBImpl;
 import de.fzj.unicore.xnjs.io.ChangePermissions;
-import de.fzj.unicore.xnjs.io.TransferInfo;
 import de.fzj.unicore.xnjs.io.ChangePermissions.Mode;
 import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
-import de.fzj.unicore.xnjs.io.impl.Link;
+import de.fzj.unicore.xnjs.io.TransferInfo;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import de.fzj.unicore.xnjs.io.XnjsStorageInfo;
-import de.fzj.unicore.xnjs.idb.IDBImpl;
-import de.fzj.unicore.xnjs.idb.IDB;
+import de.fzj.unicore.xnjs.io.impl.Link;
 import de.fzj.unicore.xnjs.tsi.AbstractTSITest;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
-import de.fzj.unicore.xnjs.tsi.remote.DefaultTSIConnectionFactory;
-import de.fzj.unicore.xnjs.tsi.remote.Execution;
-import de.fzj.unicore.xnjs.tsi.remote.RemoteTSI;
-import de.fzj.unicore.xnjs.tsi.remote.TSIConnection;
-import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;

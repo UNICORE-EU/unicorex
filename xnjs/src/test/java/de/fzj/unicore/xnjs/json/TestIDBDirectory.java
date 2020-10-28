@@ -100,7 +100,9 @@ public class TestIDBDirectory {
 	@Test
 	public void testScriptTemplates() throws Exception {
 		System.out.println(idb.getExecuteTemplate());
-		assertTrue(idb.getExecuteTemplate().contains("FOO=bar"));
-		assertTrue(idb.getSubmitTemplate().contains("FOO=bar"));
+		System.out.println(idb.getSubmitTemplate());
+		assertTrue(idb.getExecuteTemplate().contains("FOO=bar\n#SCRIPT"));
+		assertTrue(idb.getSubmitTemplate().contains("FOO=bar\n#SCRIPT"));
+		
 	}
 }

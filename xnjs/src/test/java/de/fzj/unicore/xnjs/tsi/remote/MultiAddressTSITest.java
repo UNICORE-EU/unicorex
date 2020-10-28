@@ -38,8 +38,6 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.tsi.remote.TSIConnection;
-import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 

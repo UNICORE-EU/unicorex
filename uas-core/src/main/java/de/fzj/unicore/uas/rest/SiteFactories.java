@@ -28,6 +28,7 @@ import eu.unicore.security.Client;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import eu.unicore.util.Log;
 
 /**
  * REST interface to site factories (TSF instances)
@@ -64,10 +65,13 @@ public class SiteFactories extends ServicesBase {
 		Map<String,String> textInfo = new HashMap<String, String>();
 		textInfo.putAll(idb.getTextInfoProperties());
 		props.put("otherInfo", textInfo);
-
-		List<BudgetInfo> budget = tsf.getXNJSFacade().getComputeTimeBudget(client);
-		props.put("remainingComputeTime", IDBContentRendering.budgetToMap(budget));
-		
+		try {
+			List<BudgetInfo> budget = tsf.getXNJSFacade().getComputeTimeBudget(client);
+			props.put("remainingComputeTime", IDBContentRendering.budgetToMap(budget));
+		}catch(Exception ex) {
+			logger.debug(Log.createFaultMessage("Error getting compute budget for "+client.getDistinguishedName(), ex));
+			props.put("remainingComputeTime", new HashMap<>());
+		}
 		return props;
 	}
 
