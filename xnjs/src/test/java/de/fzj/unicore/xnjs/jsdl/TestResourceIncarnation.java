@@ -295,14 +295,11 @@ public class TestResourceIncarnation {
 
 		List<ResourceRequest> testRes=g.incarnateResources(request,null);
 
-		//check nodes default is overriden with correct value
-		assertNotNull(ResourceRequest.find(testRes,JSDLResourceSet.NODES));
 		assertNotNull(ResourceRequest.find(testRes,JSDLResourceSet.CPUS_PER_NODE));
 		assertNotNull(ResourceRequest.find(testRes,JSDLResourceSet.TOTAL_CPUS));
 		
 		assertEquals(4.0,Double.valueOf(ResourceRequest.find(testRes,JSDLResourceSet.TOTAL_CPUS).getRequestedValue()),0.01);
 		assertEquals(2.0,Double.valueOf(ResourceRequest.find(testRes,JSDLResourceSet.CPUS_PER_NODE).getRequestedValue()),0.01);
-		assertEquals(2.0,Double.valueOf(ResourceRequest.find(testRes,JSDLResourceSet.NODES).getRequestedValue()),0.01);
 	}
 
 	@Test
