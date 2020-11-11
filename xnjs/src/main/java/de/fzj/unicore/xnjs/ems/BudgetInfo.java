@@ -23,7 +23,7 @@ public class BudgetInfo {
 	protected void parse(String[]tokens) {
 		this.projectName = tokens[0];
 		this.remaining = Long.valueOf(tokens[1]);
-		this.percentRemaining = Integer.valueOf(tokens[2]);
+		this.percentRemaining = Float.valueOf(tokens[2]).intValue();
 		if(percentRemaining<-1 || percentRemaining>100) {
 			throw new IllegalArgumentException("Invalid TSI reply: percentage out of range.");
 		}

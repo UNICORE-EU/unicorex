@@ -11,18 +11,19 @@ import javax.net.ssl.SSLSocket;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.XNJSSocketFactory;
+import de.fzj.unicore.xnjs.util.IOUtils;
 
 /**
  * Small helper to create XNJS server and client sockets for communication with TSI. 
  */
 public class TSISocketFactory extends XNJSSocketFactory {
 	
-	private final ServerSocket server;
+	private ServerSocket server;
 
 	private final int myPort;
 
 	// this is used to handle the case that we have an SSL config defined, 
-	// but still want to DISable SSL for the XNUS/TSI link
+	// but still want to DISable SSL for the XNJS/TSI link
 	private final boolean disableSSL;
 	
 	public TSISocketFactory(XNJS xnjs, int myPort)throws Exception{
@@ -30,7 +31,7 @@ public class TSISocketFactory extends XNJSSocketFactory {
 		this.myPort=myPort;
 		TSIProperties tsiProps = xnjs.get(TSIProperties.class);
 		disableSSL=tsiProps.getBooleanValue(TSIProperties.TSI_DISABLE_SSL);
-		server=init();
+		server = init();
 	}
 
 	private ServerSocket init()throws Exception{
@@ -42,6 +43,14 @@ public class TSISocketFactory extends XNJSSocketFactory {
 		}
 	}
 
+	/**
+	 * close and re-open the server socket - use wisely
+	 */
+	public void reInit() throws Exception {
+		IOUtils.closeQuietly(server);
+		server = init();
+	}
+	
 	private ServerSocket createPlainServer()throws IOException{
 		return new ServerSocket(myPort);
 	}
