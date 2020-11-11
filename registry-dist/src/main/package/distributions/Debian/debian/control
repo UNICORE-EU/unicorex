@@ -8,7 +8,7 @@ Homepage: http://www.unicore.eu
 
 Package: @component-prefix@@component-name@@component-suffix@
 Architecture: @component-architecture@
-Suggests: openjdk-@java-main-version@-jre
+Depends: default-jre-headless
 Description: UNICORE (UNiform Interface to COmputing REsources)
  makes distributed computing and data resources available
  in a seamless and secure way in intranets and the internet.

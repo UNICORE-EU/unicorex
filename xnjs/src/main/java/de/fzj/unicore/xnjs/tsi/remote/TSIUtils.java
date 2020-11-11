@@ -54,7 +54,6 @@ import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
-import de.fzj.unicore.xnjs.jsdl.JSDLResourceSet;
 import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
@@ -125,7 +124,7 @@ public class TSIUtils {
 		StringBuilder commands = new StringBuilder();
 		commands.append("\n"); // start on a fresh line independent of the script template
 		// resource booking reference
-		ResourceRequest reservation=ResourceRequest.find(rt,JSDLResourceSet.RESERVATION_ID);
+		ResourceRequest reservation=ResourceRequest.find(rt, ResourceSet.RESERVATION_ID);
 		if(reservation!=null){
 			rt.remove(reservation);
 			String reservationRef = checkLegal(reservation.getRequestedValue(), "Reservation reference");
@@ -723,10 +722,13 @@ public class TSIUtils {
 	 */
 	public static void appendTSIResourceSpec(StringBuilder commands, List<ResourceRequest> resources) {
 
-		int memory = -1;
-		int processors = 1;
-		int nodes = -1;
 		int run_time = -1; // walltime
+
+		int nodes = -1;
+		int total_processors = -1;
+		int processors_per_node = -1;
+
+		int memory = -1;
 
 		String queue="NONE";
 
@@ -748,7 +750,7 @@ public class TSIUtils {
 		}
 		
 		// quality of service
-		ResourceRequest qosResource=ResourceRequest.find(resources,JSDLResourceSet.QOS);
+		ResourceRequest qosResource=ResourceRequest.find(resources, ResourceSet.QOS);
 		if(qosResource!=null){
 			String qos = checkLegal(qosResource.getRequestedValue(), "QoS");
 			commands.append("#TSI_QOS " + qos + "\n");
@@ -766,13 +768,13 @@ public class TSIUtils {
 		}
 
 		// job array size and limit
-		ResourceRequest arraySizeResource=ResourceRequest.find(resources,JSDLResourceSet.ARRAY_SIZE);
+		ResourceRequest arraySizeResource=ResourceRequest.find(resources, ResourceSet.ARRAY_SIZE);
 		if(arraySizeResource!=null){
 			ResourceRequest arrayLimitResource = null;
 			int size = Integer.parseInt(arraySizeResource.getRequestedValue())-1;
 			if(size>0){
 				commands.append("#TSI_ARRAY 0-" + size + "\n");
-				arrayLimitResource=ResourceRequest.find(resources,JSDLResourceSet.ARRAY_LIMIT);
+				arrayLimitResource=ResourceRequest.find(resources, ResourceSet.ARRAY_LIMIT);
 				if(arrayLimitResource!=null){
 					commands.append("#TSI_ARRAY_LIMIT " + arrayLimitResource.getRequestedValue() + "\n");
 				}
@@ -782,42 +784,36 @@ public class TSIUtils {
 		}
 
 		// CPUs / nodes
-		ResourceRequest totalCpusRequest=ResourceRequest.find(resources,JSDLResourceSet.TOTAL_CPUS);
+		ResourceRequest totalCpusRequest=ResourceRequest.find(resources, ResourceSet.TOTAL_CPUS);
 		if (totalCpusRequest!= null) {
-			// total CPUs are given, do not set nodes value
 			try {
 				resources.remove(totalCpusRequest);
-				processors = Integer.valueOf(totalCpusRequest.getRequestedValue());
-				nodes=-1;
+				total_processors = Integer.valueOf(totalCpusRequest.getRequestedValue());
 			} catch (RuntimeException e) {
 				// ignore
 			}
 		}
-		else {
-			ResourceRequest cpusRequest=ResourceRequest.find(resources,JSDLResourceSet.CPUS_PER_NODE);
-			if(cpusRequest!=null){
-				try {
-					resources.remove(cpusRequest);
-					processors = Integer.valueOf(cpusRequest.getRequestedValue());
-				} catch (RuntimeException e) {
-					// ignore
-				}
+		ResourceRequest cpusRequest=ResourceRequest.find(resources, ResourceSet.CPUS_PER_NODE);
+		if(cpusRequest!=null){
+			try {
+				resources.remove(cpusRequest);
+				processors_per_node = Integer.valueOf(cpusRequest.getRequestedValue());
+			} catch (RuntimeException e) {
+				// ignore
 			}
-			ResourceRequest nodesRequest=ResourceRequest.find(resources,JSDLResourceSet.NODES);
-			if (nodesRequest!= null) {
-				try {
-					resources.remove(nodesRequest);
-					nodes = Integer.valueOf(nodesRequest.getRequestedValue());
-				} catch (RuntimeException e) {
-					// ignore
-				}
-			} else {
-				nodes = 1;
+		}
+		ResourceRequest nodesRequest=ResourceRequest.find(resources, ResourceSet.NODES);
+		if (nodesRequest!= null) {
+			try {
+				resources.remove(nodesRequest);
+				nodes = Integer.valueOf(nodesRequest.getRequestedValue());
+			} catch (RuntimeException e) {
+				// ignore
 			}
 		}
 
 		// memory per node
-		ResourceRequest memoryRequest=ResourceRequest.find(resources,JSDLResourceSet.MEMORY_PER_NODE);
+		ResourceRequest memoryRequest=ResourceRequest.find(resources, ResourceSet.MEMORY_PER_NODE);
 		if (memoryRequest!= null) {
 			try {
 				resources.remove(memoryRequest);
@@ -829,9 +825,10 @@ public class TSIUtils {
 
 		// time, individual == wall clock time
 		run_time = getRuntime(resources);
-		resources.remove(ResourceRequest.find(resources,JSDLResourceSet.RUN_TIME));
+		ResourceRequest.removeQuietly(resources, ResourceSet.RUN_TIME);
+
 		//total number of processors
-		int total=nodes!=-1? nodes*processors: processors;
+		//int total=nodes!=-1? nodes*processors: processors;
 
 		if(run_time>0){
 			commands.append("#TSI_TIME " + (int) run_time + "\n");
@@ -843,36 +840,20 @@ public class TSIUtils {
 
 		// can also have nodes not set at all (TSI does the mapping based on
 		// total number of processors)
-		if (nodes == -1) {
-			commands.append("#TSI_NODES NONE\n");
-			commands.append("#TSI_TOTAL_PROCESSORS " + total + "\n");
-			commands.append("#TSI_PROCESSORS " + processors + "\n");
-		}
-		else {
-			commands.append("#TSI_NODES " + nodes + "\n");
-			commands.append("#TSI_PROCESSORS_PER_NODE " + processors + "\n");
-			commands.append("#TSI_TOTAL_PROCESSORS " + total + "\n");
-			commands.append("#TSI_PROCESSORS " + processors + "\n");
-		}
+
+		commands.append("#TSI_NODES " + nodes + "\n");
+		commands.append("#TSI_PROCESSORS_PER_NODE " + processors_per_node + "\n");
+		commands.append("#TSI_TOTAL_PROCESSORS " + total_processors + "\n");
 
 		commands.append("#TSI_QUEUE " + queue + "\n");
 
 		// Set some resources as environment variables
-		if (nodes != -1) {
-			commands.append("UC_NODES=" + nodes + "; export UC_NODES;\n");
-			commands.append("UC_PROCESSORS_PER_NODE=" + processors
-					+ "; export UC_PROCESSORS_PER_NODE;\n");
-			commands.append("UC_PROCESSORS=" + processors
-					+ "; export UC_PROCESSORS;\n");
-			commands.append("UC_TOTAL_PROCESSORS=" + total
-					+ "; export UC_TOTAL_PROCESSORS;\n");
+		commands.append("UC_NODES=" + nodes + "; export UC_NODES;\n");
+		commands.append("UC_PROCESSORS_PER_NODE=" + processors_per_node
+				+ "; export UC_PROCESSORS_PER_NODE;\n");
+		commands.append("UC_TOTAL_PROCESSORS=" + total_processors
+				+ "; export UC_TOTAL_PROCESSORS;\n");
 
-		} else {
-			commands.append("UC_PROCESSORS=" + processors
-					+ "; export UC_PROCESSORS;\n");
-			commands.append("UC_TOTAL_PROCESSORS=" + processors
-					+ "; export UC_TOTAL_PROCESSORS;\n");
-		}
 
 		commands.append("UC_RUNTIME=" + (int)run_time
 				+ "; export UC_RUNTIME;\n");
@@ -1058,7 +1039,7 @@ public class TSIUtils {
 	 */
 	public static int getRuntime(List<ResourceRequest> rt){
 		int runtime = -1;
-		ResourceRequest timeReq = ResourceRequest.find(rt,JSDLResourceSet.RUN_TIME);
+		ResourceRequest timeReq = ResourceRequest.find(rt, ResourceSet.RUN_TIME);
 		if (timeReq!= null) {
 			try {
 				runtime = Integer.valueOf(timeReq.getRequestedValue());

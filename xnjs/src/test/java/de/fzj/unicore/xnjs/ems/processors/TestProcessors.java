@@ -11,8 +11,6 @@ import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
-import de.fzj.unicore.xnjs.ems.processors.LogProcessingTimeProcessor;
-import de.fzj.unicore.xnjs.ems.processors.UsageLogger;
 import eu.unicore.security.Client;
 
 public class TestProcessors extends XNJSTestBase {

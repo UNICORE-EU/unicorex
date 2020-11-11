@@ -346,31 +346,22 @@ public class GrounderImpl implements Incarnation {
 		//apply defaults from IDB
 		List<ResourceRequest> defaultResources = resources.getDefaults();
 
-		boolean userWantsTotal = ResourceRequest.contains(userRequest, ResourceSet.TOTAL_CPUS) && 
-				!ResourceRequest.contains(userRequest, ResourceSet.CPUS_PER_NODE);
-		boolean userWantsBoth = ResourceRequest.contains(userRequest, ResourceSet.TOTAL_CPUS) && 
-				ResourceRequest.contains(userRequest, ResourceSet.CPUS_PER_NODE);
+		boolean computeRequested = ResourceRequest.contains(userRequest, ResourceSet.TOTAL_CPUS) 
+				|| ResourceRequest.contains(userRequest, ResourceSet.CPUS_PER_NODE)
+				|| ResourceRequest.contains(userRequest, ResourceSet.NODES);
 		
 		for(ResourceRequest sr: defaultResources){
 			String name=sr.getName();
-			if(userWantsBoth && ResourceSet.NODES.equals(name)) {
-				incarnatedRequest.add(new ResourceRequest(name, String.valueOf(getNumberOfNodes(userRequest))));	
-			}
-			else if( !ResourceSet.QUEUE.equals(name) 
-					&&	!ResourceRequest.contains(userRequest,name)
-					&&	!(userWantsTotal && ResourceSet.CPUS_PER_NODE.equals(name)))
+			if(computeRequested && (
+					ResourceSet.NODES.equals(name) || ResourceSet.CPUS_PER_NODE.equals(name) 
+					|| ResourceSet.TOTAL_CPUS.equals(name)
+			))
 			{
-				incarnatedRequest.add(sr);	
+				continue;
 			}
+			incarnatedRequest.add(sr);	
 		}
 		return incarnatedRequest;
-	}
-
-	private int getNumberOfNodes(List<ResourceRequest> userRequest) {
-		int total = Integer.parseInt(ResourceRequest.find(userRequest, ResourceSet.TOTAL_CPUS).getRequestedValue());
-		int perNode = Integer.parseInt(ResourceRequest.find(userRequest, ResourceSet.CPUS_PER_NODE).getRequestedValue());
-		int nodes = total / perNode;
-		return nodes<=1 ? 1 : nodes;
 	}
 
 	private static final String UNIX_VAR = "\\$\\{?(\\w+)\\}?";
