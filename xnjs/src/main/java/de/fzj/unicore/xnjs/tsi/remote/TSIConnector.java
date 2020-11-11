@@ -96,6 +96,11 @@ public class TSIConnector {
 					+ ". Contact site administration!";
 			IOUtils.closeQuietly(data_socket);
 			IOUtils.closeQuietly(commands_socket);
+			try {
+				// just in case the connect/accept mechanism is messed up 
+				// for some reason (like tsi restarts)
+				server.reInit();
+			}catch(Exception ex) {}
 			throw new IOException(msg);
 		}
 
