@@ -2,7 +2,7 @@ package de.fzj.unicore.uas.trigger.impl;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.trigger.Action;
 import de.fzj.unicore.uas.util.LogUtil;

@@ -1,6 +1,7 @@
 package de.fzj.unicore.uas.jclouds.s3;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;

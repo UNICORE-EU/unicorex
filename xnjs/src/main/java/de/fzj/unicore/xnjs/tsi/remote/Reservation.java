@@ -8,7 +8,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;

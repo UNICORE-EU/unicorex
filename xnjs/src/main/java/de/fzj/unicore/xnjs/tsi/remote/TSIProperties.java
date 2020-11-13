@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
 import eu.unicore.util.configuration.ConfigurationException;

@@ -9,7 +9,7 @@ import java.util.Set;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.jclouds.ContextBuilder;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.BlobStoreContext;

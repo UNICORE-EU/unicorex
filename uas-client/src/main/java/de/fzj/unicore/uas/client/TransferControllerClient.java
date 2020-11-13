@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.client;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.unigrids.x2006.x04.services.fts.SizeDocument;
 import org.unigrids.x2006.x04.services.fts.StatusDocument;

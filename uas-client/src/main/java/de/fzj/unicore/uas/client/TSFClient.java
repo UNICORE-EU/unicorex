@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.OperatingSystemType;
 import org.oasisOpen.docs.wsrf.rl2.TerminationTimeDocument.TerminationTime;
 import org.unigrids.x2006.x04.services.tsf.AccessibleTargetSystemReferenceDocument;

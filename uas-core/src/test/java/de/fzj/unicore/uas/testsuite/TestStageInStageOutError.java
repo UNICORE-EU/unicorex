@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.testsuite;
 
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.CreationFlagEnumeration;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;

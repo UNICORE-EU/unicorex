@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -61,9 +59,6 @@ public class TestSwift {
 	
 	@BeforeClass
 	public static void startUNICORE() throws Exception{
-		Level l=Logger.getRootLogger().getLevel();
-		Logger.getRootLogger().setLevel(Level.INFO);
-		Logger.getLogger("org.jclouds").setLevel(Level.INFO);
 		
 		long start=System.currentTimeMillis();
 		System.out.println("Starting UNICORE/X...");
@@ -75,7 +70,6 @@ public class TestSwift {
 		
 		System.err.println("UNICORE/X startup time: "+(System.currentTimeMillis()-start)+" ms.");
 		
-		Logger.getRootLogger().setLevel(l);
 	}
 
 	@AfterClass

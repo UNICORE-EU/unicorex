@@ -49,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.MetricRegistry;
@@ -83,7 +83,7 @@ import eu.unicore.security.Client;
 @Singleton
 public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
-	protected static final Logger jobExecLogger=LogUtil.getLogger(LogUtil.JOBS,"Execution");
+	protected static final Logger jobExecLogger = LogUtil.getLogger(LogUtil.JOBS, BasicExecution.class);
 
 	@Inject
 	protected XNJSProperties properties;

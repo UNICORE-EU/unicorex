@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.jclouds.s3.S3StorageAdapterFactory;
@@ -16,7 +17,6 @@ import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.uftp.dpc.Utils;
-import junit.framework.Assert;
 
 public class TestS3 {
 
@@ -24,13 +24,10 @@ public class TestS3 {
 	public void testS3() throws Exception {
 		// load creds
 		Properties cred = new Properties();
-		FileInputStream fis = null;
-		try{
-			fis = new FileInputStream(new File(System.getProperty("user.home"),".aws/unicore-testing.properties"));
+		try(FileInputStream fis = new FileInputStream(
+				new File(System.getProperty("user.home"),".aws/unicore-testing.properties"))) 
+		{
 			cred.load(fis);
-		}
-		finally{
-			IOUtils.closeQuietly(fis);
 		}
 		String access = cred.getProperty("accessKey");
 		String secret = cred.getProperty("secretKey");
@@ -60,7 +57,7 @@ public class TestS3 {
 		}
 		
 		// download it
-		String downloaded = IOUtils.toString(s3.getInputStream(resource));
+		String downloaded = IOUtils.toString(s3.getInputStream(resource), "UTF-8");
 		Assert.assertEquals(md5,Utils.md5(downloaded.getBytes()));
 		
 	}

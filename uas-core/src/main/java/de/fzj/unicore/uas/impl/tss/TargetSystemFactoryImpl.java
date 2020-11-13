@@ -36,7 +36,7 @@ package de.fzj.unicore.uas.impl.tss;
 import java.util.Calendar;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.TargetSystemFactory;
 import de.fzj.unicore.uas.UAS;

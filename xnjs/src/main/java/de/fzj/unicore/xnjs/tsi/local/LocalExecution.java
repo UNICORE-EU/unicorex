@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.output.NullOutputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -186,7 +186,7 @@ public class LocalExecution implements Runnable {
 				ContinueProcessingEvent cpe=new ContinueProcessingEvent(actionID);
 				manager.handleEvent(cpe);
 			}catch(Exception ex){
-				LogUtil.logException("Error sending continue event", ex);
+				LogUtil.logException("Error sending continue event", ex, logger);
 			}
 
 			//in

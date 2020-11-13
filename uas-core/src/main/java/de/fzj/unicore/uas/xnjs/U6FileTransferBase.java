@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.PropertyType;
 import org.unigrids.x2006.x04.services.sms.ExtraParametersDocument.ExtraParameters;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
@@ -43,7 +43,7 @@ public abstract class U6FileTransferBase implements IFileTransfer, ProgressListe
 	protected static final Logger logger = LogUtil.getLogger(LogUtil.DATA,U6FileTransferBase.class);
 
 	//metrics/usage logger
-	protected static final Logger usageLogger=Logger.getLogger(LogUtil.SERVICES+".datatransfer.USAGE");
+	protected static final Logger usageLogger = LogUtil.getLogger(LogUtil.SERVICES+".datatransfer.USAGE", U6FileTransferBase.class);
 
 	protected OverwritePolicy overwrite=OverwritePolicy.OVERWRITE;
 

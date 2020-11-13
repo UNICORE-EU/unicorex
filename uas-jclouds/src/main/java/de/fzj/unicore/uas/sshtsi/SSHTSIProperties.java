@@ -3,7 +3,7 @@ package de.fzj.unicore.uas.sshtsi;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import de.fzj.unicore.xnjs.tsi.remote.TSIProperties;
 import eu.unicore.util.Log;
 import eu.unicore.util.configuration.ConfigurationException;

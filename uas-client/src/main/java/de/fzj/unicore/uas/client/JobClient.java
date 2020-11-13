@@ -36,7 +36,7 @@ package de.fzj.unicore.uas.client;
 import java.math.BigInteger;
 import java.util.Calendar;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.StatusInfoType;
 import org.unigrids.services.atomic.types.StatusType;
 import org.unigrids.x2006.x04.services.jms.AbortDocument;

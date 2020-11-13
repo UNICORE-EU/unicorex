@@ -34,9 +34,6 @@ package de.fzj.unicore.uas;
 
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
-import org.unigrids.services.atomic.types.ProtocolType;
-
 import de.fzj.unicore.wsrflite.USEContainer;
 import eu.unicore.util.Log;
 
@@ -64,9 +61,8 @@ public class UAS extends USEContainer {
 	public static final String CLIENT_FTS = "ClientServerFileTransfer";
 	
 	/**
-	 * If one of the following is used as protocol for file transfers instead of
-	 * a {@link ProtocolType} constant, UNICORE should automatically try to
-	 * negotiate a suitable file transfer protocol.
+	 * If one of the following is used as protocol for file transfers,
+	 * UNICORE should automatically try to negotiate a suitable file transfer protocol.
 	 */
 	public static final String[] AUTO_NEGOTIATE_FT_PROTOCOL = {"auto"};
 
@@ -104,9 +100,8 @@ public class UAS extends USEContainer {
 			UAS uas=new UAS(args[0]);
 			uas.startSynchronous();
 		}catch(Throwable ex){
-			Logger.getLogger("unicore").fatal(ex);
 			String msg = Log.createFaultMessage("ERROR during server startup, server NOT started", ex);
-			Logger.getLogger("unicore").fatal(msg);
+			Log.getLogger("unicore", UAS.class).fatal(msg);
 			ex.printStackTrace();
 			System.err.println(msg);
 			System.exit(1);

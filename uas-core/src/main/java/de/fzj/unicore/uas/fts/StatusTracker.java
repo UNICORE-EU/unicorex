@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.fts;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.wsrflite.Home;
 import de.fzj.unicore.wsrflite.Resource;

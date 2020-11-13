@@ -1,8 +1,8 @@
 package de.fzj.unicore.uas.jclouds.s3;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.jclouds.BlobStoreStorageAdapter;
@@ -18,7 +19,6 @@ import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.uftp.dpc.Utils;
-import junit.framework.Assert;
 
 public class TestS3InMemory {
 
@@ -83,7 +83,7 @@ public class TestS3InMemory {
 		}
 
 		// download it
-		String downloaded = IOUtils.toString(s3.getInputStream(resource));
+		String downloaded = IOUtils.toString(s3.getInputStream(resource), "UTF-8");
 		Assert.assertEquals(md5,Utils.md5(downloaded.getBytes()));
 
 		// delete
@@ -98,7 +98,7 @@ public class TestS3InMemory {
 		os.close();
 		Thread.sleep(1000); // potential race condition
 		// download and check
-		downloaded = IOUtils.toString(s3.getInputStream(resource2));
+		downloaded = IOUtils.toString(s3.getInputStream(resource2), "UTF-8");
 		Assert.assertEquals(md5,Utils.md5(downloaded.getBytes()));
 	}
 

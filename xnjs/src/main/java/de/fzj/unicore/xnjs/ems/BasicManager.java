@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.xnjs.XNJS;
@@ -263,14 +263,14 @@ public class BasicManager implements Manager, InternalManager {
 			try{
 				jobs.put(a.getUUID(),a);
 			}catch(PersistenceException pe){
-				logger.error("Persistence problem",pe);
+				LogUtil.logException("Persistence problem", pe, logger);
 			}
 			if(a.getParentActionID()!=null){
 				String parent=a.getParentActionID();
 				try{
 					handleEvent(new SubActionDoneEvent(parent));
 				}catch(Exception ex){
-					LogUtil.logException("Error sending notification", ex);
+					LogUtil.logException("Error sending notification", ex, logger);
 				}
 			}
 		}

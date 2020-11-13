@@ -3,7 +3,7 @@ package de.fzj.unicore.uas.client;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.fts.FiletransferOptions;
 import de.fzj.unicore.uas.fts.FiletransferOptions.SupportsPartialRead;

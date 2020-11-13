@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.oasisOpen.docs.wsrf.rl2.TerminationTimeDocument.TerminationTime;
 import org.unigrids.services.atomic.types.PropertyType;
 import org.unigrids.x2006.x04.services.smf.AccessibleStorageEnumerationDocument;

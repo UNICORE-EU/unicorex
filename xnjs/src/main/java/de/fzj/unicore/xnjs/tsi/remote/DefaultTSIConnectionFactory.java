@@ -49,7 +49,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.tsi.IExecution;
@@ -408,8 +408,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	}
 
 	/**
-	 * gets the TSI version as returned by the TSI_PING command. 
-	 * For old TSIs (pre-6.3.2) this will return <code>null</code>
+	 * gets the TSI version as returned by the TSI_PING command
 	 */
 	@Override
 	public synchronized String getTSIVersion(){
@@ -428,6 +427,10 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 			}
 		}
 		return tsiVersion;
+	}
+
+	TSISocketFactory getTSISocketFactory() {
+		return server;
 	}
 
 }

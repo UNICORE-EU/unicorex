@@ -17,7 +17,6 @@ public class TestCoreClient extends Base {
 		Endpoint ep = new Endpoint(resource);
 		IAuthCallback auth = new UsernamePassword("demouser", "test123");
 		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), auth);
-		
 		System.out.println("Client info: " +client.getClientInfo().toString(2));
 	}
 

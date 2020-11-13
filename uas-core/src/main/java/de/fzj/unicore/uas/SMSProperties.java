@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.impl.sms.DefaultStorageInfoProvider;
 import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;

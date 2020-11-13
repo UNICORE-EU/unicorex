@@ -8,13 +8,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 
-import junit.framework.Assert;
-
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.CreationFlagEnumeration;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.FileSystemType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.junit.Assert;
 import org.junit.Test;
 import org.unigrids.services.atomic.types.GridFileType;
 import org.unigrids.services.atomic.types.StatusType;

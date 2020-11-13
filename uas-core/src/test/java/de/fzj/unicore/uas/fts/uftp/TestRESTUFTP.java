@@ -13,11 +13,11 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -38,7 +38,6 @@ import eu.unicore.client.data.FiletransferClient;
 import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.uftp.dpc.Utils;
-import junit.framework.Assert;
 
 /**
  * Tests the RESTFul implementation of UFTP file transfer
@@ -223,7 +222,6 @@ public class TestRESTUFTP {
    			source.close();
    		}
    		
-   		Logger.getLogger("").info("Finished.");
    		Thread.sleep(1000);
    		// check that file has been written...
    		FileListEntry gft = sms.stat("test-import");

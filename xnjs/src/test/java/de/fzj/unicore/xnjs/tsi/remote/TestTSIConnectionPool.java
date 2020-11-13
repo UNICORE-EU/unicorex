@@ -78,6 +78,17 @@ public class TestTSIConnectionPool extends LegacyTSITestCase {
 	}
 	
 	@Test
+	public void testConnectorRestart() throws Exception {
+		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
+		assertNotNull(f);
+		TSIConnection c=f.getTSIConnection("nobody", null, null, -1);
+		c.done();
+		f.getTSISocketFactory().reInit();
+		c=f.getTSIConnection("nobody", null, null, -1);
+		c.done();
+	}
+
+	@Test
 	public void testHostnameMatch() throws Exception {
 		String[] requests = new String[] { "*", "node*", "node01*", "node??.cluster.org",
 				"node01", "node01.cluster.org" };

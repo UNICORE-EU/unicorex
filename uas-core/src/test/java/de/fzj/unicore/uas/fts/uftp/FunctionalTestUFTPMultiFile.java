@@ -11,6 +11,7 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionType;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,7 +29,6 @@ import de.fzj.unicore.uas.client.TSFClient;
 import de.fzj.unicore.uas.client.TSSClient;
 import de.fzj.unicore.wsrflite.Kernel;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
-import junit.framework.Assert;
 
 /**
  * Tests the UFTP 2.0 multi-file transfers in "non-local mode", i.e. 

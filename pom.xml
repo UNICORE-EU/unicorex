@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <description>UNICORE/X web services layer</description>
   <inceptionYear>2006</inceptionYear>
-  <version>2.0.5</version>
+  <version>2.1.0</version>
   <name>UNICORE/X Parent</name>
   
   <parent>
@@ -26,12 +26,12 @@
 
   <properties>
     <compiler.fork>false</compiler.fork>
-    <use.version>4.0.4</use.version>
-    <persistence.version>0.104</persistence.version>
+    <use.version>4.1.0</use.version>
+    <persistence.version>0.200</persistence.version>
     <uftp.version>2.8.0</uftp.version>
     <metrics.version>3.2.6</metrics.version>
     <guice.version>4.2.3</guice.version>
-    <guava.version>29.0-jre</guava.version>
+    <guava.version>30.0-jre</guava.version>
     <jclouds.version>2.2.0</jclouds.version>
     <groovy.version>2.4.16</groovy.version>
     <lucene.version>8.5.1</lucene.version>
@@ -122,11 +122,6 @@
 	<version>2.7.1</version>
       </dependency>
       <dependency>
-	<groupId>log4j</groupId>
-	<artifactId>log4j</artifactId>
-	<version>1.2.16</version>
-      </dependency>
-      <dependency>
 	<groupId>io.dropwizard.metrics</groupId>
 	<artifactId>metrics-core</artifactId>
 	<version>${metrics.version}</version>
@@ -150,6 +145,11 @@
 	    <groupId>eu.unicore.security</groupId>
 	    <artifactId>securityLibrary</artifactId>
 	  </exclusion>
+	  <exclusion>
+	    <groupId>log4j</groupId>
+	    <artifactId>log4j</artifactId>
+	  </exclusion>
+
 	</exclusions>
       </dependency>
       <dependency>
@@ -204,7 +204,6 @@
           </exclusion>
 	</exclusions>
       </dependency>
-
       <dependency>
 	<groupId>com.google.guava</groupId>
 	<artifactId>guava</artifactId>

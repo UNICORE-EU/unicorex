@@ -12,19 +12,16 @@ import java.security.Security;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.fts.FiletransferOptions.SupportsPartialRead;
 import de.fzj.unicore.uas.fts.rft.LocalStoreImpl;
-import eu.unicore.util.Log;
 
 public class TestReliableFileTransferClient {
 
 	@Test
 	public void test1()throws Exception{
-		Log.getLogger(Log.SERVICES, ReliableFileTransferClient.class).setLevel(Level.DEBUG);
 		File base=new File("target","rft");
 		FileUtils.deleteQuietly(base);
 		long totalLength=5*10*1000*1000;

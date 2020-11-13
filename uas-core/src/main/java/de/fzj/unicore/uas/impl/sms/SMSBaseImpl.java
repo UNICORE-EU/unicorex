@@ -44,7 +44,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.ACLEntryType;
 import org.unigrids.services.atomic.types.ACLEntryTypeType;
 import org.unigrids.services.atomic.types.ACLType;

@@ -31,7 +31,7 @@ import javax.ws.rs.core.Variant.VariantListBuilder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;

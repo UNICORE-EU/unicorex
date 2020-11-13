@@ -8,7 +8,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.client.UFTPConstants;
 import de.fzj.unicore.uas.client.UFTPFileTransferClient;
@@ -233,7 +233,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		boolean append= m.getOverWrite()==false;
 		boolean compress = m.isCompress();
 		int rateLimit = cfg.getIntValue(UFTPProperties.PARAM_RATE_LIMIT);
-		InetAddress[] clientHosts = Utils.parseInetAddresses(m.clientHost, logger);
+		InetAddress[] clientHosts = Utils.parseInetAddresses(m.clientHost, null);
 		UFTPTransferRequest job = new UFTPTransferRequest(clientHosts, user, secret, file, isExport); 
 		job.setGroup(group);
 		job.setStreams(m.streams);

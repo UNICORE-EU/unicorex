@@ -14,12 +14,12 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.CreationFlagEnumeration;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionType;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.unigrids.services.atomic.types.GridFileType;
@@ -42,7 +42,6 @@ import de.fzj.unicore.uas.client.UFTPFileTransferClient;
 import de.fzj.unicore.wsrflite.Kernel;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.uftp.dpc.Utils;
-import junit.framework.Assert;
 
 /**
  * Tests the UFTP integration into UNICORE/X
@@ -197,7 +196,6 @@ public class TestUFTP {
 			source.close();
 		}
 		
-		Logger.getLogger("").info("Finished.");
 		Thread.sleep(1000);
 		// check that file has been written...
 		GridFileType gft = sms.listProperties("test-import");
@@ -231,7 +229,6 @@ public class TestUFTP {
 			source.close();
 		}
 		
-		Logger.getLogger("").info("Finished.");
 		Thread.sleep(1000);
 		// check that file has been written...
 		GridFileType gft = sms.listProperties("test-import");
@@ -266,7 +263,6 @@ public class TestUFTP {
    			source.close();
    		}
    		
-   		Logger.getLogger("").info("Finished.");
    		Thread.sleep(1000);
    		// check that file has been written...
    		GridFileType gft = sms.listProperties("test-import");

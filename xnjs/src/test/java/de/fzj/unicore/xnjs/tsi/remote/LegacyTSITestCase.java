@@ -36,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -113,7 +112,6 @@ public abstract class LegacyTSITestCase extends EMSTestBase {
 		Thread.sleep(500);
 		System.out.println("TSI started.");
 		if(exitCode!=0)throw new IOException("TSI start returned non-zero exit code <"+exitCode+">");
-		Logger.getRootLogger().info("TSI server started");	
 	}
 
 	@AfterClass
@@ -126,7 +124,6 @@ public abstract class LegacyTSITestCase extends EMSTestBase {
 		m.run();
 		int exitCode=p.waitFor();
 		if(exitCode!=0)throw new IOException("TSI stop returned non-zero exit code");
-		Logger.getRootLogger().info("TSI server stopped");
 	}
 
 }

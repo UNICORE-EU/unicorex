@@ -33,15 +33,18 @@
 
 package de.fzj.unicore.uas.impl;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.net.URLEncoder;
 import java.util.Calendar;
-
-import junit.framework.TestCase;
 
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.XmlObject;
 import org.ggf.schemas.byteio.x2005.x10.byteIo.TransferInformationType;
 import org.ggf.schemas.byteio.x2005.x10.byteIo.TransferInformationTypeDocument;
+import org.junit.Test;
 import org.oasisOpen.docs.wsrf.rl2.CurrentTimeDocument;
 import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
@@ -56,14 +59,16 @@ import de.fzj.unicore.xnjs.io.ChangePermissions;
 import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
-public class TestVarious extends TestCase {
+public class TestVarious {
 	
+	@Test
 	public void testRegistryContentMaker(){
 	   CurrentTimeDocument ct=CurrentTimeDocument.Factory.newInstance();
 	   ct.addNewCurrentTime().setCalendarValue(Calendar.getInstance());
 	   assertTrue(RegistryClient.makeContent(new XmlObject[]{ct}).toString().contains("CurrentTime"));
 	}
 	
+	@Test
 	public void testFTProps(){
 		   FileTransferPropertiesDocument pd=FileTransferPropertiesDocument.Factory.newInstance();
 		   pd.addNewFileTransferProperties();
@@ -73,11 +78,13 @@ public class TestVarious extends TestCase {
 			}
 	}
 		
+	@Test
 	public void testMakeSMSLocal(){
 		String in="\\";
 		assertTrue(in.replaceAll("\\\\", "/").equals("/"));
 	}
 	
+	@Test
 	public void testEPRUtils(){
 		String dn="CN=Test server";
 		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
@@ -86,6 +93,7 @@ public class TestVarious extends TestCase {
 		assertEquals(dn, out);
 	}
 	
+	@Test
 	public void testDirForLS(){
 		String[] filenames=new String[]{"/foo", "/foo/bar", "foo/bar/baz"};
 		String[] dirs=new String[]{"", "foo/", "foo/bar/"};
@@ -105,8 +113,8 @@ public class TestVarious extends TestCase {
 			assertEquals(names[i],filename);
 		}
 	}
-	
-	
+
+	@Test
 	public void testByteIOCodec1()throws Exception{
 		TransferInformationTypeDocument tid=TransferInformationTypeDocument.Factory.newInstance();
 		TransferInformationType ti=tid.addNewTransferInformationType();
@@ -117,7 +125,8 @@ public class TestVarious extends TestCase {
 		assertTrue(tid.toString().contains("data"));
 		assertTrue(tid.toString().contains("Zm9vYmFy"));
 	}
-	
+
+	@Test
 	public void testByteIOCodec4()throws Exception{
 		TransferInformationTypeDocument tid=TransferInformationTypeDocument.Factory.newInstance();
 		TransferInformationType ti=tid.addNewTransferInformationType();
@@ -136,6 +145,7 @@ public class TestVarious extends TestCase {
 		}
 	}
 
+	@Test
 	public void testURLEncoding()throws Exception{
 		String file="/a test file";
 		String e=FileTransferImpl.urlEncode(file);
@@ -151,13 +161,15 @@ public class TestVarious extends TestCase {
 		System.out.println(d);
 		assertEquals(file, d);
 	}
-	
+
+	@Test
 	public void testURLEncoding3()throws Exception{
 		String file="http://www.w3.org/People/Dürst/";
 		String e=SMSUtils.urlEncode(file);
 		System.out.println(e);
 	}
-	
+
+	@Test
 	public void testURLDecodingSimple()throws Exception{
 		String file="/a%20test%20file";
 		String expect="/a test file";
@@ -168,7 +180,8 @@ public class TestVarious extends TestCase {
 		d=SMSUtils.urlDecode(file);
 		assertEquals(file,d);
 	}
-	
+
+	@Test
 	public void testURLEncodingTrailingEscape()throws Exception{
 		String test="%";
 		System.out.println(URLEncoder.encode(test, "UTF-8"));
@@ -179,6 +192,8 @@ public class TestVarious extends TestCase {
 		System.out.println(d);
 		assertEquals(file, d);
 	}
+
+	@Test
 	public void testURLEncodingTrailingEscape2()throws Exception{
 		String test="%";
 		System.out.println(URLEncoder.encode(test, "UTF-8"));
@@ -189,7 +204,8 @@ public class TestVarious extends TestCase {
 		System.out.println(d);
 		assertEquals(file, d);
 	}
-	
+
+	@Test
 	public void testComputeRFTChunkLength(){
 		
 		long total=20*1024*1024L;
@@ -207,6 +223,7 @@ public class TestVarious extends TestCase {
 		
 	}
 
+	@Test
 	public void testChangePermissionUtils() throws Exception {
 		String perm = "r-x-w-rwx";
 		ChangePermissions[] xnjsRequest = SMSUtils.getChangePermissions(perm);

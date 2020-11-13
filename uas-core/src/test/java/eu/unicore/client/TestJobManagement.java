@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
@@ -14,7 +15,6 @@ import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.SiteFactoryClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
-import junit.framework.Assert;
 
 public class TestJobManagement extends Base {
 

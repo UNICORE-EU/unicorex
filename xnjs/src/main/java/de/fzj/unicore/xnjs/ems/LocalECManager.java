@@ -38,7 +38,7 @@ import java.io.File;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.tsi.BatchMode;

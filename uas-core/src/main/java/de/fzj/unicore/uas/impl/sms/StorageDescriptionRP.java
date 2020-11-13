@@ -36,7 +36,7 @@ package de.fzj.unicore.uas.impl.sms;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.FileSystemDocument;
 import org.unigrids.services.atomic.types.PropertyType;
 import org.unigrids.x2006.x04.services.smf.StorageBackendParametersDocument.StorageBackendParameters;

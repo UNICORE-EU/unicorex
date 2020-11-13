@@ -45,7 +45,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ActionResult;
@@ -162,7 +162,8 @@ public class DataStagingProcessor extends DefaultProcessor {
 						action.addLogTrace("Started filetransfer "+fti.getSource()+" -> "+fti.getTarget());
 						ftList.add(fti.getUniqueId());
 					}catch(RejectedExecutionException e){
-						LogUtil.logException("Error starting filetransfer: "+fti.getSource()+"->"+fti.getTarget(),e);
+						LogUtil.logException("Error starting filetransfer: "
+								+fti.getSource()+"->"+fti.getTarget(), e, logger);
 						setToDoneAndFailed("Error starting filetransfer (internal work queue too full)");
 						return;
 					}

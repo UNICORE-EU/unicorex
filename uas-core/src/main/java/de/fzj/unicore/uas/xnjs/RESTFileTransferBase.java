@@ -3,7 +3,7 @@ package de.fzj.unicore.uas.xnjs;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.fts.ProgressListener;
 import de.fzj.unicore.uas.fts.StatusTracker;
@@ -40,7 +40,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	protected static final Logger logger = LogUtil.getLogger(LogUtil.DATA, RESTFileTransferBase.class);
 
 	//metrics/usage logger
-	protected static final Logger usageLogger = Logger.getLogger(LogUtil.SERVICES+".datatransfer.USAGE");
+	protected static final Logger usageLogger = Log.getLogger(Log.SERVICES+".datatransfer.USAGE", RESTFileTransferBase.class);
 
 	protected OverwritePolicy overwrite = OverwritePolicy.OVERWRITE;
 

@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.ProtocolType;
 import org.unigrids.x2006.x04.services.fts.ScheduledStartTimeDocument;
 

@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.oasisOpen.docs.wsrf.rl2.DestroyDocument;
 import org.oasisOpen.docs.wsrf.rl2.DestroyResponseDocument;
 import org.oasisOpen.docs.wsrf.rl2.SetTerminationTimeDocument;

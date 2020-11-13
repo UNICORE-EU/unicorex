@@ -33,7 +33,7 @@
 
 package de.fzj.unicore.xnjs.ems.processors;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
@@ -58,8 +58,9 @@ import eu.unicore.security.Client;
  */
 public class UsageLogger extends DefaultProcessor {
 	
-	private static final Logger usage=LogUtil.getLogger(LogUtil.JOBS,"USAGE");
-	private static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,UsageLogger.class);
+	private static final Logger usage = LogUtil.getLogger(LogUtil.JOBS+".USAGE", UsageLogger.class);
+	
+	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS, UsageLogger.class);
 	
 	static final String USAGE_LOGGED="USAGE.logged";
 	

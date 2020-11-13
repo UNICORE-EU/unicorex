@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -48,6 +48,7 @@ import eu.unicore.jsdl.extensions.ResourceRequestDocument;
 import eu.unicore.jsdl.extensions.UserCmdType;
 import eu.unicore.jsdl.extensions.UserPostCommandDocument;
 import eu.unicore.jsdl.extensions.UserPreCommandDocument;
+import eu.unicore.util.Log;
 
 /**
  * Helper to convert a UNICORE job description in JSON to JSDL form 
@@ -56,7 +57,7 @@ import eu.unicore.jsdl.extensions.UserPreCommandDocument;
  */
 public class Builder {
 
-	private static final Logger logger=Logger.getLogger(Builder.class.getName());
+	private static final Logger logger = Log.getLogger(Log.UNICORE, Builder.class);
 
 	protected final List<DocumentSweep> sweeps;
 	

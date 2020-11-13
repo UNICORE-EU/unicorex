@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.UAS;
@@ -18,7 +19,6 @@ import de.fzj.unicore.uas.testsuite.AbstractJobRun;
 import de.fzj.unicore.wsrflite.admin.AdminActionResult;
 import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
-import junit.framework.Assert;
 
 
 public class TestAdminActions extends AbstractJobRun {

@@ -17,6 +17,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.junit.Assert;
 import org.unigrids.services.atomic.types.GridFileType;
 import org.unigrids.services.atomic.types.ProtocolType;
 import org.unigrids.x2006.x04.services.sms.ImportFileDocument;
@@ -31,7 +32,6 @@ import de.fzj.unicore.wsrflite.utils.StopWatch;
 import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.util.httpclient.HttpUtils;
-import junit.framework.Assert;
 
 /**
  * runs http filetransfer tests on a newly created USspace<br/>

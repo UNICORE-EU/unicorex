@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.trigger.Action;
 import de.fzj.unicore.uas.trigger.MultiFileAction;
@@ -22,7 +22,7 @@ import eu.unicore.util.Log;
 public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContext {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, TriggerRunner.class);
-	private static final Logger usage = Logger.getLogger(LogUtil.TRIGGER+".USAGE");
+	private static final Logger usage = LogUtil.getLogger(LogUtil.TRIGGER+".USAGE", TriggerRunner.class);
 
 	private final XnjsFile[] files;
 

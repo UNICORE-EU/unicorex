@@ -40,7 +40,7 @@ import java.util.concurrent.Future;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.MetadataType;
 import org.unigrids.x2006.x04.services.metadata.CreateMetadataDocument;
 import org.unigrids.x2006.x04.services.metadata.CreateMetadataResponseDocument;

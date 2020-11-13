@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
@@ -38,10 +36,6 @@ public abstract class Base{
 	@BeforeClass
 	public static void startUNICORE() throws Exception{
 		
-		//tell loggers to shut up during startup phase
-		Level l=Logger.getRootLogger().getLevel();
-		Logger.getRootLogger().setLevel(Level.INFO);
-		
 		long start=System.currentTimeMillis();
 		System.out.println("Starting UNICORE/X...");
 		
@@ -55,7 +49,6 @@ public abstract class Base{
 		
 		//create a shared SMS
 		new InitSharedStorages(kernel).run();
-		Logger.getRootLogger().setLevel(l);
 	}
 
 	@AfterClass

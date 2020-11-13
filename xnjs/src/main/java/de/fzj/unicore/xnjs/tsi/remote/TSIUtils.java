@@ -40,7 +40,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
@@ -59,7 +58,6 @@ import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.TSI;
-import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
@@ -902,7 +900,7 @@ public class TSIUtils {
 					commands.append("#TSI_SSR_" + name.toUpperCase() + " "
 							+ value + "\n");
 				} catch (Exception e) {
-					Logger.getLogger(LogUtil.XNJS).warn("Resource value not set.", e);
+					// ignored
 				}
 			}
 		} catch (Exception e) {

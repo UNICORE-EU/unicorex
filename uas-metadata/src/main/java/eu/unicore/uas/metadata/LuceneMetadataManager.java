@@ -44,7 +44,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.tika.metadata.Metadata;
 
 import de.fzj.unicore.uas.metadata.ExtractionStatistics;

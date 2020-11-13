@@ -19,7 +19,7 @@ import de.fzj.unicore.wsrflite.security.IAttributeSource;
 import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.httpclient.IClientConfiguration;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class TestSecurityInfo {
 

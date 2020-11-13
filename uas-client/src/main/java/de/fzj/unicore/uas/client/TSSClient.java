@@ -43,7 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.OperatingSystemType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
 import org.unigrids.services.atomic.types.AvailableResourceType;

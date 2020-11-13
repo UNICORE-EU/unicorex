@@ -44,7 +44,7 @@ import java.util.regex.Matcher;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlObject;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.ArgumentType;

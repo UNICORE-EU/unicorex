@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -36,7 +36,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 	protected static final Logger logger=LogUtil.getLogger(LogUtil.IO,AsyncFilemover.class);
 
 	//metrics/usage logger
-	protected static final Logger usageLogger=Logger.getLogger(Log.SERVICES+".datatransfer.USAGE");
+	protected static final Logger usageLogger = Log.getLogger(Log.SERVICES+".datatransfer.USAGE", AsyncFilemover.class);
 
 	protected final String workingDirectory;
 

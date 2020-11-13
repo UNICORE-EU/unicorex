@@ -2,7 +2,7 @@ package de.fzj.unicore.xnjs.util;
 
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
 import groovy.lang.GroovyShell;

@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.x2006.x04.services.reservation.ReservationPropertiesDocument;
 import org.unigrids.x2006.x04.services.reservation.ReservationReferenceDocument;
 

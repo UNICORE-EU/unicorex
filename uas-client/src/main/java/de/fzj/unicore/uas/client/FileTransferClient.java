@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.input.BoundedInputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.SourceTargetType;
 import org.unigrids.services.atomic.types.PropertyType;
 import org.unigrids.services.atomic.types.ProtocolDocument;

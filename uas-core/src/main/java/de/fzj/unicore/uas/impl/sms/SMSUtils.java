@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.ACLEntryTypeType;
 import org.unigrids.services.atomic.types.PermissionsType;
 import org.unigrids.x2006.x04.services.sms.ACLChangeModeType;

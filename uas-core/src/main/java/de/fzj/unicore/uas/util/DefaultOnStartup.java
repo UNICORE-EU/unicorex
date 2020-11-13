@@ -36,7 +36,7 @@ import java.util.concurrent.locks.Lock;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.persist.PersistenceException;

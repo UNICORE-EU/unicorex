@@ -38,7 +38,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import com.google.inject.Singleton;

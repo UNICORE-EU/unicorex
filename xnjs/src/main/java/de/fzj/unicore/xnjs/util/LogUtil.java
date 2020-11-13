@@ -1,9 +1,10 @@
 package de.fzj.unicore.xnjs.util;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 
 import de.fzj.unicore.xnjs.ems.Action;
+import eu.unicore.util.Log;
 
 public class LogUtil {
 
@@ -43,33 +44,9 @@ public class LogUtil {
 	 * @return logger
 	 */
 	public static Logger getLogger(String prefix, Class<?>clazz){
-		return Logger.getLogger(prefix+"."+clazz.getSimpleName());
+		return Log.getLogger(prefix, clazz);
 	}
 
-	/**
-	 * returns a logger, using the given prefix and the given name
-	 * 
-	 * @param prefix - the prefix to use
-	 * @param name - the name
-	 * @return logger
-	 */
-	public static Logger getLogger(String prefix, String name){
-		return Logger.getLogger(prefix+"."+name);
-	}
-	
-	/** 
-	 * log an error message to the default logger ("unicore.wsrflite")
-	 * A human-friendly message is constructed and logged at "INFO" level.
-	 * The stack trace is logged at "DEBUG" level.
-	 * 
-	 * @param message - the error message
-	 * @param cause - the cause of the error
-	 *
-	 */
-	public static void logException(String message, Throwable cause){
-		logException(message,cause,Logger.getLogger(XNJS));
-	}
-	
 	/**
 	 * log an error message to the specified logger.
 	 * A human-friendly message is constructed and logged at "INFO" level.
@@ -80,14 +57,7 @@ public class LogUtil {
 	 * @param logger - the logger to use
 	 */
 	public static void logException(String message, Throwable cause, Logger logger){
-		logger.error(message);
-		if(cause!=null){
-			logger.error("The root error was: "+getDetailMessage(cause));
-			if(logger.isDebugEnabled())logger.debug("Stack trace",cause);
-			else{
-				logger.error("To see the full error stack trace, set log4j.logger."+logger.getName()+"=DEBUG");
-			}
-		}
+		Log.logException(message, cause, logger);
 	}
 	
 	/**
@@ -122,14 +92,14 @@ public class LogUtil {
 	
 	
 	public static void fillLogContext(Action a){
-		MDC.put("jobID",a.getUUID());
+		ThreadContext.put("jobID",a.getUUID());
 		if(a.getClient()!=null && a.getClient().getDistinguishedName()!=null){
-			MDC.put("clientName",a.getClient().getDistinguishedName());
+			ThreadContext.put("clientName",a.getClient().getDistinguishedName());
 		}
 	}
 	
 	public static void clearLogContext(){
-		MDC.remove("jobID");
-		MDC.remove("clientName");
+		ThreadContext.remove("jobID");
+		ThreadContext.remove("clientName");
 	}
 }

@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.jclouds.functional;
 
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.File;

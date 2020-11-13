@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.rest;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;

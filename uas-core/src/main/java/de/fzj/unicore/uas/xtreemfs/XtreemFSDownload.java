@@ -3,7 +3,7 @@ package de.fzj.unicore.uas.xtreemfs;
 import java.io.OutputStream;
 import java.net.URI;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.ProtocolType;
 
 import de.fzj.unicore.uas.client.FileTransferClient;

@@ -5,8 +5,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileWriter;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
@@ -69,7 +67,6 @@ public class RunCatWithStageInFromRemoteSMS extends AbstractJobRun {
 
 	@Override
 	protected JobDefinitionDocument getJob() {
-		Logger.getLogger("unicore.services.SMSBaseImpl").setLevel(Level.DEBUG);
 		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.newInstance();
 		ApplicationType app=jdd.addNewJobDefinition().addNewJobDescription().addNewApplication();
 		app.setApplicationName("Cat");

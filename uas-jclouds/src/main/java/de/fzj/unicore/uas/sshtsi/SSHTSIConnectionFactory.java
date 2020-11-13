@@ -8,7 +8,7 @@ import java.net.UnknownHostException;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
@@ -16,6 +16,7 @@ import de.fzj.unicore.xnjs.tsi.remote.DefaultTSIConnectionFactory;
 import de.fzj.unicore.xnjs.tsi.remote.TSIConnection;
 import de.fzj.unicore.xnjs.tsi.remote.TSIConnector;
 import de.fzj.unicore.xnjs.util.LogUtil;
+import eu.unicore.util.Log;
 import net.schmizz.keepalive.KeepAliveProvider;
 import net.schmizz.sshj.DefaultConfig;
 import net.schmizz.sshj.SSHClient;
@@ -66,10 +67,12 @@ public class SSHTSIConnectionFactory extends DefaultTSIConnectionFactory {
 	 */
 	public KeyProvider checkKeypair() throws IOException {
 		KeyProvider kp = null;
-		if (keypass==null || keypass.isEmpty()) {
-			kp = new SSHClient(defaultconfig).loadKeys(keypath);
-		} else {
-			kp = new SSHClient(defaultconfig).loadKeys(keypath, keypass);
+		try(SSHClient sc = new SSHClient(defaultconfig)){
+			if (keypass==null || keypass.isEmpty()) {
+				kp = sc.loadKeys(keypath);
+			} else {
+				kp = sc.loadKeys(keypath, keypass);
+			}
 		}
 		return kp;
 	}
@@ -159,7 +162,7 @@ public class SSHTSIConnectionFactory extends DefaultTSIConnectionFactory {
 				buildTunnel(hostname);
 			}
 		}catch(IOException ex){
-			LogUtil.logException("Cannot build SSH tunnel", ex);
+			Log.logException("Cannot build SSH tunnel", ex, log);
 			throw new RuntimeException(ex);
 		}
 		return super.getFromPool(hostname, timeout);

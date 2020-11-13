@@ -2,7 +2,7 @@ package de.fzj.unicore.uas.impl.sms;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.wsrflite.InitParameters;

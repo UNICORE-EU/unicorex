@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.RangeType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.RangeValueType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;

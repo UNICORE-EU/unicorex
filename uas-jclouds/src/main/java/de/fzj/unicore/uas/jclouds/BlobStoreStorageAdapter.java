@@ -15,7 +15,7 @@ import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.output.CountingOutputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.ContainerNotFoundException;
 import org.jclouds.blobstore.domain.Blob;
@@ -57,6 +57,7 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 
 	private String storageRoot = "/";
 
+	@SuppressWarnings("unused")
 	private final String region;
 	
 	public BlobStoreStorageAdapter(String endpoint, BlobStore blobStore, String region){

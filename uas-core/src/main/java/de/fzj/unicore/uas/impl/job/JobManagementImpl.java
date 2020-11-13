@@ -38,7 +38,7 @@ import java.util.Calendar;
 
 import javax.xml.namespace.QName;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.unigrids.x2006.x04.services.jms.AbortDocument;
 import org.unigrids.x2006.x04.services.jms.AbortResponseDocument;
 import org.unigrids.x2006.x04.services.jms.HoldDocument;

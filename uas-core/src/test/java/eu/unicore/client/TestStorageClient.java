@@ -15,7 +15,7 @@ import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class TestStorageClient extends Base {
 

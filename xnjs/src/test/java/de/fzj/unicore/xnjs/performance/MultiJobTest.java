@@ -41,8 +41,6 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.junit.Test;
 
@@ -78,7 +76,6 @@ public class MultiJobTest extends EMSTestBase {
 	
 	@Test
 	public void testMultipleJobs()throws Exception{
-		Logger.getLogger("unicore").setLevel(Level.WARN);
 		int n=getNumberOfTasks(); //how many jobs
 		
 		assertTrue(xnjs.getXNJSProperties().isAutoSubmitWhenReady());
