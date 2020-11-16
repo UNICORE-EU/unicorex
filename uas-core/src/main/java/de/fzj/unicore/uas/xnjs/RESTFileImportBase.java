@@ -266,6 +266,7 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 		else{
 			transferFileFromRemote(source, localFile);
 		}
+		if(statusTracker!=null)statusTracker.update(info);
 	}
 
 	/**

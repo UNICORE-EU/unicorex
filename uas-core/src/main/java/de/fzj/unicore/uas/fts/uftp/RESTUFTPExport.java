@@ -86,6 +86,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 		setupSessionMode();
 		super.runTransfers();
 		finishSessionMode();
+		info.setTransferredBytes(info.getDataSize());
 	}
 
 	private StringBuilder fileList=new StringBuilder();
@@ -121,11 +122,13 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 	protected void setupSessionMode()throws Exception{
 		Map<String,String>ep=getExtraParameters();
 		ftc = storage.createExport(UFTPWorker.sessionModeTag, "UFTP", ep);
-		UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
-		sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
-		sessionClient.setSecret(secret);
-		sessionClient.setNumConnections(getNumberOfStreams());
-		sessionClient.connect();
+		if(localMode) {
+			UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
+			sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
+			sessionClient.setSecret(secret);
+			sessionClient.setNumConnections(getNumberOfStreams());
+			sessionClient.connect();
+		}
 	}
 
 	protected void finishSessionMode() throws Exception{
@@ -133,6 +136,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 			sessionClient.close();
 		}
 		else{
+			String root = getStorageAdapter().getStorageRoot();
 			String cmdFile=".uftp-"+info.getUniqueId();
 			OutputStream os=getStorageAdapter().getOutputStream(cmdFile);
 			try{
@@ -140,7 +144,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 			}finally{
 				os.close();
 			}
-			runAsync(cmdFile);
+			runAsync(root+"/"+cmdFile);
 		}
 	}
 
@@ -199,13 +203,12 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 
 	private AsyncCommandHelper ach;
 
-	protected void runAsync(String localFile)throws Exception{
-		String cmd=getCommandLine(localFile);
+	protected void runAsync(String commandFile)throws Exception{
+		String cmd=getCommandLine(commandFile);
 		logger.info("Executing "+cmd);
 		ach=new AsyncCommandHelper(configuration, cmd, info.getUniqueId(), info.getParentActionID(), client);
 		ach.setPreferredExecutionHost(clientHost);
 		ach.submit();
-		int c = 0;
 		int interval = 1000;
 		do{
 			try{
@@ -217,13 +220,6 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 					logger.warn("Could not abort UFTP client run.");
 				}
 				throw ce;
-			}
-			c++;
-			if(c % 3 == 0){
-				try{
-					long transferredBytes = getStorageAdapter().getProperties(localFile).getSize();
-					info.setTransferredBytes(transferredBytes);
-				}catch(Exception e){}
 			}
 			Thread.sleep(interval);
 		}while(!ach.isDone());
@@ -239,6 +235,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 			}
 			throw new Exception(message);
 		}
+		info.setTransferredBytes(info.getDataSize());
 	}
 
 	private String getCommandLine(String localFile)throws Exception{
