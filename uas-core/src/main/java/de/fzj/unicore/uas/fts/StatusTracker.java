@@ -46,6 +46,7 @@ public class StatusTracker implements Observer<TransferInfo>{
 			model.status = newStatus;
 			model.description = msg;
 			model.transferredBytes = info.getTransferredBytes();
+			model.setNumberOfBytes(info.getDataSize());
 		}catch(Exception ex){
 			Log.logException("Cannot update file transfer info", ex, logger);
 		}

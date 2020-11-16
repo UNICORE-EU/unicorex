@@ -13,6 +13,7 @@ import org.unigrids.services.atomic.types.ProtocolType;
 import org.unigrids.x2006.x04.services.fts.ScheduledStartTimeDocument;
 
 import de.fzj.unicore.uas.util.LogUtil;
+import de.fzj.unicore.uas.xnjs.RESTFileTransferBase;
 import de.fzj.unicore.uas.xnjs.U6FileTransferBase;
 import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
@@ -126,11 +127,11 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		if(!m.isFinished()){
 			Client oldClient = AuthZAttributeStore.getClient();
 			Client client = m.client;
-			logger.info("Attempting to resume file transfer "+toString()+
-					(client!=null?" for "+client.getDistinguishedName():""));
 			try{
 				//on restart, must use stored client
 				AuthZAttributeStore.setClient(client);
+				logger.info("Attempting to resume file transfer "+toString()+
+						(client!=null?" for "+client.getDistinguishedName():""));
 				IFileTransfer ft = createTransfer();
 				startFileTransfer(ft, true);
 			}catch(Exception ex){
@@ -267,11 +268,18 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 							model.workdir,
 							info);
 		}
-		if(ft instanceof U6FileTransferBase){
+		
+		if(ft instanceof RESTFileTransferBase){
+			((RESTFileTransferBase)ft).setStorageAdapter(getStorageAdapter());
+			((RESTFileTransferBase)ft).setStatusTracker(new StatusTracker(home,getUniqueID()));
+			((RESTFileTransferBase)ft).setExtraParameters(model.getExtraParameters());
+		}
+		else if(ft instanceof U6FileTransferBase){
 			((U6FileTransferBase)ft).setStorageAdapter(getStorageAdapter());
 			((U6FileTransferBase)ft).setExtraParameters(model.getExtraParameters());
 			((U6FileTransferBase)ft).setStatusTracker(new StatusTracker(home,getUniqueID()));
 		}
+
 		//set the actual protocol
 		ProtocolType.Enum protocol=ProtocolType.Enum.forString(ft.getInfo().getProtocol());
 		if(protocol==null)protocol=ProtocolType.OTHER;

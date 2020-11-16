@@ -175,7 +175,7 @@ public abstract class FileTransferImpl extends UASWSResourceImpl implements Data
 			adapter.setStorageRoot(m.getWorkdir());
 			return adapter;
 		}
-		else throw new IOException("No storage adaptor factory.");
+		else return null;
 	}
 
 	public long getDataSize(){
