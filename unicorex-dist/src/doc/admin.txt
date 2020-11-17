@@ -33,7 +33,7 @@ configured using a config file.  By default, this file is
 +CONF/logging.properties+. To change the default, edit the start
 script (+CONF/startup.properties+) or, on Windows, the
 +CONF/wrapper.conf+. The config file is specified with a Java property
-+log4j.configuration+.
++log4j.configurationFile+.
 
 
 [NOTE]
@@ -43,33 +43,6 @@ The new configuration will take effect a few seconds after the file has been mod
 ===========
 
 By default, log files are written to the the +LOGS+ directory. 
-
-The following example config file configures logging so that log files are 
-rotated daily.
-
--------------------
-# Set root logger level to INFO and its only appender to A1.
-log4j.rootLogger=INFO, A1
-
-# A1 is set to be a rolling file appender with default params
-log4j.appender.A1=org.apache.log4j.DailyRollingFileAppender
-log4j.appender.A1.File=logs/uas.log
-
-#configure daily rollover: once per day the uas.log will be copied 
-#to a file named e.g. uas.log.2008-12-24
-log4j.appender.A1.DatePattern='.'yyyy-MM-dd
-
-# A1 uses the PatternLayout
-log4j.appender.A1.layout=org.apache.log4j.PatternLayout
-log4j.appender.A1.layout.ConversionPattern=%d [%t] %-5p %c{1} %x - %m%n
--------------------
-
-[NOTE]
-===========
-In Log4j, the log rotation frequency is controlled by the DatePattern. Check 
-http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/DailyRollingFileAppender.html
-for the details.
-===========
 
 Within the logging pattern, you can use special variables to output information.
 In addition to the variables defined by Log4j (such as '%d'), UNICORE defines several variables
@@ -86,24 +59,13 @@ related to the client and the current job.
 A sample logging pattern might be
 
 -------------------
-log4j.appender.A1.layout.ConversionPattern=%d [%X{clientName}] [%X{jobID}] [%t] %-5p %c{1} %x - %m%n
+ %d [%X{clientName}] [%X{jobID}] [%t] %-5p %c{1} %x - %m%n
 -------------------
 
 
 For more info on controlling the logging we refer to the log4j documentation:
-  
-  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/PatternLayout.html[PatternLayout]
-  
-  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/RollingFileAppender.html[RollingFileAppender]
-  
-  - http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/DailyRollingFileAppender.html[DailyRollingFileAppender]
-  
- 
-Log4j supports a very wide range of logging options, such as date based or size based file rollover,
-logging different things to different files and much more. For full information on Log4j we refer to
-the publicly available documentation, for example the 
-http://logging.apache.org/log4j/1.2/manual.html[Log4j manual].
- 
+
+https://logging.apache.org/log4j/2.x/manual/configuration.html
 
 ==== Logger categories, names and levels
 
@@ -112,25 +74,6 @@ to which the Java class name is appended. For example, the XUUDB connector in UN
 the "unicore.security.XUUDBAuthoriser" logger. 
 
 Therefore the logging output produced can be controlled in a fine-grained manner. 
-Log levels in Log4j are (in increasing level of severity) TRACE, DEBUG, INFO, WARN, 
-ERROR, amd FATAL.
-
-For example, to debug a security/authorisation problem in the UNICORE/X security layer, 
-you can set
-  
-------
-log4j.logger.unicore.security=DEBUG
-------
-
-If you are just interested in XUUDB related output, you can set
-
-------
-log4j.logger.unicore.security=INFO
-log4j.logger.unicore.security.XUUDBAuthoriser=DEBUG
-------
-
-so the XUUDBAuthoriser will log on DEBUG level, while the other security components
-log on INFO level.  
 
 Here is a table of the various logger categories
 
@@ -161,41 +104,7 @@ as this will produce a lot of output.
 
 Often it is desirable to keep track of the usage of your UNICORE site. The UNICORE/X
 server has a special logger category called +unicore.services.jobexecution.USAGE+ which
-logs information about finished jobs at INFO level. If you wish to enable this,
-set 
-------
-log4j.logger.unicore.services.jobexecution.USAGE=INFO
-------
-
-
-It might be convenient to send usage output to a different file than normal log output.
-This is easily achieved with log4j:
-
-------
-# send usage logger output to a separate file
-
-# use separate appender 'U1' for usage info
-log4j.logger.unicore.services.jobexecution.USAGE=INFO,U1
-
-# U1 is set to be a rolling file appender with default params
-log4j.appender.U1=org.apache.log4j.DailyRollingFileAppender
-log4j.appender.U1.File=logs/usage.log
-# U1 uses the PatternLayout                                                                           
-log4j.appender.U1.layout=org.apache.log4j.PatternLayout
-log4j.appender.U1.layout.ConversionPattern=%d [%t] %-5p %c{1} %x - %m%n
-------
-
-For each finished job, the usage logger will log a line with the following information (if available)
-----
-[result] [executable] [actionUUID] [clientDN] [BSSJobId] [clientXlogin] [jobName] [machineName] [VOs]
-----
-
-An example output line is:
-
-----
-2011-08-16 10:00:39,513 [XNJS-1-JobRunner-1] INFO  USAGE  - [SUCCESSFUL] [ /bin/date] [ e9deab79-af1f-4704-a6bd-427b3ab20969] [CN=Bernd Schuller, O=GridGermany, C=DE] [82942] [schuller] [Date job submitted using UCC] [zam025c02.zam.kfa-juelich.de] []
-----
-
+logs information about finished jobs at INFO level.
 
 Administration and monitoring
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
