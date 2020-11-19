@@ -109,6 +109,8 @@ public class BSSState implements IBSSState {
 		}
 	}
 
+	private final Map<String,Boolean>tsiNodeStates = new HashMap<>();
+
 	//updates the status hashmap. Called periodically from a scheduler thread
 	private void updateBSSStates() throws Exception {
 		//do not update while job is being submitted!
@@ -129,6 +131,13 @@ public class BSSState implements IBSSState {
 			for(String tsiNode: connectionFactory.getTSIHosts()){
 				try{
 					pids.addAll(getProcessList(tsiNode));
+					tsiNodeStates.put(tsiNode, Boolean.TRUE);
+				}catch(TSIUnavailableException tue) {
+					Boolean oldState = tsiNodeStates.getOrDefault(tsiNode, Boolean.TRUE);
+					if(Boolean.TRUE.equals(oldState)) {
+						Log.logException("Can't get process list from ["+tsiNode+"]", tue, log);
+					}
+					tsiNodeStates.put(tsiNode, Boolean.FALSE);
 				}catch(Exception te){
 					Log.logException("Can't get process list from ["+tsiNode+"]", te, log);
 				}

@@ -407,6 +407,15 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		return machine;
 	}
 
+	@Override
+	public Map<String,String>getTSIConnectorStates(){
+		Map<String,String> res = new HashMap<>();
+		for(TSIConnector c: connectors) {
+			res.put(c.toString(), c.getStatusMessage());
+		}
+		return res;
+	}
+
 	/**
 	 * gets the TSI version as returned by the TSI_PING command
 	 */

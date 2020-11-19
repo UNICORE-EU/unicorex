@@ -32,6 +32,8 @@
 
 package de.fzj.unicore.xnjs.tsi.remote;
 
+import java.util.Map;
+
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.security.Client;
 
@@ -100,4 +102,10 @@ public interface TSIConnectionFactory {
 	 * Connection status overview message
 	 */
 	public String getConnectionStatus();
+
+	/**
+	 * get status messages for the individual TSIs we are connecting to
+	 */
+	public Map<String,String>getTSIConnectorStates();
+
 }
