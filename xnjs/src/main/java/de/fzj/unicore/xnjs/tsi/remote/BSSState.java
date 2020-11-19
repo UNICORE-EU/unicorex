@@ -73,6 +73,9 @@ public class BSSState implements IBSSState {
 		statusUpdatesEnabled.set(enable);
 	}
 
+	private long lastLoggedTSIFailure = -1;
+	private final long interval = 60*60*1000;
+
 	@Inject
 	public BSSState(XNJS xnjs, TSIConnectionFactory connectionFactory, InternalManager eventHandler, IDB idb, TSIProperties tsiProperties) {
 		this.connectionFactory = connectionFactory;
@@ -91,7 +94,10 @@ public class BSSState implements IBSSState {
 					}
 					updateConfigParameters();
 				}catch(TSIUnavailableException tue){
-					Log.logException("TSI is not available.",tue, log);
+					if(System.currentTimeMillis()>lastLoggedTSIFailure+interval) {
+						Log.logException("TSI is not available.",tue, log);
+						lastLoggedTSIFailure = System.currentTimeMillis();
+					}
 				}catch(Throwable e){
 					Log.logException("Problem updating BSS state", e, log);
 				}
