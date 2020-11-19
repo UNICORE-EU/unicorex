@@ -54,8 +54,12 @@ public class TSIConnector {
 			throw new IOException(statusMessage);
 		}
 		try{
-			log.info("Creating new TSI connection to "+address+":"+port+" this is <"+(1+counter.get())+">");
+			if(log.isDebugEnabled()) {
+				log.debug("Contacting TSI at "+address+":"+port);
+			}
 			TSIConnection c = doCreateNewTSIConnection(server);
+			log.info("Created new TSI connection to "+address+":"+port+" this is <"+(1+counter.get())+">");
+			
 			OK();
 			return c;
 		}
