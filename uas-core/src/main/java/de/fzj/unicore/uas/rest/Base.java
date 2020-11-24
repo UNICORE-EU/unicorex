@@ -70,14 +70,18 @@ public class Base extends ApplicationBaseResource {
 	public String listAllHtml() throws Exception {
 		return getHTML();
 	}
-	
-	String[] getResources(){
-		return new String[]{"registries","factories","sites","jobs",
-				"storages","storagefactories","transfers","client-server-transfers",
-		};
-	}
 
+	final static String[] resources = new String[]{"registries",
+			"factories","sites","jobs",
+			"storages","storagefactories",
+			"transfers","client-server-transfers",
+	};
 
+	final static String[] serviceNames = new String[]{null, 
+			UAS.TSF, UAS.TSS, UAS.JMS,
+			UAS.SMS, UAS.SMF, 
+			UAS.SERVER_FTS, UAS.CLIENT_FTS,
+	};
 
 	@Override
 	protected Map<String, Object> renderServerProperties() throws Exception {
@@ -94,10 +98,17 @@ public class Base extends ApplicationBaseResource {
 		}catch(Exception ex){}
 		return props;
 	}
-	
+
 	@Override
 	protected void updateLinks() {
-		for(String r: getResources()){
+		for(int i = 0; i<resources.length; i++){
+			String r = resources[i];
+			String sName = serviceNames[i];
+			if(sName!=null) {
+				if(kernel.getHome(sName)==null) {
+					continue;
+				};
+			}
 			links.add(new Link(r, getBaseURL()+"/"+r));
 		}
 	}

@@ -22,12 +22,12 @@ import de.fzj.unicore.uas.xnjs.U6FileExportBase;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
-import de.fzj.unicore.xnjs.util.LogUtil;
 import de.fzj.unicore.xnjs.util.ResultHolder;
 import eu.unicore.uftp.client.UFTPClient;
 import eu.unicore.uftp.client.UFTPSessionClient;
 import eu.unicore.uftp.dpc.AuthorizationFailureException;
 import eu.unicore.uftp.server.workers.UFTPWorker;
+import eu.unicore.util.Log;
 
 public class UFTPExport extends U6FileExportBase implements UFTPConstants {
 
@@ -295,7 +295,7 @@ public class UFTPExport extends U6FileExportBase implements UFTPConstants {
 				if (error != null)
 					message += " Error details: " + error;
 			} catch (IOException ex) {
-				LogUtil.logException("Could not read UFTP stderr", ex, logger);
+				Log.logException("Could not read UFTP stderr", ex, logger);
 			}
 			throw new Exception(message);
 		}
