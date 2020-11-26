@@ -47,11 +47,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.xml.namespace.QName;
-
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.json.JSONObject;
 
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.JmxReporter;
@@ -79,6 +78,7 @@ import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
 import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
 import de.fzj.unicore.xnjs.jsdl.SweepInstanceProcessor;
 import de.fzj.unicore.xnjs.jsdl.SweepProcessor;
+import de.fzj.unicore.xnjs.json.JSONJobProcessor;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.persistence.IActionStoreFactory;
 import de.fzj.unicore.xnjs.tsi.TSI;
@@ -246,12 +246,17 @@ public class XNJS {
 					new String[]{JSDLProcessor.class.getName(),UsageLogger.class.getName(),
 			});
 		}
-		if(!haveProcessingFor("JSDL_STAGEIN")){
-			setProcessingChain("JSDL_STAGEIN", null, 
+		if(!haveProcessingFor("JSON")){
+			setProcessingChain("JSON", "JSON", 
+					new String[]{JSONJobProcessor.class.getName(),UsageLogger.class.getName(),
+			});
+		}
+		if(!haveProcessingFor(XNJSConstants.jsdlStageInActionType)){
+			setProcessingChain(XNJSConstants.jsdlStageInActionType, null, 
 					new String[]{DataStagingProcessor.class.getName()});
 		}
-		if(!haveProcessingFor("JSDL_STAGEOUT")){
-			setProcessingChain("JSDL_STAGEOUT", null, 
+		if(!haveProcessingFor(XNJSConstants.jsdlStageOutActionType)){
+			setProcessingChain(XNJSConstants.jsdlStageOutActionType, null, 
 					new String[]{DataStagingProcessor.class.getName()});
 		}
 		if(!haveProcessingFor(XNJSConstants.asyncCommandType)){
@@ -389,9 +394,8 @@ public class XNJS {
 		return config.getProcessing(actionType)!=null;
 	}
 
-	public void setProcessingChain(String actionType, QName jobDescriptionType, String[] chain){
-		String jdt = jobDescriptionType!=null ? jobDescriptionType.toString() : null;
-		ProcessorChain pc = new ProcessorChain(actionType, jdt, chain);
+	public void setProcessingChain(String actionType, String jdType, String[] chain){
+		ProcessorChain pc = new ProcessorChain(actionType, jdType, chain);
 		config.getProcessingChains().put(actionType, pc);
 	}
 
@@ -403,11 +407,22 @@ public class XNJS {
 		Action a=new Action(uuid);
 		XmlCursor c=job.newCursor();
 		c.toFirstChild();
-		String qn=c.getName().toString();
+		String qn=c.getName().getNamespaceURI();
 		String type=config.getJobType(qn);
 		if(type==null)return null;
 		a.setAjd((Serializable)job);
-		a.setOriginalAjd((Serializable)job.copy());
+		a.setType(type);
+		return a;
+	}
+	
+	public Action makeAction(JSONObject job){
+		return makeAction(job, java.util.UUID.randomUUID().toString());
+	}
+
+	public Action makeAction(JSONObject job, String uuid){
+		Action a = new Action(uuid);
+		String type = "JSON";
+		a.setAjd(job.toString());
 		a.setType(type);
 		return a;
 	}

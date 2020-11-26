@@ -52,7 +52,7 @@ public abstract class XNJSTestBase {
 
 	protected void addProperties(ConfigurationSource cs){
 		Properties p = cs.getProperties();
-		p.put("XNJS.idbfile", "src/test/resources/ems/simpleidb");
+		p.put("XNJS.idbfile", "src/test/resources/resources/simpleidb");
 		File fileSpace=new File("target","xnjs_filespace");
 		p.put("XNJS.filespace",fileSpace.getAbsolutePath());
 		File state=new File("target","xnjs_state");

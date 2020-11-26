@@ -352,6 +352,7 @@ public class GrounderImpl implements Incarnation {
 		
 		for(ResourceRequest sr: defaultResources){
 			String name=sr.getName();
+			
 			if(computeRequested && (
 					ResourceSet.NODES.equals(name) || ResourceSet.CPUS_PER_NODE.equals(name) 
 					|| ResourceSet.TOTAL_CPUS.equals(name)
@@ -359,7 +360,9 @@ public class GrounderImpl implements Incarnation {
 			{
 				continue;
 			}
-			incarnatedRequest.add(sr);	
+			if(!ResourceRequest.contains(incarnatedRequest,name)){
+				incarnatedRequest.add(sr);	
+			}
 		}
 		return incarnatedRequest;
 	}

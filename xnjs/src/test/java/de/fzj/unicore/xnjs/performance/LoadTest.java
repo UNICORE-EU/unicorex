@@ -52,7 +52,6 @@ public class LoadTest extends EMSTestBase {
 
 	static JobDefinitionDocument jdd;
 
-	//jsdl document paths
 	private static String smallDoc="src/test/resources/ems/date.jsdl";
 	private static String bigDoc="src/test/resources/ems/big.jsdl";
 	private static String d1="src/test/resources/ems/ls_with_stagein.jsdl";
@@ -161,15 +160,14 @@ public class LoadTest extends EMSTestBase {
 		}
 		while(((BasicManager)mgr).getDoneJobs()<2*n){
 			try {
-				Thread.sleep(200);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 		end=System.currentTimeMillis();
 		float time=((float)(end-start))/1000;
-		System.out.println("Took: "+time+" secs (200 ms precision).");
+		System.out.println("Took: "+time+" secs");
 		System.out.println("Rate: "+(n/time+0.0f)+" per sec.");
 	}
 }

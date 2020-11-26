@@ -11,7 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
@@ -24,7 +24,7 @@ import eu.unicore.security.Xlogin;
 public class IntegrationTest extends LegacyTSITestCase
 {
 	private static String 
-	d1="src/test/resources/ems/sleep.jsdl";
+	d1="src/test/resources/json/date.json";
 
 	@Override
 	protected void addProperties(ConfigurationSource cs){
@@ -35,7 +35,7 @@ public class IntegrationTest extends LegacyTSITestCase
 
 	@Test
 	public void testSubmit1() throws Exception {
-		JobDefinitionDocument job=getJSDLDoc(d1);
+		JSONObject job = loadJSONObject(d1);
 		String id="";
 		Action a=xnjs.makeAction(job);
 		Client c=new Client();

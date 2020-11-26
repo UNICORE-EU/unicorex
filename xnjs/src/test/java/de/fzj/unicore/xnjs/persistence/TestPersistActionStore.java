@@ -39,7 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.fzj.unicore.persist.impl.PersistImpl;
@@ -60,9 +62,8 @@ public class TestPersistActionStore extends EMSTestBase {
 	}
 
 	//jsdl document paths
-	private static String smallDoc="src/test/resources/ems/date.jsdl";
-	private static String bigDoc="src/test/resources/ems/big.jsdl";
-	private static String faultyJob="src/test/resources/ems/stageout_problem.jsdl";
+	private static String smallDoc="src/test/resources/json/date.json";
+	private static String faultyJob="src/test/resources/json/staging_failure.json";
 	
 	@Override
 	protected void addProperties(ConfigurationSource cs){
@@ -84,14 +85,8 @@ public class TestPersistActionStore extends EMSTestBase {
 	public void testFailing()throws Exception{
 		doTest(5, true, false, faultyJob, 2);
 	}
-	
-	@Test
-	public void testNLargeJob()throws Exception{
-		((JDBCActionStore)xnjs.getActionStore("JOBS")).doCleanup();
-		doTest(5,false,false,bigDoc, 1);		
-	}
-	
-	@Test
+
+	@Ignore
 	public void testExport()throws Exception{
 		JDBCActionStore as = (JDBCActionStore)xnjs.getActionStore("JOBS");
 		as.doCleanup();
@@ -110,7 +105,7 @@ public class TestPersistActionStore extends EMSTestBase {
 		long start,end;
 		
 		ArrayList<String> ids=new ArrayList<String>();
-		JobDefinitionDocument job=getJSDLDoc(doc);
+		JSONObject job = loadJSONObject(doc);
 		start=System.currentTimeMillis();
 		System.out.println("adding "+n+" jobs.");
 		try {

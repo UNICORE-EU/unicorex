@@ -1,0 +1,13 @@
+hazelcast:
+  cluster-name: test
+  network:
+    port:
+      auto-increment: true
+      port: 5701
+    
+    join:
+      multicast:
+        enabled: false
+      tcp-ip:
+        enabled: true
+        member: 127.0.0.1

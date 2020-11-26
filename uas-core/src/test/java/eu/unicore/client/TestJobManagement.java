@@ -36,7 +36,7 @@ public class TestJobManagement extends Base {
 		JobClient jc = sc.submitJob(job);
 		jc.setUpdateInterval(-1);
 		waitForFinish(jc);
-		
+		System.out.println("JOB LOG: "+jc.getLog());
 		EnumerationClient jobList = sc.getJobsList();
 		System.out.println(jobList.getProperties().toString(2));
 		

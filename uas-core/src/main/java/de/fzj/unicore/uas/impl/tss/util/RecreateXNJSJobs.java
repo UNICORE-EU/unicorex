@@ -104,15 +104,11 @@ public class RecreateXNJSJobs implements Runnable{
 		Action a=new Action();
 		a.setUUID(jms.getUniqueID());
 		a.setClient(client);
-		a.setType("JSDL");
+		a.setType("JSON");
 		a.setStatus(ActionStatus.DONE);
 		a.setResult(new ActionResult(ActionResult.UNKNOWN, 
 				"Job was lost and restored during server restart."));
-		JobDefinitionDocument jsdl=JobDefinitionDocument.Factory.newInstance();
-		jsdl.addNewJobDefinition().addNewJobDescription().
-			addNewJobIdentification().addNewJobAnnotation().setStringValue("Recreated job");
-		a.setAjd((Serializable)jsdl);
-		a.setOriginalAjd((Serializable)jsdl);
+		a.setAjd((Serializable)"{}");
 		XNJS xnjs=XNJSFacade.get(xnjsReference, kernel).getXNJS();
 		xnjs.get(IExecutionContextManager.class).getContext(a);
 		xnjs.get(Manager.class).add(a, client);

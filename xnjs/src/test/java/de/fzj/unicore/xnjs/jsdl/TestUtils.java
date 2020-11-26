@@ -57,8 +57,6 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.ArgumentDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.POSIXApplicationDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.POSIXApplicationType;
-import org.ggf.schemas.jsdl.x2006.x07.jsdlHpcpa.HPCProfileApplicationDocument;
-import org.ggf.schemas.jsdl.x2006.x07.jsdlHpcpa.HPCProfileApplicationType;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
@@ -213,49 +211,6 @@ public class TestUtils {
 	}
 
 	@Test
-	public void testHpcpAppExtraction() throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/hpcp_sleep.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		//System.out.println(jdd);
-		ApplicationDocument app=ApplicationDocument.Factory.newInstance();
-		app.setApplication(jdd.getJobDefinition().getJobDescription().getApplication());
-		HPCProfileApplicationDocument pd=JSDLUtils.extractHpcpApplication(app);
-		assertNotNull(pd);
-		//System.out.println("After conversion: "+pd.toString());
-		HPCProfileApplicationType pa=pd.getHPCProfileApplication();
-		assertEquals("10",pa.getArgumentArray(0).getStringValue());
-	}
-
-	@Test
-	public void testHpcpAppExtraction2() throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/hpcp_sleep.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		ApplicationDocument app=ApplicationDocument.Factory.newInstance();
-		app.setApplication(jdd.getJobDefinition().getJobDescription().getApplication());
-		POSIXApplicationDocument pd=JSDLUtils.extractUserApplication(app);
-		assertNotNull(pd);
-		POSIXApplicationType pa=pd.getPOSIXApplication();
-		assertEquals("10",pa.getArgumentArray(0).getStringValue());
-	}
-
-	@Test
-	public void testHpcpAppExtraction3() throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/hpcp_sleep_other_namespace.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		//System.out.println(jdd);
-		ApplicationDocument app=ApplicationDocument.Factory.newInstance();
-		app.setApplication(jdd.getJobDefinition().getJobDescription().getApplication());
-		HPCProfileApplicationDocument pd=JSDLUtils.extractHpcpApplication(app);
-		assertNotNull(pd);
-		//System.out.println("After conversion: "+pd.toString());
-		HPCProfileApplicationType pa=pd.getHPCProfileApplication();
-		assertEquals("10",pa.getArgumentArray(0).getStringValue());
-	}
-
-	@Test
 	public void testExtractReservationID()throws Exception{
 		JobDefinitionDocument jd=JobDefinitionDocument.Factory.newInstance();
 		ResourcesType rt=jd.addNewJobDefinition().addNewJobDescription().addNewResources();
@@ -384,31 +339,6 @@ public class TestUtils {
 				new File("src/test/resources/jsdl/staging_1.jsdl"));
 		assertFalse(JSDLUtils.hasSweep(d2));
 	}
-	@Test
-	public void testHPCPWithValidUserAndPasswd() throws Exception {
-		InputStream is = new FileInputStream("src/test/resources/jsdl/jsdl_sample_with_hpc_ext.jsdl");
-		assertNotNull(is);
-		XmlObject jsdl = XmlObject.Factory.parse(is);
-		UsernamePassword creds = JSDLUtils.extractUsernamePassword(jsdl);
-		assertNotNull(creds);
-		String userName = creds.getUser();
-		String passwd = creds.getPassword();
-		assertEquals("sc07demo",userName);
-		assertEquals("hpcpsc07",passwd);
-	}
-
-	@Test
-	public void testCredentialsEmptyUserAndPasswd()throws Exception{
-		InputStream is = new FileInputStream("src/test/resources/jsdl/jsdl_sample_with_hpc_ext_nouser.jsdl");
-		assertNotNull(is);
-		XmlObject jsdl = XmlObject.Factory.parse(is);
-		UsernamePassword creds = JSDLUtils.extractUsernamePassword(jsdl);
-		assertNotNull(creds);
-		String userName = creds.getUser();
-		String passwd = creds.getPassword();
-		assertEquals("",userName);
-		assertEquals("",passwd);
-	}
 
 	@Test
 	public void testNoCredentials()throws Exception{
@@ -418,7 +348,7 @@ public class TestUtils {
 		UsernamePassword creds = JSDLUtils.extractUsernamePassword(jsdl);
 		assertNull(creds);
 	}
-	
+
 	@Test
 	public void testCredentialsExtract()throws Exception{
 		InputStream is = new FileInputStream("src/test/resources/jsdl/staging_credentials.jsdl");

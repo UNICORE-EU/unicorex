@@ -51,4 +51,29 @@ public class JSONUtils {
 		}
 		else return defaultValue;
 	}
+
+	/**
+	 * get the requested value
+	 * @param obj - the json object
+	 * @param key - the key
+	 * @param defaultValue - the default value
+	 */
+	public static String getString(JSONObject obj, String key, String defaultValue){
+		try{
+			return obj.getString(key);
+		}
+		catch(JSONException je){
+			return defaultValue;
+		}
+	}
+	
+	/**
+	 * get the requested value or <code>null</code> if it does not exist in the json
+	 * @param obj
+	 * @param key
+	 */
+	public static String getString(JSONObject obj, String key){
+		return getString(obj, key, null);
+	}
+	
 }

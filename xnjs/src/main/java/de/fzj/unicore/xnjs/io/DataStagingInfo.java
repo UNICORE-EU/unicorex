@@ -10,35 +10,39 @@ public interface DataStagingInfo {
 
 	public OverwritePolicy getOverwritePolicy();
 
-	/**
-	 * get the local file name
-	 */
+	public void setOverwritePolicy(OverwritePolicy overwrite);
+
 	public String getFileName();
 	
-	/**
-	 * get the ID of this transfer
-	 */
 	public String getID();
 	
 	/**
 	 * should the local file be deleted after the job is finished?
 	 */
 	public boolean isDeleteOnTermination();
-
+	
+	public void setDeleteOnTermination(boolean ignoreFailure);
+	
 	/**
 	 * get the data staging credentials associated with this transfer
 	 * and contained in the original job description
 	 */
 	public DataStagingCredentials getCredentials();
 
+	public void setCredentials(DataStagingCredentials credentials);
+	
 	/**
 	 * should failures be ignored
 	 */
 	public boolean isIgnoreFailure();
 
+	public void setIgnoreFailure(boolean ignoreFailure);
+	
 	/**
-	 * get the file system name
+	 * file system name
 	 */
 	public String getFileSystemName();
+
+	public void setFileSystemName(String fileSystemName);
 
 }

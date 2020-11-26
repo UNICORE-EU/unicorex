@@ -88,11 +88,8 @@ public class Action implements Serializable {
 	//human readable name
 	private String jobName;
 
-	//the description of the action as understood by the executing entity
+	//the description of the action as submitted
 	private Wrapper<Serializable> ajd;
-
-	//the original, "as submitted" version of the ajd
-	private Wrapper<Serializable> originalAjd=null;
 
 	private ActionResult result;
 
@@ -367,20 +364,6 @@ public class Action implements Serializable {
 		setDirty();
 	}
 
-	/**
-	 * returns the original job description
-	 */
-	public Serializable getOriginalAjd() {
-		return originalAjd!=null?originalAjd.get():null;
-	}
-
-	public void setOriginalAjd(Serializable originalAjd) {
-		if(this.originalAjd!=null)throw new 
-		RuntimeException("Tried setting original job description more than once.");
-		else this.originalAjd = new Wrapper<Serializable>(originalAjd);
-		setDirty();
-	}
-
 	public String getJobName() {
 		return jobName;
 	}
@@ -498,8 +481,7 @@ public class Action implements Serializable {
 		if(rootActionID!=null){
 			sb.append("Root action ID       : ").append(rootActionID).append("\n");
 		}
-		sb.append("Exec. Definition: ").append(getAjd()).append("\n");
-		sb.append("Orig. Definition: ").append(getOriginalAjd()).append("\n");
+		sb.append("Job Definition: ").append(getAjd()).append("\n");
 		return sb.toString();
 	}
 }

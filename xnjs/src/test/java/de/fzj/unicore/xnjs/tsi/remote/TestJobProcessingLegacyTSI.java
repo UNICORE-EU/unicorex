@@ -46,7 +46,7 @@ import java.util.Properties;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
@@ -71,9 +71,9 @@ import eu.unicore.security.Xlogin;
 public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements EventHandler {
 
 	private static String 
-	d2="src/test/resources/ems/date_with_redirect.jsdl",
-	date="src/test/resources/ems/date.jsdl",
-	date_with_resources="src/test/resources/ems/date_with_resources.jsdl";
+	date = "src/test/resources/json/date.json",
+	date_with_redirect="src/test/resources/json/date_with_redirect.json",
+	date_with_resources="src/test/resources/json/date_with_resources.json";
 
 	@Override
 	protected RemoteTSIModule getTSIModule(ConfigurationSource cs){
@@ -100,8 +100,8 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 	}
 	
 	@Test
-	public void testUseResourcesAndProjectFromJSDL() throws Exception {
-		JobDefinitionDocument job=getJSDLDoc(date_with_resources);
+	public void testUseResourcesAndProjectFromJob() throws Exception {
+		JSONObject job = loadJSONObject(date_with_resources);
 		String id="";
 		Action a=xnjs.makeAction(job);
 		Client c=new Client();
@@ -113,12 +113,12 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		a = internalMgr.getAction(id);
 		a.printLogTrace();
 		assertTrue(a.getLog().toString().contains("#TSI_TIME 30"));
-		assertTrue(a.getLog().toString().contains("#TSI_PROJECT testing_project"));
+		assertTrue(a.getLog().toString().contains("#TSI_PROJECT qcd"));
 	}
 
 	@Test
 	public void testSubmitWithRedirect() throws Exception {
-		JobDefinitionDocument job=getJSDLDoc(d2);
+		JSONObject job = loadJSONObject(date_with_redirect);
 		String id="";
 		Action a=xnjs.makeAction(job);
 		Client c=new Client();
@@ -139,7 +139,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 
 	@Test
 	public void testRunWithDelayedExitCode() throws Exception {
-		JobDefinitionDocument job=getJSDLDoc(date);
+		JSONObject job = loadJSONObject(date);
 		TSIUtils._unittestnoexitcode=true;
 
 		String id="";
@@ -186,7 +186,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 
 	@Test
 	public void testSubmitInteractive() throws Exception {
-		JobDefinitionDocument job=getJSDLDoc(date);
+		JSONObject job = loadJSONObject(date);
 		String id="";
 		final Action a=xnjs.makeAction(job);
 		Client c=new Client();
@@ -222,7 +222,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 	@Test
 	public void testSubmitRetry() throws Exception {
 		MyExec.failSubmits=true;
-		JobDefinitionDocument job=getJSDLDoc(date);
+		JSONObject job = loadJSONObject(date);
 		String id="";
 		Action a=xnjs.makeAction(job);
 		Client c=new Client();

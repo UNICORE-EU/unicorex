@@ -46,6 +46,7 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
+import org.json.JSONObject;
 import org.unigrids.services.atomic.types.PermissionsType;
 import org.unigrids.services.atomic.types.TextInfoType;
 import org.unigrids.x2006.x04.services.sms.FilterType;
@@ -266,9 +267,6 @@ public class XNJSFacade {
 		return kernel;
 	}
 
-	/**
-	 * helper method to get the workdir for a given action
-	 */
 	public String getWorkdir(String actionID){
 		try{
 			return ems.getAction(actionID).getExecutionContext().getWorkingDirectory();
@@ -276,9 +274,15 @@ public class XNJSFacade {
 			return null;
 		}
 	}
-	/**
-	 * helper method to make an action from an JSDL doc
-	 */
+	
+	public Action makeAction(JSONObject doc){
+		try{
+			return xnjs.makeAction(doc);
+		}catch(Exception e){
+			return null;
+		}
+	}
+	
 	public Action makeAction(JobDefinitionDocument doc){
 		try{
 			return xnjs.makeAction(doc);
@@ -287,9 +291,6 @@ public class XNJSFacade {
 		}
 	}
 
-	/**
-	 * helper method to retrieve an action from the XNJS
-	 */
 	public final Action getAction(String id){
 		try{
 			return mgr.getAction(id);

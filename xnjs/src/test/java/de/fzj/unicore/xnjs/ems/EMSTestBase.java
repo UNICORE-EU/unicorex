@@ -38,9 +38,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.InputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Before;
 
 import com.google.inject.AbstractModule;
@@ -79,8 +82,6 @@ public abstract class EMSTestBase extends XNJSTestBase {
 	
 	/**
 	 * build a JobDefinition document from an XML file on the file system
-	 * @param name
-	 * @return
 	 */
 	protected JobDefinitionDocument getJSDLDoc(String name) throws Exception {
 		JobDefinitionDocument jdd;
@@ -93,6 +94,10 @@ public abstract class EMSTestBase extends XNJSTestBase {
 		}finally{
 			IOUtils.closeQuietly(is);
 		} 
+	}
+	
+	protected JSONObject loadJSONObject(String name) throws Exception {
+		return new JSONObject(FileUtils.readFileToString(new File(name), "UTF-8"));
 	}
 
 	/**

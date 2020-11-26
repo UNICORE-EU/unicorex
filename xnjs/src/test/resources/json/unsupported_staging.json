@@ -1,0 +1,10 @@
+{
+  "ApplicationName": "Date",
+
+  "Imports": [
+     { "From": "nosuchscheme://somewhere", 
+       "To": "input.txt",
+       "FailOnError": "false"
+     },
+  ],
+}

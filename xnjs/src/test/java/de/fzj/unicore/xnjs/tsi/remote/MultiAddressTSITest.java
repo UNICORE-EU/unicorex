@@ -32,9 +32,11 @@
  
 package de.fzj.unicore.xnjs.tsi.remote;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.Action;
@@ -45,7 +47,7 @@ import eu.unicore.security.Xlogin;
 public class MultiAddressTSITest extends LegacyTSITestCase {
 
 	private static String 
-		d1="src/test/resources/ems/date.jsdl";
+		d1="src/test/resources/json/date.json";
 	
 	@Override
 	protected String getTSIMachine(){
@@ -87,7 +89,7 @@ public class MultiAddressTSITest extends LegacyTSITestCase {
 		assertNotNull(cf);
 		assertEquals(3,cf.getTSIHosts().length);
 	
-		JobDefinitionDocument job=getJSDLDoc(d1);
+		JSONObject job = loadJSONObject(d1);
 		String id="";
 		Action a=xnjs.makeAction(job);
 		Client c=new Client();

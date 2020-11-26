@@ -42,8 +42,8 @@ public interface XNJSConstants {
 
 	public static final String FILETRANSFER_ACTIONTYPE="XNJS_FileTransfer";
 	public static final String jsdlActionType="JSDL";
-	public static final String jsdlStageInActionType="JSDL_STAGEIN";
-	public static final String jsdlStageOutActionType="JSDL_STAGEOUT";
+	public static final String jsdlStageInActionType="JOB_STAGEIN";
+	public static final String jsdlStageOutActionType="JOB_STAGEOUT";
 	public static final String asyncCommandType="ASYNC_COMMAND";
 	
 	// predefined metric names

@@ -224,7 +224,7 @@ public class Builder {
 			jd.getJobIdentification().addJobAnnotation("Job type: "+jobType);
 			if("raw".equalsIgnoreCase(jobType)){
 				String bssFile = getProperty("BSS file");
-				if(bssFile==null)throw new IllegalArgumentException("Tob type 'raw' requires 'BSS file'");
+				if(bssFile==null)throw new IllegalArgumentException("Job type 'raw' requires 'BSS file'");
 				jd.getJobIdentification().addJobAnnotation("Batch file: "+bssFile);
 			}
 			else if("interactive".equalsIgnoreCase(jobType)){
@@ -232,7 +232,7 @@ public class Builder {
 				if(loginNode!=null){
 					jd.getJobIdentification().addJobAnnotation("Login node: "+loginNode);
 				}
-			}else if("normal".equalsIgnoreCase(jobType)) {
+			}else if("normal".equalsIgnoreCase(jobType) || "batch".equalsIgnoreCase(jobType)) {
 				// nop
 			}
 			else {

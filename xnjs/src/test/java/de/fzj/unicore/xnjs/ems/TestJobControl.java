@@ -19,7 +19,7 @@ public class TestJobControl extends EMSTestBase {
 
 	//jsdl document paths
 	private static String 
-	d1="src/test/resources/ems/date.jsdl";
+	d1="src/test/resources/json/date.json";
 	private Client client=new Client();
 
 	@Override
@@ -30,17 +30,23 @@ public class TestJobControl extends EMSTestBase {
 
 	@Test
 	public void testRun() throws Exception {
-		Action action=xnjs.makeAction(getJSDLDoc(d1));
+		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
 		mgr.add(action,client);
 		doRun(id);
 		action=((BasicManager)mgr).getAction(id);
 		assertTrue(action.getResult().isSuccessful());
+		
+		// notifications
+		MockChangeListener m = (MockChangeListener)xnjs.get(ActionStateChangeListener.class);
+		assertTrue(m.getOrCreate(id).get()>0);
+		System.out.println("State change notifications: "+m.getOrCreate(id).get());
+
 	}
 
 	@Test
 	public void testRun2() throws Exception {
-		Action action=xnjs.makeAction(getJSDLDoc(d1));
+		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
 		mgr.add(action,client);
 		doRun(id);
@@ -50,7 +56,7 @@ public class TestJobControl extends EMSTestBase {
 
 	@Test
 	public void testAbort() throws Exception {
-		Action action=xnjs.makeAction(getJSDLDoc(d1));
+		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
 		mgr.add(action,client);
 		waitUntilReady(id);
@@ -68,7 +74,7 @@ public class TestJobControl extends EMSTestBase {
 
 	@Test
 	public void testTimeoutException() throws Exception{
-		Action action=xnjs.makeAction(getJSDLDoc(d1));
+		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
 		MyThread t = new MyThread(id);
 		try{
@@ -135,7 +141,7 @@ public class TestJobControl extends EMSTestBase {
 
 	@Test
 	public void testDestroy() throws Exception {
-		Action action=xnjs.makeAction(getJSDLDoc(d1));
+		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
 		mgr.add(action,client);
 		waitUntilReady(id);
@@ -154,7 +160,7 @@ public class TestJobControl extends EMSTestBase {
 			description="Tests restarting of jobs")
 	@Test
 	public void testRestart() throws Exception {
-		Action action=xnjs.makeAction(getJSDLDoc(d1));
+		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
 		mgr.add(action,null);
 		doRun(id);

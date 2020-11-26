@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
+import org.json.JSONObject;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.persist.PersistenceException;
@@ -127,6 +128,21 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		}catch(Exception e){
 			LogUtil.logException(e.getMessage(),e,logger);
 		}
+	}
+	
+	public String submit(JSONObject job, boolean autoStartWhenReady, Calendar tt,
+			String... tags) throws Exception {
+		if(tt!=null){
+			checkAndExtendLT(tt);
+		}
+		
+		String xnjsReference = getModel().getXnjsReference();
+		Action action = XNJSFacade.get(xnjsReference, kernel).makeAction(job);
+		action.setUmask(getUmask());
+		if(autoStartWhenReady){
+			action.getProcessingContext().put(Action.AUTO_SUBMIT, Boolean.TRUE);
+		}
+		return createJobResource(action,tt, tags);
 	}
 
 	public String submit(JobDefinitionDocument job, boolean autoStartWhenReady, Calendar tt,

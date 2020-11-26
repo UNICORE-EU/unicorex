@@ -21,7 +21,7 @@ import de.fzj.unicore.xnjs.persistence.JDBCActionStore;
 @Ignore
 public class TestOperationUsingSharedDatabase extends ClusterTestBase {
 
-	private static String job1="src/test/resources/ems/date_with_inlinedata.jsdl";
+	private static String job1="src/test/resources/json/date_with_inline_data.json";
 	
 	@Test
 	public void testDistributedLocks()throws Exception{
@@ -109,8 +109,8 @@ public class TestOperationUsingSharedDatabase extends ClusterTestBase {
 		mgr.destroy(id, null);
 	}
 	
-	Action makeAction(){
-		Action action=xnjs1.makeAction(getJSDLDoc(job1));
+	Action makeAction() throws Exception {
+		Action action=xnjs1.makeAction(loadJSON(job1));
 		action.getProcessingContext().put(Action.AUTO_SUBMIT,Boolean.TRUE);
 		assertNotNull(action);
 		return action;

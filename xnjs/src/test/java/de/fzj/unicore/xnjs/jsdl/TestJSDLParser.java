@@ -45,7 +45,6 @@ public class TestJSDLParser {
 
 	String[] testJSDLs=new String[]{
 			"src/test/resources/jsdl/posix.jsdl",
-			"src/test/resources/jsdl/spmd.jsdl"			
 	};
 
 	@Test
@@ -89,14 +88,6 @@ public class TestJSDLParser {
 		assertTrue(ai.isUserPreCommandOnLoginNode());
 		assertFalse(ai.isUserPostCommandOnLoginNode());
 		
-	}
-
-	@Test
-	public void testHPCP()throws Exception{
-		JobDefinitionDocument jd=JobDefinitionDocument.Factory.parse(new File("src/test/resources/jsdl/hpcp_sleep.jsdl"));
-		JSDLParser p=new JSDLParser();
-		ApplicationInfo ai=p.parseApplicationInfo(jd);
-		assertEquals("10",ai.getArguments().get(0));
 	}
 
 	@Test
@@ -162,36 +153,6 @@ public class TestJSDLParser {
 		assertNull(dso1.getCredentials());
 
 	}
-
-	@Test
-	public void testParseStaging2()throws Exception{
-		JobDefinitionDocument jd=JobDefinitionDocument.Factory.parse(new File("src/test/resources/jsdl/ftp_with_wsse_ext.jsdl"));
-
-		List<DataStageInInfo>dsi=new JSDLParser().parseImports(jd);
-		assertNotNull(dsi);
-		assertEquals(1,dsi.size());
-		DataStageInInfo dsi1=dsi.get(0);
-		assertEquals("unicore_input.txt",dsi1.getFileName());
-		assertEquals(1,dsi1.getSources().length);
-		assertEquals("ftp://zam935:21/sampledata/sample1.txt",dsi1.getSources()[0].toString());
-		assertEquals(OverwritePolicy.OVERWRITE,dsi1.getOverwritePolicy());
-		UsernamePassword creds=(UsernamePassword)dsi1.getCredentials();
-		assertEquals("interop", creds.getUser());
-		assertEquals("IshQ", creds.getPassword());
-
-		List<DataStageOutInfo>dso=new JSDLParser().parseExports(jd);
-		assertNotNull(dso);
-		assertEquals(1,dso.size());
-		DataStageOutInfo dso1=dso.get(0);
-		assertEquals("stdout.txt",dso1.getFileName());
-		assertEquals("ftp://zam935:21/sampledata/fzj_unicore.txt",dso1.getTarget().toString());
-		assertEquals(OverwritePolicy.OVERWRITE,dso1.getOverwritePolicy());
-		UsernamePassword creds2=(UsernamePassword)dso1.getCredentials();
-		assertEquals("interop", creds2.getUser());
-		assertEquals("IshQ", creds2.getPassword());
-
-	}
-
 
 	@Test
 	public void testParseStagingCredentials()throws Exception{

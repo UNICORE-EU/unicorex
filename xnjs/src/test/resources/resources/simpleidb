@@ -16,8 +16,14 @@
       <jsdl:Argument>$ARGUMENTS?</jsdl:Argument>
     </jsdl:POSIXApplication>
   </idb:IDBApplication>
-    <!-- Resources -->
-  
+  <idb:ExecuteScriptTemplate>#!/bin/sh
+export TEST="this is a test for the template mechanism"
+#COMMAND
+#RESOURCES
+#SCRIPT
+</idb:ExecuteScriptTemplate>
+
+
   <idb:TargetSystemProperties>
     <jsdl:Resources xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl">
       <jsdl:CPUArchitecture>
@@ -139,44 +145,5 @@
     <idb:Info Name="VISIT_PROXY">/opt/visit/proxy</idb:Info>
 
   </idb:TargetSystemProperties> 
-  
-
-   <!-- execution environments -->    
-    <ee:ExecutionEnvironment xmlns:ee="http://www.unicore.eu/unicore/jsdl-extensions">
-    <ee:Name>TIME</ee:Name>
-    <ee:Version>1.0</ee:Version>
-    <ee:Description>Execute a command and record execution times</ee:Description>
-    <ee:ExecutableName>/usr/bin/time</ee:ExecutableName>
-    <ee:Option>
-      <ee:Name>VERBOSE</ee:Name>
-      <ee:Description>Increased verbosity</ee:Description>
-      <ee:IncarnatedValue>-v</ee:IncarnatedValue>
-    </ee:Option>
-   </ee:ExecutionEnvironment>
-       
-  <!-- Execution environment "OpenMPI" -->
-  <ee:ExecutionEnvironment xmlns:ee="http://www.unicore.eu/unicore/jsdl-extensions">
-    <ee:Name>OpenMPI</ee:Name>
-    <ee:Description>Run an openmpi application</ee:Description>
-    <ee:Version>1.0</ee:Version>
-    <ee:ExecutableName>/usr/local/openmpi/bin/mpiexec</ee:ExecutableName>
-    <!-- this is the default commandline template -->
-    <ee:CommandlineTemplate>#EXECUTABLE #ARGS #USERCOMMAND #USERARGS</ee:CommandlineTemplate>
-    <ee:Argument>
-      <ee:Name>Processors</ee:Name>
-      <ee:IncarnatedValue>-np </ee:IncarnatedValue>
-      <ee:ArgumentMetadata>
-        <ee:Description>The number of processors</ee:Description>
-        <ee:Type>int</ee:Type>
-      </ee:ArgumentMetadata>
-    </ee:Argument>
-  </ee:ExecutionEnvironment>
- 
-       
- <!-- XNJS scripts -->
-    <idb:XNJSScript Name="xnjs-test-script"><![CDATA[#!/bin/sh
-echo $$SESSION$$
-]]></idb:XNJSScript>
-    
 
 </idb:IDB>

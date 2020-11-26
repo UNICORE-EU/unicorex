@@ -15,8 +15,6 @@ import com.google.inject.AbstractModule;
 /**
  * Holds the XNJS base configuration
  * 
- * TODO track changes in the source and update
- * 
  * @author schuller
  */
 public class ConfigurationSource {

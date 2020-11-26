@@ -321,6 +321,15 @@ public class LocalExecution implements Runnable {
 			throw new ExecutionException(e);
 		}
 	}
+	
+	public static void reset() {
+		try {
+			 completedTasks.getAndSet(0);
+			 runningTasks.getAndSet(0);
+			 totalTasks.getAndSet(0);
+			 rejected = 0;
+		}catch(Exception e) {}
+	}
 
 	public static class DataMover implements Runnable{
 

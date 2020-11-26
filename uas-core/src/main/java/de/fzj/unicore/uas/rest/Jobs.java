@@ -232,7 +232,10 @@ public class Jobs extends ServicesBase {
 		kernel.getHome(UAS.TSS).lock(tss);
 		try{
 			boolean autoRun = !Boolean.parseBoolean(job.getProperty("haveClientStageIn"));
-			id = tss.submit(job.getJob(),autoRun,null, job.getTags());
+			boolean forceJSDL = Boolean.parseBoolean(job.getProperty("forceJSDL"));
+			id = forceJSDL?
+					tss.submit(job.getJob(),autoRun,null, job.getTags())
+					: tss.submit(job.getJSON(),autoRun,null, job.getTags());
 		}
 		finally{
 			kernel.getHome(UAS.TSS).persist(tss);

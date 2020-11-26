@@ -115,7 +115,6 @@ implements JobManagement, XnjsActionBacked {
 		};
 		addRenderer(renderer);
 		
-		addRenderer(new OriginalJSDLRenderer(this));
 		addRenderer(new ExecutionJSDLResourceProperty(this));
 		addRenderer(new StdErrProperty(this));
 		addRenderer(new StdOutProperty(this));

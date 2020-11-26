@@ -29,38 +29,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *********************************************************************************/
- 
+
 
 package de.fzj.unicore.xnjs.performance;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.BasicManager;
 import de.fzj.unicore.xnjs.ems.EMSTestBase;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.tsi.local.LocalExecution;
 
 public class MultiJobTest extends EMSTestBase {
 
-	static JobDefinitionDocument jdd;
+	private static String json = "src/test/resources/json/date.json";
 	
-	//jsdl document paths
-	private static String 
-	    d1="src/test/resources/ems/date.jsdl";
-	
-
 	@Override
 	protected void addProperties(ConfigurationSource cs){
 		super.addProperties(cs);
@@ -71,40 +65,34 @@ public class MultiJobTest extends EMSTestBase {
 	}
 
 	protected int getNumberOfTasks(){
-		return 8;
+		return 512;
 	}
-	
+
 	@Test
 	public void testMultipleJobs()throws Exception{
-		int n=getNumberOfTasks(); //how many jobs
-		
+		((BasicManager)mgr).getActionStore().removeAll();
+		LocalExecution.reset();
+
+		int n = getNumberOfTasks(); //how many jobs
 		assertTrue(xnjs.getXNJSProperties().isAutoSubmitWhenReady());
-		
+
 		long start,end;
-		
-		ArrayList<String> ids=new ArrayList<String>();
-		JobDefinitionDocument job=getJSDLDoc(d1);
-		
+		List<String> ids=new ArrayList<>();
 		start=System.currentTimeMillis();
-		try {
-			String id="";
-			for(int i=0;i<n;i++){
-				if(i%50==0 && i>0)System.out.println("Submitted "+i+" jobs.");
-				id=(String)mgr.add(
-						xnjs.makeAction(job),null);
-				ids.add(id);
-			}
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-			fail(e.getMessage());
+		JSONObject job = loadJSONObject(json);
+		String id;
+		for(int i=0;i<n;i++){
+			if(i%50==0 && i>0)System.out.println("Submitted "+i+" jobs.");
+				id=(String)mgr.add(xnjs.makeAction(job),null);
+			ids.add(id);
 		}
-		
+
 		end=System.currentTimeMillis();
 		float time=(0.0f+(end-start)/1000);
 		System.out.println("All "+n+" jobs submitted in "+time+" secs.");
 		System.out.println("Submission rate: "+(n/time+0.0f)+" per sec.");
 		System.out.println("Using "+xnjs.getProperty("XNJS.numberofworkers")+" worker threads.");
-		
+
 		int p=0;
 		int q=0;
 		int c=0;
@@ -116,12 +104,12 @@ public class MultiJobTest extends EMSTestBase {
 				if(p==p_new){
 					c++; 
 				}else c=0;
-				
+
 				if(c>timeout){
 					throw new InterruptedException("Timeout: job processing did not make progress for "
 							+timeout+" seconds.");
 				}
-				
+
 				p=p_new;
 				q=((BasicManager)mgr).getAllJobs();
 				int queued=((BasicManager)mgr).getActionStore().size(ActionStatus.QUEUED);
@@ -147,9 +135,10 @@ public class MultiJobTest extends EMSTestBase {
 		}
 
 		System.out.println("Took: "+(time)+" secs.");
-		System.out.println("Rate: "+(n/time+0.0f)+" per sec.");
-		
-		assertEquals(n,LocalExecution.getCompletedTasks());
-	
+		float rate = n/time+0.0f;
+		System.out.println("Rate: "+rate+" per sec.");
+
+		assertEquals(n, LocalExecution.getCompletedTasks());
+
 	}
 }

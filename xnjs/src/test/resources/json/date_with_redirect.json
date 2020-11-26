@@ -1,0 +1,8 @@
+{
+  "Executable": "date",
+  
+  "Stdout": "myout",
+  
+  "Stderr": "myerr"
+ 
+}

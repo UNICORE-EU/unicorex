@@ -228,7 +228,7 @@ public class Storages extends ServicesBase {
 				res.put("status", "OK");
 				List<SearchResult> results = mm.searchMetadataByContent(query, true);
 				res.put("numberOfResults", results.size());
-				String base = getBaseURL()+"/storages/"+resource.getUniqueID()+"/files";
+				String base = getBaseURL()+"/storages/"+resource.getUniqueID()+"/files/";
 				int index = 1;
 				for(SearchResult sr : results){
 					links.add(new Link("search-result-"+index,base+sr.getResourceName()));

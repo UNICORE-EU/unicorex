@@ -50,6 +50,7 @@ import org.apache.logging.log4j.Logger;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
+import de.fzj.unicore.xnjs.ems.JobProcessor;
 import de.fzj.unicore.xnjs.ems.ProcessingException;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
@@ -61,7 +62,6 @@ import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.io.StagingInfo;
 import de.fzj.unicore.xnjs.io.TransferInfo;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
-import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
 import de.fzj.unicore.xnjs.util.LogUtil;
 
 /**
@@ -152,7 +152,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 					}
 				}
 				if(filesToDelete.size()>0){
-					action.getProcessingContext().put(JSDLProcessor.KEY_DELETEONTERMINATION, filesToDelete);
+					action.getProcessingContext().put(JobProcessor.KEY_DELETEONTERMINATION, filesToDelete);
 				}
 				
 				for(IFileTransfer ft:ftInstances){

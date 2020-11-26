@@ -50,7 +50,7 @@ import de.fzj.unicore.xnjs.tsi.remote.RemoteTSI;
 import de.fzj.unicore.xnjs.tsi.remote.LegacyTSITestCase;
 
 /**
- * filetransfer performance tests using a Perl TSI
+ * filetransfer performance tests using a TSI server
  */
 public class PerfFileIOLegacyTSI extends LegacyTSITestCase {
 

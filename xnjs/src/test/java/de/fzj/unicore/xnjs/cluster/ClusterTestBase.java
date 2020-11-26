@@ -1,8 +1,5 @@
 package de.fzj.unicore.xnjs.cluster;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,8 +7,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.h2.tools.Server;
+import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -26,7 +23,6 @@ import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.persistence.IActionStoreFactory;
 import de.fzj.unicore.xnjs.persistence.JDBCActionStoreFactory;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
-import de.fzj.unicore.xnjs.util.IOUtils;
 
 /**
  * Base class for testing clustered operation.<br/>
@@ -116,7 +112,7 @@ public class ClusterTestBase {
 		addCommonProperties(cs);
 		Properties props = cs.getProperties();
 		props.put(PersistenceProperties.PREFIX+PersistenceProperties.DB_CLUSTER_CONFIG, 
-				"src/test/resources/cluster/cluster1.xml");
+				"src/test/resources/cluster/cluster1.yaml");
 	}
 
 	/**
@@ -126,12 +122,12 @@ public class ClusterTestBase {
 		addCommonProperties(cs);
 		Properties props = cs.getProperties();
 		props.put(PersistenceProperties.PREFIX+PersistenceProperties.DB_CLUSTER_CONFIG, 
-				"src/test/resources/cluster/cluster2.xml");
+				"src/test/resources/cluster/cluster2.yaml");
 	}
 	
 	protected static void addCommonProperties(ConfigurationSource cs){
 		Properties props = cs.getProperties();
-		props.put("XNJS.idbfile","src/test/resources/ems/simpleidb");
+		props.put("XNJS.idbfile","src/test/resources/resources/simpleidb");
 		String dir=dataDir.getAbsolutePath();
 		props.put("XNJS.filespace",dir);
 		props.put(PersistenceProperties.PREFIX+PersistenceProperties.H2_SERVER_MODE,"true");
@@ -146,24 +142,8 @@ public class ClusterTestBase {
 		Server.main(args);
 	}
 	
-	/**
-	 * build a JobDefinition document from an XML file on the file system
-	 * @param name
-	 */
-	protected JobDefinitionDocument getJSDLDoc(String name){
-		JobDefinitionDocument jdd;
-		InputStream is=null;
-		try {
-			is=getResource(name);
-			assertNotNull(is);
-			jdd=JobDefinitionDocument.Factory.parse(is);
-			return jdd;
-		} catch (Exception e) {
-			fail(e.getMessage());
-			return null;
-		}finally{
-			IOUtils.closeQuietly(is);
-		} 
+	protected JSONObject loadJSON(String name) throws Exception {
+		return new JSONObject(FileUtils.readFileToString(new File(name), "UTF-8"));
 	}
 	
 	/**

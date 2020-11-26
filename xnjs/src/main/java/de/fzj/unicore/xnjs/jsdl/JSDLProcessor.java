@@ -33,14 +33,10 @@
 
 package de.fzj.unicore.xnjs.jsdl;
 
-import java.io.Serializable;
 import java.util.List;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationDocument;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobIdentificationType;
-import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.POSIXApplicationDocument;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -49,7 +45,6 @@ import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
-import de.fzj.unicore.xnjs.util.XmlBeansUtils;
 import eu.unicore.security.Client;
 
 /**
@@ -93,7 +88,8 @@ public class JSDLProcessor extends JSDLBaseProcessor {
 	 * 
 	 * @throws Exception
 	 */
-	protected void extractFromJSDL()throws ExecutionException{
+	@Override
+	protected void extractFromJobDescription()throws ExecutionException{
 		Incarnation grounder = xnjs.get(Incarnation.class);
 		Client client=action.getClient();
 		ecm.getContext(action);
@@ -131,14 +127,6 @@ public class JSDLProcessor extends JSDLBaseProcessor {
 					action.addLogTrace("Warning: extra projects are ignored!");
 				}
 			}
-		
-			//update the job description stored in the action  
-			ApplicationDocument ad=ApplicationDocument.Factory.newInstance();
-			ApplicationType at=ad.addNewApplication();
-			POSIXApplicationDocument pad=new JSDLRenderer().render(applicationInfo);
-			XmlBeansUtils.append(pad,ad);
-			jd.getJobDefinition().getJobDescription().setApplication(at);
-			action.setAjd((Serializable)jd);
 			
 			String email=null;
 			//get user email from job annotation

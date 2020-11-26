@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URL;
@@ -15,8 +14,8 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.FileUtils;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +43,7 @@ import de.fzj.unicore.xnjs.io.impl.MailtoUpload;
 import de.fzj.unicore.xnjs.io.impl.ScpDownload;
 import de.fzj.unicore.xnjs.io.impl.ScpUpload;
 import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
-import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
+import de.fzj.unicore.xnjs.json.JSONParser;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import de.fzj.unicore.xnjs.util.ResultHolder;
 import eu.unicore.security.Client;
@@ -147,7 +146,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		xnjs.getIOProperties().setProperty("mailPort", String.valueOf(smtpPort));
 		xnjs.getIOProperties().setProperty("mailUser", "testuser");
 		xnjs.getIOProperties().setProperty("mailPassword", "test123");
-		
+
 		String dummyParent=createDummyParent();
 		String wd=getWorkingDir(dummyParent);
 		Client client=createClient();
@@ -192,7 +191,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		String cmd=d.makeCommandline();
 		assertEquals("/bin/echo 'test@host:/some_file' '"+wd+"/test' 'test123'",cmd);
 		assertEquals(Status.CREATED, d.getInfo().getStatus());
-		
+
 		d.run();
 		assertEquals(Integer.valueOf(0), d.getResult().getExitCode());
 		assertEquals(d.getInfo().getStatusMessage(),Status.DONE,d.getInfo().getStatus());
@@ -216,23 +215,15 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		assertEquals(d.getInfo().getStatusMessage(),Status.DONE,d.getInfo().getStatus());
 	}
 
-
 	@Test
 	public void testFTPCredentialExtract()throws Exception{
-		FileInputStream fis=null;
-		try{
-			URL source=new URL("ftp://zam935:21/sampledata/fzj_unicore.txt");
-			fis=new FileInputStream("src/test/resources/jsdl/ftp_with_wsse_ext.jsdl");
-			JobDefinitionDocument doc=JobDefinitionDocument.Factory.parse(fis);
-			DataStagingType dst1=doc.getJobDefinition().getJobDescription().getDataStagingArray()[0];
-			UsernamePassword cred=JSDLUtils.extractUsernamePassword(dst1);
-			assertNotNull(cred);
-			URL urlWithCreds=IOUtils.addFTPCredentials(source, cred.getUser(), cred.getPassword());
-			assertTrue(urlWithCreds.toString().contains("interop:IshQ@zam935"));
-		}
-		finally{
-			fis.close();
-		}
+		JSONObject j = loadJSONObject("src/test/resources/json/staging_credentials.json");
+		URL source=new URL("ftp://zam935:21/sampledata/fzj_unicore.txt");
+		JSONObject jCredentials = j.getJSONArray("Imports").getJSONObject(0).getJSONObject("Credentials");
+		UsernamePassword cred  = (UsernamePassword)new JSONParser().extractCredentials(jCredentials);
+		assertNotNull(cred);
+		URL urlWithCreds=IOUtils.addFTPCredentials(source, cred.getUser(), cred.getPassword());
+		assertTrue(urlWithCreds.toString().contains("interop:IshQ@zam935"));
 	}
 
 	@Test
@@ -261,7 +252,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Test
 	public void testPublicFTPDownloadCurl(){
 		try{

@@ -13,6 +13,13 @@ import de.fzj.unicore.xnjs.idb.ApplicationInfoParser;
 import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.OptionDescription;
 import de.fzj.unicore.xnjs.idb.OptionDescription.Type;
+import de.fzj.unicore.xnjs.io.DataStageInInfo;
+import de.fzj.unicore.xnjs.io.DataStagingCredentials;
+import de.fzj.unicore.xnjs.io.DataStagingInfo;
+import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
+import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
+import de.fzj.unicore.xnjs.io.impl.OAuthToken;
+import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
 import de.fzj.unicore.xnjs.idb.Partition;
 import de.fzj.unicore.xnjs.resources.BooleanResource;
 import de.fzj.unicore.xnjs.resources.DoubleResource;
@@ -27,7 +34,95 @@ import de.fzj.unicore.xnjs.util.JSONUtils;
 import de.fzj.unicore.xnjs.util.UnitParser;
 
 public class JSONParser implements ApplicationInfoParser<JSONObject>{
+	
+	public ApplicationInfo parseSubmittedApplication(JSONObject source) throws Exception {
+		ApplicationInfo app = new ApplicationInfo();
+		app.setName(source.optString("ApplicationName",null));
+		app.setVersion(source.optString("ApplicationVersion",null));
 
+		app.setPreCommand(source.optString("User precommand", null));
+		app.setUserPreCommandOnLoginNode(source.optBoolean("RunUserPrecommandOnLoginNode", true));
+
+		app.setExecutable(source.optString("Executable",null));
+		app.setArguments(JSONUtils.asStringArray(source.optJSONArray("Arguments")));
+		app.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Parameters")));
+		parseEnvironment(source.optJSONArray("Environment"), app);
+		app.setIgnoreNonZeroExitCode(source.optBoolean("IgnoreNonZeroExitCode", false));
+
+		app.setPostCommand(source.optString("User postcommand", null));
+		app.setUserPostCommandOnLoginNode(source.optBoolean("RunUserPostcommandOnLoginNode", true));
+
+		app.setResourceRequest(parseResourceRequest(source.optJSONObject("Resources")));
+
+		String jobType = source.optString("Job type", "normal");
+		if("INTERACTIVE".equalsIgnoreCase(jobType)) {
+			app.setRunOnLoginNode(true);
+			app.setPreferredLoginNode(source.optString("Login node", null));
+		}
+		if("RAW".equalsIgnoreCase(jobType)) {
+			String file = source.optString("BSS file", null);
+			if(file==null)throw new Exception("Job type 'raw' requires 'BSS file'");
+			app.setRawBatchFile(file);
+		}
+		
+		app.setStdout(source.optString("Stdout",null));
+		app.setStderr(source.optString("Stderr",null));
+		app.setStdin(source.optString("Stdin",null));
+		
+		return app;
+	}
+
+	private void parseEnvironment(JSONArray j, ApplicationInfo app){
+		if(j==null)return;
+		for (int i = 0; i < j.length(); i++) {
+			try{
+				String val=j.getString(i);
+				String[] split=val.split("=",2);
+				String name = split[0].trim();
+				String value = split.length>1 ? split[1].trim() : "";
+				app.getEnvironment().put(name,value);
+			}catch(JSONException ex){
+				throw new IllegalArgumentException("Error parsing entry "+i+" in environment array! ",ex);
+			}
+		}
+	}
+
+	public void extractDataStagingOptions(JSONObject spec, DataStagingInfo dsi) throws Exception {
+		String creation = JSONUtils.getString(spec,"Mode","overwrite");
+		if("append".equalsIgnoreCase(creation)){
+			dsi.setOverwritePolicy(OverwritePolicy.APPEND);
+		}
+		else if("nooverwrite".equalsIgnoreCase(creation)){
+			dsi.setOverwritePolicy(OverwritePolicy.DONT_OVERWRITE);
+		}
+		else dsi.setOverwritePolicy(OverwritePolicy.OVERWRITE);
+
+		Boolean failOnError = Boolean.parseBoolean(JSONUtils.getString(spec,"FailOnError","true"));
+		dsi.setIgnoreFailure(!failOnError);
+
+		Boolean readOnly=Boolean.parseBoolean(JSONUtils.getString(spec,"ReadOnly","false"));
+		if(readOnly && dsi instanceof DataStageInInfo) {
+			((DataStageInInfo)dsi).setImportPolicy(ImportPolicy.PREFER_LINK);
+		}
+
+		JSONObject credentials = spec.optJSONObject("Credentials");
+		if(credentials!=null) {
+			dsi.setCredentials(extractCredentials(credentials));
+		}
+	}
+
+	public DataStagingCredentials extractCredentials(JSONObject jCredentials) throws Exception {
+		DataStagingCredentials creds=null;
+		if(JSONUtils.getString(jCredentials, "Username")!=null) {
+			creds = new UsernamePassword(JSONUtils.getString(jCredentials, "Username"), 
+					JSONUtils.getString(jCredentials, "Password"));
+		}
+		else if(JSONUtils.getString(jCredentials, "BearerToken")!=null){
+			creds = new OAuthToken(JSONUtils.getString(jCredentials, "BearerToken"));
+		}
+		return creds;
+	}
+	
 	@Override
 	public ApplicationInfo parseApplicationInfo(JSONObject source) throws Exception {
 		ApplicationInfo info = new ApplicationInfo();

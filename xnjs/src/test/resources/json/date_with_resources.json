@@ -1,0 +1,9 @@
+{
+  "Executable": "date",
+  
+  "Project": "qcd",
+  
+  "Resources":{
+    "Runtime": "30",
+  }
+}

@@ -54,9 +54,9 @@ public class SweepProcessor extends JSDLBaseProcessor{
 	public SweepProcessor(XNJS xnjs){
 		super(xnjs);
 	}
-	
-	
-	protected void extractFromJSDL()throws ExecutionException{
+
+	@Override
+	protected void extractFromJobDescription()throws ExecutionException{
 		//NOP, because this will be done in the instances 
 	}
 

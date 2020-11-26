@@ -84,7 +84,7 @@ public class JSDLUtils {
 	//prevent instantiation
 	private JSDLUtils(){}
 
-	public static final QName JSDL_JOBDEFINITION=new QName("http://schemas.ggf.org/jsdl/2005/11/jsdl","JobDefinition");
+	public static final String JSDL_JOBDEFINITION = "http://schemas.ggf.org/jsdl/2005/11/jsdl";
 
 	public static final QName JSDL_POSIX_APP=POSIXApplicationDocument.type.getDocumentElementName();
 

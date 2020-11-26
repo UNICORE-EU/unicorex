@@ -1,0 +1,4 @@
+{
+  "Executable": "/bin/false",
+  "IgnoreNonZeroExitCode": "true"
+}

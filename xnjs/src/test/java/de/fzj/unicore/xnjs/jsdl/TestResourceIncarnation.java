@@ -35,6 +35,7 @@ package de.fzj.unicore.xnjs.jsdl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -96,6 +97,9 @@ public class TestResourceIncarnation {
 		List<ResourceRequest> req=new ArrayList<ResourceRequest>();
 		List<ResourceRequest> testRes=g.incarnateResources(req,null);
 		System.out.println(testRes);
+		ResourceRequest.removeQuietly(testRes, ResourceSet.QUEUE);
+		assertNull(ResourceRequest.find(testRes,  ResourceSet.QUEUE));
+		
 		//check against defaults from IDB
 		double cputime=Double.valueOf(ResourceRequest.find(testRes,JSDLResourceSet.RUN_TIME).getRequestedValue());
 		assertEquals(cputime,3600.0,1);

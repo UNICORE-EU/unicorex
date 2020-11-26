@@ -11,8 +11,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 import org.junit.Test;
 
 import com.codahale.metrics.ConsoleReporter;
@@ -48,7 +46,7 @@ public class TestComponentManagement extends XNJSTestBase {
 	public void testAddProcessing(){
 		String[]proc=new String[]{DummyProcessor.class.getName()};
 		try{
-			xnjs.setProcessingChain("foo", new QName("urn:test","test"), proc);
+			xnjs.setProcessingChain("foo", "urn:test", proc);
 			assertTrue(xnjs.haveProcessingFor("foo"));
 			assertTrue(xnjs.getProcessorChain("foo").get(0).equals(DummyProcessor.class.getName()));
 		}catch(Exception e){

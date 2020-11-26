@@ -117,7 +117,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * get the job description document via cast: (T)action.getAjd();
 	 */
 	@SuppressWarnings("unchecked")
-	protected final T getJobDescriptionDocument(){
+	protected T getJobDescriptionDocument(){
 		return (T)action.getAjd();
 	}
 
@@ -162,7 +162,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			}
 			storeTimeStamp(STARTTIME);
 			try{
-				extractFromJSDL();
+				extractFromJobDescription();
 				setEnvironmentVariables();
 			}
 			catch(Exception ee){
@@ -780,10 +780,10 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	/**
-	 * this method extracts JSDL specific info like {@link ApplicationInfo} from
+	 * this method extracts job info like {@link ApplicationInfo} from
 	 * the job description and fills the proper fields in the current action
 	 */
-	protected abstract void extractFromJSDL()throws Exception;
+	protected abstract void extractFromJobDescription()throws Exception;
 
 	/**
 	 * extract the notBefore tag
