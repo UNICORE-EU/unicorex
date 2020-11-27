@@ -39,7 +39,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Date;
@@ -327,17 +326,6 @@ public class TestUtils {
 		String s2="scheduledStartTime: "+date;
 		d1=JSDLUtils.getDateFormat().parse(JSDLParser.getTagValue(s2, "scheduledStartTime")).getTime();
 		assertTrue(Math.abs( d0-d1 )< 1100 ); //ignore millis for comparison
-	}
-	
-	@Test
-	public void testHasSweep() throws Exception{
-		JobDefinitionDocument d=JobDefinitionDocument.Factory.parse(
-				new File("src/test/resources/jsdl/sweep-example1.xml"));
-		assertTrue(JSDLUtils.hasSweep(d));
-		
-		JobDefinitionDocument d2=JobDefinitionDocument.Factory.parse(
-				new File("src/test/resources/jsdl/staging_1.jsdl"));
-		assertFalse(JSDLUtils.hasSweep(d2));
 	}
 
 	@Test

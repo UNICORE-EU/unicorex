@@ -40,7 +40,6 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobIdentificationType;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.ems.ProcessingException;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
@@ -60,27 +59,6 @@ public class JSDLProcessor extends JSDLBaseProcessor {
 	public JSDLProcessor(XNJS xnjs){
 		super(xnjs);
 	}
-	
-	/**
-	 * if the job is a parameter sweep job, change the action type
-	 * so that the {@link SweepProcessor} can take over
-	 */
-	@Override
-	protected void handleCreated() throws ProcessingException {
-		try{
-			if(JSDLUtils.hasSweep(getJobDescriptionDocument())){
-				action.setType(SweepProcessor.sweepActionType);
-				action.addLogTrace("This is a JSDL ParameterSweep job, changing type to '"
-						+SweepProcessor.sweepActionType+"'");
-			}
-			else{
-				super.handleCreated();
-			}	
-		}catch(Exception ex){
-			throw new ProcessingException(ex);
-		}
-	}
-
 
 	/**
 	 * this method extracts JSDL specific info like {@link ApplicationInfo} from

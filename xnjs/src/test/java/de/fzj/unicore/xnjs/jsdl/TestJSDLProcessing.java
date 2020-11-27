@@ -24,13 +24,7 @@ import eu.unicore.bugsreporter.annotation.FunctionalTest;
 public class TestJSDLProcessing extends EMSTestBase {
 
 	//jsdl document paths
-	private static String 
-	d1="src/test/resources/jsdl/date_with_inlinedata.jsdl",
-	
-	//jsdl sweep examples
-	d_s_1="src/test/resources/jsdl/sweep-example1.xml",
-	d_s_2="src/test/resources/jsdl/sweep-example-with-stage-ins.xml",
-	d_s_3="src/test/resources/jsdl/sweep-stage-ins.xml";
+	private static String d1="src/test/resources/jsdl/date_with_inlinedata.jsdl";
 
 	@Test
 	@FunctionalTest(id="testJSDLProcessing", 
@@ -103,39 +97,5 @@ public class TestJSDLProcessing extends EMSTestBase {
 		for(String s: log){
 			if(s.contains("Further processing scheduled"))System.out.println(s);
 		}
-	}
-
-	@Test
-	public void testSweepWithAutoStart() throws Exception {
-		String id=(String)mgr.add(xnjs.makeAction(getJSDLDoc(d_s_1)),null);
-		doRun(id);
-		assertSuccessful(id);
-		printActionLog(id);
-	}
-
-	@Test
-	public void testSweepWithClientStart() throws Exception {
-		String id=(String)mgr.add(xnjs.makeAction(getJSDLDoc(d_s_1)),null);
-		doRun(id);
-		assertSuccessful(id);
-	}
-
-	@Test
-	public void testSweepWithStageIn() throws Exception {
-		String id=(String)mgr.add(xnjs.makeAction(getJSDLDoc(d_s_2)),null);
-		doRun(id);
-		assertSuccessful(id);
-		printActionLog(id);
-		mgr.destroy(id, null);
-		Thread.sleep(1000);
-	}
-
-	@Test
-	public void testSweepWithSweepedStageIns() throws Exception {
-		String id=(String)mgr.add(xnjs.makeAction(getJSDLDoc(d_s_3)),null);
-		doRun(id);assertSuccessful(id);
-		printActionLog(id);
-		mgr.destroy(id, null);
-		Thread.sleep(1000);
 	}
 }

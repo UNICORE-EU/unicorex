@@ -1,16 +1,14 @@
-package de.fzj.unicore.xnjs.jsdl;
+package de.fzj.unicore.xnjs.json.sweep;
 
-import java.io.Serializable;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
-import org.w3c.dom.Node;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSProperties;
@@ -22,36 +20,38 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.ProcessingContext;
 import de.fzj.unicore.xnjs.ems.ProcessingException;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
+import de.fzj.unicore.xnjs.json.JSONJobProcessor;
 import de.fzj.unicore.xnjs.util.LogUtil;
-import edu.virginia.vcgr.jsdl.sweep.SweepException;
-import edu.virginia.vcgr.jsdl.sweep.SweepListener;
-import edu.virginia.vcgr.jsdl.sweep.SweepUtility;
 
 /**
- * JSDL Parameter Sweep processor. <br/>
+ * JSON Parameter Sweep processor. <br/>
  * 
  * After processing the stage-ins, the processor will generate 
  * jobs from the initial job template and submit them. 
  *  
- * These are then processed using the normal {@link JSDLProcessor}.
+ * These are then processed using the JSONSweepInstanceProcessor
  * 
  * @author schuller
  */
-public class SweepProcessor extends JSDLBaseProcessor{
+public class JSONSweepProcessor extends JSONJobProcessor {
 
-	private static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,SweepProcessor.class);
+	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS,JSONSweepProcessor.class);
 
-	public static final String sweepActionType="jsdl_parameter_sweep";
+	public static final String sweepActionType = "json_parameter_sweep";
+
+	public static final String sweepInstanceType = "json-sweep-instance";
+
+	public static final String sweepLinkMarker="__json-sweep-linked-stage-in";
 	
-	public static final String sweepInstanceType="JSDL-sweep-instance";
-	
-	public static final String sweepLinkMarker="JSDL-sweep-linked-stage-in";
-	
-	static final String JOBLIST_KEY=SweepProcessor.class.getName()+"_JobList";
-	
-	static final String INITIAL_JOBLIST_KEY=SweepProcessor.class.getName()+"_InitialJobList";
-	
-	public SweepProcessor(XNJS xnjs){
+	public static final String sweepFileMarker="__json-sweep-stage-in";
+
+	public static final String sweepDescription="__json-sweep-description";
+
+	static final String JOBLIST_KEY = JSONSweepProcessor.class.getName()+"_JobList";
+
+	static final String INITIAL_JOBLIST_KEY = JSONSweepProcessor.class.getName()+"_InitialJobList";
+
+	public JSONSweepProcessor(XNJS xnjs){
 		super(xnjs);
 	}
 
@@ -67,53 +67,49 @@ public class SweepProcessor extends JSDLBaseProcessor{
 	@Override
 	protected List<DataStageInInfo> extractStageInInfo()throws Exception {
 		if(action.getStageIns()==null){
-			JobDefinitionDocument jd=(JobDefinitionDocument)action.getAjd();
-			DataStagingType[] stage = jd.getJobDefinition().getJobDescription().getDataStagingArray();
-			List<DataStagingType>doneByParent=new ArrayList<DataStagingType>();
-			List<DataStagingType>doneByChild=new ArrayList<DataStagingType>();
-			for(DataStagingType d: stage){
-				boolean parent = true;
-				if(d.isSetSource()){
-					String name =  d.getSource().getURI();
-					if(new URI(name).getScheme()==null){
-						// this is sweeped, so we leave it in
-						parent = false;
-					}
-					else{
-						// not sweeped, so the parent must stage it in, but the
-						// child must link to it! So we'll add it to the doneByChild
-						// list, but with a special marker!
-						DataStagingType childDS = DataStagingType.Factory.parse(d.toString());
-						childDS.getSource().setURI(sweepLinkMarker);
-						doneByChild.add(childDS);
-					}
-				}
-				
-				if(parent){
-					doneByParent.add(d);
-				}
-				else{
+			JSONObject jd = getJobDescriptionDocument();
+			JSONArray stage = jd.optJSONArray("Imports");
+			if(stage==null)stage = new JSONArray();
+
+			JSONArray doneByParent = new JSONArray();
+			List<JSONObject>doneByChild = new ArrayList<>();
+			for(int i=0; i<stage.length(); i++){
+				JSONObject d = stage.getJSONObject(i);
+				if(d.get("From")instanceof JSONArray){
+					JSONArray inputs = d.getJSONArray("From");
+					// will be sweeped
+					d.put("From", sweepFileMarker);
+					jd.put(sweepFileMarker, inputs);
 					doneByChild.add(d);
 				}
+				else{
+					// not sweeped, so the parent must stage it in, but the
+					// child must link to it! So we'll add it to the doneByChild
+					// list, but with a special marker!
+					doneByParent.put(d);
+					JSONObject childDS = new JSONObject(d.toString());
+					childDS.put("From",sweepLinkMarker);
+					doneByChild.add(childDS);
+				}
 			}
-			
+
 			// create stage-ins for the parent now
-			JobDefinitionDocument jdd=JobDefinitionDocument.Factory.newInstance();
-			jdd.addNewJobDefinition().addNewJobDescription().setDataStagingArray(doneByParent.toArray(new DataStagingType[doneByParent.size()]));
-			action.setStageIns(jsdlParser.parseImports(jdd));
+			action.setStageIns(doExtractStageIn(doneByParent));
 
 			// and change the job description for the child to be done later
-			jd.getJobDefinition().getJobDescription().setDataStagingArray(doneByChild.toArray(new DataStagingType[0]));
-			action.setDirty();
+			jd.put("Imports", doneByChild.toArray(new JSONObject[0]));
+			action.setAjd(jd.toString());
 		}
 		return action.getStageIns();
 	}
 
 	@Override
-	protected void handleReady(){
-		if(logger.isTraceEnabled())logger.trace("Handling READY state for Action "
-				+action.getUUID());
+	protected void handleCreated()throws ProcessingException{
+		super.handleCreated();
+	}
 
+	@Override
+	protected void handleReady(){
 		if(xnjs.getXNJSProperties().isAutoSubmitWhenReady()){
 			action.setStatus(ActionStatus.PENDING);
 		}
@@ -128,7 +124,7 @@ public class SweepProcessor extends JSDLBaseProcessor{
 			}
 		}
 	}
-	
+
 	/**
 	 * generates and submits sweep jobs and stores their ID in the master job's processing
 	 * context
@@ -138,14 +134,24 @@ public class SweepProcessor extends JSDLBaseProcessor{
 		forkChildJobs();
 		action.setStatus(ActionStatus.RUNNING);
 	}
-	
+
 	protected void forkChildJobs() throws ProcessingException{
-		JobDefinitionDocument job=(JobDefinitionDocument)action.getAjd();
+		JSONObject job = getJobDescriptionDocument();
 		List<String>jobs=getOrCreateJobList();
 		try{
 			int limit = xnjs.getXNJSProperties().getIntValue(XNJSProperties.SWEEP_LIMIT);
-			SweepListener sl=new MySweepListener(jobs, limit);
-			SweepUtility.performSweep(job.getDomNode(), sl);
+			DocumentSweep ds = createSweep();
+			ds.setParent(job);
+			for(JSONObject child: ds) {
+				if(limit>0 && jobs.size()==limit) {
+					action.addLogTrace("Reached limit <"+limit+"> for number of sweep jobs!");
+					break;
+				}
+				adaptJobDescription(child, null);
+				String id = submitChild(child, null);
+				action.addLogTrace(id+" : "+child.optString(sweepDescription));
+				jobs.add(id);
+			}
 			action.addLogTrace("Added "+jobs.size()+" sweep jobs.");
 			//store inital job ID list for later cleanup/status checking
 			List<String>initialList=new ArrayList<String>();
@@ -156,7 +162,7 @@ public class SweepProcessor extends JSDLBaseProcessor{
 			throw new ProcessingException("Error performing sweep",e);
 		}
 	}
-	
+
 	/**
 	 * check if there are any remaining jobs that are still running
 	 */
@@ -200,40 +206,6 @@ public class SweepProcessor extends JSDLBaseProcessor{
 		}
 		return subJobs;
 	}
-	
-	
-	
-	class MySweepListener implements SweepListener{
-		
-		final int limit;
-		
-		final List<String>jobIDs;
-		
-		/**
-		 * @param jobIDs - for storing the job IDs
-		 * @param limit - limit on the number of jobs
-		 */
-		public MySweepListener(List<String>jobIDs, int limit){
-			this.limit=limit;
-			this.jobIDs=jobIDs;
-		}
-		
-		/**
-		 * TODO params contain file sweep info
-		 */
-		public void emitSweepInstance(Node jobNode, Map<String, Object> params)
-				throws SweepException {
-			try{
-				if(jobIDs.size()>=limit)throw new SweepException("Sweep limit of <"+limit+"> was exceeded!");
-				JobDefinitionDocument job=JobDefinitionDocument.Factory.parse(jobNode);
-				adaptJobDescription(job, params);
-				String id=submitChild(job, params);
-				jobIDs.add(id);
-			}catch(Exception ex){
-				throw new SweepException("Can't submit sub job", ex);
-			}
-		}
-	}
 
 	/**
 	 * Modifies the sweep instance by fixing stage-ins. Shared inputs can be linked. 
@@ -241,44 +213,43 @@ public class SweepProcessor extends JSDLBaseProcessor{
 	 * @param job - the emitted sweep instance which will be modified
 	 * @param params
 	 */
-	protected void adaptJobDescription(JobDefinitionDocument job, Map<String, Object> params){
-		DataStagingType[] staging=job.getJobDefinition().getJobDescription().getDataStagingArray();
+	protected void adaptJobDescription(JSONObject job, Map<String, Object> params) throws JSONException {
+		JSONArray staging = job.optJSONArray("Imports");
 		if(staging!=null){		
-			for(DataStagingType dst: staging){
-				if(dst.getSource()!=null){
-					if(sweepLinkMarker.equals(dst.getSource().getURI())){
-						String target=dst.getFileName();
-						dst.getSource().setURI("link:../"+target);
-					}
+			for(int i=0;i<staging.length();i++){
+				JSONObject dst = staging.getJSONObject(i);
+				if(sweepLinkMarker.equals(dst.getString("From"))){
+					String target=dst.getString("To");
+					dst.put("From", "link:"+action.getExecutionContext().getWorkingDirectory()+"/"+target);
 				}
 			}
 		}
 	}
 
-	protected String submitChild(JobDefinitionDocument job, Map<String, Object> params)throws Exception{
+	protected String submitChild(JSONObject job, Map<String, Object> params)throws Exception{
 		Action subAction=new Action();
 		subAction.setInternal(true);
 		subAction.setType(sweepInstanceType);
-		subAction.setAjd((Serializable)job);
+		subAction.setAjd(job.toString());
 		subAction.setClient(action.getClient());
 		ProcessingContext pc=subAction.getProcessingContext();
 		// there are no more client stage-ins, so we can autostart
 		pc.put(Action.AUTO_SUBMIT, Boolean.TRUE); 
 		if(params!=null){
-			pc.put(SweepInstanceProcessor.SWEEP_PARAMS_KEY,params);
+			pc.put(JSONSweepInstanceProcessor.SWEEP_PARAMS_KEY,params);
 		}
-		pc.put(SweepInstanceProcessor.SWEEP_PARENT_JOB_ID_KEY,action.getUUID());
-		pc.put(SweepInstanceProcessor.SWEEP_PARENT_JOB_USPACE_KEY,
-			   action.getExecutionContext().getWorkingDirectory());
-		
+		pc.put(JSONSweepInstanceProcessor.SWEEP_PARENT_JOB_ID_KEY,action.getUUID());
+		pc.put(JSONSweepInstanceProcessor.SWEEP_PARENT_JOB_USPACE_KEY,
+				action.getExecutionContext().getWorkingDirectory());
+
 		ExecutionContext ec=new ExecutionContext(subAction.getUUID());
 		subAction.setExecutionContext(ec);
-		
+
 		String base=action.getExecutionContext().getWorkingDirectory();
 		String uspace=ecm.createUSpace(subAction, base);
-		
+
 		ec.setWorkingDirectory(uspace);
-		
+
 		String id=(String)manager.addInternalAction(subAction);
 		return id;
 	}

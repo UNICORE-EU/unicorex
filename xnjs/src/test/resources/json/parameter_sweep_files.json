@@ -1,0 +1,22 @@
+{
+  "Executable": "ls -l",
+  
+  "Imports": [
+  
+  {
+    "To": "sweeped-infile",
+    "From": [
+      "inline://foo1", "inline://foo2", "inline://foo3"
+    ],
+    "Data": "test123\n"
+  },
+  
+  {
+    "To": "not-sweeped",
+    "From": "inline://foo1",
+    "Data": "foobar\n"
+  }
+  
+  
+  ]
+}

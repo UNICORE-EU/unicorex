@@ -96,7 +96,7 @@ public class XNJSProperties extends PropertiesHelper {
 				setDescription("Properties for configuring the embedded Java TSI (if used). See separate docs."));
 		META.put("staging", new PropertyMD().setCanHaveSubkeys().
 				setDescription("Properties for configuring the data staging and I/O components. See separate docs."));
-		META.put(SWEEP_LIMIT, new PropertyMD("1000").setInt().setNonNegative().
+		META.put(SWEEP_LIMIT, new PropertyMD("200").setInt().setNonNegative().
 				setDescription("Upper limit for number of jobs generated in a single parameter sweep."));
 	}
 

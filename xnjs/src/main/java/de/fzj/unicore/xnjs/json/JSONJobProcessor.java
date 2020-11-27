@@ -17,6 +17,10 @@ import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
+import de.fzj.unicore.xnjs.json.sweep.DocumentSweep;
+import de.fzj.unicore.xnjs.json.sweep.JSONSweepProcessor;
+import de.fzj.unicore.xnjs.json.sweep.ParameterSweep;
+import de.fzj.unicore.xnjs.json.sweep.StagingSweep;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.util.JSONUtils;
@@ -26,7 +30,6 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	public JSONJobProcessor(XNJS xnjs) {
 		super(xnjs);
-		// TODO Auto-generated constructor stub
 	}
 
 	private JSONObject jobDescription;
@@ -39,6 +42,26 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			}catch(Exception ex) {}
 		}
 		return jobDescription;
+	}
+	
+	/**
+	 * if the job is a parameter sweep job, change the action type
+	 * so that the JSONSweepProcessor} can take over
+	 */
+	@Override
+	protected void handleCreated() throws ProcessingException {
+		try{
+			if(!action.getType().equals(JSONSweepProcessor.sweepActionType) && checkForSweeps()){
+				action.setType(JSONSweepProcessor.sweepActionType);
+				action.addLogTrace("This is a parameter sweep job, changing type to '"
+						+JSONSweepProcessor.sweepActionType+"'");
+			}
+			else{
+				super.handleCreated();
+			}	
+		}catch(Exception ex){
+			throw new ProcessingException(ex);
+		}
 	}
 
 	@Override
@@ -147,21 +170,17 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected List<DataStageInInfo> extractStageInInfo() throws Exception {
+		return doExtractStageIn(getJobDescriptionDocument().optJSONArray("Imports"));
+	}
+	
+	protected List<DataStageInInfo> doExtractStageIn(JSONArray imports) throws Exception {
 		List<DataStageInInfo>result = new ArrayList<>();
-		JSONArray imports = getJobDescriptionDocument().optJSONArray("Imports");
 		if(imports!=null) {
 			for(int i = 0; i<imports.length(); i++) {
 				JSONObject in = imports.getJSONObject(i);
 				DataStageInInfo dsi = new DataStageInInfo();
 				String to = JSONUtils.getString(in, "To");
-				String source = null;
-
-				Object sweepSpec = in.get("From");
-				if(sweepSpec instanceof JSONArray){
-					throw new Exception("File sweep not yet supported");
-				}else{
-					source = JSONUtils.getString(in, "From");
-				}
+				String source = JSONUtils.getString(in, "From");
 				dsi.setFileName(to);
 				dsi.setSources(new URI[]{new URI(source)});
 				if(source.startsWith("inline:")) {
@@ -193,4 +212,50 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		return result;
 	}
 
+	protected boolean checkForSweeps() throws Exception {
+		JSONObject j = getJobDescriptionDocument();
+		JSONObject parameters = j.optJSONObject("Parameters");
+		if(parameters!=null) {
+			for(String name: JSONObject.getNames(parameters)) {
+				if(parameters.get(name) instanceof JSONObject) {
+					return true;
+				}
+			}
+		}
+		if(j.optJSONArray("Imports")!=null) {
+			JSONArray imports = j.getJSONArray("Imports");
+			for(int i=0; i<imports.length(); i++) {
+				JSONObject im = imports.getJSONObject(i);
+				if(im.get("From")instanceof JSONArray) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	protected DocumentSweep createSweep() throws Exception {
+		DocumentSweep sweepSpec = null;
+		JSONObject j = getJobDescriptionDocument();
+		JSONObject parameters = j.optJSONObject("Parameters");
+		if(parameters!=null) {
+			for(String name: JSONObject.getNames(parameters)) {
+				if(parameters.get(name) instanceof JSONObject) {
+					sweepSpec = new ParameterSweep(name, parameters.getJSONObject(name));
+				}
+			}
+		}
+		if(j.optJSONArray("Imports")!=null) {
+			JSONArray imports = j.getJSONArray("Imports");
+			for(int i=0; i<imports.length(); i++) {
+				JSONObject im = imports.getJSONObject(i);
+				if(im.getString("From").equals(JSONSweepProcessor.sweepFileMarker)) {
+					StagingSweep sSweep = new StagingSweep(JSONSweepProcessor.sweepFileMarker);
+					sSweep.setFiles(JSONUtils.asStringArray(j.getJSONArray(JSONSweepProcessor.sweepFileMarker)));
+					sweepSpec = sSweep;
+				}
+			}
+		}
+		return sweepSpec;
+	}
 }

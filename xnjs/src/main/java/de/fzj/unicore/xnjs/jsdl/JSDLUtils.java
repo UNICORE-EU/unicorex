@@ -74,7 +74,6 @@ import de.fzj.unicore.xnjs.resources.StringResource;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import de.fzj.unicore.xnjs.util.XmlBeansUtils;
-import edu.virginia.vcgr.jsdl.sweep.SweepUtility;
 import eu.unicore.jsdl.extensions.ResourceRequestDocument;
 
 public class JSDLUtils {
@@ -471,12 +470,6 @@ public class JSDLUtils {
 	public static DateFormat getDateFormat(){
 		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	}
-
-	public static boolean hasSweep(JobDefinitionDocument job) throws Exception{
-		return SweepUtility.hasSweep(job.getDomNode());
-	}
-	
-
 		
 	public static boolean hasExpression(RangeValueType rvt){
 		try{

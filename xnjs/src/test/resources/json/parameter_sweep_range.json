@@ -1,0 +1,11 @@
+{
+  "Executable": "echo ${sweep}",
+  
+  "Parameters": {
+    "foo": "bar",
+    "sweep": {
+      "Values": ["1", "2", "3"]
+    },
+    "ham": "spam"
+  }
+}

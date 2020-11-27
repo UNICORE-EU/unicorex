@@ -31,32 +31,31 @@
  *********************************************************************************/
 
 
-package de.fzj.unicore.xnjs.jsdl;
+package de.fzj.unicore.xnjs.json.sweep;
 
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.json.JSONJobProcessor;
 
 /**
- * modified {@link JSDLProcessor} which takes care of the particularities of 
- * jobs created by the JSDL ParameterSweep<br/>
+ * handles sweep instances forked by SweepProcessor
  * 
  * TODO
- *  - files from "master job" uspace need to be copied/linked
  *  - perform input file modifications (file sweep)
  * 
  * @author schuller
  */
-public class SweepInstanceProcessor extends JSDLProcessor{
+public class JSONSweepInstanceProcessor extends JSONJobProcessor {
 
 	//for storing the sweep params
-	static final String SWEEP_PARAMS_KEY=SweepInstanceProcessor.class.getName()+"_SweepParams";
+	static final String SWEEP_PARAMS_KEY = JSONSweepInstanceProcessor.class.getName()+"_SweepParams";
 	
 	//for storing the ID of the master job
-	static final String SWEEP_PARENT_JOB_ID_KEY=SweepInstanceProcessor.class.getName()+"_ParentJob_ID";
+	static final String SWEEP_PARENT_JOB_ID_KEY = JSONSweepInstanceProcessor.class.getName()+"_ParentJob_ID";
 	
 	//for storing the Uspace location of the master job
-	static final String SWEEP_PARENT_JOB_USPACE_KEY=SweepInstanceProcessor.class.getName()+"_ParentJob_Uspace";
+	static final String SWEEP_PARENT_JOB_USPACE_KEY = JSONSweepInstanceProcessor.class.getName()+"_ParentJob_Uspace";
 	
-	public SweepInstanceProcessor(XNJS xnjs){
+	public JSONSweepInstanceProcessor(XNJS xnjs){
 		super(xnjs);
 	}
 	

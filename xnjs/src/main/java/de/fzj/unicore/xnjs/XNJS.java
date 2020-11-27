@@ -76,9 +76,9 @@ import de.fzj.unicore.xnjs.ems.processors.UsageLogger;
 import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
 import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
-import de.fzj.unicore.xnjs.jsdl.SweepInstanceProcessor;
-import de.fzj.unicore.xnjs.jsdl.SweepProcessor;
 import de.fzj.unicore.xnjs.json.JSONJobProcessor;
+import de.fzj.unicore.xnjs.json.sweep.JSONSweepInstanceProcessor;
+import de.fzj.unicore.xnjs.json.sweep.JSONSweepProcessor;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.persistence.IActionStoreFactory;
 import de.fzj.unicore.xnjs.tsi.TSI;
@@ -241,11 +241,7 @@ public class XNJS {
 	 * are configured, otherwise set the default
 	 */
 	protected void assureDefaultProcessingAvailable(){
-		if(!haveProcessingFor("JSDL")){
-			setProcessingChain("JSDL", JSDLUtils.JSDL_JOBDEFINITION, 
-					new String[]{JSDLProcessor.class.getName(),UsageLogger.class.getName(),
-			});
-		}
+		
 		if(!haveProcessingFor("JSON")){
 			setProcessingChain("JSON", "JSON", 
 					new String[]{JSONJobProcessor.class.getName(),UsageLogger.class.getName(),
@@ -263,13 +259,20 @@ public class XNJS {
 			setProcessingChain(XNJSConstants.asyncCommandType, null, 
 					new String[]{AsyncCommandProcessor.class.getName()});
 		}
-		if(!haveProcessingFor(SweepProcessor.sweepActionType)){
-			setProcessingChain(SweepProcessor.sweepActionType, null, 
-					new String[]{SweepProcessor.class.getName()});
+		if(!haveProcessingFor(JSONSweepProcessor.sweepActionType)){
+			setProcessingChain(JSONSweepProcessor.sweepActionType, null, 
+					new String[]{JSONSweepProcessor.class.getName()});
 		}
-		if(!haveProcessingFor(SweepProcessor.sweepInstanceType)){
-			setProcessingChain(SweepProcessor.sweepInstanceType, null, 
-					new String[]{SweepInstanceProcessor.class.getName()});
+		if(!haveProcessingFor(JSONSweepProcessor.sweepInstanceType)){
+			setProcessingChain(JSONSweepProcessor.sweepInstanceType, null, 
+					new String[]{JSONSweepInstanceProcessor.class.getName()});
+		}
+
+		// JSDL - TODO deprecated
+		if(!haveProcessingFor("JSDL")){
+			setProcessingChain("JSDL", JSDLUtils.JSDL_JOBDEFINITION, 
+					new String[]{JSDLProcessor.class.getName(),UsageLogger.class.getName(),
+			});
 		}
 	}
 
