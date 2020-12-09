@@ -621,14 +621,14 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	public String doLS(String file,boolean normal, boolean recurse)throws ExecutionException{
 		String path=makeTarget(file);
 		String cmd = TSIUtils.makeLSCommand(path, normal, recurse);
-		return runTSICommand(cmd, null);	
+		return runTSICommand(cmd);	
 	}
 
 	String doExecuteScript(String cmd)throws ExecutionException{
 		String tsicmd=TSIUtils.makeExecuteScript(cmd, null, idb, extractCredentials());
 		TSIConnection conn=null;
 		try{
-			conn = factory.getTSIConnection(user, group, null, timeout);
+			conn = factory.getTSIConnection(user, group, preferredHost, timeout);
 			String res=conn.send(tsicmd);
 			if(res.startsWith("TSI_FAILED")){
 				throw new IOException("TSI ERROR: Could not execute command: <"+cmd+"> TSI reply: "+res);
@@ -691,7 +691,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		String cmd = TSIUtils.makeDFCommand(path);
 		String res = null;
 		try{
-			res = runTSICommand(cmd, null);	
+			res = runTSICommand(cmd);	
 			return parseDFReply(res);
 		}catch(Exception ex){
 			throw new ExecutionException("Error executing TSI_DF. Reply was "+res);
@@ -729,7 +729,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		String cmd = TSIUtils.makeGetBudgetCommand();
 		String res = null;
 		try{
-			res = runTSICommand(cmd, null);	
+			res = runTSICommand(cmd);	
 			return parseGetComputeBudgetReply(res);
 		}catch(Exception ex){
 			String msg = Log.createFaultMessage("Error executing TSI_GET_COMPUTE_BUDGET", ex)
@@ -816,7 +816,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		String tsicmd=TSIUtils.makeGetFileChunkCommand(file,offset,length);
 		TSIConnection conn=null;
 		try{
-			conn = factory.getTSIConnection(user, group, null, timeout);
+			conn = factory.getTSIConnection(user, group, preferredHost, timeout);
 			String res=conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
 				String msg="Command execution failed. TSI reply:"+res;
@@ -901,7 +901,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	
 		TSIConnection conn=null;
 		try{
-			conn = factory.getTSIConnection(user, group, null, timeout);
+			conn = factory.getTSIConnection(user, group, preferredHost, timeout);
 			String permissions=TSIUtils.getFilePerm(umask) ;
 
 			String tsicmd = TSIUtils.makePutFileChunkCommand(file, permissions, numBytes, append);
@@ -1120,7 +1120,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return factory;
 	}
 	
-	public String runTSICommand(String command, String preferredHost) throws ExecutionException {
+	public String runTSICommand(String command) throws ExecutionException {
 		TSIConnection conn=null;
 		try{
 			conn = factory.getTSIConnection(user, group, preferredHost, timeout);

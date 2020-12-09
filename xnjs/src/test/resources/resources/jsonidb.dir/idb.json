@@ -18,11 +18,7 @@
 		},
     },
     
-    "ExecuteScriptTemplate" : 
-"#!/bin/bash \
-#COMMAND \
-FOO=bar\
-#SCRIPT",
+    "ExecuteScriptTemplate" : "#!/bin/bash \n#COMMAND \nFOO=bar\n#SCRIPT",
 
     "SubmitScriptTemplate" : [
 		"#!/bin/bash",

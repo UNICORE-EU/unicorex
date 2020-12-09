@@ -149,7 +149,10 @@ public class Execution extends BasicExecution {
 					tsiHost=conn.getTSIHostName();
 					res=conn.send(tsiCmd);
 					idLine=conn.getIdLine();
-					if(isFirstSubmit)job.addLogTrace("Command is: \n"+tsiCmd);
+					if(isFirstSubmit) {
+						job.addLogTrace("Command is:");
+						job.addLogTrace(tsiCmd);
+					}
 					if(res.contains("TSI_FAILED")){
 						job.addLogTrace("TSI reply: FAILED.");
 						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to classic TSI failed. Reply was <"+res+">"));
