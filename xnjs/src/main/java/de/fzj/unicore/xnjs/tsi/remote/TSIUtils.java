@@ -154,7 +154,9 @@ public class TSIUtils {
 		boolean normalMode = !applicationInfo.isRawJob();
 
 		if(normalMode){
-			appendTSIResourceSpec(commands, rt);
+			String queue = appendTSIResourceSpec(commands, rt);
+			ec.setBatchQueue(queue);
+			job.setDirty();
 		}
 		else {
 			String jobFile = applicationInfo.getRawBatchFile();
@@ -717,8 +719,10 @@ public class TSIUtils {
 	/**
 	 * Extract the resources from the <code>&lt;ResourceSet&gt;</code>
 	 * and put them into #TSI_NNN strings<br/>
+	 * 
+	 * @return the queue / partition name the job will be submitted into
 	 */
-	public static void appendTSIResourceSpec(StringBuilder commands, List<ResourceRequest> resources) {
+	public static String appendTSIResourceSpec(StringBuilder commands, List<ResourceRequest> resources) {
 
 		int run_time = -1; // walltime
 
@@ -862,6 +866,7 @@ public class TSIUtils {
 		// add dynamic/site-specific ones
 		appendSiteSpecificResources(commands, resources);
 
+		return queue;
 	}
 
 	static List<String> filteredVariables = new ArrayList<>();

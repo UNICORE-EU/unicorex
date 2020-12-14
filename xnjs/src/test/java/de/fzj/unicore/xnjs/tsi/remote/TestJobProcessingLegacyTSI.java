@@ -73,7 +73,8 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 	private static String 
 	date = "src/test/resources/json/date.json",
 	date_with_redirect="src/test/resources/json/date_with_redirect.json",
-	date_with_resources="src/test/resources/json/date_with_resources.json";
+	date_with_resources="src/test/resources/json/date_with_resources.json",
+	sleep = "src/test/resources/json/sleep.json";
 
 	@Override
 	protected RemoteTSIModule getTSIModule(ConfigurationSource cs){
@@ -218,6 +219,20 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		System.out.println("BSID: "+bsid);
 	}
 
+	@Test
+	public void testQueueUpdate() throws Exception {
+		JSONObject job = loadJSONObject(sleep);
+		String id="";
+		Action a=xnjs.makeAction(job);
+		Client c=new Client();
+		a.setClient(c);
+		c.setXlogin(new Xlogin(new String[] {"nobody"}));
+		id=a.getUUID();
+		mgr.add(a,c);
+		doRun(id);
+		a = internalMgr.getAction(id);
+		assertEquals("NOBATCH", a.getExecutionContext().getBatchQueue());
+	}
 
 	@Test
 	public void testSubmitRetry() throws Exception {

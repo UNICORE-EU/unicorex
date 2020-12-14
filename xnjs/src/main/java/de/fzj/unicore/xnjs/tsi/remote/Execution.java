@@ -238,6 +238,7 @@ public class Execution extends BasicExecution {
 				status = info.bssState;
 				if(info.queue!=null){
 					job.getExecutionContext().setBatchQueue(info.queue);
+					job.setDirty();
 				}
 			}
 
@@ -345,6 +346,7 @@ public class Execution extends BasicExecution {
 	
 	private void resetGracePeriod(Action job){
 		job.getProcessingContext().remove(GRACE_PERIOD_start);
+		job.setDirty();
 	}
 
 
