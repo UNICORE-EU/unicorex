@@ -347,6 +347,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				cmd.id = "PRE_"+(index++);
 				cmd.cmd = pre.toString();
 				cmd.workingDir = action.getExecutionContext().getWorkingDirectory();
+				cmd.ignoreExitCode = action.getApplicationInfo().isUserPreCommandIgnoreExitCode();
 				String subID = createPrePostAction(cmd);
 				getOrCreateList(subactionkey_pre).add(subID);
 			}

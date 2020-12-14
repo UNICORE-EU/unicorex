@@ -72,8 +72,8 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		try{
 			//do an incarnation now...
 			JSONObject jd = getJobDescriptionDocument();
-			ApplicationInfo orig = new JSONParser().parseSubmittedApplication(jd);
-			ApplicationInfo applicationInfo = grounder.incarnateApplication(orig,client);
+			ApplicationInfo fromUser = new JSONParser().parseSubmittedApplication(jd);
+			ApplicationInfo applicationInfo = grounder.incarnateApplication(fromUser, client);
 			action.setApplicationInfo(applicationInfo);
 			updateExecutionContext(applicationInfo);
 

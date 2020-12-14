@@ -40,18 +40,20 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		app.setName(source.optString("ApplicationName",null));
 		app.setVersion(source.optString("ApplicationVersion",null));
 
-		app.setPreCommand(source.optString("User precommand", null));
+		app.setUserPreCommand(source.optString("User precommand", null));
 		app.setUserPreCommandOnLoginNode(source.optBoolean("RunUserPrecommandOnLoginNode", true));
-
+		app.setUserPreCommandIgnoreExitCode(source.optBoolean("UserPrecommandIgnoreNonZeroExitCode", false));
+		
 		app.setExecutable(source.optString("Executable",null));
 		app.setArguments(JSONUtils.asStringArray(source.optJSONArray("Arguments")));
 		app.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Parameters")));
 		parseEnvironment(source.optJSONArray("Environment"), app);
 		app.setIgnoreNonZeroExitCode(source.optBoolean("IgnoreNonZeroExitCode", false));
 
-		app.setPostCommand(source.optString("User postcommand", null));
+		app.setUserPostCommand(source.optString("User postcommand", null));
 		app.setUserPostCommandOnLoginNode(source.optBoolean("RunUserPostcommandOnLoginNode", true));
-
+		app.setUserPostCommandIgnoreExitCode(source.optBoolean("UserPostcommandIgnoreNonZeroExitCode", false));
+		
 		app.setResourceRequest(parseResourceRequest(source.optJSONObject("Resources")));
 
 		String jobType = source.optString("Job type", "normal");

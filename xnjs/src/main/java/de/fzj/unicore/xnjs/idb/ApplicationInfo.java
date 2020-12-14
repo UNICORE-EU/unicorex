@@ -32,9 +32,11 @@ public class ApplicationInfo implements Cloneable, Serializable {
 	private String stdin,stdout,stderr; 
 
 	private String userPreCommand;
-	private boolean userPreOnLoginNode=false;
+	private boolean userPreOnLoginNode=true;
+	private boolean userPreIgnoreExitCode=false;
 	private String userPostCommand;
-	private boolean userPostOnLoginNode=false;
+	private boolean userPostOnLoginNode=true;
+	private boolean userPostIgnoreExitCode=false;
 	
 	private boolean runOnLoginNode=false;
 	private String preferredLoginNode;
@@ -197,6 +199,14 @@ public class ApplicationInfo implements Cloneable, Serializable {
 		this.userPreOnLoginNode = loginNode;
 	}
 	
+	public boolean isUserPreCommandIgnoreExitCode() {
+		return userPreIgnoreExitCode;
+	}
+	
+	public void setUserPreCommandIgnoreExitCode(boolean ignore) {
+		this.userPreIgnoreExitCode = ignore;
+	}
+	
 	public String getUserPostCommand() {
 		return userPostCommand;
 	}
@@ -211,6 +221,14 @@ public class ApplicationInfo implements Cloneable, Serializable {
 	
 	public void setUserPostCommandOnLoginNode(boolean loginNode) {
 		this.userPostOnLoginNode = loginNode;
+	}
+	
+	public boolean isUserPostCommandIgnoreExitCode() {
+		return userPostIgnoreExitCode;
+	}
+	
+	public void setUserPostCommandIgnoreExitCode(boolean ignore) {
+		this.userPostIgnoreExitCode = ignore;
 	}
 	
 	public boolean isRunOnLoginNode() {

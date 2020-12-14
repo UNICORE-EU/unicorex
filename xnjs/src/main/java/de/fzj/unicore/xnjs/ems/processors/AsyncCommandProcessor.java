@@ -57,6 +57,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		}
 		tsi.mkdir(ec.getOutcomeDirectory());
 		ec.setExitCodeFileName(subCommand.id+"_"+TSIUtils.EXITCODE_FILENAME);
+		ec.setIgnoreExitCode(subCommand.ignoreExitCode);
 		ec.setRunOnLoginNode(true);
 		ec.setPIDFileName(subCommand.id+"_"+TSIUtils.PID_FILENAME);
 		ec.getEnvironment().putAll(subCommand.env);
@@ -119,6 +120,14 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 	
 	@Override
 	protected void handlePostProcessing()throws ProcessingException{
+		Integer e = action.getExecutionContext().getExitCode();
+		if(e!=null) {
+			boolean ignore = action.getExecutionContext().isIgnoreExitCode();
+			if(e!=0 && !ignore) {
+				setToDoneAndFailed("Command exited with <"+e+">");
+				return;
+			}
+		}
 		setToSuccess();
 	}	
 	
@@ -155,6 +164,9 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		// if true, the job and its working directory will be destroyed when
 		// the command is finished
 		public boolean destroyWhenDone=false;
+		
+		// if false, non-zero exit code will cause the command and parent job to FAIL
+		public boolean ignoreExitCode=false;
 		
 		public String toString(){
 			return "SubCommand ['"+cmd+"' in '"+workingDir+"']";

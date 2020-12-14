@@ -99,6 +99,9 @@ public class ExecutionContext implements Serializable{
 	
 	//should the execution output be discarded?
 	private boolean discardOutput;
+	
+	//should non-zero exit code lead to failure?
+	private boolean ignoreExitCode;
 		
 	/**
 	 * create an uninitialized ExecutionContext
@@ -210,6 +213,14 @@ public class ExecutionContext implements Serializable{
 	 */
 	public void setRunOnLoginNode(boolean runOnLoginNode) {
 		this.runOnLoginNode = runOnLoginNode;
+	}
+
+	public boolean isIgnoreExitCode() {
+		return ignoreExitCode;
+	}
+
+	public void setIgnoreExitCode(boolean ignore) {
+		this.ignoreExitCode = ignore;
 	}
 
 	/**

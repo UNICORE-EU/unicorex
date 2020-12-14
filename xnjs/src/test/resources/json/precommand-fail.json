@@ -1,0 +1,9 @@
+{
+  "Executable": "date",
+
+  "User precommand": "no_such_executable",
+  "UserPrecommandIgnoreNonZeroExitCode": "true",
+  
+  "User postcommand": "no_such_executable"
+
+}
