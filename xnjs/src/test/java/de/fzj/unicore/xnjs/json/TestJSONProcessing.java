@@ -48,7 +48,7 @@ public class TestJSONProcessing extends EMSTestBase {
 		doRun(id);
 		Action a = mgr.getAction(id);
 		a.printLogTrace();
-		assertTrue(a.getLog().toString().contains("Command exited with <127>"));
+		assertTrue(a.getLog().toString().contains("Command exited with non-zero exit code"));
 	}
 
 	private static String[] sweep_jobs = { 
