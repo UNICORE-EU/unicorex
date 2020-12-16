@@ -132,8 +132,8 @@ public class TestTSI extends LegacyTSITestCase{
 	public void testGetVersion()throws TSIUnavailableException{
 		RemoteTSI tsi=makeTSI();
 		assertNotNull(tsi);
-		String v=tsi.factory.getTSIVersion();
-		assertTrue(TSIUtils.compareVersion(v, RemoteTSI.SUPPORTED_TSI_VERSION));
+		String v=tsi.getFactory().getTSIVersion();
+		assertTrue(TSIUtils.compareVersion(v, TSIConnection. RECOMMENDED_TSI_VERSION));
 		assertEquals("UNICORE TSI at localhost:65431",tsi.getFileSystemIdentifier());
 	}
 
