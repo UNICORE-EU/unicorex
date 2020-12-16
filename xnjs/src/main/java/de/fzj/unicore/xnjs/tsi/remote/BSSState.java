@@ -122,16 +122,12 @@ public class BSSState implements IBSSState {
 		//do not update while job is being submitted!
 		jobSubmissionInProgressLock.tryLock(120, TimeUnit.SECONDS);
 		try {
-			TSIConnection conn=null;
 			String res=null;
-			try{
-				conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", null, timeout);
+			try (TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", null, timeout)){
 				res = conn.send(TSIUtils.makeStatusCommand(null));
 				if(log.isTraceEnabled()){
 					log.trace("BSS Status listing: \n"+res);
 				}
-			}finally{
-				if(conn!=null)conn.done();
 			}
 			List<String>pids=new ArrayList<String>();
 			for(String tsiNode: connectionFactory.getTSIHosts()){
@@ -167,9 +163,7 @@ public class BSSState implements IBSSState {
 	 */
 	public Set<String> getProcessList(String tsiNode)throws IOException, TSIUnavailableException, ExecutionException {
 		Set<String>result=new HashSet<String>();
-		TSIConnection conn=null;
-		try{
-			conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", tsiNode, timeout);
+		try(TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", tsiNode, timeout)){
 			String script=tsiProperties.getValue(TSIProperties.BSS_PS);
 			String res=conn.send(TSIUtils.makeExecuteScript(script, null, idb, null));
 			if(log.isTraceEnabled()){
@@ -179,7 +173,7 @@ public class BSSState implements IBSSState {
 				String msg = "Cannot retrieve process list. TSI reply: "+res;
 				// if this does not work, something is wrong with the TSI node
 				conn.markTSINodeUnavailable(msg);
-				conn.close();
+				conn.shutdown();
 				throw new ExecutionException(msg);
 			}
 			BufferedReader br = new BufferedReader(new StringReader(res.trim()+"\n"));
@@ -191,8 +185,6 @@ public class BSSState implements IBSSState {
 				if(!m.matches())continue;
 				result.add("INTERACTIVE_"+tsiNode+"_"+String.valueOf(m.group(1)));
 			}
-		}finally{
-			if(conn!=null)conn.done();
 		}
 		return result;
 	}

@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.impl.reservation;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
+import java.util.Map;
 
 import de.fzj.unicore.uas.impl.UASBaseModel;
 import eu.unicore.security.Xlogin;
@@ -14,7 +14,7 @@ public class ReservationModel extends UASBaseModel {
 	//original Xlogin that was used to create the reservation
 	Xlogin xlogin;
 
-	ResourcesDocument resources;
+	Map<String,String> resources;
 	
 	public String getReservationReference() {
 		return reservationReference;
@@ -32,11 +32,11 @@ public class ReservationModel extends UASBaseModel {
 		this.xlogin = xlogin;
 	}
 
-	public ResourcesDocument getResources() {
+	public Map<String,String> getResources() {
 		return resources;
 	}
 
-	public void setResources(ResourcesDocument resources) {
+	public void setResources(Map<String,String> resources) {
 		this.resources = resources;
 	}
 

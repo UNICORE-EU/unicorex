@@ -59,7 +59,7 @@ import de.fzj.unicore.xnjs.util.LogUtil;
  * 
  * @author schuller
  */
-public class TSIConnection {
+public class TSIConnection implements AutoCloseable {
 
 	private static final Logger logger=LogUtil.getLogger(LogUtil.TSI,TSIConnection.class);
 
@@ -214,16 +214,8 @@ public class TSIConnection {
 
 	private boolean closed = false;
 
-	/**
-	 * The user of the TSIConnection has finished with the TSIConnection.
-	 * <p>
-	 * This must <em>always</em> be called as the {@link TSIConnectionFactory}
-	 * caches and reuses connections and while allocated TSIConnections are
-	 * not available to other users. Also, a TSIConnection holds open sockets
-	 * corresponding to TSI processes.
-	 * <p>
-	 */
-	public void done() {
+
+	private void done() {
 		setIdLine("");
 		if(closed ){
 			return;
@@ -236,12 +228,26 @@ public class TSIConnection {
 	}
 
 	/**
+	 * The user of the TSIConnection has finished with the TSIConnection.
+	 * <p>
+	 * This must <em>always</em> be called as the {@link TSIConnectionFactory}
+	 * caches and reuses connections and while allocated TSIConnections are
+	 * not available to other users. Also, a TSIConnection holds open sockets
+	 * corresponding to TSI processes.
+	 * <p>
+	 */
+	@Override
+	public void close() {
+		done();
+	}
+	
+	/**
 	 * The TSIConnection is no longer required or is unusable.
 	 */
-	public void close() {
+	public void shutdown() {
 		if(closed)return;
 		if(logger.isDebugEnabled())logger.debug("Connection "+getConnectionID()+" shutdown.");
-		closed =true;
+		closed = true;
 		command.die();
 		data.die();
 		factory.notifyConnectionDied();
@@ -316,7 +322,7 @@ public class TSIConnection {
 		 *            Append a line with the identity (user,project)?
 		 * @return TSI reply, with any comments filtered out
 		 */
-		private String _send(String data, boolean sendUser) throws IOException {
+		private synchronized String _send(String data, boolean sendUser) throws IOException {
 			StringBuilder reply = new StringBuilder();
 			// Check the outgoing data to prevent users messing with the protocol
 			// (e.g. in file names) and acquiring another identity
@@ -352,7 +358,7 @@ public class TSIConnection {
 				output.print("\nENDOFMESSAGE\n");
 				output.flush();
 			} catch (Exception ex) {
-				close();
+				shutdown();
 				IOException ioex = new IOException(
 						"Failure sending data to the TSI");
 				ioex.initCause(ex);
@@ -366,7 +372,7 @@ public class TSIConnection {
 					line = input.readLine();
 				}
 			}catch(Exception e){
-				close();
+				shutdown();
 				IOException ioex = new IOException(
 						"Failure reading reply data from the TSI");
 				ioex.initCause(e);
@@ -384,7 +390,7 @@ public class TSIConnection {
 			try {
 				reply = input.readLine();
 			} catch (IOException ex) {
-				close();
+				shutdown();
 				throw ex;
 			}
 			return reply;
@@ -406,21 +412,7 @@ public class TSIConnection {
 			if(checkAlive){
 				try {
 					command.socket.setSoTimeout(pingTimeout);
-					String msg = "#TSI_PING\nENDOFMESSAGE\n";
-					output.print(msg);
-					output.flush();
-					if(logger.isDebugEnabled()){
-						logger.debug("--> "+msg);
-					}
-					String rtn;
-					do{
-						rtn = input.readLine();
-						if (rtn == null)
-							return false;
-						if(logger.isDebugEnabled()){
-							logger.debug("<-- "+rtn);
-						}
-					}while(!rtn.contains("ENDOFMESSAGE"));
+					_send("#TSI_PING", false);
 					drainCommand();
 				} catch (Exception ex) {
 					return false;
@@ -435,7 +427,7 @@ public class TSIConnection {
 		}
 		
 
-		protected void drainCommand(){
+		private void drainCommand(){
 			try{
 				while(command.socket.getInputStream().available()>0){
 					command.socket.getInputStream().read();
@@ -488,7 +480,7 @@ public class TSIConnection {
 					output.flush();
 				}
 			} catch (IOException ex) {
-				TSIConnection.this.close();
+				TSIConnection.this.shutdown();
 				throw ex;
 			}
 		}
@@ -504,7 +496,7 @@ public class TSIConnection {
 							- read);
 				}
 			} catch (IOException ex) {
-				TSIConnection.this.close();
+				TSIConnection.this.shutdown();
 				throw ex;
 			}
 
@@ -537,12 +529,26 @@ public class TSIConnection {
 		this.idLine = idLine;
 	}
 
+
+	private static boolean issuedWarning=false;
+
+	public static final String RECOMMENDED_TSI_VERSION = "8.0.0";
+
 	/**
 	 * get the TSI version
 	 */
 	public synchronized String getTSIVersion() throws IOException {
 		if(tsiVersion==null){
 			tsiVersion = doGetVersion();
+		}
+		if(tsiVersion!=null && !issuedWarning) {
+			issuedWarning = true;
+			if(!TSIUtils.compareVersion(tsiVersion, RECOMMENDED_TSI_VERSION)){
+				logger.warn("TSI host <"+getTSIHostName()+"> runs version <" + tsiVersion + 
+						"> which is outdated. UNICORE will try to work in backwards " +
+						"compatible way but some features may not work. " +
+						"It is strongly suggested to update your TSI.");
+			}
 		}
 		return tsiVersion;
 	}

@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.RangeType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.RangeValueType;
@@ -38,6 +40,13 @@ public class JSDLResourceSet extends ResourceSet {
 
 	protected final List<ResourceRequest>extensionJSDLResources=new ArrayList<ResourceRequest>();
 
+
+	/**
+	 * QName of the XML element for representing a reservation reference.
+	 */
+	public static final QName RESERVATION_REFERENCE = new QName("http://www.unicore.eu/unicore/xnjs","ReservationReference");
+	
+	
 	public JSDLResourceSet(ResourcesType source){
 		super();
 		if(source!=null)init(source);

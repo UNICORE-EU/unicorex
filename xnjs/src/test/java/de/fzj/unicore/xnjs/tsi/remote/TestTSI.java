@@ -49,16 +49,17 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.xmlbeans.XmlObject;
-import org.junit.Ignore;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.Action;
@@ -79,7 +80,6 @@ import de.fzj.unicore.xnjs.tsi.AbstractTSITest;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
-import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
@@ -97,23 +97,22 @@ public class TestTSI extends LegacyTSITestCase{
 	public void testConnectionFactory()throws Exception{
 		TSIConnectionFactory f=xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		TSIConnection c=f.getTSIConnection("nobody", null, null, -1);
-		System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
-		System.out.println(c);
-		c.done();
+		try(TSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
+			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
+			System.out.println(c);
+		}
 	}
 
 	@Test
 	public void testConnectionFactoryPreferredHost()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory) xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1);
-		InetAddress localhost=InetAddress.getByName("localhost");
-		assertEquals(localhost,c.getTSIAddress());
-		c.done();
+		try(TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1)){
+			InetAddress localhost=InetAddress.getByName("localhost");
+			assertEquals(localhost,c.getTSIAddress());
+		}
 		int n = f.getNumberOfPooledConnections();
-		c=f.getTSIConnection("nobody", null,"localhost",-1);
-		c.done();
+		try(TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
 	}
 
@@ -144,6 +143,7 @@ public class TestTSI extends LegacyTSITestCase{
 		RemoteTSI tsi=makeTSI();
 		tsi.setStorageRoot(testDir);
 		new AbstractTSITest(testDir,tsi).run();
+		FileUtils.deleteQuietly(new File(testDir));
 	}
 
 	@Test
@@ -158,6 +158,7 @@ public class TestTSI extends LegacyTSITestCase{
 		ec.setStdout("out");
 		tsi.exec("echo tsi",ec);
 		assertTrue(new File(tmpdir+"/"+tmp+"/out").exists());
+		FileUtils.deleteQuietly(new File(tmpdir, tmp));
 	}
 
 	@Test
@@ -182,6 +183,7 @@ public class TestTSI extends LegacyTSITestCase{
 		String p2=ls[0].getPath();
 		assertTrue(ls.length==1);
 		assertTrue(!p1.equals(p2));
+		FileUtils.deleteQuietly(tmp);
 	}
 
 	@Test
@@ -193,6 +195,7 @@ public class TestTSI extends LegacyTSITestCase{
 		assertNotNull(info);
 		assertTrue(info.getTotalSpace()>0);
 		System.out.println(info);
+		FileUtils.deleteQuietly(tmp);
 	}
 
 	@Test
@@ -206,13 +209,10 @@ public class TestTSI extends LegacyTSITestCase{
 		tsi.setStorageRoot(tmpdir);
 		InputStream is=tsi.getInputStream("out");
 		assertNotNull(is);
-		BufferedReader br=new BufferedReader(new InputStreamReader(is));
-		try{
+		try(BufferedReader br=new BufferedReader(new InputStreamReader(is))){
 			assertTrue(br.readLine().contains("tsi"));	
 		}
-		finally{
-			IOUtils.closeQuietly(br);
-		}
+		FileUtils.deleteQuietly(new File(tmpdir));
 	}
 
 	@Test
@@ -240,6 +240,7 @@ public class TestTSI extends LegacyTSITestCase{
 		assertEquals(f.length(),N*foo.length+4);
 		is.close();
 		br.close();
+		FileUtils.deleteQuietly(new File(tmpdir));
 	}
 
 	@Test
@@ -299,31 +300,25 @@ public class TestTSI extends LegacyTSITestCase{
 		File f=new File(tmpdir+"/"+tmp+"/out");
 		assertTrue(f.exists());
 		FileInputStream is=new FileInputStream(f);
-		BufferedReader br=new BufferedReader(new InputStreamReader(is));
-		try{
+		try(BufferedReader br=new BufferedReader(new InputStreamReader(is))){
 			String line=br.readLine();
 			System.out.println(line);
 			assertTrue(line.contains("this is a test for the template mechanism"));
 		}
-		finally{
-			IOUtils.closeQuietly(br);
-		}
+		FileUtils.deleteQuietly(new File(tmpdir));
 	}
 
-	@Ignore
 	@Test
 	public void testReservationModule() throws Exception {
 		IReservation r= xnjs.get(IReservation.class);
 
 		Client c=new Client();
 		c.setAuthenticatedClient(null);
-		XmlObject resources=XmlObject.Factory.parse("<foo/>");
+		Map<String, String> resources = new HashMap<>();
 		Calendar startTime=Calendar.getInstance();
 		startTime.add(Calendar.DAY_OF_MONTH,2);
-		r.makeReservation(resources, startTime, c);
-
-		r.cancelReservation("1234", new Client());
-
+		String id = r.makeReservation(resources, startTime, c);
+		r.cancelReservation(id, new Client());
 	}
 
 	@Test
@@ -342,6 +337,7 @@ public class TestTSI extends LegacyTSITestCase{
 			//OK
 		}
 		((IDBImpl)idb).setExecuteTemplate(template);
+		FileUtils.deleteQuietly(new File(tmpdir));
 	}
 
 	@Test
@@ -371,6 +367,7 @@ public class TestTSI extends LegacyTSITestCase{
 		tsi.chmod2(tst.getAbsolutePath(), changePerms, false);
 		f = tsi.getProperties(tst.getAbsolutePath());
 		assertEquals("rw-------", f.getUNIXPermissions());
+		FileUtils.deleteQuietly(tst);
 	}
 
 	/**
@@ -395,6 +392,7 @@ public class TestTSI extends LegacyTSITestCase{
 		//tsi.chgrp(tst.getAbsolutePath(), "users");
 		//XnjsFileWithACL f2 = tsi.getProperties(tst.getAbsolutePath());
 		//assertEquals("users", f2.getGroup());
+		FileUtils.deleteQuietly(tst);
 	}
 
 	@Test
@@ -416,6 +414,7 @@ public class TestTSI extends LegacyTSITestCase{
 		assertNotNull(f.getGroup());
 		assertNotNull(f.getOwner());
 		assertNotNull(f.getUNIXPermissions());
+		FileUtils.deleteQuietly(tst);
 	}
 
 	@Test
@@ -444,6 +443,7 @@ public class TestTSI extends LegacyTSITestCase{
 		tsi.cp(file, file+"-cp");
 		String filePerms2 = tsi.getProperties(file+"-cp").getUNIXPermissions();
 		assertEquals("r--------", filePerms2);
+		FileUtils.deleteQuietly(new File(dir));
 	}
 
 	@Test
@@ -501,6 +501,8 @@ public class TestTSI extends LegacyTSITestCase{
 			fail();
 		}
 		catch(IllegalStateException ex){/* OK as expected */}
+		FileUtils.deleteQuietly(new File("target", tmpDir));
+		
 	}
 
 	@Test
@@ -519,6 +521,7 @@ public class TestTSI extends LegacyTSITestCase{
 		XnjsFile f = tsi.getProperties(target);
 		assertNotNull(f);
 		System.out.println("Created link: " + f);
+		FileUtils.deleteQuietly(new File(dir));
 	}
 
 	private void writeFile(String path, String content)throws Exception{

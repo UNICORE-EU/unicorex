@@ -70,7 +70,7 @@ public class TestTSIConnectionPool extends LegacyTSITestCase {
 		
 		// put back into pool
 		for(TSIConnection c: connections){
-			c.done();
+			c.close();
 		}
 		System.out.println("Pooled connections : "+f.getNumberOfPooledConnections());
 		assertEquals(4, f.getNumberOfPooledConnections());
@@ -82,10 +82,10 @@ public class TestTSIConnectionPool extends LegacyTSITestCase {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		TSIConnection c=f.getTSIConnection("nobody", null, null, -1);
-		c.done();
+		c.close();
 		f.getTSISocketFactory().reInit();
 		c=f.getTSIConnection("nobody", null, null, -1);
-		c.done();
+		c.close();
 	}
 
 	@Test

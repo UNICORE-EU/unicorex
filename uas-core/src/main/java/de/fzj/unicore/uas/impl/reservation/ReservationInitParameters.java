@@ -1,14 +1,13 @@
 package de.fzj.unicore.uas.impl.reservation;
 
 import java.util.Calendar;
-
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
+import java.util.Map;
 
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 
 public class ReservationInitParameters extends BaseInitParameters {
 
-	public ResourcesDocument resources;
+	public Map<String,String> resources;
 	
 	public Calendar starttime;
 	

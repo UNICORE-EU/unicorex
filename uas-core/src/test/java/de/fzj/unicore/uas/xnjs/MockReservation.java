@@ -1,12 +1,10 @@
 package de.fzj.unicore.uas.xnjs;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.xmlbeans.XmlObject;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
 
 import com.google.inject.Inject;
 
@@ -14,7 +12,6 @@ import de.fzj.unicore.wsrflite.utils.Utilities;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.idb.Incarnation;
-import de.fzj.unicore.xnjs.jsdl.JSDLParser;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
@@ -40,12 +37,11 @@ public class MockReservation implements IReservation {
 		reservations.remove(resID);
 	}
 
-	public String makeReservation(XmlObject resources, Calendar startTime, Client client)
+	public String makeReservation(Map<String,String> resources, Calendar startTime, Client client)
 	throws ExecutionException {
 		try{
 			Incarnation gr=configuration.get(Incarnation.class);
-			ResourcesType rt=ResourcesType.Factory.parse(resources.newInputStream());
-			List<ResourceRequest>resourceRequest = new JSDLParser().parseRequestedResources(rt);
+			List<ResourceRequest>resourceRequest = parseResourceRequest(resources);
 			List<ResourceRequest>incarnated=gr.incarnateResources(resourceRequest, client);
 			String tsiCmd=TSIUtils.makeMakeReservationCommand(incarnated,startTime,client);
 			lastTSICommand=tsiCmd;
@@ -81,4 +77,13 @@ public class MockReservation implements IReservation {
 		return reservations.containsKey(id);
 	}
 
+	public List<ResourceRequest> parseResourceRequest(Map<String,String> source) throws Exception {
+		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
+		if(source!=null) {
+			for(Map.Entry<String, String> e: source.entrySet()) {
+				req.add(new ResourceRequest(e.getKey(), e.getValue()));
+			}
+		}
+		return req;
+	}
 }

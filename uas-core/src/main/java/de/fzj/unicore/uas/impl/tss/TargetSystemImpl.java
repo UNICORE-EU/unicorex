@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
 import org.json.JSONObject;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
@@ -397,7 +396,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 	}
 
 	//create a WS Resource for the reservation and return its UUID
-	public String createReservationResource(ResourcesDocument resources, Calendar startTime)throws Exception{
+	public String createReservationResource(Map<String,String> resources, Calendar startTime)throws Exception{
 		ReservationInitParameters init = new ReservationInitParameters();
 		init.xnjsReference = getModel().getXnjsReference();
 		init.tssReference = getUniqueID();

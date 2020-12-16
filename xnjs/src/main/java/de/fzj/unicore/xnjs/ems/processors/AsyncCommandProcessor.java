@@ -124,7 +124,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		if(e!=null) {
 			boolean ignore = action.getExecutionContext().isIgnoreExitCode();
 			if(e!=0 && !ignore) {
-				setToDoneAndFailed("Command exited with <"+e+">");
+				setToDoneAndFailed("Command exited with non-zero exit code: <"+e+">");
 				return;
 			}
 		}

@@ -53,10 +53,10 @@ import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
+import de.fzj.unicore.xnjs.jsdl.JSDLResourceSet;
 import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
-import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
@@ -427,48 +427,46 @@ public class TSIUtils {
 	/**
 	 * read a line from a TSI LS result, skipping irrelevant lines
 	 * 
-	 * @param br -
-	 *            reader to read from
+	 * @param br -reader to read from
 	 * @return two lines of the directory listing
-	 * @throws Exception
+	 * @throws IllegalArgumentException if the result from TSI  makes no sense
 	 */
-	public static String[] readTSILSLine(BufferedReader br) throws ExecutionException{
+	public static String[] readTSILSLine(BufferedReader br) throws IllegalArgumentException {
 		String lines[] = new String[2];
 		lines[0] = "";
-		while (lines[0] != null) {
-			try{
+		try {
+			while (lines[0] != null) {
 				lines[0] = br.readLine();
-			}catch(IOException ex){
-				throw new ExecutionException(ex);
-			}
-			if (lines[0] == null)
-				break;
-			// ignore lines with special meaning to NJS
-			if (lines[0].startsWith("<"))
-				continue;
-			if (lines[0].startsWith("-"))
-				continue;
-			if (lines[0].startsWith("TSI_OK"))
-				continue;
-			if (lines[0].startsWith("END_LISTING"))
-				continue;
-			if (lines[0].startsWith("START_LISTING"))
-				continue;
-			if (lines[0].length() == 0)
-				continue;
+				if (lines[0] == null)
+					break;
+				// ignore lines with special meaning
+				if (lines[0].startsWith("<"))
+					continue;
+				if (lines[0].startsWith("-"))
+					continue;
+				if (lines[0].startsWith("TSI_OK"))
+					continue;
+				if (lines[0].startsWith("END_LISTING"))
+					continue;
+				if (lines[0].startsWith("START_LISTING"))
+					continue;
+				if (lines[0].length() == 0)
+					continue;
 
-			try{
 				lines[1] = br.readLine();
-			}catch(IOException ex){
-				throw new ExecutionException(ex);
+				if (!lines[1].startsWith("--")) {
+					throw new IllegalArgumentException("Got invalid " +
+							"extended permissions line from TSI: >" + 
+							lines[1] + "< for file line >" 
+							+ lines[0] + "<");
+				}
+				return lines;
 			}
-			if (!lines[1].startsWith("--"))
-				throw new ExecutionException("Got invalid " +
-						"extended permissions line from TSI: >" + 
-						lines[1] + "< for file line >" 
-						+ lines[0] + "<");
-			return lines;
+		}catch(IOException ioe) {
+			// can't really happen but OK
+			throw new IllegalStateException(ioe);
 		}
+		
 		return lines;
 	}
 
@@ -615,7 +613,7 @@ public class TSIUtils {
 	 * @return A reservation ID
 	 */
 	public static String extractReservationID(ResourcesType rt) {
-		XmlObject[] xo = rt.selectChildren(IReservation.RESERVATION_REFERENCE);
+		XmlObject[] xo = rt.selectChildren(JSDLResourceSet.RESERVATION_REFERENCE);
 		if (xo == null || xo.length != 1) {
 			return null;
 		}
@@ -988,28 +986,19 @@ public class TSIUtils {
 	 * @param client
 	 * @param tsiVersion
 	 */
-	public static String prepareAllGroupsString(Client client, String tsiVersion) {
-		if (compareVersion(tsiVersion, "6.3.2")) {
-			Xlogin xlogin = client.getXlogin();
-			StringBuilder sb = new StringBuilder();
+	public static String prepareAllGroupsString(Client client) {
+		Xlogin xlogin = client.getXlogin();
+		StringBuilder sb = new StringBuilder();
 
-			sb.append("DEFAULT_GID");
+		sb.append("DEFAULT_GID");
 
-			//add all allowed groups
-			if (xlogin.getEncodedGroups() != null && xlogin.getEncodedGroups().length() > 0)
-				sb.append(":").append(xlogin.getEncodedGroups());
+		//add all allowed groups
+		if (xlogin.getEncodedGroups() != null && xlogin.getEncodedGroups().length() > 0)
+			sb.append(":").append(xlogin.getEncodedGroups());
 
-			//get all OS supplementary groups too
-			sb.append(":DEFAULT_GID");
-			return sb.toString();
-		} else { 
-			//backwards compatibility
-			String group = client.getXlogin().getGroup();
-			if (group != null && !"".equals(group))
-				return group;
-			else
-				return "NONE";
-		}
+		//get all OS supplementary groups too
+		sb.append(":DEFAULT_GID");
+		return sb.toString();
 	}
 
 	public static String makePauseCommand(String bssid) {

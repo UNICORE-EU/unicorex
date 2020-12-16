@@ -33,7 +33,6 @@
 
 package de.fzj.unicore.xnjs;
 
-import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
@@ -53,10 +52,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.json.JSONObject;
 
 import com.codahale.metrics.Histogram;
-import com.codahale.metrics.JmxReporter;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Reporter;
 import com.codahale.metrics.SlidingWindowReservoir;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -83,7 +80,6 @@ import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.persistence.IActionStoreFactory;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
-import de.fzj.unicore.xnjs.util.IOUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -121,8 +117,6 @@ public class XNJS {
 
 	private final MetricRegistry metricRegistry;
 
-	private final Reporter metricReporter;
-
 	private final TSIFactory tsiFactory;
 
 	private final Map<Class<?>,Object>attributes=new HashMap<Class<?>,Object>();
@@ -140,7 +134,6 @@ public class XNJS {
 		uniqueID=String.valueOf(id.incrementAndGet());
 
 		metricRegistry = configSource.getMetricRegistry();
-		metricReporter = createReporter();
 		tsiFactory = new TSIFactory(this);
 		properties = configSource.getProperties();
 		baseProperties = new XNJSProperties(properties);
@@ -222,20 +215,6 @@ public class XNJS {
 		return startTime;
 	}
 
-	private Reporter createReporter() throws Exception {
-		Reporter r = config.getMetricReporter();
-		if(r==null){
-			try {
-				JmxReporter jr = JmxReporter.forRegistry(metricRegistry).inDomain("xnjs-" + uniqueID + "-metrics").build();
-				jr.start();
-				r = jr;
-			}catch(Exception ex) {
-				logger.error("Could not create JmxReporter", ex);
-			}
-		}
-		return r;
-	}
-
 	/**
 	 * make sure the processor chains for some default cases
 	 * are configured, otherwise set the default
@@ -304,9 +283,6 @@ public class XNJS {
 		try{
 			get(Manager.class).stop();
 		}catch(Exception ce){}
-		if(metricReporter!=null && metricReporter instanceof Closeable){
-			IOUtils.closeQuietly((Closeable)metricReporter);
-		}
 	}
 	
 	public synchronized <T> T get(Class<T> clazz) {

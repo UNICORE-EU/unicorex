@@ -129,7 +129,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 			conn = doGetFromPool(preferredHost, timeout);
 			if(conn==null || conn.isAlive()) break;
 			if(log.isDebugEnabled())log.debug("Removing connection "+conn.getConnectionID());
-			conn.close();
+			conn.shutdown();
 		}
 		return conn;
 	}
@@ -260,7 +260,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 						count.incrementAndGet();
 					}
 					else{
-						connection.close();
+						connection.shutdown();
 					}
 				}
 			}
@@ -349,7 +349,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		synchronized (pool) {
 			//kill pooled connections
 			for(TSIConnection c: pool){
-				try{c.close();}catch(Exception ex){}
+				try{c.shutdown();}catch(Exception ex){}
 			}
 			pool.clear();
 		}
@@ -371,23 +371,19 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 			return "N/A [not started]";
 		}
 		StringBuilder sb=new StringBuilder();
-		TSIConnection conn = null;
 		int numOK = 0;
 		int numTotal = connectors.length;
-		String version="N/A";
+		
 		for(String h: tsiHostnames){
-			try{
-				conn = getTSIConnection("nobody", null, h, -1);
-				version = conn.getTSIVersion();
+			try(TSIConnection conn = getTSIConnection("nobody", null, h, -1)){
+				String version = conn.getTSIVersion();
 				numOK++;
+				tsiVersion = version;
 			}
 			catch(Exception e){}
-			finally{
-				if(conn!=null)conn.done();
-			}
 		}
 		if(numOK>0){
-			sb.append("OK [TSI v").append(version).append(" (").append(numOK).append("/").append(numTotal)
+			sb.append("OK [TSI v").append(tsiVersion).append(" (").append(numOK).append("/").append(numTotal)
 			.append(" nodes up) at ").append(tsiDescription).append("]");
 		}
 		else{
@@ -422,17 +418,12 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	@Override
 	public synchronized String getTSIVersion(){
 		if(tsiVersion==null){
-			TSIConnection c=null;
-			try{
-				//do a fresh PING, since TSI might be updated individually
-				c = getTSIConnection("nobody", null, null, -1);
-				tsiVersion=c.getTSIVersion();
-				return tsiVersion;
-			}catch(Exception e){
-				return null;
-			}
-			finally{
-				if(c!=null)c.done();
+			for(String h: tsiHostnames){
+				try(TSIConnection conn = getTSIConnection("nobody", null, h, -1)){
+					tsiVersion = conn.getTSIVersion();
+					if(tsiVersion!=null)break;
+				}
+				catch(Exception e){}
 			}
 		}
 		return tsiVersion;

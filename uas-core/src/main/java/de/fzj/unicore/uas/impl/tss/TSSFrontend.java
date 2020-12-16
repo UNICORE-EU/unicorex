@@ -35,14 +35,15 @@ package de.fzj.unicore.uas.impl.tss;
 
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
 import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionType;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
 import org.oasisOpen.docs.wsrf.rl2.TerminationTimeDocument.TerminationTime;
 import org.unigrids.x2006.x04.services.reservation.ResourceReservationRequestDocument;
 import org.unigrids.x2006.x04.services.reservation.ResourceReservationResponseDocument;
@@ -92,6 +93,8 @@ import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.ems.Action;
+import de.fzj.unicore.xnjs.jsdl.JSDLParser;
+import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**
@@ -205,8 +208,12 @@ public class TSSFrontend extends UASBaseFrontEnd implements TargetSystem {
 	@Override
 	public ResourceReservationResponseDocument ReserveResources(ResourceReservationRequestDocument in) throws BaseFault {
 		try{
-			ResourcesDocument rd=ResourcesDocument.Factory.newInstance();
-			rd.setResources(in.getResourceReservationRequest().getResources());
+			Map<String,String> rd = new HashMap<>();
+			List<ResourceRequest>requested = new JSDLParser().parseRequestedResources(
+					in.getResourceReservationRequest().getResources());
+			for(ResourceRequest rr: requested) {
+				rd.put(rr.getName(), rr.getRequestedValue());
+			}
 			Calendar startTime=in.getResourceReservationRequest().getStartTime();
 			String id=resource.createReservationResource(rd,startTime);
 			EndpointReferenceType epr=WSServerUtilities.makeEPR(UAS.RESERVATIONS, id, ReservationManagement.PORT, true, resource.getKernel());

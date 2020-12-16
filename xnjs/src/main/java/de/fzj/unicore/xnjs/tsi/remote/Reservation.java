@@ -3,19 +3,17 @@ package de.fzj.unicore.xnjs.tsi.remote;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlObject;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
 
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.idb.Incarnation;
-import de.fzj.unicore.xnjs.jsdl.JSDLParser;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
@@ -56,18 +54,13 @@ public class Reservation implements IReservation {
 				logger.debug("Cancel reservation "+reservationID+" for client "+client);
 			}
 			String tsiCmd=TSIUtils.makeCancelReservationCommand(reservationID);
-			TSIConnection conn=null;
-			try
-			{
-				conn = getTSIConnection(client);
+			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
 					String msg="Resource reservation on classic TSI failed. Reply was <"+res+">";
 					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
 					throw new ExecutionException(ec);
 				}
-			}finally{
-				if(conn!=null)conn.done();
 			}
 		}catch(Exception e){
 			logger.error("Could not cancel reservation.",e);
@@ -86,19 +79,17 @@ public class Reservation implements IReservation {
 	 * <li>the TSI replies with TSI_OK and the reservation ID.</li>
 	 * </ul>
 	 */
-	public String makeReservation(XmlObject resources, Calendar startTime,
+	public String makeReservation(Map<String,String> resources, Calendar startTime,
 			Client client) throws ExecutionException {
 		try{
 			if(logger.isDebugEnabled()){
 				logger.debug("Processing resource reservation "+resources.toString()+"\nStart time "+startTime.getTime().toString());
 			}
-			ResourcesType rt=ResourcesDocument.Factory.parse(resources.toString()).getResources();
-			List<ResourceRequest>resourceRequest = new JSDLParser().parseRequestedResources(rt);
+			
+			List<ResourceRequest>resourceRequest = parseResourceRequest(resources);
 			List<ResourceRequest>incarnated = grounder.incarnateResources(resourceRequest, client);
 			String tsiCmd = TSIUtils.makeMakeReservationCommand(incarnated, startTime, client);
-			TSIConnection conn=null;
-			try{
-				conn = getTSIConnection(client);
+			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
 					String msg="Resource reservation on classic TSI failed. Reply was <"+res+">";
@@ -107,8 +98,6 @@ public class Reservation implements IReservation {
 				}
 				String resID=res.replace("TSI_OK","").trim(); //strip TSI_OK and newlines
 				return resID;
-			}finally{
-				if(conn!=null)conn.done();
 			}
 		}catch(Exception e){
 			logger.error("Could not reserve resources.",e);
@@ -145,23 +134,16 @@ public class Reservation implements IReservation {
 				logger.debug("Querying resource reservation "+reservationID+" for client "+client.getDistinguishedName());
 			}
 			String tsiCmd=TSIUtils.makeQueryReservationCommand(reservationID);
-			TSIConnection conn=null;
 			String res;
-			try{
-				conn = getTSIConnection(client);
-				res=conn.send(tsiCmd);
+			try(TSIConnection conn = getTSIConnection(client)){
+				res = conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
 					String msg="Query resource reservation on classic TSI failed. Reply was <"+res+">";
 					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
 					throw new ExecutionException(ec);
 				}
 			}
-			finally{
-				if(conn!=null)conn.done();
-			}
-			
 			rs=parseTSIReply(res);
-		
 		}catch(Exception e){
 			LogUtil.logException("Could not query reservation.",e,logger);
 			throw new ExecutionException(e);
@@ -223,4 +205,13 @@ public class Reservation implements IReservation {
 		return rs;	
 	}
 
+	public List<ResourceRequest> parseResourceRequest(Map<String,String> source) throws Exception {
+		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
+		if(source!=null) {
+			for(Map.Entry<String, String> e: source.entrySet()) {
+				req.add(new ResourceRequest(e.getKey(), e.getValue()));
+			}
+		}
+		return req;
+	}
 }

@@ -58,29 +58,27 @@ public class MultiAddressTSITest extends LegacyTSITestCase {
 	public void testConnectionFactory()throws Exception{
 		TSIConnectionFactory f=xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		TSIConnection c=f.getTSIConnection("nobody", null, null, -1);
-		System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
-		System.out.println(c);
-		System.out.println(c.getConnectionID());
-		c.done();
+		try(TSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
+			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
+			System.out.println(c);
+			System.out.println(c.getConnectionID());
+		}
 	}
 	
 	@Test
 	public void testConnectionFactory2()throws Exception{
 		TSIConnectionFactory f=xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		TSIConnection c;
-		try {
-			c=f.getTSIConnection("nobody", null, "no such node", -1);
+		try(TSIConnection c = f.getTSIConnection("nobody", null, "localh*", -1)){
 		}catch(Exception ex) {
 			assertTrue(ex.getMessage().contains("No TSI is configured at"));
 			System.out.println("EX: "+ex.getMessage());
 		}
-		c=f.getTSIConnection("nobody", null, "localh*", -1);
-		System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
-		System.out.println(c);
-		System.out.println(c.getConnectionID());
-		c.done();
+		try(TSIConnection c = f.getTSIConnection("nobody", null, "localh*", -1)){
+			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
+			System.out.println(c);
+			System.out.println(c.getConnectionID());
+		}
 	}
 	
 	@Test

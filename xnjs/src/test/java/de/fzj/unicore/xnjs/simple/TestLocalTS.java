@@ -41,6 +41,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.util.UUID;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -89,6 +90,7 @@ public class TestLocalTS extends EMSTestBase {
 	@Test
 	public void testBasicTSIFunctions()throws Exception{
 		new AbstractTSITest(tmpDir,tsi).run();
+		FileUtils.deleteQuietly(new File(tmpDir));
 	}
 
 	@Test

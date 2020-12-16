@@ -1,10 +1,7 @@
 package de.fzj.unicore.xnjs.tsi;
 
 import java.util.Calendar;
-
-import javax.xml.namespace.QName;
-
-import org.apache.xmlbeans.XmlObject;
+import java.util.Map;
 
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.security.Client;
@@ -17,20 +14,15 @@ import eu.unicore.security.Client;
 public interface IReservation {
 
 	/**
-	 * QName of the XML element for representing a reservation reference.
-	 */
-	public static final QName RESERVATION_REFERENCE=new QName("http://www.unicore.eu/unicore/xnjs","ReservationReference");
-	
-	/**
 	 * Reserve resources starting at a given time
 	 * 
-	 * @param resources - some XML describing the resources to be reserved
+	 * @param resources - resources to be reserved
 	 * @param startTime - the starting time
 	 * @param client - the {@link Client} making the reservation
 	 * @return a reservation ID 
 	 * @throws ExecutionException
 	 */
-	public String makeReservation(XmlObject resources, Calendar startTime, Client client) throws ExecutionException;
+	public String makeReservation(Map<String,String> resources, Calendar startTime, Client client) throws ExecutionException;
 	
 	/**
 	 * Cancel a reservation

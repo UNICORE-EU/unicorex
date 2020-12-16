@@ -114,7 +114,6 @@ public class Execution extends BasicExecution {
 
 	@Override
 	public int submit(Action job) throws ExecutionException {
-		TSIConnection conn=null;
 		ApplicationInfo appDescription=job.getApplicationInfo();
 		incarnationTweaker.preScript(appDescription, job, idb);
 		ExecutionContext ec=job.getExecutionContext();
@@ -144,8 +143,7 @@ public class Execution extends BasicExecution {
 			String idLine="";
 			bss.lock();
 			try{
-				try{
-					conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1);
+				try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
 					tsiHost=conn.getTSIHostName();
 					res=conn.send(tsiCmd);
 					idLine=conn.getIdLine();
@@ -157,8 +155,6 @@ public class Execution extends BasicExecution {
 						job.addLogTrace("TSI reply: FAILED.");
 						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to classic TSI failed. Reply was <"+res+">"));
 					}
-				}finally{
-					if(conn!=null)conn.done();
 				}
 				job.addLogTrace("TSI reply: submission OK.");
 				String bssid=res.trim(); //strip newline
@@ -387,15 +383,11 @@ public class Execution extends BasicExecution {
 		String tsiNode = job.getExecutionContext().getPreferredExecutionHost();
 		String signal = kill? "-9 ": "";
 		String script = "pkill "+signal+"-P "+pid+" ; kill "+signal+pid;
-		TSIConnection conn=null;
-		try{
-			conn = connectionFactory.getTSIConnection(job.getClient(), tsiNode, timeout);
+		try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(), tsiNode, timeout)) {
 			String res=conn.send(TSIUtils.makeExecuteScript(script, null, idb, extractBSSCredentials(job)));
 			if(res==null || !res.startsWith("TSI_OK")){
 				throw new ExecutionException("Could not get terminate process. TSI reply: "+res);
 			}
-		}finally{
-			if(conn!=null)conn.done();
 		}
 	}
 	
@@ -543,16 +535,12 @@ public class Execution extends BasicExecution {
 	 * @throws Exception if the TSI reply is not "TSI_OK"
 	 */
 	protected String runTSICommand(String command, Client client, String preferredTSIHost, boolean check) throws Exception {
-		TSIConnection conn = null;
-		try{
-			conn = connectionFactory.getTSIConnection(client,preferredTSIHost,-1);
+		try(TSIConnection conn = connectionFactory.getTSIConnection(client,preferredTSIHost,-1)){
 			String res = conn.send(command);
 			if(check && !res.contains("TSI_OK")){
 				throw new Exception("Getting job details on TSI failed: reply was "+res);
 			}
 			return res;
-		}finally{
-			if(conn!=null)conn.done();
 		}
 	}
 	
