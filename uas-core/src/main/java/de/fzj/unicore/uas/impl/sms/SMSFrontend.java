@@ -455,7 +455,8 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 		List<ProtocolType.Enum> res = new ArrayList<>();
 		for(String p: resource.getAvailableProtocols()) {
 			try{
-				if(p!=null)res.add(ProtocolType.Enum.forString(p));
+				ProtocolType.Enum e = ProtocolType.Enum.forString(p);
+				if(e!=null)res.add(e);
 			}catch(Exception e) {}
 		}
 		return res;
