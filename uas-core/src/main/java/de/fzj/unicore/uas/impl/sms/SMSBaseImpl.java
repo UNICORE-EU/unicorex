@@ -35,14 +35,10 @@ package de.fzj.unicore.uas.impl.sms;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.ACLEntryType;
@@ -50,57 +46,18 @@ import org.unigrids.services.atomic.types.ACLEntryTypeType;
 import org.unigrids.services.atomic.types.ACLType;
 import org.unigrids.services.atomic.types.GridFileType;
 import org.unigrids.services.atomic.types.MetadataType;
-import org.unigrids.services.atomic.types.PropertyType;
 import org.unigrids.services.atomic.types.ProtocolType;
 import org.unigrids.services.atomic.types.TextInfoType;
-import org.unigrids.x2006.x04.services.sms.ChangeACLType;
-import org.unigrids.x2006.x04.services.sms.ChangePermissionsDocument;
-import org.unigrids.x2006.x04.services.sms.ChangePermissionsResponseDocument;
-import org.unigrids.x2006.x04.services.sms.CopyDocument;
-import org.unigrids.x2006.x04.services.sms.CopyResponseDocument;
-import org.unigrids.x2006.x04.services.sms.CreateDirectoryDocument;
-import org.unigrids.x2006.x04.services.sms.CreateDirectoryResponseDocument;
-import org.unigrids.x2006.x04.services.sms.DeleteDocument;
-import org.unigrids.x2006.x04.services.sms.DeleteResponseDocument;
-import org.unigrids.x2006.x04.services.sms.ExportFileDocument;
-import org.unigrids.x2006.x04.services.sms.ExportFileResponseDocument;
-import org.unigrids.x2006.x04.services.sms.ExtendedChangePermissionsType;
-import org.unigrids.x2006.x04.services.sms.ExtraParametersDocument.ExtraParameters;
-import org.unigrids.x2006.x04.services.sms.FindDocument;
-import org.unigrids.x2006.x04.services.sms.FindDocument.Find;
-import org.unigrids.x2006.x04.services.sms.FindResponseDocument;
-import org.unigrids.x2006.x04.services.sms.FindResponseDocument.FindResponse;
-import org.unigrids.x2006.x04.services.sms.ImportFileDocument;
-import org.unigrids.x2006.x04.services.sms.ImportFileDocument.ImportFile;
-import org.unigrids.x2006.x04.services.sms.ImportFileResponseDocument;
-import org.unigrids.x2006.x04.services.sms.ListDirectoryDocument;
-import org.unigrids.x2006.x04.services.sms.ListDirectoryResponseDocument;
-import org.unigrids.x2006.x04.services.sms.ListDirectoryResponseDocument.ListDirectoryResponse;
-import org.unigrids.x2006.x04.services.sms.ListPropertiesDocument;
-import org.unigrids.x2006.x04.services.sms.ListPropertiesResponseDocument;
-import org.unigrids.x2006.x04.services.sms.ReceiveFileDocument;
-import org.unigrids.x2006.x04.services.sms.ReceiveFileResponseDocument;
-import org.unigrids.x2006.x04.services.sms.RenameDocument;
-import org.unigrids.x2006.x04.services.sms.RenameResponseDocument;
-import org.unigrids.x2006.x04.services.sms.SendFileDocument;
-import org.unigrids.x2006.x04.services.sms.SendFileResponseDocument;
-import org.unigrids.x2006.x04.services.sms.StoragePropertiesDocument;
-import org.w3.x2005.x08.addressing.EndpointReferenceDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.MetadataManagement;
-import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
 import de.fzj.unicore.uas.fts.FiletransferInitParameters;
-import de.fzj.unicore.uas.fts.ProtocolRenderer;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.PersistingPreferencesResource;
-import de.fzj.unicore.uas.impl.UmaskRenderer;
 import de.fzj.unicore.uas.impl.UmaskSupport;
-import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
 import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
 import de.fzj.unicore.uas.metadata.MetadataManagementImpl;
 import de.fzj.unicore.uas.metadata.MetadataManager;
@@ -110,7 +67,6 @@ import de.fzj.unicore.uas.trigger.xnjs.ScanSettings;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 import de.fzj.unicore.uas.xnjs.TSIStorageAdapterFactory;
-import de.fzj.unicore.wsrflite.ContainerProperties;
 import de.fzj.unicore.wsrflite.Home;
 import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
@@ -118,15 +74,11 @@ import de.fzj.unicore.wsrflite.messaging.Message;
 import de.fzj.unicore.wsrflite.messaging.PullPoint;
 import de.fzj.unicore.wsrflite.messaging.ResourceAddedMessage;
 import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
-import de.fzj.unicore.wsrflite.utils.Utilities;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.ACLEntry;
 import de.fzj.unicore.xnjs.io.ACLEntry.Type;
 import de.fzj.unicore.xnjs.io.ChangeACL;
 import de.fzj.unicore.xnjs.io.ChangeACL.ACLChangeMode;
-import de.fzj.unicore.xnjs.io.CompositeFindOptions;
 import de.fzj.unicore.xnjs.io.FileSet;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.Permissions;
@@ -138,15 +90,14 @@ import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.uftp.server.workers.UFTPWorker;
-import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
 
 /**
- * Basic Storage Management service implementation
+ * Basic storage resource implementation
  * 
  * @author schuller
  */
-public abstract class SMSBaseImpl extends PersistingPreferencesResource implements StorageManagement, UmaskSupport{
+public abstract class SMSBaseImpl extends PersistingPreferencesResource implements UmaskSupport {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, SMSBaseImpl.class);
 
@@ -155,45 +106,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 */
 	public static final int MAX_LS_RESULTS = 10000;
 
-	public static final QName RPInternalFiletransferReference=EndpointReferenceDocument.type.getDocumentElementName();
-
-	@Override
-	protected void addWSResourceInterfaces(BPSupportImpl baseProfile) {
-		super.addWSResourceInterfaces(baseProfile);
-		baseProfile.addWSResourceInterface(SMS_PORT);
-	}
-
 	public SMSBaseImpl() {
 		super();
-
-		addRenderer(new ACLSupportedRP(this));
-		addRenderer(new FiletransferReferenceRP(this));
-		addRenderer(new ProtocolRenderer(this){
-			public List<ProtocolType.Enum> getProtocols(){
-				return getAvailableProtocols();
-			}
-		});
-		addRenderer(new FileSystemRP(this));
-		addRenderer(new UmaskRenderer(this));
-		addRenderer(new TriggerSupportedRenderer(this));
-
-		AddressRenderer ftListAddress=new AddressRenderer(this, RPFiletransferEnumerationReference,true){
-			@Override
-			protected String getServiceSpec() {
-				return UAS.ENUMERATION+"?res="+getModel().fileTransferEnumerationID;
-			}
-		};
-		addRenderer(ftListAddress);
-
-		AddressRenderer mdAddress=new AddressRenderer(this, RPMetadataServiceReference,true){
-			@Override
-			protected String getServiceSpec() {
-				String metadataServiceID = getModel().metadataServiceID;
-				if(metadataServiceID==null)return null;
-				return UAS.META+"?res="+metadataServiceID;
-			}
-		};
-		addRenderer(mdAddress);
 	}
 
 	@Override
@@ -234,69 +148,27 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 
 		setResourceStatus(ResourceStatus.READY);
 	}
-
-
-	@Override
-	public QName getPortType() {
-		return SMS_PORT;
-	}
-
-	@Override
-	public QName getResourcePropertyDocumentQName() {
-		return StoragePropertiesDocument.type.getDocumentElementName();
-	}
-
-	@ConcurrentAccess(allow=true)
-	public ChangePermissionsResponseDocument ChangePermissions(ChangePermissionsDocument inDoc) 
-			throws BaseFault {
-		try{
-			org.unigrids.x2006.x04.services.sms.ChangePermissionsDocument.ChangePermissions in = 
-					inDoc.getChangePermissions();
-			String file=makeSMSLocal(in.getPath());
-			IStorageAdapter tsi=getStorageAdapter();
-
-			boolean recursive = in.isSetRecursive() ? in.getRecursive() : false;
-
-			//chmod
-			ExtendedChangePermissionsType extendedCh = in.getExtendedPermissions();
-			if (extendedCh == null || extendedCh.isNil()) {
-				if (in.getPermissions() != null)
-					SMSUtils.legacyChangePermissions(file, tsi, in);
-			} else
-				SMSUtils.extendedChangePermissions(file, tsi, extendedCh, recursive);
-
-			//chgrp
-			String newGroup = in.getChangeOwningGroup();
-			if (in.isSetChangeOwningGroup() && newGroup != null)
-				tsi.chgrp(file, newGroup, recursive);
-
-			//setfacl
-			ChangeACLType aclChange = in.getACL();
-			if (in.isSetACL() && aclChange != null)
-				SMSUtils.setACL(file, tsi, aclChange, recursive);
-
-			ChangePermissionsResponseDocument res=ChangePermissionsResponseDocument.Factory.newInstance();
-			res.addNewChangePermissionsResponse();
-			return res;
-		}
-		catch(Exception e){
-			throw BaseFault.createFault("Could not change permissions.",e);
-		}
-	}
-
-	@ConcurrentAccess(allow=true)
-	public CopyResponseDocument Copy(CopyDocument in) throws BaseFault {
-		try{
-			copy(in.getCopy().getSource(),in.getCopy().getDestination());
-			CopyResponseDocument res=CopyResponseDocument.Factory.newInstance();
-			res.addNewCopyResponse();
-			return res;
-		}
-		catch(Exception e){
-			throw BaseFault.createFault("Could not copy.",e);
-		}
-	}
 	
+	
+	/**
+	 * create an instance of the Enumeration service for publishing
+	 * the list of filetransfers
+	 * @return UUID of the new Enumeration instance
+	 * @throws Exception
+	 */
+	protected String createFTListEnumeration()throws Exception{
+		String uid = getUniqueID()+"_filetransfers";
+		EnumerationInitParameters init = new EnumerationInitParameters(uid, TerminationMode.NEVER);
+		init.parentUUID = getUniqueID();
+		init.parentServiceName = getServiceName();
+		init.targetServiceRP = SMSFrontend.RPInternalFiletransferReference;
+		init.acl.addAll(getModel().getAcl());
+		init.ownerDN = getModel().getOwnerDN();
+		Home h = kernel.getHome(UAS.ENUMERATION);
+		if(h==null)throw new Exception("Enumeration service is not deployed!");
+		return h.createResource(init);
+	}
+
 	public void copy(String source, String target) throws Exception {
 		source = makeSMSLocal(source);
 		target=makeSMSLocal(target);
@@ -314,22 +186,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * It is assumed to end with the file separator.
 	 */
 	protected abstract String getStorageRoot() throws ExecutionException;
-
-	/**
-	 * create a directory: assumes path relative to storage root
-	 */
-	@ConcurrentAccess(allow=true)
-	public CreateDirectoryResponseDocument CreateDirectory(CreateDirectoryDocument in) throws BaseFault {
-		try{
-			mkdir(in.getCreateDirectory().getPath());
-			CreateDirectoryResponseDocument res=CreateDirectoryResponseDocument.Factory.newInstance();
-			res.addNewCreateDirectoryResponse();
-			return res;
-		}catch(Exception e){
-			LogUtil.logException("Could not create directory.",e,logger);
-			throw BaseFault.createFault("Could not create directory.",e);
-		}
-	}
 	
 	public void mkdir(String path) throws Exception {
 		path = makeSMSLocal(path);
@@ -337,20 +193,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		tsi.mkdir(path);
 	}
 
-	@ConcurrentAccess(allow=true)
-	public DeleteResponseDocument Delete(DeleteDocument in) throws BaseFault {
-		try{
-			doDelete(in.getDelete().getPathArray());
-			DeleteResponseDocument res=DeleteResponseDocument.Factory.newInstance();
-			res.addNewDeleteResponse();
-			return res;
-		}
-		catch(Exception e){
-			throw BaseFault.createFault("Could not perform delete.",e);
-		}
-
-	}
-	
 	public void doDelete(String... paths) throws Exception {
 		IStorageAdapter tsi=getStorageAdapter();
 		boolean supportsBatch=tsi instanceof BatchMode;
@@ -367,106 +209,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			((BatchMode)tsi).commitBatch();
 		}
 	}
-	
-	/**
-	 * export a file<br/>
-	 * 
-	 * the path will always be interpreted as relative to storage root 
-	 */
-	@ConcurrentAccess(allow=true)
-	public ExportFileResponseDocument ExportFile(ExportFileDocument in) throws BaseFault {
-		try {
-			String source = in.getExportFile().getSource();
-			ProtocolType.Enum protocol=in.getExportFile().getProtocol();
-			ExtraParameters param=in.getExportFile().getExtraParameters();
-			String id = createFileExport(source, protocol, parseExtraParameters(param));
-			EndpointReferenceType epr=toEPR(id, protocol);
-			ExportFileResponseDocument res=ExportFileResponseDocument.Factory.newInstance();
-			res.addNewExportFileResponse().setExportEPR(epr);
-			return res;
-		} catch (Exception e) {
-			throw BaseFault.createFault("Could not create file export.",e);
-		}
-	}
-
-
-	@ConcurrentAccess(allow=true)
-	public ImportFileResponseDocument ImportFile(ImportFileDocument in) throws BaseFault {
-		try {
-			ImportFile request = in.getImportFile();
-			String destination=request.getDestination();
-			ProtocolType.Enum protocol=request.getProtocol();
-			Boolean overwrite=Boolean.TRUE;
-			if(request.isSetOverwrite()){
-				overwrite=Boolean.valueOf(request.getOverwrite());
-			}
-			Map<String,String> param=parseExtraParameters(request.getExtraParameters());
-			long numBytes = -1;
-			if(request.getNumBytes()!=null){
-				numBytes = request.getNumBytes().longValue();
-			}
-			String id = createFileImport(destination,protocol,overwrite,numBytes,param);
-
-			ImportFileResponseDocument res=ImportFileResponseDocument.Factory.newInstance();
-			res.addNewImportFileResponse().setImportEPR(toEPR(id, protocol));
-			return res;
-		} catch (Exception e) {
-			logger.error("",e);
-			throw BaseFault.createFault("Could not create file import.",e);
-		}
-	}
 
 	/**
-	 * create a filetransfer that imports data from a remote SMS
-	 * 
-	 * @param in
-	 * @throws BaseFault
-	 */
-	@ConcurrentAccess(allow=true)
-	public ReceiveFileResponseDocument ReceiveFile(ReceiveFileDocument in)
-			throws BaseFault{
-		try{
-			String source=in.getReceiveFile().getSource();
-			String target=in.getReceiveFile().getDestination();
-			ExtraParameters param=in.getReceiveFile().getExtraParameters();
-			String id = transferFile(source, target, false, parseExtraParameters(param));
-			EndpointReferenceType epr = WSServerUtilities.makeEPR(UAS.SERVER_FTS,id,kernel);
-			WSServerUtilities.addUGSRefparamToEpr(epr,id);
-			ReceiveFileResponseDocument res=ReceiveFileResponseDocument.Factory.newInstance();
-			res.addNewReceiveFileResponse().setReceiveFileEPR(epr);
-			return res;
-		}catch(Exception e){
-			throw BaseFault.createFault("Could not initiate receive file.",e);
-		}
-	}
-
-	/**
-	 * create a filetransfer that pushes data to a remote SMS
-	 * 
-	 * @param in
-	 * @throws BaseFault
-	 */
-	@ConcurrentAccess(allow=true)
-	public SendFileResponseDocument SendFile(SendFileDocument in)
-			throws BaseFault {
-		try {
-			String source = in.getSendFile().getSource();
-			String target = in.getSendFile().getDestination();
-			ExtraParameters param=in.getSendFile().getExtraParameters();
-			String id = transferFile(source, target, true, parseExtraParameters(param));
-			EndpointReferenceType epr = WSServerUtilities.makeEPR(UAS.SERVER_FTS,id,kernel);
-			WSServerUtilities.addUGSRefparamToEpr(epr,id);
-			SendFileResponseDocument res = SendFileResponseDocument.Factory.newInstance();
-			res.addNewSendFileResponse().setSendFileEPR(epr);
-			return res;
-		} catch (Exception e) {
-			throw BaseFault.createFault("Could not initiate send file.",e);
-		}
-	}
-
-	/**
-	 * TODO controller method
-	 * 
 	 * create a server-to-server transfer
 	 * @param source
 	 * @param target
@@ -524,71 +268,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		getKernel().getMessaging().getChannel(getUniqueID()).publish(m);
 		return id;
 	}
-
-	@ConcurrentAccess(allow=true)
-	public ListDirectoryResponseDocument ListDirectory(ListDirectoryDocument in) throws BaseFault {
-		ListDirectoryResponseDocument resd=ListDirectoryResponseDocument.Factory.newInstance();
-		ListDirectoryResponse res=resd.addNewListDirectoryResponse();
-		BigInteger offsetP=in.getListDirectory().getOffset();
-		int offset=( offsetP!=null?offsetP.intValue():0) ;
-		BigInteger limitP=in.getListDirectory().getLimit();
-		int max=uasProperties.getIntValue(UASProperties.SMS_LS_LIMIT);
-		int limit=limitP!=null?limitP.intValue():max;
-		if(limit>max){
-			String msg="Could not list directory: the requested number of results " +
-					"exceeds the internal limit of <"+max+">. " +
-					"Please use the limit and offset parameters!";
-			logger.warn(msg);
-			throw BaseFault.createFault(msg);
-		}
-		//get list from tsi
-		try{
-			String p=makeSMSLocal(in.getListDirectory().getPath());
-			XnjsFile[] tsifiles=getListing(p, offset, limit, getModel().storageDescription.isFilterListing());
-			for(XnjsFile f: tsifiles){
-				GridFileType gf=res.addNewGridFile();
-				convert(f,gf);
-			}
-		}catch(Exception e){
-			LogUtil.logException("Could not list directory.",e,logger);
-			throw BaseFault.createFault("Could not list directory.",e);
-		}
-		return resd;
-	}
-
-
-	@ConcurrentAccess(allow=true)
-	public ListPropertiesResponseDocument ListProperties(ListPropertiesDocument in) throws BaseFault {
-		String request=in.getListProperties().getPath();
-		if(request==null)throw BaseFault.createFault("Could not list properties: target path is null.");
-		ListPropertiesResponseDocument res=ListPropertiesResponseDocument.Factory.newInstance();
-		res.addNewListPropertiesResponse();
-		try{
-			String path=makeSMSLocal(request);
-			XnjsFileWithACL file=getProperties(path);
-			if(file!=null){
-				GridFileType gf=res.getListPropertiesResponse().addNewGridFile();
-				convert(file, gf, true);
-			}
-		}catch(Exception e){
-			String msg="Could not list properties of <"+request+">.";
-			throw BaseFault.createFault(msg,e);
-		}
-		return res;
-	}
-
-	@ConcurrentAccess(allow=true)
-	public RenameResponseDocument Rename(RenameDocument in) throws BaseFault {
-		try{
-			rename(in.getRename().getSource(), in.getRename().getDestination());
-			RenameResponseDocument res=RenameResponseDocument.Factory.newInstance();
-			res.addNewRenameResponse();
-			return res;
-		}
-		catch(Exception e){
-			throw BaseFault.createFault("Could not rename",e);
-		}
-	}
 	
 	public void rename(String source, String target) throws Exception {
 		source = makeSMSLocal(source);
@@ -600,42 +279,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		IStorageAdapter tsi=getStorageAdapter();
 		tsi.rename(source, target);
 	}
-
-	@ConcurrentAccess(allow=true)	
-	public FindResponseDocument Find(FindDocument in) throws BaseFault {
-		FindResponseDocument resd=FindResponseDocument.Factory.newInstance();
-		FindResponse res=resd.addNewFindResponse();
-		try{
-			Find find=in.getFind();
-			String base=find.getBase();
-			CompositeFindOptions opts=getXNJSFacade().getFindOptions(find.getFilter());
-			if(find.isSetRecurse()){
-				opts.setRecurse(find.getRecurse());
-			}
-			//perform find on tsi
-			String p=makeSMSLocal(base);
-			if(logger.isTraceEnabled()){
-				logger.trace("Listing <"+p+"> workdir="+getStorageRoot());
-			}
-			IStorageAdapter tsi=getStorageAdapter();
-			XnjsFile[] tsifiles=tsi.find(base, opts, -1, -1);
-			for(XnjsFile f: tsifiles){
-				if(getModel().storageDescription.isFilterListing() && !f.isOwnedByCaller()){
-					if(logger.isTraceEnabled())logger.trace("Skipping "+f.getPath()+", not owned by caller.");
-					continue;
-				}
-				GridFileType gf=res.addNewGridFile();
-				convert(f,gf);
-				if(logger.isTraceEnabled())logger.trace("XNJS filepath: "+f.getPath()+" -> "+gf.getPath());
-			}
-
-			return resd;
-		}
-		catch(Exception e){
-			throw BaseFault.createFault("Could not perform find operation.",e);
-		}
-	}
-
 
 	/**
 	 * gets the contents for directory 'path'
@@ -676,20 +319,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		String res=SMSUtils.urlDecode(p).replace('\\','/');
 		if(res.length()==0 || '/'!=res.charAt(0))res="/"+res;
 		res=res.replace("//", "/");
-		return res;
-	}
-
-	/**
-	 * get the enabled and available file transfer protocols
-	 */
-	public List<ProtocolType.Enum>getAvailableProtocols(){
-		List<ProtocolType.Enum> res = new ArrayList<>();
-		for(FileTransferCapability c: kernel.getCapabilities(FileTransferCapability.class)){
-			if(c.isAvailable() && !"U6".equals(c.getProtocol())){
-				ProtocolType.Enum e = ProtocolType.Enum.forString(c.getProtocol());
-				if(e!=null)res.add(e);
-			}
-		}
 		return res;
 	}
 
@@ -771,25 +400,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 */
 	protected void convert(XnjsFile f, GridFileType gf)throws Exception{
 		convert(f,gf,false);
-	}
-
-	/**
-	 * create an instance of the Enumeration service for publishing
-	 * the list of filetransfers
-	 * @return UUID of the new Enumeration instance
-	 * @throws Exception
-	 */
-	protected String createFTListEnumeration()throws Exception{
-		String uid = getUniqueID()+"_filetransfers";
-		EnumerationInitParameters init = new EnumerationInitParameters(uid, TerminationMode.NEVER);
-		init.parentUUID = getUniqueID();
-		init.parentServiceName = getServiceName();
-		init.targetServiceRP = RPInternalFiletransferReference;
-		init.acl.addAll(getModel().getAcl());
-		init.ownerDN=getModel().getOwnerDN();
-		Home h=kernel.getHome(UAS.ENUMERATION);
-		if(h==null)throw new Exception("Enumeration service is not deployed!");
-		return h.createResource(init);
 	}
 
 	@Override
@@ -955,25 +565,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		Home home=kernel.getHome(UAS.CLIENT_FTS);
 		if(home==null)throw new Exception("Requested service <"+UAS.CLIENT_FTS+"> is not available.");
 		return home.createResource(initParam);
-	}
-
-	private EndpointReferenceType toEPR(String ftID, ProtocolType.Enum protocol){
-		EndpointReferenceType epr = WSServerUtilities.newEPR(kernel.getContainerSecurityConfiguration());
-		if(!getModel().enableDirectFiletransfer){
-			epr.addNewAddress().setStringValue(
-					WSServerUtilities.makeAddress(UAS.CLIENT_FTS, ftID, 
-							kernel.getContainerProperties()));
-		}
-		else{
-			String serv=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_SERVLETPATH);
-			String baseAddr = Utilities.getPhysicalServerAddress(kernel.getContainerProperties(),
-					kernel.getContainerSecurityConfiguration().isSslEnabled()); 
-			String add=baseAddr+serv+"/"+UAS.CLIENT_FTS+"?res="+ftID;
-			epr.addNewAddress().setStringValue(add);
-			logger.debug("Direct filetransfer enabled, address= "+add);
-		}
-		WSServerUtilities.addUGSRefparamToEpr(epr, ftID);
-		return epr;
 	}
 
 	/**
@@ -1154,17 +745,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		return epr;
 	}
 
-	private Map<String,String> parseExtraParameters(ExtraParameters param){
-		Map<String,String>result=new HashMap<String, String>();
-		if(param!=null){
-			PropertyType[]params=param.getParameterArray();
-			for(PropertyType p: params){
-				result.put(p.getName(),p.getValue());
-			}
-		}
-		return result;
-	}
-
 	public String getUmask() {
 		return getModel().umask;
 	}
@@ -1188,5 +768,22 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		storage.setfacl(getStorageRoot(), false, new ChangeACL[] {change, change2}, true);
 	}
 
+	/**
+	 * get the enabled and available file transfer protocols
+	 */
+	public List<String>getAvailableProtocols(){
+		List<String> res = new ArrayList<>();
+		for(FileTransferCapability c: kernel.getCapabilities(FileTransferCapability.class)){
+			String p = c.getProtocol();
+			if(c.isAvailable() && !"U6".equals(p)){
+				if(isProtocolAllowed(p))res.add(p);
+			}
+		}
+		return res;
+	}
+
+	public boolean isProtocolAllowed(String protocol) {
+		return true;
+	}
 
 }

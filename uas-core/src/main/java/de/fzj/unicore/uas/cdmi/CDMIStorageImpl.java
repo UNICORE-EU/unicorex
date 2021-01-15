@@ -1,10 +1,6 @@
 package de.fzj.unicore.uas.cdmi;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
-import org.unigrids.services.atomic.types.ProtocolType;
 
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
@@ -64,6 +60,11 @@ public class CDMIStorageImpl extends SMSBaseImpl {
 	}
 	
 	@Override
+	public boolean isProtocolAllowed(String protocol) {
+		return "BFT".equalsIgnoreCase(protocol);
+	}
+	
+	@Override
 	protected String getStorageRoot() throws ExecutionException {
 		return getModel().getWorkdir();
 	}
@@ -84,19 +85,6 @@ public class CDMIStorageImpl extends SMSBaseImpl {
 	protected String getSeparator(){
 		return "/";
 	}
-
-
-	static final List<ProtocolType.Enum> cdmiProtocols = new ArrayList<>();
-	
-	static{
-		cdmiProtocols.add(ProtocolType.BFT);
-	}
-	
-	@Override
-	public List<ProtocolType.Enum>getAvailableProtocols(){
-		return cdmiProtocols;
-	}
-	
 
 	// retrieve a value from the current user context, if not set,
 	// use the one from the incoming properties

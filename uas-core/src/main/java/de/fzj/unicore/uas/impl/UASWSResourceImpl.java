@@ -63,7 +63,7 @@ public abstract class UASWSResourceImpl extends WSResourceImpl implements BPWSRe
 
 	protected BPSupportImpl baseProfile;
 
-	protected UASProperties uasProperties;
+	public UASProperties uasProperties;
 
 	public UASWSResourceImpl(){
 		super();

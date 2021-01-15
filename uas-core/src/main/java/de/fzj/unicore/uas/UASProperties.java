@@ -318,7 +318,7 @@ public class UASProperties extends PropertiesHelper {
 			try {
 				String pfx = PREFIX+prefixComponent + id + ".";
 				SMSProperties smsProps = new SMSProperties(pfx, properties);
-				Class<? extends StorageManagement> cl = smsProps.getClassValue(SMSProperties.CLASS, StorageManagement.class);
+				Class<? extends SMSBaseImpl> cl = smsProps.getClassValue(SMSProperties.CLASS, SMSBaseImpl.class);
 				String clazz = cl != null ? cl.getName() : null; 
 				String path = smsProps.getValue(SMSProperties.PATH);
 				if(path == null)path = smsProps.getValue(SMSProperties.WORKDIR);

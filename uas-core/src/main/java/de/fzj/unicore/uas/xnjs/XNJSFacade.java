@@ -166,7 +166,6 @@ public class XNJSFacade {
 		ConfigurationSource cs = new ConfigurationSource();
 		cs.getProperties().putAll(properties);
 		cs.setMetricRegistry(kernel.getMetricRegistry());
-		cs.setMetricReporter(kernel.getMetricReporter());
 		cs.addModule(new UASBaseModule(properties, kernel));
 		if(TSI_MODE.embedded.equals(mode)){
 			cs.addModule(new LocalTSIModule(properties));

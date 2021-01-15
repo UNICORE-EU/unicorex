@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.impl.sms.DefaultStorageInfoProvider;
+import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -74,7 +75,7 @@ public class SMSProperties extends PropertiesHelper {
 						+ "CUSTOM: specified class is used."));
 		META.put(PATH, new PropertyMD().
 				setDescription("Denotes the storage base path."));
-		META.put(CLASS, new PropertyMD().setClass(StorageManagement.class).
+		META.put(CLASS, new PropertyMD().setClass(SMSBaseImpl.class).
 				setDescription("Storage implementation class used (and mandatory) in case of the CUSTOM type."));
 		META.put(FILTER_LISTING, new PropertyMD("false").setUpdateable().
 				setDescription("If set to true then this SMS will filter returned files in response of the ListDirectory command: only files owned or accessible by the caller will be returned."));

@@ -65,7 +65,7 @@ public class Storages extends ServicesBase {
 		
 		props.put("protocols", getJSONObject(getResource().getAvailableProtocols()));
 		props.put("umask", model.getUmask());
-		props.put("mountPoint", model.getWorkdir());
+		props.put("mountPoint", sip.getStorageRoot());
 		props.put("description", model.getStorageDescription().getDescription());
 		props.put("filesystemDescription", sip.getFileSystemIdentifier());
 		props.put("metadataSupported", model.getMetadataServiceID()!=null);
