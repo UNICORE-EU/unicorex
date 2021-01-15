@@ -21,7 +21,7 @@
   </parent>
 
   <properties>
-    <specification.version>8.0.4</specification.version>
+    <specification.version>8.1.0</specification.version>
   </properties>
 
   <dependencies>

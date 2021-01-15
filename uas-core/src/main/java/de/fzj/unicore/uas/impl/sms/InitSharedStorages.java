@@ -3,10 +3,14 @@ package de.fzj.unicore.uas.impl.sms;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
+import javax.xml.namespace.QName;
+
 import org.apache.logging.log4j.Logger;
+import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
+import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.util.DefaultOnStartup;
@@ -15,9 +19,14 @@ import de.fzj.unicore.wsrflite.Home;
 import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
+import de.fzj.unicore.wsrflite.registry.LocalRegistryClient;
+import de.fzj.unicore.wsrflite.registry.ws.SGFrontend;
 import de.fzj.unicore.wsrflite.security.ACLEntry;
 import de.fzj.unicore.wsrflite.security.ACLEntry.MatchType;
+import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
+import de.fzj.unicore.wsrflite.xmlbeans.registry.RegistryHandler;
 import eu.unicore.security.OperationType;
+import eu.unicore.util.Log;
 
 
 /**
@@ -87,7 +96,7 @@ public class InitSharedStorages implements Runnable{
 		
 		StorageInitParameters map = new StorageInitParameters(id, TerminationMode.NEVER);
 		map.storageDescription = desc;
-		map.publishToRegistry = true;
+		map.publishToRegistry = false;
 		
 		// do not resolve and/or create directory scan 
 		// since we do not have a client context here
@@ -100,7 +109,23 @@ public class InitSharedStorages implements Runnable{
 		// allow user access via ACL
 		map.acl.add(new ACLEntry(OperationType.modify, "user", MatchType.ROLE));
 		home.createResource(map);
+		publishWS(home.getServiceName(), id, StorageManagement.SMS_PORT);
 		logger.info("Added shared Storage resource '"+id+"' "+desc);
 	}
 
+	public void publishWS(String serviceName, String uid, QName porttype){
+		try{
+			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
+			String endpoint = kernel.getContainerProperties().getBaseUrl()+"/"+serviceName+"?res="+uid;
+			EndpointReferenceType epr = WSUtilities.makeServiceEPR(endpoint, porttype);
+			String dn = kernel.getSecurityManager().getServerIdentity();
+			if(dn!=null){
+				WSUtilities.addServerIdentity(epr, dn);
+			}
+			lrc.addEntry(endpoint, SGFrontend.parse(epr), null);
+		}catch(Exception ex){
+			Log.logException("Could not publish to local registry", ex, logger);
+		}
+		
+	}
 }

@@ -113,14 +113,9 @@ import eu.unicore.util.ConcurrentAccess;
  * 
  * @author schuller
  */
-public abstract class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
+public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, SMSFrontend.class);
-
-	/**
-	 * the maximum number of results to return in a single ListDirectory() operation
-	 */
-	public static final int MAX_LS_RESULTS = 10000;
 
 	public static final QName RPInternalFiletransferReference=EndpointReferenceDocument.type.getDocumentElementName();
 
