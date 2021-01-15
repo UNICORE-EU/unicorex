@@ -775,7 +775,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		List<String> res = new ArrayList<>();
 		for(FileTransferCapability c: kernel.getCapabilities(FileTransferCapability.class)){
 			String p = c.getProtocol();
-			if(c.isAvailable() && !"U6".equals(p)){
+			if(p!=null && c.isAvailable() && !"U6".equals(p) && !(p.contains("-"))){
 				if(isProtocolAllowed(p))res.add(p);
 			}
 		}
