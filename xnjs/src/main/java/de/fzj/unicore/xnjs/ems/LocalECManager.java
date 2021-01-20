@@ -100,7 +100,8 @@ public class LocalECManager implements IExecutionContextManager {
 			if(targetSystem instanceof BatchMode) {
 				((BatchMode)targetSystem).commitBatch();
 				if(targetSystem instanceof RemoteTSI) {
-					((RemoteTSI)targetSystem).assertIsDirectory(wd, "Could not create job working directory!");
+					((RemoteTSI)targetSystem).assertIsDirectory(wd, 
+							"Could not create job working directory <"+uspace+">!");
 				}
 			}
 			ec=new ExecutionContext(action.getUUID());
