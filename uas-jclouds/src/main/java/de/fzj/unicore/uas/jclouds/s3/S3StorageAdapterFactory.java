@@ -124,10 +124,12 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 						if(ctx==null){
 							try{
 								ctx = SSLContextCreator.createSSLContext(
-										null, 
-										kernel.getClientConfiguration().getValidator(), 
-										"TLS", 
-										"S3Connector", logger);
+										null,
+										kernel.getClientConfiguration().getValidator(),
+										"TLS",
+										"S3Connector", logger,
+										kernel.getClientConfiguration().getServerHostnameCheckingMode()
+										);
 							}catch(Exception ex){
 								throw new RuntimeException("Cannot setup SSL context for S3 connector",ex);
 							}

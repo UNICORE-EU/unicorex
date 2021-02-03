@@ -137,6 +137,9 @@ public class Jobs extends ServicesBase {
 		String queue = action.getExecutionContext().getBatchQueue();
 		if(queue==null)queue="N/A";
 		props.put("queue", queue);
+		String bssID = action.getBSID();
+		if(bssID==null)bssID="N/A";
+		props.put("batchSystemID", bssID);
 		props.put("log", action.getLog());
 		String name = action.getJobName();
 		if(name==null)name="N/A";

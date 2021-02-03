@@ -118,7 +118,9 @@ public class SwiftStorageAdapterFactory implements StorageAdapterFactory {
 										null, 
 										v, 
 										"TLS", 
-										"SWiftConnector", logger);
+										"SWiftConnector", logger,
+										kernel.getClientConfiguration().getServerHostnameCheckingMode()
+										);
 							}catch(Exception ex){
 								throw new RuntimeException("Cannot setup SSL context for Swift connector",ex);
 							}
