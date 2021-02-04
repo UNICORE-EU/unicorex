@@ -100,16 +100,15 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	public Map<String, String> getProtocolDependentParameters() {
 		Map<String, String> params = super.getProtocolDependentParameters();
 
-		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		UFTPFiletransferModel m = getModel();
 		
-		String serverHost=cfg.getValue(UFTPProperties.PARAM_SERVER_HOST);
-		int serverPort=cfg.getIntValue(UFTPProperties.PARAM_SERVER_PORT);
+		String serverHost = m.getServerHost();
+		int serverPort = m.getServerPort();
 
 		params.put(UFTPFileTransferClient.PARAM_SERVER_HOST,serverHost);
 		params.put(UFTPFileTransferClient.PARAM_SERVER_PORT,String.valueOf(serverPort));
 		
-		int streams=m.streams;
+		int streams = m.streams;
 		params.put(UFTPFileTransferClient.PARAM_STREAMS,String.valueOf(streams));
 		
 		byte[] key=m.key;
@@ -241,8 +240,11 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		job.setCompress(compress);
 		job.setAppend(append);
 		job.setRateLimit(rateLimit);
-		UFTPConnector connector = kernel.getAttribute(UFTPConnector.class);
-		return connector.sendRequest(job);
+		LogicalUFTPServer connector = kernel.getAttribute(LogicalUFTPServer.class);
+		UFTPDInstance uftpd = connector.getUFTPDInstance();
+		m.setServerHost(uftpd.getHost());
+		m.setServerPort(uftpd.getPort());
+		return uftpd.sendRequest(job);
 	}
 
 }

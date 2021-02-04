@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.fzj.unicore.uas.fts.http.HttpFileTransferImpl;
+import de.fzj.unicore.uas.fts.uftp.LogicalUFTPServer;
 import de.fzj.unicore.uas.fts.uftp.RESTUFTPExport;
 import de.fzj.unicore.uas.fts.uftp.RESTUFTPImport;
-import de.fzj.unicore.uas.fts.uftp.UFTPConnector;
 import de.fzj.unicore.uas.fts.uftp.UFTPExport;
 import de.fzj.unicore.uas.fts.uftp.UFTPFileTransferImpl;
 import de.fzj.unicore.uas.fts.uftp.UFTPImport;
@@ -15,7 +15,6 @@ import de.fzj.unicore.uas.xnjs.BFTImport;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
 import de.fzj.unicore.uas.xnjs.RESTFileImportBase;
 import de.fzj.unicore.uas.xnjs.U6FileTransferBase;
-import de.fzj.unicore.wsrflite.ExternalSystemConnector.Status;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.KernelInjectable;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
@@ -141,8 +140,8 @@ public class FileTransferCapabilities {
 
 		@Override
 		public boolean isAvailable(){
-			UFTPConnector c = kernel.getAttribute(UFTPConnector.class);
-			return c!=null && c.isUFTPEnabled() && Status.OK.equals(c.getConnectionStatus());
+			LogicalUFTPServer c = kernel.getAttribute(LogicalUFTPServer.class);
+			return c!=null && c.isUFTPAvailable();
 		}
 	};
 
@@ -208,8 +207,8 @@ public class FileTransferCapabilities {
 
 		@Override
 		public boolean isAvailable(){
-			UFTPConnector c = kernel.getAttribute(UFTPConnector.class);
-			return c!=null && c.isUFTPEnabled() && Status.OK.equals(c.getConnectionStatus());
+			LogicalUFTPServer c = kernel.getAttribute(LogicalUFTPServer.class);
+			return c!=null && c.isUFTPAvailable();
 		}
 	};
 

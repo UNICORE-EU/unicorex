@@ -54,3 +54,33 @@ for UFTP.
 
 include::uftpProperties.txt[]
 
+
+Configuring multiple UFTPD servers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since UNICORE 8.1, you can optionally configure multiple UFTPD servers
+that will then be used in a round-robin fashion, to increase
+performance and scalability.
+
+The configuration is similar to the simple case, but you can
+have multiple "blocks" of servers.
+
+As an example, consider this configuration of two UFTPD servers:
+
+----------------------------
+coreServices.uftp.1.server.host=uftp.yoursite.edu
+coreServices.uftp.1.server.port=64434
+coreServices.uftp.1.command.host=uftp.yoursite.edu
+coreServices.uftp.1.command.port=64435
+
+coreServices.uftp.2.server.host=uftp-2.yoursite.edu
+coreServices.uftp.2.server.port=64434
+coreServices.uftp.2.command.host=uftp-2.yoursite.edu
+coreServices.uftp.2.command.port=64435
+
+# Full path to the 'uftp.sh' client executable
+# installed on the TSI node
+coreServices.uftp.client.executable=/usr/share/unicore/uftpd/bin/uftp.sh
+-----------------------------
+
+Use consecutive numbers (1,2, ...) to define servers.

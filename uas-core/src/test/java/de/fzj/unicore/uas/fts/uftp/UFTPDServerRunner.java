@@ -14,6 +14,16 @@ public class UFTPDServerRunner {
 
 	private UFTPServer server;
 	
+	public UFTPDServerRunner(int serverPort, int jobPort) {
+		this.srvPort = serverPort;
+		this.jobPort = jobPort;
+		try {
+			 host = InetAddress.getByName("localhost");
+		}catch(Exception ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	
 	public UFTPDServerRunner() {
 		try {
 			 host = InetAddress.getByName("localhost");

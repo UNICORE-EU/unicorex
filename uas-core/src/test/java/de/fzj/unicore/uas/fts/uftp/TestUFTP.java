@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -84,14 +85,18 @@ public class TestUFTP {
 				+ (System.currentTimeMillis() - start) + " ms.");
 		kernel = uas.getKernel();
 		kernel.getAttribute(UASProperties.class).setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, "true");
-		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
-		cfg.setProperty(UFTPProperties.PARAM_CLIENT_LOCAL, "true");
-		cfg.setProperty(UFTPProperties.PARAM_CLIENT_HOST, "localhost");
-		cfg.setProperty(UFTPProperties.PARAM_SERVER_HOST, "localhost");
-		cfg.setProperty(UFTPProperties.PARAM_SERVER_PORT, "" + uftpd.srvPort);
-		cfg.setProperty(UFTPProperties.PARAM_COMMAND_PORT, "" + uftpd.jobPort);
-		cfg.setProperty(UFTPProperties.PARAM_COMMAND_HOST, "localhost");
-		cfg.setProperty(UFTPProperties.PARAM_COMMAND_SSL_DISABLE, "true");
+		Properties cfg = kernel.getContainerProperties().getRawProperties();
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_LOCAL, "true");
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_HOST, "localhost");
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_SERVER_HOST, "localhost");
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_SERVER_PORT, String.valueOf(uftpd.srvPort));
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_COMMAND_PORT, String.valueOf(uftpd.jobPort));
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_COMMAND_HOST, "localhost");
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_COMMAND_SSL_DISABLE, "true");
+		UFTPProperties uProps = new UFTPProperties(cfg);
+		kernel.setAttribute(UFTPProperties.class, uProps);
+		LogicalUFTPServer connector = new LogicalUFTPServer(kernel);
+		kernel.setAttribute(LogicalUFTPServer.class, connector);
 		// create a storage
 		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
 		epr.addNewAddress().setStringValue("http://localhost:65321/services/StorageFactory?res=default_storage_factory");

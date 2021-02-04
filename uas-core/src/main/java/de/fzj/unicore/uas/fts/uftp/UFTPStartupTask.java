@@ -33,13 +33,12 @@ public class UFTPStartupTask implements Runnable {
 	
 	protected void setupUFTPConnector() {
 		UFTPProperties cfg = new UFTPProperties(kernel.getContainerProperties().getRawProperties());
+		kernel.setAttribute(UFTPProperties.class, cfg);
 		if(!cfg.getBooleanValue(UFTPProperties.PARAM_ENABLE_UFTP)) {
 			logger.info("UFTP is disabled.");
 			return;
 		}
-		
-		kernel.addConfigurationHandler(UFTPProperties.class, cfg);
-		UFTPConnector connector = new UFTPConnector(kernel, cfg);
-		kernel.setAttribute(UFTPConnector.class, connector);
+		LogicalUFTPServer connector = new LogicalUFTPServer(kernel);
+		kernel.setAttribute(LogicalUFTPServer.class, connector);
 	}
 }

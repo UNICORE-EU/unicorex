@@ -16,6 +16,9 @@ public class UFTPFiletransferModel extends FileTransferModel {
 
 	boolean compress = false;
 	
+	String serverHost;
+	int serverPort;
+	
 	public String getClientHost() {
 		return clientHost;
 	}
@@ -56,4 +59,19 @@ public class UFTPFiletransferModel extends FileTransferModel {
 		this.compress = compress ;
 	}
 
+	public String getServerHost() {
+		return serverHost;
+	}
+
+	public void setServerHost(String serverHost) {
+		this.serverHost = serverHost;
+	}
+
+	public int getServerPort() {
+		return serverPort;
+	}
+
+	public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+	}
 }
