@@ -30,7 +30,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
 
-package de.fzj.unicore.uas.impl.job;
+package de.fzj.unicore.uas.impl.job.ws;
 
 import java.math.BigInteger;
 
@@ -39,6 +39,7 @@ import org.unigrids.services.atomic.types.StatusType;
 import org.unigrids.services.atomic.types.StatusType.Enum;
 
 import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
@@ -64,7 +65,7 @@ public class StatusInfoResourceProperty extends ValueRenderer {
 		String actionID=parent.getUniqueID();
 		Client client=AuthZAttributeStore.getClient();
 		XNJSFacade xnjs=XNJSFacade.get(xnjsReference,k);
-		Action a=((XnjsActionBacked)parent).getXNJSAction();
+		Action a=((JobManagementImpl)parent).getXNJSAction();
 		ActionResult result=a.getResult();
 		StatusInfoDocument status=StatusInfoDocument.Factory.newInstance();
 		status.addNewStatusInfo().setStatus(convertStatus(a.getStatus(),result.isSuccessful()));

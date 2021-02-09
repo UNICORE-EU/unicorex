@@ -30,7 +30,7 @@ public class PathedStorageImpl extends SMSBaseImpl {
 	}
 
 	@Override
-	protected synchronized String getStorageRoot() {
+	public synchronized String getStorageRoot() {
 		if(storageRoot==null){
 			try{
 				resolveRootDir();

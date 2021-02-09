@@ -1,5 +1,5 @@
 /*********************************************************************************
- * Copyright (c) 2006-2008 Forschungszentrum Juelich GmbH 
+ * Copyright (c) 2006 Forschungszentrum Juelich GmbH 
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -31,31 +31,31 @@
  ********************************************************************************/
  
 
-package de.fzj.unicore.uas.impl.reservation;
+package de.fzj.unicore.uas.impl.job.ws;
 
-import org.unigrids.x2006.x04.services.reservation.ReservationStatusDescriptionDocument;
+import java.util.List;
 
+import org.unigrids.x2006.x04.services.jms.LogDocument;
+
+import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
-import de.fzj.unicore.xnjs.tsi.ReservationStatus;
 
 /**
- * Represents the status description of a resource reservation
- * 
- * @author schuller
- * @since 1.5.1
+ * renders the job log (which is copied from the XNJS Action log)
  */
-public class ReservationStatusDescriptionResourceProperty extends ValueRenderer{
+public class LogResourceProperty extends ValueRenderer {
 	
-	public ReservationStatusDescriptionResourceProperty(ReservationManagementImpl parent){
-		super(parent, ReservationStatusDescriptionDocument.type.getDocumentElementName());
+	public LogResourceProperty(JobManagementImpl parent){
+		super(parent, LogDocument.type.getDocumentElementName());
 	}
 
-	@Override
-	public ReservationStatusDescriptionDocument getValue() throws Exception{
-		ReservationStatusDescriptionDocument status=ReservationStatusDescriptionDocument.Factory.newInstance();
-		ReservationStatus reservationStatus=((ReservationManagementImpl)parent).getReservationStatus();
-		status.setReservationStatusDescription(reservationStatus.getDescription());
+	protected LogDocument getValue() throws Exception {
+		LogDocument status=LogDocument.Factory.newInstance();
+		StringBuffer sb=new StringBuffer();
+		List<String> l=((JobManagementImpl)parent).getXNJSAction().getLog();
+		for(String s:l)sb.append(s+"\n");
+		status.setLog(sb.toString());
 		return status;
 	}
-
+	
 }

@@ -1,5 +1,5 @@
 /*********************************************************************************
- * Copyright (c) 2013 Forschungszentrum Juelich GmbH 
+ * Copyright (c) 2012 Forschungszentrum Juelich GmbH 
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -31,33 +31,42 @@
  ********************************************************************************/
  
 
-package de.fzj.unicore.uas.impl.job;
+package de.fzj.unicore.uas.impl.sms.ws;
 
-import java.util.Calendar;
+import java.util.List;
 
-import org.unigrids.x2006.x04.services.jms.EstimatedEndTimeDocument;
+import javax.xml.namespace.QName;
 
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import org.w3.x2005.x08.addressing.EndpointReferenceDocument;
+
+import de.fzj.unicore.uas.UAS;
+import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
+import de.fzj.unicore.wsrflite.Resource;
+import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer.Internal;
+import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
 
 /**
- * renders the job's estimated end time (which is retrieved from the XNJS Action)
+ * internally generates the list of references to server-to-server 
+ * filetransfer resources on an SMS. These are not published via the
+ * RP document. <br/>
+ * 
+ * @author schuller
  */
-public class EstimatedEndtimeRenderer extends ValueRenderer {
+public class FiletransferReferenceRP extends AddressListRenderer implements Internal {
+
+	private static final QName qname=new QName("http://unigrids.org/2006/04/services/fts","ServerToServerFileTransfer");
 	
-	public EstimatedEndtimeRenderer(JobManagementImpl parent){
-		super(parent, EstimatedEndTimeDocument.type.getDocumentElementName());
+	public FiletransferReferenceRP(Resource parent){
+		super(parent,
+				UAS.SERVER_FTS, 
+				EndpointReferenceDocument.type.getDocumentElementName(),
+				qname,
+				false);
 	}
 
-	protected EstimatedEndTimeDocument getValue() {
-		EstimatedEndTimeDocument eet = null;
-		long time=((XnjsActionBacked)parent).getXNJSAction().getExecutionContext().getEstimatedEndtime();
-		if(time>0){
-			eet=EstimatedEndTimeDocument.Factory.newInstance();
-			Calendar estimatedEndtime=Calendar.getInstance();
-			estimatedEndtime.setTimeInMillis(time);
-			eet.setEstimatedEndTime(estimatedEndtime);
-		}
-		return eet;
+	@Override
+	protected List<String> getUIDs() {
+		return ((SMSBaseImpl)parent).getModel().getFileTransferUIDs();
 	}
 	
 }

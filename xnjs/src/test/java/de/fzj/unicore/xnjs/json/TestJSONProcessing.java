@@ -38,6 +38,7 @@ public class TestJSONProcessing extends EMSTestBase {
 	
 	private static String[] pre_post_jobs = { 
 					"src/test/resources/json/precommand-fail.json",
+					"src/test/resources/json/prepost.json",
 			};	
 
 	@Test
@@ -51,6 +52,17 @@ public class TestJSONProcessing extends EMSTestBase {
 		assertTrue(a.getLog().toString().contains("Command exited with non-zero exit code"));
 	}
 
+	@Test
+	public void testPrePost() throws Exception {
+		String j = pre_post_jobs[1];
+		System.out.println("Running job: "+j);
+		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),null);
+		doRun(id);
+		Action a = mgr.getAction(id);
+		a.printLogTrace();
+		assertTrue(a.getLog().toString().contains("Total:"));
+	}
+	
 	private static String[] sweep_jobs = { 
 			"src/test/resources/json/parameter_sweep_values.json",
 	        "src/test/resources/json/parameter_sweep_range.json",

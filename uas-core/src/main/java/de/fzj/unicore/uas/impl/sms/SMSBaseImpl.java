@@ -59,6 +59,7 @@ import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.PersistingPreferencesResource;
 import de.fzj.unicore.uas.impl.UmaskSupport;
 import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
+import de.fzj.unicore.uas.impl.sms.ws.SMSFrontend;
 import de.fzj.unicore.uas.metadata.MetadataManagementImpl;
 import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.metadata.MetadataSupport;
@@ -185,7 +186,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * If necessary, the base dir is resolved.
 	 * It is assumed to end with the file separator.
 	 */
-	protected abstract String getStorageRoot() throws ExecutionException;
+	public abstract String getStorageRoot() throws ExecutionException;
 	
 	public void mkdir(String path) throws Exception {
 		path = makeSMSLocal(path);

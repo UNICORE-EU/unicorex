@@ -1,5 +1,5 @@
 /*********************************************************************************
- * Copyright (c) 2006 Forschungszentrum Juelich GmbH 
+ * Copyright (c) 2013 Forschungszentrum Juelich GmbH 
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -29,45 +29,36 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
+ 
 
+package de.fzj.unicore.uas.impl.job.ws;
 
-package de.fzj.unicore.uas.impl.sms;
+import java.util.Calendar;
 
-import java.util.List;
+import org.unigrids.x2006.x04.services.jms.EstimatedEndTimeDocument;
 
-import org.unigrids.x2006.x04.services.smf.AccessibleStorageReferenceDocument;
-
-import de.fzj.unicore.persist.PersistenceException;
-import de.fzj.unicore.uas.StorageManagement;
-import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer.Internal;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
-import eu.unicore.security.Client;
+import de.fzj.unicore.uas.impl.job.JobManagementImpl;
+import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
 /**
- * Generates filtered set of references to Storage Management Services 
- * created by the StorageFactory. Only "accessible" instances are listed!
- *
- * @author schuller
+ * renders the job's estimated end time (which is retrieved from the XNJS Action)
  */
-public class AccessibleSMSReferenceRP extends AddressListRenderer implements Internal {
-
-	public AccessibleSMSReferenceRP(StorageFactoryImpl parent){
-		super(parent, UAS.SMS, AccessibleStorageReferenceDocument.type.getDocumentElementName(),StorageManagement.SMS_PORT,false);
+public class EstimatedEndtimeRenderer extends ValueRenderer {
+	
+	public EstimatedEndtimeRenderer(JobManagementImpl parent){
+		super(parent, EstimatedEndTimeDocument.type.getDocumentElementName());
 	}
 
-	@Override
-	public List<String>getUIDs(){ 
-		StorageFactoryImpl smf=((StorageFactoryImpl)parent);
-		Client c=AuthZAttributeStore.getClient(); 
-		try{
-			Home sms = smf.getKernel().getHome(UAS.SMS);
-			return sms.getAccessibleResources(smf.getModel().getSmsIDs(), c);
-		} catch(PersistenceException pe){
-			throw new RuntimeException(pe);
+	protected EstimatedEndTimeDocument getValue() {
+		EstimatedEndTimeDocument eet = null;
+		long time=((JobManagementImpl)parent).getXNJSAction().getExecutionContext().getEstimatedEndtime();
+		if(time>0){
+			eet=EstimatedEndTimeDocument.Factory.newInstance();
+			Calendar estimatedEndtime=Calendar.getInstance();
+			estimatedEndtime.setTimeInMillis(time);
+			eet.setEstimatedEndTime(estimatedEndtime);
 		}
+		return eet;
 	}
-
+	
 }

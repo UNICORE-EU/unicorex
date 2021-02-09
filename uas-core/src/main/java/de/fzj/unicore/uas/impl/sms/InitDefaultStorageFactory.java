@@ -40,6 +40,7 @@ public class InitDefaultStorageFactory implements Runnable{
 	public void run(){
 		try{
 			createDefaultStorageFactoryIfNotExists();
+			DefaultOnStartup.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, StorageFactory.SMF_PORT);
 		} catch (Exception e) {
 			throw new RuntimeException("Could not setup default storage factory.",e);
 		}
@@ -82,7 +83,7 @@ public class InitDefaultStorageFactory implements Runnable{
 		BaseInitParameters init = new BaseInitParameters(defaultSmfName, TerminationMode.NEVER);
 		init.publishToRegistry = true;
 		UASProperties props = kernel.getAttribute(UASProperties.class);
-		Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactory.class);
+		Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactoryImpl.class);
 		init.resourceClassName = clazz.getName();
 		smfHome.createResource(init);
 		logger.info("Added default StorageFactory resource '"+defaultSmfName+"' of type <"+clazz.getName()+">.");

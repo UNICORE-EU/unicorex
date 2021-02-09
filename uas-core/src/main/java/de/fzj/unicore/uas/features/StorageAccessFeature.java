@@ -11,6 +11,8 @@ import de.fzj.unicore.uas.fts.FileTransferHomeImpl;
 import de.fzj.unicore.uas.fts.uftp.UFTPStartupTask;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl;
+import de.fzj.unicore.uas.impl.sms.ws.SMSFrontend;
+import de.fzj.unicore.uas.impl.sms.ws.StorageFactoryFrontend;
 import de.fzj.unicore.uas.metadata.MetadataManagementHomeImpl;
 import de.fzj.unicore.uas.xtreemfs.XtreemFSStartupTask;
 import de.fzj.unicore.wsrflite.DeploymentDescriptor;
@@ -64,6 +66,7 @@ public class StorageAccessFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = StorageManagementHomeImpl.class;
 			this.interfaceClass = StorageManagement.class;
+			this.frontendClass = SMSFrontend.class;
 		}
 	}
 
@@ -97,6 +100,7 @@ public class StorageAccessFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = StorageFactoryHomeImpl.class;
 			this.interfaceClass = de.fzj.unicore.uas.StorageFactory.class;
+			this.frontendClass = StorageFactoryFrontend.class;
 		}
 	}
 	

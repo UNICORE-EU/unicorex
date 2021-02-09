@@ -1,0 +1,9 @@
+{
+
+  "User precommand": "sleep 2",
+
+  "Executable": "sleep 3",
+  
+  "User postcommand": "sleep 4"
+
+}

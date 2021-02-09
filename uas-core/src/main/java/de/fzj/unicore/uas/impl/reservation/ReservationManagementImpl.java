@@ -2,21 +2,12 @@ package de.fzj.unicore.uas.impl.reservation;
 
 import java.util.Calendar;
 
-import javax.xml.namespace.QName;
-
 import org.apache.logging.log4j.Logger;
-import org.unigrids.x2006.x04.services.reservation.ReservationPropertiesDocument;
-import org.unigrids.x2006.x04.services.reservation.ReservationReferenceDocument;
 
-import de.fzj.unicore.uas.ReservationManagement;
-import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.UASWSResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.FieldRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
@@ -27,37 +18,12 @@ import eu.unicore.security.Client;
  * 
  * @author schuller
  */
-public class ReservationManagementImpl extends UASWSResourceImpl implements ReservationManagement {
+public class ReservationManagementImpl extends UASWSResourceImpl {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS,ReservationManagementImpl.class);
 
 	public ReservationManagementImpl(){
 		super();
-		
-		addRenderer(new ValueRenderer(this, ReservationReferenceDocument.type.getDocumentElementName()) {
-			@Override
-			protected ReservationReferenceDocument getValue() throws Exception {
-				ReservationReferenceDocument res=ReservationReferenceDocument.Factory.newInstance();
-				res.setReservationReference(getModel().reservationReference);
-				return res;
-			}
-		});
-		addRenderer(new StartTimeResourceProperty(this));
-		addRenderer(new ReservationStatusResourceProperty(this));
-		addRenderer(new ReservationStatusDescriptionResourceProperty(this));
-		addRenderer(new FieldRenderer(this, RPResources, "resources"));
-		addRenderer(new AddressRenderer(this, RPTargetSystemReference, false){
-			@Override
-			protected String getServiceSpec() {
-				return UAS.TSS+"?res="+getModel().getParentUID();
-			}
-			
-		});
-	}
-	
-	@Override
-	public QName getResourcePropertyDocumentQName() {
-		return ReservationPropertiesDocument.type.getDocumentElementName();
 	}
 	
 	@Override

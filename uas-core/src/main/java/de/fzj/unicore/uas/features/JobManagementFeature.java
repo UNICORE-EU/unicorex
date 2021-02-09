@@ -9,9 +9,13 @@ import de.fzj.unicore.uas.TargetSystem;
 import de.fzj.unicore.uas.TargetSystemFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.job.JobManagementHomeImpl;
+import de.fzj.unicore.uas.impl.job.ws.JobFrontend;
 import de.fzj.unicore.uas.impl.reservation.ReservationManagementHomeImpl;
+import de.fzj.unicore.uas.impl.reservation.ws.ReservationFrontend;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
+import de.fzj.unicore.uas.impl.tss.rp.TSFFrontend;
+import de.fzj.unicore.uas.impl.tss.rp.TSSFrontend;
 import de.fzj.unicore.wsrflite.DeploymentDescriptor;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.utils.deployment.DeploymentDescriptorImpl;
@@ -56,6 +60,7 @@ public class JobManagementFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = TargetSystemFactoryHomeImpl.class;
 			this.interfaceClass = TargetSystemFactory.class;
+			this.frontendClass = TSFFrontend.class;
 		}
 	}
 
@@ -72,6 +77,7 @@ public class JobManagementFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = TargetSystemHomeImpl.class;
 			this.interfaceClass = TargetSystem.class;
+			this.frontendClass = TSSFrontend.class;
 		}
 
 	}
@@ -89,6 +95,7 @@ public class JobManagementFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = JobManagementHomeImpl.class;
 			this.interfaceClass = JobManagement.class;
+			this.frontendClass = JobFrontend.class;
 		}
 	}
 	
@@ -105,6 +112,7 @@ public class JobManagementFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = ReservationManagementHomeImpl.class;
 			this.interfaceClass = ReservationManagement.class;
+			this.frontendClass = ReservationFrontend.class;
 		}
 	}
 }

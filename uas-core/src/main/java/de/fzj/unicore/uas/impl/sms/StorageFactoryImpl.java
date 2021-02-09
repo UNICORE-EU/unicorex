@@ -2,7 +2,6 @@ package de.fzj.unicore.uas.impl.sms;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -10,21 +9,9 @@ import java.util.concurrent.TimeUnit;
 import javax.xml.namespace.QName;
 
 import org.apache.logging.log4j.Logger;
-import org.oasisOpen.docs.wsrf.rl2.DestroyDocument;
-import org.oasisOpen.docs.wsrf.rl2.DestroyResponseDocument;
-import org.oasisOpen.docs.wsrf.rl2.SetTerminationTimeDocument;
-import org.oasisOpen.docs.wsrf.rl2.SetTerminationTimeResponseDocument;
-import org.unigrids.services.atomic.types.PropertyType;
-import org.unigrids.x2006.x04.services.smf.CreateSMSDocument;
-import org.unigrids.x2006.x04.services.smf.CreateSMSResponseDocument;
-import org.unigrids.x2006.x04.services.smf.StorageBackendParametersDocument.StorageBackendParameters;
-import org.unigrids.x2006.x04.services.smf.StorageDescriptionType;
-import org.unigrids.x2006.x04.services.smf.StorageFactoryPropertiesDocument;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.SMSProperties;
 import de.fzj.unicore.uas.StorageFactory;
-import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.UASWSResourceImpl;
@@ -36,14 +23,6 @@ import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
 import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
 import de.fzj.unicore.wsrflite.messaging.PullPoint;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceNotDestroyedFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.TerminationTimeChangeRejectedFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.UnableToSetTerminationTimeFault;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**
  * Implements the storage factory
@@ -52,22 +31,12 @@ import eu.unicore.services.ws.utils.WSServerUtilities;
  * @author daivandy
  * @since 6.3
  */
-public class StorageFactoryImpl extends UASWSResourceImpl implements StorageFactory{
+public class StorageFactoryImpl extends UASWSResourceImpl {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, StorageFactoryImpl.class);
 
 	public StorageFactoryImpl(){
 		super();
-		addRenderer(new AddressRenderer(this,RPAccessibleSMSEnumeration,false) {
-			@Override
-			protected String getServiceSpec() {
-				return UAS.ENUMERATION+"?res="+getModel().accessibleSMSEnumerationID;
-			}
-		});
-		addRenderer(new StorageDescriptionRP(this));
-
-		//internal use
-		addRenderer(new AccessibleSMSReferenceRP(this));
 	}
 
 	@Override
@@ -85,7 +54,7 @@ public class StorageFactoryImpl extends UASWSResourceImpl implements StorageFact
 		initParams.resourceState = ResourceStatus.INITIALIZING;
 		super.initialise(initParams);
 		
-		model.accessibleSMSEnumerationID=createEnumeration(RPAccessibleSMSReferences);
+		model.accessibleSMSEnumerationID = createEnumeration(StorageFactory.RPAccessibleSMSReferences);
 		model.setXnjsReference(((BaseInitParameters)initParams).xnjsReference);
 		logger.info("Storage factory <"+getUniqueID()+"> created");
 		setStatusMessage("OK");
@@ -105,44 +74,6 @@ public class StorageFactoryImpl extends UASWSResourceImpl implements StorageFact
 		return getModel().smsOwners.get(smsID);
 	}
 
-	public CreateSMSResponseDocument CreateSMS(CreateSMSDocument in) throws BaseFault {
-		if(logger.isTraceEnabled())logger.trace("CreateSMS: "+in);
-		try{
-			//extra settings for the to-be-created SMS
-			Map<String,String>extraProperties=new HashMap<String,String>();
-
-			String storageBackendType = null;
-			String storageName = null;
-
-			// extract requested back-end type and parameters, if any
-			StorageDescriptionType sdType = in.getCreateSMS().getStorageDescription();
-			if(sdType!=null) {
-				if(sdType.getStorageBackendType()!=null){
-					storageBackendType = sdType.getStorageBackendType();
-				}
-				if(sdType.getStorageBackendParameters()!=null){
-					extraProperties.putAll(getAdditionClientConfigurationItems(
-							sdType.getStorageBackendParameters()));
-				}
-				storageName = sdType.getFileSystem()!=null ? sdType.getFileSystem().getName() : null; 
-			}
-			Calendar tt = null;
-			if(in.getCreateSMS().getTerminationTime() != null){
-				tt = in.getCreateSMS().getTerminationTime().getCalendarValue();
-			}
-			
-			String smsID=createSMS(storageBackendType,storageName,tt,extraProperties);
-			EndpointReferenceType epr=WSServerUtilities.makeEPR(UAS.SMS, smsID, StorageManagement.SMS_PORT, true, kernel);
-			CreateSMSResponseDocument resD=CreateSMSResponseDocument.Factory.newInstance();
-			resD.addNewCreateSMSResponse().setSmsReference(epr);
-			return resD;
-			
-		}catch(Exception ex){
-			String clientName=(getClient()!=null?getClient().getDistinguishedName():"N/A");
-			LogUtil.logException("Could not create Storage instance for <"+clientName+">", ex, logger);
-			throw BaseFault.createFault("Could not create Storage instance. Please consult the site administrator.", ex);
-		}
-	}
 
 	/**
 	 * create a new SMS resource
@@ -240,18 +171,6 @@ public class StorageFactoryImpl extends UASWSResourceImpl implements StorageFact
 	}
 
 	/**
-	 * replaces prefix of the storage factory into a normal one of SMS
-	 * @param params - parameters provided by the client
-	 */
-	private Map<String, String> getAdditionClientConfigurationItems(StorageBackendParameters params) {
-		Map<String, String> ret = new HashMap<String, String>();
-		for(PropertyType p: params.getPropertyArray()){
-			ret.put(p.getName(), p.getValue());
-		}
-		return ret;
-	}
-
-	/**
 	 * @return the UID of the new Enumeration
 	 */
 	protected String createEnumeration(QName rp)throws Exception{
@@ -282,31 +201,6 @@ public class StorageFactoryImpl extends UASWSResourceImpl implements StorageFact
 		SMSBaseImpl sms=(SMSBaseImpl)smsHome.get(uniqueID);
 		sms.getStorageAdapter().mkdir("/");
 	}
-
-	@Override
-	public QName getPortType() {
-		return SMF_PORT;
-	}
-
-	@Override
-	public QName getResourcePropertyDocumentQName() {
-		return StorageFactoryPropertiesDocument.type.getDocumentElementName();
-	}
-
-	@Override
-	public DestroyResponseDocument Destroy(DestroyDocument in) throws ResourceNotDestroyedFault, ResourceUnknownFault, ResourceUnavailableFault {
-		throw ResourceNotDestroyedFault.createFault("Not destroyed."); 
-	}
-
-	@Override
-	public SetTerminationTimeResponseDocument SetTerminationTime(
-			SetTerminationTimeDocument in)
-					throws UnableToSetTerminationTimeFault,
-					TerminationTimeChangeRejectedFault, ResourceUnknownFault,
-					ResourceUnavailableFault {
-		throw TerminationTimeChangeRejectedFault.createFault("Not changed.");
-	}
-
 
 	@Override
 	public void processMessages(PullPoint p){

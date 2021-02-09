@@ -31,7 +31,7 @@
  ********************************************************************************/
  
 
-package de.fzj.unicore.uas.impl.tss;
+package de.fzj.unicore.uas.impl.tss.rp;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -60,21 +60,7 @@ import de.fzj.unicore.uas.TargetSystemFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
-import de.fzj.unicore.uas.impl.tss.rp.AccessibleTSSReferenceRP;
-import de.fzj.unicore.uas.impl.tss.rp.ApplicationsResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.AvailableResourcesRP;
-import de.fzj.unicore.uas.impl.tss.rp.CPUCountResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.CPUTimeResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.ComputeTimeBudgetRenderer;
-import de.fzj.unicore.uas.impl.tss.rp.MemoryPerNodeResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.NodesResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.OperatingSystemResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.PerformanceDataResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.ProcessorResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.TSSReferenceResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.TextInfoResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.TotalCPUsResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.UpSinceResourceProperty;
+import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.wsrflite.ContainerProperties;
 import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
@@ -138,7 +124,7 @@ public class TSFFrontend extends UASBaseFrontEnd implements TargetSystemFactory 
 			@Override
 			protected SupportsReservationDocument getValue() throws Exception {
 				SupportsReservationDocument res=SupportsReservationDocument.Factory.newInstance();
-				res.setSupportsReservation(tsf.getModel().supportsReservation);
+				res.setSupportsReservation(tsf.getModel().getSupportsReservation());
 				return res;
 			}
 		});
@@ -146,7 +132,7 @@ public class TSFFrontend extends UASBaseFrontEnd implements TargetSystemFactory 
 			@Override
 			protected SupportsVirtualImagesDocument getValue() throws Exception {
 				SupportsVirtualImagesDocument res=SupportsVirtualImagesDocument.Factory.newInstance();
-				res.setSupportsVirtualImages(tsf.getModel().supportsVirtualImages);
+				res.setSupportsVirtualImages(tsf.getModel().isSupportsVirtualImages());
 				return res;
 			}
 		}); 

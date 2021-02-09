@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.impl.job.StatusInfoResourceProperty;
+import de.fzj.unicore.uas.impl.job.ws.StatusInfoResourceProperty;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.utils.TimeoutRunner;
 import de.fzj.unicore.xnjs.ems.Action;

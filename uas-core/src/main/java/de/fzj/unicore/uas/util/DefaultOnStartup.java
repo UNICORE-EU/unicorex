@@ -46,9 +46,9 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.sms.InitDefaultStorageFactory;
 import de.fzj.unicore.uas.impl.sms.InitSharedStorages;
-import de.fzj.unicore.uas.impl.tss.TSFFrontend;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
+import de.fzj.unicore.uas.impl.tss.rp.TSFFrontend;
 import de.fzj.unicore.uas.rest.CoreServices;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.wsrflite.Home;
@@ -110,13 +110,13 @@ public class DefaultOnStartup implements Runnable{
 					//this will throw ResourceUnknowException if resource does not exist
 					TargetSystemFactoryImpl tsf=(TargetSystemFactoryImpl)tsfHome.get(defaultTsfName);
 					//it exists, force re-publish
-					publishWS(tsf.getServiceName(), tsf.getUniqueID(), TSFFrontend.TSF_PORT);
+					publishWS(kernel, tsf.getServiceName(), tsf.getUniqueID(), TSFFrontend.TSF_PORT);
 					return;
 				}
 				catch(ResourceUnknownException e){}
 				
 				doCreateTSF(tsfHome);
-				publishWS(tsfHome.getServiceName(), defaultTsfName, TSFFrontend.TSF_PORT);
+				publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, TSFFrontend.TSF_PORT);
 				
 			}finally{
 				tsfLock.unlock();
@@ -148,7 +148,11 @@ public class DefaultOnStartup implements Runnable{
 		new InitDefaultStorageFactory(kernel).run();
 	}
 	
-	public void publishWS(String serviceName, String uid, QName porttype){
+	public String toString(){
+		return getClass().getName();
+	}
+	
+	public static void publishWS(Kernel kernel, String serviceName, String uid, QName porttype){
 		try{
 			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
 			String endpoint = kernel.getContainerProperties().getBaseUrl()+"/"+serviceName+"?res="+uid;
@@ -163,9 +167,6 @@ public class DefaultOnStartup implements Runnable{
 		}
 		
 	}
-	
-	public String toString(){
-		return getClass().getName();
-	}
+
 }
 

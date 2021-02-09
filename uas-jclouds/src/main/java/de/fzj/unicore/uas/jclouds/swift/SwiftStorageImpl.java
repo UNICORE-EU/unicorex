@@ -57,7 +57,7 @@ public class SwiftStorageImpl extends SMSBaseImpl {
 	}
 	
 	@Override
-	protected String getStorageRoot() throws ExecutionException {
+	public String getStorageRoot() throws ExecutionException {
 		return getModel().getWorkdir();
 	}
 	

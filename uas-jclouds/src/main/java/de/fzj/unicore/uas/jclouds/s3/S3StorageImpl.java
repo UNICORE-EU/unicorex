@@ -57,7 +57,7 @@ public class S3StorageImpl extends SMSBaseImpl {
 	}
 	
 	@Override
-	protected String getStorageRoot() throws ExecutionException {
+	public String getStorageRoot() throws ExecutionException {
 		return getModel().getWorkdir();
 	}
 	

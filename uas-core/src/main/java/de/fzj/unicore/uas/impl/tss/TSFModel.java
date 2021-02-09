@@ -26,9 +26,4 @@ public class TSFModel extends UASBaseModel {
 		this.supportsVirtualImages = supportsVirtualImages;
 	}
 
-	@Override
-	public String getFrontend(String serviceType) {
-		return TSFFrontend.class.getName();
-	}
-
 }

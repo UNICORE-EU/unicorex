@@ -29,33 +29,46 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  ********************************************************************************/
- 
 
-package de.fzj.unicore.uas.impl.job;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
-import org.unigrids.x2006.x04.services.jms.ExecutionJSDLDocument;
+package de.fzj.unicore.uas.impl.sms.ws;
 
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import java.util.List;
+
+import org.unigrids.x2006.x04.services.smf.AccessibleStorageReferenceDocument;
+
+import de.fzj.unicore.persist.PersistenceException;
+import de.fzj.unicore.uas.StorageManagement;
+import de.fzj.unicore.uas.UAS;
+import de.fzj.unicore.uas.impl.sms.StorageFactoryImpl;
+import de.fzj.unicore.wsrflite.Home;
+import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
+import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer.Internal;
+import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
+import eu.unicore.security.Client;
 
 /**
- * renders the JSDL job description that is actually executed by the XNJS 
- * (after incarnation)
- * 
+ * Generates filtered set of references to Storage Management Services 
+ * created by the StorageFactory. Only "accessible" instances are listed!
+ *
  * @author schuller
  */
-public class ExecutionJSDLResourceProperty extends ValueRenderer {
+public class AccessibleSMSReferenceRP extends AddressListRenderer implements Internal {
 
-	public ExecutionJSDLResourceProperty(JobManagementImpl parent){
-		super(parent,ExecutionJSDLDocument.type.getDocumentElementName());
+	public AccessibleSMSReferenceRP(StorageFactoryImpl parent){
+		super(parent, UAS.SMS, AccessibleStorageReferenceDocument.type.getDocumentElementName(),StorageManagement.SMS_PORT,false);
 	}
 
 	@Override
-	protected ExecutionJSDLDocument getValue() throws Exception{
-		JobDefinitionDocument jdd=(JobDefinitionDocument)((XnjsActionBacked)parent).getXNJSAction().getAjd();
-		ExecutionJSDLDocument ejd=ExecutionJSDLDocument.Factory.newInstance();
-		ejd.setExecutionJSDL(jdd.getJobDefinition());
-		return ejd;
+	public List<String>getUIDs(){ 
+		StorageFactoryImpl smf=((StorageFactoryImpl)parent);
+		Client c=AuthZAttributeStore.getClient(); 
+		try{
+			Home sms = smf.getKernel().getHome(UAS.SMS);
+			return sms.getAccessibleResources(smf.getModel().getSmsIDs(), c);
+		} catch(PersistenceException pe){
+			throw new RuntimeException(pe);
+		}
 	}
-	
+
 }

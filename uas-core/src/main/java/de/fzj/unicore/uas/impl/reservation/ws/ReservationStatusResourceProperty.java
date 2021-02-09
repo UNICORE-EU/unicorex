@@ -31,12 +31,13 @@
  ********************************************************************************/
 
 
-package de.fzj.unicore.uas.impl.reservation;
+package de.fzj.unicore.uas.impl.reservation.ws;
 
 import org.unigrids.x2006.x04.services.reservation.ReservationStatusDocument;
 import org.unigrids.x2006.x04.services.reservation.ReservationStatusType;
 import org.unigrids.x2006.x04.services.reservation.ReservationStatusType.Enum;
 
+import de.fzj.unicore.uas.impl.reservation.ReservationManagementImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
 

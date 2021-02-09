@@ -116,8 +116,4 @@ public class SMSModel extends PersistingPrefsModel {
 		this.directoryScanUID = directoryScanUID;
 	}
 
-	@Override
-	public String getFrontend(String serviceType) {
-		return SMSFrontend.class.getName();
-	}
 }

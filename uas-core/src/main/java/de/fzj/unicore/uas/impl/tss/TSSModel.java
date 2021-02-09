@@ -64,9 +64,4 @@ public class TSSModel extends UASBaseModel {
 		this.umask = umask;
 	}
 
-	@Override
-	public String getFrontend(String serviceType) {
-		return TSSFrontend.class.getName();
-	}
-
 }

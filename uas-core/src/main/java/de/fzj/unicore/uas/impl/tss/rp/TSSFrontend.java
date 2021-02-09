@@ -31,7 +31,7 @@
  ********************************************************************************/
 
 
-package de.fzj.unicore.uas.impl.tss;
+package de.fzj.unicore.uas.impl.tss.rp;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -67,23 +67,9 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.UmaskRenderer;
 import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
-import de.fzj.unicore.uas.impl.job.StatusInfoResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.ApplicationsResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.AvailableResourcesRP;
-import de.fzj.unicore.uas.impl.tss.rp.CPUCountResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.CPUTimeResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.ComputeTimeBudgetRenderer;
-import de.fzj.unicore.uas.impl.tss.rp.JobReferenceResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.MemoryPerNodeResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.NodesResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.NumberOfJobsProperty;
-import de.fzj.unicore.uas.impl.tss.rp.OperatingSystemResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.ProcessorResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.ReservationReferenceResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.StorageReferenceResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.TextInfoResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.TotalCPUsResourceProperty;
-import de.fzj.unicore.uas.impl.tss.rp.UpSinceResourceProperty;
+import de.fzj.unicore.uas.impl.job.ws.StatusInfoResourceProperty;
+import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
+import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.wsrflite.ContainerProperties;
@@ -118,7 +104,7 @@ public class TSSFrontend extends UASBaseFrontEnd implements TargetSystem {
 		addRenderer(new AddressRenderer(resource, RPJobReferenceEnumeration, true){
 			@Override
 			protected String getServiceSpec() {
-				return UAS.ENUMERATION+"?res="+resource.getModel().jobEnumerationID;
+				return UAS.ENUMERATION+"?res="+resource.getModel().getJobEnumerationID();
 			}
 		});
 
@@ -126,7 +112,7 @@ public class TSSFrontend extends UASBaseFrontEnd implements TargetSystem {
 			@Override
 			protected SupportsReservationDocument getValue() throws Exception {
 				SupportsReservationDocument res=SupportsReservationDocument.Factory.newInstance();
-				res.setSupportsReservation(resource.getModel().supportsReservation);
+				res.setSupportsReservation(resource.getModel().getSupportsReservation());
 				return res;
 			}
 		}); 

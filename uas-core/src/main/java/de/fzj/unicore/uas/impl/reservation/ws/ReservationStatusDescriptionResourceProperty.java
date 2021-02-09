@@ -1,5 +1,5 @@
 /*********************************************************************************
- * Copyright (c) 2012 Forschungszentrum Juelich GmbH 
+ * Copyright (c) 2006-2008 Forschungszentrum Juelich GmbH 
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -31,41 +31,32 @@
  ********************************************************************************/
  
 
-package de.fzj.unicore.uas.impl.sms;
+package de.fzj.unicore.uas.impl.reservation.ws;
 
-import java.util.List;
+import org.unigrids.x2006.x04.services.reservation.ReservationStatusDescriptionDocument;
 
-import javax.xml.namespace.QName;
-
-import org.w3.x2005.x08.addressing.EndpointReferenceDocument;
-
-import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer.Internal;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
+import de.fzj.unicore.uas.impl.reservation.ReservationManagementImpl;
+import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import de.fzj.unicore.xnjs.tsi.ReservationStatus;
 
 /**
- * internally generates the list of references to server-to-server 
- * filetransfer resources on an SMS. These are not published via the
- * RP document. <br/>
+ * Represents the status description of a resource reservation
  * 
  * @author schuller
+ * @since 1.5.1
  */
-public class FiletransferReferenceRP extends AddressListRenderer implements Internal {
-
-	private static final QName qname=new QName("http://unigrids.org/2006/04/services/fts","ServerToServerFileTransfer");
+public class ReservationStatusDescriptionResourceProperty extends ValueRenderer{
 	
-	public FiletransferReferenceRP(Resource parent){
-		super(parent,
-				UAS.SERVER_FTS, 
-				EndpointReferenceDocument.type.getDocumentElementName(),
-				qname,
-				false);
+	public ReservationStatusDescriptionResourceProperty(ReservationManagementImpl parent){
+		super(parent, ReservationStatusDescriptionDocument.type.getDocumentElementName());
 	}
 
 	@Override
-	protected List<String> getUIDs() {
-		return ((SMSBaseImpl)parent).getModel().getFileTransferUIDs();
+	public ReservationStatusDescriptionDocument getValue() throws Exception{
+		ReservationStatusDescriptionDocument status=ReservationStatusDescriptionDocument.Factory.newInstance();
+		ReservationStatus reservationStatus=((ReservationManagementImpl)parent).getReservationStatus();
+		status.setReservationStatusDescription(reservationStatus.getDescription());
+		return status;
 	}
-	
+
 }

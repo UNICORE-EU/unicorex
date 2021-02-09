@@ -86,13 +86,15 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected static final String subactionkey_post="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_SUBACTION_POSTCOMMAND";
 
 	//time stamp names
-	private static final String STARTTIME="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_START";
-	private static final String ENDSTAGEIN="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_ENDSTAGEIN";
-	private static final String SUBMITTED="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_SUBMITTED";
-	private static final String START_RUNNING="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_START_RUNNING";
-	private static final String STARTSTAGEOUT="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_STARTSTAGEOUT";
-
-	private static final String ENDTIME="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_END";
+	private static final String TIME_START = "_TIME_START";
+	private static final String TIME_END_STAGEIN ="_TIME_END_STAGEIN";
+	private static final String TIME_START_PRE= "_TIME_START_PRE";
+	private static final String TIME_SUBMITTED = "_TIME_SUBMITTED";
+	private static final String TIME_START_MAIN = "_TIME_START_MAIN";
+	private static final String TIME_END_MAIN = "_TIME_END_MAIN";
+	private static final String TIME_START_POST= "_TIME_START_POST";
+	private static final String TIME_START_STAGEOUT="_TIME_START_STAGEOUT";
+	private static final String TIME_END = "_TIME_END";
 
 	/**
 	 * the execution interface
@@ -160,7 +162,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				setToDoneSuccessfully();
 				return;
 			}
-			storeTimeStamp(STARTTIME);
+			storeTimeStamp(TIME_START);
 			try{
 				extractFromJobDescription();
 				setEnvironmentVariables();
@@ -187,7 +189,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				//nothing to stage in
 				action.addLogTrace("No staging in needed.");
 				setToReady();
-				storeTimeStamp(ENDSTAGEIN);
 			}
 			//processing problems?	
 		}catch(Exception ex){
@@ -223,7 +224,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				setToDoneAndFailed("Staging in failed. Reason: "+res.getErrorMessage());
 			}else {
 				Action subAction=manager.getAction(id);
-				storeTimeStamp(ENDSTAGEIN);	
 				List<String> files=(List<String>)subAction.getProcessingContext().get(KEY_DELETEONTERMINATION);
 				if(files!=null){
 					action.getProcessingContext().put(KEY_DELETEONTERMINATION,files);
@@ -238,6 +238,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * set state to "ready"
 	 */
 	protected void setToReady(){
+		storeTimeStamp(TIME_END_STAGEIN);	
 		action.setStatus(ActionStatus.READY);
 		action.addLogTrace("Status set to READY.");
 	}
@@ -358,10 +359,10 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			}
 			else
 			{
+				storeTimeStamp(TIME_START_PRE);
 				action.getProcessingContext().set(ApplicationExecutionStatus.precommandRunning());
 			}
 			action.setDirty();
-
 
 		}catch(Exception ex){
 			String msg="Could not setup pre-command: "+ex.getMessage();
@@ -438,6 +439,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			}
 			else
 			{
+				storeTimeStamp(TIME_START_POST);
 				action.getProcessingContext().set(ApplicationExecutionStatus.postcommandRunning());
 			}
 			action.setDirty();
@@ -501,7 +503,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			ApplicationExecutionStatus aes=action.getProcessingContext().get(ApplicationExecutionStatus.class);
 			aes.set(ApplicationExecutionStatus.MAIN_EXECUTION);
 			action.setStatus(initialState);
-			storeTimeStamp(SUBMITTED);
+			storeTimeStamp(TIME_SUBMITTED);
 		}catch(TweakerExecutionException tex){
 			String msg="Could not submit job: "+tex.getMessage();
 
@@ -564,8 +566,8 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 */
 	protected void handleRunning()throws ProcessingException{
 		if(logger.isTraceEnabled())logger.trace("Handling RUNNING state for Action "+action.getUUID());
-		if(getTimeStamp(START_RUNNING)==null){
-			storeTimeStamp(START_RUNNING);
+		if(getTimeStamp(TIME_START_MAIN)==null){
+			storeTimeStamp(TIME_START_MAIN);
 		}
 		try{
 			exec.updateStatus(action);
@@ -589,6 +591,9 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		case ApplicationExecutionStatus.PRECOMMAND_DONE:
 		case ApplicationExecutionStatus.MAIN_EXECUTION:
 		case ApplicationExecutionStatus.MAIN_EXECUTION_DONE:
+			if(getTimeStamp(TIME_END_MAIN)==null){
+				storeTimeStamp(TIME_END_MAIN);
+			}
 			if(checkMainExecutionSuccess()){
 				setupPostCommand();
 			}
@@ -721,7 +726,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * handle "STAGING_OUT"
 	 */
 	protected void handleStageOut() throws ProcessingException{
-		if(getTimeStamp(STARTSTAGEOUT)==null)storeTimeStamp(STARTSTAGEOUT);
+		if(getTimeStamp(TIME_START_STAGEOUT)==null)storeTimeStamp(TIME_START_STAGEOUT);
 
 		//get id of sub action
 		String id=(String)action.getProcessingContext().get(subactionkey_out);
@@ -843,54 +848,30 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		action.setDirty();
 	}
 
-	private static Float getTimeQueued(ProcessingContext context){
-		Long submitToBSS=(Long)context.get(SUBMITTED);
-		Long startBSSExecution=(Long)context.get(START_RUNNING);
+	private static Long getTimeQueued(ProcessingContext context){
+		Long submitToBSS=(Long)context.get(TIME_SUBMITTED);
+		Long startBSSExecution=(Long)context.get(TIME_START_MAIN);
 		if(startBSSExecution!=null && submitToBSS!=null){
-			return Float.valueOf((startBSSExecution-submitToBSS));
+			return (startBSSExecution-submitToBSS)/1000;
 		}
 		else return null;
 	}
 
 	public static String getTimeProfile(ProcessingContext context){
 		try{
-			Long start=(Long)context.get(STARTTIME);
-			Long endStageIn=(Long)context.get(ENDSTAGEIN);
-			Long startStageOut=(Long)context.get(STARTSTAGEOUT);
-			Long end=(Long)context.get(ENDTIME);
-
-			StringBuilder sb=new StringBuilder();
-
-			Float totalTime = Float.valueOf((end-start)/1000f);
-			sb.append("Total: "+String.format("%.2f sec.", totalTime));
-			sb.append(", ");
-			Float totalStageIn = Float.valueOf((endStageIn-start)/1000f);
-			sb.append("Stage-in: "+String.format("%.2f sec.", totalStageIn));
-			sb.append(", ");
-			Float totalStageOut = Float.valueOf((end-startStageOut)/1000f);
-			sb.append("Stage-out: "+String.format("%.2f sec.", totalStageOut));
-
-			Float timeQueued=getTimeQueued(context);
-			if(timeQueued!=null){
-				timeQueued=timeQueued/1000f;
-				sb.append(", ");
-				sb.append("Time in queue: "+String.format("%.2f sec.", timeQueued));
-			}
-
-			//datamovement percentage
-			Float dataPercentage=100 * (totalStageIn+totalStageOut)/totalTime;
-			sb.append(", ");
-			sb.append("Datamovement: "+String.format("%.0f %%", dataPercentage));
-
-			return sb.toString();
-
+			return new TimeProfile(context).toString();
 		}catch(RuntimeException e){
+			e.printStackTrace();
 			return "Time profile data not available";
 		}
 	}
 
+	public static TimeProfile timeProfile(ProcessingContext context) {
+		return new TimeProfile(context);
+	}
+			
 	public void updateQueuedStats(ProcessingContext context){
-		Float timeQueued=getTimeQueued(context);
+		Long timeQueued = getTimeQueued(context);
 		if(timeQueued!=null){
 			Histogram h = xnjs.getMetricRegistry().getHistograms().get(XNJSConstants.MEAN_TIME_QUEUED);
 			if (h!=null)h.update(timeQueued.intValue());
@@ -981,7 +962,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	public void setToDoneSuccessfully(){
-		storeTimeStamp(ENDTIME);
+		storeTimeStamp(TIME_END);
 		action.setStatus(ActionStatus.DONE);
 		action.getProcessingContext().set(ApplicationExecutionStatus.done());
 		action.addLogTrace("Status set to DONE.");
@@ -1069,9 +1050,12 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			action.addLogTrace("RESTARTING job.");
 			action.getProcessingContext().remove(Execution.BSS_SUBMIT_COUNT);
 			action.getProcessingContext().remove(ApplicationExecutionStatus.class);
-			action.getProcessingContext().remove(SUBMITTED);
-			action.getProcessingContext().remove(START_RUNNING);
-			action.getProcessingContext().remove(STARTSTAGEOUT);
+			action.getProcessingContext().remove(TIME_SUBMITTED);
+			action.getProcessingContext().remove(TIME_START_PRE);
+			action.getProcessingContext().remove(TIME_START_MAIN);
+			action.getProcessingContext().remove(TIME_END_MAIN);
+			action.getProcessingContext().remove(TIME_START_POST);
+			action.getProcessingContext().remove(TIME_START_STAGEOUT);
 			action.setBSID(null);
 			action.setStatus(ActionStatus.PENDING);
 			action.addLogTrace("Status set to PENDING.");
@@ -1091,5 +1075,84 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		action.setWaiting(true);
 		XnjsEvent e=new ContinueProcessingEvent(action.getUUID());
 		manager.scheduleEvent(e, time, units);
+	}
+	
+	public static class TimeProfile {
+
+		public Long total = null;
+		public Long queued = null;
+		public Long pre = null;
+		public Long main = null;
+		public Long post = null;
+		public Long stageIn = null;
+		public Long stageOut = null;
+		
+		public TimeProfile(ProcessingContext context) {
+			Long start=(Long)context.get(TIME_START);
+			Long endStageIn=(Long)context.get(TIME_END_STAGEIN);
+			Long startStageOut=(Long)context.get(TIME_START_STAGEOUT);
+			Long end=(Long)context.get(TIME_END);
+			if(startStageOut==null)startStageOut = end;
+
+			if(end!=null)total = (end-start)/1000;
+			if(endStageIn!=null)stageIn = (endStageIn-start)/1000;
+			try {
+				pre = ((Long)context.get(TIME_SUBMITTED) - (Long)context.get(TIME_START_PRE))/1000;
+			}catch(Exception ex) {}
+			queued = getTimeQueued(context);
+			try {
+				main = ((Long)context.get(TIME_END_MAIN) - (Long)context.get(TIME_START_MAIN))/1000;
+			}catch(Exception ex) {}
+			try {
+				post = (startStageOut - (Long)context.get(TIME_START_POST))/1000;
+			}catch(Exception ex) {}
+			try {
+				stageOut = (end-startStageOut)/1000;
+			}catch(Exception ex) {}
+		}
+		
+		public String toString() {
+			StringBuilder sb=new StringBuilder();
+			if(total!=null) {
+				sb.append("Total: "+String.format("%d sec.", total));
+				sb.append(", ");
+			}
+			if(stageIn!=null) {
+				sb.append("Stage-in: "+String.format("%d sec.", stageIn));
+				sb.append(", ");
+			}
+			if(pre!=null) {
+				sb.append("Pre: "+String.format("%d sec.", pre));
+				sb.append(", ");
+			}
+			if(queued!=null) {
+				sb.append("Queued: "+String.format("%d sec.", queued));
+				sb.append(", ");
+			}
+			if(main!= null) {
+				sb.append("Main: "+String.format("%d sec.", main));
+				sb.append(", ");
+			}
+			if(post!=null) {
+				sb.append("Post: "+String.format("%d sec.", post));
+				sb.append(", ");
+			}
+			if(stageOut!=null) {
+				sb.append("Stage-out: "+String.format("%d sec.", stageOut));
+			}
+			return sb.toString();
+		}
+
+		public Map<String,String> asMap(){
+			Map<String,String>res = new HashMap<>();
+			res.put("total", total!=null? String.valueOf(total) : "N/A");
+			res.put("stage-in", stageIn!=null? String.valueOf(stageIn) : "N/A");
+			res.put("preCommand", pre!=null? String.valueOf(pre) : "N/A");
+			res.put("queued", queued!=null? String.valueOf(queued) : "N/A");
+			res.put(",ain", main!=null? String.valueOf(main) : "N/A");
+			res.put("postCommand", post!=null? String.valueOf(post) : "N/A");
+			res.put("stage-out", stageOut!=null? String.valueOf(stageOut) : "N/A");
+			return res;
+		}
 	}
 }

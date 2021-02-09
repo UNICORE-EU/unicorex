@@ -180,7 +180,7 @@ public class UASProperties extends PropertiesHelper {
 				setDescription("Properties with this prefix are used to configure additional storages. See documentation of TargetSystem storages for details."));
 		META.put(SMS_FACTORY_PREFIX, new PropertyMD().setCanHaveSubkeys().
 				setDescription("Properties with this prefix are used to configure storage factories. See documentation of storage factories for details."));
-		META.put(SMS_FACTORY_CLASS, new PropertyMD(StorageFactoryImpl.class,StorageFactory.class).
+		META.put(SMS_FACTORY_CLASS, new PropertyMD(StorageFactoryImpl.class, StorageFactoryImpl.class).
 				setDescription("Implementation class name for the StorageFactory."));		
 		META.put(SMS_ENABLED_FACTORIES, new PropertyMD((String)null).
 				setDescription("Space separated list of names of enabled storage factories. If this property is left undefined then all defined factories are enabled. If this property value is empty then all are disabled."));

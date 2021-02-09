@@ -31,10 +31,11 @@
  ********************************************************************************/
  
 
-package de.fzj.unicore.uas.impl.job;
+package de.fzj.unicore.uas.impl.job.ws;
 
 import org.unigrids.x2006.x04.services.jms.QueueDocument;
 
+import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
 /**
@@ -48,7 +49,7 @@ public class QueueRenderer extends ValueRenderer {
 
 	protected QueueDocument getValue() {
 		QueueDocument queueDoc=QueueDocument.Factory.newInstance();
-		String queue=((XnjsActionBacked)parent).getXNJSAction().getExecutionContext().getBatchQueue();
+		String queue=((JobManagementImpl)parent).getXNJSAction().getExecutionContext().getBatchQueue();
 		if(queue==null)queue="N/A";
 		queueDoc.setQueue(queue);
 		return queueDoc;

@@ -31,7 +31,7 @@
  ********************************************************************************/
 
 
-package de.fzj.unicore.uas.impl.sms;
+package de.fzj.unicore.uas.impl.sms.ws;
 
 import java.math.BigInteger;
 import java.net.URI;
@@ -93,6 +93,8 @@ import de.fzj.unicore.uas.fts.ProtocolRenderer;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.UmaskRenderer;
 import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
+import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
+import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.wsrflite.ContainerProperties;
@@ -145,7 +147,7 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 		AddressRenderer ftListAddress = new AddressRenderer(r, RPFiletransferEnumerationReference,true){
 			@Override
 			protected String getServiceSpec() {
-				return UAS.ENUMERATION+"?res="+r.getModel().fileTransferEnumerationID;
+				return UAS.ENUMERATION+"?res="+r.getModel().getFileTransferEnumerationID();
 			}
 		};
 		addRenderer(ftListAddress);
@@ -153,7 +155,7 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 		AddressRenderer mdAddress = new AddressRenderer(r, RPMetadataServiceReference,true){
 			@Override
 			protected String getServiceSpec() {
-				String metadataServiceID = r.getModel().metadataServiceID;
+				String metadataServiceID = r.getModel().getMetadataServiceID();
 				if(metadataServiceID==null)return null;
 				return UAS.META+"?res="+metadataServiceID;
 			}
@@ -367,7 +369,7 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 		//get list from tsi
 		try{
 			String p = resource.makeSMSLocal(in.getListDirectory().getPath());
-			XnjsFile[] tsifiles = resource.getListing(p, offset, limit, resource.getModel().storageDescription.isFilterListing());
+			XnjsFile[] tsifiles = resource.getListing(p, offset, limit, resource.getModel().getStorageDescription().isFilterListing());
 			for(XnjsFile f: tsifiles){
 				GridFileType gf = res.addNewGridFile();
 				convert(f,gf);
@@ -432,7 +434,7 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 			IStorageAdapter tsi = resource.getStorageAdapter();
 			XnjsFile[] tsifiles=tsi.find(base, opts, -1, -1);
 			for(XnjsFile f: tsifiles){
-				if(resource.getModel().storageDescription.isFilterListing() && !f.isOwnedByCaller()){
+				if(resource.getModel().getStorageDescription().isFilterListing() && !f.isOwnedByCaller()){
 					if(logger.isTraceEnabled())logger.trace("Skipping "+f.getPath()+", not owned by caller.");
 					continue;
 				}
@@ -544,7 +546,7 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 
 	private EndpointReferenceType toEPR(String ftID, ProtocolType.Enum protocol){
 		EndpointReferenceType epr = WSServerUtilities.newEPR(kernel.getContainerSecurityConfiguration());
-		if(!resource.getModel().enableDirectFiletransfer){
+		if(!resource.getModel().getEnableDirectFiletransfer()){
 			epr.addNewAddress().setStringValue(
 					WSServerUtilities.makeAddress(UAS.CLIENT_FTS, ftID, 
 							kernel.getContainerProperties()));

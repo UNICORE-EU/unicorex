@@ -36,31 +36,13 @@ package de.fzj.unicore.uas.impl.job;
 import java.util.Arrays;
 import java.util.Calendar;
 
-import javax.xml.namespace.QName;
-
 import org.apache.logging.log4j.Logger;
-import org.unigrids.x2006.x04.services.jms.AbortDocument;
-import org.unigrids.x2006.x04.services.jms.AbortResponseDocument;
-import org.unigrids.x2006.x04.services.jms.HoldDocument;
-import org.unigrids.x2006.x04.services.jms.HoldResponseDocument;
-import org.unigrids.x2006.x04.services.jms.JobPropertiesDocument;
-import org.unigrids.x2006.x04.services.jms.RestartDocument;
-import org.unigrids.x2006.x04.services.jms.RestartResponseDocument;
-import org.unigrids.x2006.x04.services.jms.ResumeDocument;
-import org.unigrids.x2006.x04.services.jms.ResumeResponseDocument;
-import org.unigrids.x2006.x04.services.jms.StartDocument;
-import org.unigrids.x2006.x04.services.jms.StartResponseDocument;
-import org.unigrids.x2006.x04.services.jms.SubmissionTimeDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.uas.JobManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.client.BaseUASClient;
-import de.fzj.unicore.uas.faults.JobNotStartedFault;
 import de.fzj.unicore.uas.impl.PersistingPreferencesResource;
-import de.fzj.unicore.uas.impl.TagsRenderer;
-import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
 import de.fzj.unicore.uas.impl.sms.StorageInitParameters;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -70,9 +52,6 @@ import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
 import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
 import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
 import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.ems.Action;
 import eu.unicore.security.Client;
 import eu.unicore.services.ws.utils.WSServerUtilities;
@@ -82,133 +61,12 @@ import eu.unicore.services.ws.utils.WSServerUtilities;
  * 
  * @author schuller
  */
-public class JobManagementImpl extends PersistingPreferencesResource
-implements JobManagement, XnjsActionBacked {
+public class JobManagementImpl extends PersistingPreferencesResource {
 	
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS,JobManagementImpl.class);
 
-	public static final String JMS_NS = "http://unigrids.org/2006/04/services/jms";
-	public static final QName STDOUT = new QName(JMS_NS,"StdOut");
-	public static final QName STDERR = new QName(JMS_NS,"StdErr");
-
 	public JobManagementImpl(){
 		super();
-
-		addRenderer(new LogResourceProperty(this));
-
-		addRenderer(new ValueRenderer(this, RPSubmissionTime) {
-			@Override
-			protected SubmissionTimeDocument getValue() throws Exception {
-				SubmissionTimeDocument sd=SubmissionTimeDocument.Factory.newInstance();
-				sd.setSubmissionTime(getModel().getSubmissionTime());
-				return sd;
-			}
-		});
-	
-		addRenderer(new StatusInfoResourceProperty(this));
-	
-		AddressRenderer renderer=new AddressRenderer(this, RPTargetSystemReference, true){
-			 @Override
-			 protected String getServiceSpec(){
-				 return UAS.TSS+"?res="+getModel().getParentUID();
-			 }
-		};
-		addRenderer(renderer);
-		
-		addRenderer(new ExecutionJSDLResourceProperty(this));
-		addRenderer(new StdErrProperty(this));
-		addRenderer(new StdOutProperty(this));
-		addRenderer(new QueueRenderer(this));
-		addRenderer(new EstimatedEndtimeRenderer(this));
-		
-		AddressRenderer uspaceEPR=new AddressRenderer(this, RPWorkingDir, true){
-			 @Override
-			 protected String getServiceSpec(){
-				 return UAS.SMS+"?res="+getModel().getUspaceId();
-			 }
-		};
-		addRenderer(uspaceEPR);
-		addRenderer(new TagsRenderer(this));
-	}
-	
-	@Override
-	protected void addWSResourceInterfaces(BPSupportImpl baseProfile) {
-		super.addWSResourceInterfaces(baseProfile);
-		baseProfile.addWSResourceInterface(JMS_PORT);
-	}
-	
-	@Override
-	public QName getPortType() {
-		return JMS_PORT;
-	}
-	
-	@Override
-	public QName getResourcePropertyDocumentQName() {
-		return JobPropertiesDocument.type.getDocumentElementName();
-	}
-	
-	public StartResponseDocument Start(StartDocument in) throws JobNotStartedFault {
-		try{
-			start();
-		}catch(Exception e){
-			LogUtil.logException("Could not start job "+getUniqueID(),e,logger);
-			throw JobNotStartedFault.createFault(e.getMessage());
-		}
-		StartResponseDocument res=StartResponseDocument.Factory.newInstance();
-		res.addNewStartResponse();
-		return res;
-	}
-
-	public AbortResponseDocument Abort(AbortDocument in) throws BaseFault {
-		try{
-			abort();
-		}catch(Exception e){
-			LogUtil.logException("Could not abort the job.",e,logger);
-			throw BaseFault.createFault("Could not abort the job.",e);
-		}
-		AbortResponseDocument res=AbortResponseDocument.Factory.newInstance();
-		res.addNewAbortResponse();
-		return res;
-	}
-
-	public HoldResponseDocument Hold(HoldDocument in) throws BaseFault {
-		
-		try{
-			getXNJSFacade().getManager().pause(getUniqueID(), 
-				AuthZAttributeStore.getClient());
-		}catch(Exception e){
-			LogUtil.logException("Could not hold the job.",e,logger);
-			throw BaseFault.createFault("Could not hold the job.",e);
-		}
-		HoldResponseDocument res=HoldResponseDocument.Factory.newInstance();
-		res.addNewHoldResponse();
-		return res;
-	}
-
-	public ResumeResponseDocument Resume(ResumeDocument in) throws BaseFault {
-		try{
-			getXNJSFacade().getManager().resume(getUniqueID(), 
-				AuthZAttributeStore.getClient());
-		}catch(Exception e){
-			LogUtil.logException("Could not resume the job.",e,logger);
-			throw BaseFault.createFault("Could not resume the job",e);
-		}
-		ResumeResponseDocument res=ResumeResponseDocument.Factory.newInstance();
-		res.addNewResumeResponse();
-		return res;
-	}
-
-
-	public RestartResponseDocument Restart(RestartDocument in) throws BaseFault {
-		try{
-			restart();
-		}catch(Exception e){
-			LogUtil.logException("Could not restart the job.",e,logger);
-			throw BaseFault.createFault("Could not restart the job",e);
-		}
-		RestartResponseDocument res=RestartResponseDocument.Factory.newInstance();
-		res.addNewRestartResponse();
-		return res;
 	}
 	
 	public void restart() throws Exception {
@@ -332,16 +190,6 @@ implements JobManagement, XnjsActionBacked {
 		return id;
 	}
 
-	protected AddressRenderer createTSSReferenceProperty(){
-		AddressRenderer renderer=new AddressRenderer(this, RPTargetSystemReference, true){
-			 @Override
-			 protected String getServiceSpec(){
-				 return UAS.TSS+"?res="+getModel().getParentUID();
-			 }
-		};
-		return renderer;
-	}
-	
 	/**
 	 * update the "parent TSS" ID
 	 * @param id

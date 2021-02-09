@@ -31,7 +31,7 @@
  ********************************************************************************/
 
 
-package de.fzj.unicore.uas.impl.sms;
+package de.fzj.unicore.uas.impl.sms.ws;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -44,6 +44,9 @@ import org.unigrids.x2006.x04.services.smf.StorageDescriptionDocument;
 import org.unigrids.x2006.x04.services.smf.StorageDescriptionType;
 
 import de.fzj.unicore.uas.UASProperties;
+import de.fzj.unicore.uas.impl.sms.StorageDescription;
+import de.fzj.unicore.uas.impl.sms.StorageFactoryImpl;
+import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;

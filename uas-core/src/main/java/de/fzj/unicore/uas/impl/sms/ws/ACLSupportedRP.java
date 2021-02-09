@@ -1,7 +1,8 @@
-package de.fzj.unicore.uas.impl.sms;
+package de.fzj.unicore.uas.impl.sms.ws;
 
 import org.unigrids.x2006.x04.services.sms.ACLSupportedDocument;
 
+import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.wsrflite.impl.ResourceImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 

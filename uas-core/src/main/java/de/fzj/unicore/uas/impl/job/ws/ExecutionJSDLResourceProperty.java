@@ -31,30 +31,32 @@
  ********************************************************************************/
  
 
-package de.fzj.unicore.uas.impl.job;
+package de.fzj.unicore.uas.impl.job.ws;
 
-import java.util.List;
+import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.unigrids.x2006.x04.services.jms.ExecutionJSDLDocument;
 
-import org.unigrids.x2006.x04.services.jms.LogDocument;
-
+import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
 /**
- * renders the job log (which is copied from the XNJS Action log)
+ * renders the JSDL job description that is actually executed by the XNJS 
+ * (after incarnation)
+ * 
+ * @author schuller
  */
-public class LogResourceProperty extends ValueRenderer {
-	
-	public LogResourceProperty(JobManagementImpl parent){
-		super(parent, LogDocument.type.getDocumentElementName());
+public class ExecutionJSDLResourceProperty extends ValueRenderer {
+
+	public ExecutionJSDLResourceProperty(JobManagementImpl parent){
+		super(parent,ExecutionJSDLDocument.type.getDocumentElementName());
 	}
 
-	protected LogDocument getValue() throws Exception {
-		LogDocument status=LogDocument.Factory.newInstance();
-		StringBuffer sb=new StringBuffer();
-		List<String> l=((XnjsActionBacked)parent).getXNJSAction().getLog();
-		for(String s:l)sb.append(s+"\n");
-		status.setLog(sb.toString());
-		return status;
+	@Override
+	protected ExecutionJSDLDocument getValue() throws Exception{
+		JobDefinitionDocument jdd=(JobDefinitionDocument)((JobManagementImpl)parent).getXNJSAction().getAjd();
+		ExecutionJSDLDocument ejd=ExecutionJSDLDocument.Factory.newInstance();
+		ejd.setExecutionJSDL(jdd.getJobDefinition());
+		return ejd;
 	}
 	
 }

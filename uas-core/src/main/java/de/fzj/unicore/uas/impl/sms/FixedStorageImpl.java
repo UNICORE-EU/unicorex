@@ -50,7 +50,7 @@ public class FixedStorageImpl extends SMSBaseImpl {
 	}
 
 	@Override
-	protected String getStorageRoot() {
+	public String getStorageRoot() {
 		return getModel().workdir;
 	}
 	

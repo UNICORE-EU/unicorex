@@ -135,7 +135,7 @@ public class Action implements Serializable {
 
 	//list of URLs to send notifications to
 	private List<String>notificationURls;
-		
+	
 	/**
 	 * creates a new action with a pre-defined UUID</br>
 	 * The caller has to guarantee uniqueness!
