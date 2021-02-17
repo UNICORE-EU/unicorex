@@ -66,9 +66,9 @@ def expand_variables(message):
     """
     Expands $HOME and $USER into the values from the current environment
     """
-    message = message.replace("$HOME", os.environ['HOME'])
-    message = message.replace("$LOGNAME", os.environ['LOGNAME'])
-    return message.replace("$USER", os.environ['USER'])
+    message = message.replace("$HOME", os.environ.get('HOME', ""))
+    message = message.replace("$LOGNAME", os.environ.get('LOGNAME', ""))
+    return message.replace("$USER", os.environ.get('USER', ""))
 
 
 def addperms(path, mode):

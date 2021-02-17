@@ -67,7 +67,7 @@ public class IOProperties extends PropertiesHelper {
 				setDescription("Additional options for 'globus-url-copy'."));
 		META.put(CURL, new PropertyMD().
 				setDescription("Location of the 'curl' executable used for FTP stage-ins. " +
-						"If null, Java code will be used for HTTP."));
+						"If null, Java code will be used for FTP."));
 		META.put(SCP_WRAPPER, new PropertyMD("scp-wrapper.sh").
 				setDescription("Location of the wrapper script used for scp staging."));
 		META.put(MAIL_HOST, new PropertyMD("localhost").

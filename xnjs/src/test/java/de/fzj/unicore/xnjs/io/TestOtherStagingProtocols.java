@@ -309,12 +309,9 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		FTPUpload ft=(FTPUpload)new FileTransferEngine(xnjs).
 				createFileExport(null, "target", info);
 		assertNotNull(ft);
-		String cmd=ft.makeCommandline();
-		System.out.println(cmd);
 		ft.run();
 		TransferInfo fti = ft.getInfo();
 		assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
-
 	}
 
 	@Test
