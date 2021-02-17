@@ -96,7 +96,11 @@ public class TestRESTUFTP {
 		Endpoint ep = new Endpoint("http://localhost:65321/rest/core/storagefactories/default_storage_factory");
 		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), null);
 		sms = smf.createStorage();
-		importTestFile(sms, "test", 16384);
+		importTestFile(sms, "test", 1024);
+		for(int i=1;i<=3;i++)
+		{
+			importTestFile(sms, "/dir/test"+i, 1024);
+		}
 		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core/factories/default_target_system_factory");
 		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), null);
 		tss = tsf.getOrCreateSite();
@@ -124,7 +128,26 @@ public class TestRESTUFTP {
 		}
 		FileListEntry result = jc.getWorkingDirectory().stat(
 				"test-staged-in");
-		Assert.assertEquals(16384, result.size);
+		Assert.assertEquals(1024, result.size);
+		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
+	}
+	
+	@Test
+	public void testMultiStageIn() throws Exception {
+		doMultiStageIn(false);
+	}
+	
+	private void doMultiStageIn(boolean encrypt) throws Exception {
+		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
+		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, Boolean.toString(encrypt));
+		
+		JobClient jc = tss.submitJob(getMultiStageInJob());
+		while(!jc.isFinished()) {
+			Thread.sleep(1000);
+		}
+		FileListEntry result = jc.getWorkingDirectory().stat(
+				"dir/test1");
+		Assert.assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 	}
 	
@@ -147,17 +170,46 @@ public class TestRESTUFTP {
 		
 		// import a file
 		StorageClient uspace=jc.getWorkingDirectory();
-		importTestFile(uspace, "stage-out-file", 16384);
+		importTestFile(uspace, "stage-out-file", 1024);
 		jc.start();
 		while(!jc.isFinished()) {
 			Thread.sleep(1000);
 		}
 		System.out.println(jc.getProperties().toString(2));
 		FileListEntry result = sms.stat("test-staged-out");
-		Assert.assertEquals(16384, result.size);
+		Assert.assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 		String orig = Utils.md5(new File(uspace.getMountPoint(),"stage-out-file"));
 		String exported = Utils.md5(new File(sms.getMountPoint(),"test-staged-out"));
+		Assert.assertEquals(orig, exported);
+	}
+	
+	@Test
+	public void testMultiStageOut() throws Exception {
+		doMultiStageOut(false);
+	}
+
+	private void doMultiStageOut(boolean encrypt) throws Exception {
+		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
+		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
+		JobClient jc = tss.submitJob(getMultiStageOutJob());
+		
+		// import a file
+		StorageClient uspace=jc.getWorkingDirectory();
+		for(int i=1;i<=3;i++)
+		{
+			importTestFile(uspace, "/out/test"+i, 1024);
+		}
+		jc.start();
+		while(!jc.isFinished()) {
+			Thread.sleep(1000);
+		}
+		System.out.println(jc.getProperties().toString(2));
+		FileListEntry result = sms.stat("out/test1");
+		Assert.assertEquals(1024, result.size);
+		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
+		String orig = Utils.md5(new File(uspace.getMountPoint(),"out/test2"));
+		String exported = Utils.md5(new File(sms.getMountPoint(),"out/test2"));
 		Assert.assertEquals(orig, exported);
 	}
 	
@@ -302,7 +354,32 @@ public class TestRESTUFTP {
 		jdd.put("haveClientStageIn", true);
 		return jdd;
 	}
+	
+	private JSONObject getMultiStageInJob() throws JSONException {
+		JSONObject jdd = new JSONObject();
+		jdd.put("ApplicationName", "Date");
+		JSONArray imports = new JSONArray();
+		imports.put(new JSONObject("{"
+				+ "From: 'UFTP:" + sms.getEndpoint().getUrl() + "/files/dir/',"
+				+ "To: 'dir/'"
+				+ "}"));
+		jdd.put("Imports", imports);
+		return jdd;
+	}
 
+	private JSONObject getMultiStageOutJob() throws JSONException {
+		JSONObject jdd = new JSONObject();
+		jdd.put("ApplicationName", "Date");
+		jdd.put("haveClientStageIn", "true");
+		JSONArray exports = new JSONArray();
+		JSONObject e = new JSONObject();
+		e.put("From", "out/");
+		e.put("To", "UFTP:" + sms.getEndpoint().getUrl() + "/files/out/");
+		exports.put(e);
+		jdd.put("Exports", exports);
+		return jdd;
+	}
+	
 	private static void importTestFile(StorageClient sms, String filename,
 			int size) throws Exception {
 		byte[] buf = new byte[size];

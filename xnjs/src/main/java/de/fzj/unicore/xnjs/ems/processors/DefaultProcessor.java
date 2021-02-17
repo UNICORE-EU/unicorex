@@ -169,7 +169,7 @@ public class DefaultProcessor extends Processor {
 	 * allow to set action for unit testing
 	 * @param a - the action
 	 */
-	void setAction(Action a){
+	public void setAction(Action a){
 		this.action=a;
 	}
 	

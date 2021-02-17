@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
@@ -48,6 +49,7 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.persistence.JDBCActionStore;
 
+@Ignore
 public class LoadTest extends EMSTestBase {
 
 	static JobDefinitionDocument jdd;

@@ -64,7 +64,6 @@ import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import de.fzj.unicore.xnjs.io.XnjsStorageInfo;
 import de.fzj.unicore.xnjs.tsi.BatchMode;
 import de.fzj.unicore.xnjs.tsi.MultiNodeTSI;
-import de.fzj.unicore.xnjs.tsi.TSIBusyException;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
 import de.fzj.unicore.xnjs.util.BackedInputStream;
 import de.fzj.unicore.xnjs.util.BackedOutputStream;
@@ -914,7 +913,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	}
 
 	@Override
-	public String[] getGroups() throws TSIBusyException, ExecutionException {
+	public String[] getGroups() throws ExecutionException {
 		String cmd=TSIUtils.makeExecuteScript(tsiProperties.getValue(TSIProperties.TSI_GROUPS), ec, idb, extractCredentials());
 		String reply=doTSICommandWithAllGroups(cmd);
 		try{

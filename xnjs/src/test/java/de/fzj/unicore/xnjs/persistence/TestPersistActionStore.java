@@ -38,7 +38,6 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -54,8 +53,6 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 
 public class TestPersistActionStore extends EMSTestBase {
 
-	static JobDefinitionDocument jdd;
-	
 	@Before
 	public void setUp3()throws Exception{
 		System.setProperty(IActionStore.CLEAR_ON_STARTUP,"true");

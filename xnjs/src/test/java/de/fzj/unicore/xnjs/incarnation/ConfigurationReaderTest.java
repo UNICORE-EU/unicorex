@@ -8,7 +8,6 @@
 package de.fzj.unicore.xnjs.incarnation;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

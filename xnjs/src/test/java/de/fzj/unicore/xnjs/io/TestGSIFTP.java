@@ -1,10 +1,11 @@
 package de.fzj.unicore.xnjs.io;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.net.URI;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.Action;
@@ -118,11 +119,10 @@ public class TestGSIFTP extends EMSTestBase {
 	}
 
 	private String createDummyParent()throws Exception{
-		JobDefinitionDocument xml=JobDefinitionDocument.Factory.newInstance();
-		xml.addNewJobDefinition().addNewJobDescription().addNewApplication().setApplicationName("Date");
-		Action job=xnjs.makeAction(xml);
-		String id=(String)mgr.add(job, null);
-		return id;
+		JSONObject j = new JSONObject();
+		j.put("ApplicationName","Date");
+		Action job=xnjs.makeAction(j);
+		return(String)mgr.add(job, null);
 	}
 
 	private String getWorkingDir(String actionID)throws Exception{

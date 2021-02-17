@@ -46,20 +46,17 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.Action;
@@ -79,7 +76,8 @@ import de.fzj.unicore.xnjs.io.impl.Link;
 import de.fzj.unicore.xnjs.tsi.AbstractTSITest;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IReservation;
-import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
+import de.fzj.unicore.xnjs.tsi.ReservationStatus;
+import de.fzj.unicore.xnjs.tsi.ReservationStatus.Status;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
@@ -94,19 +92,14 @@ public class TestTSI extends LegacyTSITestCase{
 	}
 
 	@Test
-	public void testConnectionFactory()throws Exception{
-		TSIConnectionFactory f=xnjs.get(TSIConnectionFactory.class);
+	public void testBasicSetup()throws Exception{
+		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		try(TSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 		}
-	}
 
-	@Test
-	public void testConnectionFactoryPreferredHost()throws Exception{
-		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory) xnjs.get(TSIConnectionFactory.class);
-		assertNotNull(f);
 		try(TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1)){
 			InetAddress localhost=InetAddress.getByName("localhost");
 			assertEquals(localhost,c.getTSIAddress());
@@ -114,22 +107,14 @@ public class TestTSI extends LegacyTSITestCase{
 		int n = f.getNumberOfPooledConnections();
 		try(TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
-	}
 
-	@Test
-	public void testConnectionFactoryUnknownHost()throws Exception{
-		TSIConnectionFactory f=xnjs.get(TSIConnectionFactory.class);
-		assertNotNull(f);
 		try{
 			f.getTSIConnection("nobody", null, "no-such-host", -1);
 			fail("expected exception here");
 		}catch(IllegalArgumentException e){
 			assertTrue(e.getMessage().contains("No TSI is configured at 'no-such-host'"));
 		}
-	}
 
-	@Test
-	public void testGetVersion()throws TSIUnavailableException{
 		RemoteTSI tsi=makeTSI();
 		assertNotNull(tsi);
 		String v=tsi.getFactory().getTSIVersion();
@@ -144,33 +129,14 @@ public class TestTSI extends LegacyTSITestCase{
 		tsi.setStorageRoot(testDir);
 		new AbstractTSITest(testDir,tsi).run();
 		FileUtils.deleteQuietly(new File(testDir));
-	}
-
-	@Test
-	public void testExec()throws Exception{
-		String tmpdir=System.getProperty("java.io.tmpdir");
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
-		String tmp="test_"+System.currentTimeMillis()+"";
-		tsi.setStorageRoot(tmpdir);
-		tsi.mkdir(tmp);
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
-		ec.setWorkingDirectory(tmpdir+File.separator+tmp);
-		ec.setStdout("out");
-		tsi.exec("echo tsi",ec);
-		assertTrue(new File(tmpdir+"/"+tmp+"/out").exists());
-		FileUtils.deleteQuietly(new File(tmpdir, tmp));
-	}
-
-	@Test
-	public void testLS() throws Exception {
+	
+		
 		File tmp=new File("target","XNJS_testing_"+System.currentTimeMillis());
 		tmp.mkdir();
 		writeFile(tmp.getAbsolutePath()+"/file1", "test");
-
-		RemoteTSI tsi=makeTSI();
-
+		tsi.setStorageRoot("/");
 		XnjsFile[] ls=tsi.ls(tmp.getAbsolutePath());
-		assertTrue(ls.length==1);
+		assertTrue("got "+ls.length, ls.length==1);
 
 		writeFile(tmp.getAbsolutePath()+"/file2", "test");
 		ls=tsi.ls(tmp.getAbsolutePath());
@@ -184,6 +150,10 @@ public class TestTSI extends LegacyTSITestCase{
 		assertTrue(ls.length==1);
 		assertTrue(!p1.equals(p2));
 		FileUtils.deleteQuietly(tmp);
+		
+		String test=tsi.getEnvironment("TEST");
+		System.out.println(test);
+		assertEquals("this is a test for the template mechanism",test);
 	}
 
 	@Test
@@ -206,6 +176,7 @@ public class TestTSI extends LegacyTSITestCase{
 		ec.setWorkingDirectory(tmpdir);
 		ec.setStdout("out");
 		tsi.exec("echo tsi",ec);
+		Thread.sleep(3000);
 		tsi.setStorageRoot(tmpdir);
 		InputStream is=tsi.getInputStream("out");
 		assertNotNull(is);
@@ -216,7 +187,7 @@ public class TestTSI extends LegacyTSITestCase{
 	}
 
 	@Test
-	public void testWrite1()throws Exception{
+	public void testWrite()throws Exception{
 		String tmpdir=mkTmpDir();
 		RemoteTSI tsi=makeTSI();
 		String file="out2";
@@ -241,49 +212,6 @@ public class TestTSI extends LegacyTSITestCase{
 		is.close();
 		br.close();
 		FileUtils.deleteQuietly(new File(tmpdir));
-	}
-
-	@Test
-	public void testVariableDefinedInIDBTemplate() throws Exception{
-		RemoteTSI tsi=makeTSI();
-		String test=tsi.getEnvironment("TEST");
-		System.out.println(test);
-		assertEquals("this is a test for the template mechanism",test);
-	}
-
-	@Test
-	public void testMultiThreadedOperation(){
-		int n=2;
-		int m=20;
-		ExecutorService es=Executors.newFixedThreadPool(n);
-		List<Future<?>> results=new ArrayList<Future<?>>();
-		for(int i=0; i<m;i++){
-			Future<?> f=es.submit(new Runnable(){
-				public void run(){
-					try {
-						testExec();
-						testRead();
-						testLS();
-						testWrite1();
-						testLS();
-					} catch (Exception e) {
-						e.printStackTrace();
-						fail(e.getMessage());
-					}
-				}
-			});
-			results.add(f);
-		}
-		//wait for completion
-		Iterator<Future<?>> it=results.iterator();
-		while(it.hasNext()){
-			try {
-				it.next().get();
-			} catch (Exception e) {
-				e.printStackTrace();
-				fail(e.getMessage());
-			}
-		}
 	}
 
 	@Test
@@ -393,34 +321,19 @@ public class TestTSI extends LegacyTSITestCase{
 		//XnjsFileWithACL f2 = tsi.getProperties(tst.getAbsolutePath());
 		//assertEquals("users", f2.getGroup());
 		FileUtils.deleteQuietly(tst);
-	}
 
-	@Test
-	public void testGetGroups()throws Exception{
-		RemoteTSI tsi=makeTSI();
 		String[]groups=tsi.getGroups();
 		assertNotNull(groups);
 		System.out.println(Arrays.asList(groups));
-	}
 
-	@Test
-	public void testGetProperties() throws ExecutionException, IOException {
-		RemoteTSI tsi=makeTSI();
-		assertNotNull(tsi);
-
-		File tst = new File("target" + File.separator + "lstTestFile.tmp");
+		tst = new File("target" + File.separator + "lstTestFile.tmp");
 		tst.createNewFile();
-		XnjsFileWithACL f = tsi.getProperties(tst.getAbsolutePath());
+		f = tsi.getProperties(tst.getAbsolutePath());
 		assertNotNull(f.getGroup());
 		assertNotNull(f.getOwner());
 		assertNotNull(f.getUNIXPermissions());
 		FileUtils.deleteQuietly(tst);
-	}
 
-	@Test
-	public void testUmask() throws ExecutionException, IOException {
-		RemoteTSI tsi=makeTSI();
-		assertNotNull(tsi);
 
 		String tmpdir=System.getProperty("java.io.tmpdir");
 		String tmp="test_"+System.currentTimeMillis();
@@ -447,22 +360,15 @@ public class TestTSI extends LegacyTSITestCase{
 	}
 
 	@Test
-	public void testGetJobInfo()throws Exception{
+	public void testGetInfo()throws Exception{
 		Execution e=(Execution)xnjs.get(IExecution.class);
 		Action job=new Action();
 		job.setBSID("1234");
 		Client c=new Client();
 		c.setXlogin(new Xlogin(new String[]{"tst"}));
 		job.setClient(c);
-		String details=e.getBSSJobDetails(job);
-		assertNotNull(details);
-	}
+		assertNotNull(e.getBSSJobDetails(job));
 
-	@Test
-	public void testGetComputeQuota()throws Exception{
-		Execution e=(Execution)xnjs.get(IExecution.class);
-		Client c = new Client();
-		c.setXlogin(new Xlogin(new String[]{"tst"}));
 		List<BudgetInfo>details = e.getComputeTimeBudget(c);
 		assertNotNull(details);
 		System.out.println(details);
@@ -524,6 +430,30 @@ public class TestTSI extends LegacyTSITestCase{
 		FileUtils.deleteQuietly(new File(dir));
 	}
 
+	@Test
+	public void testReservationParseReply()throws Exception{
+		String date="2012-09-26T22:00:00+0200";
+		SimpleDateFormat sf=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+		Calendar c=Calendar.getInstance();
+		c.setTime(sf.parse(date));
+		String desc="All is fine";
+		String rep="TSI_OK\nWAITING "+date+"\n"+desc;
+		ReservationStatus rs=new Reservation().parseTSIReply(rep);
+		Assert.assertEquals(Status.WAITING, rs.getStatus());
+		Assert.assertEquals(c.getTimeInMillis(), rs.getStartTime().getTimeInMillis());
+		Assert.assertEquals(desc, rs.getDescription());
+	
+		date="2012-09-26T22:00:00+0200";
+		sf=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+		c=Calendar.getInstance();
+		c.setTime(sf.parse(date));
+		rep="TSI_OK\nWAITING "+date+"\n";
+		rs=new Reservation().parseTSIReply(rep);
+		Assert.assertEquals(Status.WAITING, rs.getStatus());
+		Assert.assertEquals(c.getTimeInMillis(), rs.getStartTime().getTimeInMillis());
+		Assert.assertNull(rs.getDescription());
+	}
+	
 	private void writeFile(String path, String content)throws Exception{
 		OutputStreamWriter osw=null;
 		try{

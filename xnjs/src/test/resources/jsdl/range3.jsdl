@@ -1,6 +1,0 @@
-<jsdl:IndividualCPUCount xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl">
-<jsdl:Range>
-  <jsdl:LowerBound>1.0</jsdl:LowerBound>
-  <jsdl:UpperBound>10.0</jsdl:UpperBound>
-</jsdl:Range>
-</jsdl:IndividualCPUCount>

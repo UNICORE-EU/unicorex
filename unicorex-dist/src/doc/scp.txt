@@ -3,42 +3,8 @@
 SCP support
 ~~~~~~~~~~~ 
 
-UNICORE supports file staging in/out using SCP, as defined in the 
-Open Grid Forum's "HPC File staging profile" (GFD.135).
-
-In the JSDL job description, an scp stage in is specified as 
-follows:
-
------
-<?xml version="1.0"?>
-<p:JobDefinition xmlns:p="http://schemas.ggf.org/jsdl/2005/11/jsdl" 
-                 xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
-  <p:JobDescription>
-    <p:Application>
-      <jsdl-posix:POSIXApplication>
-        <jsdl-posix:Executable>/bin/ls</jsdl-posix:Executable>
-        <jsdl-posix:Argument>-l</jsdl-posix:Argument>
-      </jsdl-posix:POSIXApplication>
-    </p:Application>
-    <p:DataStaging>
-      <p:FileName>input</p:FileName>
-      <p:CreationFlag>overwrite</p:CreationFlag>
-      <p:Source>
-        <p:URI>scp://HOST:PORT:filepath</p:URI>
-      </p:Source>
-      <ac:Credential xmlns:ac="http://schemas.ogf.org/hpcp/2007/11/ac">
-        <wsse:UsernameToken xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
-          <wsse:Username>***</wsse:Username>
-          <wsse:Password>***</wsse:Password>
-        </wsse:UsernameToken>
-      </ac:Credential>
-    </p:DataStaging>
-  </p:JobDescription>
-</p:JobDefinition>
------
-
-As you can see, username and password required to invoke SCP are embedded into the 
-job description, and the URL schema is "scp://"
+UNICORE supports file staging in/out using SCP with username/password
+authentication. The source/target URL schema is "scp://"
 
 Site setup
 ++++++++++

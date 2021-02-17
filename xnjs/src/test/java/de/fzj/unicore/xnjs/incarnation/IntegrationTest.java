@@ -16,15 +16,14 @@ import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.tsi.remote.LegacyTSITestCase;
+import de.fzj.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.security.Client;
 import eu.unicore.security.Role;
 import eu.unicore.security.Xlogin;
 
-public class IntegrationTest extends LegacyTSITestCase
-{
-	private static String 
-	d1="src/test/resources/json/date.json";
+public class IntegrationTest extends EMSTestBase {
+
+	private static String d1="src/test/resources/json/date.json";
 
 	@Override
 	protected void addProperties(ConfigurationSource cs){

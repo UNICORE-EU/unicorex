@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
 import org.unigrids.x2006.x04.services.reservation.ReservationPropertiesDocument;
@@ -19,7 +20,7 @@ import de.fzj.unicore.uas.xnjs.MockReservation;
 import de.fzj.unicore.wsrflite.impl.DefaultHome;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
 
-public class TestReservation extends RunDate {
+public class TestReservation extends AbstractJobRun {
 
 	@Override
 	@FunctionalTest(id="ReservationTest", description="Tests the reservation management WS interface.")
@@ -107,4 +108,12 @@ public class TestReservation extends RunDate {
 		
 	}
 
+	@Override
+	protected JobDefinitionDocument getJob() {
+		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.newInstance();
+		ApplicationType app=jdd.addNewJobDefinition().addNewJobDescription().addNewApplication();
+		app.setApplicationName("Date");
+		app.setApplicationVersion("1.0");
+		return jdd;
+	}
 }

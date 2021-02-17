@@ -40,7 +40,6 @@ public class TestHTTPStaging extends EMSTestBase {
 			server.stop();
 			Thread.sleep(1000);
 		}catch(Exception ex){}
-		super.tearDown();
 	}
 	
 	@Test

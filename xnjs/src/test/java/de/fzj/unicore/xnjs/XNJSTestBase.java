@@ -1,9 +1,7 @@
 package de.fzj.unicore.xnjs;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
@@ -76,12 +74,10 @@ public abstract class XNJSTestBase {
 	
 	protected AbstractModule getPersistenceModule(){
 		return new AbstractModule() {
-			
 			@Override
 			protected void configure() {
 				bind(IActionStoreFactory.class).to(BasicActionStoreFactory.class);
 			}
-			
 		};
 	}
 	
@@ -92,25 +88,9 @@ public abstract class XNJSTestBase {
 			protected void configure() {
 				bind(ActionStateChangeListener.class).to(MockChangeListener.class);
 			}
-			
 		};
 	};
 	
 	protected void preStart() throws Exception {}
-
-	/**
-	 * finds a resource (either on the classpath or as a file) 
-	 * and returns an input stream for reading it
-	 * @param name
-	 */
-	protected InputStream getResource(String name){
-		InputStream is = getClass().getResourceAsStream(name);
-		if(is==null){
-			try{
-				is=new FileInputStream(name);
-			}catch(Exception e){}
-		}
-		return is;
-	}
 	
 }

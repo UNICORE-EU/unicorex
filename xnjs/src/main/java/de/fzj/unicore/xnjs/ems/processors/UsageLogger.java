@@ -62,13 +62,13 @@ public class UsageLogger extends DefaultProcessor {
 	
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS, UsageLogger.class);
 	
-	static final String USAGE_LOGGED="USAGE.logged";
+	public static final String USAGE_LOGGED="USAGE.logged";
 	
 	public UsageLogger(XNJS xnjs){
 		super(xnjs);
 	}
 	
-	protected void done() {
+	public void done() {
 		if(action.getStatus()!=ActionStatus.DONE)return;
 		try{
 			Boolean haveLogged=(Boolean)action.getProcessingContext().get(USAGE_LOGGED);
@@ -85,7 +85,7 @@ public class UsageLogger extends DefaultProcessor {
 	/**
 	 *  create a "usage record"
 	 */
-	protected String getUsage(){
+	public String getUsage(){
 		StringBuilder sb=new StringBuilder();
 		String uuid=action.getUUID();
 		Client c = action.getClient();

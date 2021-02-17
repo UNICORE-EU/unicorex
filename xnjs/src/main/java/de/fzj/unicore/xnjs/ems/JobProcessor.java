@@ -1149,7 +1149,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			res.put("stage-in", stageIn!=null? String.valueOf(stageIn) : "N/A");
 			res.put("preCommand", pre!=null? String.valueOf(pre) : "N/A");
 			res.put("queued", queued!=null? String.valueOf(queued) : "N/A");
-			res.put(",ain", main!=null? String.valueOf(main) : "N/A");
+			res.put("main", main!=null? String.valueOf(main) : "N/A");
 			res.put("postCommand", post!=null? String.valueOf(post) : "N/A");
 			res.put("stage-out", stageOut!=null? String.valueOf(stageOut) : "N/A");
 			return res;

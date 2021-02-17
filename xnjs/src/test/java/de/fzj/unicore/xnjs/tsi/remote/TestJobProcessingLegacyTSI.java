@@ -37,11 +37,16 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -72,20 +77,19 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 
 	private static String 
 	date = "src/test/resources/json/date.json",
-	date_with_redirect="src/test/resources/json/date_with_redirect.json",
-	date_with_resources="src/test/resources/json/date_with_resources.json",
+	date_with_redirect="src/test/resources/json/date_with_extras.json",
 	sleep = "src/test/resources/json/sleep.json";
 
 	@Override
 	protected RemoteTSIModule getTSIModule(ConfigurationSource cs){
 		return new MyTSIModule(cs.getProperties());
 	}
-	
+
 	public static class MyTSIModule extends RemoteTSIModule{
 		public MyTSIModule(Properties p){
 			super(p);
 		}
-		
+
 		@Override
 		protected void bindExecution(){
 			bind(IExecution.class).to(MyExec.class);
@@ -93,32 +97,60 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		}
 
 	}
-	
+
 	@Override
 	protected void addProperties(ConfigurationSource cs){
 		super.addProperties(cs);
 		cs.getProperties().put("XNJS."+XNJSProperties.RESUBMIT_DELAY, "1");
 	}
-	
-	@Test
-	public void testUseResourcesAndProjectFromJob() throws Exception {
-		JSONObject job = loadJSONObject(date_with_resources);
-		String id="";
-		Action a=xnjs.makeAction(job);
-		Client c=new Client();
-		a.setClient(c);
-		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		id=a.getUUID();
-		mgr.add(a,c);
-		doRun(id);
-		a = internalMgr.getAction(id);
-		a.printLogTrace();
-		assertTrue(a.getLog().toString().contains("#TSI_TIME 30"));
-		assertTrue(a.getLog().toString().contains("#TSI_PROJECT qcd"));
-	}
 
 	@Test
-	public void testSubmitWithRedirect() throws Exception {
+	public void testRunMulti() throws Exception {
+		ThreadPoolExecutor es = new ThreadPoolExecutor(4, 4, 
+				60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+
+		Callable<String> t1 = new Callable<String>() {
+			public String call() {
+				try {
+					resourcesAndRedirect();
+				}catch(Exception e) {}
+				return "";
+			}
+		};
+
+		Callable<String> t2 = new Callable<String>() {
+			public String call() {
+				try {
+					submitInteractive();
+				}catch(Exception e) {}
+				return "";
+			}
+		};
+
+		Callable<String> t3 = new Callable<String>() {
+			public String call() {
+				try {
+					queueUpdate();
+				}catch(Exception e) {}
+				return "";
+			}
+		};
+
+		CompletionService<String> cs = new ExecutorCompletionService<>(es);
+		cs.submit(t1);
+		cs.submit(t2);
+		cs.submit(t3);
+		
+		for(int i=0; i<3; i++) {
+			cs.poll(120, TimeUnit.SECONDS).get();
+		}
+
+		es.shutdownNow();
+	}
+
+
+	private void resourcesAndRedirect() throws Exception {
+		System.out.println("*** resourcesAndRedirect");
 		JSONObject job = loadJSONObject(date_with_redirect);
 		String id="";
 		Action a=xnjs.makeAction(job);
@@ -136,47 +168,9 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		assertTrue(f.exists());
 		f=new File(a.getExecutionContext().getWorkingDirectory(),a.getExecutionContext().getStderr());
 		assertTrue(f.exists());
-	}
 
-	@Test
-	public void testRunWithDelayedExitCode() throws Exception {
-		JSONObject job = loadJSONObject(date);
-		TSIUtils._unittestnoexitcode=true;
-
-		String id="";
-		final Action a=xnjs.makeAction(job);
-		Client c=new Client();
-		a.setClient(c);
-		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		id=a.getUUID();
-		mgr.add(a,c);
-
-		Thread t=new Thread(){
-			public void run(){
-				try{
-					writeExitCode(a);
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-		};
-		t.start();
-
-		doRun(id);
-
-		Action a1 = internalMgr.getAction(id);
-		a1.printLogTrace();
-
-		TSIUtils._unittestnoexitcode=false;
-	}
-
-	void writeExitCode(Action a)throws Exception{
-		//delayed 
-		Thread.sleep(15000);
-		File f=new File(a.getExecutionContext().getWorkingDirectory(),"UNICORE_SCRIPT_EXIT_CODE");
-		FileOutputStream fo=new FileOutputStream(f);
-		fo.write("0".getBytes());
-		fo.close();
+		assertTrue(a.getLog().toString().contains("#TSI_TIME 30"));
+		assertTrue(a.getLog().toString().contains("#TSI_PROJECT qcd"));
 	}
 
 	protected int getTimeOut(){
@@ -185,8 +179,8 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 
 	static String pid=null;
 
-	@Test
-	public void testSubmitInteractive() throws Exception {
+	private void submitInteractive() throws Exception {
+		System.out.println("*** submitInteractive");
 		JSONObject job = loadJSONObject(date);
 		String id="";
 		final Action a=xnjs.makeAction(job);
@@ -219,8 +213,8 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		System.out.println("BSID: "+bsid);
 	}
 
-	@Test
-	public void testQueueUpdate() throws Exception {
+	private void queueUpdate() throws Exception {
+		System.out.println("*** queueUpdate");
 		JSONObject job = loadJSONObject(sleep);
 		String id="";
 		Action a=xnjs.makeAction(job);
@@ -322,16 +316,16 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 
 	@Singleton
 	public static class MyExec extends Execution {
-		
+
 		@Inject
 		public MyExec(XNJS xnjs, ITweaker tw, TSIConnectionFactory factory, IBSSState bss){
 			super(xnjs,tw,factory, bss);
 		}
 
 		public static boolean failSubmits=false;
-		
+
 		boolean ok = false;
-		
+
 		@Override
 		public int submit(Action job)throws ExecutionException{
 			if(failSubmits){

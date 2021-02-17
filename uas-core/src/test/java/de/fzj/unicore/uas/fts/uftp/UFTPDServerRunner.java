@@ -2,8 +2,11 @@ package de.fzj.unicore.uas.fts.uftp;
 
 import java.net.InetAddress;
 
+import org.junit.Ignore;
+
 import eu.unicore.uftp.server.UFTPServer;
 
+@Ignore
 public class UFTPDServerRunner {
 
 	public int jobPort = 62434;

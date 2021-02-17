@@ -32,23 +32,14 @@
  
 package de.fzj.unicore.xnjs.tsi.remote;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.json.JSONObject;
 import org.junit.Test;
-
-import de.fzj.unicore.xnjs.ems.Action;
-import eu.unicore.security.Client;
-import eu.unicore.security.Xlogin;
 
 
 public class MultiAddressTSITest extends LegacyTSITestCase {
 
-	private static String 
-		d1="src/test/resources/json/date.json";
-	
 	@Override
 	protected String getTSIMachine(){
 		return "localhost localhost, localhost";
@@ -80,21 +71,5 @@ public class MultiAddressTSITest extends LegacyTSITestCase {
 			System.out.println(c.getConnectionID());
 		}
 	}
-	
-	@Test
-	public void testRunJSDL() throws Exception {
-		TSIConnectionFactory cf=xnjs.get(TSIConnectionFactory.class);
-		assertNotNull(cf);
-		assertEquals(3,cf.getTSIHosts().length);
-	
-		JSONObject job = loadJSONObject(d1);
-		String id="";
-		Action a=xnjs.makeAction(job);
-		Client c=new Client();
-		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		id=a.getUUID();
-		mgr.add(a,c);
-		doRun(id);
-		assertSuccessful(id);
-	}
+
 }

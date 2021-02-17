@@ -27,7 +27,8 @@
   <properties>
     <compiler.fork>false</compiler.fork>
     <use.version>4.1.0</use.version>
-    <persistence.version>0.201</persistence.version>
+    <persistence.version>0.202</persistence.version>
+    <metrics.version>4.1.14</metrics.version>
     <uftp.version>2.10.0</uftp.version>
     <guice.version>4.2.3</guice.version>
     <guava.version>30.0-jre</guava.version>
@@ -109,6 +110,11 @@
 	<groupId>de.fzj.unicore</groupId>
 	<artifactId>persistence</artifactId>
 	<version>${persistence.version}</version>
+      </dependency>
+      <dependency>
+	<groupId>io.dropwizard.metrics</groupId>
+	<artifactId>metrics-core</artifactId>
+	<version>${metrics.version}</version>
       </dependency>
       <dependency>
 	<groupId>de.fzj.unicore</groupId>

@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.security.SecureRandom;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
 import de.fzj.unicore.xnjs.XNJS;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
+import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.IClientConfiguration;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 /**
  * Creates sockets using the XNJS's security configuration.
@@ -99,8 +100,10 @@ public class XNJSSocketFactory extends javax.net.SocketFactory{
 
 	protected synchronized SSLContext getSSLContext() throws IOException{
 		if(sslContext==null){
-			sslContext=SocketFactoryCreator.getSSLContext(security.getCredential(), 
-					security.getValidator(), new SecureRandom());
+			sslContext = new SocketFactoryCreator2(security.getCredential(),
+					security.getValidator(),
+					new HostnameMismatchCallbackImpl(ServerHostnameCheckingMode.WARN))
+					.getSSLContext();
 		}
 		return sslContext;
 	}

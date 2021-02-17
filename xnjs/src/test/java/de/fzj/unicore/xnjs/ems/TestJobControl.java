@@ -5,14 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.concurrent.TimeoutException;
-
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
 import de.fzj.unicore.xnjs.util.LogUtil;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.security.Client;
 
 public class TestJobControl extends EMSTestBase {
@@ -40,18 +37,6 @@ public class TestJobControl extends EMSTestBase {
 		// notifications
 		MockChangeListener m = (MockChangeListener)xnjs.get(ActionStateChangeListener.class);
 		assertTrue(m.getOrCreate(id).get()>0);
-		System.out.println("State change notifications: "+m.getOrCreate(id).get());
-
-	}
-
-	@Test
-	public void testRun2() throws Exception {
-		Action action=xnjs.makeAction(loadJSONObject(d1));
-		String id=action.getUUID();
-		mgr.add(action,client);
-		doRun(id);
-		action=((BasicManager)mgr).getAction(id);
-		assertTrue(action.getResult().isSuccessful());
 	}
 
 	@Test
@@ -73,73 +58,6 @@ public class TestJobControl extends EMSTestBase {
 	}
 
 	@Test
-	public void testTimeoutException() throws Exception{
-		Action action=xnjs.makeAction(loadJSONObject(d1));
-		String id=action.getUUID();
-		MyThread t = new MyThread(id);
-		try{
-			mgr.add(action,client);
-			waitUntilReady(id);
-			t.start();
-			do{
-				Thread.sleep(1000);
-			}while(t.a==null);
-			try{
-				System.out.println("test abort of "+id+" from "+Thread.currentThread().getName());
-				mgr.abort(id,client);
-				fail("Expected timeout");
-			}catch(ExecutionException te){
-				boolean OK=te.getCause() instanceof TimeoutException;
-				assertTrue(OK);
-			}
-		}finally{
-			t.release();
-		}
-	}
-
-	public class MyThread extends Thread{
-		volatile Action a;
-		private String id;
-		private volatile boolean stopped = false;
-
-		public MyThread(String id){
-			this.id=id;
-		}
-
-		public void run(){
-			//force a timeout exception
-			try{
-				lockAction(id);
-			}catch(Exception e){
-				throw new RuntimeException(e);
-			}
-			while(!stopped){
-				try{
-					Thread.sleep(500);
-				}catch(InterruptedException ie){}
-			}
-			System.out.println("Releasing : "+id+" from "+getName());
-			// now we can release it
-			if(a!=null)((BasicManager)mgr).doneProcessing(a);
-		}
-
-		public void lockAction(String id)throws Exception{
-			a=((BasicManager)mgr).getActionForUpdate(id);
-			if(a!=null){
-				System.out.println("Locked : "+id+" from "+getName());
-			}
-			else{
-				throw new IllegalStateException();
-			}
-		}
-
-		public void release()throws Exception{
-			stopped=true;
-		}
-
-	}
-
-	@Test
 	public void testDestroy() throws Exception {
 		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
@@ -156,8 +74,6 @@ public class TestJobControl extends EMSTestBase {
 		}
 	}
 
-	@FunctionalTest(id="testJSDLRestart", 
-			description="Tests restarting of jobs")
 	@Test
 	public void testRestart() throws Exception {
 		Action action=xnjs.makeAction(loadJSONObject(d1));

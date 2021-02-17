@@ -59,7 +59,6 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.POSIXApplicationType;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
-import de.fzj.unicore.xnjs.io.impl.OAuthToken;
 import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
 import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.util.XmlBeansUtils;
@@ -92,58 +91,6 @@ public class TestUtils {
 	}
 
 	@Test
-	public void testPosixAppExtraction() throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/ex_posix.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-
-		ApplicationDocument app=ApplicationDocument.Factory.newInstance();
-		app.setApplication(jdd.getJobDefinition().getJobDescription().getApplication());
-
-		POSIXApplicationDocument pd=JSDLUtils.extractPosixApplication(app);
-		assertNotNull(pd);
-		POSIXApplicationType pa=pd.getPOSIXApplication();
-		assertEquals(pa.getExecutable().getStringValue(), "/bin/date");	
-	}
-
-	@Test
-	public void testPosixAppExtraction2() throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/sleep.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		//System.out.println(jdd);
-		ApplicationDocument app=ApplicationDocument.Factory.newInstance();
-		app.setApplication(jdd.getJobDefinition().getJobDescription().getApplication());
-		POSIXApplicationDocument pd=JSDLUtils.extractPosixApplication(app);
-		assertNotNull(pd);
-		//System.out.println("After conversion: "+pd.toString());
-		POSIXApplicationType pa=pd.getPOSIXApplication();
-		assertEquals("10",pa.getArgumentArray(0).getStringValue());
-	}
-
-	@Test
-	public void testJsdl1() throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/empty.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		boolean hasStageIn=JSDLUtils.hasStageIn(jdd);
-		assertFalse(hasStageIn);
-		boolean hasStageOut=JSDLUtils.hasStageOut(jdd);
-		assertFalse(hasStageOut);
-	}
-
-	@Test
-	public void testJsdl2() throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/staging_1.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		boolean hasStageIn=JSDLUtils.hasStageIn(jdd);
-		assertTrue(hasStageIn);
-		boolean hasStageOut=JSDLUtils.hasStageOut(jdd);
-		assertFalse(hasStageOut);
-	}
-
-	@Test
 	public void testStageIn() throws Exception{
 		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.newInstance();
 		DataStagingType dst=jdd.addNewJobDefinition().addNewJobDescription().addNewDataStaging();
@@ -161,52 +108,6 @@ public class TestUtils {
 		boolean hasStageIn=JSDLUtils.hasStageIn(jdd);
 		assertFalse(hasStageIn);
 		assertTrue(JSDLUtils.hasStageOut(jdd));
-	}
-
-	@Test
-	public void testGetStageIn() throws Exception {
-		InputStream is = getResource("src/test/resources/jsdl/staging_1.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		assertEquals(JSDLUtils.getStageInArrayAsList(jdd).size(),1);
-		assertEquals(JSDLUtils.getStageOutArrayAsList(jdd).size(),0);
-	}
-
-	@Test
-	public void testGetStage2In() throws Exception {
-		InputStream is = getResource("src/test/resources/jsdl/staging_2.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		assertEquals(JSDLUtils.getStageInArrayAsList(jdd).size(),2);
-		assertEquals(JSDLUtils.getStageOutArrayAsList(jdd).size(),0);
-	}
-
-	@Test
-	public void testGetStageOut() throws Exception {
-		InputStream is = getResource("src/test/resources/jsdl/staging_3.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		assertEquals(JSDLUtils.getStageInArrayAsList(jdd).size(),0);
-		assertEquals(JSDLUtils.getStageOutArrayAsList(jdd).size(),1);
-	}
-
-	@Test
-	public void testGetStage2Out() throws Exception {
-		InputStream is = getResource("src/test/resources/jsdl/staging_4.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		assertEquals(JSDLUtils.getStageInArrayAsList(jdd).size(),0);
-		assertEquals(JSDLUtils.getStageOutArrayAsList(jdd).size(),2);
-	}
-
-	@Test
-	public void testGetStageOut2() throws Exception {
-		InputStream is =getResource("src/test/resources/jsdl/staging_3.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		assertEquals(JSDLUtils.getStageOutArrayAsList(jdd).size(),1);
-		DataStagingType dst=JSDLUtils.getStageOutArrayAsList(jdd).get(0);
-		assertEquals(dst.getTarget().getURI(),"http://foo.org/myfile");
 	}
 
 	@Test
@@ -243,37 +144,6 @@ public class TestUtils {
 		ResourcesType rt=dd.getResources();
 		String id=TSIUtils.extractReservationID(rt);
 		assertTrue("041314212111".equals(id));
-	}
-	
-	@Test
-	public void testExtractUserName()throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/ex_posix.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		String user=JSDLUtils.extractUserName(jdd);
-		assertNotNull(user);
-		assertEquals("nobody", user);
-	}
-
-	@Test
-	public void testExtractGroupName()throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/ex_posix.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		String group=JSDLUtils.extractUserGroup(jdd);
-		assertNotNull(group);
-		assertEquals("agroup", group);
-	}
-
-	@Test
-	public void testExtractContent()throws Exception{
-		InputStream is = getResource("src/test/resources/jsdl/ex_posix.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.parse(is);
-		XmlObject o=JSDLUtils.getElement(jdd, POSIXApplicationDocument.type.getDocumentElementName());
-		POSIXApplicationDocument p=(POSIXApplicationDocument)o;
-		assertNotNull(p);
-		assertEquals("/bin/date", p.getPOSIXApplication().getExecutable().getStringValue());
 	}
 
 	@Test
@@ -326,31 +196,6 @@ public class TestUtils {
 		String s2="scheduledStartTime: "+date;
 		d1=JSDLUtils.getDateFormat().parse(JSDLParser.getTagValue(s2, "scheduledStartTime")).getTime();
 		assertTrue(Math.abs( d0-d1 )< 1100 ); //ignore millis for comparison
-	}
-
-	@Test
-	public void testNoCredentials()throws Exception{
-		InputStream is = new FileInputStream("src/test/resources/jsdl/date2.jsdl");
-		assertNotNull(is);
-		XmlObject jsdl = XmlObject.Factory.parse(is);
-		UsernamePassword creds = JSDLUtils.extractUsernamePassword(jsdl);
-		assertNull(creds);
-	}
-
-	@Test
-	public void testCredentialsExtract()throws Exception{
-		InputStream is = new FileInputStream("src/test/resources/jsdl/staging_credentials.jsdl");
-		assertNotNull(is);
-		JobDefinitionDocument jsdl = JobDefinitionDocument.Factory.parse(is);
-		DataStagingType dst1 = jsdl.getJobDefinition().getJobDescription().getDataStagingArray(0);
-		UsernamePassword creds = JSDLUtils.extractUsernamePassword(dst1);
-		assertNotNull(creds);
-		assertEquals("user", creds.getUser());
-		assertEquals("pass", creds.getPassword());
-		DataStagingType dst2 = jsdl.getJobDefinition().getJobDescription().getDataStagingArray(1);
-		OAuthToken token = JSDLUtils.extractOAuthToken(dst2);
-		assertNotNull(token);
-		assertEquals("123", token.getToken());
 	}
 
 }

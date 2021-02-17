@@ -31,7 +31,7 @@
  *********************************************************************************/
 
 
-package de.fzj.unicore.xnjs.simple;
+package de.fzj.unicore.xnjs.tsi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -50,8 +50,6 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.Processor;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
-import de.fzj.unicore.xnjs.tsi.AbstractTSITest;
-import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.local.LocalTS;
 
 /**

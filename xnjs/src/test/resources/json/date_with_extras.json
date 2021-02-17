@@ -1,0 +1,14 @@
+{
+  "Executable": "date",
+  
+  "Stdout": "myout",
+  
+  "Stderr": "myerr",
+ 
+  "Project": "qcd",
+  
+  "Resources": {
+    "Runtime": "30"
+  }
+
+}

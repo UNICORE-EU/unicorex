@@ -39,8 +39,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 
-import com.codahale.metrics.MetricRegistry;
-
 import de.fzj.unicore.persist.DataVersionException;
 import de.fzj.unicore.persist.Persist;
 import de.fzj.unicore.persist.PersistenceException;
@@ -62,9 +60,6 @@ public class JDBCActionStore extends AbstractActionStore {
 
 	private Persist<DoneAction>doneJobs;
 
-	@Inject
-	MetricRegistry metrics;
-	
 	@Inject
 	PersistenceProperties properties;
 	
@@ -110,9 +105,9 @@ public class JDBCActionStore extends AbstractActionStore {
 	}
 	
 	protected void start()throws PersistenceException {
-		activeJobs=(PersistImpl<Action>)PersistenceFactory.get(properties, metrics).getPersist(Action.class);
+		activeJobs=(PersistImpl<Action>)PersistenceFactory.get(properties).getPersist(Action.class);
 		checkVersion(activeJobs, "JOBS");
-		doneJobs=PersistenceFactory.get(properties, metrics).getPersist(DoneAction.class);
+		doneJobs=PersistenceFactory.get(properties).getPersist(DoneAction.class);
 		doneJobs.setLockSupport(((PersistImpl<Action>)activeJobs).getLockSupport());
 	}
 

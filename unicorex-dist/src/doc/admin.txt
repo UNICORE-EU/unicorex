@@ -26,13 +26,9 @@ trying to submit a new job).
 Logging
 ~~~~~~~
 
-UNICORE uses the Log4j logging framework
-(http://logging.apache.org/log4j/1.2/), which supports many useful
-options, such as logging to the server's syslog (on Linux). Log4j is
-configured using a config file.  By default, this file is
-+CONF/logging.properties+. To change the default, edit the start
-script (+CONF/startup.properties+) or, on Windows, the
-+CONF/wrapper.conf+. The config file is specified with a Java property
+UNICORE uses the Log4j/2 logging framework.
+(http://logging.apache.org/log4j/2.x/manual/configuration.html). The
+config file is specified with a Java property
 +log4j.configurationFile+.
 
 
@@ -63,7 +59,7 @@ A sample logging pattern might be
 -------------------
 
 
-For more info on controlling the logging we refer to the log4j documentation:
+For more info on controlling the logging we refer to the log4j/2 documentation:
 
 https://logging.apache.org/log4j/2.x/manual/configuration.html
 
@@ -126,7 +122,7 @@ server is running on _myhost_ on port 7777, your preferences file
 would look like this
 
 --------------------
-registry=https://myhost:7777/services/Registry?res=default_registry
+registry=https://myhost:7777/rest/registries/default_registry
 
 # use UNICORE/X keystore
 credential.path=/path/to/unicorex/keystore
@@ -149,8 +145,8 @@ ucc .... -Z role:admin
 
 ===== Examples
 
-Some UCC commands that are useful are the _list-jobs_, _list-sites_ and _wsrf_ commands. 
-Using _list-jobs_ you can search for jobs with given properties, whereas the _wsrf_ command 
+Some UCC commands that are useful are the _list-jobs_, _list-sites_ and _rest_ commands. 
+Using _list-jobs_ you can search for jobs with given properties, whereas the _rest_ command 
 allows to look at any resource, or even destroy resources.
 
 To list all jobs on the server belonging to a specific user, do 
@@ -162,13 +158,13 @@ ucc list-jobs -f Log contains <username>
 where _username_ is some unique part of the user's DN, or the xlogin. Similarly, you can
 filter based on other properties of the job.
 
-The _wsrf_ command can be used to destroy resources, extend their lifetime 
-and look at their properties. Please see "ucc wsrf -h" for details.
+The _rest_ command can be used to destroy resources, or look at their properties.
+Please see "ucc rest -h" for details.
 
 Try
 
 ----------
-ucc wsrf getproperties https://myhost:7777/services/TargetSystemFactory?res=default_target_system_factory
+ucc rest get https://myhost:7777/rest/core/factories/default_target_system_factory
 ----------    
 
 [[ux_admin_service]]
@@ -204,10 +200,13 @@ where +jobID+ is the unique ID of the job.
 
 === Migration of a UNICORE/X server to another physical host
 
-If you want to migrate a UNICORE/X server to another host, there are several things to consider.
-The hostname and port are listed in CONF/wsrflite.xml and usually in the Gateway's connection.properties 
-file. These you will have to change. Otherwise, you can copy the relevant files in CONF to the 
-new machine. Also, the persisted state data needs to be moved to the new machine, if it is stored on the file
-system. If it is stored in a database, there is nothing to be done.
-If you are using a TSI server, you might need to edit the TSI's properties file and update the 
-+tsi.njs_machine+ property.
+If you want to migrate a UNICORE/X server to another host, there are
+several things to consider.  The hostname and port are listed in
+CONF/container.properties and usually in the Gateway's
+connection.properties file. These you will have to change. Otherwise,
+you can copy the relevant files in CONF to the new machine. Also, the
+persisted state data needs to be moved to the new machine, if it is
+stored on the file system. If it is stored in a database, there is
+nothing to be done.  If you are using a TSI server, you might need to
+edit the TSI's properties file and update the +tsi.njs_machine+
+property.

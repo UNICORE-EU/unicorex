@@ -31,14 +31,20 @@
  ********************************************************************************/
  
 
-package de.fzj.unicore.uas.impl;
+package de.fzj.unicore.uas.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.ServiceLoader;
 
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.XmlObject;
@@ -49,18 +55,62 @@ import org.oasisOpen.docs.wsrf.rl2.CurrentTimeDocument;
 import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
+import de.fzj.unicore.uas.SMSProperties;
+import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.fts.byteio.ByteIO;
 import de.fzj.unicore.uas.fts.byteio.RandomByteIO;
 import de.fzj.unicore.uas.fts.rft.StoreImpl;
+import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
+import de.fzj.unicore.uas.impl.sms.StorageDescription;
+import de.fzj.unicore.wsrflite.Capabilities;
+import de.fzj.unicore.wsrflite.Capability;
 import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
 import de.fzj.unicore.xnjs.io.ChangePermissions;
+import de.fzj.unicore.xnjs.io.IFileTransferCreator;
+import de.fzj.unicore.xnjs.io.IOCapabilities;
 import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
 import eu.unicore.services.ws.utils.WSServerUtilities;
+import eu.unicore.util.configuration.ConfigurationException;
 
 public class TestVarious {
 	
+
+	@Test
+	public void testLoadCapabilities(){
+		System.out.println("Loading USE capabilities.");
+		ServiceLoader<Capabilities> sl=ServiceLoader.load(Capabilities.class);
+		Iterator<Capabilities>iter=sl.iterator();
+		int i=0;
+		while(iter.hasNext()){
+			Capability[]cs=iter.next().getCapabilities();
+			for(int j=0; j<cs.length;j++){
+				Capability c=cs[j];
+				System.out.println(c.getInterface().getName()+ " provided by "+c.getImplementation().getName());
+			}
+			i++;
+		}
+		assertTrue(0<i);
+	}
+	
+	@Test
+	public void testLoadIOCapabilities(){
+		System.out.println("Loading XNJS IO capabilities.");
+		ServiceLoader<IOCapabilities> sl=ServiceLoader.load(IOCapabilities.class);
+		Iterator<IOCapabilities>iter=sl.iterator();
+		int i=0;
+		while(iter.hasNext()){
+			Class<? extends IFileTransferCreator>[]cs=iter.next().getFileTransferCreators();
+			for(int j=0; j<cs.length;j++){
+				Class <? extends IFileTransferCreator>c=cs[j];
+				System.out.println("Filetransfer creator class "+c.getName());
+			}
+			i++;
+		}
+		assertTrue(0<i);
+	}
+
 	@Test
 	public void testRegistryContentMaker(){
 	   CurrentTimeDocument ct=CurrentTimeDocument.Factory.newInstance();
@@ -260,4 +310,66 @@ public class TestVarious {
 		
 	}
 	
+
+	@Test
+	public void testStorageDescription() throws ConfigurationException, IOException {
+		Properties p = new Properties();
+		String PREFIX = UASProperties.PREFIX + UASProperties.SMS_ADDON_STORAGE_PREFIX;
+		
+		p.setProperty(PREFIX+"NNN."+SMSProperties.PATH , "path");
+		p.setProperty(PREFIX+"NNN."+SMSProperties.CLASS, SMSBaseImpl.class.getName());
+		p.setProperty(PREFIX+"NNN."+SMSProperties.TYPE, "CUSTOM");
+		p.setProperty(PREFIX+"NNN."+SMSProperties.EXTRA_PREFIX+"other", "dd");
+		p.setProperty(PREFIX+"NNN."+SMSProperties.EXTRA_PREFIX+"oneMore.fff", "dd");
+		
+		p.setProperty(PREFIX+"NNN2."+SMSProperties.PATH , "path");
+		p.setProperty(PREFIX+"NNN2."+SMSProperties.CLASS, SMSBaseImpl.class.getName());
+		p.setProperty(PREFIX+"NNN2."+SMSProperties.TYPE, "CUSTOM");
+		p.setProperty(PREFIX+"NNN2."+SMSProperties.EXTRA_PREFIX+"other", "dd");
+		p.setProperty(PREFIX+"NNN2."+SMSProperties.EXTRA_PREFIX+"oneMore.fff", "dd");
+		
+		UASProperties props = new UASProperties(p);
+		
+		assertEquals(2, props.getAddonStorages().size());
+		for (StorageDescription desc: props.getAddonStorages()) {
+			assertTrue(desc.getName(), desc.getName().equals("NNN") || desc.getName().equals("NNN2"));
+			assertEquals("path", desc.getPathSpec());
+			assertEquals(SMSBaseImpl.class, desc.getStorageClass());
+			assertEquals("CUSTOM", desc.getStorageTypeAsString());
+			assertEquals(2, desc.getAdditionalProperties().size());
+		}
+	}
+	
+	@Test
+	public void testTSSAttachedStorageDescription() throws ConfigurationException, IOException{
+		String PREFIX = UASProperties.PREFIX + UASProperties.SMS_ADDON_STORAGE_PREFIX;
+		Properties p=new Properties();
+		p.put(PREFIX+"1.name","WORK");
+		p.put(PREFIX+"1.type","VARIABLE");
+		p.put(PREFIX+"1.path","WORK");
+		
+		p.put(PREFIX+"2.name","TEMP");
+		p.put(PREFIX+"2.type","FIXEDPATH");
+		p.put(PREFIX+"2.path","/tmp/unicorex-test");
+		
+		UASProperties cfg = new UASProperties(p);
+		Collection<StorageDescription>list = cfg.getAddonStorages();
+		assertTrue(list.size()==2);
+		
+		p=new Properties();
+		p.put(PREFIX+"1.name","WORK");
+		p.put(PREFIX+"1.type","VARIABLE");
+		p.put(PREFIX+"1.path","MY_WORK");
+		p.put(PREFIX+"1.protocols","UFTP");
+		
+		cfg = new UASProperties(p);
+		list=cfg.getAddonStorages();
+		assertEquals(1, list.size());
+		StorageDescription asd=list.iterator().next();
+		assertNotNull(asd);
+		System.out.println(asd);
+		assertEquals("WORK", asd.getName());
+		assertEquals("VARIABLE", asd.getStorageTypeAsString());
+		assertEquals("MY_WORK", asd.getPathSpec());
+	}
 }

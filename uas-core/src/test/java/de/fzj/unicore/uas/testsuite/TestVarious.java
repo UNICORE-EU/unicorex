@@ -2,11 +2,14 @@ package de.fzj.unicore.uas.testsuite;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.List;
 
+import org.apache.xmlbeans.XmlObject;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionType;
 import org.junit.Test;
+import org.unigrids.services.atomic.types.StatusType;
 import org.unigrids.x2006.x04.services.tss.SubmitDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
@@ -15,19 +18,77 @@ import de.fzj.unicore.uas.TargetSystemFactory;
 import de.fzj.unicore.uas.client.JobClient;
 import de.fzj.unicore.uas.client.TSFClient;
 import de.fzj.unicore.uas.client.TSSClient;
+import de.fzj.unicore.uas.client.TaskClient;
+import de.fzj.unicore.uas.impl.task.TaskImpl;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.wsrflite.ContainerProperties;
+import de.fzj.unicore.wsrflite.Home;
+import de.fzj.unicore.wsrflite.InitParameters;
+import de.fzj.unicore.wsrflite.utils.Utilities;
 import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
 import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
 import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.ems.BasicManager;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
+import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.httpclient.ClientProperties;
 
-public class TestTSSReinit extends Base {
+public class TestVarious extends Base {
 	String url;
 	EndpointReferenceType epr;
 
+	@Test
+	public void testTaskService()throws Exception{
+		String URL=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL)+"/Test?res=123";
+		String uuid=createNewInstance();
+		EndpointReferenceType taskEPR=WSServerUtilities.makeEPR("Task", uuid, kernel);
+		TaskClient c=new TaskClient(taskEPR,kernel.getClientConfiguration());
+		String parentUrl=c.getResourcePropertiesDocument().getTaskProperties().getSubmissionServiceReference().getAddress().getStringValue();
+		assertTrue(parentUrl.equals(URL));
+		assertTrue(c.getSubmissionTime()!=null);
+		assertTrue(c.getStatus().equals(StatusType.RUNNING));
+		try{
+			c.cancel();
+		}
+		catch(Exception ex){
+			ex.printStackTrace();
+			fail(ex.toString());
+		}
+	}
+	
+	@Test
+	public void createResultTest()throws Exception{
+		String uuid=createNewInstance();
+		EndpointReferenceType taskEPR=WSServerUtilities.makeEPR("Task", uuid, kernel);
+		TaskClient c=new TaskClient(taskEPR,kernel.getClientConfiguration());
+		assertTrue(c.getResult()==null);
+		createAndStoreResult(uuid);
+		c.setUpdateInterval(-1);
+		XmlObject result=c.getResult();
+		String text=Utilities.extractElementTextAsString(result);
+		assertTrue("testresult".equals(text));
+		assertTrue(c.getStatus().equals(StatusType.SUCCESSFUL));
+		assertTrue(c.getExitCode().equals(Integer.valueOf(13)));
+		assertTrue(c.getStatusMessage().equals("test123"));	
+	}
+	
+	private void createAndStoreResult(String uuid)throws Exception{
+		XmlObject result=XmlObject.Factory.parse("<t:test xmlns:t=\"http://test\">testresult</t:test>");
+		TaskImpl.putResult(kernel, uuid, result, "test123", 13);
+	}
+	
+	private String createNewInstance() throws Exception{
+		String URL=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL)+"/Test?res=123";
+		Home taskHome=kernel.getHome("Task");
+		if(taskHome==null)throw new Exception("Task service is not deployed");
+		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
+		epr.addNewAddress().setStringValue(URL);
+		InitParameters initP = new InitParameters();
+		initP.parentServiceName = "Test";
+		initP.parentUUID = "123";
+		return taskHome.createResource(initP);
+	}
+	
 	@FunctionalTest(id="TSSReinit", 
 			description="Tests TargetSystemService behaviour when re-created by a user")
 	@Test

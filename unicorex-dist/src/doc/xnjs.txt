@@ -268,7 +268,21 @@ include::mailto.txt[]
 GridFTP
 ~~~~~~~
 
-Using GridFTP requires a proxy cert, please refer to section xref:ux_proxies[]
+UNICORE can use GridFTP client tools for stage-in/stage-out provided
+the client uploads the required proxy certificate. The proxy cert is
+expected in a file ".proxy" in the job's working directory.
+
+
+GridFTP usage can be customised using two settings in the XNJS config
+file ("xnjs.properties").
+
+--------------------------------------
+# name / path of the executable
+XNJS.staging.gridftp=/usr/local/bin/globus-url-copy
+
+# additional parameters for globus-url-copy
+XNJS.staging.gridftpParameters=
+-------------------------------------
 
 
 Configuration reference

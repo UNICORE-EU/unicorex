@@ -6,28 +6,8 @@ Mail support
 UNICORE supports file staging out using email. An existing SMPT server 
 or some other working email mechanism is required for this to work.
 
-In the JSDL job description, a stage out using email is specified as 
-follows:
-
------
-<?xml version="1.0"?>
-<p:JobDefinition xmlns:p="http://schemas.ggf.org/jsdl/2005/11/jsdl" 
-                 xmlns:jsdl-posix="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
-  <p:JobDescription>
-
-    <!-- example stage-out using email -->
-    <p:DataStaging>
-      <p:FileName>stdout</p:FileName>
-      <p:Target>
-        <p:URI>mailto:user@domain?subject=Your output is ready</p:URI>
-      </p:Target>
-    </p:DataStaging>
-
-  </p:JobDescription>
-</p:JobDefinition>
------
-
-The "mailto" URI consists of the email address and an OPTIONAL user-defined subject.
+The source/target URL scheme is "mailto:". You can append a subject,
+for example "mailto:user@domain?subject=Your output is ready"
 
 Site setup
 ++++++++++

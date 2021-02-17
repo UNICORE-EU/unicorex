@@ -39,6 +39,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
@@ -51,7 +52,6 @@ import com.google.inject.AbstractModule;
 import de.fzj.unicore.xnjs.XNJSTestBase;
 import de.fzj.unicore.xnjs.persistence.IActionStoreFactory;
 import de.fzj.unicore.xnjs.persistence.JDBCActionStoreFactory;
-import de.fzj.unicore.xnjs.util.IOUtils;
 
 
 /**
@@ -84,15 +84,8 @@ public abstract class EMSTestBase extends XNJSTestBase {
 	 * build a JobDefinition document from an XML file on the file system
 	 */
 	protected JobDefinitionDocument getJSDLDoc(String name) throws Exception {
-		JobDefinitionDocument jdd;
-		InputStream is=null;
-		try {
-			is=getResource(name);
-			assertNotNull(is);
-			jdd=JobDefinitionDocument.Factory.parse(is);
-			return jdd;
-		}finally{
-			IOUtils.closeQuietly(is);
+		try (InputStream is = new FileInputStream(name)){
+			return JobDefinitionDocument.Factory.parse(is);
 		} 
 	}
 	
