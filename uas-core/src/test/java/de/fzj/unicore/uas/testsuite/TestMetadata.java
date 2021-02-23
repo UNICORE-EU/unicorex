@@ -27,7 +27,6 @@ import de.fzj.unicore.uas.util.MockMetadataManager;
 import de.fzj.unicore.wsrflite.ContainerProperties;
 import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
 import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 
 /**
  * runs some tests on the metadata support
@@ -36,12 +35,11 @@ import eu.unicore.bugsreporter.annotation.FunctionalTest;
  */
 public class TestMetadata extends Base {
 
-	@FunctionalTest(id="MetadataTest", description="Tests basic metadata support.")
 	@Test
 	public void testMetadata()throws Exception{
-		String url=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		String url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
+		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
 		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
 		//find a StorageFactory
 		List<EndpointReferenceType> smf=reg.listServices(StorageFactory.SMF_PORT);

@@ -113,35 +113,37 @@ monitored in several ways.
 It is possible to use the UNICORE commandline client (UCC) for administrative and operations tasks.
 
 To do this you need to configure UCC with administrative
-privileges. One way to do this is using the _server_ certificate of
-the UNICORE/X server, which will give UCC  administrator rights.
-
-Also you should connect directly to UNICORE/X, not to the registry as
-usual. Here is an example UCC configuration file. Say your UNICORE/X
-server is running on _myhost_ on port 7777, your preferences file
-would look like this
-
---------------------
-registry=https://myhost:7777/rest/registries/default_registry
-
-# use UNICORE/X keystore
-credential.path=/path/to/unicorex/keystore
-credential.password=...
-
-# truststore config omitted
-
--------------------
-
-Note that the registry URL points directly to the UNICORE/X server, not to a gateway.
-
-
-Another way is to add the "admin" role to your user account, and
-select this role when running UCC commands
+privileges. One way is to add the "admin" role to your user account,
+and select this role when running UCC commands
 
 --------
 ucc .... -Z role:admin
 --------
 
+or create a dedicated admin user.
+
+Another way to do this is using the _server_ certificate of
+the UNICORE/X server, which will give UCC  administrator rights provided UNICORE/X
+is configured to accept X509 authentication.
+
+--------------------
+# use UNICORE/X keystore
+authenticationMethod=X509
+credential.path=/path/to/unicorex/keystore
+credential.password=...
+
+# (optional) truststore config omitted
+-------------------
+
+Also you should connect directly to UNICORE/X, not to the registry as
+usual. Say your UNICORE/X server is running on _myhost_ on port 7777,
+your preferences file would look like this
+
+--------------------
+registry=https://myhost:7777/rest/registries/default_registry
+-------------------
+
+Note that the registry URL points directly to the UNICORE/X server, not to a gateway.
 
 ===== Examples
 

@@ -12,7 +12,7 @@ If not installed on your system, you can download it from
 http://www.oracle.com/technetwork/java/javase/downloads/index.html
 
 UNICORE/X has been developed and most extensively tested on Linux-like
-systems, but runs on MacOS/X and even Windows well
+systems, but runs on MacOS/X as well.
 
 Please note that
 

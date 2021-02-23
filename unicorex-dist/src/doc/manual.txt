@@ -22,9 +22,9 @@ include::admin.txt[]
 
 include::security_concepts.txt[]
 
-include::use-attribute-sources.txt[]
-
 include::use-rest.txt[]
+
+include::use-attribute-sources.txt[]
 
 include::use-persistence.txt[]
 

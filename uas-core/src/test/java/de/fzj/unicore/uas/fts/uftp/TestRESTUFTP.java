@@ -27,7 +27,6 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.client.UFTPConstants;
 import de.fzj.unicore.uas.fts.FiletransferOptions;
 import de.fzj.unicore.wsrflite.Kernel;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.JobClient;
@@ -106,13 +105,11 @@ public class TestRESTUFTP {
 		tss = tsf.getOrCreateSite();
 	}
 
-	@FunctionalTest(id = "testUFTPStageIn", description = "Tests file staging in using UFTP")
 	@Test
 	public void testStageIn() throws Exception {
 		doStageIn(false);
 	}
 
-	@FunctionalTest(id = "testUFTPStageInEncrypt", description = "Tests file staging in using UFTP with encrypted data")
 	@Test
 	public void testStageInEncrypt() throws Exception {
 		doStageIn(true);
@@ -151,13 +148,11 @@ public class TestRESTUFTP {
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 	}
 	
-	@FunctionalTest(id = "testUFTPStageOut", description = "Tests file stage out using UFTP")
 	@Test
 	public void testStageOut() throws Exception {
 		doStageOut(false);
 	}
 
-	@FunctionalTest(id = "testUFTPStageOutEncrypt", description = "Tests file stage out using UFTP with encrypted data")
 	@Test
 	public void testStageOutEncrypt() throws Exception {
 		doStageOut(true);
@@ -213,13 +208,11 @@ public class TestRESTUFTP {
 		Assert.assertEquals(orig, exported);
 	}
 	
-	@FunctionalTest(id = "testUFTPImportFile", description = "Tests file import using UFTP")
 	@Test
 	public void testImportFile() throws Exception {
 		doImportFile(false, false);
 	}
 
-	@FunctionalTest(id = "testUFTPImportFileEncrypted", description = "Tests file import using UFTP with data encryption")
 	@Test
 	public void testImportFileEncrypt() throws Exception {
 		doImportFile(true, false);
@@ -286,15 +279,11 @@ public class TestRESTUFTP {
    		Assert.assertEquals(size * n, gft.size);
    	}
 	
-	@FunctionalTest(id = "testUFTPExportFile", description = "Tests file export using UFTP")
 	@Test
 	public void testExportFile() throws Exception {
 		doExportFile(false, false);
 	}
 
-	
-
-	@FunctionalTest(id = "testUFTPExportFileEncrypt", description = "Tests file export using UFTP with encrypted data")
 	@Test
 	public void testExportFileEncrypt() throws Exception {
 		doExportFile(true, false);

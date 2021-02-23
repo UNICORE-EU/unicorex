@@ -74,9 +74,9 @@ public abstract class Base{
 	}
 	
 	protected StorageFactoryClient getStorageFactory() throws Exception {
-		String url=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		String url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
+		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
 		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
 		//find a StorageFactory
 		List<EndpointReferenceType> eprs=reg.listServices(StorageFactory.SMF_PORT);

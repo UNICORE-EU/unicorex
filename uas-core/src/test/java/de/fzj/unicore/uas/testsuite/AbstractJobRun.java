@@ -38,9 +38,9 @@ public abstract class AbstractJobRun extends Base {
 	 * @throws Exception
 	 */
 	protected void initClients()throws Exception{
-		url=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		EndpointReferenceType tsfepr=EndpointReferenceType.Factory.newInstance();
-		String tsfUrl=url+"/"+UAS.TSF+"?res="+TargetSystemFactoryHomeImpl.DEFAULT_TSF;
+		String tsfUrl=url+"/services/"+UAS.TSF+"?res="+TargetSystemFactoryHomeImpl.DEFAULT_TSF;
 		tsfepr.addNewAddress().setStringValue(tsfUrl);
 		if(tsf==null)tsf=new TSFClient(tsfUrl,tsfepr,getSecurityProperties());
 		if(tss==null)tss=tsf.createTSS();

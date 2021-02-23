@@ -27,9 +27,8 @@ import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.utils.Utilities;
 import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
 import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
-import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.ems.BasicManager;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
+import de.fzj.unicore.xnjs.ems.InternalManager;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.httpclient.ClientProperties;
 
@@ -39,7 +38,7 @@ public class TestVarious extends Base {
 
 	@Test
 	public void testTaskService()throws Exception{
-		String URL=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL)+"/Test?res=123";
+		String URL=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL)+"/services/Test?res=123";
 		String uuid=createNewInstance();
 		EndpointReferenceType taskEPR=WSServerUtilities.makeEPR("Task", uuid, kernel);
 		TaskClient c=new TaskClient(taskEPR,kernel.getClientConfiguration());
@@ -78,7 +77,7 @@ public class TestVarious extends Base {
 	}
 	
 	private String createNewInstance() throws Exception{
-		String URL=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL)+"/Test?res=123";
+		String URL=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL)+"services/Test?res=123";
 		Home taskHome=kernel.getHome("Task");
 		if(taskHome==null)throw new Exception("Task service is not deployed");
 		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
@@ -89,8 +88,6 @@ public class TestVarious extends Base {
 		return taskHome.createResource(initP);
 	}
 	
-	@FunctionalTest(id="TSSReinit", 
-			description="Tests TargetSystemService behaviour when re-created by a user")
 	@Test
 	public void testTSSReInitJobList() throws Exception {
 		testRecreate();
@@ -98,9 +95,9 @@ public class TestVarious extends Base {
 	}
 	
 	private void testRecreate()throws Exception{
-		url=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
+		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
 		ClientProperties securityProps = kernel.getClientConfiguration();
 
 		RegistryClient reg=new RegistryClient(epr, securityProps);
@@ -148,9 +145,9 @@ public class TestVarious extends Base {
 	}
 
 	private void testRecreateXNJS()throws Exception{
-		url=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
+		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
 		ClientProperties securityProps = kernel.getClientConfiguration();
 
 		RegistryClient reg=new RegistryClient(epr, securityProps);

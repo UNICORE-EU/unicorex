@@ -18,12 +18,10 @@ import de.fzj.unicore.uas.client.JobClient;
 import de.fzj.unicore.uas.client.ReservationClient;
 import de.fzj.unicore.uas.xnjs.MockReservation;
 import de.fzj.unicore.wsrflite.impl.DefaultHome;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 
 public class TestReservation extends AbstractJobRun {
 
 	@Override
-	@FunctionalTest(id="ReservationTest", description="Tests the reservation management WS interface.")
 	public void testRunJob()throws Exception{
 		initClients();
 

@@ -12,7 +12,6 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.client.TransferControllerClient;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**
@@ -28,8 +27,6 @@ public class TestServerServerTransferErrorHandling extends Base {
 	String sourceURL,targetURL;
 	
 	
-	@FunctionalTest(id="ServerServerFTErrorsTest", 
-					description="Tests error handling of server-to-server filetransfers")
 	@Test
 	public void testTransfer()throws Exception{
 		factory= WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory",kernel);

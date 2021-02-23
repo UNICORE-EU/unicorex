@@ -19,7 +19,6 @@ import de.fzj.unicore.uas.client.EnumerationClient;
 import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.client.TransferControllerClient;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**
@@ -35,8 +34,6 @@ public class RunServerServerTransfer extends Base {
 	String sourceURL,targetURL;
 
 
-	@FunctionalTest(id="ServerServerFTTest", 
-			description="Tests server-to-server filetransfer")
 	@Test
 	public void testTransfer()throws Exception{
 		factory= WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory",kernel);
@@ -51,9 +48,6 @@ public class RunServerServerTransfer extends Base {
 		}
 	}
 
-
-	@FunctionalTest(id="ServerServerFTReferencesTest", 
-			description="Tests the references to server-to-server filetransfers")
 	@Test
 	public void testTransferReferences()throws Exception{
 		factory= WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory",kernel);
@@ -76,8 +70,6 @@ public class RunServerServerTransfer extends Base {
 		assertEquals(0, ftReferences.getNumberOfResults());
 	}
 
-	@FunctionalTest(id="ServerServerFTTestWildcards", 
-			description="Tests server-to-server filetransfer using wildcards")
 	@Test
 	public void testTransferWildcards()throws Exception{
 		factory= WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory",kernel);

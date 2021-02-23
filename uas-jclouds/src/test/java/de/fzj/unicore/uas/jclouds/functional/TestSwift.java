@@ -97,9 +97,9 @@ public class TestSwift {
 		UASProperties uasProps = kernel.getAttribute(UASProperties.class);
 		uasProps.setProperty("sms.factory.SWIFT.path",swiftProps.getProperty("path"));
 		
-		String url = kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		String url = kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
+		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
 		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
 		//find a StorageFactory
 		List<EndpointReferenceType> tsfs = reg.listServices(StorageFactory.SMF_PORT);

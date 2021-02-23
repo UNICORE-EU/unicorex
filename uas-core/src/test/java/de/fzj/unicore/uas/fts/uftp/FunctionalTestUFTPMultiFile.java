@@ -29,7 +29,6 @@ import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.client.TSFClient;
 import de.fzj.unicore.uas.client.TSSClient;
 import de.fzj.unicore.wsrflite.Kernel;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 
 /**
  * Tests the UFTP 2.0 multi-file transfers in "non-local mode", i.e. 
@@ -105,13 +104,11 @@ public class FunctionalTestUFTPMultiFile {
 		tss = tsf.createTSS();
 	}
 
-	@FunctionalTest(id = "testUFTPStageInMultiFile", description = "Tests multi-file staging in using UFTP")
 	@Test
 	public void testStageInMultiFile() throws Exception {
 		doStageIn(false);
 	}
 
-	@FunctionalTest(id = "testUFTPStageInMultiFileEncrypt", description = "Tests multi-file staging in using UFTP with encrypted data")
 	@Test
 	@Ignore
 	public void testStageInMultiFileEncrypt() throws Exception {
@@ -146,13 +143,11 @@ public class FunctionalTestUFTPMultiFile {
 		assertEquals("Wrong number of filetransfers", 1, after-before);
 	}
 	
-	@FunctionalTest(id = "testUFTPStageOutMultiFile", description = "Tests multifile file stage out using UFTP")
 	@Test
 	public void testStageOutMultiFile() throws Exception {
 		doStageOut(false);
 	}
 
-	@FunctionalTest(id = "testUFTPStageOutEncryptMultiFile", description = "Tests multifile stage out using UFTP with encrypted data")
 	@Test
 	@Ignore
 	public void testStageOutEncryptMultiFile() throws Exception {

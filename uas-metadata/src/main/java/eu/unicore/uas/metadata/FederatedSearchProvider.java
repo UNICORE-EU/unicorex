@@ -146,9 +146,9 @@ public class FederatedSearchProvider implements
 		IRegistryQuery registryClient=rh.getExternalRegistryClient();
 		if(registryClient==null){
 			// setup a client talking to the local registry
-			String url = kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+			String url = kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 			EndpointReferenceType endpointReferenceType = EndpointReferenceType.Factory.newInstance();
-			endpointReferenceType.addNewAddress().setStringValue(url + "/" + Registry.REGISTRY_SERVICE + "?res=default_registry");
+			endpointReferenceType.addNewAddress().setStringValue(url + "/services/" + Registry.REGISTRY_SERVICE + "?res=default_registry");
 			registryClient = new RegistryClient(endpointReferenceType, kernel.getClientConfiguration());
 		}
 		return registryClient;

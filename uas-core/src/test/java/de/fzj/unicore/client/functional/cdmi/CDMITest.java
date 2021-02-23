@@ -31,7 +31,6 @@ import de.fzj.unicore.wsrflite.ContainerProperties;
 import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
 import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.util.httpclient.ClientProperties;
 
@@ -40,7 +39,6 @@ public class CDMITest extends Base {
 	Properties cdmiProps; 
 
 	@Test
-	@FunctionalTest(id="CDMITest", description="Tests CDMI SMS impl")
 	public void testStorageFactory()throws Exception {
 		cdmiProps = loadCDMIProps();
 		String tokenEndpoint = cdmiProps.getProperty("tokenEndpoint");
@@ -49,9 +47,9 @@ public class CDMITest extends Base {
 		UASProperties uasProps = kernel.getAttribute(UASProperties.class);
 		uasProps.setProperty("sms.factory.CDMI.path",cdmiProps.getProperty("path"));
 		testCreateToken(tokenEndpoint, username, password);
-		String url = kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		String url = kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
+		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
 		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
 		//find a StorageFactory
 		List<EndpointReferenceType> tsfs = reg.listServices(StorageFactory.SMF_PORT);

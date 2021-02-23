@@ -1,7 +1,6 @@
 UNICORE Registry Manual
 ======================
 UNICORE Team <unicore-support@lists.sourceforge.net>
-v7.1.0, 2013
 :revnumber: 1.0.0
 :numbered:
 
@@ -15,7 +14,7 @@ use of UNICORE services. Since such a registry is vital to the
 functioning of a UNICORE-based federation, you can have more than one.
 
 For more information about UNICORE visit
-http://www.unicore.eu[http://www.unicore.eu].
+https://www.unicore.eu[https://www.unicore.eu].
 
 include::registry.txt[]
 

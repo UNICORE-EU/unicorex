@@ -32,7 +32,6 @@ import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.wsrflite.ContainerProperties;
 import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
 import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.bugsreporter.annotation.RegressionTest;
 
 /**
@@ -50,13 +49,11 @@ public class RunSMSTest extends AbstractJobRun{
 		super.testRunJob();
 	}
 
-	
-	@FunctionalTest(id="RunSMSTest", description="Tests the storage management service")
 	@Test
 	public void testDefaultSMS()throws Exception{
-		url=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/StorageManagement?res=WORK");
+		epr.addNewAddress().setStringValue(url+"/services/StorageManagement?res=WORK");
 		StorageClient sms=new StorageClient(epr,kernel.getClientConfiguration());
 		FileSystemType fst = sms.getFileSystem();
 		assertNotNull(fst);
@@ -288,13 +285,11 @@ public class RunSMSTest extends AbstractJobRun{
 		System.out.println(Arrays.asList(gf1));
 	}
 
-
 	@Test
-	@FunctionalTest(id="StorageFactoryTest", description="Tests StorageFactory service")
 	public void testStorageFactory()throws Exception{
-		String url=kernel.getContainerProperties().getValue(ContainerProperties.WSRF_BASEURL);
+		String url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
 		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
+		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
 		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
 		//find a StorageFactory
 		List<EndpointReferenceType> tsfs=reg.listServices(StorageFactory.SMF_PORT);
