@@ -53,7 +53,6 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String TSI_GROUPS="GROUPS";
 	public static final String TSI_MKFIFO="MKFIFO";
 	public static final String TSI_UMASK="UMASK";
-	public static final String TSI_PERL="PERL";
 	public static final String TSI_BUFFERSIZE="BUFFERSIZE";
 	
 	// various
@@ -127,8 +126,6 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Unix 'mkfifo' command."));
 		META.put(TSI_UMASK, new PropertyMD("umask").
 				setDescription("Unix 'umask' command."));
-		META.put(TSI_PERL, new PropertyMD("/usr/bin/perl").
-				setDescription("Perl interpreter."));
 		META.put(TSI_BUFFERSIZE, new PropertyMD(String.valueOf(1024*1024)).setInt().setPositive().
 				setDescription("Buffer size (in bytes) for transferring data from/to the TSI."));
 		

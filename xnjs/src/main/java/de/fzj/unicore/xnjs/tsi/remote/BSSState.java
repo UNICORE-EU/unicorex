@@ -219,7 +219,7 @@ public class BSSState implements IBSSState {
 	}
 
 	/**
-	 * parse the status listing returned by TSI GetStatusListing and modify the
+	 * parse the status listing returned by TSI and modify the
 	 * map holding the states<br/> 
 	 * 
 	 * A {@link ContinueProcessingEvent} is
@@ -242,7 +242,7 @@ public class BSSState implements IBSSState {
 		int queued=0;
 		int total=0;
 		/*
-		 * From TSI GetStatusListing.pm: 
+		 * Format used by TSI:
 		 * 
 		 * First line is "QSTAT", followed by a
 		 * line per found job, first word is BSS job identifier and the second

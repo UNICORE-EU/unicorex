@@ -159,7 +159,7 @@ public class Execution extends BasicExecution {
 				job.addLogTrace("TSI reply: submission OK.");
 				String bssid=res.trim(); //strip newline
 
-				msg="Submitted to classic TSI as ["+idLine+"] with BSSID="+bssid;
+				msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
 				
 				String internalID = bssid;
 				BSS_STATE initialState = BSS_STATE.QUEUED;
@@ -167,7 +167,7 @@ public class Execution extends BasicExecution {
 				if(runOnLoginNode){
 					long iPid = readPID(job, tsiHost);
 					internalID="INTERACTIVE_"+tsiHost+"_"+iPid;
-					msg="Submitted to classic TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
+					msg="Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
 					job.getExecutionContext().setPreferredExecutionHost(tsiHost);
 					initialState = BSS_STATE.RUNNING;
 					initialStatus = ActionStatus.RUNNING;
@@ -258,7 +258,7 @@ public class Execution extends BasicExecution {
 				updateEstimatedEndtime(job);
 				job.setStatus(ActionStatus.RUNNING);
 			}
-			else if("UNKNOWN".equals(status) || status==null){
+			else if(BSS_STATE.UNKNOWN.equals(status) || status==null){
 				//check if exit code can be read
 				boolean haveExitCode=getExitCode(job);
 				if(!haveExitCode){

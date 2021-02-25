@@ -451,7 +451,6 @@ public class BasicManager implements Manager, InternalManager {
 		}catch(PersistenceException pe){
 			throw new ExecutionException(pe);
 		}
-		logger.debug("Added new internal action with id="+a.getUUID()+" into the EMS.");
 		return a.getUUID();
 	}
 
