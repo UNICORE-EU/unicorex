@@ -37,9 +37,7 @@ public class ScriptEvaluator {
 		}
 		GroovyShell interpreter = new GroovyShell();
 		prepareInterpreter(interpreter, vars);
-		if(logger.isDebugEnabled()){
-			logger.debug("Evaluating expression: "+script+" with context "+vars);
-		}
+		logger.debug("Evaluating expression: {} with context {}", script, vars);
 		return sandbox.eval(interpreter,script);
 	}
 

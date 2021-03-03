@@ -3,10 +3,9 @@ package de.fzj.unicore.xnjs.tsi.remote;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -120,16 +119,14 @@ public class BSSState implements IBSSState {
 	//updates the status hashmap. Called periodically from a scheduler thread
 	private void updateBSSStates() throws Exception {
 		//do not update while job is being submitted!
-		jobSubmissionInProgressLock.tryLock(120, TimeUnit.SECONDS);
+		lock();
 		try {
 			String res=null;
 			try (TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", null, timeout)){
 				res = conn.send(TSIUtils.makeStatusCommand(null));
-				if(log.isTraceEnabled()){
-					log.trace("BSS Status listing: \n"+res);
-				}
+				log.trace("BSS Status listing: \n{}", res);
 			}
-			List<String>pids=new ArrayList<String>();
+			Set<String>pids = new HashSet<>();
 			for(String tsiNode: connectionFactory.getTSIHosts()){
 				try{
 					pids.addAll(getProcessList(tsiNode));
@@ -147,7 +144,7 @@ public class BSSState implements IBSSState {
 			summary = updateStatusListing(bssInfo, res, pids, eventHandler);
 		}
 		finally{
-			jobSubmissionInProgressLock.unlock();
+			unlock();
 		}
 	}
 
@@ -166,9 +163,7 @@ public class BSSState implements IBSSState {
 		try(TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", tsiNode, timeout)){
 			String script=tsiProperties.getValue(TSIProperties.BSS_PS);
 			String res=conn.send(TSIUtils.makeExecuteScript(script, null, idb, null));
-			if(log.isTraceEnabled()){
-				log.trace("Process listing on ["+tsiNode+"]: \n"+res);
-			}
+			log.trace("Process listing on [{}]: \n{}", tsiNode, res);
 			if(res==null || !res.startsWith("TSI_OK")){
 				String msg = "Cannot retrieve process list. TSI reply: "+res;
 				// if this does not work, something is wrong with the TSI node
@@ -187,11 +182,6 @@ public class BSSState implements IBSSState {
 			}
 		}
 		return result;
-	}
-
-	@Override
-	public Map<String,BSSInfo> getBSSInfo(){
-		return bssInfo;
 	}
 
 	public boolean lock() throws InterruptedException {
@@ -236,8 +226,8 @@ public class BSSState implements IBSSState {
 	 * 
 	 * @throws Exception
 	 */
-	public static BSSSummary updateStatusListing(Map<String, BSSInfo> statesMap, 
-			String tsiReply, List<String>interactiveProcesses, EventHandler handler)throws IOException {
+	public static BSSSummary updateStatusListing(final Map<String, BSSInfo> statesMap, 
+			String tsiReply, Collection<String>interactiveProcesses, EventHandler handler)throws IOException {
 		int running=0;
 		int queued=0;
 		int total=0;
@@ -262,7 +252,6 @@ public class BSSState implements IBSSState {
 
 		Set<String> bssIDs = new HashSet<String>();
 		bssIDs.addAll(statesMap.keySet());
-		Set<String> haveStatusForIDs = new HashSet<String>();
 		Map<String,Integer> queueFill = new HashMap<String,Integer>();
 		boolean active;
 
@@ -275,19 +264,15 @@ public class BSSState implements IBSSState {
 			if (tok.length < 2) {
 				String msg="Wrong format of QSTAT! Please check the TSI!";
 				throw new IOException(msg);
-			} else { // store in map
+			} else {
 				String bssID = tok[0].trim();
-				if(haveStatusForIDs.contains(bssID)){
-					//duplicate entry in QSTAT
-					continue;
-				}
 				BSS_STATE newValue = null;
 				try {
 					newValue = BSS_STATE.valueOf(tok[1].trim());
 				}catch(Exception ex) {
 					throw new IOException("Unexpected status <"+tok[1]+"> Wrong format of QSTAT! Please check the TSI!");
 				}
-				//track some stats
+				// track some stats
 				total++;
 				active=false;
 				if(BSS_STATE.RUNNING.equals(newValue)){
@@ -298,8 +283,9 @@ public class BSSState implements IBSSState {
 					queued++;
 					active=true;
 				}
+				
+				// track per-queue info if available
 				String queue=null;
-				//track per-queue info if available
 				if(active && tok.length>2){
 					queue=tok[2];
 					Integer fill=queueFill.get(queue);
@@ -310,29 +296,20 @@ public class BSSState implements IBSSState {
 					queueFill.put(queue,fill);
 				}
 
-				BSSInfo oldInfo=statesMap.get(bssID);
-				if(oldInfo==null){
+				BSSInfo info=statesMap.get(bssID);
+				if(info==null){
 					continue;
 				}
-				BSS_STATE oldValue = oldInfo.bssState;
-				String jobID = oldInfo.jobID;
-
-				BSSInfo newState = new BSSInfo(bssID, jobID, newValue);
-				newState.queue=queue;
-
-				statesMap.put(bssID,newState);
-				haveStatusForIDs.add(bssID);
+				BSS_STATE oldValue = info.bssState;
+				String jobID = info.jobID;
+				info.queue=queue;
 				if (!newValue.equals(oldValue)) {
+					info.bssState = newValue;
 					if (handler != null) {
 						try {
-							if (log.isDebugEnabled()) {
-								log.debug("BSS status changed: "+oldValue + " -> "
-										+ newValue
-										+ ", sending 'continue' for : "
-										+ jobID);
-							}
+							log.debug("BSS status changed: {} -> {}, sending 'continue' for: {}",
+									oldValue, newValue, jobID);
 							handler.handleEvent(new ContinueProcessingEvent(jobID));
-
 						} catch (Exception ee) {
 							LogUtil.logException("Error sending change event",ee,log);
 						}
@@ -342,27 +319,25 @@ public class BSSState implements IBSSState {
 			}
 		}
 
-		// now check for entries that do not have a new state -> remove old state
+		// now check batch entries that do not have a new state
+		// and processes running on the login nodes
 		for (String s : bssIDs) {
-			BSSInfo state=statesMap.get(s);
+			BSSInfo info = statesMap.get(s);
 
 			if(interactiveProcesses.contains(s)){
-				//still running, nothing needs to be done
+				// make sure status is RUNNING to try 
+				// and recover in case of a transient error
+				info.bssState = BSS_STATE.RUNNING;
 				continue;
 			}
-
+			info.bssState = BSS_STATE.CHECKING_FOR_EXIT_CODE;
 			try {
 				if (handler != null) {
-					String uuid = state.jobID;
+					String uuid = info.jobID;
 					if (uuid != null) {
-						if (log.isDebugEnabled()) {
-							log.debug("Entry '"+s+"' disappeared from QSTAT listing, sending 'continue' for uuid=" + uuid);
-						}
+						log.debug("Entry {} disappeared from QSTAT listing, sending 'continue' for uuid={}", s, uuid);
 						handler.handleEvent(new ContinueProcessingEvent(uuid));
 					}
-				}
-				if(!BSS_STATE.COMPLETED.equals(state.bssState)){
-					statesMap.remove(s);
 				}
 			} catch (Exception ee) {
 				LogUtil.logException("Internal error updating status, bssID="+s,ee,log);

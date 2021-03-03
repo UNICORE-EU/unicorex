@@ -65,7 +65,6 @@ public class GrounderImpl implements Incarnation {
 		String appName=fromUser.getName();
 		if(appName!=null){
 			String version=fromUser.getVersion();
-			if(logger.isDebugEnabled())logger.debug("name: "+appName+", version: "+version);
 			ApplicationInfo idbApp = idb.getApplication(appName, version, client);
 			if(idbApp!=null){
 				result = idbApp.clone();
@@ -248,9 +247,6 @@ public class GrounderImpl implements Incarnation {
 				}catch(Exception e){
 					String msg = Log.createFaultMessage("Could not evaluate script <"+script+">"
 							+" for resource <"+r.getName()+">", e);
-					if(logger.isDebugEnabled()){
-						logger.debug(msg, e);
-					}
 					throw new ExecutionException(msg);
 				}
 			}

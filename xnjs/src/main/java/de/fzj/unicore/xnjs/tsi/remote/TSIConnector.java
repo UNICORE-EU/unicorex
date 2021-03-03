@@ -54,11 +54,9 @@ public class TSIConnector {
 			throw new IOException(statusMessage);
 		}
 		try{
-			if(log.isDebugEnabled()) {
-				log.debug("Contacting TSI at "+address+":"+port);
-			}
+			log.debug("Contacting TSI at {}:{}", address, port);
 			TSIConnection c = doCreateNewTSIConnection(server);
-			log.info("Created new TSI connection to "+address+":"+port+" this is <"+(1+counter.get())+">");
+			log.info("Created new TSI connection to {}:{} this is <{}>", address, port, 1+counter.get());
 			OK();
 			return c;
 		}
@@ -141,9 +139,7 @@ public class TSIConnector {
 	 * @throws Exception
 	 */
 	private InetAddress signalShepherd(TSISocketFactory server, String message) throws IOException {
-		if(log.isDebugEnabled()){
-			log.debug("Signalling TSI at "+address+":"+port+" : "+message);
-		}
+		log.debug("Signalling TSI at {}:{} : {}", address, port, message);
 		Socket s = server.createSocket(address, port);
 		s.getOutputStream().write(message.getBytes());
 		s.getOutputStream().flush();

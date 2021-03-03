@@ -169,9 +169,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 	@Override
 	protected void handleRunning()throws ProcessingException{
 		List<String>jobs=getOrCreateJobList();
-		if(logger.isDebugEnabled()){
-			logger.debug("Checking status for "+jobs.size()+" sweep instances.");
-		}
+		logger.debug("Checking status for {} sweep instances.", jobs.size());
 		for(Iterator<String> it=jobs.iterator();it.hasNext();){
 			try{
 				String id=it.next();
@@ -189,7 +187,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 			action.addLogTrace("All sweep jobs done");
 			action.setStatus(ActionStatus.DONE);
 			action.setResult(new ActionResult(ActionResult.SUCCESSFUL,"Success.", 0));
-			logger.info("Action "+action.getUUID()+ " SUCCESSFUL.");
+			logger.info("Action {} SUCCESSFUL.", action.getUUID());
 		}
 		else{
 			//if we still have some running sweep instances, reduce CPU load

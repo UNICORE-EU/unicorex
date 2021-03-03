@@ -321,15 +321,15 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			if(g!=null)myGracePeriod=g.intValue();
 
 			if(System.currentTimeMillis()<timeOfFirstStatusCheck+myGracePeriod){
-				if(jobExecLogger.isDebugEnabled())jobExecLogger.debug("No exit code found for "+uid+", assuming it is still running.");
+				jobExecLogger.debug("No exit code found for {}, assuming it is still running.", uid);
 			}
 			else {
-				if(jobExecLogger.isDebugEnabled())jobExecLogger.debug("No BSS status found for "+uid+", assuming it is completed.");
+				jobExecLogger.debug("No BSS status found for {}, assuming it is completed.", uid);
 				job.setStatus(ActionStatus.POSTPROCESSING);
 			}
 		}
 		else{
-			if(jobExecLogger.isDebugEnabled())jobExecLogger.debug("Have exit code for "+uid+", assuming it is completed.");
+			jobExecLogger.debug("Have exit code for {}, assuming it is completed.", uid);
 			job.setStatus(ActionStatus.POSTPROCESSING);
 		}
 	}

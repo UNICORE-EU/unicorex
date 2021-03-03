@@ -99,7 +99,7 @@ public abstract class AbstractActionStore implements IActionStore{
 		if(a!=null){
 			states.put(key, a.getStatus());
 			a.setWaiting(false);
-			if(logger.isDebugEnabled())logger.debug("GET FOR UPDATE " + key);
+			logger.debug("GET FOR UPDATE {}", key);
 		}
 		return a;
 	}
@@ -129,7 +129,6 @@ public abstract class AbstractActionStore implements IActionStore{
 
 	public void put(String key, Action value)throws PersistenceException{
 		doStore(value);
-		if(logger.isDebugEnabled())logger.debug("STORE " + value.getUUID());
 		states.put(key,value.getStatus());
 	}
 

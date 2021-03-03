@@ -95,10 +95,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 	 * whole staging action is set to "FAILED". 
 	 */
 	protected void handleCreated() throws ProcessingException {
-		if(logger.isDebugEnabled()) {
-			logger.debug("Adding file transfers for job <"+action.getParentActionID()
-				+"> this action is <"+action.getUUID()+">");
-		}
+		logger.debug("Adding file transfers for job {}", action.getParentActionID());
 		try{
 			StagingInfo dstInfo=(StagingInfo)action.getAjd();
 			List<String> ftList=new ArrayList<String>();
@@ -221,13 +218,13 @@ public class DataStagingProcessor extends DefaultProcessor {
 			}
 			
 			if(ft.getStatus()==Status.DONE){
-				if(logger.isDebugEnabled())logger.debug("File transfer "+ft.getUniqueId()+" successful.");
+				logger.debug("File transfer {} SUCCESSFUL.", ft.getUniqueId());
 				xnjs.get(IFileTransferEngine.class).cleanup(ftId);
 				iter.remove();
 				action.setDirty();
 			}
 			else if(ft.getStatus()==Status.FAILED){
-				if(logger.isDebugEnabled())logger.debug("File transfer "+ft.getUniqueId()+" failed.");
+				logger.debug("File transfer {} FAILED.", ft.getUniqueId());
 				if(!ft.isIgnoreFailure()){
 					String message="Filetransfer FAILED: "+ft.getSource()+" -> "+ft.getTarget()+
 					", error message: "+ft.getStatusMessage();
@@ -246,7 +243,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 		if(ftList.size()==0){
 			action.setStatus(ActionStatus.DONE);
 			action.setResult(new ActionResult(ActionResult.SUCCESSFUL));
-			if(logger.isDebugEnabled())logger.debug("File transfers <"+action.getUUID()+"> done.");
+			logger.debug("File transfers <{}> done.", action.getUUID());
 		}
 	}
 

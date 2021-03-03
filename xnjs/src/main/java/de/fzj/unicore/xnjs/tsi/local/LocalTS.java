@@ -195,14 +195,13 @@ public class LocalTS implements TSI {
 	public void mkdir(String dir) throws ExecutionException {
 		try{
 			File f=makeTarget(dir);
-			if(logger.isDebugEnabled())logger.debug("making directory: "+ f);
 			if(f.exists() && !f.isDirectory())
-				throw new IOException("Cannot create directory, file exists!");
+				throw new IOException("Cannot create directory <"+dir+">, file exists!");
 
 			if (f.mkdirs() || f.isDirectory()) {
 				setPermissions(f);
 			} else {
-				logger.error("Failed to create directory <"+f.getAbsolutePath()+">");
+				logger.error("Failed to create directory <{}>", f.getAbsolutePath());
 				throw new IOException("Could not create dir <"+dir+">");
 			}
 		}catch(Exception e) {
@@ -213,7 +212,6 @@ public class LocalTS implements TSI {
 	public void mkfifo(String dir) throws ExecutionException {
 		try{
 			File f=makeTarget(dir);
-			if(logger.isDebugEnabled())logger.debug("making fifo: "+ f);
 			if (IOUtils.isNonUnix())
 				throw new ExecutionException("FIFO can not be created on a non-UNIX operating system.");
 			execAndWait("mkfifo "+f.getAbsolutePath(), new ExecutionContext(UUID.randomUUID().toString()));
@@ -227,7 +225,7 @@ public class LocalTS implements TSI {
 		try{
 			File newLink=makeTarget(linkName);
 			File targetFile=makeTarget(target);
-			if(logger.isDebugEnabled())logger.debug("linking: "+ newLink +" -> "+targetFile);
+			logger.debug("linking: {} -> {}", newLink, targetFile);
 			if (IOUtils.isNonUnix()){
 				throw new ExecutionException("Link can not be created on a non-UNIX operating system.");
 			}
@@ -295,8 +293,7 @@ public class LocalTS implements TSI {
 			for(int i=0;i<numResults;i++){
 				File f=fs[offset+i];
 				Permissions permissions=Permissions.getPermissions(f);
-				if (filter && !permissions.isAccessible())
-					continue;
+				if (filter && !permissions.isAccessible())continue;
 				res[i]=new XnjsFileImpl(
 						makePathRelativeToRoot(f.getAbsolutePath()), //for the time being...
 						f.length(),
@@ -305,9 +302,6 @@ public class LocalTS implements TSI {
 						permissions,
 						//can't fully support the owner flag in Java TSI
 						true);
-				if(logger.isTraceEnabled()){
-					logger.trace(res[i].toString());
-				}
 			}
 			return res;
 		}
@@ -365,9 +359,6 @@ public class LocalTS implements TSI {
 						permissions,
 						//can't fully support the owner flag in Java TSI
 						true);
-				if(logger.isTraceEnabled()){
-					logger.trace(f.toString());
-				}
 				if(options.accept(f, this))	res.add(f);
 			}
 			return res.toArray(new XnjsFile[res.size()]);

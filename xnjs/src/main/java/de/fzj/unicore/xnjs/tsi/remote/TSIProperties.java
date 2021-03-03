@@ -139,8 +139,8 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Disable execution of user commands on the TSI node."));
 		META.put(BSS_PS, new PropertyMD("ps -e").
 				setDescription("Command to get the process list on the TSI node."));
-		META.put(BSS_MAX_RUNTIME_FOR_INTERACTIVE_APPS, new PropertyMD("-1").setInt().
-				setDescription("Limit the run time of user commands on the TSI node ('-1' means no limit)."));
+		META.put(BSS_MAX_RUNTIME_FOR_INTERACTIVE_APPS, new PropertyMD("-1").setInt().setDeprecated().
+				setDescription("(deprecated)"));
 		META.put(BSS_GRACE_PERIOD, new PropertyMD("2").setInt().setPositive().
 				setDescription("How many times the XNJS will re-check job status in case of a 'lost' job."));
 		META.put(TSI_FILESYSTEM_ID, new PropertyMD().setDescription("TSI filesystem identifier which "

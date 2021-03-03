@@ -30,7 +30,7 @@ public class Dispatcher extends Thread {
 	volatile boolean isInterrupted=false;
 
 	private final XNJS xnjs;
-	
+
 	public Dispatcher(XNJS xnjs) throws Exception {
 		this.xnjs = xnjs;
 		this.jobs = xnjs.getActionStore("JOBS");
@@ -46,7 +46,7 @@ public class Dispatcher extends Thread {
 			return new DelayQueue<QueueEntry>();
 		}
 	}
-	
+
 	/**
 	 * fill queue from database content
 	 */
@@ -75,20 +75,17 @@ public class Dispatcher extends Thread {
 			workers[i].start();
 			notifyAvailable(workers[i]);
 		}
-		logger.info("Started "+workers.length+" worker threads.");
+		logger.info("Started {} worker threads.", workers.length);
 		refillQueue();
 	}
 
 	public void notifyAvailable(JobRunner runner){
 		availableRunners.offer(runner);
-		if(logger.isTraceEnabled()){
-			logger.trace("FREE: "+runner.getName()+" <"+availableRunners.size()+"> available");
-		}
 	}
 
 	public void interrupt() {
 		isInterrupted=true;
-		logger.debug(getName()+" stopping");
+		logger.debug("{} stopping", getName());
 		super.interrupt();
 	}
 
@@ -110,19 +107,16 @@ public class Dispatcher extends Thread {
 				r.process(q.getActionID());
 			}
 		}catch(InterruptedException ie){
-			logger.info(getName()+" stopped.");
+			logger.info("{} stopped.", getName());
 		}
 	}
 
 	public void process(String actionID){
 		workQueue.offer(new QueueEntry(actionID));
-		if(logger.isTraceEnabled()){
-			logger.trace("ADD: "+actionID+" <"+workQueue.size()+"> in queue");
-		}
 	}
-	
-public static class QueueEntry implements Delayed, Serializable {
-		
+
+	public static class QueueEntry implements Delayed, Serializable {
+
 		private static final long serialVersionUID = 1l;
 
 		/**
@@ -131,7 +125,7 @@ public static class QueueEntry implements Delayed, Serializable {
 		public static final int QUEUE_DELAY=50;
 
 		final String actionID;
-		
+
 		final long lastAccessed;
 
 		/**
