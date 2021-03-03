@@ -188,9 +188,7 @@ public class IncarnationTweaker implements ITweaker {
 			return false;
 		}
 		boolean result = (Boolean) condResult;
-		if (log.isDebugEnabled())
-			log.debug(info + "-script rule number " + i + 
-					" condition returned " + result);
+		log.debug("{}-script rule number {} condition returned {}", info, i, result);
 		return result;
 	}
 	

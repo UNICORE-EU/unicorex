@@ -413,10 +413,7 @@ public class BasicManager implements Manager, InternalManager {
 		return ActionStatus.PENDING;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.InternalManager#addSubAction(java.io.Serializable, java.lang.String, de.fzj.unicore.xnjs.ems.Action)
-	 */
-	public String addSubAction(Serializable jobDescription, String type, Action parentAction, boolean notifyDone) throws ExecutionException{
+	public String addSubAction(Serializable jobDescription, String type, Action parentAction, boolean notify) throws ExecutionException{
 		String parentUUID=parentAction.getUUID();
 		Action soa=new Action();
 		soa.setType(type);
@@ -445,7 +442,7 @@ public class BasicManager implements Manager, InternalManager {
 		a.setInternal(true);
 		String actionID = a.getUUID();
 		try {
-			logger.info("Adding internal action <"+actionID+"> of type <"+a.getType()+">");
+			logger.info("Adding internal action <{}> of type <{}>", actionID, a.getType());
 			jobs.put(actionID, a);
 			dispatcher.process(actionID);
 		}catch(PersistenceException pe){
@@ -575,11 +572,6 @@ public class BasicManager implements Manager, InternalManager {
 									logger.debug(d.toString());
 								}
 							}catch(Exception ex1){}
-						}
-						//re-queue with a small delay
-						if(logger.isDebugEnabled()){
-							logger.debug("Re-queue continue event for <"+actionID+">, reason: " +
-									LogUtil.createFaultMessage("Error processing continue event for action  <"+actionID+">", ex));
 						}
 						configuration.getScheduledExecutor().schedule(this, 5000, TimeUnit.MILLISECONDS);
 					}

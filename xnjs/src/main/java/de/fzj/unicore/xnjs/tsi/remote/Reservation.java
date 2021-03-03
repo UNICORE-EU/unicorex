@@ -49,10 +49,8 @@ public class Reservation implements IReservation {
 	 */
 	public void cancelReservation(String reservationID, Client client)
 	throws ExecutionException {
-		try{	
-			if(logger.isDebugEnabled()){
-				logger.debug("Cancel reservation "+reservationID+" for client "+client);
-			}
+		try{
+			logger.debug("Cancel reservation {} for client {}", reservationID, client);
 			String tsiCmd=TSIUtils.makeCancelReservationCommand(reservationID);
 			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
@@ -82,10 +80,7 @@ public class Reservation implements IReservation {
 	public String makeReservation(Map<String,String> resources, Calendar startTime,
 			Client client) throws ExecutionException {
 		try{
-			if(logger.isDebugEnabled()){
-				logger.debug("Processing resource reservation "+resources.toString()+"\nStart time "+startTime.getTime().toString());
-			}
-			
+			logger.debug("Processing resource reservation {}\nStart time {}", resources, startTime.getTime());
 			List<ResourceRequest>resourceRequest = parseResourceRequest(resources);
 			List<ResourceRequest>incarnated = grounder.incarnateResources(resourceRequest, client);
 			String tsiCmd = TSIUtils.makeMakeReservationCommand(incarnated, startTime, client);
@@ -130,9 +125,7 @@ public class Reservation implements IReservation {
 		rs.setStatus(ReservationStatus.Status.UNKNOWN);
 
 		try{
-			if(logger.isDebugEnabled()){
-				logger.debug("Querying resource reservation "+reservationID+" for client "+client.getDistinguishedName());
-			}
+			logger.debug("Querying resource reservation {} for client {}", reservationID, client.getDistinguishedName());
 			String tsiCmd=TSIUtils.makeQueryReservationCommand(reservationID);
 			String res;
 			try(TSIConnection conn = getTSIConnection(client)){

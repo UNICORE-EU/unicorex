@@ -158,7 +158,7 @@ public class XmlIDB implements IDBParser {
 		for(Info i: infos){
 			String name=i.getName();
 			String value=i.getStringValue();
-			if(logger.isDebugEnabled())logger.debug("TextInfo Property: "+name+"='"+value+"'");
+			logger.debug("TextInfo Property: {}='{}'", name, value);
 			if(name!=null && value!=null){
 				idb.getTextInfoPropertiesNoUpdate().put(name.trim(), value.trim());
 			}
@@ -175,7 +175,7 @@ public class XmlIDB implements IDBParser {
 			if(path==null || path.equals(""))continue;
 			path=path.endsWith(File.separator)? path : path+File.separator;
 			idb.getFilespaces().put(name,path);
-			logger.debug("Filesystem <"+name+"> mapped to <"+path+">");
+			logger.debug("Filesystem <{}> mapped to <{}>", name, path);
 		}
 	}
 

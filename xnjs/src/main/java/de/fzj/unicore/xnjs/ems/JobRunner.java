@@ -113,9 +113,7 @@ public class JobRunner extends Thread {
 				Action a=null;
 				String id = transfer.poll(100, TimeUnit.MILLISECONDS);
 				if(id != null){
-					if(logger.isDebugEnabled()){
-						logger.debug("Processing "+id);
-					}
+					logger.debug("Processing {}", id);
 					try{
 						a=jobs.getForUpdate(id);
 					}catch(Exception eex){
@@ -158,13 +156,10 @@ public class JobRunner extends Thread {
 		try{
 			LogUtil.fillLogContext(a);
 			Processor p = xnjs.createProcessor(a.getType());
-			if(logger.isDebugEnabled()){
-				logger.debug("Processing Action <"+a.getUUID()+"> in status "+ActionStatus.toString(a.getStatus()));
-			}
+			logger.debug("Processing Action <{}> in status {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
+			
 			p.process(a);
-			if(logger.isTraceEnabled()){
-				logger.trace("New status for Action <"+a.getUUID()+">: "+ActionStatus.toString(a.getStatus()));
-			}
+			logger.trace("New status for Action <{}>: {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
 			newStatus=a.getStatus();
 			if(newStatus!=status){
 				try {

@@ -107,14 +107,14 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected final IExecutionContextManager ecm;
 
 	protected final Manager ems;
-	
+
 	public JobProcessor(XNJS xnjs){
 		super(xnjs);
 		exec = xnjs.get(IExecution.class);
 		ecm = xnjs.get(IExecutionContextManager.class);
 		ems = xnjs.get(Manager.class);
 	}
-	
+
 	/**
 	 * get the job description document via cast: (T)action.getAjd();
 	 */
@@ -127,7 +127,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * extract any notification URLs from the job description and store them in the action
 	 */
 	protected abstract void setupNotifications();
-	
+
 	/**
 	 * returns <code>true</code> if the job description is empty, i.e. 
 	 * there is nothing to do for this job 
@@ -155,7 +155,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected void handleCreated()throws ProcessingException{
 		try{
 			setupNotifications();
-			
+
 			if(isEmptyJob()){
 				String msg="Empty job description. Setting to DONE.";
 				action.addLogTrace(msg);
@@ -197,7 +197,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			throw new ProcessingException(msg,ex);
 		}
 	}
-	
+
 	/**
 	 * handle state "PreProcessing" aka "Staging in"
 	 */
@@ -250,8 +250,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * - job starts automatically
 	 */
 	protected void handleReady() throws ProcessingException {
-		if(logger.isTraceEnabled())logger.trace("Handling READY state for Action "
-				+action.getUUID());
+		logger.trace("Handling READY state for Action {}",action.getUUID());
 
 		//handle scheduled processing
 		extractNotBefore();
@@ -285,7 +284,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * handle "PENDING" state
 	 */
 	protected void handlePending() throws ProcessingException{
-		if(logger.isTraceEnabled())logger.trace("Handling PENDING state for Action "+action.getUUID());
+		logger.trace("Handling PENDING state for Action {}",action.getUUID());
 
 		ApplicationExecutionStatus aes=action.getProcessingContext().get(ApplicationExecutionStatus.class);
 		if(aes==null){
@@ -311,7 +310,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			throw new IllegalStateException("Illegal precommand state <+"+aes.get()+"> in PENDING.");
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private List<String>getOrCreateList(String key){
 		List<String>ids=(List<String>)action.getProcessingContext().get(key);
@@ -335,13 +334,13 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				pre.append(action.getApplicationInfo().getPreCommand());
 				pre.append("\n");
 			}
-			
+
 			// user-defined pre-command
 			String userPre = action.getApplicationInfo().getUserPreCommand();
 			if(userPre != null && action.getApplicationInfo().isUserPreCommandOnLoginNode()){
 				pre.append(userPre);
 			}
-			
+
 			if(pre.length()>0) {
 				done = false;
 				SubCommand cmd = new SubCommand();
@@ -353,7 +352,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				action.addLogTrace("Launched pre command <"+cmd.cmd+">");
 				getOrCreateList(subactionkey_pre).add(subID);
 			}
-			
+
 			if(done) 
 			{
 				action.getProcessingContext().set(ApplicationExecutionStatus.precommandDone());
@@ -390,11 +389,15 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 					iter.remove();
 				}
 			}
-			if(errors.length()>0){
-				setToDoneAndFailed("Pre-command(s) failed: "+errors.toString());
-			}
 			if(ids.size()==0){
 				action.getProcessingContext().set(ApplicationExecutionStatus.precommandDone());
+			}
+			if(errors.length()>0){
+				setToDoneAndFailed("Pre-command(s) failed: "+errors.toString());
+				return;
+			}
+			if(ids.size()>0){
+				action.setWaiting(true);
 			}
 			action.setDirty();
 		}
@@ -422,7 +425,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			boolean done = true;
 			int index=0;
-						
+
 			String userPost = action.getApplicationInfo().getUserPostCommand();
 			if(userPost != null && action.getApplicationInfo().isUserPostCommandOnLoginNode()){
 				done = false;
@@ -434,7 +437,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				action.addLogTrace("Launched post command <"+cmd.cmd+">");
 				getOrCreateList(subactionkey_post).add(subID);
 			}
-			
+
 			if(done) 
 			{
 				action.getProcessingContext().set(ApplicationExecutionStatus.done());
@@ -469,11 +472,15 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 					iter.remove();
 				}
 			}
-			if(errors.length()>0){
-				setToDoneAndFailed("Post-command(s) failed: "+errors.toString());
-			}
 			if(ids.size()==0){
 				action.getProcessingContext().set(ApplicationExecutionStatus.done());
+			}
+			if(errors.length()>0){
+				setToDoneAndFailed("Post-command(s) failed: "+errors.toString());
+				return;
+			}
+			if(ids.size()>0){
+				action.setWaiting(true);
 			}
 		}
 		catch(ExecutionException ee){
@@ -521,7 +528,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			submitCount++;
 			action.getProcessingContext().put(Execution.BSS_SUBMIT_COUNT, submitCount);
 			int maxSubmitCount = xnjs.getXNJSProperties().getResubmitCount();
-			
+
 			if(!isRecoverable(ex) || submitCount.intValue()>maxSubmitCount){
 				action.addLogTrace(msg);
 				setToDoneAndFailed(msg);
@@ -529,7 +536,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			}
 
 			action.addLogTrace("Submit attempt "+submitCount+" (of "+maxSubmitCount+") failed: "+ex.getMessage());
-			
+
 			pauseExecution(xnjs.getXNJSProperties().getResubmitDelay(), TimeUnit.SECONDS);
 
 		}	
@@ -541,7 +548,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 	protected boolean isRecoverable(ExecutionException ex){
 		if(ex.getErrorCode().isWrongResourceSpec())return false;
-		
+
 		return true;
 	}
 
@@ -549,7 +556,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * handle "queued" state
 	 */
 	protected void handleQueued()throws ProcessingException{
-		if(logger.isTraceEnabled())logger.trace("Handling QUEUED state for Action "+action.getUUID());
+		logger.trace("Handling QUEUED state for Action {}", action.getUUID());
 		try{
 			exec.updateStatus(action);
 			if(action.getStatus()==ActionStatus.QUEUED){
@@ -567,7 +574,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * handle "RUNNING" state
 	 */
 	protected void handleRunning()throws ProcessingException{
-		if(logger.isTraceEnabled())logger.trace("Handling RUNNING state for Action "+action.getUUID());
+		logger.trace("Handling RUNNING state for Action {}", action.getUUID());
 		if(getTimeStamp(TIME_START_MAIN)==null){
 			storeTimeStamp(TIME_START_MAIN);
 		}
@@ -638,7 +645,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 		Set<String> toCheck = new HashSet<String>();
 		String fileSep = "/";
-		
+
 		try {
 			fileSep = tsi.getFileSeparator();
 
@@ -815,7 +822,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			}
 		}
 	}
-	
+
 	/**
 	 * updates ExecutionContext with values from the effective application
 	 * @param appDescription
@@ -841,12 +848,12 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 		//interactive execution
 		if(appDescription.isRunOnLoginNode() 
-				 // legacy environment variable
-				 || Boolean.parseBoolean(appDescription.getEnvironment().get("UC_PREFER_INTERACTIVE_EXECUTION"))){
+				// legacy environment variable
+				|| Boolean.parseBoolean(appDescription.getEnvironment().get("UC_PREFER_INTERACTIVE_EXECUTION"))){
 			ec.setRunOnLoginNode(true);
 		}
 		ec.setPreferredExecutionHost(appDescription.getPreferredLoginNode());
-		
+
 		action.setDirty();
 	}
 
@@ -871,7 +878,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	public static TimeProfile timeProfile(ProcessingContext context) {
 		return new TimeProfile(context);
 	}
-			
+
 	public void updateQueuedStats(ProcessingContext context){
 		Long timeQueued = getTimeQueued(context);
 		if(timeQueued!=null){
@@ -879,16 +886,17 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			if (h!=null)h.update(timeQueued.intValue());
 		}
 	}
-	
+
 	//deal with adding new stage-in action
 	protected void addStageIn() throws ProcessingException{
 		try{
 			List<DataStageInInfo>toStage = extractStageInInfo();
 			StagingInfo stageInfo = new StagingInfo(toStage);
 			String subId=manager.addSubAction(stageInfo,
-					XNJSConstants.jsdlStageInActionType,action,true);
+					XNJSConstants.jsdlStageInActionType, action, true);
 			action.getProcessingContext().put(subactionkey_in,subId);
 			action.addLogTrace("Adding stage in subaction with id="+subId);
+			action.setWaiting(true);
 		}catch(Exception ex){
 			throw new ProcessingException(ex);
 		}
@@ -898,28 +906,20 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected void addStageOut() throws ProcessingException{
 		//check if we need stage out	
 		try{
-			if(hasStageOut()){
-				//check if we can process STAGE_OUT
-				if(xnjs.haveProcessingFor(XNJSConstants.jsdlStageOutActionType)){
-					List<DataStageOutInfo>toStage=extractStageOutInfo();
-					StagingInfo stageOut = new StagingInfo(toStage);
-					String subId=manager.addSubAction((Serializable)stageOut,
-							XNJSConstants.jsdlStageOutActionType,action,true);
-					action.addLogTrace("Adding stage out subaction with id="+subId);
-					action.getProcessingContext().put(subactionkey_out, subId);
-					action.setWaiting(true);
-				}
-				else  {
-					action.addLogTrace("Staging out not done.");
-					setToDoneSuccessfully();
-				}
+			//check if we can process STAGE_OUT
+			if(xnjs.haveProcessingFor(XNJSConstants.jsdlStageOutActionType)){
+				List<DataStageOutInfo>toStage=extractStageOutInfo();
+				StagingInfo stageOut = new StagingInfo(toStage);
+				String subId=manager.addSubAction((Serializable)stageOut,
+						XNJSConstants.jsdlStageOutActionType, action, true);
+				action.addLogTrace("Adding stage out subaction with id="+subId);
+				action.getProcessingContext().put(subactionkey_out, subId);
+				action.setWaiting(true);
 			}
-			else{
-				//nothing to stage in, go to "DONE"
-				action.addLogTrace("No staging out needed.");
+			else  {
+				action.addLogTrace("Staging out not done.");
 				setToDoneSuccessfully();
 			}
-			//processing problems?	
 		}catch(Exception ex){
 			String msg="Error processing action: "+ex.getMessage();
 			action.addLogTrace(msg);
@@ -1067,7 +1067,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		}
 		super.handleRestarting();
 	}
-	
+
 	/**
 	 * sets the current action on "hold" for the time specified
 	 * @param time
@@ -1078,7 +1078,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		XnjsEvent e=new ContinueProcessingEvent(action.getUUID());
 		manager.scheduleEvent(e, time, units);
 	}
-	
+
 	public static class TimeProfile {
 
 		public Long total = null;
@@ -1088,7 +1088,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		public Long post = null;
 		public Long stageIn = null;
 		public Long stageOut = null;
-		
+
 		public TimeProfile(ProcessingContext context) {
 			Long start=(Long)context.get(TIME_START);
 			Long endStageIn=(Long)context.get(TIME_END_STAGEIN);
@@ -1112,7 +1112,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				stageOut = (end-startStageOut)/1000;
 			}catch(Exception ex) {}
 		}
-		
+
 		public String toString() {
 			StringBuilder sb=new StringBuilder();
 			if(total!=null) {

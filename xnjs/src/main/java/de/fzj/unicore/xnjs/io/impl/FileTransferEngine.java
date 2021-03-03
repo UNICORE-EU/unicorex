@@ -225,7 +225,6 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 	public synchronized void cleanup(String id) {
 		ftMap.remove(id);
 		ftInfo.remove(id);
-		if(logger.isDebugEnabled())logger.debug("Cleanup filetransfer "+id);
 	}
 	
 	public synchronized void abort(String id) {

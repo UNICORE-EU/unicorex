@@ -35,12 +35,8 @@ package de.fzj.unicore.xnjs.jsdl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -55,25 +51,13 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
 import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.ArgumentDocument;
 import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.POSIXApplicationDocument;
-import org.ggf.schemas.jsdl.x2005.x11.jsdlPosix.POSIXApplicationType;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
-import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
 import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.util.XmlBeansUtils;
 
 public class TestUtils {
-
-	private InputStream getResource(String name){
-		InputStream is = getClass().getResourceAsStream(name);
-		if(is==null){
-			try{
-				is=new FileInputStream(name);
-			}catch(Exception e){}
-		}
-		return is;
-	}
 
 	@Test
 	public void testAppend(){

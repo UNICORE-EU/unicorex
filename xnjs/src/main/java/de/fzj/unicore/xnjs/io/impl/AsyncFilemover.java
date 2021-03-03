@@ -252,7 +252,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 	 * specific file instead of the standard logfile)
 	 * <p>
 	 * The format is:
-	 * [clientDN] [Sent|Received] [bytes] [kb/sec] [SMS URL] [source] [target] [protocol] [parentJobID]   
+	 * [clientDN] [Sent|Received] [bytes] [kb/sec] [source] [target] [protocol] [parentJobID]   
 	 * <p>
 	 * NOTE: if you override the #run() method, you should call this method after your transfer finishes
 	 */
@@ -266,17 +266,9 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		String r=IOUtils.format(consumedMillis>0?(float)dataSize/(float)consumedMillis:0,2);
 		String what=isImport()?"received":"sent";
 		String dn=client!=null?client.getDistinguishedName():"anonymous";
-		String url="";
-
-		if(logger.isDebugEnabled()){
-			logger.debug(what+dataSize+" bytes in "+consumedMillis+" milliseconds, data rate= "+r + " kB/s");
-		}
-		//usage logging
-		if(usageLogger.isInfoEnabled()){
-			usageLogger.info("["+dn+"]" + " ["+what+"]" + " ["+dataSize+"]" + " ["+r+" kB/s]" +" ["+url+"]"
-					+" ["+info.getSource()+"]" + " ["+info.getTarget()+"]" 
-					+" ["+info.getProtocol()+"]" + " ["+info.getParentActionID()+"]");
-		}
+		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}]<w [{}]",
+					dn, what, dataSize, r, info.getSource(), info.getTarget(),
+					info.getProtocol(), info.getParentActionID());
 	}
 
 }

@@ -128,7 +128,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		while(true) {
 			conn = doGetFromPool(preferredHost, timeout);
 			if(conn==null || conn.isAlive()) break;
-			if(log.isDebugEnabled())log.debug("Removing connection "+conn.getConnectionID());
+			log.debug("Removing connection {}", conn.getConnectionID());
 			conn.shutdown();
 		}
 		return conn;
@@ -186,11 +186,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 			throw new TSIUnavailableException("Too many TSI processes are " +
 					"currently in use (configured limit of <"+limit+"> was reached)");
 		}
-		if(log.isDebugEnabled()){
-			String msg=preferredHost==null?"Creating new TSIConnection"
-					:"Creating new TSIConnection to "+preferredHost;
-			log.debug(msg);
-		}
+		log.debug("Creating new TSIConnection to <{}>", preferredHost);
 		TSIConnection connection = null;
 		connection = preferredHost==null? doCreate() : doCreate(preferredHost);
 		liveConnections.incrementAndGet();
@@ -209,9 +205,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 			try{
 				return c.createNewTSIConnection(server);
 			}catch(Exception ex){
-				if(log.isDebugEnabled()){
-					log.debug(c+" is not available.",ex);
-				}
+				log.debug("{} is not available: {}",c,ex);
 				lastException=ex;
 			}
 		}

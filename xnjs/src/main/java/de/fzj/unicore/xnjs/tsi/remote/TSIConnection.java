@@ -246,7 +246,7 @@ public class TSIConnection implements AutoCloseable {
 	 */
 	public void shutdown() {
 		if(closed)return;
-		if(logger.isDebugEnabled())logger.debug("Connection "+getConnectionID()+" shutdown.");
+		logger.debug("Connection {} shutdown.", getConnectionID());
 		closed = true;
 		command.die();
 		data.die();
@@ -344,13 +344,7 @@ public class TSIConnection implements AutoCloseable {
 			}
 
 			try {
-				if(logger.isDebugEnabled()){
-					if(sendUser){
-						logger.debug("--> ["+idLine+"]\n"+data);
-					}else{
-						logger.debug("--> "+data);
-					}
-				}
+				logger.debug("--> [{}] {}", idLine, data);
 				output.print(data);
 				if (sendUser){
 					output.print("\n#TSI_IDENTITY " + idLine + "\n");
@@ -378,7 +372,7 @@ public class TSIConnection implements AutoCloseable {
 				ioex.initCause(e);
 				throw ioex;
 			}
-			if(logger.isDebugEnabled())logger.debug("<-- "+reply);
+			logger.debug("<-- {}", reply);
 			return reply.toString();
 		}
 
@@ -582,15 +576,11 @@ public class TSIConnection implements AutoCloseable {
 
 	void startUse(){
 		start=System.currentTimeMillis();
-		if(logger.isDebugEnabled()){
-			logger.debug("Connection "+connectionID+" checked out");
-		}
+		logger.debug("Connection {} checked out", connectionID);
 	}
 
 	void endUse(){
-		if(logger.isDebugEnabled()){
-			logger.debug("Connection "+connectionID+" was in use for "+(System.currentTimeMillis()-start)+" millis.");
-		}
+		logger.debug("Connection {} was in use for {} millis.", connectionID, (System.currentTimeMillis()-start));
 	}
 
 	void setConnectionID(String id){

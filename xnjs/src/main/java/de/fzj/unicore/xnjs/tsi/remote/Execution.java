@@ -157,7 +157,7 @@ public class Execution extends BasicExecution {
 					}
 				}
 				job.addLogTrace("TSI reply: submission OK.");
-				String bssid=res.trim(); //strip newline
+				String bssid=res.trim();
 
 				msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
 				
@@ -221,36 +221,32 @@ public class Execution extends BasicExecution {
 	
 	public void updateStatus(Action job) throws ExecutionException {
 		try{		
-
 			final String bssID=job.getBSID();
 			final String jobID=job.getUUID();
 			if(bssID==null){
-				throw new Exception("Status check can't be done: action with ID "+job.getUUID()+" does not have a batch system ID.");
+				throw new Exception("Status check can't be done: action "+job.getUUID()+" does not have a batch system ID.");
 			}
-			BSS_STATE status=null;
 			BSSInfo info = bss.getBSSInfo(bssID);
-			
-			if(info!=null){
-				status = info.bssState;
-				if(info.queue!=null){
-					job.getExecutionContext().setBatchQueue(info.queue);
-					job.setDirty();
-				}
+			if(info==null) {
+				jobExecLogger.debug("No status info for action {} bssid={}", job.getUUID(), bssID);
+				return;
 			}
-
-			if(jobExecLogger.isDebugEnabled() && status!=null){
-				jobExecLogger.debug("Action with bssid="+bssID+" is "+status);
+			
+			jobExecLogger.debug("Action {} bssid={} is {}",job.getUUID(), bssID, info.bssState);
+			if(info.queue!=null){
+				job.getExecutionContext().setBatchQueue(info.queue);
+				job.setDirty();
 			}
 
 			// re-set grace period if we have a valid status
-			if(status!=null && !BSS_STATE.UNKNOWN.equals(status)){
+			if(!BSS_STATE.CHECKING_FOR_EXIT_CODE.equals(info.bssState)){
 				resetGracePeriod(job);
 			}
 			
-			if(BSS_STATE.QUEUED.equals(status)){
+			if(BSS_STATE.QUEUED.equals(info.bssState)){
 				job.setStatus(ActionStatus.QUEUED);
 			}
-			else if(BSS_STATE.RUNNING.equals(status)){
+			else if(BSS_STATE.RUNNING.equals(info.bssState)){
 				//get progress indication 
 				//TODO this is not working if the action is suspended...
 				updateProgress(job);
@@ -258,26 +254,26 @@ public class Execution extends BasicExecution {
 				updateEstimatedEndtime(job);
 				job.setStatus(ActionStatus.RUNNING);
 			}
-			else if(BSS_STATE.UNKNOWN.equals(status) || status==null){
+			else if(BSS_STATE.UNKNOWN.equals(info.bssState) || BSS_STATE.CHECKING_FOR_EXIT_CODE.equals(info.bssState)){
 				//check if exit code can be read
 				boolean haveExitCode=getExitCode(job);
 				if(!haveExitCode){
 					if(!hasGracePeriodPassed(job)){
-						if(jobExecLogger.isDebugEnabled())jobExecLogger.debug("Waiting for "+jobID+" BSS id="+bssID+" to finish and write exit code file.");
-						bss.putBSSInfo(new BSSInfo(bssID, jobID, BSS_STATE.UNKNOWN));
+						jobExecLogger.debug("Waiting for {} BSS id={} to finish and write exit code file.", jobID, bssID);
+						info.bssState = BSS_STATE.CHECKING_FOR_EXIT_CODE;
 					}
 					else {
-						if(jobExecLogger.isDebugEnabled())jobExecLogger.debug("Assuming job "+jobID+" BSS id ="+bssID+" is completed.");
-						status = BSS_STATE.COMPLETED;
+						jobExecLogger.debug("Assuming job  {} BSS id={} is completed.", jobID, bssID);
+						info.bssState = BSS_STATE.COMPLETED;
 					}
 				}
 				else{
-					if(jobExecLogger.isDebugEnabled())jobExecLogger.debug("Have exit code for "+jobID+", assuming it is completed.");
-					status = BSS_STATE.COMPLETED;
+					jobExecLogger.debug("Have exit code for {}, assuming it is completed.", jobID);
+					info.bssState = BSS_STATE.COMPLETED;
 				}
 			}
 
-			if (BSS_STATE.COMPLETED.equals(status)){
+			if (BSS_STATE.COMPLETED.equals(info.bssState)){
 				//check exit code
 				if(job.getExecutionContext().getExitCode()==null)getExitCode(job);
 				Integer exitCode=job.getExecutionContext().getExitCode();
@@ -288,7 +284,6 @@ public class Execution extends BasicExecution {
 					bss.removeBSSInfo(bssID);
 				}
 				else{
-					bss.putBSSInfo(new BSSInfo(bssID, jobID,  BSS_STATE.UNKNOWN));
 					//No exit code. For example, due to NFS problems it might occur that we need to re-check
 					if(job.getProcessingContext().get(EXITCODE_RECHECK)==null){
 						job.getProcessingContext().put(EXITCODE_RECHECK, Boolean.TRUE);
@@ -313,13 +308,11 @@ public class Execution extends BasicExecution {
 							else{
 								job.fail("Execution was not completed (no exit code file found), please check standard error file <"+job.getExecutionContext().getStderr()+">");
 							}
-							
 							bss.removeBSSInfo(bssID);
 						}
 					}
 				}
 			}
-
 		}catch(Exception ex){
 			jobExecLogger.error("Error updating job status.",ex);
 			throw new ExecutionException(ex);
@@ -545,7 +538,7 @@ public class Execution extends BasicExecution {
 	}
 	
 	public static enum BSS_STATE {
-		UNKNOWN, QUEUED, RUNNING, COMPLETED, SUSPENDED;
+		UNKNOWN, QUEUED, RUNNING, COMPLETED, SUSPENDED, CHECKING_FOR_EXIT_CODE;
 	}
 	
 	public static class BSSInfo{

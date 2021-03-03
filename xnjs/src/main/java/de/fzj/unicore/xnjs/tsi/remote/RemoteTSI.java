@@ -90,9 +90,9 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private final TSIConnectionFactory factory;
 
 	private final IDB idb;
-	
+
 	private final ACLSupportCache aclSupportCache;
-	
+
 	private String user = "nobody";
 	private String group = "NONE";
 	private ExecutionContext ec;
@@ -103,11 +103,11 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private final int bufsize;
 
 	private final String fileSeparator = "/";
-	
+
 	private String storageRoot="/";
 
 	private String preferredHost=null;
-	
+
 	private String lastUsedTSIHost=null;
 
 	private int umask = DEFAULT_UMASK;
@@ -152,14 +152,14 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		}catch(Exception ex){}
 		return null;
 	}
-	
+
 	@Override
 	public boolean isLocal(){
 		return false;
 	}
 
 	private boolean transactionInProgress=false;
-	
+
 	@Override
 	public void startBatch() throws ExecutionException {
 		doBegin();
@@ -171,19 +171,19 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		doCommit();
 		transactionInProgress=false;
 	}
-	
+
 	private void doBegin()throws ExecutionException{
 		commands=new StringBuilder();
 	}
-	
+
 	private void begin()throws ExecutionException{
 		if(!transactionInProgress)doBegin();
 	}
-	
+
 	private void commit()throws ExecutionException{
 		if(!transactionInProgress)doCommit();
 	}
-	
+
 	private void doCommit()throws ExecutionException{
 		if(commands.length()==0)return;
 		String tsiCmd=TSIUtils.makeExecuteScript(commands.toString(), ec, idb, extractCredentials());
@@ -223,7 +223,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private String makeTarget(String target){
 		return makeTarget(target,true);
 	}
-	
+
 	private TSIConnection getConnection() throws TSIUnavailableException {
 		return factory.getTSIConnection(user, group, preferredHost, timeout);
 	}
@@ -320,7 +320,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_LN)+" "+makeQuotedTarget(target)+" "+makeQuotedTarget(linkName)+"\n");
 		commit();
 	}
-	
+
 	@Override
 	public void rename(String source, String target) throws ExecutionException {
 		begin();
@@ -442,7 +442,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			throw new ExecutionException(e);
 		}
 	}
-	
+
 	@Override
 	public void rm(String target) throws ExecutionException {
 		begin();
@@ -689,7 +689,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		}
 		return info;
 	}
-	
+
 	/**
 	 * get the current user's remaining compute time budget or -1 if not known
 	 * 
@@ -711,7 +711,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private List<BudgetInfo> parseGetComputeBudgetReply(String reply)throws ExecutionException {
 		List<BudgetInfo> budget = new ArrayList<>();
 		BufferedReader br=new BufferedReader(new StringReader(reply+"\n"));
-		
+
 		while(true){
 			String line=TSIUtils.readTSIDFLine(br);
 			if(line==null)break;
@@ -732,10 +732,9 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	public InputStream getInputStream(final String file) throws ExecutionException {
 		//figure out length of file
 		final String target=makeTarget(file, false);
-		if(tsiLogger.isDebugEnabled())tsiLogger.debug("Reading from '"+target+"'");
-		
+
 		return new BackedInputStream(bufsize) {
-			
+
 			@Override
 			protected long getTotalDataSize() throws IOException {
 				try{
@@ -744,14 +743,14 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 					throw new IOException(ex);
 				}
 			}
-			
+
 			@Override
 			protected void fillBuffer() throws IOException {
 				//compute bytes to be read: either buffer size, or remainder of file
 				long numBytes=Math.min(length-bytesRead,buffer.length);
 				avail=readChunk(target,buffer,bytesRead,numBytes);
 				pos=0;
-				tsiLogger.debug("Read <"+avail+"> bytes into buffer.");
+				tsiLogger.debug("Read <{}> bytes into buffer.", avail);
 			}
 		};
 	}
@@ -784,9 +783,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * @param file - absolute path 
 	 */
 	private int readChunk(String file,byte[] buf,long offset, long length)throws IOException{
-		if(tsiLogger.isDebugEnabled()){
-			tsiLogger.debug("read from <"+file+"> numbytes="+length);
-		}
+		tsiLogger.debug("read from <{}> numbytes={}", file, length);
 		String tsicmd=TSIUtils.makeGetFileChunkCommand(file,offset,length);
 		try(TSIConnection conn = getConnection()){
 			String res=conn.send(tsicmd);
@@ -796,9 +793,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 				throw new ExecutionException(ec);
 			}
 			else {
-				if(tsiLogger.isDebugEnabled()){
-					tsiLogger.debug("TSI response: '"+res+"'");
-				}
+				tsiLogger.debug("TSI response: '{}'", res);
 			}
 			int av=0;
 			BufferedReader br=new BufferedReader(new StringReader(res));
@@ -823,25 +818,24 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Override
 	public OutputStream getOutputStream(final String file,final boolean append,long numbytes) throws ExecutionException {
 		final String target=makeTarget(file,false);
-		if(tsiLogger.isDebugEnabled())tsiLogger.debug("file <"+target+"> append="+append);
 		return new BackedOutputStream (append,bufsize){
 
-				@Override
-				public void writeBuffer() throws IOException {
-					final boolean doAppend=firstWrite? append: true;
-					try {
-						writeChunk(target, buffer, pos, doAppend);
-					} catch (TSIUnavailableException e) {
-						IOException ioe=new IOException("TSI unavailable.");
-						ioe.initCause(e);
-						throw ioe;
-					}
-					catch (ExecutionException e) {
-						IOException ioe=new IOException("TSI error");
-						ioe.initCause(e);
-						throw ioe;
-					}
+			@Override
+			public void writeBuffer() throws IOException {
+				final boolean doAppend=firstWrite? append: true;
+				try {
+					writeChunk(target, buffer, pos, doAppend);
+				} catch (TSIUnavailableException e) {
+					IOException ioe=new IOException("TSI unavailable.");
+					ioe.initCause(e);
+					throw ioe;
 				}
+				catch (ExecutionException e) {
+					IOException ioe=new IOException("TSI error");
+					ioe.initCause(e);
+					throw ioe;
+				}
+			}
 		};
 	}
 
@@ -861,10 +855,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * @param file - absolute file path
 	 */
 	private void writeChunk(String file, byte[] buf, int numBytes, boolean append)throws IOException,TSIUnavailableException, ExecutionException{
-		if(tsiLogger.isDebugEnabled()){
-			tsiLogger.debug("Write to "+file+", append="+append+", numBytes="+numBytes);
-		}
-	
+		tsiLogger.debug("Write to {}, append={}, numBytes={}", file, append, numBytes);
 		try(TSIConnection conn = getConnection()){
 			String permissions=TSIUtils.getFilePerm(umask) ;
 
@@ -985,7 +976,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Override
 	public void setfacl(String file, boolean clearAll, ChangeACL[] changeACL, boolean recursive)
 			throws ExecutionException
-			{
+	{
 		if (!isACLSupported("/")) 
 			throw new ExecutionException("Setting file ACLs is not supported on this storage.");
 
@@ -1022,12 +1013,9 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 			faclCommon(file, cmd.toString());
 		}
-			}
+	}
 
 	private boolean getACLSupportFromTSI(String path) throws ExecutionException {
-		if(tsiLogger.isDebugEnabled()){
-			tsiLogger.debug("ACL query: " + path + " " + getStorageRoot() + " " + this);
-		}
 		String cmd = "#TSI_FILE_ACL\n" +
 				"#TSI_ACL_OPERATION CHECK_SUPPORT\n";
 		String ret = faclCommon(path, cmd.toString());
@@ -1051,7 +1039,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		else
 			this.umask = Integer.parseInt(umask, 8);
 	}
-	
+
 	@Override
 	public String getUmask() {
 		return Integer.toOctalString(this.umask);
@@ -1076,7 +1064,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	public TSIConnectionFactory getFactory(){
 		return factory;
 	}
-	
+
 	public String runTSICommand(String command) throws ExecutionException {
 		try(TSIConnection conn = getConnection()){
 			String res=conn.send(command);

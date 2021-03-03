@@ -74,8 +74,8 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 	@Override
 	protected void handlePending()throws ProcessingException{
 		try{
-			action.setStatus(ActionStatus.QUEUED);
 			exec.submit(action);
+			action.setStatus(ActionStatus.RUNNING);
 			sleep(3000);
 		}catch(ExecutionException e){
 			throw new ProcessingException(e);
@@ -87,7 +87,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 	}
 	
 	protected void handleQueued()throws ProcessingException{
-		if(logger.isTraceEnabled())logger.trace("Handling QUEUED state for Action "+action.getUUID());
+		logger.trace("Handling QUEUED state for Action {}", action.getUUID());
 		try{
 			exec.updateStatus(action);
 			if(action.getStatus()==ActionStatus.QUEUED){
@@ -104,11 +104,11 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 	 * handle "RUNNING" state
 	 */
 	protected void handleRunning()throws ProcessingException{
-		if(logger.isTraceEnabled())logger.trace("Handling RUNNING state for Action "+action.getUUID());
+		logger.trace("Handling RUNNING state for action {}", action.getUUID());
 		try{
 			exec.updateStatus(action);
 			if(action.getStatus()==ActionStatus.RUNNING){
-				sleep(3000);
+				sleep(30000);
 			}
 		}catch(ExecutionException ex){
 			String msg="Could not update status for action "+ex.getMessage();
@@ -116,8 +116,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 			throw new ProcessingException(msg,ex);
 		}
 	}
-	
-	
+
 	@Override
 	protected void handlePostProcessing()throws ProcessingException{
 		Integer e = action.getExecutionContext().getExitCode();
@@ -130,7 +129,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		}
 		setToSuccess();
 	}	
-	
+
 	protected void setToSuccess(){
 		action.setStatus(ActionStatus.DONE);
 		action.setResult(new ActionResult(ActionResult.SUCCESSFUL));
