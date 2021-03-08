@@ -5,7 +5,7 @@
   <artifactId>xnjs</artifactId>
   <packaging>jar</packaging>
   <name>UNICORE/X XNJS</name>
-  <version>2.1.0-p1</version>
+  <version>2.1.0-p2</version>
 
   <parent>
     <groupId>eu.unicore</groupId>

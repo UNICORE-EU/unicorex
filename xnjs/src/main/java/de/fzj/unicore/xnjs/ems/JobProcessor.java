@@ -348,6 +348,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				cmd.cmd = pre.toString();
 				cmd.workingDir = action.getExecutionContext().getWorkingDirectory();
 				cmd.ignoreExitCode = action.getApplicationInfo().isUserPreCommandIgnoreExitCode();
+				cmd.env.putAll(action.getExecutionContext().getEnvironment());
 				String subID = createPrePostAction(cmd);
 				getOrCreateList(subactionkey_pre).add(subID);
 			}
@@ -432,6 +433,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				cmd.id = "POST_"+(index++);
 				cmd.cmd = userPost;
 				cmd.workingDir = action.getExecutionContext().getWorkingDirectory();
+				cmd.env.putAll(action.getExecutionContext().getEnvironment());
 				String subID = createPrePostAction(cmd);
 				getOrCreateList(subactionkey_post).add(subID);
 			}

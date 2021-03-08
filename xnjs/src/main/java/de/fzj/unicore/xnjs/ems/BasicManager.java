@@ -425,10 +425,6 @@ public class BasicManager implements Manager, InternalManager {
 		ecm.createChildContext(parentAction,soa);
 		ApplicationInfo childAppInfo=new ApplicationInfo();
 		soa.setApplicationInfo(childAppInfo);
-		if(parentAction.getApplicationInfo()!=null){
-			//copy environment
-			childAppInfo.getEnvironment().putAll(parentAction.getApplicationInfo().getEnvironment());
-		}
 		addInternalAction(soa);
 		return soa.getUUID();
 	}

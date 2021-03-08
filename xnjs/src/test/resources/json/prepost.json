@@ -3,7 +3,9 @@
   "User precommand": "sleep 2",
 
   "Executable": "sleep 3",
-  
+
+  "Parameters": { "TEST_VAR": "123" },
+
   "User postcommand": "sleep 4"
 
 }
