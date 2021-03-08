@@ -158,7 +158,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		public String stderr="stderr";
 		public String umask;
 		
-		public Map<String,String>env=new HashMap<String, String>();
+		public final Map<String,String>env = new HashMap<>();
 		
 		// if true, the job and its working directory will be destroyed when
 		// the command is finished

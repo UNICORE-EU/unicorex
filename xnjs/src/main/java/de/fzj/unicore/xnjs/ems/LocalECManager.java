@@ -129,7 +129,10 @@ public class LocalECManager implements IExecutionContextManager {
 		ExecutionContext childEc=new ExecutionContext(childAction.getUUID());
 		String wd=pc.getWorkingDirectory();
 		String cwd=wd;
-		
+		if(parentAction.getApplicationInfo()!=null){
+			//copy environment
+			childEc.getEnvironment().putAll(parentAction.getApplicationInfo().getEnvironment());
+		}
 		initContext(childEc, cwd, true, childAction.getUUID(), pc.getUmask());
 		childAction.setExecutionContext(childEc);
 		return childEc;

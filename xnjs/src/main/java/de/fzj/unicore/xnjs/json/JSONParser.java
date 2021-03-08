@@ -47,6 +47,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		app.setExecutable(source.optString("Executable",null));
 		app.setArguments(JSONUtils.asStringArray(source.optJSONArray("Arguments")));
 		app.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Parameters")));
+		app.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Environment")));
 		parseEnvironment(source.optJSONArray("Environment"), app);
 		app.setIgnoreNonZeroExitCode(source.optBoolean("IgnoreNonZeroExitCode", false));
 
