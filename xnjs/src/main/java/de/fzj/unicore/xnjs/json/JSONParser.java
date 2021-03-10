@@ -168,11 +168,24 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
 		if(source!=null) {
 			for(String name: JSONObject.getNames(source)) {
-				String value = source.getString(name);
+				String value = parseResourceValue(name, source.getString(name));
+				if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
 				req.add(new ResourceRequest(name, value));
 			}
 		}
 		return req;
+	}
+
+	private String parseResourceValue(String name, String value) {
+		if(ResourceSet.MEMORY_PER_NODE.equals(name)
+				|| "Memory".equals(name)) {
+			return String.valueOf(UnitParser.getCapacitiesParser(0).getLongValue(value));
+		}
+		else if(ResourceSet.RUN_TIME.equals(name))
+		{
+			return String.valueOf(UnitParser.getTimeParser(0).getLongValue(value));
+		}
+		return value;
 	}
 	
 	public OptionDescription parseOptionDescription(String name, JSONObject source) throws JSONException {
