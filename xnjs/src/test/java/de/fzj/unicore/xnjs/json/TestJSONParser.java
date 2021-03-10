@@ -140,4 +140,20 @@ public class TestJSONParser {
 		assertEquals("test123", t1);
 	}
 
+	@Test
+	public void testParseResourceRequest() throws Exception {
+		JSONObject jrr = new JSONObject();
+		jrr.put("Runtime", "2h");
+		jrr.put("Memory", "1k");
+		jrr.put("Project", "project123");
+		jrr.put("Queue", "test");
+		List<ResourceRequest> rr = new JSONParser().parseResourceRequest(jrr);
+		System.out.println(rr);
+		assertEquals("7200", ResourceRequest.find(rr, "Runtime").getRequestedValue());
+		assertEquals("1024", ResourceRequest.find(rr, "MemoryPerNode").getRequestedValue());
+		assertEquals("test", ResourceRequest.find(rr, "Queue").getRequestedValue());
+		assertEquals("project123", ResourceRequest.find(rr, "Project").getRequestedValue());
+	}
+	
+	
 }
