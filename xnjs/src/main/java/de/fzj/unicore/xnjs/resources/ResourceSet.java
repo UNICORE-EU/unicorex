@@ -27,7 +27,7 @@ public class ResourceSet implements Serializable {
 	public static final String CPUS_PER_NODE="CPUsPerNode";
 	public static final String TOTAL_CPUS="TotalCPUs";
 	public static final String NODES="Nodes";
-	public static final String RESERVATION_ID="ReservationID";
+	public static final String RESERVATION_ID="Reservation";
 	public static final String ARRAY_SIZE = "ArraySize";
 	public static final String ARRAY_LIMIT = "ArrayLimit";
 

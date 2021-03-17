@@ -19,6 +19,7 @@ import de.fzj.unicore.xnjs.idb.Partition;
 import de.fzj.unicore.xnjs.resources.IntResource;
 import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
+import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
 
 public class TestJSONParser {
@@ -147,12 +148,14 @@ public class TestJSONParser {
 		jrr.put("Memory", "1k");
 		jrr.put("Project", "project123");
 		jrr.put("Queue", "test");
+		jrr.put("Reservation", "123");
 		List<ResourceRequest> rr = new JSONParser().parseResourceRequest(jrr);
 		System.out.println(rr);
-		assertEquals("7200", ResourceRequest.find(rr, "Runtime").getRequestedValue());
-		assertEquals("1024", ResourceRequest.find(rr, "MemoryPerNode").getRequestedValue());
-		assertEquals("test", ResourceRequest.find(rr, "Queue").getRequestedValue());
-		assertEquals("project123", ResourceRequest.find(rr, "Project").getRequestedValue());
+		assertEquals("7200", ResourceRequest.find(rr, ResourceSet.RUN_TIME).getRequestedValue());
+		assertEquals("1024", ResourceRequest.find(rr, ResourceSet.MEMORY_PER_NODE).getRequestedValue());
+		assertEquals("test", ResourceRequest.find(rr, ResourceSet.QUEUE).getRequestedValue());
+		assertEquals("project123", ResourceRequest.find(rr, ResourceSet.PROJECT).getRequestedValue());
+		assertEquals("123", ResourceRequest.find(rr, ResourceSet.RESERVATION_ID).getRequestedValue());	
 	}
 	
 	
