@@ -34,6 +34,7 @@
 package de.fzj.unicore.xnjs.json;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -87,6 +88,7 @@ public class TestIDBDirectory {
 		List<ResourceRequest> rs = idb.getDefaultPartition().getResources().getDefaults();
 		assertTrue(ResourceRequest.contains(rs, ResourceSet.NODES));
 		assertTrue(ResourceRequest.contains(rs, ResourceSet.CPUS_PER_NODE));
+		assertFalse(ResourceRequest.contains(rs, ResourceSet.MEMORY_PER_NODE));
 	}
 
 

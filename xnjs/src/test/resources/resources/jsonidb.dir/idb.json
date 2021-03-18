@@ -6,6 +6,7 @@
     "Partitions" : {
 		"normal": {
 	   		"Description" : "Default partition",
+	   		"IsDefaultPartition": "true",
 	    	"OperatingSystem" : "GNU/Linux",
 	    	"CPUArchitecture" : "powerpc",
 	    	"Resources" : {
@@ -14,9 +15,36 @@
 		    		"Default" : "1",
 				},
 				"CPUsPerNode" : "1-64:2",
+				"TotalCPUs" : "1-512",
+				"MemoryPerNode" : "4G-8G",
+				
+				"AStringResource": {
+				  "Type" : "STRING",
+				  "Default": "test123",
+				},
+				
+				"Project": {
+				  "Type": "CHOICE",
+				  "Default": "NONE",
+				  "AllowedValues": ["bioinformatics", "physics"],
+				}
+	    	},
+	    },
+		"slow": {
+	   		"Description" : "Devel partition",
+	    	"OperatingSystem" : "GNU/Linux",
+	    	"CPUArchitecture" : "powerpc",
+	    	"Resources" : {
+				"Nodes" : {
+		    		"Range"  : "1-1",
+		    		"Default" : "1",
+				},
+				"CPUsPerNode" : "1-64:2",
+				"TotalCPUs" : "1-64",
+				"MemoryPerNode" : "4G-8G",
 	    	},
 		},
-    },
+	},
     
     "ExecuteScriptTemplate" : "#!/bin/bash \n#COMMAND \nFOO=bar\n#SCRIPT",
 
