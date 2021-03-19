@@ -1,7 +1,8 @@
-package de.fzj.unicore.uas.fts;
+package de.fzj.unicore.uas.fts.ws;
 
 import org.unigrids.x2006.x04.services.fts.TransferredBytesDocument;
 
+import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.wsrflite.impl.ResourceImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 

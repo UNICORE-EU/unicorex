@@ -1,8 +1,8 @@
-package de.fzj.unicore.uas.fts;
+package de.fzj.unicore.uas.fts.ws;
 
 import org.unigrids.x2006.x04.services.fts.TransferRateDocument;
 
-import de.fzj.unicore.wsrflite.impl.ResourceImpl;
+import de.fzj.unicore.uas.fts.ServerToServerFileTransferImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
 /**
@@ -14,7 +14,7 @@ import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
  */
 public class TransferRateResourceProperty extends ValueRenderer {
 	
-	public TransferRateResourceProperty(ResourceImpl inst){
+	public TransferRateResourceProperty(ServerToServerFileTransferImpl inst){
 		super(inst, TransferRateDocument.type.getDocumentElementName());
 	}
 	

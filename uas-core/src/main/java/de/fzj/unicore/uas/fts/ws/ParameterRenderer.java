@@ -1,4 +1,4 @@
-package de.fzj.unicore.uas.fts;
+package de.fzj.unicore.uas.fts.ws;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.unigrids.x2006.x04.services.fts.PropertyDocument;
 
+import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.wsrflite.Resource;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 

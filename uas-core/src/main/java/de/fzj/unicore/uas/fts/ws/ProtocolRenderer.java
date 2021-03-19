@@ -1,4 +1,4 @@
-package de.fzj.unicore.uas.fts;
+package de.fzj.unicore.uas.fts.ws;
 
 import java.util.Arrays;
 import java.util.List;

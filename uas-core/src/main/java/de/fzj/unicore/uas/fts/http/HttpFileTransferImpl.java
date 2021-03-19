@@ -26,7 +26,7 @@ import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
  * @author schuller
  * @since 1.0.1
  */
-public class HttpFileTransferImpl extends FileTransferImpl{
+public class HttpFileTransferImpl extends FileTransferImpl {
 	
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA,HttpFileTransferImpl.class);
 	

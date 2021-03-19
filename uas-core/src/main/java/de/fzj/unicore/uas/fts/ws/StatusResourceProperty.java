@@ -1,9 +1,10 @@
-package de.fzj.unicore.uas.fts;
+package de.fzj.unicore.uas.fts.ws;
 
 import org.unigrids.x2006.x04.services.fts.StatusDocument;
 import org.unigrids.x2006.x04.services.fts.StatusType;
 import org.unigrids.x2006.x04.services.fts.SummaryType;
 
+import de.fzj.unicore.uas.fts.FileTransferModel;
 import de.fzj.unicore.wsrflite.Resource;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
@@ -18,8 +19,8 @@ public class StatusResourceProperty extends ValueRenderer {
 		StatusDocument res=StatusDocument.Factory.newInstance();
 		StatusType ret=res.addNewStatus();
 		FileTransferModel m = (FileTransferModel)parent.getModel();
-		ret.setSummary(SummaryType.Enum.forInt(m.status));
-		ret.setDescription(m.description);
+		ret.setSummary(SummaryType.Enum.forInt(m.getStatus()));
+		ret.setDescription(m.getDescription());
 		return res;
 	}
 

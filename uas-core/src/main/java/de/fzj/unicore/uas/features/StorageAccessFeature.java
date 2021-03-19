@@ -9,6 +9,7 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransfer;
 import de.fzj.unicore.uas.fts.FileTransferHomeImpl;
 import de.fzj.unicore.uas.fts.uftp.UFTPStartupTask;
+import de.fzj.unicore.uas.fts.ws.ServerToServerTransferFrontend;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl;
 import de.fzj.unicore.uas.impl.sms.ws.SMSFrontend;
@@ -117,6 +118,7 @@ public class StorageAccessFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = FileTransferHomeImpl.class;
 			this.interfaceClass = FileTransfer.class;
+			this.frontendClass = ServerToServerTransferFrontend.class;
 		}
 	}
 	

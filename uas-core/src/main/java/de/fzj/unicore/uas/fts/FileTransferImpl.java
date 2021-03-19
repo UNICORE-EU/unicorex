@@ -38,16 +38,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import javax.xml.namespace.QName;
-
 import org.apache.logging.log4j.Logger;
-import org.unigrids.services.atomic.types.ProtocolType;
-import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.unigrids.x2006.x04.services.fts.SummaryType;
 
 import de.fzj.unicore.uas.UAS;
@@ -55,7 +49,6 @@ import de.fzj.unicore.uas.impl.UASWSResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
@@ -69,7 +62,7 @@ import eu.unicore.services.ws.utils.WSServerUtilities;
  *  
  * @author schuller
  */
-public abstract class FileTransferImpl extends UASWSResourceImpl implements DataResource, FileTransfer {
+public abstract class FileTransferImpl extends UASWSResourceImpl implements DataResource {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA,FileTransferImpl.class);
 
@@ -90,25 +83,6 @@ public abstract class FileTransferImpl extends UASWSResourceImpl implements Data
 
 	public FileTransferImpl(){
 		super();
-		frontendDelegate.setResourcePropertyDocumentQName(FileTransferPropertiesDocument.type.getDocumentElementName());
-		addRenderer(new ProtocolRenderer(this){
-			public List<ProtocolType.Enum> getProtocols(){
-				return Collections.singletonList(getModel().protocol);
-			}
-		});
-		addRenderer(new TransferredBytesResourceProperty(this));
-		addRenderer(new StatusResourceProperty(this));
-		addRenderer(new SourceResourceProperty(this));
-		addRenderer(new TargetResourceProperty(this));
-		addRenderer(new UASSizeResourceProperty(this));
-		addRenderer(new AddressRenderer(this,RPParentSMS,true){
-			@Override
-			protected String getServiceSpec(){
-				return getModel().getServiceSpec();
-			}
-		});
-		//publish protocol-specific params
-		addRenderer(new ParameterRenderer(this));
 	}
 
 	@Override 
@@ -143,12 +117,6 @@ public abstract class FileTransferImpl extends UASWSResourceImpl implements Data
 		initialiseSourceAndTarget(rawsource, rawtarget);
 		m.setStorageAdapterFactory(map.storageAdapterFactory);
 		logger.info("New file transfer: "+toString());
-	}
-
-	
-	@Override
-	public QName getResourcePropertyDocumentQName() {
-		return FileTransferPropertiesDocument.type.getDocumentElementName();
 	}
 
 	/**
@@ -293,15 +261,4 @@ public abstract class FileTransferImpl extends UASWSResourceImpl implements Data
 		return sb.toString();
 	}
 
-
-	private static final QName portType=new QName("http://unigrids.org/2006/04/services/fts","FileTransfer");
-
-	public QName getPortType()
-	{
-		return portType;
-	}
-
-	public static String statusAsString(int statusCode){
-		return SummaryType.Enum.forInt(statusCode).toString();
-	}
 }

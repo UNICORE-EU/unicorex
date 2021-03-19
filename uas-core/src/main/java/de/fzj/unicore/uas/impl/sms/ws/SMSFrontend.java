@@ -89,7 +89,7 @@ import org.w3.x2005.x08.addressing.EndpointReferenceType;
 import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.fts.ProtocolRenderer;
+import de.fzj.unicore.uas.fts.ws.ProtocolRenderer;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.UmaskRenderer;
 import de.fzj.unicore.uas.impl.bp.BPSupportImpl;

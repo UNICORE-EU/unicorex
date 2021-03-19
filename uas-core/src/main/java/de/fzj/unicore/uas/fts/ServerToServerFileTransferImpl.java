@@ -4,13 +4,11 @@ import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 import org.unigrids.services.atomic.types.ProtocolType;
-import org.unigrids.x2006.x04.services.fts.ScheduledStartTimeDocument;
 
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.RESTFileTransferBase;
@@ -18,7 +16,6 @@ import de.fzj.unicore.uas.xnjs.U6FileTransferBase;
 import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
 import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
@@ -35,7 +32,7 @@ import eu.unicore.util.Log;
  * WS-Resource for initiating and monitoring
  * a server-to-server file transfer
  * 
- * the source parameter is a UNICORE6 URI 
+ * the source parameter is a UNICORE URI 
  * the target is the local file (relative to storage root)
  * 
  * @author schuller
@@ -48,21 +45,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 
 	public ServerToServerFileTransferImpl(){
 		super();
-		addRenderer(new TransferRateResourceProperty(this));
-		addRenderer(new ValueRenderer(this, ScheduledStartTimeDocument.type.getDocumentElementName()) {
-			@Override
-			protected ScheduledStartTimeDocument getValue() throws Exception {
-				long scheduledStartTime = getModel().scheduledStartTime;
-				if(scheduledStartTime==0)return null;
-				ScheduledStartTimeDocument res=ScheduledStartTimeDocument.Factory.newInstance();
-				Calendar cal=Calendar.getInstance();
-				cal.setTimeInMillis(scheduledStartTime);
-				res.setScheduledStartTime(cal);
-				return res;
-			}
-		});
 	}
-	
 
 	@Override 
 	public ServerToServerTransferModel getModel(){
