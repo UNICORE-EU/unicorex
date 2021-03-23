@@ -17,7 +17,12 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.FileList.FileListEntry;
+import eu.unicore.client.core.StorageClient;
 import eu.unicore.services.rest.client.BaseClient;
+import eu.unicore.services.rest.client.RESTException;
+import eu.unicore.services.rest.client.UsernamePassword;
 
 public class TestStorages extends Base {
 
@@ -233,7 +238,17 @@ public class TestStorages extends Base {
 		client.setURL(storage+"/search?q=foo");
 		JSONObject fileListing = client.getJSON();
 		System.out.println(fileListing.toString(2));
-		
+	}
+
+	@Test(expected = RESTException.class)
+	public void testChmodNonExistentFile() throws Exception {
+		Endpoint ep = new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK");
+		StorageClient client = new StorageClient(ep,
+				kernel.getClientConfiguration(),
+				new UsernamePassword("demouser",  "test123"));
+		client.chmod("nonexistentpath", "rw-");
+		FileListEntry e = client.stat("nonexistentpath");
+		System.out.println(e);
 	}
 
 	

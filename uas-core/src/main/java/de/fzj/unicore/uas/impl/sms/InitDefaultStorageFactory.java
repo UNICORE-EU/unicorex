@@ -10,7 +10,6 @@ import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
 import de.fzj.unicore.uas.util.DefaultOnStartup;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.wsrflite.Home;
@@ -64,10 +63,9 @@ public class InitDefaultStorageFactory implements Runnable{
 				try{
 					//this will throw ResourceUnknowException if resource does not exist
 					smfHome.get(defaultSmfName);
-					UASWSResourceImpl smf=(UASWSResourceImpl)smfHome.get(defaultSmfName);
 					//It exists, so force re-publish
-					smf.publish();
-					//exists, so we are done
+					DefaultOnStartup.publishWS(kernel, smfHome.getServiceName(), defaultSmfName, StorageFactory.SMF_PORT);
+					// exists, so we are done
 					return;
 				}
 				catch(ResourceUnknownException e){}
@@ -86,6 +84,7 @@ public class InitDefaultStorageFactory implements Runnable{
 		Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactoryImpl.class);
 		init.resourceClassName = clazz.getName();
 		smfHome.createResource(init);
+		DefaultOnStartup.publishWS(kernel, smfHome.getServiceName(), defaultSmfName, StorageFactory.SMF_PORT);
 		logger.info("Added default StorageFactory resource '"+defaultSmfName+"' of type <"+clazz.getName()+">.");
 	}
 

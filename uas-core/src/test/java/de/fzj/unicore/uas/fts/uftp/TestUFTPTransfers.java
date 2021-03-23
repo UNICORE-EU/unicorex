@@ -42,7 +42,7 @@ import eu.unicore.uftp.dpc.Utils;
 /**
  * Tests the RESTFul implementation of UFTP file transfer
  */
-public class TestRESTUFTP {
+public class TestUFTPTransfers {
 
 	static UFTPDServerRunner uftpd = new UFTPDServerRunner();
 	

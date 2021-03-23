@@ -241,4 +241,5 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants{
 	protected void createNewExport(FileListEntry source)throws Exception{
 		throw new IllegalStateException();
 	}
+
 }

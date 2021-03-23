@@ -1,46 +1,46 @@
 package de.fzj.unicore.uas.fts.uftp;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.CreationFlagEnumeration;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionType;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.unigrids.services.atomic.types.GridFileType;
-import org.unigrids.x2006.x04.services.tss.SubmitDocument;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.client.FileTransferClient;
-import de.fzj.unicore.uas.client.JobClient;
-import de.fzj.unicore.uas.client.StorageClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
-import de.fzj.unicore.uas.client.TSFClient;
-import de.fzj.unicore.uas.client.TSSClient;
 import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.Job;
+import eu.unicore.client.core.CoreClient;
+import eu.unicore.client.core.FileList.FileListEntry;
+import eu.unicore.client.core.JobClient;
+import eu.unicore.client.core.SiteClient;
+import eu.unicore.client.core.StorageClient;
+import eu.unicore.client.core.StorageFactoryClient;
+import eu.unicore.client.data.HttpFileTransferClient;
+import eu.unicore.services.rest.client.UsernamePassword;
 
 /**
  * Tests the UFTP 2.0 multi-file transfers in "non-local mode", i.e. 
  * using an external uftp.sh executable
  */
-public class FunctionalTestUFTPMultiFile {
+public class TestUFTPNonLocalMode {
 
 	static UFTPDServerRunner uftpd = new UFTPDServerRunner();
 	
 	static StorageClient sms;
 
-	static TSSClient tss;
+	static SiteClient tss;
 
 	static Kernel kernel;
 	
@@ -59,22 +59,20 @@ public class FunctionalTestUFTPMultiFile {
 	@BeforeClass
 	public static void init() throws Exception {
 		uftpd.start();
-
+		FileUtils.writeStringToFile(new File("target/uftp.classpath"), System.getProperty("java.class.path"), "UTF-8");
 		// start UNICORE
-		long start = System.currentTimeMillis();
 		FileUtils.deleteQuietly(new File("target", "data"));
 		FileUtils.deleteQuietly(new File("target", "testfiles"));
 		File f = new File("target/testfiles");
 		if (!f.exists())f.mkdirs();
 		UAS uas = new UAS(getConfigPath());
 		uas.startSynchronous();
-		System.out.println("Startup time: "
-				+ (System.currentTimeMillis() - start) + " ms.");
 		kernel = uas.getKernel();
 		kernel.getAttribute(UASProperties.class).setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, "true");
 		Properties cfg = kernel.getContainerProperties().getRawProperties();
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_LOCAL, "false");
-		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_EXECUTABLE, "/opt/unicore-servers/uftpd/bin/uftp.sh");
+		File p = new File("src/test/resources/uftp/uftp.sh");
+		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_EXECUTABLE, p.getAbsolutePath());
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_HOST, "localhost");
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_SERVER_HOST, "localhost");
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_SERVER_PORT, String.valueOf(uftpd.srvPort));
@@ -86,22 +84,21 @@ public class FunctionalTestUFTPMultiFile {
 		LogicalUFTPServer connector = new LogicalUFTPServer(kernel);
 		kernel.setAttribute(LogicalUFTPServer.class, connector);
 		// create a storage
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue("http://localhost:65321/services/StorageFactory?res=default_storage_factory");
-		StorageFactoryClient smf = new StorageFactoryClient(epr, kernel.getClientConfiguration());
-		sms = smf.createSMS();
+		Endpoint ep = new Endpoint("http://localhost:65321/rest/core/storagefactories/default_storage_factory");
+		StorageFactoryClient smf = new StorageFactoryClient(ep,
+				kernel.getClientConfiguration(),
+				new UsernamePassword("demouser", "test123"));
+		sms = smf.createStorage();
 		
 		// setup test files for stage-in
 		for(int i=1;i<=N_files;i++)
 		{
 			importTestFile(sms, "/test/test"+i, i*8192);
 		}
-		
-		EndpointReferenceType epr2 = EndpointReferenceType.Factory.newInstance();
-		epr2.addNewAddress().setStringValue(
-						"http://localhost:65321/services/TargetSystemFactoryService?res=default_target_system_factory");
-		TSFClient tsf = new TSFClient(epr2, kernel.getClientConfiguration());
-		tss = tsf.createTSS();
+		CoreClient cc = new CoreClient(new Endpoint("http://localhost:65321/rest/core"), 
+				kernel.getClientConfiguration(),
+				new UsernamePassword("demouser", "test123"));
+		tss = cc.getSiteClient();
 	}
 
 	@Test
@@ -122,18 +119,20 @@ public class FunctionalTestUFTPMultiFile {
 		// note the current number of filetransfer instances
 		long before=UFTPFileTransferImpl.instancesCreated.get();
 		
-		SubmitDocument in = SubmitDocument.Factory.newInstance();
-		in.addNewSubmit().setJobDefinition(getStageInJob());
-		JobClient jc = tss.submit(in);
-		jc.waitUntilReady(0);//60000);
-		jc.start();
-		jc.waitUntilDone(15000);
-		StorageClient uspace=jc.getUspaceClient();
+		JobClient jc = tss.submitJob(getStageInJob());
+		int c = 0;
+		while(!jc.isFinished()&& c<30) {
+			Thread.sleep(1000);
+			c++;
+		}
+		assertTrue(jc.getLog().toString(), jc.isFinished());
+		
+		StorageClient uspace=jc.getWorkingDirectory();
 		
 		for(int i=1; i<=N_files; i++){
-			GridFileType result = uspace.listProperties(
+			FileListEntry result = uspace.stat(
 					"/dir/test"+i);
-			Assert.assertEquals(i*8192, result.getSize());
+			Assert.assertEquals(i*8192, result.size);
 		}
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 		
@@ -157,49 +156,43 @@ public class FunctionalTestUFTPMultiFile {
 	private void doStageOut(boolean encrypt) throws Exception {
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
-		SubmitDocument in = SubmitDocument.Factory.newInstance();
-		in.addNewSubmit().setJobDefinition(getStageOutJob());
-		JobClient jc = tss.submit(in);
-		jc.waitUntilReady(3000);
-
-		StorageClient uspace=jc.getUspaceClient();
+		JobClient jc = tss.submitJob(getStageOutJob());
+		
+		StorageClient uspace=jc.getWorkingDirectory();
 		// setup test files for stage-out
 		for(int i=1;i<=N_files;i++)
 		{
 			importTestFile(uspace, "/out/test"+i, i*8192);
 		}
 		jc.start();
-		jc.waitUntilDone(0);
+		int c = 0;
+		while(!jc.isFinished()&& c<300) {
+			Thread.sleep(1000);
+			c++;
+		}
+		assertTrue(jc.getLog().toString(), jc.isFinished());
+		
 		for(int i=1;i<=N_files;i++)
 		{
-			GridFileType result = sms.listProperties("out/test"+i);
-			Assert.assertEquals(i*8192, result.getSize());
+			FileListEntry result = sms.stat("out/test"+i);
+			Assert.assertEquals("Wrong size"+result, i*8192, result.size);
 		}
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 	}
 	
-	private JobDefinitionType getStageInJob() {
-		JobDefinitionDocument jdd = JobDefinitionDocument.Factory.newInstance();
-		jdd.addNewJobDefinition().addNewJobDescription().addNewApplication()
-				.setApplicationName("Date");
-		DataStagingType dst = jdd.getJobDefinition().getJobDescription()
-				.addNewDataStaging();
-		dst.addNewSource().setURI("UFTP:" + sms.getUrl() + "#/test/");
-		dst.setFileName("dir/");
-		dst.setCreationFlag(CreationFlagEnumeration.OVERWRITE);
-		return jdd.getJobDefinition();
+	private JSONObject getStageInJob() throws JSONException {
+		Job jdd = new Job();
+		jdd.application("Date");
+		jdd.stagein().from("UFTP:"+sms.getEndpoint().getUrl()+"/files/test/").to("dir/");
+		return jdd.getJSON();
 	}
 
-	private JobDefinitionType getStageOutJob() {
-		JobDefinitionDocument jdd = JobDefinitionDocument.Factory.newInstance();
-		jdd.addNewJobDefinition().addNewJobDescription().addNewApplication()
-				.setApplicationName("Date");
-		DataStagingType dst = jdd.getJobDefinition().getJobDescription()
-				.addNewDataStaging();
-		dst.setFileName("out/");
-		dst.addNewTarget().setURI("UFTP:" + sms.getUrl() + "#/out");
-		dst.setCreationFlag(CreationFlagEnumeration.OVERWRITE);
-		return jdd.getJobDefinition();
+	private JSONObject getStageOutJob() throws JSONException {
+		Job jdd = new Job();
+		jdd.application("Date");
+		jdd.stageout().from("out/").to("UFTP:"+sms.getEndpoint().getUrl()+"/files/out/");
+		jdd.wait_for_client_stage_in();
+		return jdd.getJSON();
 	}
 
 	private static void importTestFile(StorageClient sms, String filename,
@@ -207,8 +200,8 @@ public class FunctionalTestUFTPMultiFile {
 		byte[] buf = new byte[size];
 		Random r = new Random();
 		r.nextBytes(buf);
-		try(FileTransferClient ft = sms.upload(filename)){
-			ft.write(buf);
-		}
+		HttpFileTransferClient ft = sms.upload(filename);
+		ft.write(buf);
+		ft.delete();
 	}
 }

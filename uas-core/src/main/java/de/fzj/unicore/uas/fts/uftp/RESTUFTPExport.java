@@ -85,6 +85,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 	protected void runTransfers() throws Exception {
 		setupSessionMode();
 		super.runTransfers();
+		System.out.println(storage.getFiles("out").list(0, 100).toString());
 		finishSessionMode();
 		info.setTransferredBytes(info.getDataSize());
 	}
@@ -237,6 +238,13 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 		}
 		info.setTransferredBytes(info.getDataSize());
 	}
+	
+	@Override
+	protected void copyPermissions(String source, String target) {
+		if(localMode) {
+			super.copyPermissions(source, target);
+		}
+	};
 
 	private String getCommandLine(String localFile)throws Exception{
 		String uftp = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_EXECUTABLE);

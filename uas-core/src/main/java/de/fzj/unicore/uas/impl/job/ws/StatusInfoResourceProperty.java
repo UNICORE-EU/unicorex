@@ -38,7 +38,7 @@ import org.unigrids.services.atomic.types.StatusInfoDocument;
 import org.unigrids.services.atomic.types.StatusType;
 import org.unigrids.services.atomic.types.StatusType.Enum;
 
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.wsrflite.Kernel;
@@ -61,7 +61,7 @@ public class StatusInfoResourceProperty extends ValueRenderer {
 	@Override
 	protected StatusInfoDocument getValue() throws Exception{
 		Kernel k=parent.getKernel();
-		String xnjsReference=((UASWSResourceImpl)parent).getXNJSReference();
+		String xnjsReference=((BaseResourceImpl)parent).getXNJSReference();
 		String actionID=parent.getUniqueID();
 		Client client=AuthZAttributeStore.getClient();
 		XNJSFacade xnjs=XNJSFacade.get(xnjsReference,k);

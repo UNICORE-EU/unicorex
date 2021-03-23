@@ -165,34 +165,44 @@ public class Files extends RESTRendererBase {
 
 			XnjsFileWithACL props = sms.getProperties(path);
 			if(props == null){
-				boolean mustExist = Boolean.parseBoolean(json.optString("mustExist", null));
-				if(mustExist){
-					throw new WebApplicationException(404);
-				}
-				else {
-					tsi.mkdir(path);
-				}
+				throw new WebApplicationException(404);
 			}
 			JSONObject reply = new JSONObject();
 			String permissions = json.optString("unixPermissions", null);
 			if(permissions!=null){
-				tsi.chmod2(path, SMSUtils.getChangePermissions(permissions), false);
-				reply.put("unixPermissions","OK");
+				try{
+					tsi.chmod2(path, SMSUtils.getChangePermissions(permissions), false);
+					reply.put("unixPermissions","OK");
+				}catch(Exception e) {
+					reply.put("unixPermissions","FAILED: "+Log.getDetailMessage(e));
+				}
 			}
 
 			String group = json.optString("group", null);
 			if(group!=null){
-				tsi.chgrp(path, group, false);
-				reply.put("group","OK");
+				try {
+					tsi.chgrp(path, group, false);
+					reply.put("group","OK");
+				}catch(Exception e) {
+					reply.put("group","FAILED: "+Log.getDetailMessage(e));
+				}
 			}
 
 			JSONObject jMeta = json.optJSONObject("metadata");
 			if(jMeta!=null){
 				MetadataManager mm = sms.getMetadataManager();
+				String metadataMsg = "OK";
 				if(mm!=null){
-					mm.createMetadata(path, JSONUtil.asMap(jMeta));
-					reply.put("metadata","OK");
+					try {
+						mm.createMetadata(path, JSONUtil.asMap(jMeta));
+					}catch(Exception e) {
+						metadataMsg = "FAILED: "+Log.getDetailMessage(e);
+					}
 				}
+				else {
+					metadataMsg = "Metadata is not supported for this storage.";
+				}
+				reply.put("metadata", metadataMsg);
 			}
 
 			return Response.ok(reply.toString(),MediaType.APPLICATION_JSON).build();

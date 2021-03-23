@@ -301,8 +301,7 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 			storage.chmod(target, p);
 		}catch(Exception ex) {
 			Log.logException("Could not set permissions of remote file <"+target+">", ex, logger);
-		}
-		
+		}	
 	}
 
 }
