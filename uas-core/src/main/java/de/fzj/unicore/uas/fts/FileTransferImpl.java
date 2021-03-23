@@ -45,7 +45,7 @@ import org.apache.logging.log4j.Logger;
 import org.unigrids.x2006.x04.services.fts.SummaryType;
 
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 import de.fzj.unicore.wsrflite.InitParameters;
@@ -62,7 +62,7 @@ import eu.unicore.services.ws.utils.WSServerUtilities;
  *  
  * @author schuller
  */
-public abstract class FileTransferImpl extends UASWSResourceImpl implements DataResource {
+public abstract class FileTransferImpl extends BaseResourceImpl implements DataResource {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA,FileTransferImpl.class);
 
@@ -256,7 +256,7 @@ public abstract class FileTransferImpl extends UASWSResourceImpl implements Data
 		sb.append(" isExport=").append(m.isExport);
 		sb.append(" overwrite=").append(m.overWrite);
 		sb.append(" workdir=").append(m.workdir);
-		sb.append(" myAddress=").append(getEPR().getAddress().getStringValue());
+		sb.append(" myID=").append(getUniqueID());
 
 		return sb.toString();
 	}

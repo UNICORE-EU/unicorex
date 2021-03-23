@@ -49,7 +49,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 
 	public HttpFileTransferClient(String url, EndpointReferenceType epr, IClientConfiguration sec) throws Exception {
 		super(url, epr, sec);
-		accessURL=getSingleResourceProperty(AccessURLDocument.class).getAccessURL();
+		accessURL = getProtocolDependentRPs().get("accessURL");
 	}
 
 	public HttpFileTransferClient(EndpointReferenceType epr, IClientConfiguration sec) throws Exception {

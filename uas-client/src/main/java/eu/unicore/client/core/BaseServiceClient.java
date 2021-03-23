@@ -63,11 +63,11 @@ public class BaseServiceClient {
 	JSONObject cachedProperties = null;
 	
 	public JSONObject getProperties() throws Exception {
-		if(cachedProperties==null || System.currentTimeMillis()-lastAccessed>updateInterval){
+		if(cachedProperties==null || System.currentTimeMillis()>lastAccessed+updateInterval){
 			cachedProperties = bc.getJSON();
 			lastAccessed = System.currentTimeMillis();
 		}	
-		return bc.getJSON();
+		return cachedProperties;
 	}
 	
 	/**

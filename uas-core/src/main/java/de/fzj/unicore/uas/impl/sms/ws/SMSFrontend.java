@@ -357,7 +357,7 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 		BigInteger offsetP = in.getListDirectory().getOffset();
 		int offset = ( offsetP!=null?offsetP.intValue():0) ;
 		BigInteger limitP = in.getListDirectory().getLimit();
-		int max = resource.uasProperties.getIntValue(UASProperties.SMS_LS_LIMIT);
+		int max = resource.getProperties().getIntValue(UASProperties.SMS_LS_LIMIT);
 		int limit = limitP!=null ? limitP.intValue() : max;
 		if(limit>max){
 			String msg="Could not list directory: the requested number of results " +

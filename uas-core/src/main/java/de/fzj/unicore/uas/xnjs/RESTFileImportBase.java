@@ -69,8 +69,8 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 			cancelled();
 		}
 		catch(Exception ex){
-			String msg="Error executing filetransfer";
-			LogUtil.logException(msg,ex,logger);
+			String msg = "Error executing filetransfer";
+			LogUtil.logException(msg, ex, logger);
 			failed(LogUtil.createFaultMessage(msg, ex));
 		}
 		if(statusTracker!=null)statusTracker.update(info);

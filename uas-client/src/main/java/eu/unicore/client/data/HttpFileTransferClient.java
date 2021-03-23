@@ -94,13 +94,23 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	}
 	
 	/**
-	 * uploads the given data
+	 * uploads the given data (setting the append flag)
 	 * 
 	 * @param data
 	 * @throws Exception
 	 */
 	public void append(byte[] data) throws Exception {
 		writeAllData(new ByteArrayInputStream(data), true);
+	}
+
+	/**
+	 * uploads the given data
+	 * 
+	 * @param data
+	 * @throws Exception
+	 */
+	public void write(byte[] data)throws Exception {
+		writeAllData(new ByteArrayInputStream(data), false);
 	}
 
 	@Override

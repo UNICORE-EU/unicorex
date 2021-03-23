@@ -23,7 +23,7 @@ import eu.unicore.security.SecurityTokens;
  *  
  * @author K. Benedyczak
  */
-public abstract class PersistingPreferencesResource extends UASWSResourceImpl {
+public abstract class PersistingPreferencesResource extends BaseResourceImpl {
 	
 	private static final Logger logger=LogUtil.getLogger(LogUtil.SERVICES,PersistingPreferencesResource.class);
 

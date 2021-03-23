@@ -103,7 +103,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, SMSBaseImpl.class);
 
 	/**
-	 * the maximum number of results to return in a single ListDirectory() operation
+	 * the maximum number of results to return in a single ListDirectory() opeSMSBaseImplration
 	 */
 	public static final int MAX_LS_RESULTS = 10000;
 

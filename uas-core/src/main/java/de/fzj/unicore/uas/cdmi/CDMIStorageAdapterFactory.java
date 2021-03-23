@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferModel;
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.Model;
@@ -20,7 +20,7 @@ import eu.unicore.util.httpclient.ClientProperties;
 public class CDMIStorageAdapterFactory implements StorageAdapterFactory {
 
 	@Override
-	public CDMIStorageAdapter createStorageAdapter(UASWSResourceImpl parent)
+	public CDMIStorageAdapter createStorageAdapter(BaseResourceImpl parent)
 			throws IOException {
 		// load the model of the correct SMS resource: parent can be a file transfer
 		Model m = parent.getModel();

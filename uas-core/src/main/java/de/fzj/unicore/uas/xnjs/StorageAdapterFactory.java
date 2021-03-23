@@ -2,7 +2,7 @@ package de.fzj.unicore.uas.xnjs;
 
 import java.io.IOException;
 
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 
 /**
@@ -15,6 +15,6 @@ import de.fzj.unicore.xnjs.io.IStorageAdapter;
  */
 public interface StorageAdapterFactory {
 
-	public IStorageAdapter createStorageAdapter(UASWSResourceImpl parent)throws IOException;
+	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)throws IOException;
 	
 }

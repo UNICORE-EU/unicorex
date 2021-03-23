@@ -10,6 +10,7 @@ import java.util.ServiceLoader;
 import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
+import de.fzj.unicore.uas.CoreClientCapabilities.FTClientCapability;
 import de.fzj.unicore.uas.CoreClientCapabilities.RESTFTClientCapability;
 import de.fzj.unicore.uas.client.Configurable;
 import de.fzj.unicore.uas.client.FileTransferClient;
@@ -21,6 +22,8 @@ import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.data.FileClient;
 import eu.unicore.client.data.FiletransferClient;
+import eu.unicore.client.data.HttpFileTransferClient;
+import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.util.Log;
@@ -43,7 +46,7 @@ public class StorageClient extends BaseServiceClient {
 	public FileList getFiles(String basedir) throws Exception {
 		if(basedir==null)basedir = "/";
 		if(!basedir.startsWith("/"))basedir="/"+basedir;
-		String url = getLinkUrl("files")+basedir;
+		String url = getLinkUrl("files")+encode(basedir);
 		Endpoint ep = endpoint.cloneTo(url);
 		return new FileList(this, ep, security, auth);
 	}
@@ -57,16 +60,16 @@ public class StorageClient extends BaseServiceClient {
 	public FileListEntry stat(String path) throws Exception {
 		if(path==null)path = "/";
 		if(!path.startsWith("/"))path="/"+path;
-		String url = getLinkUrl("files")+path;
+		String url = getLinkUrl("files")+encode(path);
 		Endpoint ep = endpoint.cloneTo(url);
 		JSONObject props = new BaseServiceClient(ep, security, auth).getProperties();
 		return new FileListEntry(path, props);
 	}
-	
+
 	public FileClient getFileClient(String path) throws Exception {
 		if(path==null)path = "/";
 		if(!path.startsWith("/"))path="/"+path;
-		String url = getLinkUrl("files")+path;
+		String url = getLinkUrl("files")+encode(path);
 		Endpoint ep = endpoint.cloneTo(url);
 		return new FileClient(ep, security, auth);
 	}
@@ -132,6 +135,13 @@ public class StorageClient extends BaseServiceClient {
 		}
 	}
 	
+	/**
+	 * create BFT upload
+	 */
+	public HttpFileTransferClient upload(String filename) throws Exception {
+		return (HttpFileTransferClient)createImport(filename, false, -1, "BFT", null);
+	}
+	
 	public FiletransferClient createExport(String filename,  String protocol, Map<String,String>extraParameters) throws Exception {
 		
 		Class<? extends FiletransferClient> clazz = getFiletransferClientClass(protocol);
@@ -163,6 +173,50 @@ public class StorageClient extends BaseServiceClient {
 		}
 	}
 	
+	/**
+	 * create BFT download
+	 */
+	public HttpFileTransferClient download(String filename) throws Exception {
+		return (HttpFileTransferClient) createExport(filename, "BFT", null);
+	}
+	
+	/**
+	 * initiate a server-server transfer, which will fetch a remote file to this storage
+	 * 
+	 * @param sourceURL
+	 * @param fileName
+	 * @param protocol
+	 */
+	public TransferControllerClient fetchFile(String sourceURL, String fileName, String protocol) throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("source", sourceURL);
+		json.put("file", fileName);
+		json.put("protocol",protocol);
+		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
+		HttpResponse res = c.post(json);
+		c.checkError(res);
+		Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
+		return new TransferControllerClient(ep, security, auth);
+	}
+	
+	/**
+	 * initiate a server-server transfer, which will send a file from this storage to a remote location
+	 * 
+	 * @param fileName
+	 * @param targetURL
+	 * @param protocol
+	 */
+	public TransferControllerClient sendFile(String fileName, String targetURL, String protocol) throws Exception {
+		JSONObject json = new JSONObject();
+		json.put("file", fileName);
+		json.put("target", targetURL);
+		json.put("protocol",protocol);
+		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
+		HttpResponse res = c.post(json);
+		c.checkError(res);
+		Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
+		return new TransferControllerClient(ep, security, auth);
+	}
 	
 	@SuppressWarnings("unchecked")
 	protected Class<? extends FiletransferClient> getFiletransferClientClass(String protocol) throws IOException {
@@ -218,4 +272,9 @@ public class StorageClient extends BaseServiceClient {
 			}
 		}
 	}
+
+	public static String encode(String path) {
+		return path.replace(" ", "%20");
+	}
+
 }

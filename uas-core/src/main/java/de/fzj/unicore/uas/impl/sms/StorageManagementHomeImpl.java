@@ -41,7 +41,6 @@ import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.Resource;
 import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.ws.impl.WSResourceHomeImpl;
-import eu.unicore.services.ws.impl.WSResourceImpl;
 
 /**
  * Storage service home. Depending on the passed-in init parameters, different
@@ -66,9 +65,9 @@ public class StorageManagementHomeImpl extends WSResourceHomeImpl {
 	}
 
 	@Override
-	protected WSResourceImpl doCreateInstance(InitParameters initObjs) throws Exception {
+	protected Resource doCreateInstance(InitParameters initObjs) throws Exception {
 		String clazz = initObjs.resourceClassName;
-		return(WSResourceImpl)(Class.forName(clazz).getConstructor().newInstance());
+		return(Resource)(Class.forName(clazz).getConstructor().newInstance());
 	}
 	
 	@Override

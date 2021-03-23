@@ -42,17 +42,19 @@ import org.unigrids.services.atomic.types.ProtocolType;
 import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.unigrids.x2006.x04.services.fts.SummaryType;
 
+import de.fzj.unicore.uas.ft.http.AccessURLDocument;
 import de.fzj.unicore.uas.fts.FileTransfer;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
+import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
 /**
  * WSRF frontend for FileTransfer
  *  
  * @author schuller
  */
-public abstract class FileTransferFrontend extends UASBaseFrontEnd implements FileTransfer {
+public class FileTransferFrontend extends UASBaseFrontEnd implements FileTransfer {
 
 	/**
 	 * Configuration key: maps protocol to implementation class.
@@ -92,6 +94,15 @@ public abstract class FileTransferFrontend extends UASBaseFrontEnd implements Fi
 		});
 		//publish protocol-specific params
 		addRenderer(new ParameterRenderer(resource));
+		// supporting potential old clients using BFT
+		addRenderer(new ValueRenderer(resource, AccessURLDocument.type.getDocumentElementName()){
+			protected AccessURLDocument getValue(){
+				String accessURL = resource.getProtocolDependentParameters().getOrDefault("accessURL", "");
+				AccessURLDocument urlDoc=AccessURLDocument.Factory.newInstance();
+				urlDoc.setAccessURL(accessURL);
+				return urlDoc;
+			}
+		});
 	}
 	
 	@Override

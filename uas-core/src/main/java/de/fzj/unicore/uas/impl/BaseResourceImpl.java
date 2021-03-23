@@ -66,7 +66,15 @@ public abstract class BaseResourceImpl extends ResourceImpl implements XNJSResou
 	}
 
 	@Override
-	public final void activate() {}
+	public final void activate() {
+		super.activate();
+		customPostActivate();
+	}
+
+	/**
+	 * add special post-activation behaviour by overriding this method 
+	 */
+	protected void customPostActivate(){}
 
 	/**
 	 * sets XNJS reference, setups WSRF base profile RPs and the server's version RP
@@ -123,4 +131,7 @@ public abstract class BaseResourceImpl extends ResourceImpl implements XNJSResou
 	 */
 	protected void doRefreshSystemInfo() throws Exception {}
 
+	public UASProperties getProperties() {
+		return uasProperties;
+	}
 }

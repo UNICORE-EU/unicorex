@@ -2,13 +2,13 @@ package de.fzj.unicore.uas.impl.job.ws;
 
 import org.unigrids.x2006.x04.services.jms.StdErrDocument;
 
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
 public class StdErrProperty extends ValueRenderer {
 
-	public StdErrProperty(UASWSResourceImpl parent){
+	public StdErrProperty(BaseResourceImpl parent){
 		super(parent, StdErrDocument.type.getDocumentElementName());
 	}
 	

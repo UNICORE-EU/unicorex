@@ -89,4 +89,10 @@ public class CoreClient extends BaseServiceClient {
 		Endpoint ep = endpoint.cloneTo(url);
 		return new EnumerationClient(ep, security, auth);
 	}
+	
+	public StorageFactoryClient getStorageFactory() throws Exception {
+		String url = getLinkUrl("storagefactories");
+		Endpoint ep = endpoint.cloneTo(url+"/default_storage_factory");
+		return new StorageFactoryClient(ep, security, auth);
+	}
 }

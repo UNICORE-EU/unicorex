@@ -7,9 +7,7 @@ import javax.xml.namespace.QName;
 import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.unigrids.x2006.x04.services.fts.ScheduledStartTimeDocument;
 
-import de.fzj.unicore.uas.fts.FileTransfer;
 import de.fzj.unicore.uas.fts.ServerToServerFileTransferImpl;
-import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 
 
@@ -22,7 +20,7 @@ import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
  * 
  * @author schuller
  */
-public class ServerToServerTransferFrontend extends UASBaseFrontEnd implements FileTransfer  {
+public class ServerToServerTransferFrontend extends FileTransferFrontend {
 
 	public static final String PARAM_SCHEDULED_START="scheduledStartTime";
 

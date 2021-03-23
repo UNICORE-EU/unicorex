@@ -39,7 +39,6 @@ import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.Resource;
 import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.ws.impl.WSResourceHomeImpl;
-import eu.unicore.services.ws.impl.WSResourceImpl;
 import eu.unicore.util.Log;
 
 /**
@@ -60,7 +59,7 @@ public class FileTransferHomeImpl extends WSResourceHomeImpl {
 	 * If the protocol is null, a {@link ServerToServerFileTransferImpl} is created.
      */
 	@Override
-	protected WSResourceImpl doCreateInstance()throws Exception{
+	protected Resource doCreateInstance()throws Exception{
 		try{
 			String protocol=protocolT.get();
 			if(protocol==null){

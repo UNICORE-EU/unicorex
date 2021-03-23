@@ -1,34 +1,27 @@
-package de.fzj.unicore.uas.testsuite;
+package de.fzj.unicore.uas.rest;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 
 import org.junit.Test;
-import org.unigrids.services.atomic.types.GridFileType;
-import org.unigrids.services.atomic.types.ProtocolType;
-import org.unigrids.x2006.x04.services.fts.SummaryType;
-import org.w3.x2005.x08.addressing.EndpointReferenceDocument;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.Base;
-import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.client.EnumerationClient;
-import de.fzj.unicore.uas.client.StorageClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
-import de.fzj.unicore.uas.client.TransferControllerClient;
-import eu.unicore.services.ws.utils.WSServerUtilities;
-
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.FileList;
+import eu.unicore.client.core.FileList.FileListEntry;
+import eu.unicore.client.core.StorageClient;
+import eu.unicore.client.core.StorageFactoryClient;
+import eu.unicore.client.data.TransferControllerClient;
+import eu.unicore.services.rest.client.UsernamePassword;
 /**
  * tests sendFile() and receiveFile()
  * 
  * @author schuller
  */
-public class RunServerServerTransfer extends Base {
+public class TestServerServerTransfer extends Base {
 
-	EndpointReferenceType factory;
 	StorageFactoryClient sfc;
 	StorageClient source, target;
 	String sourceURL,targetURL;
@@ -36,44 +29,28 @@ public class RunServerServerTransfer extends Base {
 
 	@Test
 	public void testTransfer()throws Exception{
-		factory= WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory",kernel);
-		sfc=new StorageFactoryClient(factory,kernel.getClientConfiguration());
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
+		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
+		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
+				new UsernamePassword("demouser", "test123"));
 		initSource();
 		UASProperties cfg = kernel.getAttribute(UASProperties.class);
 		for(String noOpt: new String[]{"true", "false"}){
 			System.out.println("Testing with disabled local copy optimization: "+noOpt);
 			cfg.setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, noOpt);
-			dataTransfer();
-			checkSpacesInNames();
+			//dataTransfer();
+			//checkSpacesInNames();
+			fetchSingleFileWhichDoesNotExist();
 		}
 	}
 
 	@Test
-	public void testTransferReferences()throws Exception{
-		factory= WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory",kernel);
-		sfc=new StorageFactoryClient(factory,kernel.getClientConfiguration());
-		source=sfc.createSMS();
-		source.upload("test.txt").write("test123".getBytes());
-		reInitTarget();
-		TransferControllerClient c=sendSingleFile("BFT");
-		EnumerationClient<EndpointReferenceDocument> ftReferences=source.getFiletransferEnumeration();
-		assertEquals(1, ftReferences.getNumberOfResults());
-		EndpointReferenceDocument ft1=ftReferences.getResults(0, 1).get(0);
-		System.out.println(ft1);
-		System.out.println("File transfer url = "+
-				ft1.getEndpointReference().getAddress().getStringValue());
-
-		System.out.println(source.getResourcePropertyDocument());
-
-		c.destroy();
-		ftReferences.setUpdateInterval(-1);
-		assertEquals(0, ftReferences.getNumberOfResults());
-	}
-
-	@Test
 	public void testTransferWildcards()throws Exception{
-		factory= WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory",kernel);
-		sfc=new StorageFactoryClient(factory,kernel.getClientConfiguration());
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
+		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
+		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
+				new UsernamePassword("demouser", "test123"));
+		
 		initSource();
 		UASProperties cfg = kernel.getAttribute(UASProperties.class);
 		for(String noOpt: new String[]{"true", "false"}){
@@ -96,9 +73,9 @@ public class RunServerServerTransfer extends Base {
 	}
 
 	protected void initSource() throws Exception {
-		source=sfc.createSMS();
-		source.createDirectory("folder1/folder11");
-		source.createDirectory("folder2");
+		source = sfc.createStorage();
+		source.mkdir("folder1/folder11");
+		source.mkdir("folder2");
 		source.upload("folder1/test11").write("test11".getBytes());
 		source.upload("folder1/test12").write("test12".getBytes());
 		source.upload("folder1/zeros");
@@ -106,20 +83,20 @@ public class RunServerServerTransfer extends Base {
 		source.upload("folder2/test21").write("test12".getBytes());
 		source.upload("test.txt").write("this is a test".getBytes());
 		source.upload("test1.txt").write("this is a test".getBytes());
-		sourceURL=source.getEPR().getAddress().getStringValue();
+		sourceURL = source.getEndpoint().getUrl();
 	}
 
 	protected void verifyTargetFolder1Content()throws Exception{
-		ByteArrayOutputStream bos=new ByteArrayOutputStream();
-		target.getExport("folder1/test11", ProtocolType.BFT).readAllData(bos);
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		target.download("folder1/test11").readAllData(bos);
 		assertTrue("test11".equals(bos.toString()));
 		bos=new ByteArrayOutputStream();
-		target.getExport("folder1/folder11/test111", ProtocolType.BFT).readAllData(bos);
+		target.download("folder1/folder11/test111").readAllData(bos);
 		assertTrue("test111".equals(bos.toString()));
 	}
 
 	protected void verifyTargetFolderWildcards(boolean included, String targetDir, String... files)throws Exception{
-		GridFileType[]lsResult = target.listDirectory(targetDir);
+		FileList lsResult = target.getFiles(targetDir);
 		for(String f: files){
 			if(included){
 				assertTrue("File "+f+" is missing.",contains(f, lsResult));
@@ -131,8 +108,8 @@ public class RunServerServerTransfer extends Base {
 	}
 
 	protected void reInitTarget() throws Exception {
-		target=sfc.createSMS();
-		targetURL=target.getEPR().getAddress().getStringValue();
+		target = sfc.createStorage();
+		targetURL = target.getEndpoint().getUrl();
 	}
 
 	protected void dataTransfer()throws Exception{
@@ -152,8 +129,8 @@ public class RunServerServerTransfer extends Base {
 
 	protected void fetchSingleFile(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c=target.fetchFile(protocol+":"+sourceURL+"#test.txt",
-				"/test.txt");
+		//target.
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/test.txt", "/test.txt", protocol);
 		assertTrue(c!=null);
 		int cnt=0;
 		while(!c.isComplete()&& !c.hasFailed()){
@@ -162,17 +139,12 @@ public class RunServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>100)throw new Exception("Filetransfer took too long, aborting test...");
 		}
-		assertTrue(SummaryType.DONE.equals(c.getStatusSummary()));
-		//check rate property
-		System.out.println("Transfer rate (according to server) " + c.getRate()+" Bytes/sec.");
-		//assertTrue(c.getRate()>-1);
 	}
 
 
 	protected void fetchFolder(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c=target.fetchFile(protocol+":"+sourceURL+"#folder1",
-				"/folder1");
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder1", "/folder1", protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -182,14 +154,12 @@ public class RunServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>1000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
-		assertTrue(SummaryType.DONE.equals(c.getStatusSummary()));
 		verifyTargetFolder1Content();
 	}
 
 	protected void fetchWildcard(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c=target.fetchFile(protocol+":"+sourceURL+"#folder1/test1*",
-				"/folder1");
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder1/test1*", "/folder1", protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -199,7 +169,6 @@ public class RunServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>1000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
-		assertTrue(SummaryType.DONE.equals(c.getStatusSummary()));
 		verifyTargetFolderWildcards(true,"folder1","test11","test12");
 		verifyTargetFolderWildcards(false,"folder1","zeros","test111");
 	}
@@ -207,8 +176,7 @@ public class RunServerServerTransfer extends Base {
 
 	protected void fetchWildcard2(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c=target.fetchFile(protocol+":"+sourceURL+"#folder*/test*",
-				"/target");
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder*/test*", "/target", protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -218,7 +186,6 @@ public class RunServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>1000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
-		assertTrue(SummaryType.DONE.equals(c.getStatusSummary()));
 		verifyTargetFolderWildcards(true, "target/folder1", "test11", "test12");
 		verifyTargetFolderWildcards(true, "target/folder2", "test21");
 		verifyTargetFolderWildcards(false, "target/folder1/folder11", "test111");
@@ -226,8 +193,7 @@ public class RunServerServerTransfer extends Base {
 
 	protected TransferControllerClient sendSingleFile(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c=source.sendFile("/test.txt",
-				protocol+":"+targetURL+"#testfile2");
+		TransferControllerClient c = source.sendFile("/test.txt", targetURL+"/files/testfile2", protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -237,16 +203,12 @@ public class RunServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>100)throw new Exception("Filetransfer took too long, aborting test...");
 		}while(!c.isComplete() && !c.hasFailed());
-		assertTrue(SummaryType.DONE.equals(c.getStatusSummary()));
-		//check rate property
-		System.out.println("Transfer rate (according to server) " + c.getRate()+" Bytes/sec.");
-		//assertTrue(c.getRate()>-1);
 		return c;
 	}
 
 	protected void sendFolder(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c=source.sendFile("folder1",protocol+":"+targetURL+"#folder1");
+		TransferControllerClient c = source.sendFile("folder1", targetURL+"/files/folder1", protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -256,13 +218,12 @@ public class RunServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>12000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
-		assertTrue(SummaryType.DONE.equals(c.getStatusSummary()));
 		verifyTargetFolder1Content();
 	}
 
 	protected void sendWildcard(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c=source.sendFile("folder1/test1*",protocol+":"+targetURL+"#folder1");
+		TransferControllerClient c = source.sendFile("folder1/test1*", targetURL+"/files/folder1", protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -272,23 +233,23 @@ public class RunServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>12000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
-		assertTrue(SummaryType.DONE.equals(c.getStatusSummary()));
 		verifyTargetFolderWildcards(true,"folder1","test11","test12");
 		verifyTargetFolderWildcards(false,"folder1","zeros");
 	}
 
 	protected void checkSpacesInNames()throws Exception{
+		reInitTarget();
 		//import a file that includes a space character
-		String testdata="testdata";
+		String testdata = "testdata";
 		source.upload("test%20file").write(testdata.getBytes());
-		ByteArrayOutputStream bos=new ByteArrayOutputStream();
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		source.download("test file").readAllData(bos);
 		assertTrue(testdata.equals(bos.toString()));
+		bos = new ByteArrayOutputStream();
+		source.download("test%20file").readAllData(bos);
+		assertTrue(testdata.equals(bos.toString()));
 
-		//now check we can send this to our default storage
-		//tell uspace sms to send a file to the target sms
-		TransferControllerClient c1=source.sendFile("/test file","BFT:"+targetURL+"#test file");
-		assertTrue(c1!=null);
+		TransferControllerClient c1 = source.sendFile("/test file", targetURL+"/files/test%20file", "BFT");
 		int cnt=0;
 		do{
 			if(cnt>0)System.out.println("Not complete...");
@@ -302,9 +263,8 @@ public class RunServerServerTransfer extends Base {
 		target.download("test file").readAllData(bos);
 		assertTrue(testdata.equals(bos.toString()));
 
-
 		//same story with receiveFile
-		c1=source.fetchFile("BFT:"+targetURL+"#test file","/another test file");
+		c1 = source.fetchFile(targetURL+"/files/test%20file","/another test file", "BFT");
 		assertTrue(c1!=null);
 		cnt=0;
 		do{
@@ -322,11 +282,25 @@ public class RunServerServerTransfer extends Base {
 		assertTrue(testdata.equals(bos.toString()));
 	}
 
-	boolean contains(String fileName, GridFileType[]lsResult){
-		for(GridFileType gf: lsResult){
-			if(gf.getPath().endsWith(fileName))return true;
+	boolean contains(String fileName, FileList lsResult) throws Exception {
+		for(FileListEntry gf: lsResult.list(0, 1000)){
+			if(gf.path.endsWith(fileName))return true;
 		}
 		return false;
 	}
 
+
+	protected void fetchSingleFileWhichDoesNotExist() throws Exception{
+		reInitTarget();
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/noSuchFile", "/in", "BFT");
+		int cnt=0;
+		while(!c.isComplete()&& !c.hasFailed()){
+			if(cnt>0)System.out.print(".");
+			Thread.sleep(1000);
+			cnt++;
+			if(cnt>100)throw new Exception("Filetransfer took too long, aborting test...");
+		}
+		System.out.println("ERROR MESSAGE: "+c.getStatusMessage());
+		assertTrue(c.hasFailed());
+	}
 }

@@ -32,7 +32,7 @@ import eu.unicore.util.Log;
  * WS-Resource for initiating and monitoring
  * a server-to-server file transfer
  * 
- * the source parameter is a UNICORE URI 
+ * the source parameter is a UNICORE URI
  * the target is the local file (relative to storage root)
  * 
  * @author schuller

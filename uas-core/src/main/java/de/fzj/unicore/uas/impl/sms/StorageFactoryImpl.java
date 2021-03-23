@@ -14,7 +14,7 @@ import de.fzj.unicore.uas.SMSProperties;
 import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
 import de.fzj.unicore.uas.impl.sms.ConsolidateStorageFactoryInstance.UpdateSMSLists;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -31,7 +31,7 @@ import de.fzj.unicore.wsrflite.messaging.PullPoint;
  * @author daivandy
  * @since 6.3
  */
-public class StorageFactoryImpl extends UASWSResourceImpl {
+public class StorageFactoryImpl extends BaseResourceImpl {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, StorageFactoryImpl.class);
 

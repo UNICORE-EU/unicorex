@@ -39,4 +39,12 @@ public class TransferControllerClient extends FiletransferClient {
 		return Long.parseLong(getProperties().optString("size","-1"));
 	}
 
+	public boolean hasFailed() throws Exception {
+		return Status.FAILED.equals(getStatus());
+	}
+	
+	public boolean isComplete() throws Exception {
+		Status s = getStatus();
+		return Status.DONE.equals(s) || Status.FAILED.equals(s) || Status.ABORTED.equals(s);
+	}
 }
