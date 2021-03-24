@@ -68,6 +68,8 @@ public class TestACL extends LegacyTSITestCase {
 	public void testGetSetACL() throws ExecutionException, IOException {
 		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		assertNotNull(tsi);
+		if(!tsi.isACLSupported("/"))return;
+		
 		File tst = new File("target" + File.separator + "aclTestTmpDirectory");
 		File subfile = new File(tst, "somefile");
 		subfile.delete();

@@ -920,7 +920,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		String target = makeTarget(file);
 		String tsicmd = command + 
 				"#TSI_ACL_PATH " + target + "\n";
-		tsiLogger.debug("TSI command: \n" + tsicmd);
+		tsiLogger.debug("TSI command: \n{}", tsicmd);
 		String res;
 		try(TSIConnection conn = getConnection()){
 			try {
@@ -1018,7 +1018,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private boolean getACLSupportFromTSI(String path) throws ExecutionException {
 		String cmd = "#TSI_FILE_ACL\n" +
 				"#TSI_ACL_OPERATION CHECK_SUPPORT\n";
-		String ret = faclCommon(path, cmd.toString());
+		String ret = faclCommon(path, cmd);
 		return ret.contains("true");
 	}
 

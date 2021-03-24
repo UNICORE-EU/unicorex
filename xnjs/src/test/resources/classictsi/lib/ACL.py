@@ -156,6 +156,10 @@ def process_acl(message, connector, config, LOG):
     path = extract_parameter(message, "ACL_PATH")
     acl = config.get('tsi.acl', {})
     if operation == "CHECK_SUPPORT":
+        enabled = config.get('tsi.acl_enabled')
+        if not enabled:
+            connector.ok("false")
+            return
         support = check_support(path, acl)
         if support == "NONE":
             connector.ok("false")
