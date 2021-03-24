@@ -20,7 +20,7 @@ import com.google.inject.TypeLiteral;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferModel;
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.jclouds.BlobStoreStorageAdapter;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 import de.fzj.unicore.wsrflite.Kernel;
@@ -39,7 +39,7 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 	private static final Logger logger = Log.getLogger(Log.SERVICES, S3StorageAdapterFactory.class);
 
 	@Override
-	public IStorageAdapter createStorageAdapter(UASWSResourceImpl parent)
+	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)
 			throws IOException {
 		// load the model of the correct SMS resource: parent can be a file transfer
 		Model m = parent.getModel();
