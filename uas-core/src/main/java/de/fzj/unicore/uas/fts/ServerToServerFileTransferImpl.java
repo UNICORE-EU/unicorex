@@ -16,6 +16,7 @@ import de.fzj.unicore.uas.xnjs.U6FileTransferBase;
 import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
 import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
+import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
@@ -204,7 +205,16 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		}
 		return super.getTransferredBytes();
 	}
-	
+
+	private Action xnjsAction;
+
+	public synchronized Action getXNJSAction(){
+		if(xnjsAction == null){
+			xnjsAction = getXNJSFacade().getAction(getUniqueID());
+		}
+		return xnjsAction;
+	}
+
 	IFileTransferEngine fte;
 	
 	protected IFileTransferEngine getFileTransferEngine(){
