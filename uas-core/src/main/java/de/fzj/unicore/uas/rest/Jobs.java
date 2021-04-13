@@ -110,7 +110,11 @@ public class Jobs extends ServicesBase {
 			String location = doSubmit(job, tss, kernel, getBaseURL());
 			return Response.created(new URI(location)).build();
 		}catch(Exception ex){
-			return handleError("Could not submit job", ex, logger);
+			int status = 500;
+			if (ex.getClass().isAssignableFrom(AuthorisationException.class)) {
+				status = 401;
+			}
+			return handleError(status, "Could not submit job", ex, logger);
 		}
 	}
 
