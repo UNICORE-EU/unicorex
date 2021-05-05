@@ -956,10 +956,10 @@ public class TSIUtils {
 
 		//means that neither primary nor supplementary gids were defined 
 		if (group == null || group.length()==0) {
-			if (xlogin.isAddDefaultGroups())
-				return "NONE";
-			else
+			if (xlogin.isAddDefaultGroups()) {
 				return "DEFAULT_GID";
+			}
+			else return "NONE";
 		}
 
 		//We got something. If only supplementary groups then use OS default not the first supplementary.
