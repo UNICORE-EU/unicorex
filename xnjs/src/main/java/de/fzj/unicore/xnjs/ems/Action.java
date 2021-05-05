@@ -73,6 +73,9 @@ public class Action implements Serializable {
 	//optional the id assigned by the batch system
 	private String BSID;
 
+	// job details from the BSS
+	private String bssDetails="";
+
 	//the time by which the action will no longer be valid
 	private Date terminationTime;
 
@@ -173,6 +176,14 @@ public class Action implements Serializable {
 	public void setBSID(String bsid) {
 		BSID = bsid;
 		setDirty();
+	}
+
+	public String getBssDetails() {
+		return bssDetails;
+	}
+
+	public void setBssDetails(String details) {
+		bssDetails = details;
 	}
 
 	@ID

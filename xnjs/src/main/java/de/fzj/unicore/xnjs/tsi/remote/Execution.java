@@ -281,6 +281,11 @@ public class Execution extends BasicExecution {
 				if(exitCode!=null){
 					job.addLogTrace("Job completed on BSS.");
 					job.setStatus(ActionStatus.POSTPROCESSING);
+					try{
+						job.setBssDetails(getBSSJobDetails(job));
+					}catch(Exception ex) {
+						job.addLogTrace("Could not get BSS job details.");
+					}
 					bss.removeBSSInfo(bssID);
 				}
 				else{
@@ -300,6 +305,7 @@ public class Execution extends BasicExecution {
 								try{
 									String details=getBSSJobDetails(job);
 									job.addLogTrace("Detailed job information from batch system: "+details);
+									job.setBssDetails(details);
 								}catch(ExecutionException ee){
 									//we already logged	it
 								}
