@@ -147,12 +147,14 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected boolean hasStageIn() {
-		return getJobDescriptionDocument().optJSONArray("Imports")!=null;
+		JSONArray imports = getJobDescriptionDocument().optJSONArray("Imports");
+		return imports!=null && imports.length()>0;
 	}
 
 	@Override
 	protected boolean hasStageOut() {
-		return getJobDescriptionDocument().optJSONArray("Exports")!=null;
+		JSONArray exports = getJobDescriptionDocument().optJSONArray("Exports");
+		return exports!=null && exports.length()>0;
 	}
 
 	@Override

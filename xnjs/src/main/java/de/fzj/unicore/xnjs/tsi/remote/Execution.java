@@ -153,13 +153,13 @@ public class Execution extends BasicExecution {
 					}
 					if(res.contains("TSI_FAILED")){
 						job.addLogTrace("TSI reply: FAILED.");
-						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to classic TSI failed. Reply was <"+res+">"));
+						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to TSI failed. Reply was <"+res+">"));
 					}
 				}
 				job.addLogTrace("TSI reply: submission OK.");
 				String bssid=res.trim();
 
-				msg="Submitted to classic TSI as ["+idLine+"] with BSSID="+bssid;
+				msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
 				
 				String internalID = bssid;
 				BSS_STATE initialState = BSS_STATE.QUEUED;
@@ -167,7 +167,7 @@ public class Execution extends BasicExecution {
 				if(runOnLoginNode){
 					long iPid = readPID(job, tsiHost);
 					internalID="INTERACTIVE_"+tsiHost+"_"+iPid;
-					msg="Submitted to classic TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
+					msg="Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
 					job.getExecutionContext().setPreferredExecutionHost(tsiHost);
 					initialState = BSS_STATE.RUNNING;
 					initialStatus = ActionStatus.RUNNING;
@@ -320,16 +320,16 @@ public class Execution extends BasicExecution {
 	}
 
 	private boolean hasGracePeriodPassed(Action job){
-		int myGracePeriod=gracePeriod;
+		int myGracePeriod = gracePeriod;
 		Long timeOfFirstStatusCheck=(Long)job.getProcessingContext().get(GRACE_PERIOD_start);
 		if(timeOfFirstStatusCheck==null){
-			timeOfFirstStatusCheck=Long.valueOf(System.currentTimeMillis());
+			timeOfFirstStatusCheck = Long.valueOf(System.currentTimeMillis());
 			job.getProcessingContext().put(GRACE_PERIOD_start, timeOfFirstStatusCheck);
 			job.setDirty();
 		}
 		//check if a custom grace period has been defined
 		Integer g=(Integer)job.getProcessingContext().get(CUSTOM_GRACE_PERIOD);
-		if(g!=null)myGracePeriod=g.intValue();
+		if(g!=null)myGracePeriod = g;
 		return System.currentTimeMillis()>timeOfFirstStatusCheck+myGracePeriod;
 	}
 	
