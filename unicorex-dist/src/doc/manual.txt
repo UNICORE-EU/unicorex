@@ -26,6 +26,8 @@ include::use-rest.txt[]
 
 include::use-attribute-sources.txt[]
 
+include::use-vo.txt[]
+
 include::use-persistence.txt[]
 
 include::xnjs.txt[]
