@@ -148,9 +148,6 @@ public class BSSState implements IBSSState {
 		}
 	}
 
-
-	private static final Pattern psPattern=Pattern.compile("\\s?(\\d+)\\s*.*");
-
 	/**
 	 * execute a PS on the given TSI node and return a list of PIDs
 	 * 
@@ -171,15 +168,24 @@ public class BSSState implements IBSSState {
 				conn.shutdown();
 				throw new ExecutionException(msg);
 			}
-			BufferedReader br = new BufferedReader(new StringReader(res.trim()+"\n"));
-			String line=null;
-			while(true){
-				line=br.readLine();
-				if(line==null)break;
-				Matcher m=psPattern.matcher(line);
-				if(!m.matches())continue;
-				result.add("INTERACTIVE_"+tsiNode+"_"+String.valueOf(m.group(1)));
-			}
+			result.addAll(parseTSIProcessList(res, tsiNode));
+		}
+		return result;
+	}
+
+
+	private static final Pattern psPattern=Pattern.compile("\\s*(\\d+)\\s*.*");
+	
+	public static Set<String> parseTSIProcessList(String processList, String tsiNode) throws IOException {
+		Set<String>result=new HashSet<>();
+		BufferedReader br = new BufferedReader(new StringReader(processList.trim()+"\n"));
+		String line=null;
+		while(true){
+			line=br.readLine();
+			if(line==null)break;
+			Matcher m=psPattern.matcher(line);
+			if(!m.matches())continue;
+			result.add("INTERACTIVE_"+tsiNode+"_"+String.valueOf(m.group(1)));
 		}
 		return result;
 	}

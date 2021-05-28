@@ -1,0 +1,13 @@
+TSI_OK
+  PID TTY          TIME CMD
+    1 ?        00:00:04 systemd
+    2 ?        00:00:00 kthreadd
+   10 ?        00:00:00 migration/0
+  126 ?        00:00:00 kthrotld
+  128 ?        00:00:00 acpi_thermal_pm
+  935 pts/2    00:00:00 test1
+  950 pts/1    00:00:00 bash
+ 1010 ?        00:00:00 kworker/6:
+ 1234 ?        00:00:00 test2
+12345 ?        00:00:02 test3
+64738 ?        00:00:22 test4

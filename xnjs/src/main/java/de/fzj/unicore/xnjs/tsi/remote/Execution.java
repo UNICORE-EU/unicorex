@@ -153,7 +153,7 @@ public class Execution extends BasicExecution {
 					}
 					if(res.contains("TSI_FAILED")){
 						job.addLogTrace("TSI reply: FAILED.");
-						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to classic TSI failed. Reply was <"+res+">"));
+						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to TSI failed. Reply was <"+res+">"));
 					}
 				}
 				job.addLogTrace("TSI reply: submission OK.");
@@ -326,16 +326,16 @@ public class Execution extends BasicExecution {
 	}
 
 	private boolean hasGracePeriodPassed(Action job){
-		int myGracePeriod=gracePeriod;
+		int myGracePeriod = gracePeriod;
 		Long timeOfFirstStatusCheck=(Long)job.getProcessingContext().get(GRACE_PERIOD_start);
 		if(timeOfFirstStatusCheck==null){
-			timeOfFirstStatusCheck=Long.valueOf(System.currentTimeMillis());
+			timeOfFirstStatusCheck = Long.valueOf(System.currentTimeMillis());
 			job.getProcessingContext().put(GRACE_PERIOD_start, timeOfFirstStatusCheck);
 			job.setDirty();
 		}
 		//check if a custom grace period has been defined
 		Integer g=(Integer)job.getProcessingContext().get(CUSTOM_GRACE_PERIOD);
-		if(g!=null)myGracePeriod=g.intValue();
+		if(g!=null)myGracePeriod = g;
 		return System.currentTimeMillis()>timeOfFirstStatusCheck+myGracePeriod;
 	}
 	
