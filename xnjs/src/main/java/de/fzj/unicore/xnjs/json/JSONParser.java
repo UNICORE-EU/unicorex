@@ -166,7 +166,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 
 	public List<ResourceRequest> parseResourceRequest(JSONObject source) throws Exception {
 		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
-		if(source!=null) {
+		if(source!=null && source.length()>0) {
 			for(String name: JSONObject.getNames(source)) {
 				String value = parseResourceValue(name, source.getString(name));
 				if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
