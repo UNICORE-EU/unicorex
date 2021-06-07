@@ -106,21 +106,16 @@ public class DefaultOnStartup implements Runnable{
 		Lock tsfLock=ls.getOrCreateLock(DefaultOnStartup.class.getName());
 		if(tsfLock.tryLock()){
 			try{
-				try{
-					//this will throw ResourceUnknowException if resource does not exist
-					TargetSystemFactoryImpl tsf=(TargetSystemFactoryImpl)tsfHome.get(defaultTsfName);
-					//it exists, force re-publish
-					publishWS(kernel, tsf.getServiceName(), tsf.getUniqueID(), TSFFrontend.TSF_PORT);
-					return;
-				}
-				catch(ResourceUnknownException e){}
-				
+				//this will throw ResourceUnknowException if resource does not exist
+				tsfHome.get(defaultTsfName);
+			}
+			catch(ResourceUnknownException e){
 				doCreateTSF(tsfHome);
-				publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, TSFFrontend.TSF_PORT);
-				
-			}finally{
+			}
+			finally{
 				tsfLock.unlock();
-			}	
+			}
+			publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, TSFFrontend.TSF_PORT);
 		}
 	}
 

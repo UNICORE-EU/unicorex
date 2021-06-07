@@ -39,14 +39,13 @@ public class InitDefaultStorageFactory implements Runnable{
 	public void run(){
 		try{
 			createDefaultStorageFactoryIfNotExists();
-			DefaultOnStartup.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, StorageFactory.SMF_PORT);
 		} catch (Exception e) {
 			throw new RuntimeException("Could not setup default storage factory.",e);
 		}
 	}
 
 	/**
-	 * add a "default" storage factory if it does not yet exist	
+	 * add a "default" storage factory if it does not yet exist
 	 */
 	protected void createDefaultStorageFactoryIfNotExists()throws ResourceNotCreatedException,PersistenceException{
 		Home smfHome=kernel.getHome(UAS.SMF);
@@ -60,19 +59,15 @@ public class InitDefaultStorageFactory implements Runnable{
 		String defaultSmfName=StorageFactoryHomeImpl.DEFAULT_SMF_NAME;
 		if(smfLock.tryLock()){
 			try{
-				try{
-					//this will throw ResourceUnknowException if resource does not exist
-					smfHome.get(defaultSmfName);
-					//It exists, so force re-publish
-					DefaultOnStartup.publishWS(kernel, smfHome.getServiceName(), defaultSmfName, StorageFactory.SMF_PORT);
-					// exists, so we are done
-					return;
-				}
-				catch(ResourceUnknownException e){}
+				//this will throw ResourceUnknowException if resource does not exist
+				smfHome.get(defaultSmfName);
+			}
+			catch(ResourceUnknownException e){
 				doCreateSMF(smfHome);
 			}finally{
 				smfLock.unlock();
 			}
+			DefaultOnStartup.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, StorageFactory.SMF_PORT);
 		}
 	}
 
@@ -84,7 +79,6 @@ public class InitDefaultStorageFactory implements Runnable{
 		Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactoryImpl.class);
 		init.resourceClassName = clazz.getName();
 		smfHome.createResource(init);
-		DefaultOnStartup.publishWS(kernel, smfHome.getServiceName(), defaultSmfName, StorageFactory.SMF_PORT);
 		logger.info("Added default StorageFactory resource '"+defaultSmfName+"' of type <"+clazz.getName()+">.");
 	}
 
