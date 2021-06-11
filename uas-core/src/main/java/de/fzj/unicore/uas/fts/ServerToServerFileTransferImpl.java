@@ -162,23 +162,6 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		TransferInfo ft = getInfo();
 		return ft!=null ? ft.getDataSize() : -1; 
 	}
-
-	/**
-	 * get the current transfer rate in bytes per second
-	 * TODO
-	 */
-	public long getTransferRate(){
-		TransferInfo ft = getInfo();
-		if(ft!=null){
-//			long dataSize = getDataSize();
-//			long consumedMillis=u6ft.getElapsedTime();
-//			if(dataSize>0 && consumedMillis>0){
-//				//need bytes per second
-//				return 1000*dataSize/consumedMillis;
-//			}
-		}
-		return -1;
-	}
 	
 	public Status getStatus(){
 		TransferInfo ft = getInfo();

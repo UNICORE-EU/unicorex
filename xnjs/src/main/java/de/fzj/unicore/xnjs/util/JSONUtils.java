@@ -70,10 +70,14 @@ public class JSONUtils {
 	/**
 	 * get the requested value or <code>null</code> if it does not exist in the json
 	 * @param obj
-	 * @param key
+	 * @param keys - list of key alternatives
 	 */
-	public static String getString(JSONObject obj, String key){
-		return getString(obj, key, null);
+	public static String getString(JSONObject obj, String... keys){
+		for(String key: keys) {
+			String r = getString(obj, key, null);
+			if(r!=null)return r;
+		}
+		return null;
 	}
 	
 }

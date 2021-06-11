@@ -1,5 +1,6 @@
 package de.fzj.unicore.xnjs.json;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +15,7 @@ import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.OptionDescription;
 import de.fzj.unicore.xnjs.idb.OptionDescription.Type;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
+import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
 import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
@@ -89,7 +91,30 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 			}
 		}
 	}
+	
+	public DataStageInInfo parseStageIn(JSONObject spec) throws Exception {
+		DataStageInInfo dsi = new DataStageInInfo();
+		String to = JSONUtils.getString(spec, "To", "file");
+		String source = JSONUtils.getString(spec, "From", "source");
+		dsi.setFileName(to);
+		dsi.setSources(new URI[]{new URI(source)});
+		if(source.startsWith("inline:")) {
+			dsi.setInlineData(JSONUtils.readMultiLine("Data", "", spec));
+		}
+		extractDataStagingOptions(spec, dsi);
+		return dsi;
+	}
 
+	public DataStageOutInfo parseStageOut(JSONObject spec) throws Exception {
+		DataStageOutInfo dso = new DataStageOutInfo();
+		String from = JSONUtils.getString(spec, "From", "file");
+		String target = JSONUtils.getString(spec, "To", "target");
+		dso.setFileName(from);
+		dso.setTarget(new URI(target));
+		extractDataStagingOptions(spec, dso);
+		return dso;
+	}
+	
 	public void extractDataStagingOptions(JSONObject spec, DataStagingInfo dsi) throws Exception {
 		String creation = JSONUtils.getString(spec,"Mode","overwrite");
 		if("append".equalsIgnoreCase(creation)){

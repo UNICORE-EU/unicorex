@@ -6,6 +6,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,8 @@ import org.junit.Test;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.Partition;
+import de.fzj.unicore.xnjs.io.DataStageInInfo;
+import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.resources.IntResource;
 import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
@@ -158,5 +161,23 @@ public class TestJSONParser {
 		assertEquals("123", ResourceRequest.find(rr, ResourceSet.RESERVATION_ID).getRequestedValue());	
 	}
 	
+	@Test
+	public void testParseStageIn() throws Exception {
+		JSONObject spec = new JSONObject();
+		spec.put("From", "http://some-url");
+		spec.put("To", "file.txt");
+		DataStageInInfo dsi = new JSONParser().parseStageIn(spec);
+		assertEquals("file.txt", dsi.getFileName());
+		assertEquals(1, dsi.getSources().length);
+	}
 	
+	@Test
+	public void testParseStageOut() throws Exception {
+		JSONObject spec = new JSONObject();
+		spec.put("To", "http://some-url");
+		spec.put("From", "file.txt");
+		DataStageOutInfo dso = new JSONParser().parseStageOut(spec);
+		assertEquals("file.txt", dso.getFileName());
+		assertEquals(new URI("http://some-url"), dso.getTarget());
+	}
 }

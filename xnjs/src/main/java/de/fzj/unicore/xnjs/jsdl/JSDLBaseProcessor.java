@@ -9,8 +9,8 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobNameDocument;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.ems.JobProcessor;
 import de.fzj.unicore.xnjs.ems.ProcessingException;
+import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;

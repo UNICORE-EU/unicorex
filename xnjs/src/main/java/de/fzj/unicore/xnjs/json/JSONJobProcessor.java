@@ -1,6 +1,5 @@
 package de.fzj.unicore.xnjs.json;
 
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -11,8 +10,8 @@ import org.json.JSONObject;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.ems.JobProcessor;
 import de.fzj.unicore.xnjs.ems.ProcessingException;
+import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
@@ -180,16 +179,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		if(imports!=null) {
 			for(int i = 0; i<imports.length(); i++) {
 				JSONObject in = imports.getJSONObject(i);
-				DataStageInInfo dsi = new DataStageInInfo();
-				String to = JSONUtils.getString(in, "To");
-				String source = JSONUtils.getString(in, "From");
-				dsi.setFileName(to);
-				dsi.setSources(new URI[]{new URI(source)});
-				if(source.startsWith("inline:")) {
-					dsi.setInlineData(JSONUtils.readMultiLine("Data", "", in));
-				}
-				new JSONParser().extractDataStagingOptions(in, dsi);
-				result.add(dsi);
+				result.add(new JSONParser().parseStageIn(in));
 			}
 		}
 		return result;
@@ -202,13 +192,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		if(exports!=null) {
 			for(int i = 0; i<exports.length(); i++) {
 				JSONObject ex = exports.getJSONObject(i);
-				DataStageOutInfo dso = new DataStageOutInfo();
-				String from = JSONUtils.getString(ex, "From");
-				String target = JSONUtils.getString(ex, "To");
-				dso.setFileName(from);
-				dso.setTarget(new URI(target));
-				new JSONParser().extractDataStagingOptions(ex, dso);
-				result.add(dso);
+				result.add(new JSONParser().parseStageOut(ex));
 			}
 		}
 		return result;

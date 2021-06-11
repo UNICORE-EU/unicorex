@@ -37,7 +37,6 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
-import de.fzj.unicore.xnjs.ems.JobProcessor;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 

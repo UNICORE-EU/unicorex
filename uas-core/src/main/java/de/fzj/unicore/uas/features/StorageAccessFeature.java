@@ -16,7 +16,6 @@ import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl;
 import de.fzj.unicore.uas.impl.sms.ws.SMSFrontend;
 import de.fzj.unicore.uas.impl.sms.ws.StorageFactoryFrontend;
 import de.fzj.unicore.uas.metadata.MetadataManagementHomeImpl;
-import de.fzj.unicore.uas.xtreemfs.XtreemFSStartupTask;
 import de.fzj.unicore.wsrflite.DeploymentDescriptor;
 import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.wsrflite.utils.deployment.DeploymentDescriptorImpl;
@@ -38,7 +37,6 @@ public class StorageAccessFeature extends FeatureImpl {
 	public void setKernel(Kernel kernel) {
 		super.setKernel(kernel);
 		getInitTasks().add(new UFTPStartupTask(kernel));
-		getInitTasks().add(new XtreemFSStartupTask(kernel));	
 	}
 
 	public List<DeploymentDescriptor> getServices(){

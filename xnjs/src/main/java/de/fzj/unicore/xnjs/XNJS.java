@@ -70,6 +70,7 @@ import de.fzj.unicore.xnjs.ems.Processor;
 import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor;
 import de.fzj.unicore.xnjs.ems.processors.DataStagingProcessor;
 import de.fzj.unicore.xnjs.ems.processors.UsageLogger;
+import de.fzj.unicore.xnjs.fts.FileTransferProcessor;
 import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
 import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
@@ -246,6 +247,12 @@ public class XNJS {
 			setProcessingChain(JSONSweepProcessor.sweepInstanceType, null, 
 					new String[]{JSONSweepInstanceProcessor.class.getName()});
 		}
+		
+		if(!haveProcessingFor("FTS")){
+			setProcessingChain("FTS", "FTS", 
+					new String[]{FileTransferProcessor.class.getName(),
+			});
+		}
 
 		// JSDL - TODO deprecated
 		if(!haveProcessingFor("JSDL")){
@@ -395,12 +402,11 @@ public class XNJS {
 	}
 	
 	public Action makeAction(JSONObject job){
-		return makeAction(job, java.util.UUID.randomUUID().toString());
+		return makeAction(job, "JSON", java.util.UUID.randomUUID().toString());
 	}
 
-	public Action makeAction(JSONObject job, String uuid){
+	public Action makeAction(JSONObject job, String type, String uuid){
 		Action a = new Action(uuid);
-		String type = "JSON";
 		a.setAjd(job.toString());
 		a.setType(type);
 		return a;

@@ -29,7 +29,6 @@ public class ServerToServerTransferFrontend extends FileTransferFrontend {
 	public ServerToServerTransferFrontend(ServerToServerFileTransferImpl r){
 		super(r);
 		this.resource = r;
-		addRenderer(new TransferRateResourceProperty(resource));
 		addRenderer(new ValueRenderer(resource, ScheduledStartTimeDocument.type.getDocumentElementName()) {
 			@Override
 			protected ScheduledStartTimeDocument getValue() throws Exception {

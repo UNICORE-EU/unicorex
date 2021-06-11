@@ -31,7 +31,7 @@
  *********************************************************************************/
 
 
-package de.fzj.unicore.xnjs.ems;
+package de.fzj.unicore.xnjs.ems.processors;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -50,10 +50,19 @@ import com.codahale.metrics.Histogram;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSConstants;
 import de.fzj.unicore.xnjs.XNJSProperties;
+import de.fzj.unicore.xnjs.ems.Action;
+import de.fzj.unicore.xnjs.ems.ActionResult;
+import de.fzj.unicore.xnjs.ems.ActionStatus;
+import de.fzj.unicore.xnjs.ems.ApplicationExecutionStatus;
+import de.fzj.unicore.xnjs.ems.ExecutionContext;
+import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.ems.IExecutionContextManager;
+import de.fzj.unicore.xnjs.ems.Manager;
+import de.fzj.unicore.xnjs.ems.ProcessingContext;
+import de.fzj.unicore.xnjs.ems.ProcessingException;
 import de.fzj.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import de.fzj.unicore.xnjs.ems.event.XnjsEvent;
 import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
-import de.fzj.unicore.xnjs.ems.processors.DefaultProcessor;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.incarnation.TweakerExecutionException;

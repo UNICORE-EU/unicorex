@@ -135,12 +135,13 @@ public class Execution extends BasicExecution {
 				TSIUtils.makeExecuteAsyncScript(job,idb, credentials, addWaitingLoop) : 
 				TSIUtils.makeSubmitCommand(job, idb, grounder, properties, credentials, addWaitingLoop);
 		String tsiCmd=incarnationTweaker.postScript(appDescription, job, idb, tsiCmdInitial);
+
+		String tsiHost=null;
+		String msg;
+		String res;
+		String idLine="";
 		
 		try{
-			String tsiHost=null;
-			String msg;
-			String res;
-			String idLine="";
 			bss.lock();
 			try{
 				try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
