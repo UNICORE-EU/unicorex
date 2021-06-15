@@ -5,9 +5,11 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.client.BaseUASClient;
+import de.fzj.unicore.uas.impl.sms.InitSharedStorages;
 import eu.unicore.services.Kernel;
 
 /**
@@ -30,7 +32,20 @@ public abstract class SecuredBase{
 	
 	protected static UAS uas;
 	protected static Kernel kernel;
-	
+
+	@BeforeClass
+	public static void startUNICORE() throws Exception{
+		long start=System.currentTimeMillis();
+		System.out.println("Starting UNICORE/X...");
+		initDirectories();
+		uas=new UAS(configPath);
+		kernel=uas.getKernel();
+		uas.startSynchronous();
+		System.err.println("UNICORE/X startup time: "+(System.currentTimeMillis()-start)+" ms.");
+		//create a shared SMS
+		new InitSharedStorages(kernel).run();
+	}
+
 	@AfterClass
 	public static void stopUNICORE() throws Exception{
 		kernel.shutdown();
