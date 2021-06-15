@@ -17,7 +17,7 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.client.JobClient;
 import de.fzj.unicore.uas.client.ReservationClient;
 import de.fzj.unicore.uas.xnjs.MockReservation;
-import de.fzj.unicore.wsrflite.impl.DefaultHome;
+import eu.unicore.services.impl.DefaultHome;
 
 public class TestReservation extends AbstractJobRun {
 

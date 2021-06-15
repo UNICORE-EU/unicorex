@@ -34,8 +34,8 @@ package de.fzj.unicore.uas.metadata;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
-import de.fzj.unicore.wsrflite.Home;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.services.Home;
 
 /**
  * Manage metadata on a storage interfaced by a {@link IStorageAdapter}

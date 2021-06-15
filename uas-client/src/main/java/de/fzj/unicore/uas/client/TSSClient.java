@@ -72,7 +72,7 @@ import de.fzj.unicore.uas.TargetSystemFactory;
 import de.fzj.unicore.uas.faults.AutoStartNotSupportedException;
 import de.fzj.unicore.uas.lookup.AddressFilter;
 import de.fzj.unicore.uas.util.StorageFilters;
-import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
+import eu.unicore.services.ws.client.RegistryClient;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

@@ -47,12 +47,12 @@ import org.unigrids.x2006.x04.services.reservation.ResourceReservationRequestDoc
 import org.unigrids.x2006.x04.services.reservation.ResourceReservationResponseDocument;
 import org.unigrids.x2006.x04.services.tss.SupportsReservationDocument;
 
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceLifetime;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
 import eu.unicore.security.wsutil.RequiresSignature;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.ResourceLifetime;
+import eu.unicore.services.ws.ResourceProperties;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
 
 /**
  * Resource reservation service

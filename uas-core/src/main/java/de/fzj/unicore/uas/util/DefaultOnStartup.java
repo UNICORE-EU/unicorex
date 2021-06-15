@@ -51,15 +51,15 @@ import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.impl.tss.rp.TSFFrontend;
 import de.fzj.unicore.uas.rest.CoreServices;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
-import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
-import de.fzj.unicore.wsrflite.registry.LocalRegistryClient;
-import de.fzj.unicore.wsrflite.registry.ws.SGFrontend;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
-import de.fzj.unicore.wsrflite.xmlbeans.registry.RegistryHandler;
+import eu.unicore.services.Home;
+import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.exceptions.ResourceNotCreatedException;
+import eu.unicore.services.exceptions.ResourceUnknownException;
+import eu.unicore.services.registry.LocalRegistryClient;
+import eu.unicore.services.registry.RegistryHandler;
+import eu.unicore.services.registry.ws.SGFrontend;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.Log;
 
 /**

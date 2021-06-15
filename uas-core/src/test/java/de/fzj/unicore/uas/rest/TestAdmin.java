@@ -13,7 +13,7 @@ import org.apache.http.entity.ContentType;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
-import de.fzj.unicore.wsrflite.server.JettyServer;
+import eu.unicore.services.server.JettyServer;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.util.httpclient.HttpUtils;
 

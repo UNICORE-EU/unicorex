@@ -7,9 +7,9 @@ import org.unigrids.services.atomic.types.UmaskDocument;
 
 import de.fzj.unicore.uas.SMSProperties;
 import de.fzj.unicore.uas.StorageManagement;
-import de.fzj.unicore.wsrflite.exceptions.InvalidModificationException;
-import de.fzj.unicore.wsrflite.xmlbeans.AbstractXmlRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.Modifiable;
+import eu.unicore.services.exceptions.InvalidModificationException;
+import eu.unicore.services.ws.AbstractXmlRenderer;
+import eu.unicore.services.ws.Modifiable;
 
 /**
  * Provides access to information about actual umask. This property is modifiable.

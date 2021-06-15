@@ -27,19 +27,19 @@ import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.json.Builder;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
-import de.fzj.unicore.xnjs.ems.JobProcessor;
+import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.Log;
 
 /**

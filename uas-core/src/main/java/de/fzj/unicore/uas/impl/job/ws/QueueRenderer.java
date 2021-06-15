@@ -36,7 +36,7 @@ package de.fzj.unicore.uas.impl.job.ws;
 import org.unigrids.x2006.x04.services.jms.QueueDocument;
 
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * renders the job's queue (which is retrieved from the XNJS Action)

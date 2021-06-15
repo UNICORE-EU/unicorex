@@ -8,9 +8,9 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.fts.FiletransferInitParameters;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.messaging.PullPoint;
+import eu.unicore.services.ContainerProperties;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.messaging.PullPoint;
 
 /**
  * "Baseline" file transfer, which exposes a file using HTTP(s) via Jetty<br/>

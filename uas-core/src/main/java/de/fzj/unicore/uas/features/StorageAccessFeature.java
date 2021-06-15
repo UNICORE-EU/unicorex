@@ -16,10 +16,10 @@ import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl;
 import de.fzj.unicore.uas.impl.sms.ws.SMSFrontend;
 import de.fzj.unicore.uas.impl.sms.ws.StorageFactoryFrontend;
 import de.fzj.unicore.uas.metadata.MetadataManagementHomeImpl;
-import de.fzj.unicore.wsrflite.DeploymentDescriptor;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.utils.deployment.DeploymentDescriptorImpl;
-import de.fzj.unicore.wsrflite.utils.deployment.FeatureImpl;
+import eu.unicore.services.DeploymentDescriptor;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.utils.deployment.DeploymentDescriptorImpl;
+import eu.unicore.services.utils.deployment.FeatureImpl;
 import eu.unicore.services.ws.cxf.CXFService;
 
 /**

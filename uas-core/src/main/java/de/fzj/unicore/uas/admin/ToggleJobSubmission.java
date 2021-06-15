@@ -4,9 +4,9 @@ import java.util.Map;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.admin.AdminAction;
-import de.fzj.unicore.wsrflite.admin.AdminActionResult;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.admin.AdminAction;
+import eu.unicore.services.admin.AdminActionResult;
 
 /**
  * {@link AdminAction} for enabling/disabling job submission. The admin can pass in 

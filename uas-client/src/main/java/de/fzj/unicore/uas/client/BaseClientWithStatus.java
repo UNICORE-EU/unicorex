@@ -36,10 +36,10 @@ package de.fzj.unicore.uas.client;
 import org.unigrids.services.atomic.types.ServiceStatusDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.wsrflite.xfire.ClientException;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.ClientException;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

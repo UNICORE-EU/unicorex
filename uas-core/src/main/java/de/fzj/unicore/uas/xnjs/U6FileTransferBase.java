@@ -11,13 +11,9 @@ import org.unigrids.x2006.x04.services.sms.ExtraParametersDocument.ExtraParamete
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.client.FileTransferClient;
-import de.fzj.unicore.uas.fts.StatusTracker;
 import de.fzj.unicore.uas.fts.ProgressListener;
+import de.fzj.unicore.uas.fts.StatusTracker;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.ETDAssertionForwarding;
-import de.fzj.unicore.wsrflite.utils.Utilities;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
@@ -27,6 +23,10 @@ import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.security.ETDAssertionForwarding;
+import eu.unicore.services.utils.Utilities;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 

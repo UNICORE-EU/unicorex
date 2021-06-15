@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.xnjs;
 
-import de.fzj.unicore.wsrflite.Resource;
+import eu.unicore.services.Resource;
 
 public interface XNJSResource extends Resource {
 

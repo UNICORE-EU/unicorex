@@ -12,11 +12,11 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.util.DefaultOnStartup;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
-import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
+import eu.unicore.services.Home;
+import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.exceptions.ResourceNotCreatedException;
+import eu.unicore.services.exceptions.ResourceUnknownException;
 
 /**
  * Creates the "default" instance of the StorageFactory service

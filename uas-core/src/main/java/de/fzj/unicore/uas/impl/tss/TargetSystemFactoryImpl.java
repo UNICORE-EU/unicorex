@@ -44,9 +44,9 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
-import de.fzj.unicore.wsrflite.messaging.PullPoint;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.messaging.PullPoint;
 
 /**
  * Implements the {@link TargetSystemFactory} interface.<br/>

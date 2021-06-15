@@ -26,7 +26,7 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.client.UFTPConstants;
 import de.fzj.unicore.uas.fts.FiletransferOptions;
-import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.services.Kernel;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.JobClient;

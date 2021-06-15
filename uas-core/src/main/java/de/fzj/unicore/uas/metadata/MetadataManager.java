@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.concurrent.Future;
 
 import de.fzj.unicore.uas.util.Pair;
-
 import eu.unicore.security.Client;
 
 

@@ -2,9 +2,9 @@ package de.fzj.unicore.uas.xnjs;
 
 import org.apache.http.client.HttpClient;
 
-import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.xnjs.io.http.IConnectionFactory;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
 import eu.unicore.util.httpclient.IClientConfiguration;

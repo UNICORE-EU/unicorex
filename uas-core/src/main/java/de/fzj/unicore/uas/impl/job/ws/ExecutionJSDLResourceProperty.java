@@ -37,7 +37,7 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.unigrids.x2006.x04.services.jms.ExecutionJSDLDocument;
 
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * renders the JSDL job description that is actually executed by the XNJS 

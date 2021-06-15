@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.xmlbeans.XmlObject;
 
-import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.services.Kernel;
 
 /**
  * monitors a running task and update result if it is done

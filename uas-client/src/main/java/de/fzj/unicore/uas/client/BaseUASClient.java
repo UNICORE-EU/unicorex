@@ -39,8 +39,8 @@ import org.unigrids.services.atomic.types.VOType;
 import org.unigrids.services.atomic.types.VersionDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.wsrflite.xmlbeans.client.BaseWSRFClient;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.InvalidResourcePropertyQNameFault;
+import eu.unicore.services.ws.client.BaseWSRFClient;
+import eu.unicore.services.ws.exceptions.InvalidResourcePropertyQNameFault;
 import eu.unicore.util.httpclient.IClientConfiguration;
 /**
  * A base client for the UNICORE WS(RF) services.

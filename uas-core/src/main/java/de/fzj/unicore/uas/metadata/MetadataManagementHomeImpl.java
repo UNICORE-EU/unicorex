@@ -34,7 +34,7 @@
 package de.fzj.unicore.uas.metadata;
 
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.InitParameters;
+import eu.unicore.services.InitParameters;
 import eu.unicore.services.ws.impl.WSResourceHomeImpl;
 import eu.unicore.services.ws.impl.WSResourceImpl;
 

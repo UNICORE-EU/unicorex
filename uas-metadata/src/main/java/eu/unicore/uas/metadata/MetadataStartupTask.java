@@ -4,7 +4,7 @@
  */
 package eu.unicore.uas.metadata;
 
-import de.fzj.unicore.wsrflite.server.AbstractStartupTask;
+import eu.unicore.services.server.AbstractStartupTask;
 
 /**
  * Loads configuration

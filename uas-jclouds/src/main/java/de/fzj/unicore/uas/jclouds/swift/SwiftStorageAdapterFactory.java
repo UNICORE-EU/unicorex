@@ -26,12 +26,12 @@ import de.fzj.unicore.uas.fts.FileTransferModel;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.jclouds.BlobStoreStorageAdapter;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.Model;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.security.canl.SSLContextCreator;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.Model;
 import eu.unicore.util.Log;
 
 /**

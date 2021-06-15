@@ -17,10 +17,10 @@ import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.exceptions.ResourceUnknownException;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 
 /**
  * this servlet exposes files under a "hard to guess" URL 

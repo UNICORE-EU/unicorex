@@ -43,11 +43,11 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
 import javax.xml.namespace.QName;
 
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceLifetime;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.ResourceLifetime;
+import eu.unicore.services.ws.ResourceProperties;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
 import eu.unicore.unicore6.enumeration.GetResultsRequestDocument;
 import eu.unicore.unicore6.enumeration.GetResultsResponseDocument;
 import eu.unicore.unicore6.enumeration.NumberOfResultsDocument;

@@ -37,7 +37,7 @@ import org.unigrids.services.atomic.types.TextInfoDocument;
 import org.unigrids.services.atomic.types.TextInfoType;
 
 import de.fzj.unicore.uas.xnjs.XNJSResource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * exposes the TextInfo fields defined in the XNJS IDB<br>

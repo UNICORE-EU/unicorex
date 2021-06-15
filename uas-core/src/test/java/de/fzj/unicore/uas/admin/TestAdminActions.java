@@ -18,9 +18,9 @@ import de.fzj.unicore.uas.client.JobClient;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
 import de.fzj.unicore.uas.testsuite.AbstractJobRun;
-import de.fzj.unicore.wsrflite.admin.AdminActionResult;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
+import eu.unicore.services.admin.AdminActionResult;
+import eu.unicore.services.ws.WSUtilities;
 
 
 public class TestAdminActions extends AbstractJobRun {

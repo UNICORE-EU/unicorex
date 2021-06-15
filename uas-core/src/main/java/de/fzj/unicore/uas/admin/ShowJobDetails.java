@@ -3,10 +3,10 @@ package de.fzj.unicore.uas.admin;
 import java.util.Map;
 
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.admin.AdminAction;
-import de.fzj.unicore.wsrflite.admin.AdminActionResult;
 import de.fzj.unicore.xnjs.ems.Action;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.admin.AdminAction;
+import eu.unicore.services.admin.AdminActionResult;
 import eu.unicore.util.Log;
 
 /**

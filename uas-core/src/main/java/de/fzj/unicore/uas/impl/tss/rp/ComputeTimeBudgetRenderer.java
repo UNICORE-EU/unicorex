@@ -40,11 +40,11 @@ import org.unigrids.x2006.x04.services.tss.AllocationDocument.Allocation;
 import org.unigrids.x2006.x04.services.tss.ComputeTimeBudgetDocument;
 
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import eu.unicore.security.Client;
+import eu.unicore.services.Resource;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * represents the user's remaining compute time (number of core hours) 

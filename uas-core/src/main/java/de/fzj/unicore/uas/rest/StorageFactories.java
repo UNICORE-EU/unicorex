@@ -22,7 +22,7 @@ import de.fzj.unicore.uas.impl.sms.StorageFactoryImpl;
 import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;
 import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.utils.UnitParser;
+import de.fzj.unicore.uas.util.UnitParser;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.util.Log;

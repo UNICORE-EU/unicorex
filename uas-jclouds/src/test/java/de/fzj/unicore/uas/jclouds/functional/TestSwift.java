@@ -27,11 +27,11 @@ import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.client.FileTransferClient;
 import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
-import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
 import eu.unicore.bugsreporter.annotation.FunctionalTest;
+import eu.unicore.services.ContainerProperties;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.ws.client.RegistryClient;
+import eu.unicore.services.ws.sg.Registry;
 
 /**
  * this requires access to a Swift installation

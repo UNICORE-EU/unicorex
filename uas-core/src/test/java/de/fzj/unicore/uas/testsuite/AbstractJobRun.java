@@ -20,7 +20,7 @@ import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.TSFClient;
 import de.fzj.unicore.uas.client.TSSClient;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryHomeImpl;
-import de.fzj.unicore.wsrflite.ContainerProperties;
+import eu.unicore.services.ContainerProperties;
 import eu.unicore.util.httpclient.ClientProperties;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

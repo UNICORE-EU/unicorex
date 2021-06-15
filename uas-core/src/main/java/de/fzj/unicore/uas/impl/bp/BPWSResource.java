@@ -2,7 +2,7 @@ package de.fzj.unicore.uas.impl.bp;
 
 import javax.xml.namespace.QName;
 
-import de.fzj.unicore.wsrflite.xmlbeans.WSResource;
+import eu.unicore.services.ws.WSResource;
 
 /**
  * Base profile enabled WSResource interface. This allows to retrieve BP

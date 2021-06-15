@@ -6,12 +6,12 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.impl.UASWSResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
 import eu.unicore.security.Client;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.messaging.ResourceDeletedMessage;
 
 /**
  * WS resource representing a resource reservation

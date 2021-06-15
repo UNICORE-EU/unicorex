@@ -21,11 +21,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFileImpl;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
+import eu.unicore.services.Kernel;
 
 /**
  * Metadata tests: unit functionality

@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.Service;
-import de.fzj.unicore.wsrflite.admin.AdminAction;
-import de.fzj.unicore.wsrflite.admin.AdminActionResult;
-import de.fzj.unicore.wsrflite.impl.DefaultHome;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.Service;
+import eu.unicore.services.admin.AdminAction;
+import eu.unicore.services.admin.AdminActionResult;
+import eu.unicore.services.impl.DefaultHome;
 
 /**
  * {@link AdminAction} which gives an overview of the server's usage per client, i.e.

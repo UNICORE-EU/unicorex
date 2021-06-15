@@ -4,7 +4,7 @@ import org.unigrids.x2006.x04.services.jms.StdErrDocument;
 
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class StdErrProperty extends ValueRenderer {
 

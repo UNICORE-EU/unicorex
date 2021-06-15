@@ -9,11 +9,11 @@ import de.fzj.unicore.uas.ReservationManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.reservation.ReservationManagementImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.FieldRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
+import eu.unicore.services.ws.renderers.AddressRenderer;
+import eu.unicore.services.ws.renderers.FieldRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * WS resource representing a resource reservation

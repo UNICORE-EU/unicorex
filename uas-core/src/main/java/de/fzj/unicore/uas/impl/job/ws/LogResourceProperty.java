@@ -38,7 +38,7 @@ import java.util.List;
 import org.unigrids.x2006.x04.services.jms.LogDocument;
 
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * renders the job log (which is copied from the XNJS Action log)

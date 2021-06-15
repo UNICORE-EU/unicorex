@@ -38,10 +38,10 @@ import org.ggf.baseprofile.WSResourceInterfacesDocument;
 
 import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
 import de.fzj.unicore.uas.impl.bp.BPWSResource;
-import de.fzj.unicore.wsrflite.WSRFConstants;
-import de.fzj.unicore.wsrflite.impl.ResourceImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.WSRFConstants;
+import eu.unicore.services.impl.ResourceImpl;
 import eu.unicore.services.ws.impl.WSRFFrontend;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * @author schuller

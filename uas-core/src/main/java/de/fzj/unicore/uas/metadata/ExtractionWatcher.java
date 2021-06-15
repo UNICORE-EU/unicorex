@@ -7,7 +7,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.unigrids.x2006.x04.services.metadata.ExtractionStatisticsDocument;
 
 import de.fzj.unicore.uas.impl.task.TaskWatcher;
-import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.services.Kernel;
 
 /**
  * monitors metadata extraction

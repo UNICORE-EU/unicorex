@@ -41,13 +41,13 @@ import org.unigrids.services.atomic.types.StatusType.Enum;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * renders the job status

@@ -6,7 +6,7 @@ import org.unigrids.services.atomic.types.StatusInfoDocument;
 import org.unigrids.services.atomic.types.StatusInfoType;
 
 import de.fzj.unicore.uas.impl.task.TaskImpl.TaskStatus;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class StatusRP extends ValueRenderer {
 	

@@ -48,11 +48,6 @@ import de.fzj.unicore.uas.fts.FileTransferCapability;
 import de.fzj.unicore.uas.security.RegistryIdentityResolver;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.ETDAssertionForwarding;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
-import de.fzj.unicore.wsrflite.xmlbeans.registry.RegistryHandler;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
@@ -62,6 +57,11 @@ import de.fzj.unicore.xnjs.io.IFileTransferCreator;
 import eu.unicore.client.Endpoint;
 import eu.unicore.security.Client;
 import eu.unicore.security.wsutil.client.authn.ServiceIdentityResolver;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.registry.RegistryHandler;
+import eu.unicore.services.security.ETDAssertionForwarding;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

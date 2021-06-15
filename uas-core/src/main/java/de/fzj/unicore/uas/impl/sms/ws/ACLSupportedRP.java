@@ -3,12 +3,12 @@ package de.fzj.unicore.uas.impl.sms.ws;
 import org.unigrids.x2006.x04.services.sms.ACLSupportedDocument;
 
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
-import de.fzj.unicore.wsrflite.impl.ResourceImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class ACLSupportedRP extends ValueRenderer{
 	
-	public ACLSupportedRP(ResourceImpl parent){
+	public ACLSupportedRP(Resource parent){
 		super(parent, ACLSupportedDocument.type.getDocumentElementName());
 	}
 	

@@ -40,8 +40,8 @@ import org.unigrids.x2006.x04.services.tsf.TargetSystemReferenceDocument;
 import de.fzj.unicore.uas.TargetSystem;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.AddressListRenderer;
 
 /**
  * publishes the set of references to the TargetSystemServices created by a TSF

@@ -4,9 +4,9 @@ import java.util.Collection;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
-import de.fzj.unicore.wsrflite.ExtendedResourceStatus.ResourceStatus;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.events.AsynchActionWithCallback;
+import eu.unicore.services.ExtendedResourceStatus.ResourceStatus;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.events.AsynchActionWithCallback;
 import eu.unicore.util.Log;
 
 /**

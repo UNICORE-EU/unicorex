@@ -41,9 +41,9 @@ import org.w3.x2005.x08.addressing.EndpointReferenceDocument;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer.Internal;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.XmlRenderer.Internal;
+import eu.unicore.services.ws.renderers.AddressListRenderer;
 
 /**
  * internally generates the list of references to server-to-server 

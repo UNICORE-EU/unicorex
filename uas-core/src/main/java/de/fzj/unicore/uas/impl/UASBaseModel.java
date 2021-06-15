@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.impl;
 
-import de.fzj.unicore.wsrflite.impl.BaseModel;
+import eu.unicore.services.impl.BaseModel;
 
 public class UASBaseModel extends BaseModel {
 

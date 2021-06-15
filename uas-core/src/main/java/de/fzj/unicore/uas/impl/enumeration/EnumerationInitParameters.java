@@ -4,8 +4,8 @@ import java.util.Calendar;
 
 import javax.xml.namespace.QName;
 
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.ws.XmlRenderer;
 
 public class EnumerationInitParameters extends InitParameters {
 

@@ -72,15 +72,15 @@ import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.jsdl.JSDLParser;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
+import eu.unicore.services.ContainerProperties;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
+import eu.unicore.services.ws.renderers.AddressRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**

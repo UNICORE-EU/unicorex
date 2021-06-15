@@ -11,11 +11,11 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.reservation.ReservationManagementImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.util.Log;
 
 /**

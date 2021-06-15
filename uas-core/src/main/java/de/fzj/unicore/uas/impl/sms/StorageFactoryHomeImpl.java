@@ -33,8 +33,8 @@
 
 package de.fzj.unicore.uas.impl.sms;
 
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.Resource;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.Resource;
 import eu.unicore.services.ws.impl.WSResourceHomeImpl;
 
 /**

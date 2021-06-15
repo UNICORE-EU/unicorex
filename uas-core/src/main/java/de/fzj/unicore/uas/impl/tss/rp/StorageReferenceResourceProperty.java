@@ -40,8 +40,8 @@ import org.unigrids.services.atomic.types.StorageReferenceDocument;
 import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.AddressListRenderer;
 
 /**
  * holds a set of references to StorageManagement services on a TSS

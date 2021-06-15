@@ -9,11 +9,11 @@ import org.unigrids.services.atomic.types.StatusType;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.Task;
-import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.unicore6.task.CancelRequestDocument;
 import eu.unicore.unicore6.task.ResultDocument.Result;
 import eu.unicore.unicore6.task.SubmissionTimeDocument;
 import eu.unicore.unicore6.task.TaskPropertiesDocument;
+import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**
  * client for talking to a Task service

@@ -38,10 +38,10 @@ import java.security.MessageDigest;
 import org.unigrids.services.atomic.types.ServiceStateType;
 import org.unigrids.services.atomic.types.ServiceStatusDocument;
 
-import de.fzj.unicore.wsrflite.ExtendedResourceStatus;
-import de.fzj.unicore.wsrflite.ExtendedResourceStatus.ResourceStatus;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.AbstractXmlRenderer;
+import eu.unicore.services.ExtendedResourceStatus;
+import eu.unicore.services.ExtendedResourceStatus.ResourceStatus;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.AbstractXmlRenderer;
 
 /**
  * Allows to publish status information about a service instance 

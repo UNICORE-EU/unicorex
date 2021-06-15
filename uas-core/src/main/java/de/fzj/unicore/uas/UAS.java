@@ -34,7 +34,7 @@ package de.fzj.unicore.uas;
 
 import java.util.Properties;
 
-import de.fzj.unicore.wsrflite.USEContainer;
+import eu.unicore.services.USEContainer;
 import eu.unicore.util.Log;
 
 /**

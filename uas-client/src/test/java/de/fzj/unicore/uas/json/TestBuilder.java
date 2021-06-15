@@ -23,9 +23,9 @@ import org.junit.Test;
 
 import de.fzj.unicore.uas.util.LogMessageWriter;
 import de.fzj.unicore.uas.util.MessageWriter;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import eu.unicore.jsdl.extensions.UserPostCommandDocument;
 import eu.unicore.jsdl.extensions.UserPreCommandDocument;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.Log;
 
 public class TestBuilder{

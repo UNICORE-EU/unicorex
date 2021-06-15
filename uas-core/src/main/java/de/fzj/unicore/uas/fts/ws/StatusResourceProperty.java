@@ -5,8 +5,8 @@ import org.unigrids.x2006.x04.services.fts.StatusType;
 import org.unigrids.x2006.x04.services.fts.SummaryType;
 
 import de.fzj.unicore.uas.fts.FileTransferModel;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class StatusResourceProperty extends ValueRenderer {
 	

@@ -55,7 +55,7 @@ import org.ggf.schemas.byteio.x2005.x10.streamableAccess.TransferMechanismDocume
 import org.ggf.schemas.byteio.x2005.x10.streamableAccess.WriteableDocument;
 
 import de.fzj.unicore.uas.fts.FileTransfer;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
+import eu.unicore.services.ws.BaseFault;
 
 /**
  * streamable byte-io interface

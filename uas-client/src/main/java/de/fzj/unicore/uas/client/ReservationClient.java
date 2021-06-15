@@ -14,7 +14,7 @@ import org.unigrids.x2006.x04.services.reservation.StartTimeDocument;
 import org.unigrids.x2006.x04.services.tss.SubmitDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

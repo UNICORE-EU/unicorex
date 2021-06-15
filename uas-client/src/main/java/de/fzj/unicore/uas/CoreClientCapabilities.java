@@ -3,9 +3,9 @@ package de.fzj.unicore.uas;
 import de.fzj.unicore.uas.client.FileTransferClient;
 import de.fzj.unicore.uas.client.HttpFileTransferClient;
 import de.fzj.unicore.uas.client.UFTPFileTransferClient;
-import de.fzj.unicore.wsrflite.ClientCapabilities;
-import de.fzj.unicore.wsrflite.ClientCapability;
 import eu.unicore.client.data.FiletransferClient;
+import eu.unicore.services.ClientCapabilities;
+import eu.unicore.services.ClientCapability;
 
 /**
  * advertises client capabilities of the uas-client module

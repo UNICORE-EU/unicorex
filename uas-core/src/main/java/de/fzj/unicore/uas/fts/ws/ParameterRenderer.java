@@ -7,8 +7,8 @@ import java.util.Map;
 import org.unigrids.x2006.x04.services.fts.PropertyDocument;
 
 import de.fzj.unicore.uas.fts.FileTransferImpl;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * publishes protocol-dependent parameters

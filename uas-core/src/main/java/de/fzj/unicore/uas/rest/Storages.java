@@ -30,15 +30,15 @@ import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.metadata.SearchResult;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.exceptions.InvalidModificationException;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsStorageInfo;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.exceptions.InvalidModificationException;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
 

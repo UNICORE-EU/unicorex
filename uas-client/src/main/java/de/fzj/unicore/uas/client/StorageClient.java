@@ -92,10 +92,10 @@ import org.w3.x2005.x08.addressing.EndpointReferenceType;
 import de.fzj.unicore.uas.CoreClientCapabilities.FTClientCapability;
 import de.fzj.unicore.uas.FiletransferParameterProvider;
 import de.fzj.unicore.uas.StorageManagement;
-import de.fzj.unicore.wsrflite.ClientCapabilities;
-import de.fzj.unicore.wsrflite.ClientCapability;
-import de.fzj.unicore.wsrflite.xfire.ClientException;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
+import eu.unicore.services.ClientCapabilities;
+import eu.unicore.services.ClientCapability;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.ClientException;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

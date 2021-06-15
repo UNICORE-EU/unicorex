@@ -10,10 +10,10 @@ import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.metadata.MetadataSupport;
 import de.fzj.unicore.uas.trigger.MultiFileAction;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
 
 /**
  * extracts metadata from a list of files

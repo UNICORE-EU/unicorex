@@ -38,7 +38,7 @@ import java.util.Calendar;
 import org.unigrids.x2006.x04.services.jms.EstimatedEndTimeDocument;
 
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * renders the job's estimated end time (which is retrieved from the XNJS Action)

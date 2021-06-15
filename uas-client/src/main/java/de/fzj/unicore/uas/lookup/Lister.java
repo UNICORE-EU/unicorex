@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.wsrflite.xmlbeans.client.BaseWSRFClient;
+import eu.unicore.services.ws.client.BaseWSRFClient;
 
 /**
  * Base class for Grid lookup actions. Client code can use the iterator() 

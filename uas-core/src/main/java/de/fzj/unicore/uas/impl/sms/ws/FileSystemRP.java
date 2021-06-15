@@ -6,12 +6,12 @@ import de.fzj.unicore.uas.impl.sms.DefaultStorageInfoProvider;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
 import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;
-import de.fzj.unicore.wsrflite.impl.ResourceImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class FileSystemRP extends ValueRenderer{
 	
-	public FileSystemRP(ResourceImpl parent){
+	public FileSystemRP(Resource parent){
 		super(parent, FileSystemDocument.type.getDocumentElementName());
 	}
 	

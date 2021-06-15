@@ -6,11 +6,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.xmlbeans.XmlObject;
 import org.unigrids.x2006.x04.services.metadata.FederatedSearchResultCollectionDocument;
 
-
-
-
 import de.fzj.unicore.uas.impl.task.TaskImpl;
-import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.services.Kernel;
 import eu.unicore.util.Log;
 
 public class FederatedMetadataSearchWatcher implements Runnable {

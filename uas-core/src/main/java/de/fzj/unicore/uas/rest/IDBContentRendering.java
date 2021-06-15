@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.OptionDescription;
@@ -17,6 +16,7 @@ import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
 import eu.unicore.security.Client;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 
 /**
  * for generating/parsing the JSON representation of a resource set,

@@ -57,7 +57,7 @@ import org.ggf.schemas.byteio.x2005.x10.randomAccess.WriteResponseDocument;
 import org.ggf.schemas.byteio.x2005.x10.randomAccess.WriteableDocument;
 
 import de.fzj.unicore.uas.fts.FileTransfer;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
+import eu.unicore.services.ws.BaseFault;
 
 /**
  * the random-access byteio interface

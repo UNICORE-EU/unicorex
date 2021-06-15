@@ -5,8 +5,8 @@ import java.security.MessageDigest;
 import org.unigrids.services.atomic.types.VersionDocument;
 
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.AbstractXmlRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.AbstractXmlRenderer;
 
 /**
  * publishes the version of the parent resource 

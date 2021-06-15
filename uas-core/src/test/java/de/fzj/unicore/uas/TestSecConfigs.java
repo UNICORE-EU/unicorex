@@ -6,8 +6,8 @@ package de.fzj.unicore.uas;
 
 import java.util.Properties;
 
-import de.fzj.unicore.wsrflite.security.ContainerSecurityProperties;
-import de.fzj.unicore.wsrflite.server.ContainerHttpServerProperties;
+import eu.unicore.services.security.ContainerSecurityProperties;
+import eu.unicore.services.server.ContainerHttpServerProperties;
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.canl.CredentialProperties;

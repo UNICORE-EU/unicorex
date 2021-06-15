@@ -42,7 +42,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.Enumeration;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.unicore6.enumeration.EnumerationPropertiesDocument;
 import eu.unicore.unicore6.enumeration.GetResultsRequestDocument;
 import eu.unicore.unicore6.enumeration.GetResultsResponseDocument;

@@ -40,9 +40,9 @@ import org.unigrids.services.atomic.types.ProcessorDocument;
 import org.unigrids.services.atomic.types.ProcessorType;
 
 import de.fzj.unicore.uas.xnjs.XNJSResource;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import eu.unicore.security.Client;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * represents the Processors on a TargetSystem resource<br>

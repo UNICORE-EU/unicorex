@@ -6,10 +6,10 @@ package de.fzj.unicore.uas.security;
 
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.wsrflite.xmlbeans.client.IRegistryQuery;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProvider;
 import eu.unicore.security.wsutil.client.authn.DelegationSpecification;
 import eu.unicore.security.wsutil.client.authn.ServiceIdentityResolver;
+import eu.unicore.services.ws.client.IRegistryQuery;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

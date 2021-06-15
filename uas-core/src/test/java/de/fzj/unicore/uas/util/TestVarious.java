@@ -64,13 +64,13 @@ import de.fzj.unicore.uas.fts.rft.StoreImpl;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
-import de.fzj.unicore.wsrflite.Capabilities;
-import de.fzj.unicore.wsrflite.Capability;
-import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
 import de.fzj.unicore.xnjs.io.ChangePermissions;
+import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
 import de.fzj.unicore.xnjs.io.IFileTransferCreator;
 import de.fzj.unicore.xnjs.io.IOCapabilities;
-import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
+import eu.unicore.services.Capabilities;
+import eu.unicore.services.Capability;
+import eu.unicore.services.ws.client.RegistryClient;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.configuration.ConfigurationException;
 

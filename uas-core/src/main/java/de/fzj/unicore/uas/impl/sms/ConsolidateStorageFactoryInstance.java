@@ -10,10 +10,10 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.ExtendedResourceStatus.ResourceStatus;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.events.AsynchActionWithCallback;
+import eu.unicore.services.ExtendedResourceStatus.ResourceStatus;
+import eu.unicore.services.Home;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.events.AsynchActionWithCallback;
 
 
 /**

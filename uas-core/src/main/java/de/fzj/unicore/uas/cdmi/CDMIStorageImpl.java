@@ -5,10 +5,10 @@ import java.util.Map;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
 import de.fzj.unicore.uas.impl.sms.StorageInitParameters;
-import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.XACMLAttribute;
+import eu.unicore.services.InitParameters;
 
 public class CDMIStorageImpl extends SMSBaseImpl {
 

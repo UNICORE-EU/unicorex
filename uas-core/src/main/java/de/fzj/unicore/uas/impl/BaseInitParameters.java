@@ -2,7 +2,7 @@ package de.fzj.unicore.uas.impl;
 
 import java.util.Calendar;
 
-import de.fzj.unicore.wsrflite.InitParameters;
+import eu.unicore.services.InitParameters;
 
 public class BaseInitParameters extends InitParameters {
 

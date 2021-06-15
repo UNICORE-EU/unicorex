@@ -46,14 +46,14 @@ import de.fzj.unicore.uas.impl.PersistingPreferencesResource;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
 import de.fzj.unicore.uas.impl.sms.StorageInitParameters;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
-import de.fzj.unicore.wsrflite.exceptions.ResourceUnknownException;
-import de.fzj.unicore.wsrflite.messaging.ResourceDeletedMessage;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import de.fzj.unicore.xnjs.ems.Action;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.exceptions.ResourceUnknownException;
+import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**

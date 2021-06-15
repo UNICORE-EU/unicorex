@@ -10,7 +10,7 @@ import org.ogf.schemas.jsdl.x2009.x03.sweep.DocumentNodeDocument;
 import org.ogf.schemas.jsdl.x2009.x03.sweep.NamespaceBindingDocument.NamespaceBinding;
 import org.ogf.schemas.jsdl.x2009.x03.sweep.functions.ValuesDocument;
 
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
+import eu.unicore.services.ws.WSUtilities;
 
 /**
  * Helper for dealing with JSDL staging sweep

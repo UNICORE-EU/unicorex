@@ -47,11 +47,11 @@ import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
 
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.KernelInjectable;
-import de.fzj.unicore.wsrflite.security.util.AttributeHandlingCallback;
 import eu.unicore.security.SecurityTokens;
 import eu.unicore.security.wsutil.AuthInHandler;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.KernelInjectable;
+import eu.unicore.services.security.util.AttributeHandlingCallback;
 import eu.unicore.services.ws.security.AccessControlHandler;
 
 /**

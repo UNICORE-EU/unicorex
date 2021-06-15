@@ -1,9 +1,9 @@
 package de.fzj.unicore.uas.xnjs;
 
 import de.fzj.unicore.uas.UASProperties.TSI_MODE;
-import de.fzj.unicore.wsrflite.ExternalSystemConnector;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
+import eu.unicore.services.ExternalSystemConnector;
 import eu.unicore.util.Log;
 
 public class TSIConnector implements ExternalSystemConnector {

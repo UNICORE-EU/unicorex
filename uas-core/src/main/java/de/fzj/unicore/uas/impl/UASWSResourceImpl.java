@@ -39,15 +39,15 @@ import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
 import de.fzj.unicore.uas.impl.bp.BPWSResource;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.uas.xnjs.XNJSResource;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.WSRFConstants;
-import de.fzj.unicore.wsrflite.registry.LocalRegistryClient;
-import de.fzj.unicore.wsrflite.registry.ws.SGFrontend;
-import de.fzj.unicore.wsrflite.xmlbeans.registry.RegistryHandler;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.Resource;
+import eu.unicore.services.WSRFConstants;
+import eu.unicore.services.registry.LocalRegistryClient;
+import eu.unicore.services.registry.RegistryHandler;
+import eu.unicore.services.registry.ws.SGFrontend;
 import eu.unicore.services.ws.impl.WSResourceImpl;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 import eu.unicore.util.Log;
 
 /**

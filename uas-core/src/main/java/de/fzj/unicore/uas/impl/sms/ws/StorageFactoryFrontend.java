@@ -26,15 +26,15 @@ import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.InitParameters.TerminationMode;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceNotDestroyedFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.TerminationTimeChangeRejectedFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.UnableToSetTerminationTimeFault;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
+import eu.unicore.services.Home;
+import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.exceptions.ResourceNotDestroyedFault;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
+import eu.unicore.services.ws.exceptions.TerminationTimeChangeRejectedFault;
+import eu.unicore.services.ws.exceptions.UnableToSetTerminationTimeFault;
+import eu.unicore.services.ws.renderers.AddressRenderer;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**

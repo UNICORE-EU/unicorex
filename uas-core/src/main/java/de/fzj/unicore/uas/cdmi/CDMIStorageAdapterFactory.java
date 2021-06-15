@@ -6,9 +6,9 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferModel;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.Model;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.Model;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.util.httpclient.ClientProperties;
 

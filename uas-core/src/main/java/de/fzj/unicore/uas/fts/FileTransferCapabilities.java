@@ -15,9 +15,9 @@ import de.fzj.unicore.uas.xnjs.BFTImport;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
 import de.fzj.unicore.uas.xnjs.RESTFileImportBase;
 import de.fzj.unicore.uas.xnjs.U6FileTransferBase;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.KernelInjectable;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.KernelInjectable;
 
 /**
  * Describes the available filetransfers in UAS Core<br/>

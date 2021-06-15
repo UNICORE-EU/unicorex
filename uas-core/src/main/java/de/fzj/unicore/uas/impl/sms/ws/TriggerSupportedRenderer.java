@@ -3,12 +3,12 @@ package de.fzj.unicore.uas.impl.sms.ws;
 import org.unigrids.x2006.x04.services.sms.TriggeringSupportedDocument;
 
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
-import de.fzj.unicore.wsrflite.impl.ResourceImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class TriggerSupportedRenderer extends ValueRenderer{
 	
-	public TriggerSupportedRenderer(ResourceImpl parent){
+	public TriggerSupportedRenderer(Resource parent){
 		super(parent, TriggeringSupportedDocument.type.getDocumentElementName());
 	}
 	

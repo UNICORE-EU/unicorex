@@ -6,8 +6,8 @@ import java.util.List;
 import org.unigrids.services.atomic.types.ProtocolDocument;
 import org.unigrids.services.atomic.types.ProtocolType;
 
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class ProtocolRenderer extends ValueRenderer{
 

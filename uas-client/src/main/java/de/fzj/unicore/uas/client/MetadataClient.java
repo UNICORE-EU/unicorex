@@ -17,10 +17,9 @@ import org.unigrids.x2006.x04.services.metadata.CreateMetadataDocument;
 import org.unigrids.x2006.x04.services.metadata.CreateMetadataResponseDocument;
 import org.unigrids.x2006.x04.services.metadata.DeleteMetadataDocument;
 import org.unigrids.x2006.x04.services.metadata.DeleteMetadataResponseDocument;
+import org.unigrids.x2006.x04.services.metadata.DirectoryDocument.Directory;
 import org.unigrids.x2006.x04.services.metadata.FederatedMetadataSearchDocument;
 import org.unigrids.x2006.x04.services.metadata.FederatedMetadataSearchResponseDocument;
-
-import org.unigrids.x2006.x04.services.metadata.DirectoryDocument.Directory;
 import org.unigrids.x2006.x04.services.metadata.GetMetadataDocument;
 import org.unigrids.x2006.x04.services.metadata.GetMetadataResponseDocument;
 import org.unigrids.x2006.x04.services.metadata.SearchMetadataDocument;

@@ -16,7 +16,7 @@ import org.unigrids.x2006.x04.services.tss.AllocationDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.TargetSystemFactory;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
+import eu.unicore.services.ws.BaseFault;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

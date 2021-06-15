@@ -4,8 +4,8 @@ import java.security.MessageDigest;
 
 import org.unigrids.services.atomic.types.TagsDocument;
 
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.AbstractXmlRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.AbstractXmlRenderer;
 
 /**
  * renders the tags of a resource 

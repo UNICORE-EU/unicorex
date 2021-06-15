@@ -21,9 +21,9 @@ import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.FileSet;
-import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.Permissions;
+import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 
 /**

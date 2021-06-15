@@ -41,10 +41,10 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.TargetSystem;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.renderers.AddressListRenderer;
 
 /**
  * Filtered set of references to Target System Services created by this Target System Factory

@@ -10,8 +10,8 @@ import com.codahale.metrics.Histogram;
 
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import de.fzj.unicore.xnjs.XNJSConstants;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * publishes performance data

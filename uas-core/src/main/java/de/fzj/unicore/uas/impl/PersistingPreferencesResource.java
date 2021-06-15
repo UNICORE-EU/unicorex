@@ -12,9 +12,9 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import eu.unicore.security.SecurityTokens;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 
 /**
  * Adds persistence of the initial user's preferences to the resource.

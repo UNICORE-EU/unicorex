@@ -38,7 +38,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.ggf.schemas.byteio.x2005.x10.byteIo.DataDocument;
 
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
+import eu.unicore.services.ws.BaseFault;
 
 /**
  * Constants and some helpers

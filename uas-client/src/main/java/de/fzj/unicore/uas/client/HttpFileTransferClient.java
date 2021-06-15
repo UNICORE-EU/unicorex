@@ -1,9 +1,9 @@
 package de.fzj.unicore.uas.client;
 
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FilterInputStream;
 import java.io.OutputStream;
 
 import javax.xml.namespace.QName;

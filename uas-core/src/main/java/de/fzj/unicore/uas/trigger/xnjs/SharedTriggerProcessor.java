@@ -15,9 +15,6 @@ import de.fzj.unicore.uas.trigger.RuleSet;
 import de.fzj.unicore.uas.trigger.impl.RuleFactory;
 import de.fzj.unicore.uas.trigger.impl.TriggerRunner;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.ProcessingException;
@@ -26,6 +23,9 @@ import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
+import eu.unicore.services.Home;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.Log;
 
 /**

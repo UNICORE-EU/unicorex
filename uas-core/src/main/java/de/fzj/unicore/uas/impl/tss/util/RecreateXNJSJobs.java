@@ -12,8 +12,6 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
@@ -23,10 +21,12 @@ import de.fzj.unicore.xnjs.ems.Manager;
 import de.fzj.unicore.xnjs.ems.ProcessingException;
 import de.fzj.unicore.xnjs.ems.processors.DefaultProcessor;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.tsi.TSI;
+import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.Kernel;
 
 /**
  * re-create "lost" XNJS action instances from uspace information.

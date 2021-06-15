@@ -35,9 +35,9 @@ package de.fzj.unicore.uas.fts;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.fts.http.FileServlet;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.Resource;
+import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.ws.impl.WSResourceHomeImpl;
 import eu.unicore.util.Log;
 

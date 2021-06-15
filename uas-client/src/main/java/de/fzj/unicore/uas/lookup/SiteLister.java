@@ -15,8 +15,8 @@ import de.fzj.unicore.uas.client.TSFClient;
 import de.fzj.unicore.uas.client.TSSClient;
 import de.fzj.unicore.uas.security.WSRFClientConfigurationProvider;
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.wsrflite.xmlbeans.client.IRegistryQuery;
 import eu.unicore.security.wsutil.client.authn.DelegationSpecification;
+import eu.unicore.services.ws.client.IRegistryQuery;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

@@ -2,7 +2,7 @@ package de.fzj.unicore.uas.impl.task;
 
 import org.apache.xmlbeans.XmlObject;
 
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 import eu.unicore.unicore6.task.ResultDocument;
 
 public class ResultRP extends ValueRenderer {

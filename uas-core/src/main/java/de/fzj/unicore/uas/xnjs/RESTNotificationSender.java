@@ -12,17 +12,17 @@ import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.impl.job.ws.StatusInfoResourceProperty;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.utils.TimeoutRunner;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStateChangeListener;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
+import eu.unicore.services.utils.TimeoutRunner;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

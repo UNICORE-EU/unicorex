@@ -43,14 +43,14 @@ import javax.jws.soap.SOAPBinding.Style;
 import javax.jws.soap.SOAPBinding.Use;
 import javax.xml.namespace.QName;
 
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceLifetime;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
 import eu.unicore.security.OperationType;
 import eu.unicore.security.SEIOperationType;
 import eu.unicore.security.wsutil.RequiresSignature;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.ResourceLifetime;
+import eu.unicore.services.ws.ResourceProperties;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
 
 /**
  * Metadata service interface

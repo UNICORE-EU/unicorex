@@ -38,7 +38,7 @@ import java.math.BigInteger;
 import org.unigrids.x2006.x04.services.tss.TotalNumberOfJobsDocument;
 
 import de.fzj.unicore.uas.xnjs.XNJSResource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class NumberOfJobsProperty extends ValueRenderer {
 

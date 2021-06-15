@@ -37,9 +37,9 @@ import org.apache.logging.log4j.Logger;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.uas.xnjs.XNJSResource;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.impl.ResourceImpl;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.impl.ResourceImpl;
 import eu.unicore.util.Log;
 
 /**

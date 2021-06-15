@@ -7,8 +7,8 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
-import de.fzj.unicore.wsrflite.Kernel;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.util.httpclient.ClientProperties;

@@ -57,10 +57,10 @@ import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.renderers.AddressRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * implements a Job resource, and allows job management through WSRF

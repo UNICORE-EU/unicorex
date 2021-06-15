@@ -3,8 +3,8 @@ package de.fzj.unicore.uas.fts.ws;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.SourceDocument;
 
 import de.fzj.unicore.uas.fts.FileTransferImpl;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 public class SourceResourceProperty extends ValueRenderer {
 	

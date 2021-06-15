@@ -53,13 +53,13 @@ import de.fzj.unicore.uas.metadata.SearchResult;
 import de.fzj.unicore.uas.metadata.StorageMetadataManager;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.ThreadingServices;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.security.Client;
+import eu.unicore.services.ContainerProperties;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.ThreadingServices;
 import eu.unicore.uas.metadata.utils.JSONAdapter;
 
 /**
@@ -71,7 +71,7 @@ import eu.unicore.uas.metadata.utils.JSONAdapter;
  * index. 
  * </p>
  * 
- * <p>
+ * <p>	
  * FIXMEs:
  * <ul>
  * <li>

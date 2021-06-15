@@ -25,12 +25,12 @@ import de.fzj.unicore.uas.trigger.Rule;
 import de.fzj.unicore.uas.trigger.RuleSet;
 import de.fzj.unicore.uas.trigger.xnjs.TriggerProcessor;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 public class TestTriggers extends Base {

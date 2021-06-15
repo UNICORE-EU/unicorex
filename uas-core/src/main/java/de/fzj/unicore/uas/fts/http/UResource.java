@@ -12,10 +12,10 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.util.resource.Resource;
 
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.messaging.Message;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.messaging.Message;
 import eu.unicore.util.Log;
 
 /**

@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.junit.Assert;
 
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.services.Kernel;
 
 /**
  * Tests the UFTP integration into UNICORE/X

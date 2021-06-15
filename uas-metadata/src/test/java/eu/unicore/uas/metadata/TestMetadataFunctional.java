@@ -29,8 +29,8 @@ import de.fzj.unicore.uas.client.MetadataClient.CrawlerControl;
 import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.client.TaskClient;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.ws.BaseFault;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**

@@ -55,11 +55,11 @@ import org.unigrids.x2006.x04.services.jms.TargetSystemReferenceDocument;
 import org.unigrids.x2006.x04.services.jms.WorkingDirectoryReferenceDocument;
 
 import de.fzj.unicore.uas.faults.JobNotStartedFault;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceLifetime;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.ResourceLifetime;
+import eu.unicore.services.ws.ResourceProperties;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
 
 /**
  * job management interface

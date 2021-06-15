@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import javax.security.auth.x500.X500Principal;
 
-import de.fzj.unicore.wsrflite.security.ETDAssertionForwarding;
 import eu.unicore.security.Client;
 import eu.unicore.security.wsutil.client.authn.DelegationSpecification;
+import eu.unicore.services.security.ETDAssertionForwarding;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

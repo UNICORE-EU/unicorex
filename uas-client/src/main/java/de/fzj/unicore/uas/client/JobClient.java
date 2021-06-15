@@ -49,7 +49,7 @@ import org.unigrids.x2006.x04.services.jms.SubmissionTimeDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.JobManagement;
-import de.fzj.unicore.wsrflite.xfire.ClientException;
+import eu.unicore.services.ws.ClientException;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

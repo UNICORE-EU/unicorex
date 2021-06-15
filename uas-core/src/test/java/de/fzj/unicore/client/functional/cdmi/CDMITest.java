@@ -27,11 +27,11 @@ import de.fzj.unicore.uas.cdmi.KeystoneAuth;
 import de.fzj.unicore.uas.client.FileTransferClient;
 import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
-import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.rest.client.BaseClient;
+import eu.unicore.services.ws.client.RegistryClient;
+import eu.unicore.services.ws.sg.Registry;
 import eu.unicore.util.httpclient.ClientProperties;
 
 public class CDMITest extends Base {

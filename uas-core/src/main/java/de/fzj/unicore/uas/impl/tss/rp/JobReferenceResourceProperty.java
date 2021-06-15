@@ -40,9 +40,9 @@ import org.unigrids.x2006.x04.services.tss.JobReferenceDocument;
 import de.fzj.unicore.uas.JobManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer.Internal;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.XmlRenderer.Internal;
+import eu.unicore.services.ws.renderers.AddressListRenderer;
 
 /**
  * publishes the set of references to Jobs on a TargetSystemService<br/>

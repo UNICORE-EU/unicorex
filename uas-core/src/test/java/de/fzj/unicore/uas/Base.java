@@ -10,7 +10,7 @@ import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.impl.sms.InitSharedStorages;
-import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.services.Kernel;
 
 /**
  * base class for functional tests. Starts a "clean" UNICORE/X server.

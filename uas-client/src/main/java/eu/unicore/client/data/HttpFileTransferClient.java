@@ -1,9 +1,9 @@
 package eu.unicore.client.data;
 
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.FilterInputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.io.input.BoundedInputStream;

@@ -49,13 +49,13 @@ import de.fzj.unicore.uas.metadata.FederatedSearchResult;
 import de.fzj.unicore.uas.metadata.FederatedSearchResultCollection;
 import de.fzj.unicore.uas.security.ClientConfigProvider;
 import de.fzj.unicore.uas.security.WSRFClientConfigurationProviderImpl;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.xmlbeans.client.IRegistryQuery;
-import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
-import de.fzj.unicore.wsrflite.xmlbeans.registry.RegistryHandler;
-import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
 import eu.unicore.security.Client;
+import eu.unicore.services.ContainerProperties;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.registry.RegistryHandler;
+import eu.unicore.services.ws.client.IRegistryQuery;
+import eu.unicore.services.ws.client.RegistryClient;
+import eu.unicore.services.ws.sg.Registry;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 

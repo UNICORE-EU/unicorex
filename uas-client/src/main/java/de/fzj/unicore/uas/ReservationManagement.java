@@ -14,8 +14,8 @@ import org.unigrids.x2006.x04.services.reservation.ReservationStatusDescriptionD
 import org.unigrids.x2006.x04.services.reservation.ReservationStatusDocument;
 import org.unigrids.x2006.x04.services.reservation.StartTimeDocument;
 
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceLifetime;
-import de.fzj.unicore.wsrflite.xmlbeans.ResourceProperties;
+import eu.unicore.services.ws.ResourceLifetime;
+import eu.unicore.services.ws.ResourceProperties;
 
 /**
  * Service for managing reservations

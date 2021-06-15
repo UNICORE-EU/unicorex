@@ -48,10 +48,10 @@ import de.fzj.unicore.uas.impl.sms.StorageDescription;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryImpl;
 import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * publishes descriptions of the available storage factory types to clients

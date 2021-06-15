@@ -16,8 +16,8 @@ import de.fzj.unicore.uas.client.FileTransferClient;
 import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.jclouds.Base;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import de.fzj.unicore.xuudb.Log;
+import eu.unicore.services.ws.WSUtilities;
 
 public class TestS3SMSFactory extends Base {
 

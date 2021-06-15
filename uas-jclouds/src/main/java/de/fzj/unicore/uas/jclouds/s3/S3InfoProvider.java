@@ -6,9 +6,9 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.FileSystemDocument;
 
 import de.fzj.unicore.uas.impl.sms.DefaultStorageInfoProvider;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
-import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
 
 public class S3InfoProvider extends DefaultStorageInfoProvider {
 

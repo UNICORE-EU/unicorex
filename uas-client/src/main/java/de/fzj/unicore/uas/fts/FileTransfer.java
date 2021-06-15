@@ -49,7 +49,7 @@ import org.unigrids.x2006.x04.services.fts.StatusDetailsDocument;
 import org.unigrids.x2006.x04.services.fts.StatusDocument;
 import org.unigrids.x2006.x04.services.fts.TransferredBytesDocument;
 
-import de.fzj.unicore.wsrflite.xmlbeans.WSResource;
+import eu.unicore.services.ws.WSResource;
 
 /**
  * FileTransfer

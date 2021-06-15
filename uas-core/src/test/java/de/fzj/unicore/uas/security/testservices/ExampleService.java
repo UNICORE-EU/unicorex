@@ -5,7 +5,7 @@ import java.util.Calendar;
 import org.oasisOpen.docs.wsrf.rl2.CurrentTimeDocument;
 import org.oasisOpen.docs.wsrf.rp2.GetResourcePropertyDocument;
 
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.security.Client;
 import eu.unicore.security.SecurityTokens;
 import eu.unicore.services.ws.cxf.Servlet;

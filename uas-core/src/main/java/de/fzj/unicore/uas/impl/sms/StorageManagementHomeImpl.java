@@ -37,9 +37,9 @@ import java.util.Collection;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.InitParameters;
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.exceptions.ResourceNotCreatedException;
+import eu.unicore.services.InitParameters;
+import eu.unicore.services.Resource;
+import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.ws.impl.WSResourceHomeImpl;
 
 /**

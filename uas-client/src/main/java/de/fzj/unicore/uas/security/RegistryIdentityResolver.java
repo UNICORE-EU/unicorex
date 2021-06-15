@@ -9,10 +9,9 @@ import java.io.IOException;
 import org.oasisOpen.docs.wsrf.sg2.EntryType;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
-import de.fzj.unicore.wsrflite.xmlbeans.client.IRegistryQuery;
-
 import eu.unicore.security.wsutil.client.authn.CachingIdentityResolver;
+import eu.unicore.services.ws.WSUtilities;
+import eu.unicore.services.ws.client.IRegistryQuery;
 
 /**
  * Extension of the {@link CachingIdentityResolver} which also searches in configured registry 

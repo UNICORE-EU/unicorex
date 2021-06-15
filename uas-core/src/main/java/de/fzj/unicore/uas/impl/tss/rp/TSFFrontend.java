@@ -62,14 +62,14 @@ import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
 import de.fzj.unicore.uas.impl.bp.BPSupportImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.BaseFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceNotDestroyedFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnavailableFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.ResourceUnknownFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.TerminationTimeChangeRejectedFault;
-import de.fzj.unicore.wsrflite.xmlbeans.exceptions.UnableToSetTerminationTimeFault;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ContainerProperties;
+import eu.unicore.services.ws.BaseFault;
+import eu.unicore.services.ws.exceptions.ResourceNotDestroyedFault;
+import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
+import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
+import eu.unicore.services.ws.exceptions.TerminationTimeChangeRejectedFault;
+import eu.unicore.services.ws.exceptions.UnableToSetTerminationTimeFault;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**

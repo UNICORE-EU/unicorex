@@ -8,7 +8,7 @@ import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.unigrids.x2006.x04.services.fts.ScheduledStartTimeDocument;
 
 import de.fzj.unicore.uas.fts.ServerToServerFileTransferImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 
 /**

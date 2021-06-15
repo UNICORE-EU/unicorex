@@ -24,9 +24,9 @@ import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.client.TaskClient;
 import de.fzj.unicore.uas.util.MockMetadataManager;
-import de.fzj.unicore.wsrflite.ContainerProperties;
-import de.fzj.unicore.wsrflite.xmlbeans.client.RegistryClient;
-import de.fzj.unicore.wsrflite.xmlbeans.sg.Registry;
+import eu.unicore.services.ContainerProperties;
+import eu.unicore.services.ws.client.RegistryClient;
+import eu.unicore.services.ws.sg.Registry;
 
 /**
  * runs some tests on the metadata support

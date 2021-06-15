@@ -46,8 +46,8 @@ import de.fzj.unicore.uas.ft.http.AccessURLDocument;
 import de.fzj.unicore.uas.fts.FileTransfer;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressRenderer;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.AddressRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * WSRF frontend for FileTransfer

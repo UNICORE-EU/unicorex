@@ -24,7 +24,7 @@ import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
-import de.fzj.unicore.wsrflite.Resource;
+import eu.unicore.services.Resource;
 import eu.unicore.util.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;

@@ -33,7 +33,7 @@
 
 package de.fzj.unicore.uas.impl.job;
 
-import de.fzj.unicore.wsrflite.Resource;
+import eu.unicore.services.Resource;
 import eu.unicore.services.ws.impl.WSResourceHomeImpl;
 
 public class JobManagementHomeImpl extends WSResourceHomeImpl{

@@ -41,13 +41,13 @@ import org.unigrids.services.atomic.types.ProtocolType;
 
 import de.fzj.unicore.uas.util.MessageWriter;
 import de.fzj.unicore.uas.util.UnitParser;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import eu.unicore.jsdl.extensions.IgnoreFailureDocument;
 import eu.unicore.jsdl.extensions.InlineDataDocument;
 import eu.unicore.jsdl.extensions.ResourceRequestDocument;
 import eu.unicore.jsdl.extensions.UserCmdType;
 import eu.unicore.jsdl.extensions.UserPostCommandDocument;
 import eu.unicore.jsdl.extensions.UserPreCommandDocument;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.Log;
 
 /**

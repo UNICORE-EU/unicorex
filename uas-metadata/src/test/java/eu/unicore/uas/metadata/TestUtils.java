@@ -1,21 +1,26 @@
 package eu.unicore.uas.metadata;
 
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.TestConfigUtil;
-import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import org.apache.tika.metadata.Metadata;
-import java.util.Map;
-import java.util.HashMap;
-import org.apache.lucene.document.Document;
-import java.io.IOException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.lucene.document.Document;
+import org.apache.tika.metadata.Metadata;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
-
-import static org.junit.Assert.*;
+import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.security.TestConfigUtil;
 
 public class TestUtils {
 

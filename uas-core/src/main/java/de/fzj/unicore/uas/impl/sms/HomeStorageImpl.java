@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.impl.sms;
 
-import de.fzj.unicore.wsrflite.InitParameters;
+import eu.unicore.services.InitParameters;
 
 /**
  * Represents a HOME storage. The storage root is the current user's 

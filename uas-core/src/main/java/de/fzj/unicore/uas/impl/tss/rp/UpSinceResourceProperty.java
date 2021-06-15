@@ -34,8 +34,8 @@ package de.fzj.unicore.uas.impl.tss.rp;
 
 import org.unigrids.services.atomic.types.UpSinceDocument;
 
-import de.fzj.unicore.wsrflite.Resource;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.Resource;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * publish the time at which a resource was created

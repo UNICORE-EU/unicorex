@@ -3,7 +3,7 @@ package de.fzj.unicore.uas.fts.ws;
 import org.unigrids.x2006.x04.services.fts.SizeDocument;
 
 import de.fzj.unicore.uas.fts.FileTransferImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * size of the file to export

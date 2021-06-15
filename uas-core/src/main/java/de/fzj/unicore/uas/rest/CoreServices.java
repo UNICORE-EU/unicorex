@@ -10,11 +10,11 @@ import javax.ws.rs.core.Application;
 
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.registry.LocalRegistryClient;
-import de.fzj.unicore.wsrflite.registry.ServiceRegistryImpl;
-import de.fzj.unicore.wsrflite.xmlbeans.registry.RegistryHandler;
 import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.registry.LocalRegistryClient;
+import eu.unicore.services.registry.RegistryHandler;
+import eu.unicore.services.registry.ServiceRegistryImpl;
 import eu.unicore.services.rest.USERestApplication;
 import eu.unicore.util.Log;
 

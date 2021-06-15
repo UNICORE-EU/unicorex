@@ -14,10 +14,10 @@ import org.oasisOpen.docs.wsrf.sg2.EntryType;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.json.JSONUtil;
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
 import eu.unicore.client.Endpoint;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

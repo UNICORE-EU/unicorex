@@ -48,11 +48,11 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
-import de.fzj.unicore.wsrflite.InitParameters;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.security.Client;
+import eu.unicore.services.InitParameters;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**

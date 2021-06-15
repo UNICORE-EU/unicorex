@@ -5,9 +5,8 @@ import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
 import org.unigrids.x2006.x04.services.fts.SizeDocument;
 import org.unigrids.x2006.x04.services.fts.StatusDocument;
 import org.unigrids.x2006.x04.services.fts.SummaryType;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
-
 import org.unigrids.x2006.x04.services.fts.TransferredBytesDocument;
+import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;

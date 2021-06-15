@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.FileSystemDocument;
 
-import de.fzj.unicore.wsrflite.Kernel;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsStorageInfo;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
 
 /**
  * provides information about the storage backed by a filesystem

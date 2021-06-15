@@ -19,8 +19,7 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TSFModel;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.json.JSONUtil;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.utils.UnitParser;
+import de.fzj.unicore.uas.util.UnitParser;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
@@ -28,6 +27,7 @@ import eu.unicore.security.Client;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.Log;
 
 /**

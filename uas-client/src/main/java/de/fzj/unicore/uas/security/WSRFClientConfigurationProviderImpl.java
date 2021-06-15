@@ -8,14 +8,14 @@ import java.util.Map;
 
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.wsrflite.xmlbeans.WSUtilities;
-import de.fzj.unicore.wsrflite.xmlbeans.client.IRegistryQuery;
 import eu.unicore.security.wsutil.client.authn.AuthenticationProvider;
 import eu.unicore.security.wsutil.client.authn.CachingIdentityResolver;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProviderImpl;
 import eu.unicore.security.wsutil.client.authn.DelegationSpecification;
 import eu.unicore.security.wsutil.client.authn.SecuritySessionPersistence;
 import eu.unicore.security.wsutil.client.authn.ServiceIdentityResolver;
+import eu.unicore.services.ws.WSUtilities;
+import eu.unicore.services.ws.client.IRegistryQuery;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

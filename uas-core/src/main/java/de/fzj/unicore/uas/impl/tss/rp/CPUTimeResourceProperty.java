@@ -39,10 +39,10 @@ import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
 
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.uas.xnjs.XNJSResource;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.ValueRenderer;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.renderers.ValueRenderer;
 
 /**
  * represents the Runtime on a TargetSystem resource<br>

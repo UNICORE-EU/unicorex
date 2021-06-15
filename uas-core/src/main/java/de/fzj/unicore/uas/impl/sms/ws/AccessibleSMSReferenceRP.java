@@ -41,11 +41,11 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryImpl;
-import de.fzj.unicore.wsrflite.Home;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
-import de.fzj.unicore.wsrflite.xmlbeans.XmlRenderer.Internal;
-import de.fzj.unicore.wsrflite.xmlbeans.renderers.AddressListRenderer;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.ws.XmlRenderer.Internal;
+import eu.unicore.services.ws.renderers.AddressListRenderer;
 
 /**
  * Generates filtered set of references to Storage Management Services 

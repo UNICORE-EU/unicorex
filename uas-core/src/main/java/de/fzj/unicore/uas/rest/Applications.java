@@ -17,12 +17,12 @@ import org.json.JSONObject;
 
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.wsrflite.Kernel;
-import de.fzj.unicore.wsrflite.security.util.AuthZAttributeStore;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.security.Client;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.impl.RESTRendererBase;
+import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
 

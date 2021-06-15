@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 
-import de.fzj.unicore.wsrflite.utils.Utilities;
+import eu.unicore.services.utils.Utilities;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.idb.Incarnation;

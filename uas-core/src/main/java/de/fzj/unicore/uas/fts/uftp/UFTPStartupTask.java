@@ -6,7 +6,7 @@ package de.fzj.unicore.uas.fts.uftp;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.wsrflite.Kernel;
+import eu.unicore.services.Kernel;
 import eu.unicore.util.Log;
 
 /**
