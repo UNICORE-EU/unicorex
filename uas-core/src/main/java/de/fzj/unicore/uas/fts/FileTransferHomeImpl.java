@@ -38,7 +38,7 @@ import de.fzj.unicore.uas.fts.http.FileServlet;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Resource;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
-import eu.unicore.services.ws.impl.WSResourceHomeImpl;
+import eu.unicore.services.impl.DefaultHome;
 import eu.unicore.util.Log;
 
 /**
@@ -49,7 +49,7 @@ import eu.unicore.util.Log;
  *
  * @author schuller
  */
-public class FileTransferHomeImpl extends WSResourceHomeImpl {
+public class FileTransferHomeImpl extends DefaultHome {
 
 	//the actual protocol to be used is passed via this thread-local
 	private final ThreadLocal<String>protocolT=new ThreadLocal<String>();

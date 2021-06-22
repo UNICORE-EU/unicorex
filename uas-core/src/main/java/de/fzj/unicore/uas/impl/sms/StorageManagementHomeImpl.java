@@ -40,7 +40,7 @@ import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Resource;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
-import eu.unicore.services.ws.impl.WSResourceHomeImpl;
+import eu.unicore.services.impl.DefaultHome;
 
 /**
  * Storage service home. Depending on the passed-in init parameters, different
@@ -48,7 +48,7 @@ import eu.unicore.services.ws.impl.WSResourceHomeImpl;
  * 
  * @author schuller
  */
-public class StorageManagementHomeImpl extends WSResourceHomeImpl {
+public class StorageManagementHomeImpl extends DefaultHome {
 	
 	/**
 	 * the types of storages</br>
@@ -68,6 +68,10 @@ public class StorageManagementHomeImpl extends WSResourceHomeImpl {
 	protected Resource doCreateInstance(InitParameters initObjs) throws Exception {
 		String clazz = initObjs.resourceClassName;
 		return(Resource)(Class.forName(clazz).getConstructor().newInstance());
+	}
+	
+	protected Resource doCreateInstance() throws Exception {
+		throw new IllegalStateException();
 	}
 	
 	@Override

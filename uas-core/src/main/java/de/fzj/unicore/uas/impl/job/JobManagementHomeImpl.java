@@ -34,9 +34,9 @@
 package de.fzj.unicore.uas.impl.job;
 
 import eu.unicore.services.Resource;
-import eu.unicore.services.ws.impl.WSResourceHomeImpl;
+import eu.unicore.services.impl.DefaultHome;
 
-public class JobManagementHomeImpl extends WSResourceHomeImpl{
+public class JobManagementHomeImpl extends DefaultHome {
 	
 	@Override
 	protected Resource doCreateInstance() {

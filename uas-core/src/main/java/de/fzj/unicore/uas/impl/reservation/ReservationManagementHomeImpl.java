@@ -33,13 +33,13 @@
 
 package de.fzj.unicore.uas.impl.reservation;
 
-import eu.unicore.services.ws.impl.WSResourceHomeImpl;
-import eu.unicore.services.ws.impl.WSResourceImpl;
+import eu.unicore.services.Resource;
+import eu.unicore.services.impl.DefaultHome;
 
-public class ReservationManagementHomeImpl extends WSResourceHomeImpl{
+public class ReservationManagementHomeImpl extends DefaultHome {
 	
 	@Override
-	protected WSResourceImpl doCreateInstance() {
+	protected Resource doCreateInstance() {
 		return new ReservationManagementImpl();
 	}
 

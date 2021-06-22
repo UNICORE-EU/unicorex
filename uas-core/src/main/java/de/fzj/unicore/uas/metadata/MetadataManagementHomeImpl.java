@@ -35,16 +35,20 @@ package de.fzj.unicore.uas.metadata;
 
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.ws.impl.WSResourceHomeImpl;
-import eu.unicore.services.ws.impl.WSResourceImpl;
+import eu.unicore.services.Resource;
+import eu.unicore.services.impl.DefaultHome;
 
-public class MetadataManagementHomeImpl extends WSResourceHomeImpl{
+public class MetadataManagementHomeImpl extends DefaultHome {
 	
 	@Override
-	protected WSResourceImpl doCreateInstance(InitParameters initobjs) {
+	protected Resource doCreateInstance(InitParameters initobjs) {
 		return createMetaImpl(initobjs.resourceClassName);
 	}
 
+	@Override
+	protected Resource doCreateInstance() {
+		return createMetaImpl(null);
+	}
 	
 	/**
 	 * Creates a subclass of {@link BaseMetadataManagementImpl} from the given class name<br/>
