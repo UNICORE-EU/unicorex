@@ -124,7 +124,7 @@ or only "Nodes".
 
  - +TotalCPUs+ : The total number of CPUs (integer)
 
- - +Memory+ : The amount of memory per node in bytes (integer). You can use the usual units
+ - +MemoryPerNode+ (or just +Memory+) : The amount of memory per node in bytes (integer). You can use the usual units
    ("k", "M", G"), e.g. "128G"
 
  - +NodeConstraints+ : Identifiers for requesting specific node types
@@ -181,8 +181,10 @@ generic resource elements shown in the previous section. Therefore
 UNICORE allows to define custom system settings and allow users to
 request these in their UNICORE jobs.
 
+Custom resources have a name, and a short specification including their
+type and range and/or allowed values.
 
-UNICORE/X will send these to the TSI in upper case,
+UNICORE/X will send such resource requests to the TSI in upper case,
 with a "#TSI_SSR_" prefix, e.g.
 
 ------------------
@@ -194,6 +196,39 @@ with a "#TSI_SSR_" prefix, e.g.
 
 ------------------
 
+Custom resource definitions support the following fields:
+
+ - +Type+          : int (default), double, string, choice or boolean
+ - +Range+         : ('int', 'float') allowed range of the form "lower-upper"
+ - +Default+       : optional default value
+ - +AllowedValues+ : (for 'choice') list of strings 
+ - +Description+   : optional description
+
+Here are a few examples:
+
+------------------
+ "LicenseKey" : {
+  "Type": "String"
+ }
+ 
+ "UserSupportClass" : {
+  "Type": "CHOICE",
+  "AllowedValues" : ["bronze", "silver", "gold"],
+  "Default": "bronze"
+ }
+
+ "ReservedBandwidth" : {
+  "Type": "int",
+  "Range" "1-100",
+ }
+------------------
+
+For "int" resources, you can alternatively use the abbreviated definition, as shown above
+for the standard resources (such as 'Nodes'). For example
+
+------------------
+ "FPGAs" : "0-1024"
+------------------
 
 ==== Script templates
 
@@ -275,7 +310,7 @@ target system properties.
 |TotalCPUs                      | #TSI_TOTAL_PROCESSORS
 |NodeConstraints                | #TSI_BSS_NODES_FILTER
 |QoS				| #TSI_QOS
-|MemoryPerNode                  | #TSI_MEMORY
+|MemoryPerNode (or Memory)	| #TSI_MEMORY
 2+^e| 
 |ArraySize                      | #TSI_ARRAY
 |ArrayLimit                     | #TSI_ARRAY_LIMIT

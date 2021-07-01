@@ -262,6 +262,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	public Resource createResource(String name, JSONObject doc)
 			throws JSONException {
 		Resource resource;
+		if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
 		
 		String description = doc.optString("Description", null);
 		String valueSpec = doc.optString("Range", "0-1");
@@ -317,6 +318,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
 	public Resource createIntResource(String name, String valueSpec)
 			throws JSONException {
+		if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
 		
 		String min = null, max = null;
 		

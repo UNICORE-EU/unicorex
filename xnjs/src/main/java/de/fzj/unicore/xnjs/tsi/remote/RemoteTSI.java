@@ -225,7 +225,10 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	}
 
 	private TSIConnection getConnection() throws TSIUnavailableException {
-		return factory.getTSIConnection(user, group, preferredHost, timeout);
+		lastUsedTSIHost = "n/a";
+		TSIConnection c = factory.getTSIConnection(user, group, preferredHost, timeout);
+		lastUsedTSIHost = c.getTSIHostName();
+		return c;
 	}
 
 	private String doTSICommand(String tsiCmd)throws ExecutionException{
@@ -245,14 +248,13 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		try(TSIConnection c = getConnection()){
 			res = c.send(tsiCmd);
 			if(!res.contains("TSI_OK")){
-				String msgShort="Command execution on TSI failed. Reply was: \n"+res;
+				String msgShort="Command execution on TSI <"+lastUsedTSIHost+"> failed. Reply was: \n"+res;
 				ErrorCode err = new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, msgShort);
 				throw new ExecutionException(err);
 			}
-			lastUsedTSIHost = c.getTSIHostName();
 		}
 		catch(IOException ioe){
-			String msgShort = Log.createFaultMessage("Command execution on TSI failed.",ioe);
+			String msgShort = Log.createFaultMessage("Command execution on TSI <"+lastUsedTSIHost+"> failed.",ioe);
 			ErrorCode err = new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION, msgShort);
 			throw new ExecutionException(err);
 		}

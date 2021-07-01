@@ -245,7 +245,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	@Override
 	public void done(TSIConnection connection){
 		try{
-			if(connection!=null && !connection.isClosed()){
+			if(connection!=null && !connection.isShutdown()){
 				connection.endUse();
 				synchronized (pool){
 					AtomicInteger count = connectionCounter.get(connection.getTSIHostName());

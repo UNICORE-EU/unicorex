@@ -11,64 +11,22 @@ import os
 import re
 import socket
 import sys
-import ACL, BecomeUser, BSS, Connector, Local, Reservation, Server, SSL, IO, Utils
+import ACL, BecomeUser, BSS, Connector, Local, Log, Reservation, Server, SSL, IO, Utils
 
 #
 # the TSI version
 #
-MY_VERSION = "8.0.0"
+MY_VERSION = "8.2.0"
 
 # supported Python versions
-REQUIRED_VERSION = (2, 7, 5)
-REQUIRED_VERSION_3 = (3, 4, 0)
+REQUIRED_VERSION = (3, 4, 0)
 
 
 def assert_version():
     """
-    Checks that the Python version is correct.
+    Checks that the Python version is correct
     """
-    ver = sys.version_info
-    if Utils.have_p3:
-        return ver >= REQUIRED_VERSION_3
-    else:
-        return ver >= REQUIRED_VERSION
-
-
-def get_startup_logger():
-    """ Logger used during the startup phase - will log to stdout """
-    LOG = logging.getLogger("tsi.startup")
-    LOG.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    LOG.handlers = [ch]
-    return LOG
-
-
-def get_worker_logger(config):
-    """
-    Logger used by a TSI worker
-    """
-    number = config.get('tsi.worker.id', 1)
-    return logging.getLogger("tsi.worker." + str(number))
-
-
-def read_logging_config(config, LOG):
-    """ Read logging subsystem config from file """
-    log_config = config.get('tsi.logging_configuration', None)
-    if log_config is None:
-        LOG.info("No logging configuration set, continuing to log to console.")
-    else:
-        LOG.info("Reading logging configuration from %s " % log_config)
-        from ast import literal_eval
-        with open(log_config, 'r') as infile:
-            configuration = literal_eval(infile.read())
-            if type(configuration) is dict:
-                logging.config.dictConfig(configuration)
-            else:
-                logging.config.fileConfig(log_config)
+    return sys.version_info >= REQUIRED_VERSION
 
 
 def setup_defaults(config):
@@ -84,9 +42,11 @@ def setup_defaults(config):
     config['tsi.fail_on_invalid_gids'] = False
     config['tsi.use_id_to_resolve_gids'] = False
     config['tsi.debug'] = 0
+    config['tsi.use_syslog'] = False
     config['tsi.worker.id'] = 1
     config['tsi.njs_machine'] = 'localhost'
     config['tsi.safe_dir'] = '/tmp'
+
 
 def process_config_value(key, value, config, LOG):
     """
@@ -95,18 +55,14 @@ def process_config_value(key, value, config, LOG):
     """
     boolean_keys = ['tsi.enforce_os_gids',
             'tsi.fail_on_invalid_gids',
-            'tsi.use_id_to_resolve_gids'
+            'tsi.use_id_to_resolve_gids',
+            'tsi.use_syslog',
+            'tsi.debug'
     ]
     for bool_key in boolean_keys:
         if bool_key == key:
-            if 'true' == value:
-                config[key] = True
-            elif 'false' == value:
-                config[key] = False
-            else:
-                raise KeyError("Invalid value '%s' for parameter '%s', "
-                               "must be 'true' or 'false'" % (value, key))
-
+            config[key] = value.lower() in ["1", "true"]
+            return
     if key.startswith('tsi.acl'):
         if 'NONE' == value or 'POSIX' == value or 'NFS' == value:
             path = key[8:]
@@ -130,23 +86,15 @@ def setup_acl(config, LOG):
     """
     Configures the ACL settings
     """
-    config['tsi.acl_enabled'] = True
-    if config.get('tsi.getfacl') is not None and config.get(
-            'tsi.setfacl') is not None:
-        cmd = config['tsi.getfacl']
-        (success, __output) = Utils.run_command("%s /" % cmd)
-        config['tsi.posixacl_enabled'] = success
-        config['tsi.acl_enabled'] = success
-        if not success:
-            LOG.info("POSIX ACL support disabled (command '%s' not found!)" % cmd)
-            config['tsi.getfacl'] = '/bin/false'
-            config['tsi.setfacl'] = '/bin/false'
+    if config.get('tsi.getfacl_cmd') is not None and config.get(
+            'tsi.setfacl_cmd') is not None:
+        config['tsi.posixacl_enabled'] = True
     else:
         config['tsi.posixacl_enabled'] = False
         LOG.info("POSIX ACL support disabled (commands not configured)")
 
-    if config.get('tsi.nfs_getfacl') is not None and config.get(
-            'tsi.nfs_setfacl') is not None:
+    if config.get('tsi.nfs_getfacl_cmd') is not None and config.get(
+            'tsi.nfs_setfacl_cmd') is not None:
         config['tsi.nfsacl_enabled'] = True
     else:
         config['tsi.nfsacl_enabled'] = False
@@ -339,23 +287,24 @@ def main(argv=None):
     if not assert_version():
         raise RuntimeError("Unsupported version of Python! "
                            "Must be %s or later." % str(REQUIRED_VERSION))
-    LOG = get_startup_logger()
+    LOG = Log.Logger("TSI-startup")
     if argv is None:
         argv = sys.argv
     if len(argv) < 2:
         raise RuntimeError("Please specify the config file!")
     config_file = argv[1]
     config = read_config_file(config_file, LOG)
+    verbose = config['tsi.debug']
+    LOG.reinit("TSI-main", verbose)
     bss = BSS.BSS()
     LOG.info("Starting TSI for " + bss.get_variant())
-    read_logging_config(config, LOG)
-    LOG = logging.getLogger("tsi.main")
     BecomeUser.initialize(config, LOG)
     os.chdir(config.get('tsi.safe_dir','/tmp'))
     bss.init(config, LOG)
     config['tsi.bss'] = bss
     (command, data) = Server.connect(config, LOG)
-    LOG = get_worker_logger(config)
+    number = config.get('tsi.worker.id', 1)
+    LOG.reinit("TSI-worker-%s" % str(number), verbose)
     LOG.info("Worker started.")
     connector = Connector.Connector(command, data, LOG)
     process(connector, config, LOG)

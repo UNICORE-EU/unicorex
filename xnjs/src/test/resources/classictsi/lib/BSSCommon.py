@@ -40,8 +40,7 @@ class BSSBase(object):
             if config.get(key) is None:
                 value = self.defaults[key]
                 config[key] = value
-                LOG.info("Parameter not set: '%s', will use default '%s'",
-                         key, value)
+                LOG.info("Using default: '%s' = '%s'" % (key, value))
         # check if BSS commands are accessible
         if config.get('tsi.testing') is not True:
             (success, output) = Utils.run_command(config['tsi.qstat_cmd'])
@@ -94,18 +93,23 @@ class BSSBase(object):
 
         if "normal" == job_mode:
             submit_cmds = self.create_submit_script(message, config, LOG)
-            submit_cmds.append(uspace_dir + "/" + userjob_file_name)
-            submit_file_name = "bss_submit_%s" % submit_id
-            with open(submit_file_name, "w") as submit:
-                for line in submit_cmds:
-                    submit.write(line + u"\n")
-                Utils.addperms(submit_file_name, 0o770)
         elif "raw" == job_mode:
-            submit_file_name = Utils.extract_parameter(message, "JOB_FILE", "NONE")
-
+            raw_cmds_file_name = Utils.extract_parameter(message, "JOB_FILE")
+            if raw_cmds_file_name is None:
+                connector.failed("Job mode 'raw' requires TSI_JOB_FILE")
+                return
+            with open(raw_cmds_file_name, "r") as f:
+                submit_cmds = [f.read()]
         else:
             connector.failed("Illegal job mode: %s " % job_mode)
             return
+        
+        submit_cmds.append(uspace_dir + "/" + userjob_file_name)
+        submit_file_name = "bss_submit_%s" % submit_id
+        with open(submit_file_name, "w") as submit:
+            for line in submit_cmds:
+                submit.write(line + u"\n")
+        Utils.addperms(submit_file_name, 0o770)
         
         # now run the job submission command
         cmd = config['tsi.submit_cmd'] + " ./" + submit_file_name
@@ -121,11 +125,16 @@ class BSSBase(object):
             else:
                 connector.failed("Submit failed? Submission result:" + reply)
 
+    def get_extract_id_expr(self):
+        """ regular expression for extracting the job ID after batch submit """
+        return r"\D*(\d+)\D*"
+
     def extract_job_id(self, submit_result):
         """ extracts the job ID after submission to the BSS """
         # expect "<blah>NNN<blah> ...", extract the 'NNN'
         job_id = None
-        m = re.search(r"\D*(\d+)\D*", submit_result)
+        expr = self.get_extract_id_expr()
+        m = re.search(expr, submit_result)
         if m is not None:
             job_id = m.group(1)
         return job_id
@@ -171,10 +180,36 @@ class BSSBase(object):
         result = self.parse_status_listing(qstat_output)
         connector.write_message(result)
 
+    def parse_job_details(self, raw_info):
+        """ Converts the raw job info into a dictionary """
+        result = {}
+        try:
+            tokens = re.compile("\s+").split(raw_info.strip())
+            for t in tokens:
+                try:
+                    kv = t.split("=",1)
+                    result[kv[0]] = kv[1]
+                except:
+                    pass
+        except:
+            result['errorMessage'] = "Could not parse BSS job details"
+            result['BSSJobDetails'] = raw_info
+        return result
+
     def get_job_details(self, message, connector, config, LOG):
         bssid = Utils.extract_parameter(message, "BSSID")
         cmd = config["tsi.details_cmd"] + " " + bssid
-        Utils.run_and_report(cmd, connector)
+        (success, output) = Utils.run_command(cmd)
+        if not success:
+            connector.failed(output)
+            return
+        result = self.parse_job_details(output)
+        try:
+            import json
+            out = json.dumps(result)
+        except:
+            out = str(result)
+        connector.ok("%s\n" % out)
 
     def abort_job(self, message, connector, config, LOG):
         bssid = Utils.extract_parameter(message, "BSSID")
@@ -192,9 +227,8 @@ class BSSBase(object):
         Utils.run_and_report(cmd, connector)
 
     def get_budget(self, message, connector, config, LOG):
-        """ Gets the remaining compute time for the
-        current user on this resource in core-hours.
-        Returns "-1" if not available or applicable.
+        """ Gets the remaining compute time for the current user 
+        on this resource. See Quota.get_quota() for details.
         """
         quota = Quota.get_quota(config, LOG)
         connector.ok("%s\n" % quota)

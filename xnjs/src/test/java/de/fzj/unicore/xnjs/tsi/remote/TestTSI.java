@@ -33,6 +33,7 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -412,7 +413,7 @@ public class TestTSI extends LegacyTSITestCase{
 	}
 
 	@Test
-	// test this here because it Link requires a UNICORE TSI
+	// test this here because Link requires a UNICORE TSI
 	public void testLink() throws Exception {
 		Client c = new Client();
 		c.setXlogin(new Xlogin(new String[]{"nobody"}));
@@ -453,6 +454,30 @@ public class TestTSI extends LegacyTSITestCase{
 		Assert.assertEquals(c.getTimeInMillis(), rs.getStartTime().getTimeInMillis());
 		Assert.assertNull(rs.getDescription());
 	}
+	
+	@Test
+	public void testTimeoutHandling()throws Exception {
+		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
+		assertNotNull(f);
+		TSIConnection c = f.getTSIConnection("nobody", null,"localhost",-1);
+		try {
+			InetAddress localhost=InetAddress.getByName("localhost");
+			assertEquals(localhost,c.getTSIAddress());
+			c.setSocketTimeouts(3000, false);
+			ExecutionContext ec = new ExecutionContext("123");
+			IDB idb = xnjs.get(IDB.class);
+			String message = TSIUtils.makeExecuteScript("sleep 10", ec, idb, null);
+			c.sendNoUser(message);
+		}catch(IOException ex) {
+			assertTrue(ex.getMessage().contains("TSI <localhost>"));
+			assertTrue(c.isShutdown());
+			assertFalse(c.getConnector().isOK());
+		}finally {
+			c.close();
+		}
+		
+	}
+
 	
 	private void writeFile(String path, String content)throws Exception{
 		OutputStreamWriter osw=null;

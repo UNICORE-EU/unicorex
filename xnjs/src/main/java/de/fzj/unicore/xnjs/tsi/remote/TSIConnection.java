@@ -212,12 +212,12 @@ public class TSIConnection implements AutoCloseable {
 		return command != null && command.isAlive();
 	}
 
-	private boolean closed = false;
+	private boolean shutDown = false;
 
 
 	private void done() {
 		setIdLine("");
-		if(closed ){
+		if(shutDown ){
 			return;
 		}
 		factory.done(this);
@@ -245,16 +245,16 @@ public class TSIConnection implements AutoCloseable {
 	 * The TSIConnection is no longer required or is unusable.
 	 */
 	public void shutdown() {
-		if(closed)return;
+		if(shutDown)return;
 		logger.debug("Connection {} shutdown.", getConnectionID());
-		closed = true;
+		shutDown = true;
 		command.die();
 		data.die();
 		factory.notifyConnectionDied();
 	}
 
-	public boolean isClosed() {
-		return closed;
+	public boolean isShutdown() {
+		return shutDown;
 	}
 	
 	public String toString(){
@@ -353,8 +353,9 @@ public class TSIConnection implements AutoCloseable {
 				output.flush();
 			} catch (Exception ex) {
 				shutdown();
+				connector.notOK("Error sending request: "+ex.getMessage());
 				IOException ioex = new IOException(
-						"Failure sending data to the TSI");
+						"Failure sending data to the TSI <"+connector.getHostname()+">");
 				ioex.initCause(ex);
 				throw ioex;
 			}
@@ -367,8 +368,9 @@ public class TSIConnection implements AutoCloseable {
 				}
 			}catch(Exception e){
 				shutdown();
+				connector.notOK("Error reading reply data: "+e.getMessage());
 				IOException ioex = new IOException(
-						"Failure reading reply data from the TSI");
+						"Failure reading reply data from the TSI <"+connector.getHostname()+">");
 				ioex.initCause(e);
 				throw ioex;
 			}
@@ -589,5 +591,9 @@ public class TSIConnection implements AutoCloseable {
 
 	String getConnectionID(){
 		return connectionID;
+	}
+
+        TSIConnector getConnector() {
+		return connector;
 	}
 }

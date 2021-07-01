@@ -41,7 +41,7 @@
 				},
 				"CPUsPerNode" : "1-64:2",
 				"TotalCPUs" : "1-64",
-				"MemoryPerNode" : "4G-8G",
+				"Memory" : "4G-8G",
 	    	},
 		},
 	},

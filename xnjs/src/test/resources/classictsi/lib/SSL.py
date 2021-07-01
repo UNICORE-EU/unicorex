@@ -12,29 +12,17 @@ def setup_ssl(config, socket, LOG, server_mode=False):
     keystore = config.get('tsi.keystore')
     keypass = config.get('tsi.keypass')
     cert = config.get('tsi.certificate')
-    truststore = config.get('tsi.truststore')
-    try:
-        # TODO: probably it is better not to specify the protocol and instead
-        # rely on system defaults!
-        context = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
-        context.verify_mode = ssl.CERT_REQUIRED
-        context.check_hostname = False
-        context.load_cert_chain(certfile=cert, keyfile=keystore,
-                                password=keypass)
+    truststore = config.get('tsi.truststore', None)
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    context.verify_mode = ssl.CERT_REQUIRED
+    context.check_hostname = False
+    context.load_cert_chain(certfile=cert, keyfile=keystore,
+                            password=keypass)
+    if truststore:
         context.load_verify_locations(cafile=truststore)
-        wrapped = context.wrap_socket(socket, server_side=server_mode)
-    except AttributeError:
-        # Python pre 2.7.9 does not have the SSLContext
-        wrapped = ssl.wrap_socket(socket,
-                                  cert_reqs=ssl.CERT_REQUIRED,
-                                  keyfile=keystore,
-                                  certfile=cert,
-                                  server_side=server_mode,
-                                  ssl_version=ssl.PROTOCOL_TLSv1,
-                                  ca_certs=truststore,
-                                  ciphers=None)
-    return wrapped
-
+    else:
+        context.load_default_certs(purpose=Purpose.SERVER_AUTH)
+    return context.wrap_socket(socket, server_side=server_mode)
 
 rdn_map = {"C": "countryName",
            "CN": "commonName",
@@ -59,7 +47,7 @@ def convert_dn(dn):
     """ Convert X500 DN in RFC format to a tuple """
     converted = []
     # split dn and strip leading/trailing whitespace
-    elements = [x.strip() for x in re.split(r"[,/]", dn)]
+    elements = [x.strip() for x in re.split(r"[,]", dn)]
     for element in elements:
         if element != '':
             rdn = convert_rdn(element)
