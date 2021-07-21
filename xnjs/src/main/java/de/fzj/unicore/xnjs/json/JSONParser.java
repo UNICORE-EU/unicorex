@@ -64,10 +64,13 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 			app.setRunOnLoginNode(true);
 			app.setPreferredLoginNode(source.optString("Login node", null));
 		}
-		if("RAW".equalsIgnoreCase(jobType)) {
+		else if("RAW".equalsIgnoreCase(jobType)) {
 			String file = source.optString("BSS file", null);
 			if(file==null)throw new Exception("Job type 'raw' requires 'BSS file'");
 			app.setRawBatchFile(file);
+		}
+		else if(!"NORMAL".equalsIgnoreCase(jobType)) {
+			throw new IllegalArgumentException("Unknown value for 'Job type'");
 		}
 		
 		app.setStdout(source.optString("Stdout",null));
@@ -75,6 +78,10 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		app.setStdin(source.optString("Stdin",null));
 		
 		return app;
+	}
+	
+	public String parseUmask(JSONObject job) {
+		return JSONUtils.getStringAlt(job, "Umask", "umask");
 	}
 
 	private void parseEnvironment(JSONArray j, ApplicationInfo app){
@@ -94,8 +101,8 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
 	public DataStageInInfo parseStageIn(JSONObject spec) throws Exception {
 		DataStageInInfo dsi = new DataStageInInfo();
-		String to = JSONUtils.getString(spec, "To", "file");
-		String source = JSONUtils.getString(spec, "From", "source");
+		String to = JSONUtils.getStringAlt(spec, "To", "file");
+		String source = JSONUtils.getStringAlt(spec, "From", "source");
 		dsi.setFileName(to);
 		dsi.setSources(new URI[]{new URI(source)});
 		if(source.startsWith("inline:")) {
@@ -107,8 +114,8 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 
 	public DataStageOutInfo parseStageOut(JSONObject spec) throws Exception {
 		DataStageOutInfo dso = new DataStageOutInfo();
-		String from = JSONUtils.getString(spec, "From", "file");
-		String target = JSONUtils.getString(spec, "To", "target");
+		String from = JSONUtils.getStringAlt(spec, "From", "file");
+		String target = JSONUtils.getStringAlt(spec, "To", "target");
 		dso.setFileName(from);
 		dso.setTarget(new URI(target));
 		extractDataStagingOptions(spec, dso);
@@ -116,7 +123,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	}
 	
 	public void extractDataStagingOptions(JSONObject spec, DataStagingInfo dsi) throws Exception {
-		String creation = JSONUtils.getString(spec,"Mode","overwrite");
+		String creation = JSONUtils.getOrDefault(spec, "Mode", "overwrite");
 		if("append".equalsIgnoreCase(creation)){
 			dsi.setOverwritePolicy(OverwritePolicy.APPEND);
 		}
@@ -125,10 +132,10 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		}
 		else dsi.setOverwritePolicy(OverwritePolicy.OVERWRITE);
 
-		Boolean failOnError = Boolean.parseBoolean(JSONUtils.getString(spec,"FailOnError","true"));
+		Boolean failOnError = Boolean.parseBoolean(JSONUtils.getOrDefault(spec, "FailOnError", "true"));
 		dsi.setIgnoreFailure(!failOnError);
 
-		Boolean readOnly=Boolean.parseBoolean(JSONUtils.getString(spec,"ReadOnly","false"));
+		Boolean readOnly=Boolean.parseBoolean(JSONUtils.getOrDefault(spec, "ReadOnly", "false"));
 		if(readOnly && dsi instanceof DataStageInInfo) {
 			((DataStageInInfo)dsi).setImportPolicy(ImportPolicy.PREFER_LINK);
 		}

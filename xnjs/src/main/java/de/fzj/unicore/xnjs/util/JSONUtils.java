@@ -52,13 +52,23 @@ public class JSONUtils {
 		else return defaultValue;
 	}
 
+	
+	/**
+	 * get the requested value - or null if not defined
+	 * @param obj - the json object
+	 * @param key - the key
+	 */
+	public static String getString(JSONObject obj, String key){
+		return getOrDefault(obj, key, null);
+	}
+	
 	/**
 	 * get the requested value
 	 * @param obj - the json object
 	 * @param key - the key
 	 * @param defaultValue - the default value
 	 */
-	public static String getString(JSONObject obj, String key, String defaultValue){
+	public static String getOrDefault(JSONObject obj, String key, String defaultValue){
 		try{
 			return obj.getString(key);
 		}
@@ -72,9 +82,9 @@ public class JSONUtils {
 	 * @param obj
 	 * @param keys - list of key alternatives
 	 */
-	public static String getString(JSONObject obj, String... keys){
+	public static String getStringAlt(JSONObject obj, String... keys){
 		for(String key: keys) {
-			String r = getString(obj, key, null);
+			String r = getString(obj, key);
 			if(r!=null)return r;
 		}
 		return null;

@@ -66,6 +66,7 @@ import de.fzj.unicore.uas.impl.tss.util.TSSAsynchInitialisation;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.ems.Action;
+import de.fzj.unicore.xnjs.json.JSONParser;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
@@ -134,10 +135,11 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		if(tt!=null){
 			checkAndExtendLT(tt);
 		}
-		
 		String xnjsReference = getModel().getXnjsReference();
 		Action action = XNJSFacade.get(xnjsReference, kernel).makeAction(job);
-		action.setUmask(getUmask());
+		String umask = new JSONParser().parseUmask(job);
+		if(umask == null)umask = getUmask();
+		action.setUmask(umask);
 		if(autoStartWhenReady){
 			action.getProcessingContext().put(Action.AUTO_SUBMIT, Boolean.TRUE);
 		}

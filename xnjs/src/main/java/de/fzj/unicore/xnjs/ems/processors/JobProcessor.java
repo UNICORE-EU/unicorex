@@ -149,6 +149,11 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected abstract String getJobName();
 
 	/**
+	 * extract the job umask from the job description
+	 */
+	protected abstract String getUmask();
+
+	/**
 	 * returns <code>true</code> if the job contains data stage-in
 	 */
 	protected abstract boolean hasStageIn();

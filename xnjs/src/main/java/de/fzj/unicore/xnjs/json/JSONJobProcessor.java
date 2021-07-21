@@ -69,21 +69,17 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		Client client=action.getClient();
 		ecm.getContext(action);
 		try{
-			//do an incarnation now...
 			JSONObject jd = getJobDescriptionDocument();
 			ApplicationInfo fromUser = new JSONParser().parseSubmittedApplication(jd);
 			ApplicationInfo applicationInfo = grounder.incarnateApplication(fromUser, client);
 			action.setApplicationInfo(applicationInfo);
 			updateExecutionContext(applicationInfo);
 
-			// resources
+			action.setJobName(getJobName());
+			action.setUmask(getUmask());
 			List<ResourceRequest>resourceRequest = new JSONParser().parseResourceRequest(
 					jd.optJSONObject("Resources"));
 			action.getExecutionContext().setResourceRequest(resourceRequest);
-
-			//job name
-			action.setJobName(getJobName());
-			//project
 			String requestedProject = jd.optString("Project", null);
 			if(requestedProject!=null){
 				ResourceRequest projectRequest = ResourceRequest.find(resourceRequest, ResourceSet.PROJECT);
@@ -95,7 +91,6 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 					projectRequest.setRequestedValue(requestedProject);
 				}
 			}
-
 			String email = jd.optString("User email", null);
 			Client c=action.getClient();
 			if(c!=null && email!=null)c.setUserEmail(email);
@@ -118,7 +113,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 	@Override
 	protected void setupNotifications() {
 		try {
-			String u = JSONUtils.getString(getJobDescriptionDocument(), "Notification");
+			String u = JSONUtils.getOrDefault(getJobDescriptionDocument(), "Notification", null);
 			if(u!=null) {
 				List<String> urls = new ArrayList<>();
 				urls.add(u);
@@ -136,14 +131,20 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 	protected String getJobName() {
 		String n = JSONUtils.getString(getJobDescriptionDocument(), "Name");
 		if(n==null) {
-			n = JSONUtils.getString(getJobDescriptionDocument(), "ApplicationName");
-		}
-		if(n==null) {
-			n = "UNICORE_Job";
+			n = JSONUtils.getOrDefault(getJobDescriptionDocument(), "ApplicationName", "UNICORE_Job");
 		}
 		return n;
 	}
 
+	@Override
+	protected String getUmask() {
+		String n = new JSONParser().parseUmask(getJobDescriptionDocument());
+		if(n==null) {
+			n = action.getUmask();
+		}
+		return n;
+	}
+	
 	@Override
 	protected boolean hasStageIn() {
 		JSONArray imports = getJobDescriptionDocument().optJSONArray("Imports");

@@ -53,6 +53,11 @@ public abstract class JSDLBaseProcessor extends JobProcessor<JobDefinitionDocume
 			return null;
 		}
 	}
+	
+	@Override
+	protected String getUmask() {
+		return action.getUmask();
+	}
 
 	@Override
 	protected List<DataStageInInfo> extractStageInInfo()throws Exception {
