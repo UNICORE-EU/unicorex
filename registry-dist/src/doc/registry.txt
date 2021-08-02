@@ -45,7 +45,6 @@ tar.gz and Linux packages.
 | LIB  |<basedir>/lib/     |/usr/share/unicore/registry/lib   | Java libraries
 | LOG  |<basedir>/log/     |/var/log/unicore/registry/        | Log files
 | BIN  |<basedir>/bin/     |/usr/sbin/                        | Start/stop scripts 
-| --   | --                |/etc/init.d/unicore-registry      | Init script
 |========================
 
 
@@ -92,6 +91,8 @@ configured in CONF/uas.config
 ------------------
  container.security.accesscontrol.Registry=true
 -----------------
+
+("true" by default)
 
 This will check the security policy (CONF/xacml2Policies/*.xml) for
 each request.  By default, this policy allows to add entries only for
@@ -171,10 +172,10 @@ container.wsrf.sg.defaulttermtime=1800
 
 # manually provide url and epr of the external registry
 # url:
-container.externalregistry.url=https://localhost:8080/REGISTRY/services/Registry?res=default_registry
+container.externalregistry.url=https://localhost:8080/REGISTRY/rest/registries/default_registry
 
 # optionally you can have more registries
-container.externalregistry.url.2=https://localhost:8080/REGISTRY-BACKUP/services/Registry?res=default_registry
+container.externalregistry.url.2=https://localhost:8080/REGISTRY-BACKUP/rest/registries/default_registry
 -----------------------
 
 
