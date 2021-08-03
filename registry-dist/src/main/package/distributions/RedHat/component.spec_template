@@ -22,12 +22,8 @@ in a seamless and secure way in intranets and the internet.
 This package contains the UNICORE Registry server.
 
 %changelog
-* Fri Dec 13 2013 Bernd Schuller <unicore-support@lists.sourceforge.net> 
--Updated Java dependency, prepare v7.0.0 release
-* Tue Oct 4 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
--Updated packaging, prepare v6.4.2 release
-* Sun  Feb 20 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
--Updated for 6.4.0 release
+* Tue Aug 03 2021 Bernd Schuller <unicore-support@lists.sourceforge.net> 
+-v8.2.0
 * Wed Oct 06 2010 Andre Giesler <unicore-support@lists.sourceforge.net> 
 -Initial rpm package
 
@@ -45,8 +41,8 @@ This package contains the UNICORE Registry server.
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/simpleuudb"
 %config %attr(0600 unicore unicore) "/etc/unicore/registry/uas.config"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2.config"
-%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/01registryServices.xml"
-%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/02restServices.xml"
+%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/01basicRules.xml"
+%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/30registryServices.xml"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/99finalDeny.xml"
 
 %attr(0644 unicore unicore) "/usr/lib/systemd/system/unicore-registry.service"
@@ -83,10 +79,10 @@ This package contains the UNICORE Registry server.
     -s /sbin/nologin -r -d /usr/share/unicore unicore 2>/dev/null || :
 	
 %post
-/usr/bin/systemctl enable unicore-registry.service
+systemctl enable unicore-registry.service
 
 %preun
 if [ "$1" = "0" ]; then
-    /usr/bin/systemctl stop unicore-registry.service  >/dev/null 2>&1
-    /usr/bin/systemctl disable unicore-registry.service
+    systemctl stop unicore-registry.service  >/dev/null 2>&1
+    systemctl disable unicore-registry.service
 fi

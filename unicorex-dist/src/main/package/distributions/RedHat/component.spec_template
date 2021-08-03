@@ -24,12 +24,8 @@ in a seamless and secure way in intranets and the internet.
 This package contains the UNICORE/X server.
 
 %changelog
-* Fri Sep 30 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
--Fixed init script
-* Mon Sep 5 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
--Updated packaging code to use the packman tool
-* Sun  Feb 20 2011 Bernd Schuller <unicore-support@lists.sourceforge.net> 
--Updated for 6.4.0 release
+* Tue Aug 03 2021 Bernd Schuller <unicore-support@lists.sourceforge.net> 
+-v8.2.0
 * Wed Oct 06 2010 Andre Giesler <unicore-support@lists.sourceforge.net> 
 -Initial rpm package
 
@@ -53,8 +49,8 @@ This package contains the UNICORE/X server.
 %config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/container.properties"
 %config(noreplace) %attr(0600 unicore unicore)"/etc/unicore/unicorex/xnjs.properties"
 %config %attr(0644 unicore unicore)"/etc/unicore/unicorex/xacml2.config"
-%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/01coreServices.xml"
-%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/02restServices.xml"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/01basicRules.xml"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/10coreServices.xml"
 %config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/99finalDeny.xml"
 
 %attr(0644 unicore unicore) "/usr/lib/systemd/system/unicore-unicorex.service"

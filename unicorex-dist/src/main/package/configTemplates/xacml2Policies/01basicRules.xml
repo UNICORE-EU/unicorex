@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" PolicyId="unicorePolicy:basicRules" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Description>
+    This is the access control policy containing the basic UNICORE access rules.
+    First matching rule will apply.
+     - Admins (i.e. users with a role "admin") are granted full access
+     - All clients with the role "banned" are denied
+     - Access is granted, if the owner of accessed resource is the current user
+     - Access is granted, if the check of the user-defined ACL was passed
+     - It is forbidden to destroy, set a termination time on or
+       change properties of any service
+  </Description>
+  <Target/>
+
+  <Rule RuleId="Basic:Permit:Admin" Effect="Permit">
+    <Description> Role "admin" may do anything. </Description>
+    <Target/>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="role"/>
+        </Apply>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">admin</AttributeValue>
+      </Apply>
+    </Condition>
+  </Rule>
+
+  <Rule RuleId="Basic:Deny:Banned" Effect="Deny">
+    <Description> Role "banned" is denied. </Description>
+    <Target/>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="role"/>
+        </Apply>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">banned</AttributeValue>
+      </Apply>
+    </Condition>
+  </Rule>
+
+  <Rule RuleId="Basic:Permit:ForOwner" Effect="Permit">
+    <Description> Access to any resource is granted for its owner </Description>
+    <Target/>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:x500Name-equal">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:x500Name-one-and-only">
+          <SubjectAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:subject:subject-id" DataType="urn:oasis:names:tc:xacml:1.0:data-type:x500Name" MustBePresent="true"/>
+        </Apply>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:x500Name-one-and-only">
+          <ResourceAttributeDesignator AttributeId="owner" DataType="urn:oasis:names:tc:xacml:1.0:data-type:x500Name" MustBePresent="true"/>
+        </Apply>
+      </Apply>
+    </Condition>
+  </Rule>
+
+  <Rule RuleId="Basic:Permit:ByACL" Effect="Permit">
+    <Description>Access granted for resources shared via user ACL.</Description>
+    <Target/>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <SubjectAttributeDesignator DataType="http://www.w3.org/2001/XMLSchema#string" AttributeId="aclCheckPassed"/>
+        </Apply>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">true</AttributeValue>
+      </Apply>
+    </Condition>
+  </Rule>
+
+  <Rule RuleId="Basic:Deny:ModificationsOfNotOwned" Effect="Deny">
+    <Description> Forbid modification operations on any service.
+    </Description>
+    <Target/>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Apply>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PutResourcePropertyDocument</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SetResourceProperties</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">InsertResourceProperties</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">UpdateResourceProperties</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DeleteResourceProperties</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Destroy</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SetTerminationTime</AttributeValue>
+	  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DELETE</AttributeValue>
+        </Apply>
+      </Apply>
+    </Condition>
+  </Rule>
+
+</Policy>

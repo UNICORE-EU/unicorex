@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" PolicyId="unicorePolicy:coreServices" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
+  <Description>
+    This is the default access control policy for the UNICORE/X core services.
+    Intended as part of a full set that includes the basic rules and a final DENY.
+     - Read access to the TargetSystemFactory, Enumeration and Registry is allowed 
+     for all authenticated users.
+     - The TargetSystemFactory and StorageFactory are fully accessible for 
+     all with the "user" role.     
+  	</Description>
+  <Target/>
+
+  <Rule RuleId="Core:Permit:Service_read-access" Effect="Permit">
+    <Description> Read Access to the following services:
+ Registry, TargetSystemFactory, Enumeration, StorageFactory
+ is granted for authenticated users, i.e. regardless of their role
+   </Description>
+    <Target>
+      <Resources>
+        <Resource>
+          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">Registry</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI" MustBePresent="true"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">TargetSystemFactoryService</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI" MustBePresent="true"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">Enumeration</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI" MustBePresent="true"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">StorageFactory</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI" MustBePresent="true"/>
+          </ResourceMatch>
+        </Resource>
+      </Resources>
+    </Target>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Apply>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+	  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GET</AttributeValue>
+	  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">HEAD</AttributeValue>
+	  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">OPTIONS</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GetResourcePropertyDocument</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GetResourceProperty</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">QueryResourceProperties</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GetResults</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GetFactoryAttributesDocument</AttributeValue>
+        </Apply>
+      </Apply>
+    </Condition>
+  </Rule>
+
+
+  <Rule RuleId="Core:Permit:StandardServices_for_user" Effect="Permit">
+    <Description> Full access to the TSF and SMF services is granted for users with the "user" role. 
+    </Description>
+    <Target>
+      <Resources>
+        <Resource>
+          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">TargetSystemFactoryService</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI" MustBePresent="true"/>
+          </ResourceMatch>
+        </Resource>
+        <Resource>
+          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">StorageFactory</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI" MustBePresent="true"/>
+          </ResourceMatch>
+        </Resource>
+      </Resources>
+    </Target>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <SubjectAttributeDesignator AttributeId="role" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Apply>
+        <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">user</AttributeValue>
+      </Apply>
+    </Condition>
+  </Rule>
+
+
+  <Rule RuleId="Core:Permit:Service_read-access" Effect="Permit">
+    <Description> Read access to the core REST services is granted for authenticated users </Description>
+    <Target>
+      <Resources>
+        <Resource>
+          <ResourceMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:anyURI-equal">
+            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#anyURI">core</AttributeValue>
+            <ResourceAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:resource:resource-id" DataType="http://www.w3.org/2001/XMLSchema#anyURI" MustBePresent="true"/>
+          </ResourceMatch>
+        </Resource>
+      </Resources>
+    </Target>
+    <Condition>
+      <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-one-and-only">
+          <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
+        </Apply>
+        <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GET</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">HEAD</AttributeValue>
+          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">OPTIONS</AttributeValue>
+        </Apply>
+      </Apply>
+    </Condition>
+  </Rule>
+
+
+  
+</Policy>
