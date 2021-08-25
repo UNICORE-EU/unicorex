@@ -1,32 +1,28 @@
 package de.fzj.unicore.uas.fts;
 
-import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 import org.unigrids.services.atomic.types.ProtocolType;
 
+import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.uas.xnjs.RESTFileTransferBase;
-import de.fzj.unicore.uas.xnjs.U6FileTransferBase;
 import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.io.DataStageInInfo;
-import de.fzj.unicore.xnjs.io.DataStageOutInfo;
-import de.fzj.unicore.xnjs.io.IFileTransfer;
+import de.fzj.unicore.xnjs.ems.ActionResult;
+import de.fzj.unicore.xnjs.ems.ActionStatus;
+import de.fzj.unicore.xnjs.fts.FTSInfo;
+import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
-import de.fzj.unicore.xnjs.io.TransferInfo;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
-import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.services.ws.utils.WSServerUtilities;
-import eu.unicore.util.Log;
 
 
 /**
@@ -52,14 +48,14 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 	public ServerToServerTransferModel getModel(){
 		return (ServerToServerTransferModel)super.getModel();
 	}
-	
+
 	@Override
 	public void initialise(InitParameters map) throws Exception {
 		if(model==null){
 			setModel(new ServerToServerTransferModel());
 		}
 		ServerToServerTransferModel m = getModel();
-		
+
 		super.initialise(map);
 		Map<String,String>extraParameters = m.extraParameters;
 		String startTime=extraParameters!=null ? extraParameters.get(PARAM_SCHEDULED_START) : null;
@@ -73,59 +69,9 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		}
 		m.client = AuthZAttributeStore.getClient();
 		m.overWrite = true;
-		IFileTransfer ft = createTransfer();
-		startFileTransfer(ft, false);
-	}
-	
-
-	@Override
-	public void customPostActivate() {
-		updateStatus();
-	}
-
-	protected void updateStatus() {
-		TransferInfo ft = getInfo();
-		if(ft!=null){
-			Status s=ft.getStatus();
-			if(s.equals(Status.FAILED)){
-				setStatus(STATUS_FAILED,ft.getStatusMessage());
-			}
-			else if(s.equals(Status.DONE)){
-				setStatus(STATUS_DONE,"File transfer done.");
-			}
-			else { //still running
-				setOK();
-			}
-		}
-	}
-
-	/**
-	 * check if the filetransfer should be restarted, and tries to restart
-	 * 
-	 * TODO
-	 */
-	protected void checkRestart(){
-		updateStatus();
-		ServerToServerTransferModel m = getModel();
-		
-		if(!m.isFinished()){
-			Client oldClient = AuthZAttributeStore.getClient();
-			Client client = m.client;
-			try{
-				//on restart, must use stored client
-				AuthZAttributeStore.setClient(client);
-				logger.info("Attempting to resume file transfer "+toString()+
-						(client!=null?" for "+client.getDistinguishedName():""));
-				IFileTransfer ft = createTransfer();
-				startFileTransfer(ft, true);
-			}catch(Exception ex){
-				setStatus(STATUS_FAILED, "Failed (during restart, error message: "+ex.getMessage()+")");
-				Log.logException("Attempt to restart server-to-server file transfer "+getUniqueID()+" failed", ex);
-			}
-			finally{
-				AuthZAttributeStore.setClient(oldClient);
-			}
-		}
+		Action action = createTransfer();
+		getXNJSFacade().getManager().add(action, m.client);
+		logger.info("Submitted server-to-server transfer with id {} for client {}", action.getUUID(), m.client);
 	}
 
 	@Override
@@ -133,11 +79,9 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		ServerToServerTransferModel model = getModel();
 		try{
 			if(!model.isFinished()){
-				logger.info("Aborting filetransfer "+getUniqueID()+" for client "+getClient().getDistinguishedName());
+				logger.info("Aborting filetransfer {} for client {}", getUniqueID(), getClient().getDistinguishedName());
 				String id = model.getFileTransferUID();
-				IFileTransferEngine fte = getFileTransferEngine();
-				fte.abort(id);
-				fte.cleanup(id);
+				getXNJSFacade().getManager().abort(id, getClient());
 			}
 		}
 		catch(Exception e){
@@ -149,44 +93,81 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 			m.setServiceName(getServiceName());
 			m.setDeletedResource(getUniqueID());
 			getKernel().getMessaging().getChannel(WSServerUtilities.extractResourceID(model.serviceSpec))
-				.publish(m);
+			.publish(m);
 		}
-		catch(Exception ex){
-			LogUtil.logException("Problem notifying parent SMS.",ex,logger);
-		}
+		catch(Exception ex){}
 		super.destroy();
 	}
 
-	@Override
-	public long getDataSize(){
-		TransferInfo ft = getInfo();
-		return ft!=null ? ft.getDataSize() : -1; 
-	}
-	
 	public Status getStatus(){
-		TransferInfo ft = getInfo();
-		if(ft != null){
-			return ft.getStatus();
+		int status = getXNJSAction().getStatus();
+		Status ftStatus = Status.CREATED;
+		switch (status) {
+		case ActionStatus.CREATED:
+			ftStatus = Status.CREATED;
+			break;
+		case ActionStatus.DONE:
+			ActionResult result = getXNJSAction().getResult();
+			if(result.getStatusCode()==ActionResult.USER_ABORTED) {
+				ftStatus = Status.ABORTED;
+			}
+			else if(result.isSuccessful()) {
+				ftStatus = Status.DONE;
+			} else {
+				ftStatus = Status.FAILED;
+			}
+			break;
+		default:
+			ftStatus = Status.RUNNING;
 		}
-		return Status.DONE;
+		return ftStatus;
 	}
-	
+
 	public String getFiletransferStatusMessage(){
-		TransferInfo ft = getInfo();
-		if(ft != null){
-			return ft.getStatusMessage();
-		}
-		return "N/A";
+		ActionResult result = getXNJSAction().getResult();
+		if(result!=null)
+			return result.getStatusString()+" "
+			+(result.getErrorMessage()!=null? result.getErrorMessage():"");
+		return "OK";
 	}
+
+	FTSInfo ftsInfo;
+	long transferred = 0l;
+	long total = 0l;
 	
+	public FTSInfo getFTSInfo() throws Exception {
+		if(ftsInfo==null) {
+			try{
+				ftsInfo = getXNJSFacade().getXNJS().get(IFileTransferEngine.class).getFTSStorage().read(model.getUniqueID());
+			}catch(Exception e) {}
+		}
+		transferred = 0;
+		total = 0;
+		if(ftsInfo!=null) {
+			for(FTSTransferInfo i : ftsInfo.getTransfers()) {
+				if(Status.DONE==i.getStatus()) {
+					transferred += i.getSource().getSize();
+				}
+				total += i.getSource().getSize();
+			}
+		}
+		return ftsInfo;
+	}
 	
 	@Override
 	public Long getTransferredBytes() {
-		TransferInfo ft = getInfo();
-		if(ft != null){
-			return ft.getTransferredBytes();
-		}
-		return super.getTransferredBytes();
+		try{
+			getFTSInfo();
+		}catch(Exception e) {}
+		return transferred;
+	}
+	
+	@Override
+	public long getDataSize() {
+		try{
+			getFTSInfo();
+		}catch(Exception e) {}
+		return total;
 	}
 
 	private Action xnjsAction;
@@ -198,87 +179,33 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		return xnjsAction;
 	}
 
-	IFileTransferEngine fte;
-	
-	protected IFileTransferEngine getFileTransferEngine(){
-		if(fte==null){
-			fte = getXNJSFacade().getXNJS().get(IFileTransferEngine.class);
-		}
-		return fte;
-	}
-	
-	protected TransferInfo getInfo(){
-		ServerToServerTransferModel model = getModel();
-		String ftUID = model.getFileTransferUID();
-		return getFileTransferEngine().getInfo(ftUID);
-	}
-	
 	/**
 	 * create, but not yet start file transfer
 	 * @param policy - {@link OverwritePolicy}
 	 * @throws Exception
 	 */
-	protected IFileTransfer createTransfer()throws Exception{
+	protected Action createTransfer()throws Exception{
 		ServerToServerTransferModel model = getModel();
-		IFileTransfer ft=null;
-		OverwritePolicy policy = OverwritePolicy.OVERWRITE;
-		if(!model.getIsExport()){
-			DataStageInInfo info = new DataStageInInfo();
-			info.setFileName(model.target);
-			info.setOverwritePolicy(policy);
-			info.setSources(new URI[]{toURI(urlEncode(model.source))});
-			ft = getFileTransferEngine().
-					createFileImport(
-							model.client,
-							model.workdir,
-							info);
+		JSONObject j = new JSONObject();
+		j.put("workdir", model.workdir);
+		j.put("extraParameters", JSONUtil.asJSON(model.getExtraParameters()));
+		if(model.getIsExport()){
+			j.put("file", model.source);
+			j.put("target", model.target);
 		}
-		else{
-			DataStageOutInfo info = new DataStageOutInfo();
-			info.setFileName(model.source);
-			info.setOverwritePolicy(policy);
-			info.setTarget(toURI(urlEncode(model.target)));
-			ft = getFileTransferEngine().
-					createFileExport(
-							model.client,
-							model.workdir,
-							info);
+		else{		
+			j.put("file", model.target);
+			j.put("source", model.source);
 		}
-		
-		if(ft instanceof RESTFileTransferBase){
-			((RESTFileTransferBase)ft).setStorageAdapter(getStorageAdapter());
-			((RESTFileTransferBase)ft).setStatusTracker(new StatusTracker(home,getUniqueID()));
-			((RESTFileTransferBase)ft).setExtraParameters(model.getExtraParameters());
+		logger.info("FTS action = {}", j.toString(2));
+		Action action = getXNJSFacade().getXNJS().makeAction(j, "FTS", model.getUniqueID());
+		if(model.scheduledStartTime>0){
+			action.setNotBefore(model.scheduledStartTime);
 		}
-		else if(ft instanceof U6FileTransferBase){
-			((U6FileTransferBase)ft).setStorageAdapter(getStorageAdapter());
-			((U6FileTransferBase)ft).setExtraParameters(model.getExtraParameters());
-			((U6FileTransferBase)ft).setStatusTracker(new StatusTracker(home,getUniqueID()));
-		}
-
 		//set the actual protocol
-		ProtocolType.Enum protocol=ProtocolType.Enum.forString(ft.getInfo().getProtocol());
-		if(protocol==null)protocol=ProtocolType.OTHER;
-		model.protocol = protocol;
-		model.fileTransferUID = ft.getInfo().getUniqueId();
-		return ft;
-	}
-
-	protected void startFileTransfer(IFileTransfer ft, boolean isRestart){
-		long scheduledStartTime = getModel().scheduledStartTime;
-		if(scheduledStartTime==0 && isRestart){
-			try{
-				ft.setOverwritePolicy(OverwritePolicy.RESUME_FAILED_TRANSFER);
-			}catch(Exception ex){}
-		}
-		long delay=scheduledStartTime-System.currentTimeMillis();
-		if(delay>20000){
-			kernel.getContainerProperties().getThreadingServices().
-				getScheduledExecutorService().schedule(ft, delay, TimeUnit.MILLISECONDS);
-		}
-		else{                     
-			kernel.getContainerProperties().getThreadingServices().getExecutorService().execute(ft);
-		}
+		model.protocol = ProtocolType.BFT;
+		model.fileTransferUID = action.getUUID();
+		return action;
 	}
 
 	/**

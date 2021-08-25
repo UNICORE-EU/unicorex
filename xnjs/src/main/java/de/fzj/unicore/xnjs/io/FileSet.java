@@ -2,6 +2,7 @@ package de.fzj.unicore.xnjs.io;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -43,7 +44,7 @@ public class FileSet implements Serializable {
 			this.recurse = mustRecurse();
 		}
 		else{
-			this.includes=new String[]{IOUtils.getNormalizedPath(expr+"/**/*")};
+			this.includes=new String[]{IOUtils.getNormalizedPath(expr+"/**")};
 			this.excludes=new String[]{};
 			this.base = expr;
 			this.recurse = true;
@@ -124,7 +125,7 @@ public class FileSet implements Serializable {
 	}
 	
 	public String toString(){
-		return "[Fileset base="+base+" incl="+includes+" excl="+excludes+"]";
+		return "[Fileset base="+base+" incl="+Arrays.deepToString(includes)+" excl="+Arrays.deepToString(excludes)+" recurse="+recurse+"]";
 	}
 	
 	protected boolean isIncluded(String path){
@@ -178,9 +179,8 @@ public class FileSet implements Serializable {
 				.replace("*", "[^/]*")
 				.replace("___PLACEH_O_LDER___",".*")
 				.replace("?", ".");
-		
 		if(expr.startsWith("/")){
-			pattern = "/?"+pattern.substring(1);
+			pattern = "/?"+pattern;
 		}
 		return Pattern.compile(pattern);
 	}

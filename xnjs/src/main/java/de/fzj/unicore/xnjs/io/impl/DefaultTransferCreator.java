@@ -37,6 +37,8 @@ import java.net.URI;
 import javax.inject.Inject;
 
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.fts.IFTSController;
+import de.fzj.unicore.xnjs.fts.impl.InlineFTS;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
@@ -59,18 +61,22 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		this.configuration=config;
 	}
 
+	@Override
 	public String getProtocol() {
 		return "ftp, gsiftp, scp, http, https, mailto, file, link, inline";
 	}
 	
+	@Override
 	public String getStageInProtocol() {
 		return "ftp, gsiftp, scp, http, https, file, link, inline";
 	}
 
+	@Override
 	public String getStageOutProtocol() {
 		return "ftp, gsiftp, scp, http, https, mailto, file";
 	}
 
+	@Override
 	public IFileTransfer createFileExport(Client client, String workingDirectory, DataStageOutInfo info) {
 		URI target = info.getTarget();
 		String scheme = target.getScheme();
@@ -98,6 +104,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		return null;
 	}
 	
+	@Override
 	public IFileTransfer createFileImport(Client client, String workingDirectory,  DataStageInInfo info) {
 		URI source = info.getSources()[0]; // TODO
 		String scheme = source.getScheme();
@@ -123,6 +130,20 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		}
 		if("inline".equalsIgnoreCase(scheme)){
 			Inline ft = new Inline(configuration, client, workingDirectory,target);
+			ft.setInlineData(info.getInlineData());
+			return ft;
+		}
+		return null;
+	}
+	
+	@Override
+	public IFTSController createFTSImport(Client client, String workingDirectory,  DataStageInInfo info) {
+		URI source = info.getSources()[0]; // TODO
+		String scheme = source.getScheme();
+		String target = info.getFileName();
+		DataStagingCredentials credentials = info.getCredentials();
+		if("inline".equalsIgnoreCase(scheme)){
+			InlineFTS ft = new InlineFTS(configuration, client, workingDirectory,target);
 			ft.setInlineData(info.getInlineData());
 			return ft;
 		}

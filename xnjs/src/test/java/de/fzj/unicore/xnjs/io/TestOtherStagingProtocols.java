@@ -239,8 +239,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 			info.setFileName(localFile.getAbsolutePath());
 			info.setOverwritePolicy(OverwritePolicy.OVERWRITE);
 
-			IFileTransfer ft=new FileTransferEngine(xnjs).
-					createFileImport(null, "/", info);
+			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(null, "/", info);
 			assertNotNull(ft);
 			ft.run();
 			TransferInfo fti = ft.getInfo();

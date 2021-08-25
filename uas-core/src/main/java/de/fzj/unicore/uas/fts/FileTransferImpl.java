@@ -218,8 +218,7 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	}
 
 	protected URI toURI(String path)throws URISyntaxException{
-		URI uri= new URI(path);
-		return uri;
+		return new URI(path);
 	}
 
 	protected void setStatus(int status, String description){

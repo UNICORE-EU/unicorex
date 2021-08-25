@@ -10,7 +10,6 @@ public class TransferInfo implements Serializable {
 	public static enum Status {
 		 CREATED,
 		 RUNNING,
-		 PAUSED,
 		 DONE,
 		 FAILED,
 		 ABORTED

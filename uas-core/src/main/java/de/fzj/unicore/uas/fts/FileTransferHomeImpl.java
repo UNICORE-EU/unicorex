@@ -33,13 +33,11 @@
 
 package de.fzj.unicore.uas.fts;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.fts.http.FileServlet;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Resource;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.impl.DefaultHome;
-import eu.unicore.util.Log;
 
 /**
  * File transfer home<br/>.
@@ -80,41 +78,14 @@ public class FileTransferHomeImpl extends DefaultHome {
 	}
 
 	/**
-	 * Called after server start. Will check for any unfinished server-to-server transfers 
-	 * and will try to re-initiate them 
+	 * Called after server start
 	 */
 	public void run(){
 		initBFT();
-		restartServerServerTransfers();
 	}
 
 	protected void initBFT(){
 		FileServlet.initialise(getKernel());
-	}
-
-	protected void restartServerServerTransfers() {
-		try{
-			for(String id: getStore().getUniqueIDs()){
-				try{
-					Resource r=get(id);
-					if(r instanceof ServerToServerFileTransferImpl){
-						ServerToServerFileTransferImpl tr=(ServerToServerFileTransferImpl)r;
-						if(!tr.getModel().isFinished()){
-							tr=(ServerToServerFileTransferImpl)(getForUpdate(id));
-							try{
-								tr.checkRestart();
-							}finally{
-								persist(tr);
-							}
-						}
-					}
-				}catch(Exception e){
-					Log.getLogger(Log.SERVICES, FileTransferHomeImpl.class).error("Unknown", e);
-				}
-			}
-		}catch(PersistenceException pe){
-			throw new RuntimeException(pe);
-		}
 	}
 
 }

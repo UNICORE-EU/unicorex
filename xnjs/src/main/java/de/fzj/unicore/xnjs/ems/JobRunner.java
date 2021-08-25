@@ -184,7 +184,6 @@ public class JobRunner extends Thread {
 			mgr.doneProcessing(a);
 			if(event!=null)mgr.handleEvent(event);
 		}catch(ProcessingException pe){
-			logger.error("Error during processing action <"+a.getUUID()+">",pe);
 			try{
 				mgr.errorProcessing(a, pe);
 			}catch(Exception ex){

@@ -35,6 +35,10 @@ package de.fzj.unicore.xnjs.io;
 
 import java.io.IOException;
 
+import de.fzj.unicore.persist.Persist;
+import de.fzj.unicore.persist.PersistenceException;
+import de.fzj.unicore.xnjs.fts.FTSInfo;
+import de.fzj.unicore.xnjs.fts.IFTSController;
 import eu.unicore.security.Client;
 
 
@@ -113,4 +117,37 @@ public interface IFileTransferEngine {
 	 */
 	public void abort(String id);
 
+	
+	
+	/**
+	 * Creates a new file export from the given working directory.<br/>
+	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
+	 * non-null result is returned.
+	 * @param client
+	 * @param workingDirectory
+	 * @param info - details about the transfer
+	 */
+	public default IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) throws IOException{
+		return null;
+	}
+
+	/**
+	 * Creates a new file import into the given working directory.<br/>
+	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
+	 * non-null result is returned.
+	 * 
+	 * @param client
+	 * @param workingDirectory
+	 * @param info - details about the transfer
+	 */
+	public default IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) throws IOException{
+		return null;
+	}
+	
+	/**
+	 * get a DB connector for storing information about FTS instances
+	 */
+	public default Persist<FTSInfo> getFTSStorage() throws PersistenceException {
+		return null;
+	}
 }

@@ -28,8 +28,6 @@ public class CoreCapabilities implements Capabilities, IOCapabilities{
 
 				FileTransferCapabilities.SOAP_BFT,
 				FileTransferCapabilities.SOAP_UFTP,
-				// for compatibility, treat "u6" as BFT
-				FileTransferCapabilities.U6,
 
 		};
 	}

@@ -138,4 +138,8 @@ public class DataStageOutInfo implements Serializable, DataStagingInfo {
 		this.fileSystemName = fileSystemName;
 	}
 
+	@Override
+	public DataStageOutInfo clone() throws CloneNotSupportedException {
+		return (DataStageOutInfo)super.clone();
+	}
 }

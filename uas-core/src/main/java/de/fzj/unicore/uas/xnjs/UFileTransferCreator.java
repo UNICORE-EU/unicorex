@@ -49,6 +49,7 @@ import de.fzj.unicore.uas.security.RegistryIdentityResolver;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.fts.IFTSController;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
@@ -126,7 +127,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			Pair<String,String>urlInfo = extractUrlInfo(target);
 			String protocol = urlInfo.getM1();
 			
-			FileTransferCapability fc=FileTransferCapabilities.getCapability(protocol+"-REST", kernel);
+			FileTransferCapability fc=FileTransferCapabilities.getCapability(protocol, kernel);
 			if(fc!=null){
 				if(fc.isAvailable()){
 					Endpoint ep = new Endpoint(urlInfo.getM2());
@@ -139,7 +140,10 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		}
 		else {
 			String scheme=target.getScheme();
-			FileTransferCapability fc=FileTransferCapabilities.getCapability(scheme, kernel);
+			FileTransferCapability fc = FileTransferCapabilities.getCapability(scheme+"-SOAP", kernel);
+			if(fc==null) {
+				fc = FileTransferCapabilities.getCapability(scheme, kernel);
+			}
 			if(fc!=null){
 				if(fc.isAvailable()){
 					return createExportSOAP(fc.getExporter(),client,workdir,source,target,creds);
@@ -161,7 +165,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		if(isREST(source)) {
 			Pair<String,String>urlInfo = extractUrlInfo(source);
 			String protocol = urlInfo.getM1();
-			FileTransferCapability fc=FileTransferCapabilities.getCapability(protocol+"-REST", kernel);
+			FileTransferCapability fc=FileTransferCapabilities.getCapability(protocol, kernel);
 			if(fc!=null){
 				if(fc.isAvailable()){
 					Endpoint ep = new Endpoint(urlInfo.getM2());
@@ -174,7 +178,10 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		}
 		else {
 			String scheme=source.getScheme();
-			FileTransferCapability fc=FileTransferCapabilities.getCapability(scheme, kernel);
+			FileTransferCapability fc = FileTransferCapabilities.getCapability(scheme+"-SOAP", kernel);
+			if(fc==null) {
+				fc = FileTransferCapabilities.getCapability(scheme, kernel);
+			}
 			if(fc!=null){
 				if(fc.isAvailable()){
 					return createImportSOAP(fc.getImporter(),client,workdir,source,target,creds);
@@ -189,7 +196,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 
 	protected boolean isREST(URI url) {
 		String uri = url.toString();
-		return uri.contains("/rest/core/storages/") && uri.contains("/files/");
+		return uri.contains("/rest/core/storages/") && uri.contains("/files");
 	}
 	
 	public String getProtocol() {
@@ -220,7 +227,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	 * @return IFileTransfer instance
 	 */
 	public IFileTransfer createImportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, URI source, String targetFile, DataStagingCredentials creds){
-		String sourceFile=urlDecode(source.toString().split(ep.getUrl()+"/files/",2)[1]);
+		String sourceFile = getFileSpec(source.toString());
 		try{
 			RESTFileTransferBase ft=(RESTFileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
 			ft.setClient(client);
@@ -237,7 +244,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	} 
 	
 	public IFileTransfer createExportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, String sourceFile, URI target, DataStagingCredentials credentials){
-		String targetFile=urlDecode(target.toString().split(ep.getUrl()+"/files/",2)[1]);
+		String targetFile = getFileSpec(target.toString());
 		try{
 			RESTFileTransferBase ft = (RESTFileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
 			ft.setClient(client);
@@ -254,12 +261,17 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		}
 	}
 	
+	
+	public static String getFileSpec(String restURL) {
+		String[] tokens = urlDecode(restURL.toString()).split("/files",2);
+		return tokens.length>1? tokens[1] : "/";
+	}
+	
 	private static final Pattern restURLPattern = Pattern.compile("(.*)://(.*/rest/core/storages/.*)/files/.*");
 	
 	/**
 	 * extracts the storage part from a REST staging URL
 	 */
-	
 	public static Pair<String,String>extractUrlInfo(URI url){
 		String urlString = url.toString();
 		Matcher m = restURLPattern.matcher(urlString);
@@ -357,7 +369,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	 * @param orig
 	 * @return decoded URL
 	 */
-	protected String urlDecode(String orig){
+	public static String urlDecode(String orig){
 		try{
 			return orig.replaceAll("%20", " ");
 		}catch(Exception e){
@@ -386,5 +398,33 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		return epr;
 	}
 
+	@Override
+	public IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info)
+			throws IOException {
+		URI source = info.getSources()[0];
+		Pair<String,String>urlInfo = extractUrlInfo(source);
+		String protocol = urlInfo.getM1();
+		Endpoint ep = new Endpoint(urlInfo.getM2());
+		FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
+		if(fc==null || fc.getFTSController()==null) {
+			throw new IOException("Server-to-Server transfer not available for protocol "+protocol);
+		}
+		try{
+			IFTSController fts = fc.getFTSController().getConstructor(
+					XNJS.class, Client.class, Endpoint.class, DataStageInInfo.class, String.class).
+					newInstance(xnjs, client, ep, info, workingDirectory);
+			return fts;
+		}catch(Exception e) {
+			throw new IOException(e);
+		}
+	}
+
+
+	@Override
+	public IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info)
+			throws IOException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

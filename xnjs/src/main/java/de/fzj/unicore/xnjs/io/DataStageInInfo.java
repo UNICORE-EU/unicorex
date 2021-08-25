@@ -171,4 +171,9 @@ public class DataStageInInfo implements Serializable, DataStagingInfo {
 	public String toString(){
 		return Arrays.asList(sources)+" -> "+fileName;
 	}
+	
+	@Override
+	public DataStageInInfo clone() throws CloneNotSupportedException {
+		return (DataStageInInfo)super.clone();
+	}
 }

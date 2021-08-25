@@ -6,7 +6,7 @@ import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
  * common interface for {@link DataStageInInfo} and {@link DataStageOutInfo}
  * @author schuller
  */
-public interface DataStagingInfo {
+public interface DataStagingInfo extends Cloneable {
 
 	public OverwritePolicy getOverwritePolicy();
 

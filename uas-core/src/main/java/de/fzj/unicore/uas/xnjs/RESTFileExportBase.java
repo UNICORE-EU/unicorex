@@ -93,18 +93,11 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 	protected void collectFilesToTransfer() throws Exception {
 		String source = info.getSource();
 		String target = info.getTarget();
-		if(!FileSet.hasWildcards(source)){
-			boolean dir = isDirectory(source);
-			if(dir){
-				fileSet = new FileSet(source,true);
-			}
-			else{
-				fileSet = new FileSet(source);
-			}
+		if(FileSet.hasWildcards(source)){
+			fileSet = new FileSet(source);
 		}
 		else{
-			// have wildcards
-			fileSet = new FileSet(source);
+			fileSet = new FileSet(source, isDirectory(source));
 		}
 		long dataSize;
 		if(fileSet.isMultifile())

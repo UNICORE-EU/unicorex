@@ -54,7 +54,14 @@ import com.hazelcast.topic.ITopic;
 import com.hazelcast.topic.Message;
 import com.hazelcast.topic.MessageListener;
 
+import de.fzj.unicore.persist.Persist;
+import de.fzj.unicore.persist.PersistenceException;
+import de.fzj.unicore.persist.PersistenceFactory;
+import de.fzj.unicore.persist.PersistenceProperties;
+import de.fzj.unicore.persist.impl.PersistImpl;
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.fts.FTSInfo;
+import de.fzj.unicore.xnjs.fts.IFTSController;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
@@ -88,25 +95,28 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 
 	private final List<String>protocols;
 
-	private final XNJS configuration;
+	private final XNJS xnjs;
 
+	private final PersistenceProperties persistenceProperties;
+	
 	private final Map<String,IFileTransfer> ftMap = new ConcurrentHashMap<>();
 	
 	private final Map<String,TransferInfo> ftInfo;
-	
+
 	@Inject
-	public FileTransferEngine(XNJS configuration) {
-		this.configuration=configuration;
-		creators=new ArrayList<IFileTransferCreator>();
-		protocols=new ArrayList<String>();
+	public FileTransferEngine(XNJS xnjs) {
+		this.xnjs = xnjs;
+		this.persistenceProperties = xnjs.getPersistenceProperties();
+		creators = new ArrayList<>();
+		protocols = new ArrayList<>();
 		ftInfo = createInfoMap();
 		loadExtensions();
 	}
 	
 	private Map<String,TransferInfo> createInfoMap(){
-		if(configuration.isClusterEnabled()){
+		if(xnjs.isClusterEnabled()){
 			getHZTopic().addMessageListener(this);
-			return configuration.getCluster().getMap("XNJS.filetransferinfo", String.class, TransferInfo.class);
+			return xnjs.getCluster().getMap("XNJS.filetransferinfo", String.class, TransferInfo.class);
 		}
 		else{
 			return new ConcurrentHashMap<>();
@@ -125,7 +135,7 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 				}
 				else{
 					for(Class<? extends IFileTransferCreator> clazz: classes){
-						IFileTransferCreator ftc=clazz.getConstructor(XNJS.class).newInstance(configuration);
+						IFileTransferCreator ftc=clazz.getConstructor(XNJS.class).newInstance(xnjs);
 						registerFileTransferCreator(ftc);
 					}
 				}
@@ -141,7 +151,7 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
 	 * non-null result is returned.
 	 */
-	public synchronized IFileTransfer createFileImport(Client client, String workingDirectory, DataStageInInfo info) 
+	public IFileTransfer createFileImport(Client client, String workingDirectory, DataStageInInfo info) 
 	throws IOException{
 		for(IFileTransferCreator c: creators){
 			IFileTransfer f=c.createFileImport(client,workingDirectory,info);
@@ -162,7 +172,7 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 	 * non-null result is returned.
 	 * 
 	 */
-	public synchronized IFileTransfer createFileExport(Client client, String workingDirectory, DataStageOutInfo info) 
+	public IFileTransfer createFileExport(Client client, String workingDirectory, DataStageOutInfo info) 
 	throws IOException{
 		for(IFileTransferCreator c: creators){
 			IFileTransfer f=c.createFileExport(client,workingDirectory,info);
@@ -175,6 +185,44 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 		throw new UnsupportedProtocolException("Transfer "+info+" uses unsupported protocol(s)");
 	}
 
+	@Override
+	public IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) 
+			throws IOException{
+		for(IFileTransferCreator c: creators){
+			IFTSController f = c.createFTSImport(client,workingDirectory,info);
+			if(f!=null){
+				f.setOverwritePolicy(info.getOverwritePolicy());
+				f.setImportPolicy(info.getImportPolicy());
+				return f;
+			}
+		}
+		throw new UnsupportedProtocolException("Transfer "+info+
+				" uses unsupported protocol(s)");
+	}
+
+	@Override
+	public IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) 
+	throws IOException{
+		for(IFileTransferCreator c: creators){
+			IFTSController f = c.createFTSExport(client,workingDirectory,info);
+			if(f!=null){
+				f.setOverwritePolicy(info.getOverwritePolicy());
+				return f;
+			}
+		}
+		throw new UnsupportedProtocolException("Transfer "+info+" uses unsupported protocol(s)");
+	}
+
+	private Persist<FTSInfo> ftsStorage;
+	
+	@Override
+	public synchronized Persist<FTSInfo> getFTSStorage() throws PersistenceException {
+		if(ftsStorage==null) {
+			ftsStorage = (PersistImpl<FTSInfo>)PersistenceFactory.get(persistenceProperties).getPersist(FTSInfo.class);
+		}
+		return ftsStorage;
+	}
+	
 	public synchronized void registerFileTransferCreator(IFileTransferCreator creator) {
 		if(!creators.contains(creator)){
 			creators.add(creator);
@@ -228,7 +276,7 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 	}
 	
 	public synchronized void abort(String id) {
-		if(configuration.isClusterEnabled()){
+		if(xnjs.isClusterEnabled()){
 			FileTransferEvent message = new FileTransferEvent("abort", id);
 			getHZTopic().publish(message);
 		}
@@ -238,7 +286,7 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 	}
 	
 	protected ITopic<FileTransferEvent> getHZTopic(){
-		return configuration.getCluster().getHazelcast().getTopic("XNJS.filetransfer.events");
+		return xnjs.getCluster().getHazelcast().getTopic("XNJS.filetransfer.events");
 	}
 	
 	public void onMessage(Message<FileTransferEvent> message){

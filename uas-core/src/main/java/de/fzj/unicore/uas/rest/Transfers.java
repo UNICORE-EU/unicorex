@@ -5,9 +5,12 @@ import java.util.Map;
 
 import javax.ws.rs.Path;
 
+import com.nimbusds.jose.shaded.json.JSONObject;
+
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.ServerToServerFileTransferImpl;
 import de.fzj.unicore.uas.fts.ServerToServerTransferModel;
+import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
@@ -25,6 +28,7 @@ public class Transfers extends ServicesBase {
 	@Override
 	protected Map<String,Object>getProperties() throws Exception {
 		Map<String,Object> props = super.getProperties();
+		ServerToServerFileTransferImpl resource  = getResource();
 		ServerToServerTransferModel model = getModel();
 		if(model.getScheduledStartTime()>0){
 			Date d = new Date(model.getScheduledStartTime());
@@ -34,6 +38,13 @@ public class Transfers extends ServicesBase {
 		props.put("isExport",model.getIsExport());
 		props.put("source",model.getSource());
 		props.put("target",model.getTarget());
+		JSONObject fileList = new JSONObject();
+		try{ 
+			for(FTSTransferInfo i: resource.getFTSInfo().getTransfers()) {
+				fileList.put(i.getSource().getPath(), i.getStatus());
+			}
+		}catch(Exception e) {}
+		props.put("files", fileList);
 		renderStatus(props);
 		return props;
 	}

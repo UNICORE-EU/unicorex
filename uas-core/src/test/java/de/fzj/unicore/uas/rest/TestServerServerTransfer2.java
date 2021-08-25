@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
@@ -17,11 +18,12 @@ import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.services.rest.client.UsernamePassword;
 
 /**
- * tests server-to-server transfer
+ * tests sendFile() and receiveFile()
  * 
  * @author schuller
  */
-public class TestServerServerTransfer extends Base {
+@Ignore
+public class TestServerServerTransfer2 extends Base {
 
 	StorageFactoryClient sfc;
 	StorageClient source, target;
@@ -44,7 +46,7 @@ public class TestServerServerTransfer extends Base {
 			fetchSingleFileWhichDoesNotExist();
 		}
 	}
-	
+
 	@Test
 	public void testTransferWildcards()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
@@ -62,13 +64,13 @@ public class TestServerServerTransfer extends Base {
 				System.out.println("\n\nTesting wildcards server-server transfer using <"+protocol+">");
 
 				System.out.println(" ... Send using wildcards");
-				//sendWildcard(protocol);
+				sendWildcard(protocol);
 				
 				System.out.println(" ... Fetch using wildcards");
 				fetchWildcard(protocol);
 				
 				System.out.println(" ... Fetch using directory wildcards");
-				//fetchWildcard2(protocol);
+				fetchWildcard2(protocol);
 			}
 		}
 	}
@@ -165,13 +167,11 @@ public class TestServerServerTransfer extends Base {
 
 		int cnt=0;
 		while(!c.isComplete()&& !c.hasFailed()){
-			System.out.print(c.getProperties().toString(2));
-			Thread.sleep(2000);
+			System.out.print(".");
+			Thread.sleep(1000);
 			cnt++;
-			if(cnt>120)throw new Exception("Filetransfer took too long, aborting test...");
+			if(cnt>1000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
-		System.out.println(c.getProperties().toString(2));
-		
 		verifyTargetFolderWildcards(true,"folder1","test11","test12");
 		verifyTargetFolderWildcards(false,"folder1","zeros","test111");
 	}

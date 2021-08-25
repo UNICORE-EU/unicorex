@@ -32,6 +32,9 @@
  
 package de.fzj.unicore.xnjs.io;
 
+import java.io.IOException;
+
+import de.fzj.unicore.xnjs.fts.IFTSController;
 import eu.unicore.security.Client;
 
 public interface IFileTransferCreator {
@@ -55,6 +58,30 @@ public interface IFileTransferCreator {
 	 */
 	public IFileTransfer createFileExport(Client client, String workingDirectory, DataStageOutInfo info);
 
+	/**
+	 * Creates a new file export from the given working directory.<br/>
+	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
+	 * non-null result is returned.
+	 * @param client
+	 * @param workingDirectory
+	 * @param info - details about the transfer
+	 */
+	public default IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) throws IOException{
+		return null;
+	}
+
+	/**
+	 * Creates a new file import into the given working directory.<br/>
+	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
+	 * non-null result is returned.
+	 * 
+	 * @param client
+	 * @param workingDirectory
+	 * @param info - details about the transfer
+	 */
+	public default IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) throws IOException{
+		return null;
+	}
 	
 	/**
 	 * returns the protocol

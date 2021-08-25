@@ -97,8 +97,8 @@ public class DataStagingProcessor extends DefaultProcessor {
 		logger.debug("Adding file transfers for job {}", action.getParentActionID());
 		try{
 			StagingInfo dstInfo=(StagingInfo)action.getAjd();
-			List<String> ftList=new ArrayList<String>();
-			List<IFileTransfer> ftInstances=new ArrayList<IFileTransfer>();
+			List<String> ftList = new ArrayList<>();
+			List<IFileTransfer> ftInstances = new ArrayList<>();
 			action.getProcessingContext().put(fileTransferKey,ftList);
 			String uspace=action.getExecutionContext().getWorkingDirectory();
 			if(dstInfo==null){

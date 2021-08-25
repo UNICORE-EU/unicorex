@@ -2,36 +2,31 @@ package de.fzj.unicore.client.functional.cdmi;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
-import org.unigrids.services.atomic.types.GridFileType;
-import org.unigrids.services.atomic.types.ProtocolType;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.Base;
-import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.cdmi.CDMIClient;
 import de.fzj.unicore.uas.cdmi.KeystoneAuth;
-import de.fzj.unicore.uas.client.FileTransferClient;
-import de.fzj.unicore.uas.client.StorageClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.FileList;
+import eu.unicore.client.core.StorageClient;
+import eu.unicore.client.core.StorageFactoryClient;
+import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.rest.client.BaseClient;
-import eu.unicore.services.ws.client.RegistryClient;
-import eu.unicore.services.ws.sg.Registry;
+import eu.unicore.services.rest.client.UsernamePassword;
 import eu.unicore.util.httpclient.ClientProperties;
 
 public class CDMITest extends Base {
@@ -47,20 +42,14 @@ public class CDMITest extends Base {
 		UASProperties uasProps = kernel.getAttribute(UASProperties.class);
 		uasProps.setProperty("sms.factory.CDMI.path",cdmiProps.getProperty("path"));
 		testCreateToken(tokenEndpoint, username, password);
-		String url = kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
-		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
-		//find a StorageFactory
-		List<EndpointReferenceType> tsfs = reg.listServices(StorageFactory.SMF_PORT);
-		assertTrue(tsfs!=null && tsfs.size()>0);
-		EndpointReferenceType factory = findFirstAccessibleService(tsfs);
-		assertTrue(factory != null);
-		System.out.println("Using StorageFactory at "+factory.getAddress().getStringValue());
-		StorageFactoryClient smf=new StorageFactoryClient(factory,kernel.getClientConfiguration());
+		String url = kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL)
+				+"/rest/core/storagefactories/default_storage_factory";
+		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), kernel.getClientConfiguration(), 
+				new UsernamePassword("demouser", "test123"));
+		System.out.println("Using StorageFactory at "+url);
 		StorageClient sms = createSMS(smf);
 		checkNewStorage(sms);
-		sms.destroy();
+		sms.delete();
 	}
 
 	private void testCreateToken(String endpoint, String username, String password) throws Exception {
@@ -109,32 +98,25 @@ public class CDMITest extends Base {
 		settings.put("password",cdmiProps.getProperty("password"));
 		settings.put("endpoint",cdmiProps.getProperty("endpoint"));
 		settings.put("tokenEndpoint",cdmiProps.getProperty("tokenEndpoint"));
-		return smf.createSMS(type, "myCDMI", settings, null);
+		return smf.createStorage(type, "myCDMI", settings, null);
 	}
 
 	private void checkNewStorage(StorageClient sms)throws Exception{
-		// file system RP
-		System.out.println(sms.getFileSystem());
 		//check if the created SMS is OK...
-		GridFileType[] files=sms.listDirectory("/");
+		FileList files = sms.getFiles("/");
 		//should be empty
-		assertTrue(files.length==0);
+		assertTrue(files.list(0, 5).size()==0);
 
-		uploadDownloadCheck(sms, ProtocolType.BFT);
+		uploadDownloadCheck(sms);
 
 		// check ls now
-		files=sms.listDirectory("/");
-		assertTrue(files.length==1);
-		System.out.println(files[0]);
+		assertTrue(files.list(0, 5).size()==1);
+		
+		sms.mkdir("/testdir");
+		assertTrue(files.list(0, 5).size()==2);
 
-		// mkdir
-		sms.createDirectory("/testdir");
-		files=sms.listDirectory("/");
-		assertTrue(files.length==2);
-		// rmdir
-		sms.delete("/testdir");
-		files=sms.listDirectory("/");
-		assertTrue("Have "+files.length,files.length==1);
+		sms.getFileClient("/testdir").delete();
+		assertTrue(files.list(0, 5).size()==1);
 		
 		// upload larger data set
 		//byte[]data = new byte[1024*1024+1];
@@ -144,17 +126,17 @@ public class CDMITest extends Base {
 		//assertTrue(1==files.length);
 	}
 
-	private void uploadDownloadCheck(StorageClient sms, ProtocolType.Enum protocol) throws Exception {
+	private void uploadDownloadCheck(StorageClient sms) throws Exception {
 		System.out.println("**** UPLOAD ****");
 		String testdata = "some testdata";
 		// upload some data
-		FileTransferClient ftc = sms.getImport("test", protocol);
-		ftc.writeAllData(new ByteArrayInputStream(testdata.getBytes()));
+		HttpFileTransferClient ftc = sms.upload("test");
+		ftc.write(testdata.getBytes());
 		// and download it again
 		System.out.println("**** DOWNLOAD ****");
 		ByteArrayOutputStream os=new ByteArrayOutputStream();
-		ftc = sms.getExport("test", protocol);
-		System.out.println(ftc.getResourcePropertyDocument());
+		ftc = sms.download("test");
+		System.out.println(ftc.getProperties().toString(2));
 		ftc.readAllData(os);
 		assertTrue("Got: "+os.toString(),testdata.equals(os.toString()));
 	}

@@ -9,9 +9,9 @@ public class StagingInfo implements Serializable, Iterable<DataStagingInfo>{
 
 	private static final long serialVersionUID = 1L;
 
-	private List<DataStageInInfo>stageIn=new ArrayList<DataStageInInfo>();
+	private List<DataStageInInfo>stageIn = new ArrayList<>();
 
-	private List<DataStageOutInfo>stageOut=new ArrayList<DataStageOutInfo>();
+	private List<DataStageOutInfo>stageOut = new ArrayList<>();
 
 	public StagingInfo(List<? extends DataStagingInfo>toStage){
 		for(DataStagingInfo i: toStage){
@@ -26,7 +26,7 @@ public class StagingInfo implements Serializable, Iterable<DataStagingInfo>{
 	
 	@Override
 	public Iterator<DataStagingInfo> iterator() {
-		List<DataStagingInfo>all=new ArrayList<DataStagingInfo>();
+		List<DataStagingInfo>all = new ArrayList<>();
 		all.addAll(stageIn);
 		all.addAll(stageOut);
 		return all.iterator();

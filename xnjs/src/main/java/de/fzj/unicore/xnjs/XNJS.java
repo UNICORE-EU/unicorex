@@ -70,7 +70,7 @@ import de.fzj.unicore.xnjs.ems.Processor;
 import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor;
 import de.fzj.unicore.xnjs.ems.processors.DataStagingProcessor;
 import de.fzj.unicore.xnjs.ems.processors.UsageLogger;
-import de.fzj.unicore.xnjs.fts.FileTransferProcessor;
+import de.fzj.unicore.xnjs.fts.FTSProcessor;
 import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
 import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
@@ -250,7 +250,7 @@ public class XNJS {
 		
 		if(!haveProcessingFor("FTS")){
 			setProcessingChain("FTS", "FTS", 
-					new String[]{FileTransferProcessor.class.getName(),
+					new String[]{FTSProcessor.class.getName(),
 			});
 		}
 
@@ -442,6 +442,10 @@ public class XNJS {
 
 	public IOProperties getIOProperties(){
 		return ioProperties;
+	}
+
+	public PersistenceProperties getPersistenceProperties(){
+		return persistenceProperties;
 	}
 
 	public boolean isClusterEnabled(){
