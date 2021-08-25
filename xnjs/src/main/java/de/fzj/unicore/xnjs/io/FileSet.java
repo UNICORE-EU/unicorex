@@ -99,6 +99,7 @@ public class FileSet implements Serializable {
 	 * @param path - full path to some file
 	 */
 	public boolean matches(String path){
+		if(!path.startsWith("/"))path="/"+path;
 		boolean included=isIncluded(path);
 		boolean excluded=isExcluded(path);
 		return included && !excluded;

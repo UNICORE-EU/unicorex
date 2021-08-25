@@ -16,7 +16,6 @@ import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.fts.FTSInfo;
 import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
-import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.services.InitParameters;
@@ -180,9 +179,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 	}
 
 	/**
-	 * create, but not yet start file transfer
-	 * @param policy - {@link OverwritePolicy}
-	 * @throws Exception
+	 * create, but not yet start file transfer action
 	 */
 	protected Action createTransfer()throws Exception{
 		ServerToServerTransferModel model = getModel();
@@ -197,7 +194,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 			j.put("file", model.target);
 			j.put("source", model.source);
 		}
-		logger.info("FTS action = {}", j.toString(2));
+		logger.debug("FTS action = {}", j.toString(2));
 		Action action = getXNJSFacade().getXNJS().makeAction(j, "FTS", model.getUniqueID());
 		if(model.scheduledStartTime>0){
 			action.setNotBefore(model.scheduledStartTime);
