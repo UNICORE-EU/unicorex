@@ -491,11 +491,6 @@ public class TestTSI extends LegacyTSITestCase{
 		}catch(ExecutionException ee1) {
 			assertTrue(ee1.getMessage().contains("TSI ERROR:"));
 		}
-		try{
-			tsi.mkdir("/forbidden_path");
-		}catch(ExecutionException ee1) {
-			assertTrue(ee1.getMessage().contains("TSI ERROR:"));
-		}
 	}
 	
 	private void writeFile(String path, String content)throws Exception{
