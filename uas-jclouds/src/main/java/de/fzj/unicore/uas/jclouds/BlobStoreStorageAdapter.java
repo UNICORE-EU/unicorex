@@ -346,7 +346,7 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 	}
 
 	@Override
-	public String getFileSeparator() throws ExecutionException {
+	public String getFileSeparator() {
 		return "/";
 	}
 

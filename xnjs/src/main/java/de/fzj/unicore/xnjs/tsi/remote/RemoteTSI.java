@@ -167,9 +167,9 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	}
 
 	@Override
-	public void commitBatch() throws ExecutionException{
-		doCommit();
+	public String commitBatch() throws ExecutionException{
 		transactionInProgress=false;
+		return doCommit();
 	}
 
 	private void doBegin()throws ExecutionException{
@@ -180,14 +180,14 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		if(!transactionInProgress)doBegin();
 	}
 
-	private void commit()throws ExecutionException{
-		if(!transactionInProgress)doCommit();
+	private String commit()throws ExecutionException{
+		return !transactionInProgress? doCommit() : null;
 	}
 
-	private void doCommit()throws ExecutionException{
-		if(commands.length()==0)return;
+	private String doCommit()throws ExecutionException{
+		if(commands.length()==0)return null;
 		String tsiCmd=TSIUtils.makeExecuteScript(commands.toString(), ec, idb, extractCredentials());
-		doTSICommand(tsiCmd);
+		return doTSICommand(tsiCmd);
 	}
 
 	@Override
@@ -213,7 +213,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * @return sanitized absolute path
 	 */
 	private String makeTarget(String relativePath, boolean sanitize){
-		String target = getStorageRoot()+fileSeparator+relativePath;
+		String target = IOUtils.getNormalizedPath(getStorageRoot()+fileSeparator+relativePath);
 		return sanitize ? sanitize(target) : target;
 	}
 
@@ -295,7 +295,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 					+ " " + rec + perm.getClazzSymbol() +  
 					perm.getModeOperator() + pperms + " " + target + "\n");
 		}
-		commit();
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	@Override
@@ -305,7 +306,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		String target = makeQuotedTarget(file);
 		String rec = recursive ? "-R " : "";
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_CHGRP) + " " + rec + newGroup + " " + target + "\n");
-		commit();
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	@Override
@@ -313,14 +315,16 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		begin();
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_UMASK) + " " + Integer.toOctalString(umask) + "\n");
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_CP)+" "+makeQuotedTarget(source)+" "+makeQuotedTarget(target)+"\n");
-		commit();
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	@Override
 	public void link(String target, String linkName) throws ExecutionException {
 		begin();
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_LN)+" "+makeQuotedTarget(target)+" "+makeQuotedTarget(linkName)+"\n");
-		commit();
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	@Override
@@ -328,7 +332,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		begin();
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_UMASK) + " " + Integer.toOctalString(umask) + "\n");
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_MV)+" "+makeQuotedTarget(source)+" "+makeQuotedTarget(target)+"\n");
-		commit();
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	@Override
@@ -393,10 +398,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_MKDIR) 
 				+ " -m " + TSIUtils.getDirPerm(umask) 
 				+ " "+ target + "\n");
-		commit();
-		// only possible in non-batch mode
-		if(!transactionInProgress)
-			assertIsDirectory(dir,"Could not create directory.");
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	@Override
@@ -449,14 +452,16 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	public void rm(String target) throws ExecutionException {
 		begin();
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_RM)+" "+makeQuotedTarget(target)+"\n");
-		commit();
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	@Override
 	public void rmdir(String target) throws ExecutionException {
 		begin();
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_RMDIR)+" "+makeQuotedTarget(target)+"\n");
-		commit();
+		String reply = commit();
+		checkNoErrors(reply);
 	}
 
 	/**
@@ -1077,6 +1082,14 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		}
 		catch(IOException ioe){
 			throw new ExecutionException(ioe);
+		}
+	}
+	
+	private void checkNoErrors(String reply) throws ExecutionException {
+		if (reply==null)return;
+		reply = reply.replaceFirst("TSI_OK", "").trim();
+		if(reply.length()>0) {
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "TSI ERROR: '"+reply+"'");
 		}
 	}
 }

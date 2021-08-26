@@ -591,14 +591,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @return the separator char returned by the {@link TSI#getFileSeparator()}
 	 */
 	protected String getSeparator(){
-		if(sep==null){
-			try{
-				sep=getTSI().getFileSeparator();
-			}catch(ExecutionException ex){
-				LogUtil.logException("Could not get file separator", ex, logger);
-				sep="/";
-			}
-		}
+		if(sep==null)sep=getTSI().getFileSeparator();
 		return sep;
 	}
 

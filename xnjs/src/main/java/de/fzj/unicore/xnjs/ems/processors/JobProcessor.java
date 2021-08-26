@@ -425,7 +425,9 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		if(action.getApplicationInfo().ignoreNonZeroExitCode())return true;
 		Integer exitCode = action.getExecutionContext().getExitCode();
 		if(exitCode!=null && exitCode!=0){
-			String msg = "User application exited with non-zero exit code: <"+exitCode+">";
+			String msg = "User application exited with non-zero exit code: <" + exitCode + ">."
+						+ " More information might be available in the job's working directory '"
+						+ action.getExecutionContext().getWorkingDirectory() + "'";
 			setToDoneAndFailed(msg);
 			return false;
 		}

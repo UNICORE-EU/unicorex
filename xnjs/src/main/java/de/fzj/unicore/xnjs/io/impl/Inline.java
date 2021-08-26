@@ -80,20 +80,19 @@ public class Inline implements IFileTransfer {
 	 * uses TSI link to write inline data to the target
 	 */
 	public void run() {
-		try{
-			info.setStatus(Status.RUNNING);
-			if(tsi == null){
-				tsi=configuration.getTargetSystemInterface(client);
-			}
-			tsi.setStorageRoot(workingDirectory);
-			boolean append = OverwritePolicy.APPEND.equals(overwrite);
-			try(OutputStreamWriter os = new OutputStreamWriter(tsi.getOutputStream(info.getTarget(),append),"UTF-8")){
-				os.write(inlineData);
-			}
+		info.setStatus(Status.RUNNING);
+		if(tsi == null){
+			tsi=configuration.getTargetSystemInterface(client);
+		}
+		tsi.setStorageRoot(workingDirectory);
+		boolean append = OverwritePolicy.APPEND.equals(overwrite);
+		try(OutputStreamWriter os = new OutputStreamWriter(tsi.getOutputStream(info.getTarget(),append),"UTF-8")){
+			os.write(inlineData);
 			info.setTransferredBytes(inlineData.length());
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){
-			info.setStatus(Status.FAILED,Log.createFaultMessage("File transfer failed", ex));
+			info.setStatus(Status.FAILED, Log.createFaultMessage("Writing to '"
+					+ workingDirectory+"/"+info.getTarget() + "' failed", ex));
 		}
 	}
 	

@@ -76,23 +76,24 @@ public class FileCopy implements IFileTransfer {
 	 * does simple copy
 	 */
 	public void run() {
+		transferInfo.setStatus(Status.RUNNING);
+		TSI tsi = configuration.getTargetSystemInterface(client);
+		String mode = "copy";
+		String s= isImport ? transferInfo.getSource() : workingDirectory+tsi.getFileSeparator()+transferInfo.getSource();
+		String t=!isImport ? transferInfo.getTarget() : workingDirectory+tsi.getFileSeparator()+transferInfo.getTarget();
 		try{
-			transferInfo.setStatus(Status.RUNNING);
-			TSI tsi=configuration.getTargetSystemInterface(client);
-			String s= isImport ? transferInfo.getSource() : workingDirectory+tsi.getFileSeparator()+transferInfo.getSource();
-			String t=!isImport ? transferInfo.getTarget() : workingDirectory+tsi.getFileSeparator()+transferInfo.getTarget();
 			createParentDirectories(t, tsi);
 			if(ImportPolicy.PREFER_LINK == policy){
+				mode = "link";
 				tsi.link(s, t);
 			}
 			else{
 				tsi.cp(s,t);
 			}
 			transferInfo.setStatus(Status.DONE);
-			
 		}catch(Exception ex){
 			transferInfo.setStatus(Status.FAILED);
-			transferInfo.setStatusMessage(Log.createFaultMessage("File transfer failed", ex));
+			transferInfo.setStatusMessage(Log.createFaultMessage("Could not "+mode+" "+s+"->"+t, ex));
 		}
 	}
 

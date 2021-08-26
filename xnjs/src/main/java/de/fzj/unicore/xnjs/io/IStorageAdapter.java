@@ -243,7 +243,7 @@ public interface IStorageAdapter {
 	/**
 	 * get the file separator
 	 */
-	public String getFileSeparator() throws ExecutionException;
+	public String getFileSeparator();
 
 	/**
 	 * get the identifier that <b>uniquely identifies</b> the "file system" represented by

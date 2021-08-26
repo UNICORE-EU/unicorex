@@ -12,11 +12,11 @@ public interface BatchMode {
 	public void startBatch() throws ExecutionException;
 	
 	/**
-	 * commit the batch of commands
+	 * commit the batch of commands and return the reply from the TSI
 	 * 
 	 * @throws ExecutionException
 	 */
-	public void commitBatch() throws ExecutionException;
+	public String commitBatch() throws ExecutionException;
 	
 	/**
 	 * if something goes wrong, this method can be used to reset the TSI
