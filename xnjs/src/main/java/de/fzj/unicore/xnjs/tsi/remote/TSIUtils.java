@@ -105,7 +105,7 @@ public class TSIUtils {
 	public static String makeSubmitCommand(Action job, 
 			IDB idb, Incarnation grounder, 
 			XNJSProperties properties, String credentials, boolean addWaitingLoop) throws ExecutionException {
-		ApplicationInfo applicationInfo=job.getApplicationInfo();
+		ApplicationInfo applicationInfo = job.getApplicationInfo();
 		Client client=job.getClient();
 		ExecutionContext ec = job.getExecutionContext();
 
@@ -157,6 +157,9 @@ public class TSIUtils {
 			String queue = appendTSIResourceSpec(commands, rt);
 			ec.setBatchQueue(queue);
 			job.setDirty();
+			if(applicationInfo.isAllocateOnly()) {
+				commands.append("#TSI_JOB_MODE allocate\n");
+			}
 		}
 		else {
 			String jobFile = applicationInfo.getRawBatchFile();
@@ -174,11 +177,7 @@ public class TSIUtils {
 		appendEnvironment(commands, ec, true);
 
 		// add XNJS environment variables UC_XXXX
-
-		// executable
-		String executable=applicationInfo.getExecutable();
-		commands.append("UC_EXECUTABLE='"+executable+"'; export UC_EXECUTABLE\n");
-
+		
 		// Set User DN as env variable
 		// useful e.g. if mapping multiple certs to single ulogin
 		if (client!=null) {
@@ -199,21 +198,30 @@ public class TSIUtils {
 			insertImportedFilesWaitingLoop(commands, job);
 		}
 		
-		//better guess the actual executable, by using the first part of
-		//the executable line that is non-whitespace
-		String executableGuess=executable;
-		try{
-			String[] tok=executable.split(" ");
-			for(String t: tok){
-				if(!t.trim().isEmpty()){
-					executableGuess=t;
-					break;
+
+		// executable
+		String executable = applicationInfo.getExecutable();
+		boolean haveExecutable = executable!=null && executable.length()>0;
+		
+		if(haveExecutable) {
+			commands.append("UC_EXECUTABLE='"+executable+"'; export UC_EXECUTABLE\n");
+
+			//better guess the actual executable, by using the first part of
+			//the executable line that is non-whitespace
+			String executableGuess=executable;
+			try{
+				String[] tok=executable.split(" ");
+				for(String t: tok){
+					if(!t.trim().isEmpty()){
+						executableGuess=t;
+						break;
+					}
 				}
-			}
-		}catch(Exception ex){}
+			}catch(Exception ex){}
 
-		commands.append("chmod u+x " + executableGuess + " 2> /dev/null \n");
+			commands.append("chmod u+x " + executableGuess + " 2> /dev/null \n");
 
+		}
 		// remove any pre-existing exit code file (e.g. job restart case)
 		if(!_unittestnoexitcode){
 			commands.append("rm -f " + ec.getOutcomeDirectory() + "/"
@@ -233,33 +241,33 @@ public class TSIUtils {
 		}
 
 		// setup executable
+		if(haveExecutable) {
+			StringBuilder exeBuilder = new StringBuilder();
+			exeBuilder.append(applicationInfo.getExecutable());
 
-		StringBuilder exeBuilder=new StringBuilder();
-		exeBuilder.append(applicationInfo.getExecutable());
+			for (String a : applicationInfo.getArguments()) {
+				exeBuilder.append(" " + a);
+			}
 
-		for (String a : applicationInfo.getArguments()) {
-			exeBuilder.append(" " + a);
+			String input = null;
+			input = ec.getStdin() != null ? ec.getStdin() : null;
+			if (input != null) {
+				exeBuilder.append(" < ").append(input);
+			}
+			commands.append(exeBuilder.toString()).append("\n");
+
+			// write the application exit code to a special file
+			commands.append("\n");
+			if(!_unittestnoexitcode){
+				commands.append("echo $? > " + ec.getOutcomeDirectory() + "/"
+						+ ec.getExitCodeFileName() + "\n");
+			}
 		}
-
-		String input = null;
-		input = ec.getStdin() != null ? ec.getStdin() : null;
-		if (input != null) {
-			exeBuilder.append(" < ").append(input);
-		}
-		commands.append(exeBuilder.toString()).append("\n");
-
-		// write the application exit code to a special file
-		commands.append("\n");
-		if(!_unittestnoexitcode){
-			commands.append("echo $? > " + ec.getOutcomeDirectory() + "/"
-					+ ec.getExitCodeFileName() + "\n");
-		}
-
+		
 		// epilogue (from IDB)
 		if(applicationInfo.getEpilogue()!=null) {
 			commands.append(applicationInfo.getEpilogue()).append("\n");
 		}
-
 
 		// user-defined post-command
 		String userPost = applicationInfo.getUserPostCommand();

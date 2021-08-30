@@ -210,10 +210,13 @@ public class GrounderImpl implements Incarnation {
 			result.setUserPostCommandOnLoginNode(allowedToRunOnLogin && fromUser.isUserPostCommandOnLoginNode());
 			result.setUserPostCommandIgnoreExitCode(fromUser.isUserPostCommandIgnoreExitCode());
 		}
-		// login node / raw mode
+		// login node / raw mode / allocate
 		if(allowedToRunOnLogin && fromUser.isRunOnLoginNode()) {
 			result.setRunOnLoginNode(true);
 			result.setPreferredLoginNode(fromUser.getPreferredLoginNode());
+		}
+		if(fromUser.isAllocateOnly()) {
+			result.setAllocateOnly();
 		}
 
 	}

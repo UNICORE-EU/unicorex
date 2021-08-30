@@ -120,6 +120,7 @@ public class Execution extends BasicExecution {
 		int initialStatus = ActionStatus.QUEUED;
 		boolean isFirstSubmit = null==job.getProcessingContext().get(BSS_SUBMIT_COUNT);
 		boolean runOnLoginNode = ec.isRunOnLoginNode();
+		boolean allocateOnly = appDescription.isAllocateOnly();
 		String preferredTSIHost=ec.getPreferredExecutionHost();
 		
 		if(runOnLoginNode && isFirstSubmit){
@@ -165,15 +166,17 @@ public class Execution extends BasicExecution {
 				String internalID = bssid;
 				BSS_STATE initialState = BSS_STATE.QUEUED;
 				
-				if(runOnLoginNode){
+				if(runOnLoginNode || allocateOnly){
 					long iPid = readPID(job, tsiHost);
-					internalID="INTERACTIVE_"+tsiHost+"_"+iPid;
-					msg="Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
+					internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
+					msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
 					job.getExecutionContext().setPreferredExecutionHost(tsiHost);
-					initialState = BSS_STATE.RUNNING;
-					initialStatus = ActionStatus.RUNNING;
+					if(!allocateOnly) {
+						initialState = BSS_STATE.RUNNING;
+						initialStatus = ActionStatus.RUNNING;
+					}
 				}
-				job.setBSID(internalID);
+				if(!allocateOnly)job.setBSID(internalID);
 				BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
 				bss.putBSSInfo(newJob);
 			}
@@ -212,6 +215,25 @@ public class Execution extends BasicExecution {
 		throw new IOException("Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
 	}
 	
+	private String readAllocationID(Action job, String preferredTSINode) throws IOException, ExecutionException, InterruptedException {
+		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
+		ExecutionContext ec = job.getExecutionContext();
+		String file = ec.getOutcomeDirectory()+"/ALLOCATION_ID";
+		jobExecLogger.debug("Reading allocation ID from " + file);
+		for(int i=0; i<3; i++){
+			try{
+				String pid = IOUtils.readTSIFile(tsi, file, 1024).trim();
+				if(pid.length()>0)return pid;
+			}
+			catch(Exception ex){
+				String msg = Log.createFaultMessage("Error reading file <"+file+"> on <"+preferredTSINode+"> (attempt "+(i+1)+")"+(i<2?", will retry":""), ex);
+				tsiLog.warn(msg);
+				Thread.sleep(3000+i*1000);
+			}
+		}
+		throw new IOException("Could not read PID file <"+file+"> on <"+preferredTSINode+">");
+	}
+	
 	/*
 	 *  Some back-ends may require credentials for status checks or output retrieval.
 	 *  This method extracts these from the job.
@@ -220,6 +242,7 @@ public class Execution extends BasicExecution {
 		return null;
 	}
 	
+	// TODO refactor into smaller pieces
 	public void updateStatus(Action job) throws ExecutionException {
 		try{		
 			final String bssID=job.getBSID();
@@ -280,6 +303,19 @@ public class Execution extends BasicExecution {
 				Integer exitCode=job.getExecutionContext().getExitCode();
 
 				if(exitCode!=null){
+					if(job.getApplicationInfo().isAllocateOnly() &&
+						job.getProcessingContext().get("ALLOCATION_COMPLETE")==null)
+					{
+						String allocID = readAllocationID(job, job.getExecutionContext().getPreferredExecutionHost());
+						job.addLogTrace("Allocation successful, BSS ID = "+allocID);
+						bss.removeBSSInfo(bssID);
+						job.setBSID(allocID);
+						bss.putBSSInfo(new BSSInfo(allocID, jobID, BSS_STATE.RUNNING));
+						updateEstimatedEndtime(job);
+						job.setStatus(ActionStatus.RUNNING);
+						job.getProcessingContext().put("ALLOCATION_COMPLETE", "true");
+						return;
+					}
 					job.addLogTrace("Job completed on BSS.");
 					job.setStatus(ActionStatus.POSTPROCESSING);
 					try{

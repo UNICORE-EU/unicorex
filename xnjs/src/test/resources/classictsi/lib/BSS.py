@@ -3,6 +3,8 @@
 Batch system specific functions,
 this is the "NOBATCH" version.
 
+(NOTE: modified version for UNICORE/X testing)
+
 Check the manual for advice on how to create a custom version.
 """
 
@@ -45,6 +47,24 @@ class BSS(BSSBase):
         stderr = Utils.extract_parameter(message, "STDERR")
         req_time = Utils.extract_number(message, "TIME")
         memory = Utils.extract_number(message, "MEMORY")
+
+        # for UNICORE/X testing: handle 'allocation' job
+        job_mode = Utils.extract_parameter(message, "JOB_MODE", "normal")
+        if job_mode.startswith("alloc"):
+            os.chdir(uspace_dir)
+            cmd = message
+            cmd += "\n\n{ echo 123456 > ALLOCATION_ID ; echo $? > UNICORE_SCRIPT_EXIT_CODE ; } & "
+            cmd += "echo $! > UNICORE_SCRIPT_PID \n"
+            cmds_file_name = "UNICORE_Job_1234"
+            with open(cmds_file_name, "w") as job:
+                job.write(u"" + cmd)
+            children = config.get('tsi.NOBATCH.children', None)
+            (success, reply) = Utils.run_command(cmd, True, children)
+            if success:
+                connector.ok("")
+            else:
+                connector.failed(reply)
+            return
 
         # setup time and memory limits (if given)
         ulimits = ""

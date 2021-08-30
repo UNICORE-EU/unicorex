@@ -262,8 +262,7 @@ def process(connector, config, LOG):
                     function(Utils.encode(message), connector, config, LOG)
                 except:
                     connector.failed(str(sys.exc_info()[1]))
-                    # log exception info and stacktrace
-                    LOG.exception("Error executing %s" % cmd)
+                    LOG.error("Error executing %s" % cmd)
                 break
 
         if not legal_cmd:
@@ -297,7 +296,7 @@ def main(argv=None):
     verbose = config['tsi.debug']
     LOG.reinit("TSI-main", verbose)
     bss = BSS.BSS()
-    LOG.info("Starting TSI for " + bss.get_variant())
+    LOG.info("Starting TSI %s for %s" % (MY_VERSION, bss.get_variant()))
     BecomeUser.initialize(config, LOG)
     os.chdir(config.get('tsi.safe_dir','/tmp'))
     bss.init(config, LOG)

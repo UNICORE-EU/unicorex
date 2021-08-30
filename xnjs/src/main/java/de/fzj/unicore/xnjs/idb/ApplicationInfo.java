@@ -41,6 +41,8 @@ public class ApplicationInfo implements Cloneable, Serializable {
 	private boolean runOnLoginNode=false;
 	private String preferredLoginNode;
 	private String rawBatchFile;
+
+	private boolean allocateOnly = false;
 	
 	private boolean ignoreNonZeroExitCode = false;
 	
@@ -265,6 +267,14 @@ public class ApplicationInfo implements Cloneable, Serializable {
 
 	public void setRawBatchFile(String rawBatchFile) {
 		this.rawBatchFile = rawBatchFile;
+	}
+
+	public void setAllocateOnly() {
+		this.allocateOnly = true;
+	}
+
+	public boolean isAllocateOnly() {
+		return allocateOnly;
 	}
 
 	public String toString(){

@@ -346,16 +346,14 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	 * @param job
 	 */
 	protected boolean getExitCode(Action job)throws Exception{
+		if(job.getExecutionContext().getExitCode()!=null)return true;
 		TSI tsi = tsiFactory.createTSI(job.getClient());
 		ExecutionContext ctx=job.getExecutionContext();
-		InputStream is=null;
-		BufferedReader br=null;
-		try{
-			tsi.setStorageRoot(ctx.getOutcomeDirectory());
-			XnjsFile f=tsi.getProperties(ctx.getExitCodeFileName());
-			if(f==null)return false;
-			is=tsi.getInputStream(ctx.getExitCodeFileName());
-			br=new BufferedReader(new InputStreamReader(is));
+		tsi.setStorageRoot(ctx.getOutcomeDirectory());
+		XnjsFile f=tsi.getProperties(ctx.getExitCodeFileName());
+		if(f==null)return false;
+		try(BufferedReader br = new BufferedReader(new InputStreamReader(
+				tsi.getInputStream(ctx.getExitCodeFileName())))){
 			try{
 				String s=br.readLine();
 				if(s!=null){
@@ -369,9 +367,6 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 				jobExecLogger.debug("Could not retrieve exit code.",e);
 			}
 			return false;
-		}
-		finally{
-			IOUtils.closeQuietly(br);
 		}
 	}
 

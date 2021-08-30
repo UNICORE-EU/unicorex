@@ -69,6 +69,9 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 			if(file==null)throw new Exception("Job type 'raw' requires 'BSS file'");
 			app.setRawBatchFile(file);
 		}
+		else if("ALLOCATE".equalsIgnoreCase(jobType)) {
+			app.setAllocateOnly();
+		}
 		else if(!"NORMAL".equalsIgnoreCase(jobType)) {
 			throw new IllegalArgumentException("Unknown value for 'Job type'");
 		}

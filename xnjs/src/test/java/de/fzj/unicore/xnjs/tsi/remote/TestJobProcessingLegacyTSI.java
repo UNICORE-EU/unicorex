@@ -140,7 +140,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		cs.submit(t1);
 		cs.submit(t2);
 		cs.submit(t3);
-		
+
 		for(int i=0; i<3; i++) {
 			cs.poll(120, TimeUnit.SECONDS).get();
 		}
@@ -306,6 +306,31 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		assertFalse(TSIUtils.compareVersion("TESTING", "1.2.3"));
 
 	}
+
+
+	@Test
+	public void testAllocateJob() throws Exception {
+		MyExec.failSubmits=false;
+		String id="";
+		Action a = null;
+		JSONObject job = new JSONObject();
+		job.put("Job type", "allocate");
+		JSONObject resources = new JSONObject();
+		resources.put("Runtime", "60");
+		resources.put("Nodes", "1");	
+		job.put("Resources", resources);
+		a = xnjs.makeAction(job);
+		Client c = new Client();
+		a.setClient(c);
+		c.setXlogin(new Xlogin(new String[] {"nobody"}));
+		id = a.getUUID();
+		mgr.add(a,c);
+		doRun(id);
+		assertSuccessful(id);
+		a = mgr.getAction(id);
+		assertEquals("123456", a.getBSID());
+	}
+
 
 	private int eventsReceived=0;
 

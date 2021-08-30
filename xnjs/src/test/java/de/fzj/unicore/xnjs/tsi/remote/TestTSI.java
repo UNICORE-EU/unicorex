@@ -494,16 +494,8 @@ public class TestTSI extends LegacyTSITestCase{
 	}
 	
 	private void writeFile(String path, String content)throws Exception{
-		OutputStreamWriter osw=null;
-		try{
-			RemoteTSI tsi=makeTSI();
-			OutputStream os=tsi.getOutputStream(path);
-			osw=new OutputStreamWriter(os);
+		try(OutputStreamWriter osw=new OutputStreamWriter(makeTSI().getOutputStream(path))){
 			osw.write(content);
-			osw.flush();
-		}
-		finally{
-			osw.close();
 		}
 	}
 

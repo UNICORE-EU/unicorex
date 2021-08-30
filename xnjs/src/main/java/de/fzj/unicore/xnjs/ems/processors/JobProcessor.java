@@ -520,7 +520,10 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected void submitMainExecutable() throws ProcessingException{
 		try{
 			ApplicationInfo appInfo=action.getApplicationInfo();
-			if(appInfo==null || appInfo.getExecutable()==null){
+			if(appInfo!=null && appInfo.isAllocateOnly()) {
+				action.addLogTrace("Job type: 'allocate'.");	
+			}
+			else if(appInfo==null || appInfo.getExecutable()==null){
 				action.addLogTrace("No application to execute, changing action status to POSTPROCESSING");
 				action.setStatus(ActionStatus.POSTPROCESSING);
 				return;
