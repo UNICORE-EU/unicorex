@@ -176,7 +176,7 @@ public class Execution extends BasicExecution {
 						initialStatus = ActionStatus.RUNNING;
 					}
 				}
-				if(!allocateOnly)job.setBSID(internalID);
+				job.setBSID(internalID);
 				BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
 				bss.putBSSInfo(newJob);
 			}
