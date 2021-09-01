@@ -39,7 +39,7 @@ public class TestServerServerTransfer extends Base {
 		for(String noOpt: new String[]{"true", "false"}){
 			System.out.println("Testing with disabled local copy optimization: "+noOpt);
 			cfg.setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, noOpt);
-			//dataTransfer();
+			dataTransfer();
 			//checkSpacesInNames();
 			fetchSingleFileWhichDoesNotExist();
 		}
@@ -62,13 +62,13 @@ public class TestServerServerTransfer extends Base {
 				System.out.println("\n\nTesting wildcards server-server transfer using <"+protocol+">");
 
 				System.out.println(" ... Send using wildcards");
-				//sendWildcard(protocol);
+				sendWildcard(protocol);
 				
 				System.out.println(" ... Fetch using wildcards");
 				fetchWildcard(protocol);
 				
 				System.out.println(" ... Fetch using directory wildcards");
-				//fetchWildcard2(protocol);
+				fetchWildcard2(protocol);
 			}
 		}
 	}
@@ -189,9 +189,11 @@ public class TestServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>1000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
+		System.out.println(c.getProperties().toString(2));
+		
 		verifyTargetFolderWildcards(true, "target/folder1", "test11", "test12");
 		verifyTargetFolderWildcards(true, "target/folder2", "test21");
-		verifyTargetFolderWildcards(false, "target/folder1/folder11", "test111");
+		verifyTargetFolderWildcards(false, "target/folder1", "folder11/test111");
 	}
 
 	protected TransferControllerClient sendSingleFile(String protocol)throws Exception{
@@ -236,6 +238,7 @@ public class TestServerServerTransfer extends Base {
 			cnt++;
 			if(cnt>12000)throw new Exception("Filetransfer took too long, aborting test...");
 		}
+		System.out.println(c.getProperties().toString(2));
 		verifyTargetFolderWildcards(true,"folder1","test11","test12");
 		verifyTargetFolderWildcards(false,"folder1","zeros");
 	}

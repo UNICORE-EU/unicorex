@@ -28,6 +28,8 @@ public interface FileTransferCapability extends Capability{
 	 */
 	public Class<? extends IFileTransfer> getExporter();
 
-	public default Class<? extends IFTSController> getFTSController() { return null; }
+	public default Class<? extends IFTSController> getFTSImportsController() { return null; }
+	
+	public default Class<? extends IFTSController> getFTSExportsController() { return null; }
 	
 }

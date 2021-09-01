@@ -3,6 +3,7 @@ package de.fzj.unicore.uas.fts;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.fzj.unicore.uas.fts.http.BFTExportsController;
 import de.fzj.unicore.uas.fts.http.BFTImportsController;
 import de.fzj.unicore.uas.fts.http.HttpFileTransferImpl;
 import de.fzj.unicore.uas.fts.uftp.LogicalUFTPServer;
@@ -108,8 +109,13 @@ public class FileTransferCapabilities {
 		}
 
 		@Override
-		public Class<? extends IFTSController> getFTSController(){
+		public Class<? extends IFTSController> getFTSImportsController(){
 			return BFTImportsController.class;
+		}
+
+		@Override
+		public Class<? extends IFTSController> getFTSExportsController(){
+			return BFTExportsController.class;
 		}
 
 		@Override

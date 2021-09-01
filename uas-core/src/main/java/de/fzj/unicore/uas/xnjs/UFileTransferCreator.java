@@ -406,11 +406,11 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		String protocol = urlInfo.getM1();
 		Endpoint ep = new Endpoint(urlInfo.getM2());
 		FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
-		if(fc==null || fc.getFTSController()==null) {
+		if(fc==null || fc.getFTSImportsController()==null) {
 			throw new IOException("Server-to-Server transfer not available for protocol "+protocol);
 		}
 		try{
-			IFTSController fts = fc.getFTSController().getConstructor(
+			IFTSController fts = fc.getFTSImportsController().getConstructor(
 					XNJS.class, Client.class, Endpoint.class, DataStageInInfo.class, String.class).
 					newInstance(xnjs, client, ep, info, workingDirectory);
 			return fts;
@@ -423,8 +423,22 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	@Override
 	public IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info)
 			throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		URI target = info.getTarget();
+		Pair<String,String>urlInfo = extractUrlInfo(target);
+		String protocol = urlInfo.getM1();
+		Endpoint ep = new Endpoint(urlInfo.getM2());
+		FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
+		if(fc==null || fc.getFTSExportsController()==null) {
+			throw new IOException("Server-to-Server transfer not available for protocol "+protocol);
+		}
+		try{
+			IFTSController fts = fc.getFTSExportsController().getConstructor(
+					XNJS.class, Client.class, Endpoint.class, DataStageOutInfo.class, String.class).
+					newInstance(xnjs, client, ep, info, workingDirectory);
+			return fts;
+		}catch(Exception e) {
+			throw new IOException(e);
+		}
 	}
 
 }

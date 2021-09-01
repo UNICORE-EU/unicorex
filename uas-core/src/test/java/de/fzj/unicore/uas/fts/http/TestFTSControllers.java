@@ -15,6 +15,7 @@ import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
+import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
@@ -33,7 +34,7 @@ public class TestFTSControllers extends Base {
 	String sourceURL,targetURL;
 
 	@Test
-	public void testCollectFileList()throws Exception{
+	public void testCollectImportFileList()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
 		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
@@ -59,6 +60,34 @@ public class TestFTSControllers extends Base {
 		assertEquals(numberOfFiles.getM2(), (Long)size);
 	}
 
+	
+	@Test
+	public void testCollectExportFileList()throws Exception{
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
+		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
+		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
+				new UsernamePassword("demouser", "test123"));
+		Pair<Integer, Long> numberOfFiles = initSource();
+		target = sfc.createStorage();
+		XNJS xnjs = XNJSFacade.get(null, kernel).getXNJS();
+		Client client = new Client();
+		SecurityTokens t = new SecurityTokens();
+		t.setUserName("CN=Demo User, O=UNICORE, C=EU");
+		t.setConsignorTrusted(true);
+		client.setAuthenticatedClient(t);
+		DataStageOutInfo dso = new DataStageOutInfo();
+		String workingDirectory = source.getMountPoint();
+		dso.setTarget(new URI(target.getEndpoint().getUrl()+"/files/"));
+		dso.setFileName("/");
+		BFTExportsController bft = new BFTExportsController(xnjs, client, source.getEndpoint(), 
+				dso, 
+				workingDirectory);
+		List<FTSTransferInfo> fileList = new ArrayList<>();
+		long size = bft.collectFilesForTransfer(fileList);
+		assertEquals(numberOfFiles.getM1(), (Integer)fileList.size());
+		assertEquals(numberOfFiles.getM2(), (Long)size);
+	}
+	
 	protected Pair<Integer, Long> initSource() throws Exception {
 		source = sfc.createStorage();
 		source.mkdir("folder1/folder11");

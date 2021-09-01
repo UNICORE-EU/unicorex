@@ -201,8 +201,7 @@ public class FTSProcessor extends DefaultProcessor {
 	}
 
 	protected Status launchFiletransfer(FTSTransferInfo info, Integer running) throws Exception {
-		// TODO limit?
-		if(running>10)return Status.CREATED;
+		if(running > getNumberOfFiletransferThreads())return Status.CREATED;
 		IFileTransfer ft = getController().createTransfer(info.getSource(), info.getTarget());
 		if(ft==null)throw new ProcessingException("Cannot create file transfer instance!");
 		xnjs.get(IFileTransferEngine.class).registerFileTransfer(ft);
