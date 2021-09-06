@@ -610,7 +610,48 @@ public class TSIUtils {
 		commands.append("#TSI_LENGTH " + length + "\n");
 		return commands.toString();
 	}
+	
 
+	public static String makeUFTPGetFileCommand(
+			String host, int port, String secret,
+			String remoteFile, 
+			String localFile, 
+			String workingDir, 
+			long start, long length) {
+		StringBuffer commands = new StringBuffer();
+		commands.append("#TSI_UFTP\n");
+		commands.append("#TSI_UFTP_MODE GET\n");
+		commands.append("#TSI_UFTP_HOST "+host+" \n");
+		commands.append("#TSI_UFTP_PORT "+port+" \n");
+		commands.append("#TSI_UFTP_SECRET "+secret+" \n");
+		commands.append("#TSI_UFTP_REMOTE_FILE " + remoteFile + "\n");
+		commands.append("#TSI_UFTP_LOCAL_FILE " + localFile + "\n");
+		commands.append("#TSI_USPACE_DIR " + workingDir + "\n");
+		commands.append("#TSI_START " + start + "\n");
+		commands.append("#TSI_LENGTH " + length + "\n");
+		return commands.toString();
+	}
+
+	public static String makeUFTPPutFileCommand(
+			String host, int port, String secret,
+			String remoteFile, 
+			String localFile, 
+			String workingDir, 
+			long start, long length) {
+		StringBuffer commands = new StringBuffer();
+		commands.append("#TSI_UFTP\n");
+		commands.append("#TSI_UFTP_MODE PUT\n");
+		commands.append("#TSI_UFTP_HOST "+host+" \n");
+		commands.append("#TSI_UFTP_PORT "+port+" \n");
+		commands.append("#TSI_UFTP_SECRET "+secret+" \n");
+		commands.append("#TSI_UFTP_REMOTE_FILE " + remoteFile + "\n");
+		commands.append("#TSI_UFTP_LOCAL_FILE " + localFile + "\n");
+		commands.append("#TSI_USPACE_DIR " + workingDir + "\n");
+		commands.append("#TSI_START " + start + "\n");
+		commands.append("#TSI_LENGTH " + length + "\n");
+		return commands.toString();
+	}
+	
 	/**
 	 * If given, extract the reservation ID from the JSDL Resources element<br/>
 	 * It is assumed to be in an element<br/> &lt;u:ReservationReference
