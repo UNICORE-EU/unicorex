@@ -34,8 +34,8 @@
     <guava.version>30.0-jre</guava.version>
     <jclouds.version>2.2.0</jclouds.version>
     <groovy.version>2.4.16</groovy.version>
-    <lucene.version>8.5.1</lucene.version>
-    <tika.version>1.24.1</tika.version>
+    <lucene.version>8.9.0</lucene.version>
+    <tika.version>1.27</tika.version>
   </properties>
 
   <modules>
