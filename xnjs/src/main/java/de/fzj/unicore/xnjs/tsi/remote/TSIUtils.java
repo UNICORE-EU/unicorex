@@ -617,18 +617,20 @@ public class TSIUtils {
 			String remoteFile, 
 			String localFile, 
 			String workingDir, 
-			long start, long length) {
+			long offset, long length, boolean partial) {
 		StringBuffer commands = new StringBuffer();
-		commands.append("#TSI_UFTP\n");
-		commands.append("#TSI_UFTP_MODE GET\n");
-		commands.append("#TSI_UFTP_HOST "+host+" \n");
-		commands.append("#TSI_UFTP_PORT "+port+" \n");
-		commands.append("#TSI_UFTP_SECRET "+secret+" \n");
-		commands.append("#TSI_UFTP_REMOTE_FILE " + remoteFile + "\n");
-		commands.append("#TSI_UFTP_LOCAL_FILE " + localFile + "\n");
-		commands.append("#TSI_USPACE_DIR " + workingDir + "\n");
-		commands.append("#TSI_START " + start + "\n");
-		commands.append("#TSI_LENGTH " + length + "\n");
+		commands.append("#TSI_UFTP");
+		commands.append("\n#TSI_UFTP_HOST ").append(host);
+		commands.append("\n#TSI_UFTP_PORT ").append(port);
+		commands.append("\n#TSI_UFTP_SECRET ").append(secret);
+		commands.append("\n#TSI_UFTP_OPERATION GET");
+		commands.append("\n#TSI_UFTP_REMOTE_FILE ").append(remoteFile);
+		commands.append("\n#TSI_UFTP_LOCAL_FILE ").append(localFile);
+		commands.append("\n#TSI_UFTP_WRITE_MODE ").append(partial ? "PARTIAL" : "FULL");
+		commands.append("\n#TSI_UFTP_OFFSET ").append(offset);
+		commands.append("\n#TSI_UFTP_LENGTH ").append(length);
+		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
+		commands.append("\n");
 		return commands.toString();
 	}
 
@@ -637,18 +639,20 @@ public class TSIUtils {
 			String remoteFile, 
 			String localFile, 
 			String workingDir, 
-			long start, long length) {
+			long offset, long length, boolean partial) {
 		StringBuffer commands = new StringBuffer();
-		commands.append("#TSI_UFTP\n");
-		commands.append("#TSI_UFTP_MODE PUT\n");
-		commands.append("#TSI_UFTP_HOST "+host+" \n");
-		commands.append("#TSI_UFTP_PORT "+port+" \n");
-		commands.append("#TSI_UFTP_SECRET "+secret+" \n");
-		commands.append("#TSI_UFTP_REMOTE_FILE " + remoteFile + "\n");
-		commands.append("#TSI_UFTP_LOCAL_FILE " + localFile + "\n");
-		commands.append("#TSI_USPACE_DIR " + workingDir + "\n");
-		commands.append("#TSI_START " + start + "\n");
-		commands.append("#TSI_LENGTH " + length + "\n");
+		commands.append("#TSI_UFTP");
+		commands.append("\n#TSI_UFTP_HOST ").append(host);
+		commands.append("\n#TSI_UFTP_PORT ").append(port);
+		commands.append("\n#TSI_UFTP_SECRET ").append(secret);
+		commands.append("\n#TSI_UFTP_OPERATION PUT");
+		commands.append("\n#TSI_UFTP_REMOTE_FILE ").append(remoteFile);
+		commands.append("\n#TSI_UFTP_LOCAL_FILE ").append(localFile);
+		commands.append("\n#TSI_UFTP_WRITE_MODE ").append(partial ? "PARTIAL" : "FULL");
+		commands.append("\n#TSI_UFTP_OFFSET ").append(offset);
+		commands.append("\n#TSI_UFTP_LENGTH ").append(length);
+		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
+		commands.append("\n");
 		return commands.toString();
 	}
 	
