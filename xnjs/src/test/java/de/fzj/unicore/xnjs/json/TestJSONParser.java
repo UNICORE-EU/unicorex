@@ -93,7 +93,7 @@ public class TestJSONParser {
 				"				CPUsPerNode: '0-16'," +
 				"				GarglesPerCPU: '1-2:2'," +
 				
-				"               Runtime: '0-24h:30m',"+
+				"               Runtime: '1-24h:30m',"+
 				"               MemoryPerNode: '0-1024M',"+
 				"               QoS: {"+
 				"		    		'Type'  : 'CHOICE'," + 
@@ -171,6 +171,17 @@ public class TestJSONParser {
 		assertEquals(1, dsi.getSources().length);
 	}
 	
+	@Test
+	public void testParseInlineStageIn() throws Exception {
+		JSONObject spec = new JSONObject();
+		spec.put("Data", "some inline data");
+		spec.put("To", "file.txt");
+		DataStageInInfo dsi = new JSONParser().parseStageIn(spec);
+		assertEquals("file.txt", dsi.getFileName());
+		assertEquals(1, dsi.getSources().length);
+		assertTrue(dsi.getSources()[0].toString().startsWith("inline:"));
+	}
+
 	@Test
 	public void testParseStageOut() throws Exception {
 		JSONObject spec = new JSONObject();

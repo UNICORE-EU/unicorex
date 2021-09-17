@@ -15,7 +15,6 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.unigrids.services.atomic.types.GridFileType;
 import org.unigrids.services.atomic.types.ProtocolType;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
@@ -27,7 +26,6 @@ import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.client.FileTransferClient;
 import de.fzj.unicore.uas.client.StorageClient;
 import de.fzj.unicore.uas.client.StorageFactoryClient;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.ws.client.RegistryClient;
@@ -90,8 +88,6 @@ public class TestSwift {
 	
 	Properties swiftProps; 
 
-	@Test
-	@FunctionalTest(id="SwiftTest", description="Tests Swift SMS impl")
 	public void testStorageFactory()throws Exception {
 		swiftProps = loadSwiftProps();
 		UASProperties uasProps = kernel.getAttribute(UASProperties.class);

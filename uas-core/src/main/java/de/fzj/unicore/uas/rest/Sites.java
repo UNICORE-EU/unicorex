@@ -2,7 +2,6 @@ package de.fzj.unicore.uas.rest;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -204,7 +203,7 @@ public class Sites extends ServicesBase {
 		Home jmsHome = kernel.getHome(UAS.JMS);
 		Client c=AuthZAttributeStore.getClient(); 
 		String[] tags = tagSpec.split("[ +,]");
-		Collection<String> tagged = jmsHome.getStore().getTaggedResources(tags);
+		List<String> tagged = jmsHome.getStore().getTaggedResources(tags);
 		return jmsHome.getAccessibleResources(tagged, c);
 	}
 	

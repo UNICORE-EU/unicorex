@@ -106,6 +106,9 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		DataStageInInfo dsi = new DataStageInInfo();
 		String to = JSONUtils.getStringAlt(spec, "To", "file");
 		String source = JSONUtils.getStringAlt(spec, "From", "source");
+		if(source==null && JSONUtils.hasKey(spec, "Data")) {
+			source = "inline:/dummy";
+		}
 		dsi.setFileName(to);
 		dsi.setSources(new URI[]{new URI(source)});
 		if(source.startsWith("inline:")) {

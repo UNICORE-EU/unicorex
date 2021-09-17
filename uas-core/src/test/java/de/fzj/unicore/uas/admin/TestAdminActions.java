@@ -18,7 +18,6 @@ import de.fzj.unicore.uas.client.JobClient;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
 import de.fzj.unicore.uas.testsuite.AbstractJobRun;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.services.admin.AdminActionResult;
 import eu.unicore.services.ws.WSUtilities;
 
@@ -26,7 +25,6 @@ import eu.unicore.services.ws.WSUtilities;
 public class TestAdminActions extends AbstractJobRun {
 
 	@Test
-	@FunctionalTest(id="testToggleJobSubmission", description="Tests the ToggleJobSubmission admin action")
 	public void testToggleJobSubmission(){
 		Map<String,String>params=new HashMap<String,String>();
 		params.put("message", "test123");
@@ -42,7 +40,6 @@ public class TestAdminActions extends AbstractJobRun {
 	}
 	
 	@Test
-	@FunctionalTest(id="testShowServerStatusOverview", description="Tests the ShowServerStatusOverview admin action")
 	public void testShowServerStatusOverview()throws Exception{
 		initClients();
 		runJob(tss);
@@ -54,7 +51,6 @@ public class TestAdminActions extends AbstractJobRun {
 	}
 	
 	@Test
-	@FunctionalTest(id="testShowJobDetails", description="Tests the ShowJobDetails admin action")
 	public void testShowJobDetails()throws Exception{
 		initClients();
 		JobClient job = runJob(tss);

@@ -57,7 +57,6 @@ import de.fzj.unicore.xnjs.json.JsonIDB;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
-import eu.unicore.bugsreporter.annotation.FunctionalTest;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
@@ -123,7 +122,6 @@ public class TestIDBDirectory {
 	}
 
 	@Test
-	@FunctionalTest(id="testIDBDirectory",description="Tests the IDB configured from a directory")
 	public void testIDBDirectory() throws Exception {
 		ApplicationInfo app=idb.getApplication("test", null, new Client());
 		assertNotNull(app);
