@@ -17,18 +17,8 @@ public class CoreCapabilities implements Capabilities, IOCapabilities{
 	@Override
 	public Capability[] getCapabilities() {
 		return new Capability[]{
-
-				// REST
-
 				FileTransferCapabilities.REST_BASE,
 				FileTransferCapabilities.REST_UFTP,
-
-
-				// SOAP / XML
-
-				FileTransferCapabilities.SOAP_BFT,
-				FileTransferCapabilities.SOAP_UFTP,
-
 		};
 	}
 
@@ -40,6 +30,4 @@ public class CoreCapabilities implements Capabilities, IOCapabilities{
 		};
 	}
 
-	
-	
 }

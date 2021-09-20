@@ -68,7 +68,7 @@ public class TestCoreClients extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
 		StorageClient storage = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
 		System.out.println(storage.getProperties().toString(2));
-		for(FileListEntry e: storage.getFiles(".").list(0, 1000)) {
+		for(FileListEntry e: storage.ls(".").list(0, 1000)) {
 			System.out.println(e);
 		}
 		System.out.println(storage.stat("/"));
@@ -96,7 +96,7 @@ public class TestCoreClients extends Base {
 		StorageClient usp = jc.getWorkingDirectory();
 		System.out.println(usp.getProperties().toString(2));
 		
-		FileList fl = usp.getFiles("/");
+		FileList fl = usp.ls("/");
 		List<FileListEntry> files = fl.list(0,50);
 		for(FileListEntry fle: files)System.out.println(fle);
 		Assert.assertEquals(4, files.size());

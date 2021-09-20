@@ -1,17 +1,17 @@
-package de.fzj.unicore.uas.fts.http;
+package de.fzj.unicore.uas.fts;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
 import de.fzj.unicore.xnjs.fts.IFTSController;
 import de.fzj.unicore.xnjs.fts.SourceFileInfo;
-import de.fzj.unicore.xnjs.io.DataStageInInfo;
+import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.FileSet;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
@@ -19,9 +19,9 @@ import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.OptionNotSupportedException;
+import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.client.Endpoint;
-import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
@@ -29,7 +29,7 @@ import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
 
-public class BFTImportsController implements IFTSController {
+public class ExportsController implements IFTSController {
 
 	protected IStorageAdapter localStorage;
 
@@ -39,7 +39,7 @@ public class BFTImportsController implements IFTSController {
 	
 	protected final Kernel kernel;
 
-	protected DataStageInInfo dsi;
+	protected DataStageOutInfo dso;
 
 	protected OverwritePolicy overwritePolicy;
 	
@@ -51,21 +51,19 @@ public class BFTImportsController implements IFTSController {
 	
 	protected final Endpoint remoteEndpoint;
 
-	protected final String source;
+	protected final String target;
 	
 	protected FileSet sourceFileSet;
-	
-	protected FileListEntry remoteBaseInfo;
 
 	protected final String workingDirectory;
 	
-	public BFTImportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageInInfo dsi, String workingDirectory) {
+	public ExportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageOutInfo dso, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.kernel = xnjs.get(Kernel.class);
 		this.client = client;
 		this.remoteEndpoint = remoteEndpoint;
-		this.dsi = dsi;
-		this.source = UFileTransferCreator.getFileSpec(dsi.getSources()[0].toString());
+		this.dso = dso;
+		this.target = UFileTransferCreator.getFileSpec(dso.getTarget().toString());
 		this.workingDirectory = workingDirectory;
 	}
 
@@ -73,7 +71,16 @@ public class BFTImportsController implements IFTSController {
 	public void setStorageAdapter(IStorageAdapter storageAdapter) {
 		this.localStorage = storageAdapter;
 	}
+	
+	public synchronized IStorageAdapter getStorageAdapter() {
+		if(localStorage==null) {
+			localStorage = xnjs.getTargetSystemInterface(client);
+		}
+		localStorage.setStorageRoot(workingDirectory);
+		return localStorage;
+	}
 
+	
 	@Override
 	public void setOverwritePolicy(OverwritePolicy overwrite) throws OptionNotSupportedException {
 		this.overwritePolicy = overwrite;
@@ -98,61 +105,76 @@ public class BFTImportsController implements IFTSController {
 		}
 	}
 	
-	protected void getRemoteFileInfo(String source) throws Exception {
-		if(!FileSet.hasWildcards(source)){
-			remoteBaseInfo = remoteStorage.stat(source);
-			boolean dir = remoteBaseInfo.isDirectory;
-			if(dir){
-				sourceFileSet = new FileSet(source, true);
-			}
-			else{
-				sourceFileSet = new FileSet(source);
-			}
+	protected boolean isDirectory(String file) throws ExecutionException, IOException
+	{
+		XnjsFile f = getStorageAdapter().getProperties(file);
+		if(f!=null) {
+			return f.isDirectory();			
 		}
-		else{
-			sourceFileSet = new FileSet(source);
-			remoteBaseInfo = remoteStorage.stat(sourceFileSet.getBase());
-		}
-		if(remoteBaseInfo == null){
-			throw new FileNotFoundException("No files found for: "+source);
-		}
+		else throw new IOException("The file <"+file+"> does not exist or can not be accessed.");
 	}
 
+	protected synchronized long getFileSize(String file)throws ExecutionException, IOException {
+		XnjsFile f = getStorageAdapter().getProperties(file);
+		if(f!=null){
+			return f.getSize();
+		}
+		else throw new IOException("The file <"+file+"> does not exist or can not be accessed.");
+	}
+	
 	@Override
 	public long collectFilesForTransfer(List<FTSTransferInfo> fileList) throws Exception {
 		setup();
-		getRemoteFileInfo(source);
-		if(remoteBaseInfo.isDirectory) {
-			return doCollectFiles(fileList, remoteBaseInfo, dsi.getFileName(), remoteBaseInfo.path);
+		String source = dso.getFileName();
+		if(FileSet.hasWildcards(source)){
+			sourceFileSet = new FileSet(source);
 		}
 		else{
-			SourceFileInfo sfi = new SourceFileInfo();
-			sfi.setPath(remoteBaseInfo.path);
-			sfi.setSize(remoteBaseInfo.size);
-			fileList.add(new FTSTransferInfo(sfi, dsi.getFileName(), false));
-			return remoteBaseInfo.size;
+			sourceFileSet = new FileSet(source, isDirectory(source));
 		}
+		long dataSize;
+		if(sourceFileSet.isMultifile())
+		{
+			XnjsFile sourceDir = getStorageAdapter().getProperties(sourceFileSet.getBase());
+			if(sourceDir==null) {
+				throw new IOException("The directory <"+sourceFileSet.getBase()+
+						"> does not exist or cannot be accessed!");
+			}
+			dataSize = doCollectFiles(fileList, sourceDir, target);
+		}
+		else
+		{
+			dataSize = getFileSize(source);
+			SourceFileInfo sfi = new SourceFileInfo();
+			sfi.setPath(source);
+			sfi.setSize(dataSize);
+			fileList.add(new FTSTransferInfo(sfi, dso.getTarget().toString(), false));
+		}
+		
+		return dataSize;
+
 	}
 	
-	protected long doCollectFiles(List<FTSTransferInfo> fileList, FileListEntry sourceFolder, 
-			String targetFolder, String baseDirectory) throws Exception
+	protected long doCollectFiles(List<FTSTransferInfo> fileList, XnjsFile sourceFolder, 
+			String targetFolder) throws Exception
 	{
 		long result = 0;
-		for (FileListEntry child : remoteStorage.getFiles(sourceFolder.path).list(0, SMSBaseImpl.MAX_LS_RESULTS)) {
-			String relative = IOUtils.getRelativePath(child.path, sourceFolder.path);
-			String target = targetFolder+relative;
-			if(child.isDirectory && sourceFileSet.isRecurse())
+		IStorageAdapter sms = getStorageAdapter();
+		for (XnjsFile child : sms.ls(sourceFolder.getPath())) {
+			String relative = IOUtils.getRelativePath(child.getPath(), sourceFolder.getPath());
+			String target = targetFolder + relative;
+			if(child.isDirectory() && sourceFileSet.isRecurse())
 			{
-				result += doCollectFiles(fileList, child, target, baseDirectory);
+				result += doCollectFiles(fileList, child, target);
 			}
 			else 
 			{
-				if(remoteBaseInfo.isDirectory && sourceFileSet.matches(child.path)){
+				if(sourceFileSet.isMultifile() && sourceFileSet.matches(child.getPath())){
 					SourceFileInfo sfi = new SourceFileInfo();
-					sfi.setPath(child.path);
-					sfi.setSize(child.size);
+					sfi.setPath(child.getPath());
+					sfi.setSize(child.getSize());
 					fileList.add(new FTSTransferInfo(sfi, target, false));
-					result += child.size;
+					result += child.getSize();
 				}
 			}
 		}
@@ -162,11 +184,11 @@ public class BFTImportsController implements IFTSController {
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
-		String source = remoteEndpoint.getUrl()+"/files/"+from.getPath();
-		DataStageInInfo info = dsi.clone();
-		info.setSources(new URI[]{new URI(source)});
-		info.setFileName(to);
-		IFileTransfer ft = xnjs.get(IFileTransferEngine.class).createFileImport(client, workingDirectory, info);
+		String target = remoteEndpoint.getUrl()+"/files/"+to;
+		DataStageOutInfo info = dso.clone();
+		info.setTarget(new URI(target));
+		info.setFileName(from.getPath());
+		IFileTransfer ft = xnjs.get(IFileTransferEngine.class).createFileExport(client, workingDirectory, info);
 		return ft;
 	}
 

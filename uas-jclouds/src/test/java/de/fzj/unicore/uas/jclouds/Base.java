@@ -8,18 +8,15 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.client.BaseUASClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.StorageFactoryClient;
+import eu.unicore.client.registry.RegistryClient;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.ws.client.RegistryClient;
-import eu.unicore.services.ws.sg.Registry;
-
+import eu.unicore.services.rest.client.BaseClient;
+import eu.unicore.services.rest.client.IAuthCallback;
 /**
  * base class for tests that need a running UNICORE/X server
  */
@@ -43,29 +40,13 @@ public abstract class Base{
 	
 	@BeforeClass
 	public static void startUNICORE() throws Exception{
-		
 		long start=System.currentTimeMillis();
 		System.out.println("Starting UNICORE/X...");
-		
 		initDirectories();
 		uas=new UAS(configPath);
 		kernel=uas.getKernel();
-		
-		//make default_SMS workdir absolute 
-		UASProperties uasProperties = kernel.getAttribute(UASProperties.class); 
-		String smsPath=uasProperties.getValue("defaultsms.path");
-		if(smsPath!=null){
-			uasProperties.setProperty("defaultsms.path", new File(smsPath).getAbsolutePath());
-		}
-		String smsWD=uasProperties.getValue("defaultsms.workdir");
-		if(smsWD!=null){
-			uasProperties.setProperty("defaultsms.workdir", new File(smsWD).getAbsolutePath());
-		}
-		
 		uas.startSynchronous();
-		
 		System.err.println("UNICORE/X startup time: "+(System.currentTimeMillis()-start)+" ms.");
-		
 	}
 
 	@AfterClass
@@ -74,25 +55,25 @@ public abstract class Base{
 	}
 	
 	protected StorageFactoryClient getStorageFactory() throws Exception {
-		String url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
-		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
-		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
+		String url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL)
+				+"/rest/registries/default_registry";
+		IAuthCallback auth = null;
+		RegistryClient reg = new RegistryClient(url, kernel.getClientConfiguration(), auth);
 		//find a StorageFactory
-		List<EndpointReferenceType> eprs=reg.listServices(StorageFactory.SMF_PORT);
-		assertTrue(eprs!=null && eprs.size()>0);
-		EndpointReferenceType tsfepr=findFirstAccessibleService(eprs);
-		assertTrue(tsfepr!=null);
-		System.out.println("Using StorageFactory at "+tsfepr.getAddress().getStringValue());
-		return new StorageFactoryClient(tsfepr,kernel.getClientConfiguration());
+		List<Endpoint> eps = reg.listEntries("StorageFactory");
+		assertTrue(eps!=null && eps.size()>0);
+		Endpoint smf = findFirstAccessibleService(eps);
+		assertTrue(smf!=null);
+		System.out.println("Using StorageFactory at "+smf.getUrl());
+		return new StorageFactoryClient(smf, kernel.getClientConfiguration(), auth);
 	}
 	
-	protected EndpointReferenceType findFirstAccessibleService(List<EndpointReferenceType>eprs){
-		for(EndpointReferenceType epr: eprs){
+	protected Endpoint findFirstAccessibleService(List<Endpoint>eps){
+		for(Endpoint ep: eps){
 			try{
-				BaseUASClient c=new BaseUASClient(epr,uas.getKernel().getClientConfiguration());
-				c.getCurrentTime();
-				return epr;
+				BaseClient c = new BaseClient(ep.getUrl(), uas.getKernel().getClientConfiguration(), null);
+				c.getJSON();
+				return ep;
 			}catch(Exception e){}
 		}
 		return null;

@@ -10,6 +10,8 @@ import java.util.List;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
+import de.fzj.unicore.uas.fts.ExportsController;
+import de.fzj.unicore.uas.fts.ImportsController;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.XNJS;
@@ -51,7 +53,7 @@ public class TestFTSControllers extends Base {
 		String sources = source.getEndpoint().getUrl()+"/files/";
 		dsi.setSources(new URI[] {new URI(sources)});
 		dsi.setFileName("/");
-		BFTImportsController bft = new BFTImportsController(xnjs, client, source.getEndpoint(), 
+		ImportsController bft = new ImportsController(xnjs, client, source.getEndpoint(), 
 				dsi, 
 				wd.getAbsolutePath());
 		List<FTSTransferInfo> fileList = new ArrayList<>();
@@ -79,7 +81,7 @@ public class TestFTSControllers extends Base {
 		String workingDirectory = source.getMountPoint();
 		dso.setTarget(new URI(target.getEndpoint().getUrl()+"/files/"));
 		dso.setFileName("/");
-		BFTExportsController bft = new BFTExportsController(xnjs, client, source.getEndpoint(), 
+		ExportsController bft = new ExportsController(xnjs, client, source.getEndpoint(), 
 				dso, 
 				workingDirectory);
 		List<FTSTransferInfo> fileList = new ArrayList<>();

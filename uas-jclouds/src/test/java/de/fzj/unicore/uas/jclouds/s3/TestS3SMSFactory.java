@@ -1,41 +1,37 @@
 package de.fzj.unicore.uas.jclouds.s3;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.unigrids.services.atomic.types.ProtocolType;
 
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.client.FileTransferClient;
-import de.fzj.unicore.uas.client.StorageClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.jclouds.Base;
-import de.fzj.unicore.xuudb.Log;
-import eu.unicore.services.ws.WSUtilities;
+import eu.unicore.client.core.StorageClient;
+import eu.unicore.client.core.StorageFactoryClient;
+import eu.unicore.client.data.HttpFileTransferClient;
+import eu.unicore.util.Log;
 
 public class TestS3SMSFactory extends Base {
 
 	@Test
 	public void testCreateS3() throws Exception {
 		StorageFactoryClient smf = getStorageFactory();
-		StorageClient sms = smf.createSMS("S3","myS3",null);
-		System.out.println(sms.getResourcePropertyDocument());
-		sms.createDirectory("testing.unicore.eu");
-		assertNotNull(sms.listProperties("testing.unicore.eu"));
-		sms.createDirectory("testing.unicore.eu/data");
-		assertNotNull(sms.listProperties("testing.unicore.eu/data"));
-		System.out.println(Arrays.asList(sms.listDirectory("testing.unicore.eu")));
-		System.out.println(sms.listProperties("testing.unicore.eu/data"));
-		FileTransferClient ft = sms.getImport("testing.unicore.eu/data/testdata", ProtocolType.BFT);
+		StorageClient sms = smf.createStorage("S3","myS3", null, null);
+		System.out.println(sms.getProperties().toString(2));
+		sms.mkdir("testing.unicore.eu");
+		assertNotNull(sms.stat("testing.unicore.eu"));
+		sms.mkdir("testing.unicore.eu/data");
+		assertNotNull(sms.stat("testing.unicore.eu/data"));
+		System.out.println(sms.ls("testing.unicore.eu"));
+		System.out.println(sms.stat("testing.unicore.eu/data"));
+		HttpFileTransferClient ft = sms.upload("testing.unicore.eu/data/testdata");
 		ft.writeAllData(new ByteArrayInputStream("some test data".getBytes()));
-		ft.destroy();
-		System.out.println(Arrays.asList(sms.listDirectory("testing.unicore.eu/")));
+		ft.delete();
+		System.out.println(sms.ls("testing.unicore.eu"));
 	}
 
 	@Test
@@ -44,8 +40,10 @@ public class TestS3SMSFactory extends Base {
 		Map<String,String>params = new HashMap<String, String>();
 		String accessKey = "test123";
 		params.put("accessKey", accessKey);
-		StorageClient sms = smf.createSMS("S3","my s3",params,null);
-		String uid = WSUtilities.extractResourceID(sms.getUrl());
+		StorageClient sms = smf.createStorage("S3","my s3", params, null);
+		String url = sms.getEndpoint().getUrl();
+		String uid = url.substring(url.lastIndexOf("/")+1);
+		System.out.println(uid);
 		// check the SMS model contains our parameters
 		S3Model model = (S3Model)(kernel.getHome(UAS.SMS).get(uid).getModel());
 		String effectiveAccessKey = model.getAccessKey();
@@ -60,7 +58,7 @@ public class TestS3SMSFactory extends Base {
 		String endpoint = "my_ep";
 		params.put("endpoint", endpoint);
 		try{
-			smf.createSMS("S3","my s3",params,null);
+			smf.createStorage("S3", "my s3", params, null);
 		}catch(Exception ex){
 			// OK
 			System.out.println(Log.createFaultMessage("As expected", ex));

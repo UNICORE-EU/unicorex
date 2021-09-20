@@ -121,7 +121,6 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		String source = info.getFileName();
 		URI target = info.getTarget();
 		DataStagingCredentials creds = info.getCredentials();
-		
 
 		if(isREST(target)) {
 			Pair<String,String>urlInfo = extractUrlInfo(target);
@@ -135,21 +134,6 @@ public class UFileTransferCreator implements IFileTransferCreator{
 				}
 				else{
 					throw new RuntimeException("File transfer for protocol <"+protocol+"> is not available!");
-				}
-			}
-		}
-		else {
-			String scheme=target.getScheme();
-			FileTransferCapability fc = FileTransferCapabilities.getCapability(scheme+"-SOAP", kernel);
-			if(fc==null) {
-				fc = FileTransferCapabilities.getCapability(scheme, kernel);
-			}
-			if(fc!=null){
-				if(fc.isAvailable()){
-					return createExportSOAP(fc.getExporter(),client,workdir,source,target,creds);
-				}
-				else{
-					throw new RuntimeException("File transfer for protocol <"+scheme+"> is not available!");
 				}
 			}
 		}
@@ -173,21 +157,6 @@ public class UFileTransferCreator implements IFileTransferCreator{
 				}
 				else{
 					throw new RuntimeException("File transfer for protocol <"+protocol+"> is not available!");
-				}
-			}
-		}
-		else {
-			String scheme=source.getScheme();
-			FileTransferCapability fc = FileTransferCapabilities.getCapability(scheme+"-SOAP", kernel);
-			if(fc==null) {
-				fc = FileTransferCapabilities.getCapability(scheme, kernel);
-			}
-			if(fc!=null){
-				if(fc.isAvailable()){
-					return createImportSOAP(fc.getImporter(),client,workdir,source,target,creds);
-				}
-				else{
-					throw new RuntimeException("File transfer for protocol <"+scheme+"> is not available!");
 				}
 			}
 		}
@@ -292,78 +261,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		String rest_url = scheme+"://"+base;
 		return new Pair<String,String>(protocol, rest_url);
 	}
-	
-	
-	/**
-	 * create a transfer FROM a SMS to a local file
-	 * 
-	 * the assumed URI format is
-	 *   
-	 *   u6protocol:protocol://host:port/servicespec?res=resourceID#filespec
-	 * 
-	 * @param clazz 
-	 * @param client
-	 * @param workdir
-	 * @param source - remote file
-	 * @param targetFile - local file
-	 * @param creds - ignored
-	 * @return IFileTransfer instance
-	 */
-	public IFileTransfer createImportSOAP(Class<? extends IFileTransfer> clazz,Client client, String workdir, URI source, String targetFile, DataStagingCredentials creds){
-		EndpointReferenceType epr=createStorageEPR(source);
-		
-		String sourceFile=urlDecode(source.getFragment());
-		try{
-			U6FileTransferBase ft=(U6FileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
-			ft.setClient(client);
-			ft.setWorkdir(workdir);
-			ft.getInfo().setSource(sourceFile);
-			ft.getInfo().setTarget(targetFile);
-			ft.setSmsEPR(epr);
-			ft.setExport(false);
-			return ft;
-		}catch(Exception e){
-			logger.warn("Unable to instantiate file transfer", e);
-			return null;
-		}
-	} 
-	
-	
-	/**
-	 * create a transfer TO an SMS from a local file
-	 * 
-	 * the assumed URL encoding is
-	 *   
-	 *   u6protocol:protocol://host:port/servicespec?res=resourceID#filespec
-	 * 
-	 * @param clazz
-	 * @param client
-	 * @param workdir
-	 * @param sourceFile - local file
-	 * @param target - remote file
-	 * @param credentials - ignored
-	 * @return IFileTransfer instance
-	 */
-	public IFileTransfer createExportSOAP(Class<? extends IFileTransfer> clazz, Client client, String workdir, String sourceFile, URI target, DataStagingCredentials credentials){
-		
-		EndpointReferenceType epr=createStorageEPR(target);
-		String targetFile=urlDecode(target.getFragment());
-		try{
-			U6FileTransferBase ft = (U6FileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
-			ft.setClient(client);
-			ft.getInfo().setSource(sourceFile);
-			ft.getInfo().setTarget(targetFile);
-			ft.setWorkdir(workdir);
-			ft.setSmsEPR(epr);
-			ft.setExport(true);
-			return ft;
-		}catch(Exception e){
-			//can't happen
-			e.printStackTrace();
-			return null;
-		}
-	} 
-		
+
 	/**
 	 * replace URI-encoded characters by their unencoded counterparts
 	 * @param orig

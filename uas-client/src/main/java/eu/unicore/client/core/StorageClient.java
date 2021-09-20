@@ -42,19 +42,27 @@ public class StorageClient extends BaseServiceClient {
 		super(endpoint, security, auth);
 		initRegisteredClients();
 	}
-
-	public FileList getFiles(String basedir) throws Exception {
+	
+	public FileList ls(String basedir) throws Exception {
 		if(basedir==null)basedir = "/";
 		if(!basedir.startsWith("/"))basedir="/"+basedir;
 		String url = getLinkUrl("files")+encode(basedir);
 		Endpoint ep = endpoint.cloneTo(url);
-		return new FileList(this, ep, security, auth);
+		return new FileList(this, basedir, ep, security, auth);
+	}
+	
+
+	/**
+	 * @deprecated use ls()
+	 */
+	public FileList getFiles(String basedir) throws Exception {
+		return ls(basedir);
 	}
 	
 	/**
 	 * get file properties for a path 
+	 *
 	 * @param path
-	 * @return
 	 * @throws Exception
 	 */
 	public FileListEntry stat(String path) throws Exception {

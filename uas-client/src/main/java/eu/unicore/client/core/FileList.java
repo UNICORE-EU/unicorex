@@ -22,14 +22,20 @@ import eu.unicore.util.httpclient.IClientConfiguration;
 public class FileList extends BaseServiceClient {
 
 	protected StorageClient parentStorage;
-	
-	public FileList(StorageClient parentStorage, Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	protected String baseDir;
+
+	public FileList(StorageClient parentStorage, String baseDir, Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 		this.parentStorage = parentStorage;
+		this.baseDir = baseDir;
 	}
 
 	public StorageClient getStorage(){
 		return parentStorage;
+	}
+	
+	public List<FileListEntry>list() throws Exception {
+		return list(0, 1000);
 	}
 	
 	public List<FileListEntry>list(int offset, int num) throws Exception {
@@ -51,6 +57,18 @@ public class FileList extends BaseServiceClient {
 			res.add(new FileListEntry(child, content.getJSONObject(child)));
 		}
 		return res;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Files @ ").append(parentStorage.getEndpoint().getUrl()).append("/files/").append(baseDir);
+		sb.append("\n");
+		try {
+			for(FileListEntry fle: list()) {
+				sb.append(fle.toString()).append("\n");
+			}
+		}catch(Exception e) {}
+		return sb.toString();
 	}
 	
 	public static class FileListEntry{

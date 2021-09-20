@@ -351,7 +351,7 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 	{
 		long result = 1;
 		collection.add(new Pair<FileListEntry,String>(sourceFolder, targetFolder));
-		for (FileListEntry child : storage.getFiles(sourceFolder.path).list(0, SMSBaseImpl.MAX_LS_RESULTS)) {
+		for (FileListEntry child : storage.ls(sourceFolder.path).list(0, SMSBaseImpl.MAX_LS_RESULTS)) {
 			String relative = IOUtils.getRelativePath(child.path, sourceFolder.path);
 			String target = targetFolder+relative;
 			if(child.isDirectory && fileSet.isRecurse())

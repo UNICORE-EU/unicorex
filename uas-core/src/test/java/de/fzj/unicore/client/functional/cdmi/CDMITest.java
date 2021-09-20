@@ -103,7 +103,7 @@ public class CDMITest extends Base {
 
 	private void checkNewStorage(StorageClient sms)throws Exception{
 		//check if the created SMS is OK...
-		FileList files = sms.getFiles("/");
+		FileList files = sms.ls("/");
 		//should be empty
 		assertTrue(files.list(0, 5).size()==0);
 

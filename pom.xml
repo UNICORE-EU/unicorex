@@ -27,12 +27,12 @@
   <properties>
     <compiler.fork>false</compiler.fork>
     <use.version>4.2.1</use.version>
-    <persistence.version>0.203</persistence.version>
+    <persistence.version>0.204</persistence.version>
     <metrics.version>4.1.14</metrics.version>
     <uftp.version>2.11.0</uftp.version>
     <guice.version>5.0.1</guice.version>
     <guava.version>30.0-jre</guava.version>
-    <jclouds.version>2.2.0</jclouds.version>
+    <jclouds.version>2.4.0</jclouds.version>
     <groovy.version>2.4.16</groovy.version>
     <lucene.version>8.9.0</lucene.version>
     <tika.version>1.27</tika.version>
@@ -225,36 +225,18 @@
       </dependency>
       <dependency>
 	<groupId>org.apache.jclouds.driver</groupId>
-	<artifactId>jclouds-sshj</artifactId>
+	<artifactId>jclouds-slf4j</artifactId>
 	<version>${jclouds.version}</version>
 	<exclusions>
-          <!-- try to use BC provided by UNICORE -->
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-ext-jdk15on</artifactId>
-          </exclusion>
-          <!-- we get JAX-RS via CXF -->
-          <exclusion>
+	  <exclusion>
             <groupId>javax.ws.rs</groupId>
-            <artifactId>jsr311-api</artifactId>
+            <artifactId>javax.ws.rs-api</artifactId>
           </exclusion>
 	  <exclusion>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
           </exclusion>
-	  <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-          </exclusion>
-	</exclusions>
+        </exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -332,14 +314,6 @@
             </execution>
           </executions>
         </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <configuration>
-          <descriptors>
-            <descriptor>src/main/assembly/dep.xml</descriptor>
-          </descriptors>
-        </configuration>
-      </plugin>
       <!-- report TODOs etc-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

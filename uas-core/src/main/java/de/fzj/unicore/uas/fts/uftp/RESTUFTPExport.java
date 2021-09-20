@@ -85,7 +85,6 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
 	protected void runTransfers() throws Exception {
 		setupSessionMode();
 		super.runTransfers();
-		System.out.println(storage.getFiles("out").list(0, 100).toString());
 		finishSessionMode();
 		info.setTransferredBytes(info.getDataSize());
 	}

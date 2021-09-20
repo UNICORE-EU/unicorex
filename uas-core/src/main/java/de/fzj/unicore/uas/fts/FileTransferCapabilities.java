@@ -3,20 +3,13 @@ package de.fzj.unicore.uas.fts;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fzj.unicore.uas.fts.http.BFTExportsController;
-import de.fzj.unicore.uas.fts.http.BFTImportsController;
 import de.fzj.unicore.uas.fts.http.HttpFileTransferImpl;
 import de.fzj.unicore.uas.fts.uftp.LogicalUFTPServer;
 import de.fzj.unicore.uas.fts.uftp.RESTUFTPExport;
 import de.fzj.unicore.uas.fts.uftp.RESTUFTPImport;
-import de.fzj.unicore.uas.fts.uftp.UFTPExport;
 import de.fzj.unicore.uas.fts.uftp.UFTPFileTransferImpl;
-import de.fzj.unicore.uas.fts.uftp.UFTPImport;
-import de.fzj.unicore.uas.xnjs.BFTExport;
-import de.fzj.unicore.uas.xnjs.BFTImport;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
 import de.fzj.unicore.uas.xnjs.RESTFileImportBase;
-import de.fzj.unicore.uas.xnjs.U6FileTransferBase;
 import de.fzj.unicore.xnjs.fts.IFTSController;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.services.Kernel;
@@ -110,12 +103,12 @@ public class FileTransferCapabilities {
 
 		@Override
 		public Class<? extends IFTSController> getFTSImportsController(){
-			return BFTImportsController.class;
+			return ImportsController.class;
 		}
 
 		@Override
 		public Class<? extends IFTSController> getFTSExportsController(){
-			return BFTExportsController.class;
+			return ExportsController.class;
 		}
 
 		@Override
@@ -152,70 +145,13 @@ public class FileTransferCapabilities {
 		}
 
 		@Override
-		public boolean isAvailable(){
-			LogicalUFTPServer c = kernel.getAttribute(LogicalUFTPServer.class);
-			return c!=null && c.isUFTPAvailable();
-		}
-	};
-
-	public static FileTransferCapability SOAP_BFT = new U6FileTransferCapability() {
-
-		@Override
-		public String getProtocol() {
-			return "BFT-SOAP";
+		public Class<? extends IFTSController> getFTSImportsController(){
+			return ImportsController.class;
 		}
 
 		@Override
-		public Class<?> getImplementation() {
-			return HttpFileTransferImpl.class;
-		}
-
-		@Override
-		public Class<?> getInterface() {
-			return FileTransferImpl.class;
-		}
-
-		@Override
-		public Class<? extends U6FileTransferBase> getExporter() {
-			return BFTExport.class;
-		}
-
-		@Override
-		public Class<? extends U6FileTransferBase> getImporter() {
-			return BFTImport.class;
-		}
-
-		@Override
-		public String getName(){
-			return "Filetransfer-BFT";
-		}
-	};
-
-	public static FileTransferCapability SOAP_UFTP = new FileTransferCapabilities.U6FileTransferCapability() {
-
-		@Override
-		public String getProtocol() {
-			return "UFTP-SOAP";
-		}
-
-		@Override
-		public Class<?> getImplementation() {
-			return UFTPFileTransferImpl.class;
-		}
-
-		@Override
-		public Class<?> getInterface() {
-			return FileTransferImpl.class;
-		}
-
-		@Override
-		public Class<? extends U6FileTransferBase> getExporter() {
-			return UFTPExport.class;
-		}
-
-		@Override
-		public Class<? extends U6FileTransferBase> getImporter() {
-			return UFTPImport.class;
+		public Class<? extends IFTSController> getFTSExportsController(){
+			return ExportsController.class;
 		}
 
 		@Override

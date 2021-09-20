@@ -42,7 +42,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.jclouds.driver</groupId>
-      <artifactId>jclouds-sshj</artifactId>
+      <artifactId>jclouds-slf4j</artifactId>
     </dependency>
   </dependencies>
 

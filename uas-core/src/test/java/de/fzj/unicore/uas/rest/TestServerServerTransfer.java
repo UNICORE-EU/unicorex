@@ -97,7 +97,7 @@ public class TestServerServerTransfer extends Base {
 	}
 
 	protected void verifyTargetFolderWildcards(boolean included, String targetDir, String... files)throws Exception{
-		FileList lsResult = target.getFiles(targetDir);
+		FileList lsResult = target.ls(targetDir);
 		for(String f: files){
 			if(included){
 				assertTrue("File "+f+" is missing.",contains(f, lsResult));
@@ -130,7 +130,6 @@ public class TestServerServerTransfer extends Base {
 
 	protected void fetchSingleFile(String protocol)throws Exception{
 		reInitTarget();
-		//target.
 		TransferControllerClient c = target.fetchFile(sourceURL+"/files/test.txt", "/test.txt", protocol);
 		assertTrue(c!=null);
 		int cnt=0;
