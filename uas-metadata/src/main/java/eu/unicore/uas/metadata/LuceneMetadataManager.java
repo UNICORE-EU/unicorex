@@ -122,14 +122,14 @@ public class LuceneMetadataManager implements StorageMetadataManager {
      */
     @Override
     public void createMetadata(String resourceName, Map<String, String> lstMetadata) throws IOException {
-        isStorageReady();
+    	isStorageReady();
         isProperResource(resourceName);
         isProperMetadata(lstMetadata);
 
         String fileName = MetadataFile.getMetadatafileName(resourceName);
 
         //for security reasons we copy and overwrite the resourceName
-        Map<String, String> copy = new HashMap<String, String>(lstMetadata);
+        Map<String, String> copy = new HashMap<>(lstMetadata);
         copy.put(Metadata.RESOURCE_NAME_KEY, resourceName);
 
         byte[] metadata = FORMATER.convert(copy);
@@ -144,7 +144,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
 
     @Override
     public void updateMetadata(String resourceName, Map<String, String> lstMetadata) throws IOException {
-        isStorageReady();
+    	isStorageReady();
         isProperResource(resourceName);
         isProperMetadata(lstMetadata);
         
@@ -268,15 +268,11 @@ public class LuceneMetadataManager implements StorageMetadataManager {
     @Override
 	public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString, List<String> storagesList, boolean isAdvanced)
 			throws Exception {
-    	
-    	FederatedSearchProvider searchProvider = new FederatedSearchProvider(kernel, client, searchString, storagesList, isAdvanced);
-    	
-   		ContainerProperties containerProperties =  kernel.getContainerProperties();
-    	ThreadingServices threadServicies = containerProperties.getThreadingServices();
-    	ScheduledExecutorService executorService = threadServicies.getScheduledExecutorService();
-    	Future<FederatedSearchResultCollection> result = executorService.schedule(searchProvider, 1, TimeUnit.SECONDS);
-    	
-        return result;
+    	FederatedSearchProvider searchProvider = new FederatedSearchProvider(kernel, client, searchString, storagesList);
+    	ContainerProperties containerProperties =  kernel.getContainerProperties();
+    	ThreadingServices threadServices = containerProperties.getThreadingServices();
+    	ScheduledExecutorService executorService = threadServices.getScheduledExecutorService();
+    	return executorService.schedule(searchProvider, 1, TimeUnit.SECONDS);
 	}
 
     @Override
@@ -284,7 +280,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         isStorageReady();
         isProperResource(resourceName);
 
-        Map<String, String> metadata = new HashMap<String, String>();
+        Map<String, String> metadata = new HashMap<>();
 
         String fileName = MetadataFile.getMetadatafileName(resourceName);
         if (!fileExists(fileName)) {

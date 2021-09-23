@@ -5,33 +5,25 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collection;
+import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.apache.xmlbeans.XmlObject;
+import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.unigrids.services.atomic.types.GridFileType;
-import org.unigrids.services.atomic.types.MetadataType;
-import org.unigrids.services.atomic.types.StatusType;
-import org.unigrids.services.atomic.types.TextInfoType;
-import org.unigrids.x2006.x04.services.metadata.ExtractionStatisticsDocument;
-import org.unigrids.x2006.x04.services.metadata.FederatedSearchResultCollectionDocument;
-import org.unigrids.x2006.x04.services.metadata.FederatedSearchResultCollectionDocument.FederatedSearchResultCollection.FederatedSearchResults;
-import org.unigrids.x2006.x04.services.metadata.FederatedSearchResultDocument.FederatedSearchResult;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.client.MetadataClient;
-import de.fzj.unicore.uas.client.MetadataClient.CrawlerControl;
-import de.fzj.unicore.uas.client.StorageClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
-import de.fzj.unicore.uas.client.TaskClient;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.StorageClient;
+import eu.unicore.client.data.FileClient;
+import eu.unicore.client.data.Metadata;
+import eu.unicore.client.core.FileList;
+import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.ws.BaseFault;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**
  * Metadata functional tests
@@ -56,36 +48,35 @@ public class TestMetadataFunctional {
 
 	@Test
 	public void testAbsoluteRelative() throws Exception {
-		String url = WSServerUtilities.makeAddress(UAS.SMS, "WORK", kernel.getContainerProperties());
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url);
-		StorageClient sms = new StorageClient(epr, kernel.getClientConfiguration() );
-
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
 		sms.upload("file.txt").write("Some Content".getBytes());
 
-
 		//relative path:
-		GridFileType gridFile = sms.listProperties("file.txt");
-		System.out.println("Prop: " + gridFile.getPath());
+		FileListEntry gridFile = sms.stat("file.txt");
+		System.out.println("Prop: " + gridFile.path);
 
-		GridFileType[] listDirectory = sms.listDirectory("/");
+		FileList listDirectory = sms.ls("/");
 		//absolute path:
-		gridFile = listDirectory[0];
-		System.out.println("List: " + gridFile.getPath());
+		gridFile = listDirectory.list().get(0);
+		System.out.println("List: " + gridFile.path);
 
 		// add some md
-		MetadataClient mc = sms.getMetadataClient();
-		Map<String,String>meta = new HashMap<String,String>();
+		FileClient mc = sms.getFileClient("file.txt");
+		Map<String,String>meta = new HashMap<>();
 		meta.put("foo","bar");
-		mc.createMetadata("file.txt", meta);
+		mc.putMetadata(meta);
 		
 		// copy, rename
 		sms.copy("file.txt", "file2.txt");
 		sms.rename("file.txt", "file3.txt");
 		
 		try{
-			sms.delete("file2.txt");
-			sms.delete("file3.txt");
+			sms.getFileClient("file2.txt").delete();
+			sms.getFileClient("file3.txt").delete();
 		}catch(Exception e){
 			System.out.println("Exception when deleting file: "+e);
 		}
@@ -93,94 +84,56 @@ public class TestMetadataFunctional {
 
 	@Test
 	public void testRetrieval() throws Exception {
-		String url = WSServerUtilities.makeAddress(UAS.SMS, "WORK", kernel.getContainerProperties());
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url);
-		StorageClient sms = new StorageClient(epr, kernel.getClientConfiguration());
-
-		MetadataClient mc = sms.getMetadataClient();
-		assertNotNull(mc);
-
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
 		//import a test file
 		String fileName = "/foo";
 		sms.upload(fileName).write("this is a test".getBytes());
-		GridFileType gridFile = sms.listProperties(fileName);
-		assertNotNull(gridFile);
-		System.out.println("\nFile transfer completed!\n");
+		FileListEntry gridFile = sms.stat(fileName);
 
 		//put metadata via client:
-		Map<String, String> meta = new HashMap<String, String>();
+		Map<String, String> meta = new HashMap<>();
 		meta.put("test", "123");
-		mc.createMetadata(gridFile.getPath(), meta);
+		sms.getFileClient(gridFile.path).putMetadata(meta);
 
 		//retrive metadata by different means:
-		//1. should be in xml:
-		gridFile = sms.listProperties(fileName);
-		System.out.println(fileName + " after setting the metadata: \n" + gridFile);
-
+		gridFile = sms.stat(fileName);
+		
 		System.out.println("\nMetadata retrieval:");
 
-
 		//get via file:
-		System.out.println("\nMetadata for the resource " + gridFile.getPath() + " got via file.getMetadata()");
-		MetadataType metadata = gridFile.getMetadata();
-		assertNotNull("No metada can be accessed via girdFile.getMetadata()", metadata);
-		Map<String, String> extractMetadataType = extractMetadataType(metadata);
+		System.out.println("\nMetadata for the resource " + gridFile.path + " got via REST API");
+		Map<String, String> extractMetadataType = gridFile.metadata;
 		for (String key : meta.keySet()) {
 			assertTrue("Original metadata does contain this key " + key, extractMetadataType.containsKey(key));
 			assertEquals(meta.get(key), extractMetadataType.get(key));
 			System.out.println(key + "-->" + extractMetadataType.get(key));
 		}
-
-		//get via client and gridFile path:
-		System.out.println("\nMetadata for the resource: " + gridFile.getPath() + " got via client and gridFile");
-		Map<String, String> metadata1 = mc.getMetadata(gridFile.getPath());
-		assertNotNull("No metadata can be accessed via MetadataClient.getMetadata(gridFile.getPath())", metadata1);
-		for (String key : meta.keySet()) {
-			assertTrue("Original metadata does not contain this key " + key, metadata1.containsKey(key));
-			assertEquals(meta.get(key), metadata1.get(key));
-			System.out.println(key + "-->" + metadata1.get(key));
-		}
-
-
-		//get via client and original path:
-		System.out.println("\nMetadata for the resource: " + fileName + " got via client and original filename");
-		Map<String, String> metadata2 = mc.getMetadata(fileName);
-		assertNotNull("No metadata can be accessed via MetadaClient.getMetada(originalFileName)", metadata2);
-		for (String key : meta.keySet()) {
-			System.out.println("Key: " + key + " --> " + metadata2.get(key));
-			assertTrue(metadata2.containsKey(key));
-			assertTrue(metadata2.containsValue(meta.get(key)));
-			assertEquals(meta.get(key), metadata2.get(key));
-		}
-
-		mc.deleteMetadata(gridFile.getPath());
-		sms.delete("foo");
+		sms.getFileClient(fileName).putMetadata(Collections.emptyMap());
+		sms.getFileClient(fileName).delete();
 	}
 
 	@Test
 	public void testCreate() throws Exception {
-		String url = WSServerUtilities.makeAddress(UAS.SMS, "WORK", kernel.getContainerProperties());
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url);
-		StorageClient sms = new StorageClient(epr, kernel.getClientConfiguration());
-
-		MetadataClient mc = sms.getMetadataClient();
-		assertNotNull(mc);
-
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
 		//import a test file
 		String fileName = "/foo2";
 		sms.upload(fileName).write("this is a test".getBytes());
-		GridFileType gridFile = sms.listProperties(fileName);
-		assertNotNull(gridFile);
-		System.out.println("\nFile transfer completed!\nTesting creating paths:\n");
 
-		//create by mc:
-		Map<String, String> metadata = new HashMap<String, String>();
+		//create via file client
+		Map<String, String> metadata = new HashMap<>();
 		metadata.put("Key", "Value");
-		mc.createMetadata(fileName, metadata);
+		sms.getFileClient(fileName).putMetadata(metadata);
+		
 		//check:
-		Map<String, String> metadata1 = mc.getMetadata(fileName);
+		Map<String, String> metadata1 = sms.stat(fileName).metadata;
 		assertNotNull(metadata1);
 		assertFalse(metadata1.isEmpty());
 
@@ -190,57 +143,28 @@ public class TestMetadataFunctional {
 			assertEquals(metadata.get(key), metadata1.get(key));
 			System.out.println("Key: " + key + " --> " + metadata1.get(key));
 		}
-
-		//create by file:
-		GridFileType gridFile2 = sms.listProperties(fileName);
-		MetadataType meta = gridFile2.addNewMetadata();
-		TextInfoType[] props = new TextInfoType[1];
-		props[0] = meta.addNewProperty();
-		props[0].setName("Some Name");
-		props[0].setValue("Some value");
-		meta.setPropertyArray(props);
-
-		//check:
-		System.out.println("Check retrival of the data set via setPropertyArray:");
-		//it does not work ;)
-		Map<String, String> metadata2 = mc.getMetadata(fileName);
-		assertNotNull(metadata2);
-		assertFalse(metadata2.isEmpty());
-		for (String key : metadata2.keySet()) {
-			System.out.println(key + "-->" + metadata2.get(key));
-		}
-
-
-		mc.deleteMetadata(fileName);
-		sms.delete(fileName);
-		System.out.println("\nDirectory after the test: ");
-		listDir("/", sms);
+		sms.getFileClient(fileName).putMetadata(Collections.emptyMap());
+		sms.getFileClient(fileName).delete();
 	}
 
 	@Test
 	public void testUpdate() throws Exception {
-		String url = WSServerUtilities.makeAddress(UAS.SMS, "WORK", kernel.getContainerProperties());
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url);
-		StorageClient sms = new StorageClient(epr, kernel.getClientConfiguration());
-
-		MetadataClient mc = sms.getMetadataClient();
-		assertNotNull(mc);
-
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
 		//import a test file
 		String fileName = "/foo2";
 		sms.upload(fileName).write("this is a test".getBytes());
-		GridFileType gridFile = sms.listProperties(fileName);
-		assertNotNull(gridFile);
 
-		System.out.println("Transfer file completed starting with updateTests");
-
-		//create by mc:
-		Map<String, String> metadata = new HashMap<String, String>();
+		FileClient fc = sms.getFileClient(fileName);
+		Map<String, String> metadata = new HashMap<>();
 		metadata.put("Key", "Value");
-		mc.createMetadata(fileName, metadata);
+		fc.putMetadata(metadata);
+		
 		//check:
-		Map<String, String> metadata1 = mc.getMetadata(fileName);
+		Map<String, String> metadata1 = sms.stat(fileName).metadata;
 		assertNotNull(metadata1);
 		assertFalse(metadata1.isEmpty());
 		assertTrue(metadata1.containsKey("Key"));
@@ -251,13 +175,11 @@ public class TestMetadataFunctional {
 			System.out.println("Key: " + key + " --> " + metadata1.get(key));
 		}
 
-
-
 		System.out.println("Update:");
-		Map<String, String> someNewMeta = new HashMap<String, String>();
+		Map<String, String> someNewMeta = new HashMap<>();
 		someNewMeta.put("NewKey", "NewValue");
-		mc.updateMetadata(fileName, someNewMeta);
-		Map<String, String> metadata2 = mc.getMetadata(fileName);
+		fc.putMetadata(someNewMeta);
+		Map<String, String> metadata2 = sms.stat(fileName).metadata;
 		assertNotNull(metadata2);
 		assertFalse(metadata2.isEmpty());
 
@@ -270,23 +192,18 @@ public class TestMetadataFunctional {
 		//        assertTrue(metadata2.containsKey("Key"));
 		//        assertTrue(metadata2.containsValue("Value"));
 
-		mc.deleteMetadata(fileName);
-		sms.delete(fileName);
-		System.out.println("\nDirectory after the test: ");
-		listDir("/", sms);
+		fc.putMetadata(Collections.emptyMap());
+		fc.delete();
 	}
-
+		
 	@Test
 	public void testCrawling() throws Exception {
-
-		String url = WSServerUtilities.makeAddress(UAS.SMS, "WORK", kernel.getContainerProperties());
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url);
-		StorageClient sms = new StorageClient(epr, kernel.getClientConfiguration());
-		MetadataClient mc = sms.getMetadataClient();
-		assertNotNull(mc);
-		cleanDir("/", sms);
-
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
+		
 		//create some file(s)
 		String keyword = "SomeKeyword";
 		sms.upload("foo.a").write("this is a test".getBytes());
@@ -296,46 +213,33 @@ public class TestMetadataFunctional {
 				append(" </body></html>");
 		sms.upload("page.html").write(builder.toString().getBytes());
 
-		System.out.println("Directory after adding test files:");
-		listDir("/", sms);
-
-		//not very nice but wait until indexing is over
-		TaskClient extractTask = mc.startMetadataExtraction("/", 10);
-		extractTask.setUpdateInterval(-1);
-		int waited=0;
-		while (extractTask.getStatus() != StatusType.SUCCESSFUL && waited < 120) {
-			Thread.sleep(1000L);
-			waited++;
-		}
-		System.out.println(extractTask.getResourcePropertyDocument());
-
-		XmlObject result = extractTask.getResult();
-		System.out.println("Metadata Extraction Result:\n " + result);
-
-		ExtractionStatisticsDocument es=ExtractionStatisticsDocument.Factory.parse(result.toString());
-		assertEquals(3, es.getExtractionStatistics().getDocumentsProcessed().intValue());
-
+		FileClient fc = sms.getFileClient("/");
+		JSONObject extractTask = fc.startMetadataExtraction(1);
+		System.out.println(extractTask.toString(2));
+		// TODO - task impl for REST API
+		Thread.sleep(5000);
+		
 		//check the page.html was indexed
-		Collection<String>results=mc.search("page.html", false);
-		assertTrue(results.size()>0);
+		List<String>results = sms.searchMetadata("page.html");
+		assertEquals(1, results.size());
 
-		GridFileType[]listDirectory = sms.listDirectory("/");
+		FileList listDirectory = sms.ls("/");
 		System.out.println("Directory with metadata files:");
-		listDir("/", sms);
-		for (GridFileType gridFile : listDirectory) {
-			System.out.println("GridFile: " + gridFile.getPath());
-			if (gridFile.getIsDirectory()) {
+		
+		for (FileListEntry gridFile : listDirectory.list()) {
+			System.out.println("remote file: " + gridFile.path);
+			if (gridFile.isDirectory) {
 				continue;
 			}
-			if (MetadataFile.isMetadataFileName(gridFile.getPath())) {
+			if (MetadataFile.isMetadataFileName(gridFile.path)) {
 				continue;
 			}
 
 			Map<String, String> metadata = null;
 
-			metadata = mc.getMetadata(gridFile.getPath());
+			metadata = sms.getFileClient(gridFile.path).getMetadata();
 
-			if (metadata == null || metadata.isEmpty()) {
+			if (metadata.isEmpty()) {
 				System.out.println("No metadata for this file");
 						continue;
 			} else {
@@ -349,52 +253,52 @@ public class TestMetadataFunctional {
 		}
 
 		System.out.printf("Searching for keyword %s\n", keyword);
-		Collection<String> found = mc.search(keyword, false);
+		List<String> found = sms.searchMetadata(keyword);
 		assertEquals(1, found.size());
 		for (String match : found) {
 			System.out.println("Matching document is: " + match);
 			System.out.println("Its metadata are:");
-			Map<String, String> meta = mc.getMetadata(match);
+			FileClient fc1 = new FileClient(new Endpoint(match), kernel.getClientConfiguration(), null);
+			Map<String, String> meta = fc1.getMetadata();
 			for (String key : meta.keySet()) {
 				System.out.printf("\t%s-->%s\n", key, meta.get(key));
 			}
 		}
 
-		//update metadata for a single file
-		Map<String, String> metadata = mc.getMetadata("/foo.a");
+		// update metadata for a single file
+		fc = sms.getFileClient("/foo.a");
+		Map<String, String> metadata = fc.getMetadata();
 		metadata.put("MY_KEY", "MY_VALUE");
-		mc.updateMetadata("/foo.a", metadata);
-		//re-run extraction for this file, index should be updated
+		fc.putMetadata(metadata);
+
+		// re-run extraction for this file, index should be updated
 		System.out.printf("Re-indexing single file");
-		mc.startMetadataExtraction("foo.a",1);
-		//and search
-		found = mc.search("MY_KEY", false);
-		assertEquals(1, found.size());
-		assertTrue(mc.getMetadata(found.iterator().next()).containsValue("MY_VALUE"));
+		fc.startMetadataExtraction(1);
+		// TODO - task impl for REST API
+		Thread.sleep(5000);
+				
+		found = sms.searchMetadata("MY_KEY");
+		assertEquals(String.valueOf(found), 1, found.size());
+		fc = sms.getFileClient("/foo.a");
+		assertTrue(fc.getMetadata().containsValue("MY_VALUE"));
 
-		sms.delete("/foo.a");
-		sms.delete("/jj.file");
-		sms.delete("/page.html");
+		sms.getFileClient("/foo.a").delete();
+		sms.getFileClient("/jj.file").delete();
+		sms.getFileClient("/page.html").delete();
 
-		System.out.println("\nListing (without removal of metadata)");
-		listDir("/", sms);
-		System.out.println("\n");
-		
 		// metadata is removed from index?
-		found = mc.search("MY_KEY", false);
+		found = sms.searchMetadata("MY_KEY");
 		assertEquals(0, found.size());
 	}
 
+
 	@Test
 	public void testCrawlingWithControlFile() throws Exception {
-
-		String url = WSServerUtilities.makeAddress(UAS.SMS, "WORK", kernel.getContainerProperties());
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url);
-		StorageClient sms = new StorageClient(epr, kernel.getClientConfiguration());
-		MetadataClient mc = sms.getMetadataClient();
-		assertNotNull(mc);
-		cleanDir("/", sms);
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
 
 		//create some file(s)
 		String keyword = "SomeKeyword";
@@ -404,139 +308,37 @@ public class TestMetadataFunctional {
 				append(" </body></html>");
 		sms.upload("page.html").write(builder.toString().getBytes());
 
-		System.out.println("Directory after adding test files:");
-		listDir("/", sms);
-
 		// create control file to exclude indexing *.a files
-		MetadataClient.writeCrawlerControlFile(sms, "/", new CrawlerControl(null, new String[]{"*.a"}));
+		Metadata.writeCrawlerControlFile(sms, "/", new Metadata.CrawlerControl(null, new String[]{"*.a"}));
 
-		//not very nice but wait until indexing is over
-		TaskClient extractTask = mc.startMetadataExtraction("/", 10);
-		extractTask.setUpdateInterval(-1);
-		int waited=0;
-		while (extractTask.getStatus() != StatusType.SUCCESSFUL && waited < 120) {
-			Thread.sleep(1000L);
-			waited++;
-		}
-		XmlObject result = extractTask.getResult();
-		System.out.println("Metadata Extraction Result:\n " + result);
-		ExtractionStatisticsDocument es=ExtractionStatisticsDocument.Factory.parse(result.toString());
-		assertEquals(2, es.getExtractionStatistics().getDocumentsProcessed().intValue());
-
-		Collection<String>results=mc.search("reallyIgnoreThis.a", false);
+		FileClient fc = sms.getFileClient("/");
+		JSONObject extractTask = fc.startMetadataExtraction(1);
+		System.out.println(extractTask.toString(2));
+		// TODO - task impl for REST API
+		Thread.sleep(5000);
+		
+		List<String>results = sms.searchMetadata("reallyIgnoreThis.a");
 		assertTrue(results.size()==0);
 
-		sms.delete("/reallyIgnoreThis.a");
-		sms.delete("/jj.file");
-		sms.delete("/page.html");
-
+		sms.getFileClient("/reallyIgnoreThis.a").delete();
+		sms.getFileClient("/jj.file").delete();;
+		sms.getFileClient("/page.html").delete();
 	}
 
 	@Test
 	public void testFederatedSearch() throws Exception
 	{
-		String url = WSServerUtilities.makeAddress(UAS.SMF, "default_storage_factory", kernel.getContainerProperties());
-		EndpointReferenceType endpointReferenceType = EndpointReferenceType.Factory.newInstance();
-		endpointReferenceType.addNewAddress().setStringValue(url);
-		StorageFactoryClient smf = new StorageFactoryClient(endpointReferenceType, kernel.getClientConfiguration()); 
-		StorageClient sms = smf.createSMS();
-
-		MetadataClient mc = sms.getMetadataClient();
-
-		assertNotNull(mc);
-
-		System.out.println("Metadata tests");
-		System.out.println("Federated search test");
-		System.out.println("Directory at the beginign:");
-		listDir("/", sms);
-
-		//create fake files
-		byte[] fakeData = "this is test - fake data for fakek file".getBytes();
-		sms.upload("foo.kt").write(fakeData);
-		sms.upload("foo1.aa").write(fakeData);
-		sms.upload("foo2.zz").write(fakeData);
-
-		Map<String, String> meta = new HashMap<String, String> ();
-		meta.put("Author", "Muradov");
-		meta.put("Category", "TopCoder");
-		meta.put("Name", "foo");
-		mc.createMetadata("/foo.kt", meta);
-
-		meta = new HashMap<String, String>();
-		meta.put("Author", "Schuller");
-		meta.put("Category", "Grid");
-		meta.put("Name", "foo1");
-		mc.createMetadata("/foo1.aa", meta);
-
-		meta = new HashMap<String, String>();
-		meta.put("Author", "Gates");
-		meta.put("Category", "OS");
-		meta.put("Name", "foo2");
-
-		System.out.println("Check metadata ... \n");
-		printMetadata("/foo.kt", mc);
-		printMetadata("/foo1.aa", mc);
-		printMetadata("/foo2.zz", mc);
-
-		String[] list = new String[]{".*"};
-
-
-		System.out.println("Queries\n");
-		String query = "Author:[Muradov TO Gates]";
-		query = "Author:Muradov~";
-
-		TaskClient federatedSearchResultCollection =  mc.federatedMetadataSearch(query, list, true);
-
-		federatedSearchResultCollection.waitUntilDone(20*1000);
-
-		assertEquals(StatusType.SUCCESSFUL, federatedSearchResultCollection.getStatus());
-
-
-		XmlObject result = federatedSearchResultCollection.getResult();
-		System.out.println();
-		System.out.println(result);
-		System.out.println();
-		FederatedSearchResultCollectionDocument frrd = FederatedSearchResultCollectionDocument.Factory.parse(result.toString());
-
-		FederatedSearchResults[] federatedSearchResults = frrd.getFederatedSearchResultCollection().getFederatedSearchResultsArray();
-
-		System.out.println("*** RESULTS ***");
-
-		for(FederatedSearchResults federatedSearchResultItem : federatedSearchResults)
-		{
-			FederatedSearchResult federatedSearchResult = federatedSearchResultItem.getFederatedSearchResult();
-			String storageURL = federatedSearchResult.getStorageURL();
-
-			String[] resourceNames = federatedSearchResult.getResourceNameArray();
-
-			System.out.println(storageURL);
-
-			for(String resourceName : resourceNames)
-				System.out.println("\t " + resourceName);
-		}
-
-		mc.deleteMetadata("/foo.kt");
-		mc.deleteMetadata("/foo1.aa");
-		mc.deleteMetadata("/foo2.zz");
-
-		sms.delete("/foo.kt");
-		sms.delete("/foo1.aa");
-		sms.delete("/foo2.zz");
+		//TBD
 	}
+
 
 	@Test
 	public void testSearch() throws Exception {
-
-		String url = WSServerUtilities.makeAddress(UAS.SMS, "WORK", kernel.getContainerProperties());
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url);
-		StorageClient sms = new StorageClient(epr, kernel.getClientConfiguration());
-		MetadataClient mc = sms.getMetadataClient();
-		assertNotNull(mc);
-
-		System.out.println("Metadata tests");
-		System.out.println("Directory at the beginign:");
-		listDir("/", sms);
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
 
 		//create some file(s)
 		sms.upload("foo.a").write("this is a test".getBytes());
@@ -545,69 +347,48 @@ public class TestMetadataFunctional {
 		sms.upload("page.html").write("some content".getBytes());
 		sms.upload("bar2.a").write("yupi doopi doooo".getBytes());
 
-		Map<String, String> meta = new HashMap<String, String>();
+		Map<String, String> meta = new HashMap<>();
 		meta.put("Author", "Rybicki");
 		meta.put("Title", "Review letters");
-		mc.createMetadata("/foo.a", meta);
+		sms.getFileClient("/foo.a").putMetadata(meta);
 
-		meta = new HashMap<String, String>();
+		meta.clear();
 		meta.put("Author", "Schueller");
 		meta.put("Title", "Protocols of intranet/Internet");
 		meta.put("Date", "13/04/2010");
-		mc.createMetadata("/jj.file", meta);
+		sms.getFileClient("/jj.file").putMetadata(meta);
 
-
-		meta = new HashMap<String, String>();
+		meta.clear();
 		meta.put("Author", "Rybicky");
 		meta.put("Title", "Peer to peer for all");
-		mc.createMetadata("/bar.a", meta);
-
-		meta = new HashMap<String, String>();
+		sms.getFileClient("/bar.a").putMetadata(meta);
+		
+		meta.clear();		
 		meta.put("Author", "Ribicky");
 		meta.put("Title", "Some other title I can get rihgt now");
-		mc.createMetadata("/bar2.a", meta);
+		sms.getFileClient("/bar2.a").putMetadata(meta);
 
 		System.out.println("Check the metadata\n");
-		printMetadata("/foo.a", mc);
-		printMetadata("/jj.file", mc);
-		printMetadata("/page.html", mc);
-		printMetadata("/bar.a", mc);
-		printMetadata("/bar2.a", mc);
-
-
+		System.out.println(sms.stat("foo.a").metadata);
+		System.out.println(sms.stat("jj.file").metadata);
+		System.out.println(sms.stat("page.html").metadata);
+		System.out.println(sms.stat("bar.a").metadata);
+		System.out.println(sms.stat("bar2.a").metadata);
 
 		System.out.println("Queries\n");
 		String query = "Author:[Rybicki TO Zander]";
-		Collection<String> result = mc.search(query, true);
+		List<String> result = sms.searchMetadata(query);
 		System.out.println("Matches for " + query);
 		for (String hit : result) {
 			System.out.println("\t:" + hit);
 		}
 
 		query = "Author:Rybicki~";
-		result = mc.search(query, true);
+		result = sms.searchMetadata(query);
+		
 		System.out.println("Matches for " + query);
 		for (String hit : result) {
 			System.out.println("\t:" + hit);
-		}
-
-		//cleanup (don't remove metadata for resources without metadata)
-		mc.deleteMetadata("/foo.a");
-		mc.deleteMetadata("/jj.file");
-		mc.deleteMetadata("/bar2.a");
-
-
-		sms.delete("/foo.a");
-		sms.delete("/jj.file");
-		sms.delete("/page.html");
-		sms.delete("/bar.a");
-	}
-
-	private void printMetadata(String fileName, MetadataClient client) throws Exception {
-		Map<String, String> metadata = client.getMetadata(fileName);
-		System.out.printf("Metadata for %s\n", fileName);
-		for (String key : metadata.keySet()) {
-			System.out.printf("\t %s ==> %s\n", key, metadata.get(key));
 		}
 	}
 
@@ -621,34 +402,4 @@ public class TestMetadataFunctional {
 		assertTrue(true);
 	}
 
-	private void cleanDir(String directory, StorageClient storage) throws Exception {
-		GridFileType[] listDirectory = storage.listDirectory(directory);
-		System.out.println("Directory: " + directory);
-		for (GridFileType gridFile : listDirectory) {
-			storage.delete(gridFile.getPath());
-		}
-	}
-
-	private void listDir(String directory, StorageClient storage) throws BaseFault {
-		GridFileType[] listDirectory = storage.listDirectory(directory);
-		System.out.println("Directory: " + directory);
-		for (GridFileType gridFile : listDirectory) {
-			System.out.println("\t" + gridFile.getPath());
-		}
-	}
-
-	private static Map<String, String> extractMetadataType(MetadataType metadata) {
-		Map<String, String> ret = new HashMap<String, String>();
-		if (metadata == null || metadata.isNil()) {
-			return ret;
-		}
-		TextInfoType[] propertyArray = metadata.getPropertyArray();
-		if (propertyArray == null || propertyArray.length == 0) {
-			return ret;
-		}
-		for (TextInfoType textInfoType : propertyArray) {
-			ret.put(textInfoType.getName(), textInfoType.getValue());
-		}
-		return ret;
-	}
 }

@@ -9,20 +9,22 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fzj.unicore.uas.Base;
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.client.JobClient;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
-import de.fzj.unicore.uas.testsuite.AbstractJobRun;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.CoreClient;
+import eu.unicore.client.core.JobClient;
 import eu.unicore.services.admin.AdminActionResult;
-import eu.unicore.services.ws.WSUtilities;
+import eu.unicore.services.rest.client.UsernamePassword;
 
 
-public class TestAdminActions extends AbstractJobRun {
+public class TestAdminActions extends Base {
 
 	@Test
 	public void testToggleJobSubmission(){
@@ -41,8 +43,6 @@ public class TestAdminActions extends AbstractJobRun {
 	
 	@Test
 	public void testShowServerStatusOverview()throws Exception{
-		initClients();
-		runJob(tss);
 		Map<String,String>params=new HashMap<String,String>();
 		AdminActionResult res=new ShowServerUsageOverview().invoke(params,uas.getKernel());
 		Assert.assertTrue(res.successful());
@@ -52,10 +52,11 @@ public class TestAdminActions extends AbstractJobRun {
 	
 	@Test
 	public void testShowJobDetails()throws Exception{
-		initClients();
-		JobClient job = runJob(tss);
+		JobClient job = runJob();
 		Map<String,String>params=new HashMap<String,String>();
-		params.put("jobID", WSUtilities.extractResourceID(job.getEPR()));
+		String jId = job.getEndpoint().getUrl();
+		jId = jId.substring(jId.lastIndexOf("/")+1);
+		params.put("jobID", jId);
 		AdminActionResult res=new ShowJobDetails().invoke(params,uas.getKernel());
 		Assert.assertTrue(res.successful());
 		System.out.println(res.getMessage());
@@ -107,10 +108,14 @@ public class TestAdminActions extends AbstractJobRun {
 		Assert.assertEquals((Integer)0,merged.get("Bob").get("bar"));
 	}
 
-	@Override
-	protected JobDefinitionDocument getJob() {
-		JobDefinitionDocument jdd=JobDefinitionDocument.Factory.newInstance();
-		jdd.addNewJobDefinition().addNewJobDescription().addNewApplication().setApplicationName("Date");
-		return jdd;
+	private JobClient runJob() throws Exception {
+		CoreClient c = new CoreClient(
+				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+				kernel.getClientConfiguration(),
+				new UsernamePassword("demouser", "test123"));
+		JSONObject job = new JSONObject();
+		job.put("ApplicationName", "Date");
+		return c.getSiteClient().submitJob(job);
 	}
+	
 }

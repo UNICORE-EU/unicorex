@@ -220,7 +220,11 @@ public class Storages extends ServicesBase {
 		try{
 			JSONObject res = new JSONObject();
 			MetadataManager mm = getResource().getMetadataManager();
-			if(mm == null){
+			if(query==null) {
+				res.put("status", "failed");
+				res.put("statusMessage", "Query cannot be null.");
+			}
+			else if(mm == null){
 				res.put("status", "failed");
 				res.put("statusMessage", "No metadata manager available for this storage.");
 			}

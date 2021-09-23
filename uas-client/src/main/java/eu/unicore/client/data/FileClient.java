@@ -1,8 +1,11 @@
 package eu.unicore.client.data;
 
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
+import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.services.rest.client.IAuthCallback;
@@ -26,4 +29,29 @@ public class FileClient extends BaseServiceClient {
 		bc.checkError(res);
 	}
 
+	public Map<String, String> getMetadata() throws Exception {
+		return JSONUtil.asMap(bc.getJSON().getJSONObject("metadata"));
+	}
+	
+	
+	public void putMetadata(Map<String, String> metadata) throws Exception {
+		JSONObject req = new JSONObject();
+		req.put("metadata", JSONUtil.asJSON(metadata));
+		HttpResponse res = bc.put(req);
+		bc.checkError(res);
+		String reply = bc.asJSON(res).optString("metadata", "n/a");
+		if(!"OK".equals(reply)) {
+			throw new Exception("Error updating metadata: "+reply);
+		}
+	}
+	
+	/**
+	 * TBD
+	 */
+	public JSONObject startMetadataExtraction(int depth, String ... resources) throws Exception {
+		JSONObject op = new JSONObject();
+		op.put("depth", depth);
+		JSONObject response = executeAction("extract", op);
+		return response;
+	}
 }

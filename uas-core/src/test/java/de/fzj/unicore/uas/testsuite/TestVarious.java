@@ -4,31 +4,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.List;
-
 import org.apache.xmlbeans.XmlObject;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionType;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.unigrids.services.atomic.types.StatusType;
-import org.unigrids.x2006.x04.services.tss.SubmitDocument;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.Base;
-import de.fzj.unicore.uas.TargetSystemFactory;
-import de.fzj.unicore.uas.client.JobClient;
-import de.fzj.unicore.uas.client.TSFClient;
-import de.fzj.unicore.uas.client.TSSClient;
 import de.fzj.unicore.uas.client.TaskClient;
 import de.fzj.unicore.uas.impl.task.TaskImpl;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.ems.BasicManager;
 import de.fzj.unicore.xnjs.ems.InternalManager;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.CoreClient;
+import eu.unicore.client.core.JobClient;
+import eu.unicore.client.core.SiteClient;
+import eu.unicore.client.core.SiteFactoryClient;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
+import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.rest.client.UsernamePassword;
 import eu.unicore.services.utils.Utilities;
-import eu.unicore.services.ws.client.RegistryClient;
-import eu.unicore.services.ws.sg.Registry;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.httpclient.ClientProperties;
 
@@ -95,38 +93,30 @@ public class TestVarious extends Base {
 	}
 	
 	private void testRecreate()throws Exception{
-		url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
-		epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
-		ClientProperties securityProps = kernel.getClientConfiguration();
-
-		RegistryClient reg=new RegistryClient(epr, securityProps);
-		//find a TargetSystemFactory
-		List<EndpointReferenceType> tsfs=reg.listServices(TargetSystemFactory.TSF_PORT);
-		EndpointReferenceType tsfepr=findFirstAccessibleService(tsfs);
-		TSFClient tsf=new TSFClient(tsfepr,securityProps);
-		tsf.setUpdateInterval(-1);
-		//clean up all TSSs to avoid dependencies on other tests...
-		for(EndpointReferenceType tEpr: tsf.getAccessibleTargetSystems()){
-			new TSSClient(tEpr,securityProps).destroy();
+		ClientProperties security = kernel.getClientConfiguration();
+		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		CoreClient c = new CoreClient(
+				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+				security, auth);
+		SiteFactoryClient tsf = c.getSiteFactoryClient();
+		for(String url : tsf.getSiteList()) {
+			new SiteClient(new Endpoint(url), security, auth).delete();
 		}
-		assertTrue(tsf.getAccessibleTargetSystems().size()==0);
-		
 		// create two TSS - we only want to re-create jobs that 
 		// are not listed by another TSS
-		TSSClient tss = tsf.createTSS();
+		SiteClient tss = tsf.createSite();
 		waitUntilReady(tss);
 		// make sure no jobs exist
-		for(EndpointReferenceType tEpr: tss.getJobs()){
-			new JobClient(tEpr,securityProps).destroy();
+		for(String url: tss.getJobsList()){
+			new JobClient(new Endpoint(url), security, auth).delete();
 		}
 		runJob(tss);
 		
 		// these jobs we want to re-create
-		tss = tsf.createTSS();
-		assertTrue(tsf.getAccessibleTargetSystems().size()==2);
+		tss = tsf.createSite();
+		assertTrue(tsf.getSiteList().getUrls(0, 100).size()==2);
 
-		int existingJobs=tss.getJobs().size();
+		int existingJobs = tss.getJobsList().getUrls(0, 100).size();
 		int numJobs=3;
 
 		for(int i=0;i<numJobs;i++){
@@ -134,79 +124,69 @@ public class TestVarious extends Base {
 		}
 		Thread.sleep(5000);
 		tss.setUpdateInterval(-1);
-		long nj=tss.getJobs().size();
+		long nj = tss.getJobsList().getUrls(0, 100).size();
 		assertEquals(existingJobs+numJobs,nj);
-		tss.destroy();
+		tss.delete();
 
-		tss=tsf.createTSS();
+		tss = tsf.createSite();
 		waitUntilReady(tss);
 
-		assertEquals(existingJobs+numJobs, tss.getJobs().size());
+		assertEquals(existingJobs+numJobs, tss.getJobsList().getUrls(0, 100).size());
 	}
 
 	private void testRecreateXNJS()throws Exception{
-		url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
-		epr=EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
-		ClientProperties securityProps = kernel.getClientConfiguration();
-
-		RegistryClient reg=new RegistryClient(epr, securityProps);
-		//find a TargetSystemFactory
-		List<EndpointReferenceType> tsfs=reg.listServices(TargetSystemFactory.TSF_PORT);
-		EndpointReferenceType tsfepr=findFirstAccessibleService(tsfs);
-		TSFClient tsf=new TSFClient(tsfepr,securityProps);
-		tsf.setUpdateInterval(-1);
-		//clean up all TSSs to avoid dependencies on other tests...
-		for(EndpointReferenceType tEpr: tsf.getAccessibleTargetSystems()){
-			new TSSClient(tEpr,securityProps).destroy();
+		ClientProperties security = kernel.getClientConfiguration();
+		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		CoreClient c = new CoreClient(
+				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+				security, auth);
+		SiteFactoryClient tsf = c.getSiteFactoryClient();
+		for(String url : tsf.getSiteList()) {
+			new SiteClient(new Endpoint(url), security, auth).delete();
 		}
-		assertTrue(tsf.getAccessibleTargetSystems().size()==0);
-		TSSClient tss = tsf.createTSS();
+		SiteClient tss = tsf.createSite();
 		waitUntilReady(tss);
-		assertTrue(tsf.getAccessibleTargetSystems().size()==1);
 
-		int existingJobs=tss.getJobs().size();
+		int existingJobs = tss.getJobsList().getUrls(0, 100).size();
 		int numJobs=3;
-
+		
 		for(int i=0;i<numJobs;i++){
 			runJob(tss);
 		}
 		Thread.sleep(5000);
 		tss.setUpdateInterval(-1);
-		long nj=tss.getJobs().size();
+		long nj = tss.getJobsList().getUrls(0, 100).size();
 		assertEquals(existingJobs+numJobs,nj);
-		tss.destroy();
+		tss.delete();
 
 		// kill the xnjs jobs
 		((BasicManager)XNJSFacade.get(null, kernel).getXNJS().get(InternalManager.class)).
 		getActionStore().removeAll();
 
-		tss=tsf.createTSS();
+		tss = tsf.createSite();
 	
 		waitUntilReady(tss);
 
-		assertEquals(existingJobs+numJobs, tss.getJobs().size());
+		assertEquals(existingJobs+numJobs, tss.getJobsList().getUrls(0, 100).size());
 
 		// check some properties of the re-generated jobs
-		JobClient j=new JobClient(tss.getJobs().get(0),securityProps);
-		System.out.println(j.getResourcePropertiesDocument());
+		JobClient j = new JobClient(new Endpoint(tss.getJobsList().getUrls(0, 100).get(0)),
+				security, auth);
+		System.out.println(j.getProperties().toString(2));
 	}
 
 
-	private void runJob(TSSClient tss)throws Exception{
-		SubmitDocument sd=SubmitDocument.Factory.newInstance();
-		sd.addNewSubmit().setAutoStartWhenReady(true);
-		JobDefinitionType jobDefinition=JobDefinitionType.Factory.newInstance();
-		jobDefinition.addNewJobDescription().addNewApplication().setApplicationName("Date");
-		sd.getSubmit().setJobDefinition(jobDefinition);
-		tss.submit(sd);
+	private void runJob(SiteClient tss)throws Exception{
+		JSONObject job = new JSONObject();
+		job.put("ApplicationName", "Date");
+		tss.submitJob(job);
 	}
 
-	private void waitUntilReady(TSSClient tss)throws Exception{
+	private void waitUntilReady(SiteClient tss)throws Exception{
 		int c=0;
 		String lastStatus=null;
 		while(c<10){
-			String s=tss.getServiceStatus();
+			String s=tss.getProperties().getString("resourceStatus");
 			if(!s.equals(lastStatus)){
 				lastStatus=s;
 				System.out.println("TSS Status is: "+s);	

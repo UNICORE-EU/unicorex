@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 
 import org.unigrids.services.atomic.types.VersionDocument;
 
-import de.fzj.unicore.uas.UAS;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.Resource;
 import eu.unicore.services.ws.AbstractXmlRenderer;
 
@@ -34,7 +34,7 @@ public class VersionResourceProperty extends AbstractXmlRenderer{
 	}
 
 	private String getVersion(){
-		return UAS.getVersion(parent.getClass());
+		return Kernel.getVersion(parent.getClass());
 	}
 
 }

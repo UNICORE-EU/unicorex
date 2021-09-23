@@ -101,9 +101,13 @@ public class MockMetadataManager implements StorageMetadataManager{
 	public List<SearchResult> searchMetadataByContent(String searchString,
 			boolean isAdvancedSearch) {
 		List<SearchResult>result=new ArrayList<SearchResult>();
-		SearchResult r=new SearchResult();
-		r.setResourceName(searchString);
-		result.add(r);
+		for(Map.Entry<String,Map<String,String>> e: meta.entrySet()) {
+			if(e.getValue().toString().contains(searchString)) {
+				SearchResult r=new SearchResult();
+				r.setResourceName(e.getKey());
+				result.add(r);
+			}
+		}
 		return result;
 	}
 	

@@ -215,18 +215,14 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 				//XXX: we might also use tika here (complementary)
 				Map<String, String> metadata = Collections.emptyMap();
 				metadataManager.updateMetadata(file, metadata);
-				if(LOG.isDebugEnabled()){
-					LOG.debug("Updated index for <"+file+"> took "+(System.currentTimeMillis()-startSingle)+" ms.");
-				}
+				LOG.info("Updated index for <{}> took {} ms.", file, System.currentTimeMillis()-startSingle);
 				break;
 			case NEW:
 				//it is new and no user metadata was created-> try extract
 				try{
 					Map<String, String> extracted = extractMetadata(file);
 					metadataManager.createMetadata(file, extracted);
-					if(LOG.isDebugEnabled()){
-						LOG.debug("Extracted metadata for <"+file+"> in "+(System.currentTimeMillis()-startSingle)+" ms.");
-					}
+					LOG.debug("Extracted metadata for <{}> in {} ms.", file, System.currentTimeMillis()-startSingle);
 				}catch(TikaException te){
 					LogUtil.logException("Error while extracting metadata for <"+file+">", te, LOG);
 				}
@@ -312,18 +308,14 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 					XnjsFile x2 = gridFiles[j];
 					String name=x2.getPath();
 					if(nameFilter==null || nameFilter.accept(name)){
-						if(LOG.isDebugEnabled()){
-							LOG.debug("Include: "+name);
-						}
+						LOG.debug("Include: {}", name);
 						if (x2.isDirectory()) {
 							getFiles(name, list, level, limit, createChildFilter(nameFilter));
 						} else {
 							list.add(name);
 						}
 					}
-					else if(LOG.isDebugEnabled()){
-						LOG.debug("Exclude: "+name);
-					}
+					else LOG.debug("Exclude: {}", name);
 				}
 			}
 			else{

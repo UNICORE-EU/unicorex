@@ -2,12 +2,15 @@ package eu.unicore.client.core;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.CoreClientCapabilities.FTClientCapability;
@@ -91,9 +94,44 @@ public class StorageClient extends BaseServiceClient {
 		getFileClient(path).chmod(unixPermissions);
 	}
 	
+	public void copy(String from, String to) throws Exception {
+		JSONObject op = new JSONObject();
+		op.put("from", from);
+		op.put("to", to);
+		executeAction("copy", op);
+	}
+	
+	public void rename(String from, String to) throws Exception {
+		JSONObject op = new JSONObject();
+		op.put("from", from);
+		op.put("to", to);
+		executeAction("rename", op);
+	}
+	
 	public boolean supportsMetadata() throws Exception {
 		return getProperties().getBoolean("metadataSupported");
 	}
+	
+	public List<String> searchMetadata(String query) throws Exception {
+		BaseClient bc = createTransport(endpoint.getUrl()+"/search", security, auth);
+		URIBuilder ub = new URIBuilder(bc.getURL());
+		ub.addParameter("q", query);
+		bc.setURL(ub.build().toString());
+		JSONObject searchResult = bc.getJSON();
+		if(!"OK".equals(searchResult.getString("status"))){
+			String msg = "Error searching metadata: "+searchResult.optString("statusMessage", "n/a");
+			throw new Exception(msg);
+		}
+		List<String> result = new ArrayList<>();
+		JSONObject links = searchResult.getJSONObject("_links");
+		for(String name: JSONObject.getNames(links)) {
+			if(name.startsWith("search-result")) {
+				result.add(links.getJSONObject(name).getString("href"));
+			}
+		}
+		return result;
+	}
+	
 	
 	public String getMountPoint() throws Exception {
 		return getProperties().getString("mountPoint");

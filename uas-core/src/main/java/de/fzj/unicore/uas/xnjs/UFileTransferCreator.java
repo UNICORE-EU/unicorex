@@ -37,15 +37,12 @@ import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.cxf.common.util.StringUtils;
 import org.apache.logging.log4j.Logger;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import com.google.inject.Singleton;
 
 import de.fzj.unicore.uas.fts.FileTransferCapabilities;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
-import de.fzj.unicore.uas.security.RegistryIdentityResolver;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.xnjs.XNJS;
@@ -57,13 +54,7 @@ import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IFileTransferCreator;
 import eu.unicore.client.Endpoint;
 import eu.unicore.security.Client;
-import eu.unicore.security.wsutil.client.authn.ServiceIdentityResolver;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.registry.RegistryHandler;
-import eu.unicore.services.security.ETDAssertionForwarding;
-import eu.unicore.services.security.util.AuthZAttributeStore;
-import eu.unicore.services.ws.WSUtilities;
-import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**
  * creates {@link IFileTransfer} instances that use a UNICORE protocol such as BFT 
@@ -79,36 +70,10 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	
 	private final Kernel kernel;
 	
-	private final ServiceIdentityResolver serverDNResolver;
-	
 	public UFileTransferCreator(XNJS config) {
 		super();
 		this.xnjs = config;
-		ServiceIdentityResolver res = null;
 		kernel = config.get(Kernel.class);
-		try{
-			RegistryHandler rh = kernel.getAttribute(RegistryHandler.class);
-			if(rh.getExternalRegistryClient()!=null){
-				res = new RegistryIdentityResolver(rh.getExternalRegistryClient());
-			}
-			else{
-				res = new ServiceIdentityResolver(){
-
-					@Override
-					public String resolveIdentity(String serviceURL)
-							throws IOException {
-						return null;
-					}
-
-					@Override
-					public void registerIdentity(String serviceURL,
-							String identity) {
-					}
-					
-				};
-			}
-		}catch(Exception e){}
-		this.serverDNResolver = res;
 	}
 
 	@Override
@@ -274,27 +239,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			return orig;
 		}
 	}
-	
-	// TODO better way to store and retrieve server DNs!?
-	protected EndpointReferenceType createStorageEPR(URI uri)
-	{
-		String withoutScheme=uri.getSchemeSpecificPart();
-		String upToFragment = withoutScheme.split("#")[0];
-		
-		EndpointReferenceType epr = WSUtilities.makeServiceEPR(upToFragment);
-		Kernel kernel = xnjs.get(Kernel.class);
-		try {
-			IClientConfiguration sp = kernel.getClientConfiguration().clone();
-			ETDAssertionForwarding.configureETD(AuthZAttributeStore.getClient(), sp);
-			String serverDn = serverDNResolver.resolveIdentity(upToFragment);
-			if (!StringUtils.isEmpty(serverDn)) {
-				WSUtilities.addServerIdentity(epr, serverDn);
-			}
-		} catch (Exception e) {
-			logger.error("Can't get server DN for <"+upToFragment+">", e);
-		}
-		return epr;
-	}
+
 
 	@Override
 	public IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info)

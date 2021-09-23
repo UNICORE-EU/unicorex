@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -37,6 +38,7 @@ import org.json.JSONObject;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.json.JSONUtil;
+import de.fzj.unicore.uas.metadata.ExtractionStatistics;
 import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -193,8 +195,14 @@ public class Files extends RESTRendererBase {
 				MetadataManager mm = sms.getMetadataManager();
 				String metadataMsg = "OK";
 				if(mm!=null){
+					Map<String,String> md = JSONUtil.asMap(jMeta);
 					try {
-						mm.createMetadata(path, JSONUtil.asMap(jMeta));
+						if(md.isEmpty()) {
+							mm.removeMetadata(path);
+						}
+						else{
+							mm.createMetadata(path, md);
+						}
 					}catch(Exception e) {
 						metadataMsg = "FAILED: "+Log.getDetailMessage(e);
 					}
@@ -218,7 +226,7 @@ public class Files extends RESTRendererBase {
 	 * 
 	 */
 	@POST
-	@Path("/{path:.*}/actions/{action}")
+	@Path("/actions/{action}/{path:.*}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response handleAction(@PathParam("path")String path, @PathParam("action")String action, String jsonString) throws Exception {
@@ -227,6 +235,7 @@ public class Files extends RESTRendererBase {
 
 		try{
 			if(path== null || path.isEmpty())path="/";
+			if(!path.startsWith("/"))path="/"+path;
 			XnjsFileWithACL props = sms.getProperties(path);
 			if(props == null){
 				throw new WebApplicationException(404);
@@ -249,9 +258,11 @@ public class Files extends RESTRendererBase {
 				// single file
 				files.add(path);
 			}
-			mm.startAutoMetadataExtraction(files, dirs);
+			Future<ExtractionStatistics> futureResult = mm.startAutoMetadataExtraction(files, dirs);
 			reply.put("status", "OK");
-
+			reply.put("asyncExtraction", futureResult!=null);
+			
+			
 			// TODO once we have the REST version of the Task resource, 
 			// we can add a link to it!
 
@@ -455,7 +466,7 @@ public class Files extends RESTRendererBase {
 				"Parent Storage"));
 		if(sms.getModel().getMetadataServiceID()!=null){
 			String base = RESTUtils.makeHref(kernel, "core/storages", sms.getUniqueID());
-			links.add(new Link("action:extract",base+"/files/"+resourceID+"/actions/extract",
+			links.add(new Link("action:extract",base+"/files/actions/extract/"+resourceID,
 					"Extract metadata for this file"));
 		}
 	}
