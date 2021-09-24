@@ -33,7 +33,7 @@ public class TestVarious extends Base {
 	@Test
 	public void testTaskService()throws Exception{
 		String URL = kernel.getContainerProperties().getContainerURL()+"/rest/storages/123";
-		String uuid = createNewInstance();
+		String uuid = createNewInstance(URL);
 		String task = kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uuid;
 		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), null);
 		c.setUpdateInterval(-1);
@@ -47,7 +47,9 @@ public class TestVarious extends Base {
 	
 	@Test
 	public void createResultTest()throws Exception{
-		String uuid = createNewInstance();
+		String URL = kernel.getContainerProperties().getContainerURL()+"/rest/test/123";
+		
+		String uuid = createNewInstance(URL);
 		String task = kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uuid;
 		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), null);
 		
@@ -69,14 +71,12 @@ public class TestVarious extends Base {
 		TaskImpl.putResult(kernel, uuid, result, "test123", 13);
 	}
 	
-	private String createNewInstance() throws Exception{
-		String URL = kernel.getContainerProperties().getContainerURL()+"/rest/test/123";
-		
+	private String createNewInstance(String submissionServiceURL) throws Exception{
 		Home taskHome=kernel.getHome("Task");
 		if(taskHome==null)throw new Exception("Task service is not deployed");
 		
 		InitParameters initP = new InitParameters();
-		initP.parentServiceName = URL;
+		initP.parentServiceName = submissionServiceURL;
 		initP.parentUUID = "123";
 		return taskHome.createResource(initP);
 	}
