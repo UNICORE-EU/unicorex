@@ -50,17 +50,11 @@ import org.unigrids.services.atomic.types.ProtocolType;
 import org.unigrids.services.atomic.types.TextInfoType;
 import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.uas.MetadataManagement;
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
 import de.fzj.unicore.uas.fts.FiletransferInitParameters;
-import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.PersistingPreferencesResource;
 import de.fzj.unicore.uas.impl.UmaskSupport;
-import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
-import de.fzj.unicore.uas.impl.sms.ws.SMSFrontend;
-import de.fzj.unicore.uas.metadata.MetadataManagementImpl;
 import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.metadata.MetadataSupport;
 import de.fzj.unicore.uas.trigger.impl.SetupDirectoryScan;
@@ -84,14 +78,11 @@ import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
 import eu.unicore.services.messaging.ResourceAddedMessage;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.uftp.server.workers.UFTPWorker;
-import eu.unicore.util.Log;
 
 /**
  * Basic storage resource implementation
@@ -144,32 +135,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 
 		model.inheritSharing = init.inheritSharing;
 
-		//enumeration for server-server transfers
-		model.fileTransferEnumerationID=createFTListEnumeration();
-
 		setResourceStatus(ResourceStatus.READY);
 	}
 	
-	
-	/**
-	 * create an instance of the Enumeration service for publishing
-	 * the list of filetransfers
-	 * @return UUID of the new Enumeration instance
-	 * @throws Exception
-	 */
-	protected String createFTListEnumeration()throws Exception{
-		String uid = getUniqueID()+"_filetransfers";
-		EnumerationInitParameters init = new EnumerationInitParameters(uid, TerminationMode.NEVER);
-		init.parentUUID = getUniqueID();
-		init.parentServiceName = getServiceName();
-		init.targetServiceRP = SMSFrontend.RPInternalFiletransferReference;
-		init.acl.addAll(getModel().getAcl());
-		init.ownerDN = getModel().getOwnerDN();
-		Home h = kernel.getHome(UAS.ENUMERATION);
-		if(h==null)throw new Exception("Enumeration service is not deployed!");
-		return h.createResource(init);
-	}
-
 	public void copy(String source, String target) throws Exception {
 		source = makeSMSLocal(source);
 		target=makeSMSLocal(target);
@@ -442,49 +410,20 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 				m.setServiceName(getServiceName());
 				kernel.getMessaging().getChannel(storageFactoryID).publish(m);
 			}
-			catch(Exception e){
-				LogUtil.logException("Could not send internal message.",e,logger);
-			}
+			catch(Exception e){}
 		}
 		
-		String metadataServiceID = model.metadataServiceID;
-		if(metadataServiceID!=null){
-			try{
-				EndpointReferenceType md=WSServerUtilities.makeEPR(UAS.META, metadataServiceID, kernel);
-				BaseUASClient c=new BaseUASClient(md, kernel.getClientConfiguration());
-				c.destroy();
-			}catch(Exception e){
-				LogUtil.logException("Could not destroy metadata service instance.",e,logger);
-			}
-		}
-		
-		String enumID = model.fileTransferEnumerationID;
-		if(enumID!=null){
-			try{
-				EndpointReferenceType md=WSServerUtilities.makeEPR(UAS.ENUMERATION, enumID, kernel);
-				BaseUASClient c=new BaseUASClient(md, kernel.getClientConfiguration());
-				c.destroy();
-			}catch(Exception e){
-				LogUtil.logException("Could not destroy enumeration service instance.",e,logger);
-			}
-		}
-
 		String scanUID = model.getDirectoryScanUID();
 		if(scanUID != null){
 			try{
 				getXNJSFacade().destroyAction(scanUID, getClient());
-			}catch(Exception ex){
-				LogUtil.logException("Could not abort directory scan with UID "+scanUID,ex,logger);
-			}
+			}catch(Exception ex){}
 		}
 		
 		if (model.storageDescription.isCleanupOnDestroy()) {
 			try{
-				//remove the storage root directory itself
 				getStorageAdapter().rmdir("/");
-			}catch(Exception ex){
-
-			}
+			}catch(Exception ex){}
 		}
 
 		super.destroy();
@@ -660,43 +599,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	public MetadataManager getMetadataManager()throws Exception{
 		if(getModel().storageDescription.isDisableMetadata())return null;
 		return MetadataSupport.getManager(kernel, getStorageAdapter(), getUniqueID());
-	}
-
-
-	/**
-	 * which class to use as {@link MetadataManagement} implementation
-	 * @return class name of the MM implementation
-	 */
-	protected String getMetadataManagementImplClassName(){
-		return MetadataManagementImpl.class.getName();
-	}
-
-	protected String createMetadataServiceInstance(){
-		Home mdHome=kernel.getHome(UAS.META);
-		String mdID = null;
-		if(mdHome!=null){
-			try{
-				BaseInitParameters init = new BaseInitParameters(getUniqueID()+"_metadata", TerminationMode.NEVER);
-				init.parentUUID = getUniqueID();
-				init.acl.addAll(getModel().getAcl());
-				init.ownerDN=getModel().getOwnerDN();
-				mdID = mdHome.createResource(init);
-			}catch(Exception ex){
-				Log.logException("Could not create metadata service instance", ex, logger);
-			}
-		}
-		return mdID;
-	}
-
-	/**
-	 * creates the metadata service instance and adds a resource property 
-	 * holding its address 
-	 */
-	protected void setupMetadataService()throws Exception{
-		SMSModel m = getModel();
-		if(!m.storageDescription.isDisableMetadata()){
-			m.metadataServiceID=createMetadataServiceInstance();
-		}
 	}
 
 	protected void setupDirectoryScan()throws Exception{

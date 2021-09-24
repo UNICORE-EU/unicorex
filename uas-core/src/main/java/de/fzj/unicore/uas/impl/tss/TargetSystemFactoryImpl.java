@@ -115,7 +115,7 @@ public class TargetSystemFactoryImpl extends BaseResourceImpl {
 			String m=(String)p.next().getBody();
 			if(m.startsWith("deleted:")){
 				String id=m.substring(m.indexOf(":")+1);
-				logger.debug("Removing TSS with ID "+id+"...");
+				logger.debug("Removing TSS with ID <{}>", id);
 				getModel().removeChild(id);
 			}
 		}

@@ -33,9 +33,6 @@
 
 package de.fzj.unicore.uas.impl.sms;
 
-import java.util.Collection;
-
-import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Resource;
@@ -103,50 +100,10 @@ public class StorageManagementHomeImpl extends DefaultHome {
 	protected void postInitialise(Resource r){
 		if(r instanceof SMSBaseImpl){
 			try{
-				((SMSBaseImpl)r).setupMetadataService();
-			}catch(Exception ex){
-				LogUtil.logException("Error setting up metadata service instance for storage "+r.getUniqueID(), ex, logger);
-			}
-			try{
 				((SMSBaseImpl)r).setupDirectoryScan();
 			}catch(Exception ex){
 				LogUtil.logException("Error setting up directory scan for storage "+r.getUniqueID(), ex, logger);
 			}
-		}
-	}
-
-	/**
-	 * check and (if necessary) repair the internal state of the instances after server start
-	 * TODO remove this again for UNICORE 8
-	 */
-	public void run(){
-		super.run();
-		try{
-			Collection<String> uniqueIDs=serviceInstances.getUniqueIDs();
-			for(String id: uniqueIDs){
-				Resource r = serviceInstances.read(id);
-				if(r!=null && r instanceof SMSBaseImpl){
-					SMSBaseImpl s = (SMSBaseImpl)r;
-					try{
-						String enumID = s.getModel().getFileTransferEnumerationID();
-						if(enumID!=null && !getKernel().getHome(UAS.ENUMERATION).getStore().getUniqueIDs().contains(enumID)){
-							s.createFTListEnumeration();
-						}
-					}catch(Exception ex){
-						LogUtil.logException("Error checking file transfer enumeration for storage <"+id+">", ex, logger);
-					}
-					try{
-						String metaID = s.getModel().getMetadataServiceID();
-						if(metaID!=null && !getKernel().getHome(UAS.META).getStore().getUniqueIDs().contains(metaID)){
-							s.setupMetadataService();
-						}
-					}catch(Exception ex){
-						LogUtil.logException("Error checking metadata service for storage <"+id+">", ex, logger);
-					}
-				}
-			}
-		}catch(Exception ex){
-			logger.warn(ex);
 		}
 	}
 	

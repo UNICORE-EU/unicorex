@@ -15,13 +15,13 @@ import java.util.concurrent.TimeoutException;
 
 import org.bouncycastle.util.encoders.Base64;
 
-import de.fzj.unicore.uas.client.MetadataClient;
 import de.fzj.unicore.uas.metadata.ExtractionStatistics;
 import de.fzj.unicore.uas.metadata.FederatedSearchResult;
 import de.fzj.unicore.uas.metadata.FederatedSearchResultCollection;
 import de.fzj.unicore.uas.metadata.SearchResult;
 import de.fzj.unicore.uas.metadata.StorageMetadataManager;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.client.data.Metadata;
 import eu.unicore.security.Client;
 
 public class MockMetadataManager implements StorageMetadataManager{
@@ -62,7 +62,7 @@ public class MockMetadataManager implements StorageMetadataManager{
 				InputStream is=storage.getInputStream(resourceName);
 				try{
 					String md5=computeMD5(is);
-					metadata.put(MetadataClient.CONTENT_MD5,md5);
+					metadata.put(Metadata.CONTENT_MD5,md5);
 				}
 				finally{
 					try{
@@ -144,11 +144,10 @@ public class MockMetadataManager implements StorageMetadataManager{
 				
 				FederatedSearchResult sre = new FederatedSearchResult();
 				
-				sre.setStorageURL("https://somestorage");
-				sre.addResourceName(" some resource 1");
-				sre.addResourceName(" some resource 2");
-				sre.addResourceName(" some resource 3");
-				sre.addResourceName(" some resource 4");
+				sre.addResourceURL("https://somestorage/files/some%20resource%201");
+				sre.addResourceURL("https://somestorage/files/some%20resource%202");
+				sre.addResourceURL("https://somestorage/files/some%20resource%203");
+				sre.addResourceURL("https://somestorage/files/some%20resource%204");
 				
 				collection.addSearchResult(sre);
 				

@@ -6,16 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.xml.namespace.QName;
-
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.SMSProperties;
-import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
-import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
 import de.fzj.unicore.uas.impl.sms.ConsolidateStorageFactoryInstance.UpdateSMSLists;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.Home;
@@ -54,9 +50,8 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		initParams.resourceState = ResourceStatus.INITIALIZING;
 		super.initialise(initParams);
 		
-		model.accessibleSMSEnumerationID = createEnumeration(StorageFactory.RPAccessibleSMSReferences);
 		model.setXnjsReference(((BaseInitParameters)initParams).xnjsReference);
-		logger.info("Storage factory <"+getUniqueID()+"> created");
+		logger.info("Storage factory <{}> created", getUniqueID());
 		setStatusMessage("OK");
 
 		UpdateSMSLists task = new UpdateSMSLists(kernel, getUniqueID());
@@ -164,25 +159,11 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		String smsID=createStorageResource(initMap);
 
 		initStorage(smsID);
-		logger.info("Created new StorageManagement resource <"+smsID+"> for "+clientName);
+		logger.info("Created new StorageManagement resource <{}> for <{}>", smsID, clientName);
 		getModel().smsOwners.put(smsID, clientName);
 		getModel().getSmsIDs().add(smsID);
 		return smsID;
 	}
-
-	/**
-	 * @return the UID of the new Enumeration
-	 */
-	protected String createEnumeration(QName rp)throws Exception{
-		EnumerationInitParameters init = new EnumerationInitParameters(null, TerminationMode.NEVER);
-		init.parentUUID = getUniqueID();
-		init.parentServiceName = getServiceName();
-		init.targetServiceRP = rp;
-		Home h=kernel.getHome(UAS.ENUMERATION);
-		if(h==null)throw new Exception("Enumeration service is not deployed!");
-		return h.createResource(init);
-	}
-
 
 	/**
 	 * create new storage management service and return its epr
@@ -210,7 +191,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 				String m=(String)p.next().getBody();
 				if(m.startsWith("deleted:")){
 					String id=m.substring(m.indexOf(":")+1);
-					logger.debug("Removing Storage with ID "+id+"...");
+					logger.debug("Removing Storage with ID <{}>", id);
 					getModel().removeChild(id);
 				}
 			}

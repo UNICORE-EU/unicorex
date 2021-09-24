@@ -1,14 +1,11 @@
 package de.fzj.unicore.uas;
 
 import java.io.File;
-import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.impl.sms.InitSharedStorages;
 import eu.unicore.services.Kernel;
 
@@ -50,17 +47,5 @@ public abstract class SecuredBase{
 	public static void stopUNICORE() throws Exception{
 		kernel.shutdown();
 	}
-	
-	protected EndpointReferenceType findFirstAccessibleService(List<EndpointReferenceType>eprs){
-		for(EndpointReferenceType epr: eprs){
-			try{
-				BaseUASClient c=new BaseUASClient(epr,uas.getKernel().getClientConfiguration());
-				c.getCurrentTime();
-				return epr;
-			}catch(Exception e){
-				e.printStackTrace();
-			}
-		}
-		return null;
-	}
+
 }

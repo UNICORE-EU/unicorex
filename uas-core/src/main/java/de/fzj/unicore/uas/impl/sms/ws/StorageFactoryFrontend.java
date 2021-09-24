@@ -23,21 +23,15 @@ import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.UASBaseFrontEnd;
-import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import eu.unicore.services.Home;
-import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.ws.BaseFault;
 import eu.unicore.services.ws.exceptions.ResourceNotDestroyedFault;
 import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
 import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
 import eu.unicore.services.ws.exceptions.TerminationTimeChangeRejectedFault;
 import eu.unicore.services.ws.exceptions.UnableToSetTerminationTimeFault;
-import eu.unicore.services.ws.renderers.AddressRenderer;
-import eu.unicore.services.ws.utils.WSServerUtilities;
-
-/**
+import eu.unicore.services.ws.utils.WSServerUtilities;/**
  * Implements the storage factory
  * 
  * @author schuller
@@ -53,13 +47,6 @@ public class StorageFactoryFrontend extends UASBaseFrontEnd implements StorageFa
 	public StorageFactoryFrontend(StorageFactoryImpl r){
 		super(r);
 		this.resource = r;
-		
-		addRenderer(new AddressRenderer(this.resource,RPAccessibleSMSEnumeration,false) {
-			@Override
-			protected String getServiceSpec() {
-				return UAS.ENUMERATION+"?res="+r.getModel().getAccessibleSMSEnumerationID();
-			}
-		});
 		addRenderer(new StorageDescriptionRP(r));
 
 		//internal use
@@ -115,19 +102,6 @@ public class StorageFactoryFrontend extends UASBaseFrontEnd implements StorageFa
 			ret.put(p.getName(), p.getValue());
 		}
 		return ret;
-	}
-
-	/**
-	 * @return the UID of the new Enumeration
-	 */
-	protected String createEnumeration(QName rp)throws Exception{
-		EnumerationInitParameters init = new EnumerationInitParameters(null, TerminationMode.NEVER);
-		init.parentUUID = resource.getUniqueID();
-		init.parentServiceName = resource.getServiceName();
-		init.targetServiceRP = rp;
-		Home h=kernel.getHome(UAS.ENUMERATION);
-		if(h==null)throw new Exception("Enumeration service is not deployed!");
-		return h.createResource(init);
 	}
 
 	@Override

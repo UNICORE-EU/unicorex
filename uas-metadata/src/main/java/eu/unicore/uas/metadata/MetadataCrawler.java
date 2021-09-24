@@ -52,13 +52,13 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import de.fzj.unicore.uas.client.MetadataClient.CrawlerControl;
 import de.fzj.unicore.uas.metadata.ExtractionStatistics;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
+import eu.unicore.client.data.Metadata.CrawlerControl;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.metadata.MetadataFile.MD_State;
 import eu.unicore.util.Log;
@@ -366,7 +366,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 				}finally{
 					is.close();
 				}
-				CrawlerControl cc=CrawlerControl.create(p);
+				CrawlerControl cc = CrawlerControl.create(p);
 				NameFilter i=cc.getIncludes()!=null?new PatternFilter(cc.getIncludes()):defaultIncludes;
 				NameFilter e=defaultExcludes;
 				if(cc.getExcludes()!=null){

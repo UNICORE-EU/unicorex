@@ -33,27 +33,18 @@
 
 package de.fzj.unicore.uas.impl.task;
 
-import java.io.Serializable;
 import java.util.Calendar;
-
-import javax.xml.namespace.QName;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.xmlbeans.XmlObject;
-import org.unigrids.services.atomic.types.StatusType;
 
 import de.fzj.unicore.uas.Task;
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.ws.BaseFault;
-import eu.unicore.services.ws.renderers.AddressRenderer;
-import eu.unicore.services.ws.renderers.ValueRenderer;
-import eu.unicore.unicore6.task.CancelRequestDocument;
-import eu.unicore.unicore6.task.CancelResponseDocument;
-import eu.unicore.unicore6.task.SubmissionTimeDocument;
-import eu.unicore.unicore6.task.TaskPropertiesDocument;
 
 /**
  * implementation of the {@link Task} service.<br/>
@@ -64,38 +55,20 @@ import eu.unicore.unicore6.task.TaskPropertiesDocument;
  *  
  * @author schuller
  */
-public class TaskImpl extends UASWSResourceImpl implements Task {
+public class TaskImpl extends BaseResourceImpl {
 
 	public TaskImpl(){
 		super();
-		addRenderer(new ResultRP(this));
-		addRenderer(new StatusRP(this));
-		addRenderer(new AddressRenderer(this, RP_SUBMISSION_SERVICE_REFERENCE, false){
-			@Override
-			protected String getServiceSpec(){
-				return getModel().getServiceSpec();
-			}
-		});
-		addRenderer(new ValueRenderer(this, RP_SUBMISSION_TIME) {
-			@Override
-			protected Object getValue() throws Exception {
-				SubmissionTimeDocument d=SubmissionTimeDocument.Factory.newInstance();
-				d.setSubmissionTime(getModel().getSubmissionTime());
-				return d;
-			}
-		});
 	}
 	
-	public CancelResponseDocument Cancel(CancelRequestDocument in)throws BaseFault {
-		TaskStatus status = getModel().getStatus();
-		if(StatusType.RUNNING.equals(status.status)){
-			status.status=StatusType.FAILED;
-			status.message="Cancelled";
-			getModel().setResult(getCancelledResult());
+	public void cancel() {
+		TaskModel m = getModel();
+		String status = m.getStatus();
+		if("RUNNING".equals(status)){
+			m.setStatus("FAILED");
+			m.setStatusMessage("Cancelled");
+			getModel().setResult(new HashMap<>());
 		}
-		CancelResponseDocument crd=CancelResponseDocument.Factory.newInstance();
-		crd.addNewCancelResponse();
-		return crd;
 	}
 
 	@Override 
@@ -111,30 +84,12 @@ public class TaskImpl extends UASWSResourceImpl implements Task {
 			m = new TaskModel();
 			setModel(m);
 		}
-		
 		super.initialise(initParams);
 		String parentService = initParams.parentServiceName;
-		String parentID = initParams.parentUUID;
-		String serviceSpec=parentID!=null?parentService+"?res="+parentID:parentService;
 		Calendar submissionTime=Calendar.getInstance();
-		TaskStatus s=new TaskStatus();
-		s.status=StatusType.RUNNING;
-		m.setStatus(s);
-		m.setServiceSpec(serviceSpec);
+		m.setStatus("RUNNING");
+		m.setServiceSpec(parentService);
 		m.setSubmissionTime(submissionTime);
-	}
-
-	@Override
-	public QName getResourcePropertyDocumentQName() {
-		return TaskPropertiesDocument.type.getDocumentElementName();
-	}
-
-	public XmlObject getResult(){
-		return getModel().getResult();
-	}
-
-	public TaskStatus getStatus(){
-		return getModel().getStatus();
 	}
 
 	/**
@@ -149,16 +104,15 @@ public class TaskImpl extends UASWSResourceImpl implements Task {
 	 * @param exitCode
 	 * @throws Exception
 	 */
-	public static void putResult(Kernel kernel, String uuid, XmlObject result, String message, int exitCode)throws Exception {
+	public static void putResult(Kernel kernel, String uuid, Map<String, String> result, String message, int exitCode)throws Exception {
 		Home home=kernel.getHome(UAS.TASK);
 		TaskImpl ti=(TaskImpl)home.getForUpdate(uuid);
 		try{
-			ti.getModel().setResult(result);
-			TaskStatus newStatus=new TaskStatus();
-			newStatus.status=StatusType.SUCCESSFUL;
-			newStatus.message=message;
-			newStatus.exitCode=exitCode;
-			ti.getModel().setStatus(newStatus);
+			TaskModel model = ti.getModel();
+			model.setStatus("SUCCESSFUL");
+			model.setStatusMessage(message);
+			model.setExitCode(exitCode);
+			model.setResult(result);
 		}
 		finally{
 			home.persist(ti);
@@ -169,41 +123,13 @@ public class TaskImpl extends UASWSResourceImpl implements Task {
 		Home home=kernel.getHome(UAS.TASK);
 		TaskImpl ti=(TaskImpl)home.getForUpdate(uuid);
 		try{
-			TaskStatus newStatus=new TaskStatus();
-			newStatus.status=StatusType.FAILED;
-			newStatus.message=message;
-			newStatus.exitCode=exitCode;
-			ti.getModel().setStatus(newStatus);
+			TaskModel model = ti.getModel();
+			model.setStatus("FAILED");
+			model.setStatusMessage(message);
+			model.setExitCode(exitCode);
 		}
 		finally{
 			home.persist(ti);
-		}
-	}
-	public static class TaskStatus implements Serializable {
-		private static final long serialVersionUID = 1L;
-		
-		public volatile String message;
-		public volatile Float progress;
-		public volatile Integer exitCode;
-		public volatile StatusType.Enum status=StatusType.UNDEFINED;
-	}
-	
-	public static XmlObject getDefaultResult(){
-		String x="<Completed xmlns=\""+NAMESPACE+"\"/>";
-		try{
-			return XmlObject.Factory.parse(x);
-		}catch(Exception ex){
-			//can't happen
-			throw new RuntimeException(ex);
-		}
-	}
-	public static XmlObject getCancelledResult(){
-		String x="<Cancelled xmlns=\""+NAMESPACE+"\"/>";
-		try{
-			return XmlObject.Factory.parse(x);
-		}catch(Exception ex){
-			//can't happen
-			throw new RuntimeException(ex);
 		}
 	}
 	

@@ -13,10 +13,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.CoreClientCapabilities.FTClientCapability;
 import de.fzj.unicore.uas.CoreClientCapabilities.RESTFTClientCapability;
-import de.fzj.unicore.uas.client.Configurable;
-import de.fzj.unicore.uas.client.FileTransferClient;
 import de.fzj.unicore.uas.fts.FiletransferOptions;
 import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
@@ -25,6 +22,7 @@ import eu.unicore.client.data.FileClient;
 import eu.unicore.client.data.FiletransferClient;
 import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.TransferControllerClient;
+import eu.unicore.client.utils.Configurable;
 import eu.unicore.services.ClientCapabilities;
 import eu.unicore.services.ClientCapability;
 import eu.unicore.services.rest.client.BaseClient;

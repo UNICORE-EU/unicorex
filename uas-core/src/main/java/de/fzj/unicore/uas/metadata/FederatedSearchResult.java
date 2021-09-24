@@ -13,48 +13,28 @@ public class FederatedSearchResult implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	private String storageURL;
+	private List<String> resourceURLs = new ArrayList<>();
 	
-	private List<String> resourceNames;
-	
-	public FederatedSearchResult()
+	public List<String> getResourceURLs()
 	{
-		resourceNames = new ArrayList<String>();
+		return resourceURLs;
 	}
 	
-	public String getStorageURL()
+	public void addResourceURL(String resourceURL)
 	{
-		return storageURL;
-	}
-	
-	public void setStorageURL(String URL)
-	{
-		storageURL = URL;
-	}
-	
-	public List<String> getResourceNames()
-	{
-		return resourceNames;
-	}
-	
-	public void addResourceName(String resourceName)
-	{
-		if(resourceName == null || resourceName.isEmpty())
+		if(resourceURL != null && !resourceURL.isEmpty())
 		{
-			//TODO: or may be throw some exception
-			return;
+			resourceURLs.add(resourceURL);
 		}
-		
-		resourceNames.add(resourceName);
 	}
 	
-	public void addResourceNames(List<String> resourceNames)
+	public void addResourceURLs(List<String> resourceURLs)
 	{
-		this.resourceNames.addAll(resourceNames);
+		this.resourceURLs.addAll(resourceURLs);
 	}
 	
 	public int getResourceCount()
 	{
-		return resourceNames.size();
+		return resourceURLs.size();
 	}
 }

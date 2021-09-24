@@ -33,7 +33,6 @@
 package eu.unicore.uas.metadata;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -117,11 +116,8 @@ public class FederatedSearchProvider implements
 		for(String storageURL: storageURLs) {
 			FederatedSearchResult federatedSearchResult = new FederatedSearchResult();
 			StorageClient sms = new StorageClient(new Endpoint(storageURL), kernel.getClientConfiguration(), jwt);
-			Collection<String> searchResult = sms.searchMetadata(keyWord);
-			
-			federatedSearchResult.setStorageURL(storageURL);
-			federatedSearchResult.addResourceNames(new ArrayList<String>(searchResult));
-			
+			List<String> searchResult = sms.searchMetadata(keyWord);
+			federatedSearchResult.addResourceURLs(searchResult);
 			result.addSearchResult(federatedSearchResult);
 		}
 		

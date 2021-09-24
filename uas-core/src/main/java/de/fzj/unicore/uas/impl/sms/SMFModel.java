@@ -16,8 +16,6 @@ public class SMFModel extends UASBaseModel {
 	 */
 	Map<String, String>smsOwners=new HashMap<String, String>();
 
-	String accessibleSMSEnumerationID;
-
 	public Map<String, String> getSmsOwners() {
 		return smsOwners;
 	}
@@ -32,14 +30,6 @@ public class SMFModel extends UASBaseModel {
 
 	public void setSmsIDs(List<String> smsIDs) {
 		getChildren().put(UAS.SMS, smsIDs);
-	}
-
-	public String getAccessibleSMSEnumerationID() {
-		return accessibleSMSEnumerationID;
-	}
-
-	public void setAccessibleSMSEnumerationID(String accessibleSMSEnumerationID) {
-		this.accessibleSMSEnumerationID = accessibleSMSEnumerationID;
 	}
 
 	@Override

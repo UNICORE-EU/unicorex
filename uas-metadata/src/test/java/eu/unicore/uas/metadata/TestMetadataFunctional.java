@@ -12,17 +12,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.FileList;
+import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.data.FileClient;
 import eu.unicore.client.data.Metadata;
-import eu.unicore.client.core.FileList;
-import eu.unicore.client.core.FileList.FileListEntry;
+import eu.unicore.client.utils.TaskClient;
 import eu.unicore.services.Kernel;
 
 /**
@@ -214,10 +214,11 @@ public class TestMetadataFunctional {
 		sms.upload("page.html").write(builder.toString().getBytes());
 
 		FileClient fc = sms.getFileClient("/");
-		JSONObject extractTask = fc.startMetadataExtraction(1);
-		System.out.println(extractTask.toString(2));
-		// TODO - task impl for REST API
-		Thread.sleep(5000);
+		TaskClient extractTask = fc.startMetadataExtraction(1);
+		while(!extractTask.isFinished()) {
+			Thread.sleep(1000);
+		}
+		System.out.println(extractTask.getProperties().toString(2));
 		
 		//check the page.html was indexed
 		List<String>results = sms.searchMetadata("page.html");
@@ -312,10 +313,11 @@ public class TestMetadataFunctional {
 		Metadata.writeCrawlerControlFile(sms, "/", new Metadata.CrawlerControl(null, new String[]{"*.a"}));
 
 		FileClient fc = sms.getFileClient("/");
-		JSONObject extractTask = fc.startMetadataExtraction(1);
-		System.out.println(extractTask.toString(2));
-		// TODO - task impl for REST API
-		Thread.sleep(5000);
+		TaskClient extractTask = fc.startMetadataExtraction(1);
+		while(!extractTask.isFinished()) {
+			Thread.sleep(1000);
+		}
+		System.out.println(extractTask.getProperties().toString(2));
 		
 		List<String>results = sms.searchMetadata("reallyIgnoreThis.a");
 		assertTrue(results.size()==0);

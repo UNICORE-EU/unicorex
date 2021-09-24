@@ -37,11 +37,9 @@ import java.util.Arrays;
 import java.util.Calendar;
 
 import org.apache.logging.log4j.Logger;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.impl.PersistingPreferencesResource;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
 import de.fzj.unicore.uas.impl.sms.StorageInitParameters;
@@ -54,7 +52,6 @@ import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**
  * implements a Job resource, and allows job management through WSRF
@@ -138,25 +135,15 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 			String tssId = getModel().getParentUID();
 			getKernel().getMessaging().getChannel(tssId).publish(m);
 		}
-		catch(Exception e){
-			LogUtil.logException("Could not send internal message.",e,logger);
-		}
-		//clean up on backend
+		catch(Exception e){}
 		try{
 			getXNJSFacade().destroyAction(getUniqueID(), getClient());
 		}
-		catch(Exception e){
-			LogUtil.logException("Could not destroy job on XNJS.",e,logger);
-		}
+		catch(Exception e){}
 		try{
-			//destroy the uspace resource
-			EndpointReferenceType uspaceEPR=WSServerUtilities.makeEPR(
-				UAS.SMS, getModel().getUspaceId(), kernel);
-			BaseUASClient c=new BaseUASClient(uspaceEPR, kernel.getClientConfiguration());
-			c.destroy();
-		}catch(Exception e){
-			LogUtil.logException("Could not destroy storages.",e,logger);
-		}
+			Home smsHome = kernel.getHome(UAS.SMS);
+			smsHome.destroyResource(getModel().getUspaceId());
+		}catch(Exception e){}
 		super.destroy();
 	}
 	

@@ -30,7 +30,7 @@ public class CoreServices extends Application implements USERestApplication {
 
 	@Override
 	public Set<Class<?>> getClasses() {
-		Set<Class<?>>classes=new HashSet<Class<?>>();
+		Set<Class<?>>classes=new HashSet<>();
 		classes.add(Base.class);
 		classes.add(Sites.class);
 		classes.add(SiteFactories.class);
@@ -39,6 +39,7 @@ public class CoreServices extends Application implements USERestApplication {
 		classes.add(Jobs.class);
 		classes.add(Transfers.class);
 		classes.add(ClientTransfers.class);
+		classes.add(Tasks.class);
 		return classes;
 	}
 
@@ -68,7 +69,6 @@ public class CoreServices extends Application implements USERestApplication {
 			}
 			lrc.addEntry(endpoint, content, null);
 		}catch(Exception ex){
-			ex.printStackTrace();
 			Log.logException("Could not publish to registry", ex);
 		}
 	}

@@ -68,7 +68,7 @@ public class Storages extends ServicesBase {
 		props.put("mountPoint", sip.getStorageRoot());
 		props.put("description", model.getStorageDescription().getDescription());
 		props.put("filesystemDescription", sip.getFileSystemIdentifier());
-		props.put("metadataSupported", model.getMetadataServiceID()!=null);
+		props.put("metadataSupported", !model.getStorageDescription().isDisableMetadata());
 		try {
 			XnjsStorageInfo info = sip.getAvailableDiskSpace(model.getWorkdir());
 			props.put("freeSpace", info.getFreeSpace());
@@ -325,17 +325,17 @@ public class Storages extends ServicesBase {
 	protected void updateLinks() {
 		super.updateLinks();
 		links.add(new Link("files",getBaseURL()+"/storages/"+resource.getUniqueID()+"/files","Files"));
-		// factories link
+		
 		String smfID = getModel().getParentUID();
 		if(smfID != null){
 			links.add(new Link("factory",getBaseURL()+"/storagefactories/"+smfID,"Storage Factory"));
 		}
-		// metadata link
-		String mmID = getModel().getMetadataServiceID();
-		if(mmID != null){
-			links.add(new Link("metadata-search",getBaseURL()+"/storages/"+resource.getUniqueID()+"/search","Search in Metadata"));
-			//links.add(new Link("metadataManagement",getBaseURL()+"/metadata/"+mmID,"Metadata management"));
+		
+		if(!getModel().getStorageDescription().isDisableMetadata()){
+			links.add(new Link("metadata-search",getBaseURL()+"/storages/"+resource.getUniqueID()+"/search","Search in metadata"));
+			links.add(new Link("metadata-extract",getBaseURL()+"/storages/"+resource.getUniqueID()+"/files/actions/extract","Extract metadata"));
 		}
+		
 		links.add(new Link("action:copy",getBaseURL()+"/storages/"+resource.getUniqueID()+"/actions/copy","Copy file 'from' to file 'to'."));
 		links.add(new Link("action:rename",getBaseURL()+"/storages/"+resource.getUniqueID()+"/actions/rename","Rename file 'from' to file 'to'."));
 	}

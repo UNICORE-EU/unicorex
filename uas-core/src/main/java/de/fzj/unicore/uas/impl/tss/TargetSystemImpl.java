@@ -43,16 +43,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Logger;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.json.JSONObject;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.persist.PersistenceException;
-import de.fzj.unicore.uas.TargetSystem;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.client.BaseUASClient;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.impl.UmaskSupport;
-import de.fzj.unicore.uas.impl.enumeration.EnumerationInitParameters;
 import de.fzj.unicore.uas.impl.job.JobInitParameters;
 import de.fzj.unicore.uas.impl.reservation.ReservationInitParameters;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
@@ -81,10 +77,6 @@ import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.utils.Utilities;
-import eu.unicore.services.ws.BaseFault;
-import eu.unicore.services.ws.exceptions.ResourceUnavailableFault;
-import eu.unicore.services.ws.exceptions.ResourceUnknownFault;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.Log;
 
 /**
@@ -198,13 +190,6 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 
 		createAdditionalStorages();
 
-		try{
-			model.jobEnumerationID=createJobListEnumeration();
-		}
-		catch(Exception ex){
-			LogUtil.logException("Error creating job reference enumeration",ex,logger);
-		}
-
 		setStatusMessage("OK");
 		
 		Map<String,String> desc = initobjs.extraParameters;
@@ -212,20 +197,6 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		kernel.getContainerProperties().getThreadingServices().getScheduledExecutorService().schedule(
 				new TSSAsynchInitialisation(kernel, getUniqueID(),initTasks), 
 				200, TimeUnit.MILLISECONDS);
-	}
-
-	/**
-	 * @return enumeration UUID
-	 */
-	protected String createJobListEnumeration()throws Exception{
-		EnumerationInitParameters init = new EnumerationInitParameters(null,TerminationMode.NEVER);
-		init.parentUUID = getUniqueID();
-		init.parentServiceName = UAS.TSS;
-		init.targetServiceRP = TargetSystem.RPJobReference;
-		init.acl.addAll(getModel().getAcl());
-		Home h=kernel.getHome(UAS.ENUMERATION);
-		if(h==null)throw new Exception("Enumeration service is not deployed!");
-		return h.createResource(init);
 	}
 
 	/**
@@ -358,43 +329,26 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 			m.setServiceName(getServiceName());
 			kernel.getMessaging().getChannel(model.getParentUID()).publish(m);
 		}
-		catch(Exception e){
-			LogUtil.logException("Could not send internal message.",e,logger);
-		}
+		catch(Exception e){}
 		if(uasProperties.getBooleanValue(UASProperties.TSS_FORCE_UNIQUE_STORAGE_IDS)){
 			try{
 				//destroy our SMS instances
+				Home smsHome = kernel.getHome(UAS.SMS);
 				for(String smsID: model.getStorageIDs()){
-					EndpointReferenceType epr=WSServerUtilities.makeEPR(UAS.SMS, smsID, kernel);
-					BaseUASClient c=new BaseUASClient(epr, kernel.getClientConfiguration());
-					c.destroy();
+					smsHome.destroyResource(smsID);
 				}
-			}catch(Exception e){
-				LogUtil.logException("Could not destroy storages for TSS <"+getUniqueID()+">",e,logger);
-			}
+			}catch(Exception e){}
 		}
-		//destroy the job enumeration instance
-		try{
-			EndpointReferenceType jred=WSServerUtilities.makeEPR(UAS.ENUMERATION, model.jobEnumerationID, kernel);
-			BaseUASClient c=new BaseUASClient(jred, kernel.getClientConfiguration());
-			c.destroy();
-		}catch(Exception e){
-			LogUtil.logException("Could not destroy enumeration for TSS <"+getUniqueID()+">",e,logger);
-		}
-
 		try{
 			String xnjsRef = model.getXnjsReference(); 
 			//shutdown the xnjs instance only if not the default instance
 			if(xnjsRef!=null){
 				XNJSFacade.get(xnjsRef,kernel).shutdown();
 			}
-		}catch(Exception e){
-			LogUtil.logException("Could not shutdown the XNJS instance.",e,logger);
-		}
+		}catch(Exception e){}
 		super.destroy();
-
 		String ownerName=(getOwner()!=null?getOwner().toString():"<no client>");
-		logger.info("Removed TargetSystem resource <"+getUniqueID()+"> owned by "+ownerName);
+		logger.debug("Removed TargetSystem resource <{}> owned by <{}>", getUniqueID(), ownerName);
 	}
 
 	//create a WS Resource for the reservation and return its UUID
@@ -422,8 +376,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		ret.setUmask(umask);
 	}
 
-	public void deleteJobs(List<String>jobs)
-			throws ResourceUnavailableFault, ResourceUnknownFault, BaseFault {
+	public void deleteJobs(List<String>jobs) {
 		List<String>toRemove=new ArrayList<String>();
 		List<String>jobIDs = getModel().getJobIDs();
 		for(String j: jobs){

@@ -10,11 +10,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.uas.client.UFTPConstants;
-import de.fzj.unicore.uas.client.UFTPFileTransferClient;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.xnjs.io.XnjsFile;
+import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
 import eu.unicore.uftp.dpc.Utils;
@@ -26,7 +25,7 @@ import eu.unicore.uftp.server.workers.UFTPWorker;
  * 
  * @author schuller
  */
-public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConstants{
+public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConstants {
 	
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, UFTPFileTransferImpl.class);
 
@@ -58,11 +57,11 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		if(extraParameters==null){
 			throw new IllegalArgumentException("Missing parameters for UFTP");	
 		}
-		m.clientHost=extraParameters.get(UFTPFileTransferClient.PARAM_CLIENT_HOST);
+		m.clientHost=extraParameters.get(PARAM_CLIENT_HOST);
 		
 		boolean isExport = m.getIsExport();
 		
-		String sessionRequested = extraParameters.get(UFTPFileTransferClient.PARAM_USE_SESSION);
+		String sessionRequested = extraParameters.get(PARAM_USE_SESSION);
 		if(sessionRequested!=null){
 			m.isSession = Boolean.parseBoolean(sessionRequested);	
 		}
@@ -74,21 +73,21 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		if(m.clientHost==null){
 			m.clientHost=getClient().getSecurityTokens().getClientIP();
 			if(m.clientHost==null){
-				throw new IllegalArgumentException("Missing parameter: "+UFTPFileTransferClient.PARAM_CLIENT_HOST);
+				throw new IllegalArgumentException("Missing parameter: "+PARAM_CLIENT_HOST);
 			}
 		}
-		String streamsP=extraParameters.get(UFTPFileTransferClient.PARAM_STREAMS);
+		String streamsP=extraParameters.get(PARAM_STREAMS);
 		m.streams=streamsP!=null?Integer.parseInt(streamsP) : 1;
 		int streams=checkNumConnectionsValid(m.streams);
 		if(streamsP!=null && streams!=m.streams){
 			throw new IllegalArgumentException("Requested number of streams exceeds server limit of <"+streams+"> !");
 		}
-		String secret=extraParameters.get(UFTPFileTransferClient.PARAM_SECRET);
-		String keySpec=extraParameters.get(UFTPFileTransferClient.PARAM_ENABLE_ENCRYPTION);
+		String secret=extraParameters.get(PARAM_SECRET);
+		String keySpec=extraParameters.get(PARAM_ENABLE_ENCRYPTION);
 		if(keySpec!=null && Boolean.parseBoolean(keySpec)){
 			m.key=Utils.createKey();
 		}
-		String compress=extraParameters.get(UFTPFileTransferClient.PARAM_ENABLE_COMPRESSION);
+		String compress=extraParameters.get(PARAM_ENABLE_COMPRESSION);
 		if(compress!=null && Boolean.parseBoolean(compress)){
 			m.compress=true;
 		}
@@ -105,20 +104,20 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		String serverHost = m.getServerHost();
 		int serverPort = m.getServerPort();
 
-		params.put(UFTPFileTransferClient.PARAM_SERVER_HOST,serverHost);
-		params.put(UFTPFileTransferClient.PARAM_SERVER_PORT,String.valueOf(serverPort));
+		params.put(PARAM_SERVER_HOST,serverHost);
+		params.put(PARAM_SERVER_PORT,String.valueOf(serverPort));
 		
 		int streams = m.streams;
-		params.put(UFTPFileTransferClient.PARAM_STREAMS,String.valueOf(streams));
+		params.put(PARAM_STREAMS,String.valueOf(streams));
 		
 		byte[] key=m.key;
 		if(key!=null){
 			String base64=Utils.encodeBase64(key);
-			params.put(UFTPFileTransferClient.PARAM_ENCRYPTION_KEY,base64);
+			params.put(PARAM_ENCRYPTION_KEY,base64);
 		}
-		params.put(UFTPFileTransferClient.PARAM_ENABLE_COMPRESSION,String.valueOf(m.compress));
+		params.put(PARAM_ENABLE_COMPRESSION,String.valueOf(m.compress));
 		
-		params.put(UFTPFileTransferClient.PARAM_USE_SESSION,String.valueOf(m.isSession));
+		params.put(PARAM_USE_SESSION,String.valueOf(m.isSession));
 		
 		return params;
 	}

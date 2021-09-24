@@ -1,4 +1,4 @@
-package de.fzj.unicore.uas.client;
+package eu.unicore.client.data;
 
 public interface UFTPConstants {
 	/** 

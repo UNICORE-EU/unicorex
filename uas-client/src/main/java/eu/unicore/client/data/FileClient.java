@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
+import eu.unicore.client.utils.TaskClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
@@ -46,12 +47,14 @@ public class FileClient extends BaseServiceClient {
 	}
 	
 	/**
-	 * TBD
+	 * launch metadata extraction
 	 */
-	public JSONObject startMetadataExtraction(int depth, String ... resources) throws Exception {
+	public TaskClient startMetadataExtraction(int depth, String ... resources) throws Exception {
 		JSONObject op = new JSONObject();
 		op.put("depth", depth);
 		JSONObject response = executeAction("extract", op);
-		return response;
+		String href = response.optString("taskHref", null);
+		return href!=null? 
+			new TaskClient(new Endpoint(href), security, auth) : null;
 	}
 }

@@ -1,11 +1,9 @@
 package de.fzj.unicore.uas.impl.task;
 
 import java.util.Calendar;
-
-import org.apache.xmlbeans.XmlObject;
+import java.util.Map;
 
 import de.fzj.unicore.uas.impl.UASBaseModel;
-import de.fzj.unicore.uas.impl.task.TaskImpl.TaskStatus;
 
 public class TaskModel extends UASBaseModel {
 
@@ -15,10 +13,12 @@ public class TaskModel extends UASBaseModel {
 	
 	private Calendar submissionTime;
 	
-	private XmlObject result;
+	private Map<String,String> result;
 	
-	private TaskStatus status = new TaskStatus();
-
+	private String status = "CREATED";
+	private String statusMessage = "";
+	private Integer exitCode;
+	
 	public String getServiceSpec() {
 		return serviceSpec;
 	}
@@ -35,21 +35,36 @@ public class TaskModel extends UASBaseModel {
 		this.submissionTime = submissionTime;
 	}
 
-	public XmlObject getResult() {
+	public Map<String,String> getResult() {
 		return result;
 	}
 
-	public void setResult(XmlObject result) {
+	public void setResult(Map<String,String> result) {
 		this.result = result;
 	}
 
-	public TaskStatus getStatus() {
+	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(TaskStatus status) {
+	public void setStatus(String status) {
 		this.status = status;
 	}
-	
-	
+
+	public String getStatusMessage() {
+		return statusMessage;
+	}
+
+	public void setStatusMessage(String statusMessage) {
+		this.statusMessage = statusMessage;
+	}
+
+	public Integer getExitCode() {
+		return exitCode;
+	}
+
+	public void setExitCode(int exitCode) {
+		this.exitCode = exitCode;
+	}
+
 }

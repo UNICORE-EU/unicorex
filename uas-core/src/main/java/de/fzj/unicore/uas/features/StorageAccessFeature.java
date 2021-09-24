@@ -3,7 +3,6 @@ package de.fzj.unicore.uas.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fzj.unicore.uas.MetadataManagement;
 import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransfer;
@@ -15,7 +14,6 @@ import de.fzj.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl;
 import de.fzj.unicore.uas.impl.sms.ws.SMSFrontend;
 import de.fzj.unicore.uas.impl.sms.ws.StorageFactoryFrontend;
-import de.fzj.unicore.uas.metadata.MetadataManagementHomeImpl;
 import eu.unicore.services.DeploymentDescriptor;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.utils.deployment.DeploymentDescriptorImpl;
@@ -44,7 +42,6 @@ public class StorageAccessFeature extends FeatureImpl {
 		
 		services.add(new Storage(kernel));		
 		services.add(new StorageFactory(kernel));		
-		services.add(new Metadata(kernel));		
 		
 		services.add(new ClientFileTransfer(kernel));
 		services.add(new ServerServerFTS(kernel));		
@@ -70,23 +67,6 @@ public class StorageAccessFeature extends FeatureImpl {
 		}
 	}
 
-	public static class Metadata extends DeploymentDescriptorImpl {
-
-		public Metadata(Kernel kernel){
-			this();
-			setKernel(kernel);
-		}
-		
-		public Metadata() {
-			super();
-			this.name = UAS.META;
-			this.type = CXFService.TYPE;
-			this.implementationClass = MetadataManagementHomeImpl.class;
-			this.interfaceClass = MetadataManagement.class;
-		}
-
-	}
-	
 	public static class StorageFactory extends DeploymentDescriptorImpl {
 
 		public StorageFactory(Kernel kernel){

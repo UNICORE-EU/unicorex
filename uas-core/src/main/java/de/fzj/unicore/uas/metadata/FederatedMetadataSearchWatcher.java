@@ -1,10 +1,8 @@
 package de.fzj.unicore.uas.metadata;
 
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.xmlbeans.XmlObject;
-import org.unigrids.x2006.x04.services.metadata.FederatedSearchResultCollectionDocument;
 
 import de.fzj.unicore.uas.impl.task.TaskImpl;
 import eu.unicore.services.Kernel;
@@ -26,15 +24,13 @@ public class FederatedMetadataSearchWatcher implements Runnable {
 
 	@Override
 	public void run() {
-		XmlObject result = null;
+		Map<String,String> result = null;
 
 		if (future.isDone()) {
 			try {
-				FederatedSearchResultCollection searchResultCollection = future.get();
+				FederatedSearchResultCollection searchResults = future.get();
 				
-				FederatedSearchResultCollectionDocument searchResultCollectionDocument = searchResultCollection.getTypeOfDocument();
-				
-				result = searchResultCollectionDocument;
+				result = searchResults.asMap();
 				TaskImpl.putResult(kernel, taskID, result, "OK", 0);
 				
 			} catch (Exception ex) {
@@ -45,7 +41,6 @@ public class FederatedMetadataSearchWatcher implements Runnable {
 			}
 			
 		} else {
-
 			kernel.getContainerProperties().getThreadingServices()
 					.getScheduledExecutorService()
 					.schedule(this, 5000, TimeUnit.MILLISECONDS);

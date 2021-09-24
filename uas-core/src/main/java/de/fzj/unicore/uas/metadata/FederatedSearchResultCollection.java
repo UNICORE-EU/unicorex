@@ -1,12 +1,10 @@
 package de.fzj.unicore.uas.metadata;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
-
-import org.unigrids.x2006.x04.services.metadata.FederatedSearchResultCollectionDocument;
+import java.util.Map;
 
 /**
  * Federated search results repository
@@ -67,37 +65,23 @@ public class FederatedSearchResultCollection {
 		items.addAll(searchResults);
 	}
 	
-	public FederatedSearchResultCollectionDocument getTypeOfDocument()
+	public Map<String,String> asMap()
 	{
-		FederatedSearchResultCollectionDocument result = FederatedSearchResultCollectionDocument.Factory
-				.newInstance();
-		 
-		result.addNewFederatedSearchResultCollection();
-		result.getFederatedSearchResultCollection().setSearchEndTime(DateToCalendar(getSearchStartTime()));
-		result.getFederatedSearchResultCollection().setSearchEndTime(DateToCalendar(getSearchEndTime()));
-		result.getFederatedSearchResultCollection().setResourceCount(BigInteger.valueOf(getResourceCount())); 
-		result.getFederatedSearchResultCollection().setStorageCount(BigInteger.valueOf(getStorageCount())); 
-		
+		Map<String,String> result = new HashMap<>();
+		result.put("resourceCount", String.valueOf(getResourceCount())); 
+		result.put("storageCount", String.valueOf(getStorageCount())); 
 		
 		List<FederatedSearchResult> searchResults = getSearchResults();
-		
+		int i = 1;
 		for(FederatedSearchResult searchResult : searchResults)
 		{
-			org.unigrids.x2006.x04.services.metadata.FederatedSearchResultDocument.FederatedSearchResult searchResultElement=result.getFederatedSearchResultCollection().addNewFederatedSearchResults().addNewFederatedSearchResult();
-			searchResultElement.setStorageURL(searchResult.getStorageURL());
-			List<String> elementResourceNames = searchResult.getResourceNames();
-			String[] elementResourceNamesArray = elementResourceNames.toArray(new String[elementResourceNames.size()]);
-			searchResultElement.setResourceNameArray(elementResourceNamesArray);
+			for(String url: searchResult.getResourceURLs()) {
+				result.put("search-result-"+i, url);
+				i++;
+			}
 		}
 		
 		return result;
 	}
-	
-	public Calendar DateToCalendar(Date date){ 
-		  System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" + date);	
-		  Calendar cal = Calendar.getInstance();
-		  cal.setTime(date);
-		  return cal;
-		}
 
 }

@@ -1,10 +1,8 @@
 package de.fzj.unicore.uas.metadata;
 
-import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
-
-import org.apache.xmlbeans.XmlObject;
-import org.unigrids.x2006.x04.services.metadata.ExtractionStatisticsDocument;
 
 import de.fzj.unicore.uas.impl.task.TaskWatcher;
 import eu.unicore.services.Kernel;
@@ -21,11 +19,11 @@ public class ExtractionWatcher extends TaskWatcher<ExtractionStatistics>{
 	}
 	
 	@Override
-	protected XmlObject createResultXML(ExtractionStatistics stats) {
-		ExtractionStatisticsDocument sd=ExtractionStatisticsDocument.Factory.newInstance();
-		sd.addNewExtractionStatistics().setDocumentsProcessed(BigInteger.valueOf(stats.getDocumentsProcessed()));
-		sd.getExtractionStatistics().setDurationMillis(BigInteger.valueOf(stats.getDurationMillis()));
-		return sd;
+	protected Map<String,String> createResult(ExtractionStatistics stats) {
+		Map<String,String> res = new HashMap<>();
+		res.put("documentsProcessed", String.valueOf(stats.getDocumentsProcessed()));
+		res.put("durationMillis", String.valueOf(stats.getDurationMillis()));
+		return res;
 	}
 	
 }

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -15,12 +16,8 @@ import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.Base;
-import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.client.StorageClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
 import de.fzj.unicore.uas.trigger.Rule;
 import de.fzj.unicore.uas.trigger.RuleSet;
 import de.fzj.unicore.uas.trigger.xnjs.TriggerProcessor;
@@ -29,9 +26,10 @@ import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.StorageClient;
+import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
-import eu.unicore.services.ws.WSUtilities;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 
 public class TestTriggers extends Base {
 
@@ -113,12 +111,13 @@ public class TestTriggers extends Base {
 	
 	@Test
 	public void testDirectoryScan()throws Exception{
-		// create a storage first
-		EndpointReferenceType epr=WSServerUtilities.makeEPR(UAS.SMF, "default_storage_factory", kernel);
-		StorageFactoryClient smf=new StorageFactoryClient(epr, kernel.getClientConfiguration());
-		Map<String,String>settings = new HashMap<String, String>();
+		String url = kernel.getContainerProperties().getContainerURL()
+				+"/rest/core/storagefactories/default_storage_factory";
+		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
+				kernel.getClientConfiguration(), null);
+		Map<String,String>settings = new HashMap<>();
 		settings.put("trigger.disable","true");
-		StorageClient sms=smf.createSMS(null,null,settings,null);
+		StorageClient sms = smf.createStorage(null, null, settings, null);
 		// write a rule file
 		InputStream is=new FileInputStream("src/test/resources/trigger_rules");
 		sms.upload(RuleFactory.RULE_FILE_NAME).writeAllData(is);
@@ -130,9 +129,8 @@ public class TestTriggers extends Base {
 		// triggering won't touch files that are not yet old enough
 		Thread.sleep(8000);
 		
-		
 		// setup the scan
-		String sID=WSUtilities.extractResourceID(sms.getEPR());
+		String sID =  new File(new URI(sms.getEndpoint().getUrl()).getPath()).getName();
 		Client client=new Client();
 		client.setAnonymousClient();
 		XNJS xnjs=XNJSFacade.get(null, kernel).getXNJS();
@@ -149,8 +147,8 @@ public class TestTriggers extends Base {
 		// allow some grace time - processing is async
 		Thread.sleep(5000);
 		// check the expected outfile is there
-		Assert.assertTrue(sms.listProperties("/out/test.txt.md5").getSize()>0);
-		Assert.assertTrue(sms.listProperties("/out/test2.txt.md5").getSize()>0);
+		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
+		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
 	}
 	
 	private boolean hasRun(XNJS xnjs, String actionID)throws Exception{

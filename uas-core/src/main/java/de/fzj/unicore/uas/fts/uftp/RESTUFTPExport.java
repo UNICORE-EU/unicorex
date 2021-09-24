@@ -11,13 +11,13 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 
-import de.fzj.unicore.uas.client.UFTPConstants;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
 import de.fzj.unicore.xnjs.util.ResultHolder;
+import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.uftp.client.UFTPSessionClient;
 import eu.unicore.uftp.server.workers.UFTPWorker;
@@ -26,7 +26,7 @@ import eu.unicore.util.Log;
 /**
  * @author schuller
  */
-public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants{
+public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants {
 
 	private String secret;
 

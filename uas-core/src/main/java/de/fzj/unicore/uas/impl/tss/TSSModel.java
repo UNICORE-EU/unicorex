@@ -10,8 +10,6 @@ public class TSSModel extends UASBaseModel {
 
 	private static final long serialVersionUID = 1L;
 
-	String jobEnumerationID;
-
 	Boolean supportsReservation;
 
 	String umask=Integer.toOctalString(IStorageAdapter.DEFAULT_UMASK);
@@ -38,14 +36,6 @@ public class TSSModel extends UASBaseModel {
 
 	public void setStorageIDs(List<String> storageIDs) {
 		getChildren().put(UAS.SMS,storageIDs);
-	}
-
-	public String getJobEnumerationID() {
-		return jobEnumerationID;
-	}
-
-	public void setJobEnumerationID(String jobEnumerationID) {
-		this.jobEnumerationID = jobEnumerationID;
 	}
 
 	public Boolean getSupportsReservation() {

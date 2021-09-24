@@ -74,13 +74,15 @@ public class Base extends ApplicationBaseResource {
 	final static String[] resources = new String[]{"registries",
 			"factories","sites","jobs",
 			"storages","storagefactories",
-			"transfers","client-server-transfers",
+			"transfers","client-server-transfers", 
+			"tasks"
 	};
 
 	final static String[] serviceNames = new String[]{null, 
 			UAS.TSF, UAS.TSS, UAS.JMS,
 			UAS.SMS, UAS.SMF, 
 			UAS.SERVER_FTS, UAS.CLIENT_FTS,
+			UAS.TASK,
 	};
 
 	@Override

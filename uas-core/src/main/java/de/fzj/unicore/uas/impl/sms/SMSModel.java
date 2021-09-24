@@ -26,16 +26,6 @@ public class SMSModel extends PersistingPrefsModel {
 	 */
 	String umask=Integer.toOctalString(IStorageAdapter.DEFAULT_UMASK);
 
-	/**
-	 * the UID of the metadata service
-	 */
-	String metadataServiceID=null;
-
-	/**
-	 * the UID of the file transfer enumeration
-	 */
-	String fileTransferEnumerationID=null;
-
 	String fsname;
 
 	String directoryScanUID=null;
@@ -82,22 +72,6 @@ public class SMSModel extends PersistingPrefsModel {
 
 	public List<String> getFileTransferUIDs() {
 		return getChildren(UAS.SERVER_FTS);
-	}
-
-	public String getMetadataServiceID() {
-		return metadataServiceID;
-	}
-
-	public void setMetadataServiceID(String metadataServiceID) {
-		this.metadataServiceID = metadataServiceID;
-	}
-
-	public String getFileTransferEnumerationID() {
-		return fileTransferEnumerationID;
-	}
-
-	public void setFileTransferEnumerationID(String fileTransferEnumerationID) {
-		this.fileTransferEnumerationID = fileTransferEnumerationID;
 	}
 
 	public String getFsname() {

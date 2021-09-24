@@ -35,16 +35,20 @@ import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.metadata.ExtractionStatistics;
+import de.fzj.unicore.uas.metadata.ExtractionWatcher;
 import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
+import eu.unicore.services.Home;
+import eu.unicore.services.InitParameters;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.PagingHelper;
@@ -82,7 +86,7 @@ public class Files extends RESTRendererBase {
 	public Response list(
 			@QueryParam("offset") @DefaultValue("0") int offset, 
 			@QueryParam("num") @DefaultValue("50000") int num) 
-		throws Exception {
+					throws Exception {
 		return list("/", 0, SMSBaseImpl.MAX_LS_RESULTS);
 	}
 
@@ -102,7 +106,7 @@ public class Files extends RESTRendererBase {
 			path = sms.makeSMSLocal(path);
 			resourceID = path;
 			JSONObject o = getJSON();
-			
+
 			boolean isDirectory = o.optJSONObject("content")!=null;
 			if(isDirectory){
 				// add links to next/prev chunks
@@ -261,10 +265,8 @@ public class Files extends RESTRendererBase {
 			Future<ExtractionStatistics> futureResult = mm.startAutoMetadataExtraction(files, dirs);
 			reply.put("status", "OK");
 			reply.put("asyncExtraction", futureResult!=null);
-			
-			
-			// TODO once we have the REST version of the Task resource, 
-			// we can add a link to it!
+			String taskHref = makeMonitoringTask(futureResult, path);
+			if(taskHref!=null)reply.put("taskHref", taskHref);
 
 			return Response.ok(reply.toString(),MediaType.APPLICATION_JSON).build();
 		}catch(Exception ex){
@@ -318,7 +320,7 @@ public class Files extends RESTRendererBase {
 			else{
 				return Response.ok().entity(is).type(mt).build();	
 			}
-			
+
 		}catch(Exception ex){
 			de.fzj.unicore.xnjs.util.IOUtils.closeQuietly(is);
 			return handleError("Error downloading from '"+path+"'", ex, logger);
@@ -329,7 +331,7 @@ public class Files extends RESTRendererBase {
 		String[] rangeSpec = rangeHeader.split("=");
 		if(!"bytes".equals(rangeSpec[0]))throw new IllegalArgumentException();
 		String range = rangeSpec[1];
-		
+
 		long offset = 0;
 		long length = -1;
 		String[] tok = range.split("-");
@@ -345,7 +347,7 @@ public class Files extends RESTRendererBase {
 		}
 		return length>=0? new BoundedInputStream(source, length) : source;
 	}
-	
+
 	/**
 	 * upload file content
 	 */
@@ -360,7 +362,7 @@ public class Files extends RESTRendererBase {
 			path = sms.makeSMSLocal(path);
 			createParentDirectories(path);
 			long length = size!=null? size: -1;
-			
+
 			try(OutputStream os = sms.getStorageAdapter().getOutputStream(path,false,length)){
 				IOUtils.copy(content, os);
 			}
@@ -416,7 +418,7 @@ public class Files extends RESTRendererBase {
 			return handleError("Cannot create directory <"+path+">", e, logger);
 		}
 	}
-	
+
 	int offset = 0;
 	int num = SMSBaseImpl.MAX_LS_RESULTS;
 
@@ -464,7 +466,7 @@ public class Files extends RESTRendererBase {
 	protected void updateLinks() {
 		links.add(new Link("parentStorage",RESTUtils.makeHref(kernel, "core/storages", sms.getUniqueID()),
 				"Parent Storage"));
-		if(sms.getModel().getMetadataServiceID()!=null){
+		if(!sms.getModel().getStorageDescription().isDisableMetadata()){
 			String base = RESTUtils.makeHref(kernel, "core/storages", sms.getUniqueID());
 			links.add(new Link("action:extract",base+"/files/actions/extract/"+resourceID,
 					"Extract metadata for this file"));
@@ -488,5 +490,23 @@ public class Files extends RESTRendererBase {
 		}
 	}
 
+	protected String makeMonitoringTask(Future<ExtractionStatistics> f, String path) {
+		Home taskHome = kernel.getHome(UAS.TASK);
+		if (taskHome == null) {
+			return null;
+		}
+		InitParameters init = new InitParameters();
+		init.parentUUID = resourceID;
+		String base = RESTUtils.makeHref(kernel, "core/storages", sms.getUniqueID());
+		init.parentServiceName = base+"/files"+path;
+		try {String uid = taskHome.createResource(init);
+		new ExtractionWatcher(f, uid, kernel).run();
+		return kernel.getContainerProperties().getContainerURL()+
+				"/rest/core/tasks/"+uid;
+		}catch(Exception ex) {
+			Log.logException("Cannot create task instance", ex);
+		}
+		return null;
+	}
 
 }

@@ -106,7 +106,6 @@ import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.utils.Utilities;
 import eu.unicore.services.ws.BaseFault;
-import eu.unicore.services.ws.renderers.AddressRenderer;
 import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.ConcurrentAccess;
 
@@ -143,24 +142,6 @@ public class SMSFrontend extends UASBaseFrontEnd implements StorageManagement {
 		addRenderer(new FileSystemRP(r));
 		addRenderer(new UmaskRenderer(r));
 		addRenderer(new TriggerSupportedRenderer(r));
-
-		AddressRenderer ftListAddress = new AddressRenderer(r, RPFiletransferEnumerationReference,true){
-			@Override
-			protected String getServiceSpec() {
-				return UAS.ENUMERATION+"?res="+r.getModel().getFileTransferEnumerationID();
-			}
-		};
-		addRenderer(ftListAddress);
-
-		AddressRenderer mdAddress = new AddressRenderer(r, RPMetadataServiceReference,true){
-			@Override
-			protected String getServiceSpec() {
-				String metadataServiceID = r.getModel().getMetadataServiceID();
-				if(metadataServiceID==null)return null;
-				return UAS.META+"?res="+metadataServiceID;
-			}
-		};
-		addRenderer(mdAddress);
 	}
 
 	@Override

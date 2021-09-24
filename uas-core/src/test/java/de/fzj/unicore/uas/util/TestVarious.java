@@ -60,7 +60,6 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.fts.byteio.ByteIO;
 import de.fzj.unicore.uas.fts.byteio.RandomByteIO;
-import de.fzj.unicore.uas.fts.rft.StoreImpl;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
@@ -253,24 +252,6 @@ public class TestVarious {
 		String d=SMSUtils.urlDecode(e);
 		System.out.println(d);
 		assertEquals(file, d);
-	}
-
-	@Test
-	public void testComputeRFTChunkLength(){
-		
-		long total=20*1024*1024L;
-		assertEquals(StoreImpl.minChunkLength, StoreImpl.computeChunkLength(total));
-		
-		total=1100*1024*1024L;
-		assertTrue(StoreImpl.computeChunkLength(total)>StoreImpl.minChunkLength);
-		assertTrue(StoreImpl.computeChunkLength(total)*100L>total);
-		assertTrue(StoreImpl.computeChunkLength(total)*100L<1.01*total);
-		
-		total=3000*1024*1024L;
-		assertTrue(StoreImpl.computeChunkLength(total)>StoreImpl.minChunkLength);
-		assertTrue(StoreImpl.computeChunkLength(total)*100L>total);
-		assertTrue(StoreImpl.computeChunkLength(total)*100L<1.01*total);
-		
 	}
 
 	@Test

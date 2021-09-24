@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.uas.impl.UASWSResourceImpl;
+import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.tsi.IReservation;
@@ -18,7 +18,7 @@ import eu.unicore.services.messaging.ResourceDeletedMessage;
  * 
  * @author schuller
  */
-public class ReservationManagementImpl extends UASWSResourceImpl {
+public class ReservationManagementImpl extends BaseResourceImpl {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS,ReservationManagementImpl.class);
 

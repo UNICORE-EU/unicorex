@@ -15,21 +15,16 @@ import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.unigrids.services.atomic.types.GridFileType;
-import org.unigrids.services.atomic.types.ProtocolType;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
-import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.client.BaseUASClient;
-import de.fzj.unicore.uas.client.FileTransferClient;
-import de.fzj.unicore.uas.client.StorageClient;
-import de.fzj.unicore.uas.client.StorageFactoryClient;
-import eu.unicore.services.ContainerProperties;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.FileList;
+import eu.unicore.client.core.FileList.FileListEntry;
+import eu.unicore.client.core.StorageClient;
+import eu.unicore.client.core.StorageFactoryClient;
+import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.ws.client.RegistryClient;
-import eu.unicore.services.ws.sg.Registry;
 
 /**
  * this requires access to a Swift installation
@@ -75,17 +70,6 @@ public class TestSwift {
 		kernel.shutdown();
 	}
 	
-	protected EndpointReferenceType findFirstAccessibleService(List<EndpointReferenceType>eprs){
-		for(EndpointReferenceType epr: eprs){
-			try{
-				BaseUASClient c=new BaseUASClient(epr,uas.getKernel().getClientConfiguration());
-				c.getCurrentTime();
-				return epr;
-			}catch(Exception e){}
-		}
-		return null;
-	}
-	
 	Properties swiftProps; 
 
 	public void testStorageFactory()throws Exception {
@@ -93,20 +77,11 @@ public class TestSwift {
 		UASProperties uasProps = kernel.getAttribute(UASProperties.class);
 		uasProps.setProperty("sms.factory.SWIFT.path",swiftProps.getProperty("path"));
 		
-		String url = kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL);
-		EndpointReferenceType epr = EndpointReferenceType.Factory.newInstance();
-		epr.addNewAddress().setStringValue(url+"/services/"+Registry.REGISTRY_SERVICE+"?res=default_registry");
-		RegistryClient reg=new RegistryClient(epr,kernel.getClientConfiguration());
-		//find a StorageFactory
-		List<EndpointReferenceType> tsfs = reg.listServices(StorageFactory.SMF_PORT);
-		assertTrue(tsfs!=null && tsfs.size()>0);
-		EndpointReferenceType factory = findFirstAccessibleService(tsfs);
-		assertTrue(factory != null);
-		System.out.println("Using StorageFactory at "+factory.getAddress().getStringValue());
-		StorageFactoryClient smf=new StorageFactoryClient(factory,kernel.getClientConfiguration());
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storagefactories/default_storage_factory";
+		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), kernel.getClientConfiguration(), null);
 		StorageClient sms = createSMS(smf);
 		checkNewStorage(sms);
-		sms.destroy();
+		sms.delete();
 	}
 
 	private Properties loadSwiftProps()throws Exception{
@@ -126,32 +101,30 @@ public class TestSwift {
 		settings.put("password",swiftProps.getProperty("password"));
 		settings.put("endpoint",swiftProps.getProperty("endpoint"));
 		settings.put("region",swiftProps.getProperty("region"));
-		return smf.createSMS(type, "mySwift", settings, null);
+		return smf.createStorage(type, "mySwift", settings, null);
 	}
 
 	private void checkNewStorage(StorageClient sms)throws Exception{
-		// file system RP
-		System.out.println(sms.getFileSystem());
+		System.out.println(sms.getProperties().toString(2));
 		//check if the created SMS is OK...
-		GridFileType[] files=sms.listDirectory("/");
+		FileList files=sms.ls("/");
 		//should be empty
-		assertTrue(files.length==0);
+		assertTrue(files.list().size()==0);
 
-		uploadDownloadCheck(sms, ProtocolType.BFT);
+		uploadDownloadCheck(sms);
 
 		// check ls now
-		files=sms.listDirectory("/");
-		assertTrue(files.length==1);
-		System.out.println(files[0]);
+		List<FileListEntry> ls = files.list();
+		assertTrue(ls.size()==1);
+		System.out.println(ls.get(0));
 
-		// mkdir
-		sms.createDirectory("/testdir");
-		files=sms.listDirectory("/");
-		assertTrue(files.length==2);
+		sms.mkdir("/testdir");
+		ls = files.list();
+		assertTrue(ls.size()==2);
 		// rmdir
-		sms.delete("/testdir");
-		files=sms.listDirectory("/");
-		assertTrue("Have "+files.length,files.length==1);
+		sms.getFileClient("/testdir").delete();
+		ls = files.list();
+		assertTrue("Have "+ls.size(),ls.size()==1);
 		
 		// upload larger data set
 		//byte[]data = new byte[1024*1024+1];
@@ -161,17 +134,17 @@ public class TestSwift {
 		//assertTrue(1==files.length);
 	}
 
-	private void uploadDownloadCheck(StorageClient sms, ProtocolType.Enum protocol) throws Exception {
+	private void uploadDownloadCheck(StorageClient sms) throws Exception {
 		System.out.println("**** UPLOAD ****");
 		String testdata = "some testdata";
 		// upload some data
-		FileTransferClient ftc = sms.getImport("test", protocol);
+		HttpFileTransferClient ftc = sms.upload("test");
 		ftc.writeAllData(new ByteArrayInputStream(testdata.getBytes()));
 		// and download it again
 		System.out.println("**** DOWNLOAD ****");
 		ByteArrayOutputStream os=new ByteArrayOutputStream();
-		ftc = sms.getExport("test", protocol);
-		System.out.println(ftc.getResourcePropertyDocument());
+		ftc = sms.download("test");
+		System.out.println(ftc.getProperties().toString(2));
 		ftc.readAllData(os);
 		assertTrue("Got: "+os.toString(),testdata.equals(os.toString()));
 	}

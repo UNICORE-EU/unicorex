@@ -1,9 +1,9 @@
 package de.fzj.unicore.uas.impl.task;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.xmlbeans.XmlObject;
 
 import eu.unicore.services.Kernel;
 
@@ -30,14 +30,12 @@ public abstract class TaskWatcher<T>  implements Runnable{
 	
 	public void run(){
 		if(future.isDone()){
-			XmlObject result=null;
+			Map<String, String> result = new HashMap<>();
 			try{
-				T stats=future.get();
-				result=createResultXML(stats);
+				T stats = future.get();
+				result = createResult(stats);
 			}
-			catch(Exception ex){
-				result=TaskImpl.getDefaultResult();
-			}
+			catch(Exception ex){}
 			try{
 				TaskImpl.putResult(kernel, taskID, result, "OK", 0);
 			}catch(Exception ex){
@@ -61,8 +59,8 @@ public abstract class TaskWatcher<T>  implements Runnable{
 	}
 	
 	/**
-	 * create the result XML
+	 * create the result map
 	 */
-	protected abstract XmlObject createResultXML(T taskResult);
+	protected abstract Map<String, String> createResult(T taskResult);
 	
 }

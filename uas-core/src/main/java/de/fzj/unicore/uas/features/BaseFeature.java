@@ -3,10 +3,8 @@ package de.fzj.unicore.uas.features;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fzj.unicore.uas.Enumeration;
 import de.fzj.unicore.uas.Task;
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.impl.enumeration.EnumerationHomeImpl;
 import de.fzj.unicore.uas.impl.task.TaskHomeImpl;
 import de.fzj.unicore.uas.rest.CoreServices;
 import eu.unicore.services.DeploymentDescriptor;
@@ -17,7 +15,7 @@ import eu.unicore.services.utils.deployment.FeatureImpl;
 import eu.unicore.services.ws.cxf.CXFService;
 
 /**
- * Generic services in UNICORE/X (task, enumeration, ...)
+ * Generic services in UNICORE/X (REST core, task, ...)
  * 
  * @author schuller
  */
@@ -31,7 +29,6 @@ public class BaseFeature extends FeatureImpl {
 		List<DeploymentDescriptor> services = new ArrayList<>();
 		
 		services.add(new TaskSD(kernel));		
-		services.add(new EnumerationSD(kernel));		
 		
 		services.add(new RESTCoreSD(kernel));		
 		
@@ -52,24 +49,6 @@ public class BaseFeature extends FeatureImpl {
 			this.type = CXFService.TYPE;
 			this.implementationClass = TaskHomeImpl.class;
 			this.interfaceClass = Task.class;
-		}
-
-	}
-	
-
-	public static class EnumerationSD extends DeploymentDescriptorImpl {
-
-		public EnumerationSD(Kernel kernel){
-			this();
-			setKernel(kernel);
-		}
-		
-		public EnumerationSD() {
-			super();
-			this.name = UAS.ENUMERATION;
-			this.type = CXFService.TYPE;
-			this.implementationClass = EnumerationHomeImpl.class;
-			this.interfaceClass = Enumeration.class;
 		}
 
 	}

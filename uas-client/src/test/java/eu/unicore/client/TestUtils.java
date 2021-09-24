@@ -1,54 +1,18 @@
-package de.fzj.unicore.uas.client;
+package eu.unicore.client;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import org.unigrids.services.atomic.types.MetadataType;
-import org.unigrids.services.atomic.types.TextInfoType;
 
-import de.fzj.unicore.uas.client.MetadataClient.CrawlerControl;
+import eu.unicore.client.data.Metadata.CrawlerControl;
 
-public class TestMetadataClient {
-	
-	@Test
-	public void testConvertMetadataToMap(){
-		MetadataType meta=MetadataType.Factory.newInstance();
-		meta.setContentMD5("ABCD");
-		meta.setContentType("text/plain");
-		meta.setTagArray(new String[]{"foo","bar"});
-		TextInfoType p=meta.addNewProperty();
-		p.setName("x");
-		p.setValue("value-of-x");
-		Map<String, String> map=MetadataClient.asMap(meta);
-		assertNotNull(map);
-		assertEquals("ABCD",map.get(MetadataClient.CONTENT_MD5));
-		assertEquals("text/plain",map.get(MetadataClient.CONTENT_TYPE));
-		assertEquals("foo,bar",map.get(MetadataClient.TAGS));
-		assertEquals("value-of-x",map.get("x"));
-	}
-	
-	@Test
-	public void testConvertMapToMeta(){
-		Map<String, String> map=new HashMap<String, String>();
-		map.put("x", "value-of-x");
-		map.put("Content-Type", "text/plain");
-		map.put("Content-MD5", "ABCD");
-		map.put("Tags", "foo,bar");
-		MetadataType md=MetadataClient.convert(map);
-		assertEquals(2, md.getTagArray().length);
-		assertEquals(1, md.getPropertyArray().length);
-		assertEquals("ABCD",md.getContentMD5());
-		assertEquals("text/plain",md.getContentType());
-	}
+public class TestUtils {
 	
 	@Test
 	public void testCrawlerControl()throws IOException{
