@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import eu.unicore.services.Kernel;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.JobClient;
@@ -36,6 +35,7 @@ import eu.unicore.client.data.FiletransferClient;
 import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
+import eu.unicore.services.Kernel;
 import eu.unicore.uftp.dpc.Utils;
 
 /**
@@ -371,10 +371,8 @@ public class TestUFTPTransfers {
 	private static void importTestFile(StorageClient sms, String filename,
 			int size) throws Exception {
 		byte[] buf = new byte[size];
-		Random r = new Random();
-		r.nextBytes(buf);
-		UFTPFileTransferClient ft = (UFTPFileTransferClient)sms.createImport(filename, false, -1, "BFT", null);
-		ft.writeAllData(new ByteArrayInputStream(buf));
+		new Random().nextBytes(buf);
+		sms.upload(filename).writeAllData(new ByteArrayInputStream(buf));
 	}
 
 	private static void makeTestFile(File file, int chunkSize, int chunks)

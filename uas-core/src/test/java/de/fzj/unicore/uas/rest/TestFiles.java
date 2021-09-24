@@ -67,7 +67,7 @@ public class TestFiles extends Base {
 
 		// trigger auto-extract
 		JSONObject settings = new JSONObject();
-		client.setURL(file+"/actions/extract");
+		client.setURL(client.getLink("action:extract"));
 		client.postQuietly(settings);
 	}
 	
