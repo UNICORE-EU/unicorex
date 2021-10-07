@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -143,10 +144,16 @@ public class Execution extends BasicExecution {
 		String idLine="";
 		
 		try{
-			bss.lock();
+			Lock lock = null;
 			try{
 				try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
 					tsiHost=conn.getTSIHostName();
+					lock = runOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
+					boolean locked = lock.tryLock(120, TimeUnit.SECONDS);
+					if(!locked) {
+						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,
+								"Submission to TSI failed: Could not acquire lock (timeout)"));
+					}
 					res=conn.send(tsiCmd);
 					idLine=conn.getIdLine();
 					if(isFirstSubmit) {
@@ -181,7 +188,7 @@ public class Execution extends BasicExecution {
 				bss.putBSSInfo(newJob);
 			}
 			finally{
-				bss.unlock();
+				if(lock!=null)lock.unlock();
 			}
 			jobExecLogger.debug(msg);
 			job.addLogTrace(msg);
@@ -212,7 +219,7 @@ public class Execution extends BasicExecution {
 				Thread.sleep(3000+i*1000);
 			}
 		}
-		throw new IOException("Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
+		throw new ExecutionException(ErrorCode.ERR_INTERACTIVE_SUBMIT_FAILURE, "Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
 	}
 	
 	private String readAllocationID(Action job, String preferredTSINode) throws IOException, ExecutionException, InterruptedException {
@@ -524,7 +531,6 @@ public class Execution extends BasicExecution {
 			Action a = jobStore.get(id);
 			if(a.getBSID()==null)continue;
 			BSS_STATE state = BSS_STATE.UNKNOWN;
-			//if(a.isInternal())continue;
 			if(a.getExecutionContext().isRunOnLoginNode()) {
 				interactive++;
 				state = BSS_STATE.RUNNING;
@@ -610,6 +616,26 @@ public class Execution extends BasicExecution {
 		final int total;
 		final Map<String,Integer>queueFilling;
 
+
+		public BSSSummary(List<BSSSummary> parts){
+			Map<String,Integer> fill = new HashMap<>();
+			int running = 0;
+			int queued = 0;
+			int total = 0;
+			for(BSSSummary part: parts) {
+				running+=part.running;
+				queued+=part.queued;
+				total+=part.total;
+				if(part.queueFilling.size()>0) {
+					fill = part.queueFilling;
+				}
+			}
+			this.running = running;
+			this.queued = queued;
+			this.total = total;
+			this.queueFilling = fill;
+		}
+		
 		public BSSSummary(int running, int queued, int total, Map<String,Integer>queueFilling){
 			this.running=running;
 			this.queued=queued;
@@ -618,7 +644,7 @@ public class Execution extends BasicExecution {
 		}
 
 		public BSSSummary(){
-			this(0,0,0,new HashMap<String,Integer>());
+			this(0,0,0,new HashMap<>());
 		}
 
 		public String toString(){

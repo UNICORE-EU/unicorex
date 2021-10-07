@@ -237,7 +237,7 @@ public class BasicManager implements Manager, InternalManager {
 				}
 				else {
 					jobs.remove(a);
-					logger.info("["+id+"] Action is destroyed.");
+					logger.debug("[{}] Action is destroyed.", id);
 				}
 			}catch(PersistenceException e){
 				logger.error("Persistence problem",e);
@@ -387,9 +387,8 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	public Object restart(String id, Client client) throws ExecutionException {
-		Action a=null;
 		try{
-			a=getAction(id);
+			Action a = getAction(id);
 			if(a==null) {
 				throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"Action with id="+id+" could not be found.");
 			}
@@ -398,7 +397,7 @@ public class BasicManager implements Manager, InternalManager {
 			if(!ActionStatus.canRestart(s)){
 				return null;
 			}
-			logger.info("Initiating restart for <"+id+">");
+			logger.info("Initiating restart for <{}>", id);
 			// required for move back into active Jobs - a bit dangerous
 			jobs.remove(a);
 			// re-set state so the JobRunner will submit it
@@ -438,7 +437,7 @@ public class BasicManager implements Manager, InternalManager {
 		a.setInternal(true);
 		String actionID = a.getUUID();
 		try {
-			logger.info("Adding internal action <{}> of type <{}>", actionID, a.getType());
+			logger.debug("Adding internal action <{}> of type <{}>", actionID, a.getType());
 			jobs.put(actionID, a);
 			dispatcher.process(actionID);
 		}catch(PersistenceException pe){
@@ -469,7 +468,7 @@ public class BasicManager implements Manager, InternalManager {
 		try{
 			a=jobs.getForUpdate(actionID);
 			a.setTransitionalStatus(ActionStatus.TRANSITION_REMOVING);
-			logger.debug("Destroying "+actionID);
+			logger.debug("Destroying {}", actionID);
 		}
 		catch(Exception te){
 			throw new ExecutionException(te);
