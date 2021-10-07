@@ -121,6 +121,7 @@ public class StatusInfoResourceProperty extends ValueRenderer {
 			case ActionStatus.QUEUED:
 				return StatusType.QUEUED;
 			case ActionStatus.READY: 
+			case ActionStatus.CREATED:
 				return StatusType.READY;
 			case ActionStatus.DONE:
 				if(successful){

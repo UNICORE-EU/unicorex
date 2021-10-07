@@ -1,5 +1,4 @@
 #!/bin/sh
-# preinst script for unicore-gateway
 #
 # see: dh_installdeb(1)
 

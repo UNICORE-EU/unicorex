@@ -151,7 +151,7 @@ public class UFTPDInstance implements ExternalSystemConnector {
 		catch(IOException e){
 			ok = false;
 			String err = Log.createFaultMessage("Error", e);
-			statusMessage="CAN'T CONNECT TO UFTPD "+commandHost+":"+commandPort+" ["+err+"]";
+			statusMessage="CAN'T CONNECT ["+err+"]";
 		}
 		if(ok){
 			status = Status.OK;
