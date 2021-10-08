@@ -143,59 +143,56 @@ public class Execution extends BasicExecution {
 		String res;
 		String idLine="";
 		
+		Lock lock = null;
+		boolean locked = false;
 		try{
-			Lock lock = null;
-			try{
-				try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
-					tsiHost=conn.getTSIHostName();
-					lock = runOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
-					boolean locked = lock.tryLock(120, TimeUnit.SECONDS);
-					if(!locked) {
-						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,
-								"Submission to TSI failed: Could not acquire lock (timeout)"));
-					}
-					res=conn.send(tsiCmd);
-					idLine=conn.getIdLine();
-					if(isFirstSubmit) {
-						job.addLogTrace("Command is:");
-						job.addLogTrace(tsiCmd);
-					}
-					if(res.contains("TSI_FAILED")){
-						job.addLogTrace("TSI reply: FAILED.");
-						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to TSI failed. Reply was <"+res+">"));
-					}
+			try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
+				tsiHost=conn.getTSIHostName();
+				lock = runOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
+				locked = lock.tryLock(120, TimeUnit.SECONDS);
+				if(!locked) {
+					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,
+							"Submission to TSI failed: Could not acquire lock (timeout)"));
 				}
-				job.addLogTrace("TSI reply: submission OK.");
-				String bssid=res.trim();
+				res=conn.send(tsiCmd);
+				idLine=conn.getIdLine();
+				if(isFirstSubmit) {
+					job.addLogTrace("Command is:");
+					job.addLogTrace(tsiCmd);
+				}
+				if(res.contains("TSI_FAILED")){
+					job.addLogTrace("TSI reply: FAILED.");
+					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to TSI failed. Reply was <"+res+">"));
+				}
+			}
+			job.addLogTrace("TSI reply: submission OK.");
+			String bssid=res.trim();
 
-				msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
-				
-				String internalID = bssid;
-				BSS_STATE initialState = BSS_STATE.QUEUED;
-				
-				if(runOnLoginNode || allocateOnly){
-					long iPid = readPID(job, tsiHost);
-					internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
-					msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
-					job.getExecutionContext().setPreferredExecutionHost(tsiHost);
-					if(!allocateOnly) {
-						initialState = BSS_STATE.RUNNING;
-						initialStatus = ActionStatus.RUNNING;
-					}
+			msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
+
+			String internalID = bssid;
+			BSS_STATE initialState = BSS_STATE.QUEUED;
+
+			if(runOnLoginNode || allocateOnly){
+				long iPid = readPID(job, tsiHost);
+				internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
+				msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
+				job.getExecutionContext().setPreferredExecutionHost(tsiHost);
+				if(!allocateOnly) {
+					initialState = BSS_STATE.RUNNING;
+					initialStatus = ActionStatus.RUNNING;
 				}
-				job.setBSID(internalID);
-				BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
-				bss.putBSSInfo(newJob);
 			}
-			finally{
-				if(lock!=null)lock.unlock();
-			}
+			job.setBSID(internalID);
+			BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
+			bss.putBSSInfo(newJob);
 			jobExecLogger.debug(msg);
 			job.addLogTrace(msg);
-
 		}catch(Exception ex){
 			jobExecLogger.error("Error submitting job.",ex);
 			throw new ExecutionException(ex);
+		}finally{
+			if(locked)lock.unlock();
 		}
 		return initialStatus;
 	}
