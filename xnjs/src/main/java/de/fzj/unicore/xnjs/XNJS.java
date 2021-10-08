@@ -209,7 +209,7 @@ public class XNJS {
 	}
 
 	public static String writeShortHeader(){
-		return "XNJS "+getVersion()+" (c) Forschungszentrum Juelich 2005-2020";
+		return "XNJS "+getVersion()+" (c) Forschungszentrum Jülich GmbH 2005-2021";
 	}
 
 	public Calendar getStartTime() throws Exception{

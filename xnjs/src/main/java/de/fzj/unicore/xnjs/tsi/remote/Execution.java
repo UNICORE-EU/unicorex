@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -141,51 +142,54 @@ public class Execution extends BasicExecution {
 		String res;
 		String idLine="";
 		
+		Lock lock = null;
+		boolean locked = false;
 		try{
-			bss.lock();
-			try{
-				try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
-					tsiHost=conn.getTSIHostName();
-					res=conn.send(tsiCmd);
-					idLine=conn.getIdLine();
-					if(isFirstSubmit) {
-						job.addLogTrace("Command is:");
-						job.addLogTrace(tsiCmd);
-					}
-					if(res.contains("TSI_FAILED")){
-						job.addLogTrace("TSI reply: FAILED.");
-						throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to TSI failed. Reply was <"+res+">"));
-					}
+			try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
+				tsiHost=conn.getTSIHostName();
+				lock = runOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
+				locked = lock.tryLock(120, TimeUnit.SECONDS);
+				if(!locked) {
+					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,
+							"Submission to TSI failed: Could not acquire lock (timeout)"));
 				}
-				job.addLogTrace("TSI reply: submission OK.");
-				String bssid=res.trim();
+				res=conn.send(tsiCmd);
+				idLine=conn.getIdLine();
+				if(isFirstSubmit) {
+					job.addLogTrace("Command is:");
+					job.addLogTrace(tsiCmd);
+				}
+				if(res.contains("TSI_FAILED")){
+					job.addLogTrace("TSI reply: FAILED.");
+					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to TSI failed. Reply was <"+res+">"));
+				}
+			}
+			job.addLogTrace("TSI reply: submission OK.");
+			String bssid=res.trim();
 
-				msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
-				
-				String internalID = bssid;
-				BSS_STATE initialState = BSS_STATE.QUEUED;
-				
-				if(runOnLoginNode){
-					long iPid = readPID(job, tsiHost);
-					internalID="INTERACTIVE_"+tsiHost+"_"+iPid;
-					msg="Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
-					job.getExecutionContext().setPreferredExecutionHost(tsiHost);
-					initialState = BSS_STATE.RUNNING;
-					initialStatus = ActionStatus.RUNNING;
-				}
-				job.setBSID(internalID);
-				BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
-				bss.putBSSInfo(newJob);
+			msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
+
+			String internalID = bssid;
+			BSS_STATE initialState = BSS_STATE.QUEUED;
+
+			if(runOnLoginNode){
+				long iPid = readPID(job, tsiHost);
+				internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
+				msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
+				job.getExecutionContext().setPreferredExecutionHost(tsiHost);
+				initialState = BSS_STATE.RUNNING;
+				initialStatus = ActionStatus.RUNNING;
 			}
-			finally{
-				bss.unlock();
-			}
+			job.setBSID(internalID);
+			BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
+			bss.putBSSInfo(newJob);
 			jobExecLogger.debug(msg);
 			job.addLogTrace(msg);
-
 		}catch(Exception ex){
 			jobExecLogger.error("Error submitting job.",ex);
 			throw new ExecutionException(ex);
+		}finally{
+			if(locked)lock.unlock();
 		}
 		return initialStatus;
 	}
@@ -209,7 +213,7 @@ public class Execution extends BasicExecution {
 				Thread.sleep(3000+i*1000);
 			}
 		}
-		throw new IOException("Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
+		throw new ExecutionException(ErrorCode.ERR_INTERACTIVE_SUBMIT_FAILURE, "Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
 	}
 	
 	/*
@@ -488,7 +492,6 @@ public class Execution extends BasicExecution {
 			Action a = jobStore.get(id);
 			if(a.getBSID()==null)continue;
 			BSS_STATE state = BSS_STATE.UNKNOWN;
-			//if(a.isInternal())continue;
 			if(a.getExecutionContext().isRunOnLoginNode()) {
 				interactive++;
 				state = BSS_STATE.RUNNING;
@@ -574,6 +577,26 @@ public class Execution extends BasicExecution {
 		final int total;
 		final Map<String,Integer>queueFilling;
 
+
+		public BSSSummary(List<BSSSummary> parts){
+			Map<String,Integer> fill = new HashMap<>();
+			int running = 0;
+			int queued = 0;
+			int total = 0;
+			for(BSSSummary part: parts) {
+				running+=part.running;
+				queued+=part.queued;
+				total+=part.total;
+				if(part.queueFilling.size()>0) {
+					fill = part.queueFilling;
+				}
+			}
+			this.running = running;
+			this.queued = queued;
+			this.total = total;
+			this.queueFilling = fill;
+		}
+		
 		public BSSSummary(int running, int queued, int total, Map<String,Integer>queueFilling){
 			this.running=running;
 			this.queued=queued;
@@ -582,7 +605,7 @@ public class Execution extends BasicExecution {
 		}
 
 		public BSSSummary(){
-			this(0,0,0,new HashMap<String,Integer>());
+			this(0,0,0,new HashMap<>());
 		}
 
 		public String toString(){

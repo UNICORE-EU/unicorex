@@ -2,6 +2,7 @@ package de.fzj.unicore.xnjs.tsi.remote;
 
 import java.io.IOException;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
 
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
@@ -12,9 +13,9 @@ public interface IBSSState {
 
 	public void toggleStatusUpdates(boolean enable);
 
-	public boolean lock() throws InterruptedException;
+	public Lock getBSSLock();
 	
-	public void unlock();
+	public Lock getNodeLock(String node);
 	
 	public Set<String> getProcessList(String tsiNode)throws IOException, TSIUnavailableException, ExecutionException;
 

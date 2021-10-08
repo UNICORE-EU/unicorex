@@ -37,7 +37,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -252,7 +251,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		String s1="QSTAT \n 2795100 RUNNING\n 2795100 RUNNING \n";
 		Map<String,BSSInfo>st=new HashMap<String, BSSInfo>();
 		st.put("2795100", new BSSInfo("2795100", "j1", BSS_STATE.UNKNOWN));
-		BSSState.updateStatusListing(st,s1,Collections.<String> emptyList(),null);
+		BSSState.updateBatchJobStates(st,s1,null);
 		assertEquals(BSS_STATE.RUNNING,st.get("2795100").bssState);
 	}
 
@@ -269,7 +268,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		}
 
 		long start=System.currentTimeMillis();
-		BSSState.updateStatusListing(st,s1.toString(),Collections.<String> emptyList(),this);
+		BSSState.updateBatchJobStates(st,s1.toString(),this);
 		long end=System.currentTimeMillis();
 		System.out.println("Parsing qstat "+entries+" entries took "+(end-start)+ " msec.");
 		assertEquals(entries,eventsReceived);
@@ -283,7 +282,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		st.put("2795100", new BSSInfo("2795100","j1",BSS_STATE.UNKNOWN));
 		st.put("2795101", new BSSInfo("2795101","j1",BSS_STATE.UNKNOWN));
 		st.put("2795102", new BSSInfo("2795102","j1",BSS_STATE.UNKNOWN));
-		BSSSummary summary = BSSState.updateStatusListing(st,s1,Collections.<String> emptyList(),null);
+		BSSSummary summary = BSSState.updateBatchJobStates(st,s1,null);
 		assertEquals(BSS_STATE.RUNNING,st.get("2795100").bssState);
 		System.out.println(summary.toString());
 		assertEquals(2, summary.queueFilling.get("NORMAL").intValue());

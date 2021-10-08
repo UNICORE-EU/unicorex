@@ -32,6 +32,10 @@ public class ErrorCode implements Serializable {
 		return code>=30 && code<40;
 	}
 
+	public boolean isNonRecoverableSubmissionError(){
+		return code>=20 && code<30;
+	}
+
 	/**
 	 * general unspecified error
 	 */
@@ -78,6 +82,11 @@ public class ErrorCode implements Serializable {
 	 */
 	public static final int ERR_EXECUTABLE_FORBIDDEN=21;
 	
+	/**
+	 * submitting a job on the login node failed
+	 */
+	public static final int ERR_INTERACTIVE_SUBMIT_FAILURE = 22;
+
 	/**
 	 * the requested resource does not exist on this XNJS
 	 */

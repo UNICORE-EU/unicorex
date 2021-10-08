@@ -564,7 +564,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 	protected boolean isRecoverable(ExecutionException ex){
 		if(ex.getErrorCode().isWrongResourceSpec())return false;
-
+		if(ex.getErrorCode().isNonRecoverableSubmissionError())return false;
 		return true;
 	}
 
