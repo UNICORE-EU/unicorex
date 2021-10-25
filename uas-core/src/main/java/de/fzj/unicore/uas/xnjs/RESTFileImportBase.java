@@ -283,7 +283,7 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 	 */
 	protected boolean checkPossibilityForLocalCopy()throws Exception{
 		String mountPoint = storage.getProperties().getString("mountPoint");
-		String remoteFSID = storage.getProperties().optString("fileSystemDescription", null);
+		String remoteFSID = storage.getProperties().optString("filesystemDescription", null);
 		String localFSID = getStorageAdapter().getFileSystemIdentifier();
 		UASProperties conf = kernel.getAttribute(UASProperties.class);
 
