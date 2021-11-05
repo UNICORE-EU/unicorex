@@ -54,7 +54,7 @@ import de.fzj.unicore.xnjs.io.XnjsFileImpl;
  * These tests will work only when invoked on a system with a FS having ACL enabled.
  * @author K. Benedyczak
  */
-public class TestACL extends LegacyTSITestCase {
+public class TestACL extends RemoteTSITestCase {
 
 	@Test
 	public void testACLSupport() throws ExecutionException {

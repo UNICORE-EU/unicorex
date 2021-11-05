@@ -5,7 +5,6 @@ this is the "NOBATCH" version.
 
 (NOTE: modified version for UNICORE/X testing)
 
-Check the manual for advice on how to create a custom version.
 """
 
 from time import time

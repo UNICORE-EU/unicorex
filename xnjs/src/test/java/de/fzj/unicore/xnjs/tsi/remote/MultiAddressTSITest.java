@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 
-public class MultiAddressTSITest extends LegacyTSITestCase {
+public class MultiAddressTSITest extends RemoteTSITestCase {
 
 	@Override
 	protected String getTSIMachine(){

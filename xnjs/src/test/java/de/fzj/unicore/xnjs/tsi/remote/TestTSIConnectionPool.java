@@ -47,7 +47,7 @@ import org.junit.Test;
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
 
-public class TestTSIConnectionPool extends LegacyTSITestCase {
+public class TestTSIConnectionPool extends RemoteTSITestCase {
 	
 	@Test
 	public void testConnectionFactory()throws Exception{

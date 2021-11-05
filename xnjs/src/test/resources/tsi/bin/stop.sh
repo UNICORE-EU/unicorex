@@ -1,6 +1,6 @@
 #!/bin/sh
 
-. src/test/resources/classictsi/conf/startup.properties
+. src/test/resources/tsi/conf/startup.properties
 
 
 if [ ! -e $PID ]

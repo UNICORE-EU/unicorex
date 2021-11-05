@@ -16,7 +16,7 @@ import eu.unicore.uftp.dpc.UFTPConstants;
 import eu.unicore.uftp.dpc.Utils;
 import eu.unicore.uftp.server.requests.UFTPTransferRequest;
 
-public class TestUFTP extends LegacyTSITestCase {
+public class TestUFTP extends RemoteTSITestCase {
 
 	private static UFTPDServerRunner uftpd = null;
 	

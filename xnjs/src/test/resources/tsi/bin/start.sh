@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Read basic settings
-. src/test/resources/classictsi/conf/startup.properties
+. src/test/resources/tsi/conf/startup.properties
 
 #
 # check whether the server might be already running
@@ -19,7 +19,7 @@ fi
 PARAM=$*
 if [ "$PARAM" = "" ]
 then
-  PARAM=src/test/resources/classictsi/conf/tsi.properties
+  PARAM=src/test/resources/tsi/conf/tsi.properties
 fi
 
 export PYTHONPATH=${PY}

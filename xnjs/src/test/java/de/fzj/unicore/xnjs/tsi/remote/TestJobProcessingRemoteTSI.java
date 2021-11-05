@@ -72,7 +72,7 @@ import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
 
-public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements EventHandler {
+public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements EventHandler {
 
 	private static String 
 	date = "src/test/resources/json/date.json",
@@ -328,6 +328,7 @@ public class TestJobProcessingLegacyTSI extends LegacyTSITestCase implements Eve
 		assertSuccessful(id);
 		a = mgr.getAction(id);
 		assertEquals("123456", a.getBSID());
+		a.printLogTrace();
 	}
 
 

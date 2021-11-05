@@ -82,7 +82,7 @@ import de.fzj.unicore.xnjs.tsi.ReservationStatus.Status;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
-public class TestTSI extends LegacyTSITestCase{
+public class TestTSI extends RemoteTSITestCase{
 
 	Random r=new Random();
 

@@ -12,6 +12,7 @@ class BSSBase(object):
         - get status listing
         - parse the status listing
         - job control (abort, hold, resume, get details, ...)
+        - get a process list (via 'ps -e')
 
     Check the manual for advice on how to create a custom version.
     """
@@ -113,15 +114,17 @@ class BSSBase(object):
         # create unique name for the files used in this job submission
         submit_id = str(int(time() * 1000))
         userjob_file_name = "UNICORE_Job_%s" % submit_id
-            
+
         if job_mode.startswith("alloc"):
             # run allocation command in the background
-            cmd = ""
+            cmd = message + u"\n"
+            cmd += u"{ "
             for line in submit_cmds:
-                cmd += line + u"\n"
+                cmd += line + u" ; "
+            pid_file_name = Utils.extract_parameter(message, "PID_FILE", "UNICORE_SCRIPT_PID")
+            cmd += u"} & echo $! > %s \n" % pid_file_name
             with open(userjob_file_name, "w") as job:
                 job.write(u"" + cmd)
-        
             children = config.get('tsi.NOBATCH.children', None)
             (success, reply) = Utils.run_command(cmd, True, children)
         else:
@@ -202,6 +205,12 @@ class BSSBase(object):
             return
         result = self.parse_status_listing(qstat_output)
         connector.write_message(result)
+
+    def get_process_listing(self, message, connector, config, LOG):
+        """ Get list of the processes on this machine.
+        """
+        ps_cmd = Utils.extract_parameter(message, "PS", config["tsi.get_processes_cmd"])
+        Utils.run_and_report(ps_cmd, connector)
 
     def parse_job_details(self, raw_info):
         """ Converts the raw job info into a dictionary """

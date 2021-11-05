@@ -50,7 +50,7 @@ import de.fzj.unicore.xnjs.tsi.local.LocalExecution.DataMover;
 /**
  * this  starts a TSI server (on ports 65431/65432)
  */
-public abstract class LegacyTSITestCase extends EMSTestBase {
+public abstract class RemoteTSITestCase extends EMSTestBase {
 
 	@After
 	public void tearDown() throws Exception {
@@ -103,7 +103,7 @@ public abstract class LegacyTSITestCase extends EMSTestBase {
 	@BeforeClass
 	public static void startTSI() throws Exception {
 		ProcessBuilder pb=new ProcessBuilder();
-		File tsiExec=new File("src/test/resources/classictsi/bin/start.sh");
+		File tsiExec=new File("src/test/resources/tsi/bin/start.sh");
 		pb.command(tsiExec.getAbsolutePath());
 		Process p=pb.start();
 		DataMover m=new DataMover(p.getInputStream(),System.out);
@@ -117,7 +117,7 @@ public abstract class LegacyTSITestCase extends EMSTestBase {
 	@AfterClass
 	public static void stopTSI() throws Exception {
 		ProcessBuilder pb=new ProcessBuilder();
-		File tsiExec=new File("src/test/resources/classictsi/bin/stop.sh");
+		File tsiExec=new File("src/test/resources/tsi/bin/stop.sh");
 		pb.command(tsiExec.getAbsolutePath());
 		Process p=pb.start();
 		DataMover m=new DataMover(p.getInputStream(),System.out);

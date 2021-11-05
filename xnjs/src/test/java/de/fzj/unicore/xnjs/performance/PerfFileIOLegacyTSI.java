@@ -47,12 +47,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.tsi.remote.RemoteTSI;
-import de.fzj.unicore.xnjs.tsi.remote.LegacyTSITestCase;
+import de.fzj.unicore.xnjs.tsi.remote.RemoteTSITestCase;
 
 /**
  * filetransfer performance tests using a TSI server
  */
-public class PerfFileIOLegacyTSI extends LegacyTSITestCase {
+public class PerfFileIOLegacyTSI extends RemoteTSITestCase {
 
 	int size=50000;
 	String theLine="test123";
