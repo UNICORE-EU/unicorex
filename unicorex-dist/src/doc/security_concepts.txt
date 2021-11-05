@@ -18,6 +18,11 @@ can be summarised as follows:
     handlers.  This procedure will assign a X500 distinguished name to
     the current user, which in UNICORE terms is the user identity.
 
+  - a security session is established (if sessions are enabled), and
+    the client can simply send the security session ID on subsequent
+    requests to avoid having to go through the full authentication
+    process again.
+
   - extract further information used for authorisation from the
     message sent to the server. This information may include:
     originator of the message(in case the message passed through a
@@ -95,3 +100,21 @@ one.
 ==== Authorisation
 
 A request is allowed, if the PDP allows it, based on the user's attributes.
+
+
+==== Security sessions
+
+If enabled (which is the default), the server generates a security
+session after successful authentication. The session ID is sent back
+to the client (via HTTP header 'X-UNICORE-SecuritySession' in the
+response), allowing the client to authenticate subsequent requests
+using this session ID (using the same HTTP header).  This will
+speed-up the client-server communication, especially in cases where
+external authentication (e.g. via Unity is used).  These sessions have
+a limited lifetime (8 hours by default).
+
+NOTE: the security session only covers authentication - attribute
+assignment and authorization is always done for each request.
+
+For details on how to configure this feature, see the general properties
+overview in section xref:ux_configuration[]
