@@ -240,7 +240,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 		pc.put(JSONSweepInstanceProcessor.SWEEP_PARENT_JOB_USPACE_KEY,
 				action.getExecutionContext().getWorkingDirectory());
 
-		ExecutionContext ec=new ExecutionContext(subAction.getUUID());
+		ExecutionContext ec=new ExecutionContext();
 		subAction.setExecutionContext(ec);
 
 		String base=action.getExecutionContext().getWorkingDirectory();

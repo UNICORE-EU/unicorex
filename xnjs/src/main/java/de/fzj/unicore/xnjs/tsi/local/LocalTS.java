@@ -50,7 +50,6 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.RejectedExecutionException;
 
 import javax.inject.Inject;
@@ -214,7 +213,7 @@ public class LocalTS implements TSI {
 			File f=makeTarget(dir);
 			if (IOUtils.isNonUnix())
 				throw new ExecutionException("FIFO can not be created on a non-UNIX operating system.");
-			execAndWait("mkfifo "+f.getAbsolutePath(), new ExecutionContext(UUID.randomUUID().toString()));
+			execAndWait("mkfifo "+f.getAbsolutePath(), new ExecutionContext());
 			setPermissions(f);
 		}catch(Exception e) {
 			throw ExecutionException.wrapped(e);
@@ -229,7 +228,7 @@ public class LocalTS implements TSI {
 			if (IOUtils.isNonUnix()){
 				throw new ExecutionException("Link can not be created on a non-UNIX operating system.");
 			}
-			ExecutionContext ec = new ExecutionContext(UUID.randomUUID().toString());
+			ExecutionContext ec = new ExecutionContext();
 			ec.setDiscardOutput(true);
 			execAndWait("ln -s "+targetFile.getAbsolutePath()+" "+newLink.getAbsolutePath(),
 					ec);
@@ -373,7 +372,7 @@ public class LocalTS implements TSI {
 	 */
 	public void exec(String orig, ExecutionContext ec) throws TSIBusyException,ExecutionException {
 		try{
-			LocalExecution ex=new LocalExecution(tsiProperties, manager, orig,ec.getWorkingDirectory(),ec);
+			LocalExecution ex=new LocalExecution(null, tsiProperties, manager, orig, ec);
 			ex.execute();
 		}catch(RejectedExecutionException re){
 			throw new TSIBusyException("Execution currently not possible.");
@@ -386,10 +385,8 @@ public class LocalTS implements TSI {
 	 */
 	public void execAndWait(String orig, ExecutionContext ec) throws TSIBusyException,ExecutionException {
 		try{
-			LocalExecution ex=new LocalExecution(tsiProperties, manager, orig,ec.getWorkingDirectory(),ec);
+			LocalExecution ex=new LocalExecution(null, tsiProperties, manager, orig, ec);
 			ex.execute(false);
-			Integer exitCode=LocalExecution.getExitCode(ec.getActionID());
-			if(exitCode!=null)ec.setExitCode(exitCode.intValue());
 		}catch(RejectedExecutionException re){
 			throw new TSIBusyException("Execution currently not possible.");
 		}catch(Exception ex){

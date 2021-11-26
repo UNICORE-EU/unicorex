@@ -54,7 +54,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
@@ -173,7 +172,7 @@ public class TestTSI extends RemoteTSITestCase{
 	public void testRead()throws Exception{
 		String tmpdir=mkTmpDir();
 		RemoteTSI tsi=makeTSI();
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(tmpdir);
 		ec.setStdout("out");
 		tsi.exec("echo tsi",ec);
@@ -221,7 +220,7 @@ public class TestTSI extends RemoteTSITestCase{
 		RemoteTSI tsi=makeTSI();
 		String tmp="test_"+System.currentTimeMillis()+"";
 		tsi.mkdir(tmpdir+File.separator+tmp);
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(tmpdir+File.separator+tmp);
 		//echo the TEST variable defined in the IDB execute template
 		ec.setStdout("out");
@@ -254,7 +253,7 @@ public class TestTSI extends RemoteTSITestCase{
 	public void testWrongTSICommand()throws Exception{
 		String tmpdir=mkTmpDir();
 		RemoteTSI tsi=makeTSI();
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(tmpdir);
 		IDB idb = xnjs.get(IDB.class);
 		String template = idb.getExecuteTemplate();
@@ -464,7 +463,7 @@ public class TestTSI extends RemoteTSITestCase{
 			InetAddress localhost=InetAddress.getByName("localhost");
 			assertEquals(localhost,c.getTSIAddress());
 			c.setSocketTimeouts(3000, false);
-			ExecutionContext ec = new ExecutionContext("123");
+			ExecutionContext ec = new ExecutionContext();
 			IDB idb = xnjs.get(IDB.class);
 			String message = TSIUtils.makeExecuteScript("sleep 10", ec, idb, null);
 			c.sendNoUser(message);

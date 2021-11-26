@@ -43,7 +43,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
@@ -253,7 +252,7 @@ public class TestIDBApplicationHandling {
 		FileSystem fs2=fs[1];
 		assertEquals(fs2.getName(),"Test2");
 		assertEquals(fs2.getIncarnatedPath(),"/tmp/test2");
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory("/");
 		String p1=g.incarnatePath("foo","Test1",ec,null);
 		assertEquals(p1,"/tmp/test1/foo");
@@ -270,7 +269,7 @@ public class TestIDBApplicationHandling {
 	public void testNullFilesystem() throws Exception {
 		InputStream is = getResource("src/test/resources/jsdl/simpleidb");
 		assertNotNull(is);
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory("/");
 		String p=g.incarnatePath("foo", null, ec,null);
 		assertEquals(p,"/foo");

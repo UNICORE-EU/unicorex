@@ -104,7 +104,7 @@ public class LocalECManager implements IExecutionContextManager {
 							"Could not create job working directory <"+uspace+">!");
 				}
 			}
-			ec=new ExecutionContext(action.getUUID());
+			ec = new ExecutionContext();
 			initContext(ec, uspace, false, null, action.getUmask());
 			action.setExecutionContext(ec);
 		}
@@ -126,7 +126,7 @@ public class LocalECManager implements IExecutionContextManager {
 	public ExecutionContext createChildContext(Action parentAction, Action childAction) throws ExecutionException {
 		ExecutionContext pc=getContext(parentAction);
 		if(pc==null) throw new IllegalStateException("Cannot create child context, parent context does not exist");
-		ExecutionContext childEc=new ExecutionContext(childAction.getUUID());
+		ExecutionContext childEc = new ExecutionContext();
 		String wd=pc.getWorkingDirectory();
 		String cwd=wd;
 		if(parentAction.getApplicationInfo()!=null){

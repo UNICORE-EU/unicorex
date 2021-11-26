@@ -351,8 +351,7 @@ public class BSSState implements IBSSState {
 	public Set<String> getProcessList(String tsiNode)throws IOException, TSIUnavailableException {
 		Set<String>result = new HashSet<>();
 		try(TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", tsiNode, timeout)){
-			String script=tsiProperties.getValue(TSIProperties.BSS_PS);
-			String res=conn.send(TSIUtils.makeExecuteScript(script, null, idb, null));
+			String res = doGetProcessListing(conn);
 			log.trace("Process listing on [{}]: \n{}", tsiNode, res);
 			if(res==null || !res.startsWith("TSI_OK")){
 				String msg = "Cannot retrieve process list. TSI reply: "+res;
@@ -405,6 +404,18 @@ public class BSSState implements IBSSState {
 
 	public void removeBSSInfo(String bssid) {
 		bssInfo.remove(bssid);
+	}
+
+	private String doGetProcessListing(TSIConnection tsiConnection) throws IOException {
+		String res = null;
+		if(TSIUtils.compareVersion(tsiConnection.getTSIVersion(), "8.3.0")) {
+			res = tsiConnection.send(TSIUtils.makeGetProcessListCommand());
+		}
+		else {
+			String script = tsiProperties.getValue(TSIProperties.BSS_PS);
+			res = tsiConnection.send(TSIUtils.makeExecuteScript(script, null, idb, null));
+		}
+		return res;
 	}
 
 }

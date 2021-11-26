@@ -528,7 +528,7 @@ public class TSIConnection implements AutoCloseable {
 
 	private static boolean issuedWarning=false;
 
-	public static final String RECOMMENDED_TSI_VERSION = "8.0.0";
+	public static final String RECOMMENDED_TSI_VERSION = "8.3.0";
 
 	/**
 	 * get the TSI version
@@ -540,10 +540,10 @@ public class TSIConnection implements AutoCloseable {
 		if(tsiVersion!=null && !issuedWarning) {
 			issuedWarning = true;
 			if(!TSIUtils.compareVersion(tsiVersion, RECOMMENDED_TSI_VERSION)){
-				logger.warn("TSI host <"+getTSIHostName()+"> runs version <" + tsiVersion + 
-						"> which is outdated. UNICORE will try to work in backwards " +
-						"compatible way but some features may not work. " +
-						"It is strongly suggested to update your TSI.");
+				logger.warn("TSI host <{}> runs version <{}> which is outdated. "
+						+ "UNICORE will try to work in backwards compatible way, "
+						+ "but some features may not work. " +
+						"It is strongly suggested to update your TSI.", getTSIHostName(), tsiVersion);
 			}
 		}
 		return tsiVersion;

@@ -40,6 +40,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -306,6 +307,12 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 
 	}
 
+	@Test
+	public void testGetProcessListing() throws Exception {
+		BSSState bss = xnjs.get(BSSState.class);
+		Set<String> ps = bss.getProcessList("localhost");
+		System.out.println(ps);
+	}
 
 	@Test
 	public void testAllocateJob() throws Exception {

@@ -23,7 +23,7 @@ import eu.unicore.security.Client;
  */
 public class AsyncCommandHelper {
 
-	protected final XNJS configuration;
+	protected final XNJS xnjs;
 
 	protected final String parentActionID;
 
@@ -36,31 +36,31 @@ public class AsyncCommandHelper {
 	private ResultHolder result;
 
 	/**
-	 * @param config -  the XNJS config
+	 * @param xnjs
 	 * @param cmd - the command to run
 	 * @param id - an ID suitable for disambiguating
 	 * @param parentActionID - the ID of the parent action
 	 * @param client - the client
 	 */
-	public AsyncCommandHelper(XNJS config, String cmd, String id, String parentActionID, Client client){
-		this(config, cmd, id, parentActionID, client, null);
+	public AsyncCommandHelper(XNJS xnjs, String cmd, String id, String parentActionID, Client client){
+		this(xnjs, cmd, id, parentActionID, client, null);
 	}
 
 	/**
-	 * @param config -  the XNJS config
+	 * @param xnjs
 	 * @param cmd - the command to run
 	 * @param id - an ID suitable for disambiguating
 	 * @param parentActionID - the ID of the parent action
 	 * @param client  - the client
 	 * @param workingDir - the working directory
 	 */
-	public AsyncCommandHelper(XNJS config, String cmd, String id, String parentActionID, Client client, String workingDir){
-		this.configuration=config;
-		this.parentActionID=parentActionID;
-		this.subCommand=new SubCommand();
-		this.client=client;
-		subCommand.id=id;
-		subCommand.cmd=cmd;
+	public AsyncCommandHelper(XNJS xnjs, String cmd, String id, String parentActionID, Client client, String workingDir){
+		this.xnjs = xnjs;
+		this.parentActionID = parentActionID;
+		this.subCommand = new SubCommand();
+		this.client = client;
+		subCommand.id = id;
+		subCommand.cmd = cmd;
 		subCommand.workingDir = workingDir;
 	}
 
@@ -74,16 +74,16 @@ public class AsyncCommandHelper {
 
 	public boolean isDone()throws ExecutionException{
 		if(subActionID==null)throw new IllegalStateException("Not submitted yet.");
-		Action sub=configuration.get(InternalManager.class).getAction(subActionID);
+		Action sub=xnjs.get(InternalManager.class).getAction(subActionID);
 		if(ActionStatus.DONE==sub.getStatus()){
-			result=new ResultHolder(sub, configuration);
+			result=new ResultHolder(sub, xnjs);
 			return true;
 		}
 		return false;
 	}
 
 	protected String createAction()throws ExecutionException{
-		InternalManager manager=configuration.get(InternalManager.class);
+		InternalManager manager=xnjs.get(InternalManager.class);
 		if(parentActionID!=null){
 			Action parent=manager.getAction(parentActionID);
 			if(parent==null){
@@ -99,10 +99,9 @@ public class AsyncCommandHelper {
 			a.setClient(client);
 			a.setUmask(subCommand.umask);
 			a.setApplicationInfo(new ApplicationInfo());
-			configuration.get(IExecutionContextManager.class).getContext(a);
+			xnjs.get(IExecutionContextManager.class).getContext(a);
 			a.getExecutionContext().setOutcomeDirectory(subCommand.outcomeDir);
-			String id=(String)manager.addInternalAction(a);
-			return id;
+			return (String)manager.addInternalAction(a);
 		}
 	}
 
@@ -159,7 +158,7 @@ public class AsyncCommandHelper {
 	
 	public void abort()throws ExecutionException{
 		if(subActionID!=null){
-			configuration.get(Manager.class).abort(subActionID, client);
+			xnjs.get(Manager.class).abort(subActionID, client);
 		}
 	}
 }

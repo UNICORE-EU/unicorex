@@ -169,7 +169,7 @@ public class AbstractTSITest  {
 		try{
 			String newdir="newdirectory"+System.currentTimeMillis();
 			tsi.mkdir(newdir);
-			ExecutionContext ec=new ExecutionContext("test");
+			ExecutionContext ec = new ExecutionContext();
 			ec.setWorkingDirectory(testDir+File.separator+newdir);
 			ec.setStdout("stdout");
 			ec.setStderr("stderr");
@@ -190,7 +190,7 @@ public class AbstractTSITest  {
 	public void testExecAndWait()throws Exception {
 		String newdir="newdirectory"+System.nanoTime();
 		tsi.mkdir(newdir);
-		ExecutionContext ec=new ExecutionContext("test");
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(testDir+File.separator+newdir);
 		ec.setStdout("stdout");
 		ec.setStderr("stderr");
@@ -207,7 +207,7 @@ public class AbstractTSITest  {
 	public void testExecWrongApp()throws Exception {
 		String newdir="newdirectory"+System.currentTimeMillis();
 		tsi.mkdir(newdir);
-		ExecutionContext ec=new ExecutionContext("test");
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(testDir+File.separator+newdir);
 		ec.setStdout("stdout");
 		ec.setStderr("stderr");
@@ -227,7 +227,7 @@ public class AbstractTSITest  {
 	public void testExecWithExtraSpacesInCmdLine()throws Exception {
 		String newdir="newdirectory"+System.currentTimeMillis();
 		tsi.mkdir(newdir);
-		ExecutionContext ec=new ExecutionContext("test");
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(testDir+File.separator+newdir);
 		ec.setStdout("stdout");
 		ec.setStderr("stderr");
@@ -244,7 +244,7 @@ public class AbstractTSITest  {
 	public void testExecWithEnvReplace()throws Exception {
 		String newdir="newdirectory"+System.currentTimeMillis();
 		tsi.mkdir(newdir);
-		ExecutionContext ec=new ExecutionContext("test");
+		ExecutionContext ec = new ExecutionContext();
 		ec.getEnvironment().put("TEXT","Hello World!");
 		ec.getEnvironment().put("ANOTHER","Second");
 		ec.setWorkingDirectory(testDir+File.separator+newdir);
@@ -356,7 +356,7 @@ public class AbstractTSITest  {
 	public void testExecWithEnvReplaceSubStringClashes()throws Exception {
 		String newdir="newdirectory"+System.currentTimeMillis();
 		tsi.mkdir(newdir);
-		ExecutionContext ec=new ExecutionContext("test");
+		ExecutionContext ec = new ExecutionContext();
 		ec.getEnvironment().put("TEXTLONG"," World!");
 		ec.getEnvironment().put("TEXT","Hello");
 
@@ -376,7 +376,7 @@ public class AbstractTSITest  {
 	public void xtestExecWithInputRedirect()throws Exception {
 		String newdir="newdirectory"+System.nanoTime();
 		tsi.mkdir(newdir);
-		ExecutionContext ec=new ExecutionContext("test");
+		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(testDir+File.separator+newdir);
 		ec.setStdout("stdout");
 		ec.setStderr("stderr");

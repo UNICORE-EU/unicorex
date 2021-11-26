@@ -46,17 +46,20 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.XNJSConstants;
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.incarnation.ITweaker;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
@@ -66,6 +69,7 @@ import de.fzj.unicore.xnjs.tsi.TSIFactory;
 import de.fzj.unicore.xnjs.util.ErrorCode;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
+import de.fzj.unicore.xnjs.util.UFTPUtils;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 
@@ -89,6 +93,8 @@ public class Execution extends BasicExecution {
 	 */
 	private int gracePeriod = 120*1000;
 
+	private final XNJS xnjs;
+
 	private final TSIConnectionFactory connectionFactory;
 
 	private final IBSSState bss;
@@ -101,6 +107,7 @@ public class Execution extends BasicExecution {
 
 	@Inject
 	public Execution(XNJS xnjs, ITweaker tw, TSIConnectionFactory factory, IBSSState bss){
+		this.xnjs = xnjs;
 		this.connectionFactory = factory;
 		this.bss = bss;
 		computeBudgets = buildComputeBudgetCache();
@@ -130,12 +137,7 @@ public class Execution extends BasicExecution {
 			job.addLogTrace(msg);
 		}
 
-		String credentials = extractBSSCredentials(job);
-		boolean addWaitingLoop = properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT);
-		
-		String tsiCmdInitial = runOnLoginNode ? 
-				TSIUtils.makeExecuteAsyncScript(job,idb, credentials, addWaitingLoop) : 
-				TSIUtils.makeSubmitCommand(job, idb, grounder, properties, credentials, addWaitingLoop);
+		String tsiCmdInitial = createTSIScript(job);
 		String tsiCmd=incarnationTweaker.postScript(appDescription, job, idb, tsiCmdInitial);
 
 		String tsiHost=null;
@@ -196,7 +198,32 @@ public class Execution extends BasicExecution {
 		}
 		return initialStatus;
 	}
+	
+	public String createTSIScript(Action job) throws ExecutionException {
+		if(XNJSConstants.asyncCommandType.equals(job.getType())){
+			SubCommand sc = (SubCommand)job.getAjd();
+			if(sc.type == SubCommand.UFTP) {
+				try
+				{
+					return UFTPUtils.makeUFTPCommand(new JSONObject(sc.cmd), job.getExecutionContext());
+				}catch(Exception ex) {
+					throw new ExecutionException("Could not create TSI_UFTP command", ex);
+				}
+			}
+		}
+		return createDefaultTSIScript(job);
+	}
 
+	private String createDefaultTSIScript(Action job) throws ExecutionException {
+		XNJSProperties properties = xnjs.getXNJSProperties();
+		boolean addWaitingLoop = properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT);
+		String credentials = extractBSSCredentials(job);
+		boolean runOnLoginNode = job.getExecutionContext().isRunOnLoginNode();
+		return runOnLoginNode ? 
+				TSIUtils.makeExecuteAsyncScript(job, idb, credentials, addWaitingLoop) : 
+				TSIUtils.makeSubmitCommand(job, idb, grounder, properties, credentials, addWaitingLoop);
+	}
+	
 	//for interactive execution, read the PID of the submitted script
 	private long readPID(Action job, String preferredTSINode)throws IOException, ExecutionException, InterruptedException {
 		Thread.sleep(3000); // async submit, so PID file may not yet be written - let's try and avoid errors later

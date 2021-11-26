@@ -104,19 +104,20 @@ public class LocalExecution implements Runnable {
 				60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
 	}
+
 	/**
-	 * constructs a new executor executing the given command, workdir and {@link ExecutionContext}
-	 * 
-	 * @param cmd - the command line to execute
-	 * @param workDir
+	 * @param actionID - can be null
+	 * @param properties
+	 * @param manager
+	 * @param cmd
 	 * @param ec
 	 */
-	public LocalExecution(LocalTSIProperties properties, InternalManager manager, String cmd, String workDir, ExecutionContext ec){
+	public LocalExecution(String actionID, LocalTSIProperties properties, InternalManager manager, String cmd, ExecutionContext ec){
 		this.manager = manager;
 		this.tsiProperties = properties;
-		this.actionID=ec.getActionID();
+		this.actionID = actionID;
 		this.cmd=cmd;
-		this.workDir=workDir;
+		this.workDir = ec.getWorkingDirectory();
 		this.ec=ec;
 		initPool();
 	}
@@ -179,14 +180,15 @@ public class LocalExecution implements Runnable {
 
 			Process p=pb.start();
 
-			if(actionID!=null)processes.put(actionID, p);
-
-			try{
+			if(actionID!=null) {
+				processes.put(actionID, p);
+				try{
 				//send continue event so the status gets updated
-				ContinueProcessingEvent cpe=new ContinueProcessingEvent(actionID);
-				manager.handleEvent(cpe);
-			}catch(Exception ex){
-				LogUtil.logException("Error sending continue event", ex, logger);
+					ContinueProcessingEvent cpe=new ContinueProcessingEvent(actionID);
+					manager.handleEvent(cpe);
+				}catch(Exception ex){
+					LogUtil.logException("Error sending continue event", ex, logger);
+				}
 			}
 
 			//in

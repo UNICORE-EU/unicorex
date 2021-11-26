@@ -60,7 +60,7 @@ public class ExecutionException extends Exception {
 	}
 	
 	public ExecutionException(ErrorCode ec){
-		super(ec.toString());
+		super(ec.getMessage());
 		this.errorCode=ec;
 	}
 	

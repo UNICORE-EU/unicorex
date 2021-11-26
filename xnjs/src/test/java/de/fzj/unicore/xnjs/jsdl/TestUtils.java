@@ -39,7 +39,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.xmlbeans.XmlObject;
 import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationDocument;
@@ -149,7 +148,7 @@ public class TestUtils {
 
 	@Test
 	public void testAppendEnvironment(){
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
+		ExecutionContext ec = new ExecutionContext();
 		ec.getEnvironment().put("foo","bar");
 		StringBuilder sb=new StringBuilder();
 		TSIUtils.appendEnvironment(sb, ec, true);

@@ -64,11 +64,11 @@ import eu.unicore.security.Xlogin;
 /**
  * Helpers to
  * <ul>
- * <li> generate commands to the classic TSI</li>
+ * <li> generate commands to the UNICORE TSI</li>
  * <li> deal with some replies such as status listings and directory listings</li>
  * </ul>
  * 
- * Also holds the code that creates a resource description for the classic TSI
+ * Also holds the code that creates a resource description for the UNICORE TSI
  * from a JSDL resource element,
  * 
  * @author schuller
@@ -566,7 +566,7 @@ public class TSIUtils {
 	 * @param file
 	 * @param start
 	 * @param length
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makeGetFileChunkCommand(String file, long start,
 			long length) {
@@ -582,7 +582,7 @@ public class TSIUtils {
 	 * create a PutFiles command
 	 * 
 	 * @param append
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makePutFilesCommand(boolean append) {
 		StringBuffer commands = new StringBuffer();
@@ -598,7 +598,7 @@ public class TSIUtils {
 	 * create a PutFileChunk command
 	 * 
 	 * @param append
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makePutFileChunkCommand(String file, String mode, long length, boolean append) {
 		StringBuffer commands = new StringBuffer();
@@ -617,7 +617,7 @@ public class TSIUtils {
 			String remoteFile, 
 			String localFile, 
 			String workingDir, 
-			long offset, long length, boolean partial) {
+			long offset, long length, boolean partial, ExecutionContext ec) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_UFTP");
 		commands.append("\n#TSI_UFTP_HOST ").append(host);
@@ -630,6 +630,10 @@ public class TSIUtils {
 		commands.append("\n#TSI_UFTP_OFFSET ").append(offset);
 		commands.append("\n#TSI_UFTP_LENGTH ").append(length);
 		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
+		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutcomeDirectory());
+		commands.append("\n#TSI_STDOUT ").append(ec.getStdout());
+		commands.append("\n#TSI_PID_FILE ").append(ec.getPIDFileName());
+		commands.append("\n#TSI_EXIT_CODE_FILE ").append(ec.getExitCodeFileName());
 		commands.append("\n");
 		return commands.toString();
 	}
@@ -639,7 +643,7 @@ public class TSIUtils {
 			String remoteFile, 
 			String localFile, 
 			String workingDir, 
-			long offset, long length, boolean partial) {
+			long offset, long length, boolean partial, ExecutionContext ec) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_UFTP");
 		commands.append("\n#TSI_UFTP_HOST ").append(host);
@@ -652,6 +656,10 @@ public class TSIUtils {
 		commands.append("\n#TSI_UFTP_OFFSET ").append(offset);
 		commands.append("\n#TSI_UFTP_LENGTH ").append(length);
 		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
+		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutcomeDirectory());
+		commands.append("\n#TSI_STDOUT ").append(ec.getStdout());
+		commands.append("\n#TSI_PID_FILE ").append(ec.getPIDFileName());
+		commands.append("\n#TSI_EXIT_CODE_FILE ").append(ec.getExitCodeFileName());
 		commands.append("\n");
 		return commands.toString();
 	}
@@ -677,13 +685,13 @@ public class TSIUtils {
 	}
 
 	/**
-	 * Build the command to the classic TSI for making a resource reservation.
+	 * Build the command to the UNICORE TSI for making a resource reservation.
 	 * 
 	 * @param rt -
 	 *            the resources to reserve
 	 * @param startTime -
 	 *            the requested start time
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makeMakeReservationCommand(List<ResourceRequest>rt, Calendar startTime, Client client) {
 		StringBuilder commands = new StringBuilder();
@@ -700,7 +708,7 @@ public class TSIUtils {
 	}
 
 	/**
-	 * Build the command to the classic TSI for cancelling a resource
+	 * Build the command to the UNICORE TSI for cancelling a resource
 	 * reservation
 	 * 
 	 * @param reservationID - the ID of the reservation to cancel
@@ -713,12 +721,12 @@ public class TSIUtils {
 	}
 
 	/**
-	 * Build the command to the classic TSI for querying the status of a
+	 * Build the command to the UNICORE TSI for querying the status of a
 	 * resource reservation
 	 * 
 	 * @param reservationID -
 	 *            the ID of the reservation to query
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makeQueryReservationCommand(String reservationID) {
 		StringBuffer commands = new StringBuffer();
@@ -728,12 +736,12 @@ public class TSIUtils {
 	}
 
 	/**
-	 * Build the command to the classic TSI for listing a file/directory
+	 * Build the command to the UNICORE TSI for listing a file/directory
 	 * 
 	 * @param path - the file/directory to stat or list
 	 * @param normal - normal directory listing or stat dir as a single file
 	 * @param recurse - recurse in case of a directory listing 
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makeLSCommand(String path, boolean normal, boolean recurse) {
 		StringBuffer commands = new StringBuffer();
@@ -745,10 +753,10 @@ public class TSIUtils {
 	}
 
 	/**
-	 * Build the command to the classic TSI for getting free disk space
+	 * Build the command to the UNICORE TSI for getting free disk space
 	 * 
 	 * @param path - the file/directory to stat or list
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makeDFCommand(String path) {
 		StringBuffer commands = new StringBuffer();
@@ -758,13 +766,23 @@ public class TSIUtils {
 	}
 
 	/**
-	 * Build the command to the classic TSI for getting the remaining 
+	 * Build the command to the UNICORE TSI for getting the remaining 
 	 * compute budget for the current user
 	 * 
-	 * @return a string for sending to the classic TSI
+	 * @return a string for sending to the UNICORE TSI
 	 */
 	public static String makeGetBudgetCommand() {
 		return "#TSI_GET_COMPUTE_BUDGET\n";
+	}
+
+	/**
+	 * Build the command to the UNICORE TSI for getting
+	 * the process list on the TSI node
+	 *
+	 * @return a string for sending to the UNICORE TSI
+	 */
+	public static String makeGetProcessListCommand() {
+		return "#TSI_GETPROCESSLISTING\n";
 	}
 
 	/**

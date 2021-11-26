@@ -3,8 +3,6 @@ package de.fzj.unicore.xnjs.ems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.util.UUID;
-
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.XNJSTestBase;
@@ -40,7 +38,7 @@ public class TestProcessors extends XNJSTestBase {
 		Client c=new Client();
 		c.setAnonymousClient();
 		a.setClient(c);
-		ExecutionContext ec=new ExecutionContext(UUID.randomUUID().toString());
+		ExecutionContext ec = new ExecutionContext();
 		ec.setExecutable("test.exe");
 		a.setExecutionContext(ec);
 		a.setResult(new ActionResult(ActionResult.SUCCESSFUL));

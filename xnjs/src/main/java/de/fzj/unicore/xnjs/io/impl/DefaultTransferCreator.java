@@ -141,7 +141,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		URI source = info.getSources()[0]; // TODO
 		String scheme = source.getScheme();
 		String target = info.getFileName();
-		DataStagingCredentials credentials = info.getCredentials();
+		//DataStagingCredentials credentials = info.getCredentials();
 		if("inline".equalsIgnoreCase(scheme)){
 			InlineFTS ft = new InlineFTS(configuration, client, workingDirectory,target);
 			ft.setInlineData(info.getInlineData());

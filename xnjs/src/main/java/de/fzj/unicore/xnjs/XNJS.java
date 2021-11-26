@@ -221,7 +221,7 @@ public class XNJS {
 	 * are configured, otherwise set the default
 	 */
 	protected void assureDefaultProcessingAvailable(){
-		
+
 		if(!haveProcessingFor("JSON")){
 			setProcessingChain("JSON", "JSON", 
 					new String[]{JSONJobProcessor.class.getName(),UsageLogger.class.getName(),
@@ -247,7 +247,7 @@ public class XNJS {
 			setProcessingChain(JSONSweepProcessor.sweepInstanceType, null, 
 					new String[]{JSONSweepInstanceProcessor.class.getName()});
 		}
-		
+
 		if(!haveProcessingFor("FTS")){
 			setProcessingChain("FTS", "FTS", 
 					new String[]{FTSProcessor.class.getName(),

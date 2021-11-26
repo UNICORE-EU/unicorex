@@ -9,7 +9,6 @@ package de.fzj.unicore.xnjs.incarnation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
@@ -35,7 +34,7 @@ public class MockContextBean extends RootCtxBean
 		
 		setApp(appInfo);
 		
-		setEc(new ExecutionContext(UUID.randomUUID().toString()));
+		setEc(new ExecutionContext());
 	}
 	
 

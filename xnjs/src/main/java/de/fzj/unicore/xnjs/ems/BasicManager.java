@@ -34,9 +34,7 @@
 package de.fzj.unicore.xnjs.ems;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -96,9 +94,7 @@ public class BasicManager implements Manager, InternalManager {
 		this.ecm = ecm;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.Manager#add()
-	 */
+	@Override
 	public Object add(Action action, Client client) throws ExecutionException {
 		if(action==null){
 			throw new NullPointerException("Can't add 'null' action.");
@@ -129,33 +125,17 @@ public class BasicManager implements Manager, InternalManager {
 		return action.getUUID();
 	}
 
-	/**
-	 * list all jobs a client may see...
-	 */
+	@Override
 	public String[] list(Client client) throws ExecutionException {
-		List<String>list=new ArrayList<String>();
-		Collection<String>jobids;
 		try {
-			jobids = jobs.getUniqueIDs();
+			Collection<String>ids = jobs.getUniqueIDs();
+			return (String[])ids.toArray(new String [ids.size()]);
 		} catch (PersistenceException e) {
 			throw new ExecutionException(e);
 		}
-		for(String id: jobids){
-			if(isAcceptable(client, id)) list.add(id);
-		}
-		return (String[])list.toArray(new String [list.size()]); 
 	}
 
-	/**
-	 * TODO
-	 * should be policy driven ...
-	 * @param c
-	 * @param id
-	 */
-	protected boolean isAcceptable(Client c, String id){
-		return true;
-	}
-
+	@Override
 	public synchronized void start() throws Exception {
 		if(started)return;
 		jobs = configuration.getActionStore("JOBS");
@@ -168,12 +148,13 @@ public class BasicManager implements Manager, InternalManager {
 		started = true;
 	}
 
-
+	@Override
 	public synchronized void stop() {
 		stopAcceptingNewActions();
 		dispatcher.interrupt();
 	}
 
+	@Override
 	public Integer getStatus(String id, Client client) throws ExecutionException {
 		try{
 			Action a=jobs.get(id);
@@ -184,9 +165,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
-	/**
-	 * gets the action identified by id
-	 */
+	@Override
 	public Action getAction(String id)throws ExecutionException{
 		try{
 			Action a=jobs.get(id);
@@ -196,31 +175,19 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
-	/**
-	 * gets the action identified by id, and lock it
-	 */
 	public Action getActionForUpdate(String id)throws TimeoutException,PersistenceException{
 		return jobs.getForUpdate(id);
 	}
 
-
-	/**
-	 * get a job to be processed from the list of jobs
-	 *
-	 * @return Action
-	 * @throws InterruptedException 
-	 * @throws {@link ExecutionException} 
-	 */
+	@Override
 	public Action getNextActionForProcessing() throws InterruptedException,ExecutionException{
 		throw new RuntimeException();
 	}
 
 	/**
-	 * called from the workers when a processing iteration has finished
-	 * without error
-	 * @param a the Action
-	 * @param notify whether to send out notifications due to the status change 
+	 * called from the workers when a processing iteration has finished without error
 	 */
+	@Override
 	public void doneProcessing(Action a){
 		if(a!=null){
 			try{
@@ -254,6 +221,7 @@ public class BasicManager implements Manager, InternalManager {
 	/**
 	 * processing iteration has produced an error
 	 */
+	@Override
 	public void errorProcessing(Action a, Throwable t){
 		if(a!=null){
 			a.addLogTrace("Processing failed, aborting");
@@ -279,9 +247,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.Manager#pause(java.lang.String, de.fzj.unicore.xnjs.aaa.Client)
-	 */
+	@Override
 	public Object pause(String id, Client client) throws ExecutionException {
 		Action a=null;
 		try{
@@ -307,9 +273,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.Manager#resume(java.lang.String, de.fzj.unicore.xnjs.aaa.Client)
-	 */
+	@Override
 	public Object resume(String id, Client client) throws ExecutionException {
 		Action a=null;
 		try{
@@ -333,9 +297,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.Manager#abort(java.lang.String, de.fzj.unicore.xnjs.aaa.Client)
-	 */
+	@Override
 	public Object abort(String id, Client client) throws ExecutionException {
 		Action a=null;
 		try{
@@ -362,9 +324,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.Manager#run(java.lang.String, de.fzj.unicore.xnjs.aaa.Client)
-	 */
+	@Override
 	public Object run(String id, Client client) throws ExecutionException {
 		Action a=null;
 		try{
@@ -386,6 +346,7 @@ public class BasicManager implements Manager, InternalManager {
 		return ActionStatus.PENDING;
 	}
 
+	@Override
 	public Object restart(String id, Client client) throws ExecutionException {
 		try{
 			Action a = getAction(id);
@@ -412,6 +373,7 @@ public class BasicManager implements Manager, InternalManager {
 		return ActionStatus.PENDING;
 	}
 
+	@Override
 	public String addSubAction(Serializable jobDescription, String type, Action parentAction, boolean notify) throws ExecutionException{
 		String parentUUID=parentAction.getUUID();
 		Action soa=new Action();
@@ -428,9 +390,7 @@ public class BasicManager implements Manager, InternalManager {
 		return soa.getUUID();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.InternalManager#addInternalAction(de.fzj.unicore.xnjs.ems.Action, de.fzj.unicore.xnjs.aaa.Client)
-	 */
+	@Override
 	public Object addInternalAction(Action a) throws ExecutionException{
 		a.addLogTrace("Created with type '"+a.getType()+"'");
 		a.addLogTrace("Client: "+a.getClient());
@@ -446,9 +406,7 @@ public class BasicManager implements Manager, InternalManager {
 		return a.getUUID();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.InternalManager#isActionDone(java.lang.String)
-	 */
+	@Override
 	public boolean isActionDone(String actionID) throws ExecutionException {
 		try{
 			Action a=jobs.get(actionID);
@@ -460,9 +418,7 @@ public class BasicManager implements Manager, InternalManager {
 
 	}
 
-	/**
-	 * destroy & delete an Action
-	 */
+	@Override
 	public void destroy(String actionID, Client client) throws ExecutionException {
 		Action a=null;
 		try{
@@ -485,7 +441,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
-	//management methods 
+	@Override
 	public int getAllJobs(){
 		try {
 			return jobs.size();
@@ -495,6 +451,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}
 
+	@Override
 	public int getDoneJobs(){
 		try {
 			return jobs.size(ActionStatus.DONE);
@@ -512,14 +469,17 @@ public class BasicManager implements Manager, InternalManager {
 		}
 	}	
 
+	@Override
 	public boolean getIsAcceptingNewActions(){
 		return isAcceptingNewActions;
 	}
-	
+
+	@Override
 	public void stopAcceptingNewActions(){
 		isAcceptingNewActions=false;
 	}
-	
+
+	@Override
 	public void startAcceptingNewActions(){
 		isAcceptingNewActions=true;
 	}
@@ -540,6 +500,7 @@ public class BasicManager implements Manager, InternalManager {
 		return jobs;
 	}
 
+	@Override
 	public void handleEvent(final XnjsEvent event) throws ExecutionException {
 		if (event==null)return;
 		final String actionID=event.getActionID();
@@ -589,6 +550,7 @@ public class BasicManager implements Manager, InternalManager {
 		else throw new IllegalArgumentException("Unknown event type <"+event.getClass().getName()+">");
 	}
 
+	@Override
 	public void scheduleEvent(final XnjsEvent event, int time, TimeUnit units) throws RejectedExecutionException{
 		Runnable r=new Runnable(){
 			public void run(){

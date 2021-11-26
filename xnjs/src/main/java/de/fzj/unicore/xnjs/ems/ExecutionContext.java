@@ -50,14 +50,12 @@ public class ExecutionContext implements Serializable{
 	
 	private static final long serialVersionUID = 1l;
 	
-	private final String actionID;
-	
-	private String workingDirectory;
+	private String workingDirectory = "./";
 	
 	//the outcome dir (by default equal to the working dir)
 	private String outcomeDirectory;
 	
-	private HashMap<String,String> environment;
+	private HashMap<String,String> environment = new HashMap<>();
 	
 	//some id where this job is running (node, ip, url, whatever)
 	private String location;
@@ -81,7 +79,7 @@ public class ExecutionContext implements Serializable{
 	private Float progress;
 
 	//the resources requested for executing the job
-	private List<ResourceRequest> resourceRequest=new ArrayList<ResourceRequest>();
+	private List<ResourceRequest> resourceRequest = new ArrayList<>();
 
 	private String exitCodeFileName=TSIUtils.EXITCODE_FILENAME;
 	
@@ -102,19 +100,7 @@ public class ExecutionContext implements Serializable{
 	
 	//should non-zero exit code lead to failure?
 	private boolean ignoreExitCode;
-		
-	/**
-	 * create an uninitialized ExecutionContext
-	 * 
-	 * @param actionID - the ID of the action 
-	 */
-	public ExecutionContext(String actionID){
-		this.actionID=actionID;
-		environment=new HashMap<String,String>();
-		exitCode=null;
-		setWorkingDirectory(".");
-	}
-	
+
 	public HashMap<String,String> getEnvironment() {
 		return environment;
 	}
@@ -131,7 +117,7 @@ public class ExecutionContext implements Serializable{
 		this.location = location;
 	}
 	/**
-	 * @return Returns the workingDirectory (which is guaranteed to end with the target system's file separator)
+	 * @return workingDirectory (which is guaranteed to end with the target system's file separator)
 	 */
 	public String getWorkingDirectory() {
 		return workingDirectory;
@@ -142,7 +128,7 @@ public class ExecutionContext implements Serializable{
 	}
 
 	/**
-	 * @return Returns the outcome directory (which is guaranteed to end with the target system's file separator)
+	 * @return outcome directory (which is guaranteed to end with the target system's file separator)
 	 */
 	public String getOutcomeDirectory() {
 		return outcomeDirectory!=null? outcomeDirectory : workingDirectory;
@@ -185,10 +171,6 @@ public class ExecutionContext implements Serializable{
 	
 	public void setExitCode(int exitCode) {
 		this.exitCode = exitCode;
-	}
-	
-	public String getActionID() {
-		return actionID;
 	}
 	
 	public String getExitCodeFileName() {
