@@ -33,7 +33,6 @@ public class TestJSONProcessing extends EMSTestBase {
 		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),null);
 		doRun(id);
 		assertSuccessful(id);
-		mgr.getAction(id).printLogTrace();
 	}
 	
 	private static String[] pre_post_jobs = { 
@@ -48,7 +47,6 @@ public class TestJSONProcessing extends EMSTestBase {
 		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),null);
 		doRun(id);
 		Action a = mgr.getAction(id);
-		a.printLogTrace();
 		assertTrue(a.getLog().toString().contains("Command exited with non-zero exit code"));
 	}
 
@@ -59,7 +57,6 @@ public class TestJSONProcessing extends EMSTestBase {
 		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),null);
 		doRun(id);
 		Action a = mgr.getAction(id);
-		a.printLogTrace();
 		assertTrue(a.getLog().toString().contains("Total:"));
 	}
 	

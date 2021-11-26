@@ -127,7 +127,10 @@ public abstract class EMSTestBase extends XNJSTestBase {
 			Thread.sleep(1000);
 			count++;
 		}while(count<getTimeOut() && !("DONE".equals(ActionStatus.toString(status))));
-		if(count>=getTimeOut())throw new Exception("Timeout");
+		if(count>=getTimeOut()) {
+			mgr.getAction(actionID).printLogTrace();
+			throw new Exception("Timeout");
+		}
 	}
 	
 	protected void waitUntilRunning(String actionID)throws Exception{

@@ -370,14 +370,13 @@ public class LocalTS implements TSI {
 	/**
 	 * Execute a command. This delegates execution to a executor thread pool.
 	 */
-	public void exec(String orig, ExecutionContext ec) throws TSIBusyException,ExecutionException {
+	public void exec(String command, ExecutionContext ec) throws TSIBusyException,ExecutionException {
 		try{
-			LocalExecution ex=new LocalExecution(null, tsiProperties, manager, orig, ec);
-			ex.execute();
+			new LocalExecution(null, tsiProperties, manager, command, ec).execute();
 		}catch(RejectedExecutionException re){
 			throw new TSIBusyException("Execution currently not possible.");
 		}catch(Exception ex){
-			throw new ExecutionException("Error while executing <"+orig+">",ex);}
+			throw new ExecutionException("Error while executing <"+command+">",ex);}
 	}
 
 	/**

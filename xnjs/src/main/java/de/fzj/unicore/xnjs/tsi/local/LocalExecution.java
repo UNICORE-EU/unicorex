@@ -124,18 +124,16 @@ public class LocalExecution implements Runnable {
 
 	/**
 	 * execute asynchronously
-	 * @throws Exception
 	 */
-	public void execute()throws Exception{
+	public void execute() {
 		execute(true);
 	}
 
 	/**
 	 * execute this task
 	 * @param async - if true, the task is submitted to the executor service, if false, it is run in the calling thread
-	 * @throws Exception
 	 */
-	public void execute(boolean async)throws Exception{
+	public void execute(boolean async) {
 		totalTasks.incrementAndGet();
 		if(async){
 			es.execute(this);

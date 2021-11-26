@@ -104,7 +104,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	protected TSIFactory tsiFactory;
 	
 	@Inject
-	protected InternalManager eventHandler;
+	protected InternalManager manager;
 	
 	@Inject
 	protected MetricRegistry metricRegistry;
@@ -134,10 +134,9 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		}
 		ApplicationInfo appDescription=job.getApplicationInfo();
 		incarnationTweaker.preScript(appDescription, job, idb);
-		TSI tsi = tsiFactory.createTSI(job.getClient());
-		//start execution
 		ExecutionContext ec=job.getExecutionContext();
-		tsi.exec(buildCommand(job, idb), ec);
+		LocalExecution ex=new LocalExecution(job.getUUID(), tsiProperties, manager, buildCommand(job, idb), ec);
+		ex.execute();
 		job.addLogTrace("Submitted executable: "+appDescription.getExecutable());
 		runningJobCount.incrementAndGet();
 		runningJobUIDs.add(job.getUUID());
