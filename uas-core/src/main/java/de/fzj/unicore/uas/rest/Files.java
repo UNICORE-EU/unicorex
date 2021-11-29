@@ -174,13 +174,14 @@ public class Files extends RESTRendererBase {
 				throw new WebApplicationException(404);
 			}
 			JSONObject reply = new JSONObject();
-			String permissions = json.optString("unixPermissions", null);
+			String permissions = json.optString("permissions", null);
+			if(permissions==null)permissions = json.optString("unixPermissions", null);
 			if(permissions!=null){
 				try{
 					tsi.chmod2(path, SMSUtils.getChangePermissions(permissions), false);
-					reply.put("unixPermissions","OK");
+					reply.put("permissions","OK");
 				}catch(Exception e) {
-					reply.put("unixPermissions","FAILED: "+Log.getDetailMessage(e));
+					reply.put("permissions","FAILED: "+Log.getDetailMessage(e));
 				}
 			}
 
