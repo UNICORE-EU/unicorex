@@ -31,16 +31,16 @@ public class UFTPProperties extends PropertiesHelper {
 	/**
 	 * extra property for configuring the UFTP client side:
 	 * <ul>
-	 * <li>if set to "true", the Java UFTP client code will be run
-	 * directly within the JVM, which will work only if the UNICORE/X has access to
-	 * the target file system</li>
-	 * <li>if set to <code>false</code>, the Java UFTP client code will be run via the TSI</li>
+	 * <li>if set to "true", the UFTP client will be run on UNICORE/X, transferring data
+	 * from/to the TSI</li>
+	 * <li>if set to <code>false</code>, the UFTP client code will be run on the TSI</li>
 	 * </ul>
 	 */
 	public static final String PARAM_CLIENT_LOCAL="client.local";
 
 	/**
 	 * property for configuring the path to the client executable (location of 'uftp.sh')
+	 * TSI 8.3 and later has builtin UFTP support, and this should not be set
 	 */
 	public static final String PARAM_CLIENT_EXECUTABLE="client.executable";
 
@@ -123,7 +123,7 @@ public class UFTPProperties extends PropertiesHelper {
 	
 		META.put(PARAM_CLIENT_LOCAL, new PropertyMD("false").
 				setDescription("Controls whether, the Java UFTP client code should be run directly within the JVM, which will work only if the UNICORE/X has access to the target file system, or, if set to false, in the TSI."));
-		META.put(PARAM_CLIENT_EXECUTABLE, new PropertyMD("uftp.sh").
+		META.put(PARAM_CLIENT_EXECUTABLE, new PropertyMD("uftp.sh").setDeprecated().
 				setDescription("Configures the path to the client executable (location of 'uftp.sh') on the TSI."));
 		META.put(PARAM_COMMAND_SSL_DISABLE, new PropertyMD("false").
 				setDescription("Allows to disable SSL on the command port (useful for testing)."));

@@ -29,9 +29,9 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 
 	private String secret;
 
-	/** whether the Java UFTP library should be used directly, which requires that
-	 * the UNICORE/X has access to the file system<br/>
-	 * If set to <code>false</code>, the TSI is used to run the UFTP client   
+	/** whether UNICORE/X should act as UFTP client, which requires sending the
+	 * data to the TSI. If set to <code>false</code>, the UFTP client process
+	 * will be launched on the TSI (with much better performance)
 	 */
 	private final boolean localMode;
 

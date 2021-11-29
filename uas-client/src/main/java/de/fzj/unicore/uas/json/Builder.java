@@ -71,7 +71,7 @@ public class Builder {
 
 	protected boolean isSweepJob=false;
 
-	protected ProtocolType.Enum[] preferredProtocols={ProtocolType.BFT};
+	protected ProtocolType.Enum preferredProtocol = ProtocolType.BFT;
 
 	protected boolean convertRESTtoWSRF = false;
 	
@@ -137,24 +137,14 @@ public class Builder {
 	protected void build(){
 		if(initialised)return;
 		initialised=true;
-		preferredProtocols=parseProtocols();
+		preferredProtocol = parseProtocol();
 		extractRequirements();
 	}
 
-	protected ProtocolType.Enum[] parseProtocols(){
-		String protocolsP=getProperty("Preferred protocols","");
-		String[] protocols=protocolsP.split("[ ,]+");
-		ProtocolType.Enum[] result=new ProtocolType.Enum[protocols.length];
-		for(int i=0;i<result.length;i++){
-			if(protocols[i].length()<1)continue;
-			ProtocolType.Enum p = ProtocolType.Enum.forString(protocols[i]);
-			if(p!=null)
-				result[i]=ProtocolType.Enum.forString(protocols[i]);
-			else {
-				throw new IllegalArgumentException("Unknown protocol: '"
-						+protocols[i]+"'");
-			}
-		}
+	protected ProtocolType.Enum parseProtocol(){
+		String protocolsP = getProperty("Preferred protocol", "BFT");
+		ProtocolType.Enum result = ProtocolType.Enum.forString(protocolsP);
+		if(result==null)throw new IllegalArgumentException("Unknown protocol: '"+protocolsP+"'");
 		return result;
 	}
 

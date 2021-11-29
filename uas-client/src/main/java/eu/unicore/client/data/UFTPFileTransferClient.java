@@ -18,7 +18,6 @@ import eu.unicore.client.Endpoint;
 import eu.unicore.client.utils.Configurable;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.uftp.client.AbstractUFTPClient;
-import eu.unicore.uftp.client.UFTPClient;
 import eu.unicore.uftp.client.UFTPProgressListener;
 import eu.unicore.uftp.client.UFTPSessionClient;
 import eu.unicore.uftp.dpc.AuthorizationFailureException;
@@ -53,8 +52,6 @@ public class UFTPFileTransferClient extends FiletransferClient
 	private ProgressListener<Long>listener;
 	
 	private String remoteFile;
-	
-	private boolean isSessionMode = true;
 
 	private boolean append;
 	
@@ -68,10 +65,7 @@ public class UFTPFileTransferClient extends FiletransferClient
 		String keySpec=params.get(PARAM_ENCRYPTION_KEY);
 		key = keySpec!=null ? Utils.decodeBase64(keySpec) : null;
 		compress=Boolean.parseBoolean(params.get(PARAM_ENABLE_COMPRESSION));
-		isSessionMode = Boolean.parseBoolean(params.get(PARAM_USE_SESSION));
-		if(isSessionMode){
-			remoteFile = params.get("fileName");
-		}
+		remoteFile = params.get("fileName");
 	}
 
 	@Override
@@ -97,27 +91,15 @@ public class UFTPFileTransferClient extends FiletransferClient
 
 	@Override
 	public void readAllData(OutputStream target) throws Exception {
-		if(!isSessionMode){
-			readAllDataNoSession(target);
-			return;
-		}
 		try(UFTPSessionClient c=new UFTPSessionClient(serverHosts, serverPort)){
 			configureClient(c);
 			c.connect();
 			c.get("./"+remoteFile, target);
 		}
 	}
-	
-	private void readAllDataNoSession(OutputStream target) throws Exception {
-		try(UFTPClient c=new UFTPClient(serverHosts,serverPort,target)){
-			configureClient(c);
-			c.run();
-		}
-	}
 
 	@Override
 	public long readPartial(long offset, long length, OutputStream target) throws IOException {
-		if(!isSessionMode)throw new IOException("Partial read not (yet) implemented");
 		try(UFTPSessionClient c=new UFTPSessionClient(serverHosts, serverPort)){
 			configureClient(c);
 			c.connect();
@@ -135,10 +117,6 @@ public class UFTPFileTransferClient extends FiletransferClient
 
 	@Override
 	public void writeAllData(InputStream source, long numBytes) throws Exception {	
-		if(!isSessionMode){
-			writeAllDataNoSession(source);
-			return;
-		}
 		try(UFTPSessionClient c=new UFTPSessionClient(serverHosts,serverPort)){
 			configureClient(c);
 			c.connect();
@@ -150,14 +128,7 @@ public class UFTPFileTransferClient extends FiletransferClient
 			}
 		}
 	}
-	
-	private void writeAllDataNoSession(InputStream source) throws Exception {	
-		try(UFTPClient c=new UFTPClient(serverHosts,serverPort,source)){
-			configureClient(c);
-			c.run();
-		}
-	}
-	
+
 	private void configureClient(AbstractUFTPClient c){
 		c.setNumConnections(streams);
 		c.setSecret(secret);

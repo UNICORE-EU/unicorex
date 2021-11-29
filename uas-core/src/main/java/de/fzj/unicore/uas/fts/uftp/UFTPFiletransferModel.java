@@ -11,8 +11,6 @@ public class UFTPFiletransferModel extends FileTransferModel {
 	int streams;
 
 	byte[] key;
-	
-	boolean isSession;
 
 	boolean compress = false;
 	
@@ -41,14 +39,6 @@ public class UFTPFiletransferModel extends FileTransferModel {
 
 	public void setKey(byte[] key) {
 		this.key = key;
-	}
-
-	public boolean isSession() {
-		return isSession;
-	}
-
-	public void setSession(boolean isSession) {
-		this.isSession = isSession;
 	}
 
 	public boolean isCompress() {

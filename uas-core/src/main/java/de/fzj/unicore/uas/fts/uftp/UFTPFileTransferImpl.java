@@ -59,17 +59,6 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		}
 		m.clientHost=extraParameters.get(PARAM_CLIENT_HOST);
 		
-		boolean isExport = m.getIsExport();
-		
-		String sessionRequested = extraParameters.get(PARAM_USE_SESSION);
-		if(sessionRequested!=null){
-			m.isSession = Boolean.parseBoolean(sessionRequested);	
-		}
-		else{m.isSession = isExport ? m.getSource().contains(UFTPWorker.sessionModeTag) :
-			m.getTarget().contains(UFTPWorker.sessionModeTag);
-		}
-		if(!m.isSession)checkAccess(isExport);
-		
 		if(m.clientHost==null){
 			m.clientHost=getClient().getSecurityTokens().getClientIP();
 			if(m.clientHost==null){
@@ -116,9 +105,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 			params.put(PARAM_ENCRYPTION_KEY,base64);
 		}
 		params.put(PARAM_ENABLE_COMPRESSION,String.valueOf(m.compress));
-		
-		params.put(PARAM_USE_SESSION,String.valueOf(m.isSession));
-		
+		params.put(PARAM_USE_SESSION, "true");
 		return params;
 	}
 
@@ -188,6 +175,9 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	 * @throws Exception
 	 */
 	protected void setupUFTP(String secret)throws Exception{
+		if(secret==null || secret.equalsIgnoreCase("null")) {
+			throw new IllegalArgumentException("Secret cannot be null.");
+		}
 		String user="nobody";
 		String group="nobody";
 		Client c=getClient();
@@ -211,23 +201,14 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	}
 
 	/**
-	 * sends the UFTP "job" (i.e. announce that a client will connect)
-	 * directly to the Java UFTPD via a socket
+	 * sends the UFTP "job" (i.e. announce that a client will connect) to UFTPD
 	 */
 	protected String initUFTPJob(String secret, String user, String group, byte[] key)throws IOException{
 		UFTPFiletransferModel m = getModel();
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		
 		boolean isExport = m.getIsExport();
-		File file;
-		if(m.isSession()){
-			file = new File(m.getWorkdir(),UFTPWorker.sessionModeTag);
-		}
-		else{
-			file = isExport ? 
-					new File(m.getWorkdir()+"/"+m.getSource()) :
-					new File(m.getWorkdir()+"/"+m.getTarget());
-		}
+		File file = new File(m.getWorkdir(),UFTPWorker.sessionModeTag);
 		boolean append= m.getOverWrite()==false;
 		boolean compress = m.isCompress();
 		int rateLimit = cfg.getIntValue(UFTPProperties.PARAM_RATE_LIMIT);
