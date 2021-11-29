@@ -101,6 +101,7 @@ public class Sites extends ServicesBase {
 	@POST
 	@Path("/{uniqueID}")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@ConcurrentAccess(allow=true)
 	public Response submit(String json, @PathParam("uniqueID")String id) throws Exception {
 		try{
 			Builder job = new Builder(json);

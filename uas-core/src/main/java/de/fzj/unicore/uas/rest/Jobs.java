@@ -40,6 +40,7 @@ import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
 
 /**
@@ -102,6 +103,7 @@ public class Jobs extends ServicesBase {
 	@POST
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@ConcurrentAccess(allow=true)
 	public Response submit(String json) throws Exception {
 		try{
 			checkSubmissionEnabled(kernel);
@@ -234,17 +236,19 @@ public class Jobs extends ServicesBase {
 	 */
 	public static String doSubmit(Builder job, TargetSystemImpl tss, Kernel kernel, String baseURL) 
 	throws Exception {
-		String id = null;
-		kernel.getHome(UAS.TSS).lock(tss);
-		try{
-			boolean autoRun = !Boolean.parseBoolean(job.getProperty("haveClientStageIn"));
-			boolean forceJSDL = Boolean.parseBoolean(job.getProperty("forceJSDL"));
-			id = forceJSDL?
-					tss.submit(job.getJob(),autoRun,null, job.getTags())
-					: tss.submit(job.getJSON(),autoRun,null, job.getTags());
+		boolean autoRun = !Boolean.parseBoolean(job.getProperty("haveClientStageIn"));
+		boolean forceJSDL = Boolean.parseBoolean(job.getProperty("forceJSDL"));
+		String id = forceJSDL?
+				tss.submit(job.getJob(), autoRun, null, job.getTags())
+				: tss.submit(job.getJSON(), autoRun, null, job.getTags());
+		// store new job ID in model - need a write lock on the tss
+		TargetSystemImpl tss2 = null;
+		try {
+			tss2 = (TargetSystemImpl)kernel.getHome(UAS.TSS).getForUpdate(tss.getUniqueID());
+			tss2.registerJob(id);
 		}
 		finally{
-			kernel.getHome(UAS.TSS).persist(tss);
+			if(tss2!=null)kernel.getHome(UAS.TSS).persist(tss2);
 		}
 		String location = baseURL+"/jobs/"+id;
 		return location;

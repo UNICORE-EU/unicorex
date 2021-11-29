@@ -135,7 +135,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		if(autoStartWhenReady){
 			action.getProcessingContext().put(Action.AUTO_SUBMIT, Boolean.TRUE);
 		}
-		return createJobResource(action,tt, tags);
+		return createJobResource(action, tt, tags);
 	}
 
 	public String submit(JobDefinitionDocument job, boolean autoStartWhenReady, Calendar tt,
@@ -251,7 +251,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 	}
 
 	/**
-	 * create new Job, store the ID in the relevant lists and return the ID
+	 * create new Job and return the ID
 	 * 
 	 * @param action
 	 * @param tt - termination time - <code>null</code> to use default lifetime
@@ -265,9 +265,11 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		init.acl.addAll(getModel().getAcl());
 		init.initialTags = tags;
 		Home jmsHome = kernel.getHome(UAS.JMS); 
-		String id=jmsHome.createResource(init);
-		getModel().getJobIDs().add(id);
-		return id;
+		return jmsHome.createResource(init);
+	}
+
+	public void registerJob(String jobID) {
+		getModel().getJobIDs().add(jobID);
 	}
 
 	/**

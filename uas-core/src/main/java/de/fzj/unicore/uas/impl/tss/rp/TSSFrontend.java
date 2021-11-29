@@ -168,6 +168,7 @@ public class TSSFrontend extends UASBaseFrontEnd implements TargetSystem {
 			}
 			
 			String id = resource.submit(doc,in.getSubmit().getAutoStartWhenReady(), jobTT);
+			resource.registerJob(id);
 			EndpointReferenceType epr=WSServerUtilities.makeEPR(UAS.JMS, id, JobManagement.JMS_PORT, kernel);
 			SubmitResponseDocument response = SubmitResponseDocument.Factory.newInstance();
 			response.addNewSubmitResponse().setJobReference(epr);
