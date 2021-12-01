@@ -346,12 +346,12 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			StringBuilder pre = new StringBuilder();
 			if(action.getApplicationInfo().getPreCommand()!=null) {
 				pre.append(action.getApplicationInfo().getPreCommand());
-				pre.append("\n");
 			}
 
 			// user-defined pre-command
 			String userPre = action.getApplicationInfo().getUserPreCommand();
 			if(userPre != null && action.getApplicationInfo().isUserPreCommandOnLoginNode()){
+				if(pre.length()>0)pre.append("\n");
 				pre.append(userPre);
 			}
 
@@ -442,13 +442,22 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			boolean done = true;
 			int index=0;
-
+			
+			StringBuilder post = new StringBuilder();
+			if(action.getApplicationInfo().getPostCommand()!=null) {
+				post.append(action.getApplicationInfo().getPostCommand());
+			}
+			
 			String userPost = action.getApplicationInfo().getUserPostCommand();
 			if(userPost != null && action.getApplicationInfo().isUserPostCommandOnLoginNode()){
+				if(post.length()>0)post.append("\n");
+				post.append(userPost);
+			}
+			if(post.length()>0) {
 				done = false;
 				SubCommand cmd = new SubCommand();
 				cmd.id = "POST_"+(index++);
-				cmd.cmd = userPost;
+				cmd.cmd = post.toString();
 				cmd.workingDir = action.getExecutionContext().getWorkingDirectory();
 				cmd.env.putAll(action.getExecutionContext().getEnvironment());
 				String subID = createPrePostAction(cmd);

@@ -149,7 +149,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 	public static class SubCommand implements Serializable{
 		
 		public static final int NORMAL = 0;
-		public static final int UFTP = 0;
+		public static final int UFTP = 1;
 		
 		private final static long serialVersionUID=1l;
 		

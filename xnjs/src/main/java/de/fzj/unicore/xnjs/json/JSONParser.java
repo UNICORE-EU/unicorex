@@ -189,7 +189,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
 	public ApplicationMetadata parseApplicationMetadata(JSONObject source) throws Exception {
 		ApplicationMetadata meta = new ApplicationMetadata();
-		if(source!=null) {
+		if(source!=null && JSONObject.getNames(source)!=null) {
 			for(String name: JSONObject.getNames(source)) {
 				JSONObject optionJ = source.getJSONObject(name);
 				meta.getOptions().add(parseOptionDescription(name, optionJ));

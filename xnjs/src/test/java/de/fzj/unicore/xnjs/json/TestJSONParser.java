@@ -77,6 +77,36 @@ public class TestJSONParser {
 	}
 	
 	@Test
+	public void testParseJSONApplicationWithEmptyFields() throws Exception {
+		String json = "{"
+				+ "Name: 'test',"
+				+ "Version: '1.0',"
+				+ "Description: 'some test app',"
+				+ "PreCommand: 'unzip $INPUT',"
+				+ "Prologue: 'module load test123',"
+				+ "Executable: '/bin/test',"
+				+ "Arguments: [],"
+				+ "Environment: {},"
+				+ "Parameters: {},"
+				+ "Resources: {},"
+				+ "}";
+		ApplicationInfo app = new JSONParser().parseApplicationInfo(new JSONObject(json));
+		assertEquals("test", app.getName());
+		assertEquals("1.0", app.getVersion());
+		assertEquals("some test app", app.getDescription());
+		assertEquals("unzip $INPUT", app.getPreCommand());
+		assertEquals("module load test123", app.getPrologue());
+		List<String>args = app.getArguments();
+		assertEquals(0, args.size());
+		Map<String,String> env = app.getEnvironment();
+		assertEquals(0, env.size());
+		ApplicationMetadata meta = app.getMetadata();
+		System.out.println(meta);
+		List<ResourceRequest>rrs = app.getResourceRequests();
+		assertEquals(0, rrs.size());
+	}
+	
+	@Test
 	public void testParsePartition() throws Exception {
 		String json = "{ 'Partitions' : {" + 
 				"		'normal': {" + 
