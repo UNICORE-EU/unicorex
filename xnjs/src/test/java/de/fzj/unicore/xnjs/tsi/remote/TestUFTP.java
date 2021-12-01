@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
+import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
 import de.fzj.unicore.xnjs.util.UFTPUtils;
 import eu.unicore.security.Client;
@@ -244,6 +245,7 @@ public class TestUFTP extends RemoteTSITestCase {
 				workdir(targetDir.getAbsolutePath()).
 				build();
 		AsyncCommandHelper ach = new AsyncCommandHelper(xnjs, cmd.toString(), "uftp_1", id, parent.getClient());
+		ach.getSubCommand().type = SubCommand.UFTP;
 		ach.submit();
 		while(!ach.isDone())Thread.sleep(1000);
 		assertTrue(ach.getResult().getResult().isSuccessful());
@@ -283,6 +285,7 @@ public class TestUFTP extends RemoteTSITestCase {
 				partial().
 				build();
 		AsyncCommandHelper ach = new AsyncCommandHelper(xnjs, cmd.toString(), "uftp_1", id, parent.getClient());
+		ach.getSubCommand().type = SubCommand.UFTP;
 		ach.submit();
 		while(!ach.isDone())Thread.sleep(1000);
 		assertTrue(ach.getResult().getResult().isSuccessful());
