@@ -123,7 +123,7 @@ public class UFTPProperties extends PropertiesHelper {
 	
 		META.put(PARAM_CLIENT_LOCAL, new PropertyMD("false").
 				setDescription("Controls whether, the Java UFTP client code should be run directly within the JVM, which will work only if the UNICORE/X has access to the target file system, or, if set to false, in the TSI."));
-		META.put(PARAM_CLIENT_EXECUTABLE, new PropertyMD("uftp.sh").setDeprecated().
+		META.put(PARAM_CLIENT_EXECUTABLE, new PropertyMD("uftp.sh").
 				setDescription("Configures the path to the client executable (location of 'uftp.sh') on the TSI."));
 		META.put(PARAM_COMMAND_SSL_DISABLE, new PropertyMD("false").
 				setDescription("Allows to disable SSL on the command port (useful for testing)."));
