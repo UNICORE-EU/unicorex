@@ -58,7 +58,9 @@ public class ImportsController implements IFTSController {
 	protected FileListEntry remoteBaseInfo;
 
 	protected final String workingDirectory;
-	
+
+	protected String protocol;
+
 	public ImportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageInInfo dsi, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.kernel = xnjs.get(Kernel.class);
@@ -87,6 +89,11 @@ public class ImportsController implements IFTSController {
 	@Override
 	public void setExtraParameters(Map<String,String>extraParameters) {
 		this.extraParameters = extraParameters;
+	}
+
+	@Override
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
 	}
 
 	protected void setup() throws Exception {
@@ -163,6 +170,7 @@ public class ImportsController implements IFTSController {
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
 		String source = remoteEndpoint.getUrl()+"/files/"+from.getPath();
+		if(protocol!=null)source=protocol+":"+source;
 		DataStageInInfo info = dsi.clone();
 		info.setSources(new URI[]{new URI(source)});
 		info.setFileName(to);

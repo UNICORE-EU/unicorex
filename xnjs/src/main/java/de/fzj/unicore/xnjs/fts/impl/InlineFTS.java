@@ -84,6 +84,11 @@ public class InlineFTS implements IFTSController {
 	}
 
 	@Override
+	public void setProtocol(String protocol){
+		// NOP
+	}
+
+	@Override
 	public void setStorageAdapter(IStorageAdapter adapter) {
 		this.tsi = adapter;
 	}

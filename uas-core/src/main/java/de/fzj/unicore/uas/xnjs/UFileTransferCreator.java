@@ -207,8 +207,14 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	 * extracts the storage part from a REST staging URL
 	 */
 	public static Pair<String,String>extractUrlInfo(URI url){
-		String urlString = url.toString();
-		Matcher m = restURLPattern.matcher(urlString);
+		return extractUrlInfo(url.toString());
+	}
+
+	/**
+	 * extracts the storage part from a REST staging URL
+	 */
+	public static Pair<String,String>extractUrlInfo(String url){
+		Matcher m = restURLPattern.matcher(url);
 		if(!m.matches())throw new IllegalArgumentException("Improperly formed storage URL <"+url+">");
 		String schemeSpec=m.group(1);
 		String protocol, scheme;
@@ -256,6 +262,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			IFTSController fts = fc.getFTSImportsController().getConstructor(
 					XNJS.class, Client.class, Endpoint.class, DataStageInInfo.class, String.class).
 					newInstance(xnjs, client, ep, info, workingDirectory);
+			fts.setProtocol(protocol);
 			return fts;
 		}catch(Exception e) {
 			throw new IOException(e);
@@ -278,6 +285,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			IFTSController fts = fc.getFTSExportsController().getConstructor(
 					XNJS.class, Client.class, Endpoint.class, DataStageOutInfo.class, String.class).
 					newInstance(xnjs, client, ep, info, workingDirectory);
+			fts.setProtocol(protocol);
 			return fts;
 		}catch(Exception e) {
 			throw new IOException(e);

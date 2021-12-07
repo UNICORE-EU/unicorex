@@ -349,20 +349,15 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		finishTime=System.currentTimeMillis();
 		long dataSize = info.getDataSize();
 		long consumedMillis=getElapsedTime();
-		float r=(float)dataSize/(float)consumedMillis;
+		long r = (long)((float)dataSize/(float)consumedMillis);
 		String what=isExport()?"sent":"received";
 		String dn=client!=null?client.getDistinguishedName():"anonymous";
 		String url=storageEndpoint.getUrl();
-		
-		if(logger.isDebugEnabled()){
-			logger.debug(what+" "+dataSize+" bytes in "+consumedMillis+" milliseconds, data rate= "+r + " kB/s");
-		}
-		//usage logging
-		if(usageLogger.isInfoEnabled()){
-			usageLogger.info("["+dn+"]" + " ["+what+"]" + " ["+dataSize+"]" + " ["+r+" kB/s]" +" ["+url+"]"
-		                  +" ["+info.getSource()+"]" + " ["+info.getTarget()+"]" 
-					      +" ["+info.getProtocol()+"]" + " ["+info.getParentActionID()+"]");
-		}
+		logger.debug("{} {} bytes in {} milliseconds, data rate={} kB/s)", what, dataSize, consumedMillis);
+		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}] [{}] [{}]"
+				    ,dn, what, dataSize, r,
+				    url, info.getSource(), info.getTarget(), info.getProtocol(),
+				    info.getParentActionID());
 	}
 	
 }

@@ -106,11 +106,8 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 			currentTarget = currentTarget.substring(1);
 		if (localMode) {
 			long size = sourceDesc.getM2();
-			InputStream is = getStorageAdapter().getInputStream(currentSource);
-			try {
+			try(InputStream is = getStorageAdapter().getInputStream(currentSource)){
 				sessionClient.put(currentTarget, size, is);
-			} finally {
-				is.close();
 			}
 		} else {
 			fileList.append("PUT ").append("\"").append(currentSource).append("\" ").append("\"").append(currentTarget)

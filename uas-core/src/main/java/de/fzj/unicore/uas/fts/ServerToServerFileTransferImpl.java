@@ -11,6 +11,8 @@ import org.unigrids.services.atomic.types.ProtocolType;
 
 import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.util.LogUtil;
+import de.fzj.unicore.uas.util.Pair;
+import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
@@ -73,11 +75,19 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		logger.info("Submitted server-to-server transfer with id {} for client {}", action.getUUID(), m.client);
 	}
 
+	/**
+	 * returns <code>true</code> if the file transfer is not yet finished
+	 */
+	protected boolean isFinished(){
+		Status s = getStatus();
+		return s==Status.DONE || s==Status.FAILED || s==Status.ABORTED;
+	}
+	
 	@Override
 	public void destroy() {
 		ServerToServerTransferModel model = getModel();
 		try{
-			if(!model.isFinished()){
+			if(!isFinished()){
 				logger.info("Aborting filetransfer {} for client {}", getUniqueID(), getClient().getDistinguishedName());
 				String id = model.getFileTransferUID();
 				getXNJSFacade().getManager().abort(id, getClient());
@@ -183,24 +193,32 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 	 */
 	protected Action createTransfer()throws Exception{
 		ServerToServerTransferModel model = getModel();
+		String protocol = "BFT";
+		String remote = null;
 		JSONObject j = new JSONObject();
 		j.put("workdir", model.workdir);
 		j.put("extraParameters", JSONUtil.asJSON(model.getExtraParameters()));
 		if(model.getIsExport()){
 			j.put("file", model.source);
 			j.put("target", model.target);
+			remote = model.source;
 		}
 		else{		
 			j.put("file", model.target);
 			j.put("source", model.source);
+			remote = model.source;
 		}
+		try {
+			Pair<String,String>urlInfo = UFileTransferCreator.extractUrlInfo(remote);
+			protocol = urlInfo.getM1();
+		}catch(Exception e) {}
 		logger.debug("FTS action = {}", j.toString(2));
 		Action action = getXNJSFacade().getXNJS().makeAction(j, "FTS", model.getUniqueID());
 		if(model.scheduledStartTime>0){
 			action.setNotBefore(model.scheduledStartTime);
 		}
 		//set the actual protocol
-		model.protocol = ProtocolType.BFT;
+		model.protocol = ProtocolType.Enum.forString(protocol);
 		model.fileTransferUID = action.getUUID();
 		return action;
 	}

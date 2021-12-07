@@ -36,10 +36,4 @@ public class ServerToServerTransferModel extends FileTransferModel {
 		this.fileTransferUID = filetransferUID;
 	}
 
-	/**
-	 * returns <code>true</code> if the file transfer is not yet finished
-	 */
-	protected boolean isFinished(){
-		return status==STATUS_DONE || status==STATUS_FAILED;
-	}
 }

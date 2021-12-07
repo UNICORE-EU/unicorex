@@ -37,6 +37,11 @@ public interface IFTSController {
 	public void setImportPolicy(ImportPolicy policy);
 
 	/**
+	 * set the transfer protocol to use
+	 */
+	public void setProtocol(String protocol);
+
+	/**
 	 * set protocol-dependent extra information
 	 */
 	public default void setExtraParameters(Map<String,String> extraParameters) {}

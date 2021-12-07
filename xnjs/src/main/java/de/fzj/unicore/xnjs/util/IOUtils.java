@@ -216,14 +216,10 @@ public class IOUtils {
 
 
 	public static String readTSIFile(TSI tsi, String name, int limit)throws IOException, ExecutionException{
-		InputStream is=null;
-		try{
-			is=tsi.getInputStream(name);
+		try(InputStream is = tsi.getInputStream(name)){
 			ByteArrayOutputStream bos=new ByteArrayOutputStream();
 			copy(is,bos,limit);
 			return bos.toString();
-		}finally{
-			closeQuietly(is);
 		}
 	}
 

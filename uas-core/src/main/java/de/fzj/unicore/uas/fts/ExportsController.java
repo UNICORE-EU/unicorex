@@ -57,6 +57,8 @@ public class ExportsController implements IFTSController {
 
 	protected final String workingDirectory;
 	
+	protected String protocol;
+	
 	public ExportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageOutInfo dso, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.kernel = xnjs.get(Kernel.class);
@@ -96,6 +98,11 @@ public class ExportsController implements IFTSController {
 		this.extraParameters = extraParameters;
 	}
 
+	@Override
+	public void setProtocol(String protocol) {
+		this.protocol = protocol;
+	}
+	
 	protected void setup() throws Exception {
 		if(remoteStorage==null) {
 			String user = client.getDistinguishedName();
@@ -185,6 +192,7 @@ public class ExportsController implements IFTSController {
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
 		String target = remoteEndpoint.getUrl()+"/files/"+to;
+		if(protocol!=null)target=protocol+":"+target;
 		DataStageOutInfo info = dso.clone();
 		info.setTarget(new URI(target));
 		info.setFileName(from.getPath());

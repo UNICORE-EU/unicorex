@@ -53,10 +53,13 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 
 	private UFTPSessionClient sessionClient;
 
+	private boolean haveJavaClient;
+
 	public RESTUFTPImport(XNJS config){
 		super(config);
 		uftpProperties = kernel.getAttribute(UFTPProperties.class);
 		localMode = uftpProperties.getBooleanValue(UFTPProperties.PARAM_CLIENT_LOCAL);
+		haveJavaClient = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_EXECUTABLE)!=null;
 		info.setProtocol("UFTP");
 		clientHost = setupClientHost();
 		String ip = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_IP);
@@ -101,18 +104,17 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		while(fileName.startsWith("/"))fileName=fileName.substring(1);
 
 		if(localMode){
-			OutputStream os=getStorageAdapter().getOutputStream(currentTarget);
-			try{
+			try(OutputStream os=getStorageAdapter().getOutputStream(currentTarget)){
 				sessionClient.get(fileName, os);
 			}
-			finally{
-				os.close();
-			}
 		}
-		else{
+		else if (haveJavaClient){
 			fileList.append("GET ").
 					append("\"").append(fileName).append("\" ").
 					append("\"").append(currentTarget).append("\"").append("\n");
+		}
+		else {
+			
 		}
 	}
 
@@ -132,7 +134,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		if(localMode){
 			sessionClient.close();
 		}
-		else{
+		else if(haveJavaClient){
 			String root = getStorageAdapter().getStorageRoot();
 			String cmdFile=".uftp-"+info.getUniqueId();
 			OutputStream os=getStorageAdapter().getOutputStream(cmdFile);
@@ -141,7 +143,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 			}finally{
 				os.close();
 			}
-			runAsync(root+"/"+cmdFile);
+			runJavaClientOnTSI(root+"/"+cmdFile);
 		}
 	}
 
@@ -190,8 +192,8 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 
 	private AsyncCommandHelper ach;
 
-	protected void runAsync(String commandFile)throws Exception{
-		String cmd=getCommandLine(commandFile);
+	private void runJavaClientOnTSI(String commandFile)throws Exception{
+		String cmd=getJavaClientCommandLine(commandFile);
 		logger.info("Executing "+cmd);
 		ach=new AsyncCommandHelper(configuration, cmd, info.getUniqueId(), info.getParentActionID(), client);
 		ach.setPreferredExecutionHost(clientHost);
@@ -225,7 +227,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		info.setTransferredBytes(info.getDataSize());
 	}
 
-	private String getCommandLine(String commandFile)throws Exception{
+	private String getJavaClientCommandLine(String commandFile)throws Exception{
 		String uftp = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_EXECUTABLE);
 		UFTPFileTransferClient client = (UFTPFileTransferClient)ftc;
 		String host=client.asString(client.getServerHosts());

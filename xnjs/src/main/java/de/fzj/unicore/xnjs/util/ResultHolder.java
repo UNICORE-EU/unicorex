@@ -37,7 +37,6 @@ public class ResultHolder {
 		config.get(IExecutionContextManager.class).destroyUSpace(a);
 	}
 	
-	
 	public Integer getExitCode(){
 		return a.getExecutionContext().getExitCode();
 	}
@@ -63,8 +62,7 @@ public class ResultHolder {
 	 * @throws ExecutionException
 	 */
 	public String readFile(String file)throws IOException, ExecutionException{
-		String name=a.getExecutionContext().getWorkingDirectory()+"/"+file;
-		return doReadFile(name);
+		return doReadFile(a.getExecutionContext().getWorkingDirectory()+"/"+file);
 	}
 	
 	/**
@@ -75,8 +73,7 @@ public class ResultHolder {
 	 * @throws ExecutionException
 	 */
 	public String readOutcomeFile(String file)throws IOException, ExecutionException{
-		String name=a.getExecutionContext().getOutcomeDirectory()+"/"+file;
-		return doReadFile(name);
+		return doReadFile(a.getExecutionContext().getOutcomeDirectory()+"/"+file);
 	}
 	
 	public Action getAction(){
