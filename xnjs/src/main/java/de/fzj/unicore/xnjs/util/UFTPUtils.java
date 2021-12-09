@@ -19,9 +19,9 @@ public class UFTPUtils {
 				spec.getString("remote"),
 				spec.getString("local"),
 				spec.getString("workdir"),
-				spec.getLong("offset"),
-				spec.getLong("length"),
-				spec.getBoolean("partial"),
+				spec.optLong("offset", 0),
+				spec.optLong("length", -1),
+				spec.optBoolean("partial", false),
 				ec);
 		}
 		else {
@@ -32,9 +32,9 @@ public class UFTPUtils {
 					spec.getString("remote"),
 					spec.getString("local"),
 					spec.getString("workdir"),
-					spec.getLong("offset"),
-					spec.getLong("length"),
-					spec.getBoolean("partial"),
+					spec.optLong("offset", 0),
+					spec.optLong("length", -1),
+					spec.optBoolean("partial", false),
 					ec);
 		}
 

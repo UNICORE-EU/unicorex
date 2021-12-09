@@ -285,7 +285,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 				assertTrue(transferred>0);
 			}
 			else{
-				System.out.println("Error occurred running FTP: "+r.getStdErr());
+				System.out.println("Error occurred running FTP: "+r.getErrorMessage());
 			}
 		}catch(Exception e){
 			e.printStackTrace();

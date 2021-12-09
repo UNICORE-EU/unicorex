@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.google.common.cache.Cache;
@@ -203,11 +204,10 @@ public class Execution extends BasicExecution {
 		if(XNJSConstants.asyncCommandType.equals(job.getType())){
 			SubCommand sc = (SubCommand)job.getAjd();
 			if(sc.type == SubCommand.UFTP) {
-				try
-				{
+				try{
 					return UFTPUtils.makeUFTPCommand(new JSONObject(sc.cmd), job.getExecutionContext());
-				}catch(Exception ex) {
-					throw new ExecutionException("Could not create TSI_UFTP command", ex);
+				}catch(JSONException je) {
+					throw new ExecutionException(je);
 				}
 			}
 		}

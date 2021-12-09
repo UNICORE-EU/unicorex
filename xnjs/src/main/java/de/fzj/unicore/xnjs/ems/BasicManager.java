@@ -57,6 +57,7 @@ import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
 import de.fzj.unicore.xnjs.util.ErrorCode;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
+import eu.unicore.util.Log;
 
 /**
  * Default implementation of the ems manager interfaces<br>
@@ -227,7 +228,8 @@ public class BasicManager implements Manager, InternalManager {
 			a.addLogTrace("Processing failed, aborting");
 			a.addLogTrace(t.getMessage());
 			a.setStatus(ActionStatus.DONE);
-			a.setResult(new ActionResult(ActionResult.NOT_SUCCESSFUL, t.getMessage()));
+			a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
+			a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", t));
 			try{
 				jobs.put(a.getUUID(),a);
 			}catch(PersistenceException pe){

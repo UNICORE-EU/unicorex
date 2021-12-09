@@ -135,8 +135,8 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 	public String getFiletransferStatusMessage(){
 		ActionResult result = getXNJSAction().getResult();
 		if(result!=null)
-			return result.getStatusString()+" "
-			+(result.getErrorMessage()!=null? result.getErrorMessage():"");
+			return result.getStatusString()
+			+(result.getErrorMessage()!=null ? " "+result.getErrorMessage():"");
 		return "OK";
 	}
 
@@ -201,7 +201,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		if(model.getIsExport()){
 			j.put("file", model.source);
 			j.put("target", model.target);
-			remote = model.source;
+			remote = model.target;
 		}
 		else{		
 			j.put("file", model.target);

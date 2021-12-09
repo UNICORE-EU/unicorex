@@ -12,9 +12,11 @@ import org.apache.commons.io.IOUtils;
 
 import de.fzj.unicore.uas.xnjs.RESTFileImportBase;
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
 import de.fzj.unicore.xnjs.util.ResultHolder;
+import de.fzj.unicore.xnjs.util.UFTPUtils;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
@@ -102,6 +104,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 	protected void transferFileFromRemote(FileListEntry currentSource, String currentTarget) throws Exception {
 		String fileName=currentSource.path;
 		while(fileName.startsWith("/"))fileName=fileName.substring(1);
+		while(currentTarget.startsWith("/"))currentTarget=currentTarget.substring(1);
 
 		if(localMode){
 			try(OutputStream os=getStorageAdapter().getOutputStream(currentTarget)){
@@ -114,14 +117,14 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 					append("\"").append(currentTarget).append("\"").append("\n");
 		}
 		else {
-			
+			runTSIClient(fileName, currentTarget);
 		}
 	}
 
 	protected void setupSessionMode()throws Exception{
 		Map<String,String>ep=getExtraParameters();
 		ftc = storage.createExport(UFTPWorker.sessionModeTag, "UFTP", ep);
-		if(localMode) {
+		if(localMode || !haveJavaClient) {
 			UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
 			sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
 			sessionClient.setSecret(secret);
@@ -192,11 +195,10 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 
 	private AsyncCommandHelper ach;
 
-	private void runJavaClientOnTSI(String commandFile)throws Exception{
-		String cmd=getJavaClientCommandLine(commandFile);
-		logger.info("Executing "+cmd);
+	private void runAsync(String cmd, int cmdtype) throws Exception {
 		ach=new AsyncCommandHelper(configuration, cmd, info.getUniqueId(), info.getParentActionID(), client);
 		ach.setPreferredExecutionHost(clientHost);
+		ach.getSubCommand().type = cmdtype;
 		ach.submit();
 		int interval = 2000;
 		do{
@@ -217,13 +219,29 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		if(res.getExitCode()==null || res.getExitCode()!=0){
 			String message="UFTP data download failed.";
 			try{
-				String error=res.getStdErr();
-				if(error!=null)message+=" Error details: "+error;
+				String error = res.getErrorMessage();
+				if(error!=null && error.length()>0)message+=" Error details: "+error;
 			}catch(IOException ex){
-				Log.logException("Could not read UFTP stderr", ex, logger);
+				Log.logException("Could not read UFTP error message", ex, logger);
 			}
 			throw new Exception(message);
 		}
+	}
+	
+	private void runTSIClient(String from, String to) throws Exception {
+		UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
+		String cmd = UFTPUtils.jsonBuilder()
+				.get().from(from).to(to).workdir(workdir)
+				.secret(secret)
+				.host(uftc.getServerHosts()[0].getHostAddress()).port(uftc.getServerPort())
+				.build().toString();
+		runAsync(cmd, SubCommand.UFTP);
+	}
+	
+	private void runJavaClientOnTSI(String commandFile)throws Exception{
+		String cmd=getJavaClientCommandLine(commandFile);
+		logger.info("Executing "+cmd);
+		runAsync(cmd, SubCommand.NORMAL);
 		info.setTransferredBytes(info.getDataSize());
 	}
 

@@ -136,7 +136,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 				if(res!=null && res.getResult().getErrorMessage()!=null){
 					statusMessage+=" Error message: "+res.getResult().getErrorMessage();
 				}
-				String error=res.getStdErr();
+				String error=res.getErrorMessage();
 				if(error!=null && error.trim().length()>0){
 					statusMessage+=" Error details: "+error;
 				}

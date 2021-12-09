@@ -45,8 +45,18 @@ public class ResultHolder {
 		return a.getResult();
 	}
 	
-	public String getStdErr()throws IOException, ExecutionException{
-		return readOutcomeFile(a.getExecutionContext().getStderr());
+	public String getErrorMessage()throws IOException, ExecutionException{
+		StringBuilder err = new StringBuilder();
+		err.append(getResult().getErrorMessage());
+		try{
+			if(err.length()>0)err.append(" ");
+			err.append("stderr: ");
+			err.append(readOutcomeFile(a.getExecutionContext().getStderr()));
+		}catch(Exception ex) {
+			err.append("n/a (could not read stderr file)");
+		}
+		err.append("]");
+		return err.toString();
 	}
 	
 	public InputStream getInputStream(String stream)throws IOException, ExecutionException{

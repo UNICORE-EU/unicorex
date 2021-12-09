@@ -159,11 +159,11 @@ public class FTSProcessor extends DefaultProcessor {
 			if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
 			Iterator<FTSTransferInfo>iter = ftList.iterator();
 			int running = info.getRunningTransfers();
-			System.out.println("RUNNING "+action.getUUID()+ " have "+ftList.size());
+			logger.trace("RUNNING {} have {}", action.getUUID(), ftList.size());
 			while(iter.hasNext()){
 				try {
 					FTSTransferInfo ftInfo = iter.next();
-					System.out.println(ftInfo);
+					logger.trace(ftInfo);
 					Status status = ftInfo.getStatus();
 
 					switch(status) {
@@ -190,9 +190,37 @@ public class FTSProcessor extends DefaultProcessor {
 
 			if(running==0){
 				action.addLogTrace("All transfers finished.");
+				boolean success = true;
+				boolean aborted = false;
+				StringBuilder errors = new StringBuilder();
+				for(FTSTransferInfo tr: ftList) {
+					if(tr.getStatus()==Status.FAILED) {
+						success = false;
+						if(errors.length()>0)errors.append("; ");
+						errors.append(tr.getStatusMessage());
+					}
+					if(tr.getStatus()==Status.ABORTED) {
+						aborted = true;
+						if(errors.length()>0)errors.append("; ");
+						errors.append("User aborted");
+					}
+				}
+				
 				action.setStatus(ActionStatus.DONE);
-				action.setResult(new ActionResult(ActionResult.SUCCESSFUL));
+				action.getResult().setErrorMessage(errors.toString());
+				if(aborted) {
+					action.getResult().setStatusCode(ActionResult.USER_ABORTED);
+				}
+				else if(!success) {
+					action.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
+				}
+				else {
+					action.getResult().setStatusCode(ActionResult.SUCCESSFUL);
+				}
 				logger.debug("File transfers <{}> done.", action.getUUID());
+			}
+			else {
+				sleep(5);
 			}
 		}
 		finally {
