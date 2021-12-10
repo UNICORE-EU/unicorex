@@ -159,11 +159,15 @@ public class Storages extends ServicesBase {
 			JSONObject json = new JSONObject(jsonString);
 			String source, target;
 			String localPath = json.getString("file");
+			String protocol = json.optString("protocol", null);
 			boolean isExport = false;
 			String remote = json.optString("source", null);
 			if(remote == null){
 				remote = json.getString("target");
 				isExport = true;
+			}
+			if(protocol!=null && !remote.startsWith(protocol+":")) {
+				remote = protocol+":"+remote;
 			}
 			if(isExport){
 				source = localPath;

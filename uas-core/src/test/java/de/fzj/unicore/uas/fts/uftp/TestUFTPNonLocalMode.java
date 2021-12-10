@@ -18,7 +18,6 @@ import org.junit.Test;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import eu.unicore.services.Kernel;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.Job;
 import eu.unicore.client.core.CoreClient;
@@ -28,6 +27,7 @@ import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.HttpFileTransferClient;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.client.UsernamePassword;
 
 /**

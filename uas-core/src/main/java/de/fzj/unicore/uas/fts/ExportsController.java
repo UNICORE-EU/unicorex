@@ -155,7 +155,7 @@ public class ExportsController implements IFTSController {
 			SourceFileInfo sfi = new SourceFileInfo();
 			sfi.setPath(source);
 			sfi.setSize(dataSize);
-			fileList.add(new FTSTransferInfo(sfi, dso.getTarget().toString(), false));
+			fileList.add(new FTSTransferInfo(sfi, UFileTransferCreator.getFileSpec(dso.getTarget().toString()), false));
 		}
 		
 		return dataSize;

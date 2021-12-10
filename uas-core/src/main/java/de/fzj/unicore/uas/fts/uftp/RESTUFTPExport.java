@@ -13,7 +13,6 @@ import org.apache.commons.io.IOUtils;
 
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
-import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
@@ -104,11 +103,8 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	 */
 	@Override
 	protected void transferFileFromRemote(Pair<String,Long> sourceDesc, String currentTarget) throws Exception {
-
 		String currentSource = sourceDesc.getM1();
-		
-		currentTarget  = UFileTransferCreator.getFileSpec(currentTarget);
-		
+
 		// chop off leading "/" since UFTPD will otherwise treat it as an
 		// absolute filename
 		while (currentTarget.startsWith("/"))currentTarget = currentTarget.substring(1);

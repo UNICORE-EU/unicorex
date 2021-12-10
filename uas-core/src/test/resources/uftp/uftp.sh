@@ -25,4 +25,4 @@ CLASSPATH=$CP; export CLASSPATH
 #
 # go
 #
-$JAVA -Xmx128m  eu.unicore.uftp.client.UFTPClient ${1+"$@"}
+$JAVA -Xmx128m  eu.unicore.uftp.client.ClientFactory ${1+"$@"}

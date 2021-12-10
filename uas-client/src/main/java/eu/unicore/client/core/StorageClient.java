@@ -227,15 +227,15 @@ public class StorageClient extends BaseServiceClient {
 	/**
 	 * initiate a server-server transfer, which will fetch a remote file to this storage
 	 * 
-	 * @param sourceURL
-	 * @param fileName
-	 * @param protocol
+	 * @param sourceURL - the URL of the remote file to fetch
+	 * @param fileName  - the local file name
+	 * @param protocol  - protocol to use, can be null if default BFT is used or protocol is encoded into source URL
 	 */
 	public TransferControllerClient fetchFile(String sourceURL, String fileName, String protocol) throws Exception {
 		JSONObject json = new JSONObject();
 		json.put("source", sourceURL);
 		json.put("file", fileName);
-		json.put("protocol",protocol);
+		if(protocol!=null)json.put("protocol",protocol);
 		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
 		HttpResponse res = c.post(json);
 		c.checkError(res);
@@ -246,15 +246,15 @@ public class StorageClient extends BaseServiceClient {
 	/**
 	 * initiate a server-server transfer, which will send a file from this storage to a remote location
 	 * 
-	 * @param fileName
-	 * @param targetURL
-	 * @param protocol
+	 * @param fileName  - local file to send
+	 * @param targetURL - the remote file URL
+	 * @param protocol  - protocol, can be null if default BFT is used or protocol is encoded into the target URL
 	 */
 	public TransferControllerClient sendFile(String fileName, String targetURL, String protocol) throws Exception {
 		JSONObject json = new JSONObject();
 		json.put("file", fileName);
 		json.put("target", targetURL);
-		json.put("protocol",protocol);
+		if(protocol!=null)json.put("protocol",protocol);
 		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
 		HttpResponse res = c.post(json);
 		c.checkError(res);
