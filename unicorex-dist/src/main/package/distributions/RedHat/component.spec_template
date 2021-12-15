@@ -9,7 +9,7 @@ Summary: UNICORE/X Server
 License: BSD
 Distribution: RedHat
 Group: System Environment/Daemons
-URL: http://www.unicore.eu
+URL: https://www.unicore.eu
 Requires: java-1.@java-main-version@.0-openjdk
 AutoReqProv: no
 BuildArch: @component-architecture@
@@ -24,8 +24,8 @@ in a seamless and secure way in intranets and the internet.
 This package contains the UNICORE/X server.
 
 %changelog
-* Tue Aug 03 2021 Bernd Schuller <unicore-support@lists.sourceforge.net> 
--v8.2.0
+* @release-timestamp@ Bernd Schuller <unicore-support@lists.sourceforge.net> 
+-v@component-version@
 * Wed Oct 06 2010 Andre Giesler <unicore-support@lists.sourceforge.net> 
 -Initial rpm package
 

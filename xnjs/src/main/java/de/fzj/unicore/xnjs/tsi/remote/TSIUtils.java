@@ -632,6 +632,7 @@ public class TSIUtils {
 		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
 		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutcomeDirectory());
 		commands.append("\n#TSI_STDOUT ").append(ec.getStdout());
+		commands.append("\n#TSI_STDERR ").append(ec.getStderr());
 		commands.append("\n#TSI_PID_FILE ").append(ec.getPIDFileName());
 		commands.append("\n#TSI_EXIT_CODE_FILE ").append(ec.getExitCodeFileName());
 		commands.append("\n");

@@ -4,8 +4,8 @@ Installation
 Prerequisites
 ~~~~~~~~~~~~~ 
 
-To run the Registry, you need the OpenJDK or Oracle Java (JRE or SDK). 
-We recommend using the latest version of Java 8.
+To run the Registry, you need the OpenJDK or Oracle Java (JRE or SDK),
+in version 8 or later.
 
 UNICORE has been most extensively tested on Linux-like systems, but
 runs on MacOS/X as well.
@@ -168,22 +168,11 @@ CONF/container.properties
 container.wsrf.sg.defaulttermtime=1800
 -----------------------
 
-
-
-# manually provide url and epr of the external registry
-# url:
-container.externalregistry.url=https://localhost:8080/REGISTRY/rest/registries/default_registry
-
-# optionally you can have more registries
-container.externalregistry.url.2=https://localhost:8080/REGISTRY-BACKUP/rest/registries/default_registry
------------------------
-
-
   
 Client configuration
 ~~~~~~~~~~~~~~~~~~~
 
-Clients will require the URL of global, shared Registry.
+Clients will require the URL of a Registry.
 For example, in the UCC preferences file (supply the correct values
 for your setup):
 
