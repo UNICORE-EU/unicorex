@@ -20,10 +20,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <properties>
-    <specification.version>8.2.0</specification.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

@@ -6,12 +6,12 @@
   <packaging>pom</packaging>
   <description>Build UNICORE/X distribution</description>
   <inceptionYear>2011</inceptionYear>
-  <url>http://www.unicore.eu</url>
+  <url>https://www.unicore.eu</url>
 
   <name>Distribution of the UNICORE/X server</name>
 
   <!-- this is the "release" version -->
-  <version>8.3.0</version>
+  <version>${specificationVersion}</version>
 
   <parent>
     <groupId>eu.unicore</groupId>

@@ -25,6 +25,9 @@
   </issueManagement>
 
   <properties>
+    <!-- goes into .jar manifests -->
+    <specification.version>8.3.0</specification.version>
+
     <compiler.fork>false</compiler.fork>
     <use.version>4.3.0</use.version>
     <persistence.version>0.205</persistence.version>
