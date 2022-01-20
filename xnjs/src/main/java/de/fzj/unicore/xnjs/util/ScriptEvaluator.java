@@ -8,7 +8,7 @@ import eu.unicore.util.Log;
 import groovy.lang.GroovyShell;
 
 /**
- * evaluates Groovy scripts to generate values sets for iterators 
+ * evaluates Groovy scripts to generate dynamic values for resource requests
  * 
  * @author schuller
  */
