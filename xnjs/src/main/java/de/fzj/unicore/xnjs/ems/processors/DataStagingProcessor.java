@@ -121,6 +121,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 						if(dst instanceof DataStageInInfo){
 							DataStageInInfo in=(DataStageInInfo)dst;
 							ft=createImport(workingDirectory, in);
+							ft.setUmask(action.getUmask());
 						}
 						else{
 							DataStageOutInfo out=(DataStageOutInfo)dst;

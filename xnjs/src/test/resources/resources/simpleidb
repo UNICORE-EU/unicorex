@@ -1,149 +1,65 @@
-<?xml version="1.0" encoding="UTF-8"?>
+{
 
-<!--
- a sample idb file 
- -->
+"Applications": [
 
-<idb:IDB xmlns:idb="http://www.fz-juelich.de/unicore/xnjs/idb">
+  {
+	"Name": "Date",
+	"Version": "1.0",
+	"Executable": "/bin/date",
+	"Arguments": ["$ARGUMENTS?"]
+  }
   
-  <!-- Applications -->
-  
-  <idb:IDBApplication>
-    <idb:ApplicationName>Date</idb:ApplicationName>
-    <idb:ApplicationVersion>1.0</idb:ApplicationVersion>
-    <jsdl:POSIXApplication xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl-posix">
-      <jsdl:Executable>/bin/date</jsdl:Executable>
-      <jsdl:Argument>$ARGUMENTS?</jsdl:Argument>
-    </jsdl:POSIXApplication>
-  </idb:IDBApplication>
-  <idb:ExecuteScriptTemplate>#!/bin/sh
-export TEST="this is a test for the template mechanism"
-#COMMAND
-#RESOURCES
-#SCRIPT
-</idb:ExecuteScriptTemplate>
+],
 
+"ExecuteScriptTemplate": [
+  "#!/bin/sh",
+  "export TEST='this is a test for the template mechanism'",
+  "#COMMAND",
+  "#RESOURCES",
+  "#SCRIPT"
+],
 
-  <idb:TargetSystemProperties>
-    <jsdl:Resources xmlns:jsdl="http://schemas.ggf.org/jsdl/2005/11/jsdl">
-      <jsdl:CPUArchitecture>
-        <jsdl:CPUArchitectureName>x86</jsdl:CPUArchitectureName>
-      </jsdl:CPUArchitecture>
-      
-      <!-- O/S -->
-      <jsdl:OperatingSystem>
-       <jsdl:OperatingSystemType>
-       <jsdl:OperatingSystemName>LINUX</jsdl:OperatingSystemName>
-       </jsdl:OperatingSystemType>
-       <jsdl:OperatingSystemVersion>2.6.13</jsdl:OperatingSystemVersion>
-       <jsdl:Description>A free UNIX clone</jsdl:Description>
-      </jsdl:OperatingSystem>
+   "Partitions": {
+   	"normal" : {
+   		"IsDefaultPartition": "true",
+   		"Resources" : {
+   		        "Runtime": "1-86000:3600",
+				"Nodes" : "1-4:1",
+				"CPUsPerNode" : "1-4:1",
+				"TotalCPUs" : "1-16",
+				"MemoryPerNode" : "1G-8G",
+				"Project": {
+				  "Type": "CHOICE",
+				  "Default": "NONE",
+				  "AllowedValues": ["NONE", "bioinformatics", "physics", "qcd"]
+				},
+				"AStringResource": {
+				    "Type": "string",
+					"Default": "test"
+				},
+				"GPUsPerNode" : "1-16:1"
+	    	}
+   	},
+   	
+   	"fast" : {
+   		"Resources" : {
+   		        "Runtime": "1-86000:3600",
+				"Nodes" : "1-2:1",
+				"CPUsPerNode" : "1-4:1",
+				"TotalCPUs" : "1-8",
+				"MemoryPerNode" : "1G-8G",
+				"Project": {
+				  "Type": "CHOICE",
+				  "Default": "NONE",
+				  "AllowedValues": ["NONE", "bioinformatics", "physics", "qcd"]
+				},
+				"AStringResource": {
+				    "Type": "string",
+					"Default": "test"
+				}
+	    	}
+   	}
 
-
-<!-- JSDL style -->
-
-      <!-- wall time in seconds -->
-      <jsdl:IndividualCPUTime>
-        <jsdl:Exact>3600</jsdl:Exact>
-        <jsdl:Range>
-         <jsdl:LowerBound>1</jsdl:LowerBound>
-         <jsdl:UpperBound>86400</jsdl:UpperBound>
-        </jsdl:Range>
-      </jsdl:IndividualCPUTime>
+   }
  
-      <!-- CPUs per node -->
-      <jsdl:IndividualCPUCount>
-        <jsdl:Exact>1.0</jsdl:Exact>
-        <jsdl:Range>
-         <jsdl:LowerBound>1.0</jsdl:LowerBound>
-         <jsdl:UpperBound>4.0</jsdl:UpperBound>
-        </jsdl:Range>
-      </jsdl:IndividualCPUCount>
-
-      <!-- total CPUs -->
-      <jsdl:TotalCPUCount>
-       <!-- this exact value is redundant and will be ignored -->
-       <jsdl:Exact>1.0</jsdl:Exact>
-       <jsdl:Range>
-         <jsdl:LowerBound>1.0</jsdl:LowerBound>
-         <jsdl:UpperBound>16.0</jsdl:UpperBound>
-       </jsdl:Range>
-      </jsdl:TotalCPUCount>
-
-      <!-- Memory per node (bytes) -->
-      <jsdl:IndividualPhysicalMemory>
-        <jsdl:Exact>268435456</jsdl:Exact>
-        <jsdl:Range>
-         <jsdl:LowerBound>1024576</jsdl:LowerBound>
-         <jsdl:UpperBound>1073741824</jsdl:UpperBound>
-        </jsdl:Range>
-      </jsdl:IndividualPhysicalMemory>
-      
-      <!-- Nodes -->
-      <jsdl:TotalResourceCount>
-      <jsdl:Exact>1.0</jsdl:Exact>
-        <jsdl:Range>
-         <jsdl:LowerBound>1.0</jsdl:LowerBound>
-         <jsdl:UpperBound>4.0</jsdl:UpperBound>
-        </jsdl:Range>
-      </jsdl:TotalResourceCount>
-   
-      
-   <!-- non JSDL resources -->
- 
-   <!-- Queue as a choice -->
-   <idb:Resource>
-     <idb:Name>Queue</idb:Name>
-     <idb:Description>The batch system queue</idb:Description>
-     <idb:Type>choice</idb:Type>
-     <idb:AllowedValue>slow</idb:AllowedValue>
-     <idb:AllowedValue>normal</idb:AllowedValue>
-     <idb:AllowedValue>fast</idb:AllowedValue>
-     <idb:Default>normal</idb:Default>
-   </idb:Resource>
- 
-   <!-- integer-valued -->
-   <idb:Resource>
-     <idb:Name>GPUsPerNode</idb:Name>
-     <idb:Description>Number of GPUs per node</idb:Description>
-     <idb:Type>int</idb:Type>
-     <idb:Min>1</idb:Min>
-     <idb:Max>16</idb:Max>
-     <idb:Default>1</idb:Default>
-   </idb:Resource>
- 
-    <!-- string-valued -->
-   <idb:Resource>
-     <idb:Name>AStringResource</idb:Name>
-     <idb:Description>Some test string resource</idb:Description>
-     <idb:Type>string</idb:Type>
-     <idb:Default>test123</idb:Default>
-   </idb:Resource>
-      
-   <!-- Available projects as a choice -->
-   <idb:Resource>
-     <idb:Name>Project</idb:Name>
-     <idb:Description>Available projects at this site</idb:Description>
-     <idb:Type>choice</idb:Type>
-     <idb:AllowedValue>NONE</idb:AllowedValue>
-     <idb:AllowedValue>qcd</idb:AllowedValue>
-     <idb:AllowedValue>solidstate</idb:AllowedValue>
-     <idb:AllowedValue>astrophysics</idb:AllowedValue>
-     <idb:AllowedValue>bioinformatics</idb:AllowedValue>
-     <idb:AllowedValue>materialscience</idb:AllowedValue>
-     <idb:Default>NONE</idb:Default>
-   </idb:Resource>
-   
-   </jsdl:Resources>
- 
-    <!-- file systems -->
-    <idb:FileSystem Name="Test1" IncarnatedPath="/tmp/test1"/>
-    <idb:FileSystem Name="Test2" IncarnatedPath="/tmp/test2"/>
-    
-    <!-- text infos -->
-    <idb:Info Name="CPMD_LIBRARY_PATH">/usr/share/lib/cpmd.so</idb:Info>
-    <idb:Info Name="VISIT_PROXY">/opt/visit/proxy</idb:Info>
-
-  </idb:TargetSystemProperties> 
-
-</idb:IDB>
+}

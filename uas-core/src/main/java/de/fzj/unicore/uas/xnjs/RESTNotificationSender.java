@@ -11,7 +11,7 @@ import javax.inject.Singleton;
 import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.impl.job.ws.StatusInfoResourceProperty;
+import de.fzj.unicore.uas.rest.Jobs;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStateChangeListener;
@@ -74,7 +74,7 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 		final JSONObject message = new JSONObject();
 		message.put("href", kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs/"+action.getUUID());
 		ActionResult result = action.getResult();
-		message.put("status", String.valueOf(StatusInfoResourceProperty.convertStatus(action.getStatus(),result.isSuccessful())));
+		message.put("status", Jobs.convertStatus(action.getStatus(),result.isSuccessful()));
 		message.put("statusMessage", "");
 		Integer exitCode = action.getExecutionContext().getExitCode();
 		if(exitCode!=null){

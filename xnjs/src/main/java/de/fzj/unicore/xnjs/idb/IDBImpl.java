@@ -29,7 +29,6 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.FileFilter;
 import de.fzj.unicore.xnjs.io.SimpleFindOptions;
 import de.fzj.unicore.xnjs.io.XnjsFile;
-import de.fzj.unicore.xnjs.jsdl.XmlIDB;
 import de.fzj.unicore.xnjs.json.JsonIDB;
 import de.fzj.unicore.xnjs.resources.Resource.Category;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
@@ -442,31 +441,29 @@ public class IDBImpl implements IDB {
 		synchronized(idb){
 			lastUpdate = System.currentTimeMillis();
 			clear();
-			handle(idbFile);
-			if(mainFile!=null){
-				handleFile(mainFile);
+			Collection<File>fileList = getFilesForReading();
+			for(File f: fileList) {
+				handleFile(f);
 			}
 		}
 	}
-	
-	protected void handle(File file) throws Exception {
-		if(file.isHidden()){
-			return;
-		}
-		if(file.isDirectory()){
-			for(File f: file.listFiles(onlyRegularFiles)){
-				handle(f);
+
+	protected Set<File>getFilesForReading(){
+		Set<File> fileList = new HashSet<>();
+		if(idbFile.isDirectory()) {
+			for(File f: idbFile.listFiles(onlyRegularFiles)){
+				fileList.add(f.getAbsoluteFile());
 			}
 		}
 		else {
-			try{
-				handleFile(file);
-			}catch(Exception ex){
-				logger.error("Error processing IDB file <"+file+">",ex);
-			}
+			fileList.add(idbFile.getAbsoluteFile());
 		}
+		if(mainFile!=null){
+			fileList.add(mainFile.getAbsoluteFile());
+		}
+		return fileList;
 	}
-	
+
 	private static FilenameFilter onlyRegularFiles = new FilenameFilter() {
 		@Override
 		public boolean accept(File dir, String name) {
@@ -488,10 +485,11 @@ public class IDBImpl implements IDB {
 	public IDBParser getParser(File file) {
 		boolean json = false;
 		try (InputStream fis = new FileInputStream(file)){
-			String content = IOUtils.toString(fis, "UTF-8");
-			json = content.startsWith("{");
+			new JSONObject(IOUtils.toString(fis, "UTF-8"));
+			json = true;
 		}catch(Exception ex) {}
-		return json? new JsonIDB(this) : new XmlIDB(this);
+		if(!json)throw new IllegalArgumentException("IDB is not in JSON format");
+		return new JsonIDB(this);
 	}
 	
 	protected IDBParser getParser(InputStream source) throws Exception {
@@ -501,7 +499,8 @@ public class IDBImpl implements IDB {
 			new JSONObject(data);
 			json = true;
 		}catch(Exception ex) {}
-		return json? new JsonIDB(this, data) : new XmlIDB(this, data);
+		if(!json)throw new IllegalArgumentException("IDB is not in JSON format");
+		return new JsonIDB(this, data);
 	}
 	
 	/**

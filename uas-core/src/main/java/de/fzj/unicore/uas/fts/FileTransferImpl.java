@@ -42,7 +42,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
-import org.unigrids.x2006.x04.services.fts.SummaryType;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
@@ -74,12 +73,6 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	 * The class must extend {@link FileTransferImpl}
 	 */
 	public static final String CONFIG_PROTOCOL_KEY="uas.filetransfer.protocol.";
-
-	protected static final int STATUS_RUNNING=SummaryType.INT_RUNNING;
-	protected static final int STATUS_DONE=SummaryType.INT_DONE;
-	protected static final int STATUS_FAILED=SummaryType.INT_FAILED;
-	protected static final int STATUS_UNDEFINED=SummaryType.INT_UNDEFINED;
-	protected static final int STATUS_READY=SummaryType.INT_READY;
 
 	public FileTransferImpl(){
 		super();
@@ -199,7 +192,7 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	protected String makeQualifiedURI(String path){
 		String serviceSpec = getModel().getServiceSpec();
 		String serviceURL=WSServerUtilities.makeAddress(serviceSpec, kernel.getContainerProperties());
-		String prefix=getModel().getProtocol().toString().toLowerCase()+":"+serviceURL+"#";
+		String prefix=getModel().getProtocol().toLowerCase()+":"+serviceURL+"#";
 		return urlEncode(prefix+path);
 	}
 
@@ -228,11 +221,11 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	}
 
 	protected void setReady(){
-		setStatus(STATUS_READY, "Ready.");;
+		setStatus(FileTransferModel.STATUS_READY, "Ready.");;
 	}
 
 	protected void setOK(){
-		setStatus(STATUS_RUNNING,"OK.");
+		setStatus(FileTransferModel.STATUS_RUNNING,"OK.");
 	}
 
 	@Override

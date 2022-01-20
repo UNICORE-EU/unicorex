@@ -38,7 +38,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.uas.TargetSystemFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;

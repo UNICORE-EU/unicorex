@@ -21,7 +21,6 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.impl.job.JobModel;
-import de.fzj.unicore.uas.impl.job.ws.StatusInfoResourceProperty;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
@@ -29,6 +28,7 @@ import de.fzj.unicore.uas.json.Builder;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
+import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import eu.unicore.security.AuthorisationException;
@@ -36,7 +36,6 @@ import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
-import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
@@ -109,7 +108,7 @@ public class Jobs extends ServicesBase {
 			checkSubmissionEnabled(kernel);
 			Builder job = new Builder(json);
 			TargetSystemImpl tss = findTSS(job);
-			String location = doSubmit(job, tss, kernel, getBaseURL());
+			String location = doSubmit(job, tss, kernel, baseURL);
 			return Response.created(new URI(location)).build();
 		}catch(Exception ex){
 			int status = 500;
@@ -160,7 +159,7 @@ public class Jobs extends ServicesBase {
 		Client client=AuthZAttributeStore.getClient();
 		XNJSFacade xnjs=XNJSFacade.get(xnjsReference,kernel);
 		ActionResult result=a.getResult();
-		o.put("status", String.valueOf(StatusInfoResourceProperty.convertStatus(a.getStatus(),result.isSuccessful())));
+		o.put("status", convertStatus(a.getStatus(),result.isSuccessful()));
 		o.put("statusMessage", "");
 		Integer exitCode=xnjs.getExitCode(actionID,client);
 		if(exitCode!=null){
@@ -192,14 +191,14 @@ public class Jobs extends ServicesBase {
 		super.updateLinks();
 		JobModel model = getModel();
 
-		links.add(new Link("workingDirectory",RESTUtils.makeHref(kernel, "core/storages", model.getUspaceId()),"Working directory"));
-		links.add(new Link("parentTSS",RESTUtils.makeHref(kernel, "core/sites", model.getParentUID()),"Parent TSS"));
-		links.add(new Link("details",getBaseURL()+"/jobs/"+resource.getUniqueID()+"/details","BSS job details"));
+		links.add(new Link("workingDirectory", baseURL+"/storages/"+model.getUspaceId(),"Working directory"));
+		links.add(new Link("parentTSS", baseURL+"/sites/"+model.getParentUID(), "Parent TSS"));
+		links.add(new Link("details", baseURL+"/jobs/"+resource.getUniqueID()+"/details", "BSS job details"));
 
 		// TODO these should be state-dependent
-		links.add(new Link("action:start",getBaseURL()+"/jobs/"+resource.getUniqueID()+"/actions/start","Start"));
-		links.add(new Link("action:abort",getBaseURL()+"/jobs/"+resource.getUniqueID()+"/actions/abort","Abort"));
-		links.add(new Link("action:restart",getBaseURL()+"/jobs/"+resource.getUniqueID()+"/actions/restart","Restart"));
+		links.add(new Link("action:start", baseURL+"/jobs/"+resource.getUniqueID()+"/actions/start","Start"));
+		links.add(new Link("action:abort", baseURL+"/jobs/"+resource.getUniqueID()+"/actions/abort","Abort"));
+		links.add(new Link("action:restart", baseURL+"/jobs/"+resource.getUniqueID()+"/actions/restart","Restart"));
 
 	}
 
@@ -237,10 +236,7 @@ public class Jobs extends ServicesBase {
 	public static String doSubmit(Builder job, TargetSystemImpl tss, Kernel kernel, String baseURL) 
 	throws Exception {
 		boolean autoRun = !Boolean.parseBoolean(job.getProperty("haveClientStageIn"));
-		boolean forceJSDL = Boolean.parseBoolean(job.getProperty("forceJSDL"));
-		String id = forceJSDL?
-				tss.submit(job.getJob(), autoRun, null, job.getTags())
-				: tss.submit(job.getJSON(), autoRun, null, job.getTags());
+		String id = tss.submit(job.getJSON(), autoRun, null, job.getTags());
 		// store new job ID in model - need a write lock on the tss
 		TargetSystemImpl tss2 = null;
 		try {
@@ -261,4 +257,51 @@ public class Jobs extends ServicesBase {
 		}
 	}
 
+	/**
+	 * converts from the XNJS action status to state from unigridsTypes.xsd
+	 * 
+	 * <xsd:simpleType name="StatusType">
+	 <xsd:restriction base="xsd:string">
+	 <xsd:enumeration value="UNDEFINED"/>
+	 <xsd:enumeration value="READY"/>
+	 <xsd:enumeration value="QUEUED"/>
+	 <xsd:enumeration value="RUNNING"/>
+	 <xsd:enumeration value="SUCCESSFUL"/>
+	 <xsd:enumeration value="FAILED"/>
+	 <xsd:enumeration value="STAGINGIN"/>
+	 <xsd:enumeration value="STAGINGOUT"/>
+	 </xsd:restriction>
+	 </xsd:simpleType>
+	 *
+	 * @param emsStatus
+	 * @return UNICORE status
+	 */
+	public static String convertStatus(Integer emsStatus, boolean successful){
+		int i=emsStatus.intValue(); 
+		switch (i){
+			case ActionStatus.PREPROCESSING: 
+				return "STAGINGIN";
+			case ActionStatus.POSTPROCESSING: 
+				return "STAGINGOUT";
+			case ActionStatus.RUNNING: 
+				return "RUNNING";
+			case ActionStatus.PENDING:
+				return "QUEUED";
+			case ActionStatus.QUEUED:
+				return "QUEUED";
+			case ActionStatus.READY: 
+			case ActionStatus.CREATED:
+				return "READY";
+			case ActionStatus.DONE:
+				if(successful){
+					return "SUCCESSFUL";
+				}
+				else{
+					return "FAILED";
+				}
+			default:
+				return "UNDEFINED";
+		}
+	}
+	
 }

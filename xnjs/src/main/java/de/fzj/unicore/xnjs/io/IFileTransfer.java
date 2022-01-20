@@ -108,4 +108,9 @@ public interface IFileTransfer extends Runnable {
 	 */
 	public TransferInfo getInfo();
 	
+	/**
+	 * set the file creation umask
+	 */
+	public default void setUmask(String umask) {}
+	
 }

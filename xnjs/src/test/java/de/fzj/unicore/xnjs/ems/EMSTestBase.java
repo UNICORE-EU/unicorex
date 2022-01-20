@@ -39,11 +39,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.json.JSONObject;
 import org.junit.Before;
 
@@ -79,16 +76,7 @@ public abstract class EMSTestBase extends XNJSTestBase {
 			}
 		};
 	}
-	
-	/**
-	 * build a JobDefinition document from an XML file on the file system
-	 */
-	protected JobDefinitionDocument getJSDLDoc(String name) throws Exception {
-		try (InputStream is = new FileInputStream(name)){
-			return JobDefinitionDocument.Factory.parse(is);
-		} 
-	}
-	
+
 	protected JSONObject loadJSONObject(String name) throws Exception {
 		return new JSONObject(FileUtils.readFileToString(new File(name), "UTF-8"));
 	}

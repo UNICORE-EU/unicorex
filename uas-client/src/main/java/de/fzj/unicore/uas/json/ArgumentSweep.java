@@ -5,27 +5,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.xmlbeans.XmlString;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.ogf.schemas.jsdl.x2009.x03.sweep.AssignmentDocument;
-import org.ogf.schemas.jsdl.x2009.x03.sweep.DocumentNodeDocument;
-import org.ogf.schemas.jsdl.x2009.x03.sweep.NamespaceBindingDocument.NamespaceBinding;
-import org.ogf.schemas.jsdl.x2009.x03.sweep.functions.ValuesDocument;
-
-import eu.unicore.services.ws.WSUtilities;
 
 /**
  * Helper for dealing with JSDL argument sweep
  *
  * @author schuller
  */
-public class ArgumentSweep implements DocumentSweep{
+public class ArgumentSweep {
 
 	protected final int argNo;
 	
-	List<String>values=new ArrayList<String>();
+	List<String>values = new ArrayList<>();
 	
 	public ArgumentSweep(int argNo){
 		this.argNo=argNo;
@@ -86,26 +79,5 @@ public class ArgumentSweep implements DocumentSweep{
 		}
 		else throw new IllegalArgumentException("Step must be non-zero");
 	}
-	
-	
-	public AssignmentDocument render(){
-		AssignmentDocument res=AssignmentDocument.Factory.newInstance();
-		res.addNewAssignment();
-		DocumentNodeDocument dn=DocumentNodeDocument.Factory.newInstance();
-		NamespaceBinding nb=dn.addNewDocumentNode().addNewNamespaceBinding();
-		nb.setNs("http://schemas.ggf.org/jsdl/2005/11/jsdl-posix");
-		nb.setPrefix("jsdl-posix");
-		dn.getDocumentNode().setMatch("//jsdl-posix:Argument["+argNo+"]");
-		ValuesDocument vd=ValuesDocument.Factory.newInstance();
-		vd.addNewValues();
-		for(String v: values){
-			XmlString xs=XmlString.Factory.newInstance();
-			xs.setStringValue(v);
-			vd.getValues().addNewValue().set(xs);
-		}
-		WSUtilities.append(dn, res);
-		WSUtilities.append(vd, res);
-		return res;
-	}
-	
+
 }

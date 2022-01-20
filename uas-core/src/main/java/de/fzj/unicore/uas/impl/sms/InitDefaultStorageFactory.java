@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
-import de.fzj.unicore.uas.StorageFactory;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
@@ -67,7 +66,7 @@ public class InitDefaultStorageFactory implements Runnable{
 			}finally{
 				smfLock.unlock();
 			}
-			DefaultOnStartup.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, StorageFactory.SMF_PORT);
+			DefaultOnStartup.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, "StorageFactory");
 		}
 	}
 

@@ -8,7 +8,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
-import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
+import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 
@@ -87,7 +87,7 @@ public class TestJobControl extends EMSTestBase {
 		a.printLogTrace();
 		assertTrue(a.getLog().toString().contains("RESTARTING"));
 		//print stats
-		String timeProfile=JSDLProcessor.getTimeProfile(a.getProcessingContext());
+		String timeProfile = JobProcessor.getTimeProfile(a.getProcessingContext());
 		System.out.println(timeProfile);
 	}
 

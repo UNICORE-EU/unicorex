@@ -7,25 +7,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
-import org.unigrids.services.atomic.types.ACLEntryTypeType;
-import org.unigrids.services.atomic.types.PermissionsType;
-import org.unigrids.x2006.x04.services.sms.ACLChangeModeType;
-import org.unigrids.x2006.x04.services.sms.ChangeACLEntryType;
-import org.unigrids.x2006.x04.services.sms.ChangeACLType;
-import org.unigrids.x2006.x04.services.sms.ChangePermissionsEntryType;
-import org.unigrids.x2006.x04.services.sms.ExtendedChangePermissionsType;
-import org.unigrids.x2006.x04.services.sms.PermissionsChangeModeType;
-import org.unigrids.x2006.x04.services.sms.PermissionsClassType;
 
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.ACLEntry.Type;
-import de.fzj.unicore.xnjs.io.ChangeACL;
-import de.fzj.unicore.xnjs.io.ChangeACL.ACLChangeMode;
 import de.fzj.unicore.xnjs.io.ChangePermissions.Mode;
 import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.Permissions;
 import de.fzj.unicore.xnjs.util.URIUtils;
 
 /**
@@ -37,84 +22,6 @@ public class SMSUtils {
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA,SMSBaseImpl.class);
 
 	private SMSUtils(){}
-
-
-	public static void extendedChangePermissions(String file, IStorageAdapter tsi, 
-			ExtendedChangePermissionsType extendedCh, boolean recursive) throws ExecutionException {
-		ChangePermissionsEntryType request[] = extendedCh.getChangePermissionsEntryArray();
-		if (request == null)
-			throw new ExecutionException("Invalid request - null change perms array");
-		de.fzj.unicore.xnjs.io.ChangePermissions xnjsRequest[] = 
-				new de.fzj.unicore.xnjs.io.ChangePermissions[request.length];
-		for (int i=0; i<request.length; i++) {
-			xnjsRequest[i] = new de.fzj.unicore.xnjs.io.ChangePermissions();
-			if (request[i].getKind() == null || request[i].getMode() == null ||
-					request[i].getPermissions() == null)
-				throw new ExecutionException("Invalid request - null change perms entries");
-
-			if (request[i].getKind().equals(PermissionsClassType.GROUP))
-				xnjsRequest[i].setClazz(PermissionsClass.GROUP);
-			else if (request[i].getKind().equals(PermissionsClassType.USER))
-				xnjsRequest[i].setClazz(PermissionsClass.OWNER);
-			else
-				xnjsRequest[i].setClazz(PermissionsClass.OTHER);
-
-			if (request[i].getMode().equals(PermissionsChangeModeType.ADD))
-				xnjsRequest[i].setMode(Mode.ADD);
-			else if (request[i].getMode().equals(PermissionsChangeModeType.SUBTRACT))
-				xnjsRequest[i].setMode(Mode.SUBTRACT);
-			else
-				xnjsRequest[i].setMode(Mode.SET);
-
-			xnjsRequest[i].setPermissions(request[i].getPermissions());
-		}		
-		tsi.chmod2(file, xnjsRequest, recursive);
-	}
-
-	public static void setACL(String file, IStorageAdapter tsi, ChangeACLType aclChange, boolean recursive) 
-			throws ExecutionException {
-		ChangeACLEntryType request[] = aclChange.getChangeACLEntryArray();
-		if (request == null)
-			throw new ExecutionException("Invalid request - null change ACL array");
-		ChangeACL[] xnjsRequest = new ChangeACL[request.length];
-		for (int i=0; i<request.length; i++) {
-			if (request[i].getKind() == null || request[i].getMode() == null ||
-					request[i].getPermissions() == null)
-				throw new ExecutionException("Invalid request - null change ACL entries");
-			xnjsRequest[i] = new ChangeACL();
-			if (request[i].getMode().equals(ACLChangeModeType.MODIFY)) {
-				xnjsRequest[i].setChangeMode(ACLChangeMode.MODIFY);
-				xnjsRequest[i].setPermissions(request[i].getPermissions());
-			} else
-				xnjsRequest[i].setChangeMode(ACLChangeMode.REMOVE);
-
-			xnjsRequest[i].setSubject(request[i].getSubject());
-
-			if (request[i].getKind().equals(ACLEntryTypeType.GROUP))
-				xnjsRequest[i].setType(Type.GROUP);
-			else
-				xnjsRequest[i].setType(Type.USER);
-
-			if (request[i].isSetDefaultACL() && request[i].getDefaultACL())
-				xnjsRequest[i].setDefaultACL(true);
-			else
-				xnjsRequest[i].setDefaultACL(false);
-		}
-
-		boolean clearAll = aclChange.isSetClearACL() && aclChange.getClearACL();
-		tsi.setfacl(file, clearAll, xnjsRequest, recursive);
-	}
-
-	public static void legacyChangePermissions(String file, IStorageAdapter tsi, org.unigrids.x2006.x04.services.sms.ChangePermissionsDocument.ChangePermissions in) 
-			throws ExecutionException {
-		PermissionsType p=in.getPermissions();
-		Permissions permissions=new Permissions(p.getReadable(), p.getWritable(), p.getExecutable());
-		tsi.chmod(file, permissions);
-		if(logger.isDebugEnabled()){
-			logger.debug("Changed user permissions for '"+file+"' to <"+permissions.toString()+">");
-		}
-	}
-
 
 	/**
 	 * URL-decode a string (e.g. replacing "%20" by spaces)

@@ -32,12 +32,11 @@
 
 package de.fzj.unicore.uas.util;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
-import javax.xml.namespace.QName;
-
 import org.apache.logging.log4j.Logger;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
@@ -48,7 +47,6 @@ import de.fzj.unicore.uas.impl.sms.InitDefaultStorageFactory;
 import de.fzj.unicore.uas.impl.sms.InitSharedStorages;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
-import de.fzj.unicore.uas.impl.tss.rp.TSFFrontend;
 import de.fzj.unicore.uas.rest.CoreServices;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.services.Home;
@@ -58,8 +56,7 @@ import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.registry.LocalRegistryClient;
 import eu.unicore.services.registry.RegistryHandler;
-import eu.unicore.services.registry.ws.SGFrontend;
-import eu.unicore.services.ws.WSUtilities;
+import eu.unicore.services.ws.client.RegistryClient;
 import eu.unicore.util.Log;
 
 /**
@@ -115,7 +112,7 @@ public class DefaultOnStartup implements Runnable{
 			finally{
 				tsfLock.unlock();
 			}
-			publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, TSFFrontend.TSF_PORT);
+			publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, "TargetSystemFactoryService");
 		}
 	}
 
@@ -147,16 +144,18 @@ public class DefaultOnStartup implements Runnable{
 		return getClass().getName();
 	}
 	
-	public static void publishWS(Kernel kernel, String serviceName, String uid, QName porttype){
+	public static void publishWS(Kernel kernel, String serviceName, String uid, String interfaceName){
 		try{
 			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
+			Map<String,String> res = new HashMap<>();
 			String endpoint = kernel.getContainerProperties().getBaseUrl()+"/"+serviceName+"?res="+uid;
-			EndpointReferenceType epr = WSUtilities.makeServiceEPR(endpoint, porttype);
+			res.put(RegistryClient.ENDPOINT, endpoint);
+			res.put(RegistryClient.INTERFACE_NAME, interfaceName);
 			String dn = kernel.getSecurityManager().getServerIdentity();
-			if(dn!=null){
-				WSUtilities.addServerIdentity(epr, dn);
+			if(dn!=null) {
+				res.put(RegistryClient.SERVER_IDENTITY,dn);
 			}
-			lrc.addEntry(endpoint, SGFrontend.parse(epr), null);
+			lrc.addEntry(endpoint, res, null);
 		}catch(Exception ex){
 			Log.logException("Could not publish to local registry", ex, logger);
 		}

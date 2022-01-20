@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
@@ -88,7 +87,7 @@ public class RecreateXNJSJobs implements Runnable{
 	protected void ensureProcessing(){
 		XNJS config=XNJSFacade.get(xnjsReference, kernel).getXNJS();
 		synchronized(config){
-			List<String> chain=config.getProcessorChain("JSDL");
+			List<String> chain=config.getProcessorChain("JSON");
 			if(!ReCreateProcessor.class.getName().equals(chain.get(0))){
 				chain.add(0,ReCreateProcessor.class.getName());
 			}
@@ -152,13 +151,7 @@ public class RecreateXNJSJobs implements Runnable{
 		}
 		
 		protected boolean isRecreated(){
-			boolean recreated=false;
-			try{
-				JobDefinitionDocument job=(JobDefinitionDocument)action.getAjd();
-				recreated="Recreated job".equals(job.getJobDefinition().
-						getJobDescription().getJobIdentification().getJobAnnotationArray(0));
-			}catch(Exception ex){}
-			return recreated;
+			return false; // TODO?!
 		}
 		
 	}

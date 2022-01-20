@@ -7,9 +7,9 @@ import static org.junit.Assert.fail;
 import java.io.File;
 
 import org.apache.http.client.HttpClient;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.CreationFlagEnumeration;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.DataStagingType;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +62,7 @@ public class TestHTTPStaging extends EMSTestBase {
 	public void testRunJobWithStagein()throws Exception{
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
-			String id=(String)mgr.add(xnjs.makeAction(makeJSDL()),null);
+			String id=(String)mgr.add(xnjs.makeAction(makeJob()),null);
 			assertNotNull(id);
 			doRun(id);
 			assertSuccessful(id);
@@ -77,7 +77,7 @@ public class TestHTTPStaging extends EMSTestBase {
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
 			server.setVerySlowMode(true);
-			String id=(String)mgr.add(xnjs.makeAction(makeJSDL()),null);
+			String id=(String)mgr.add(xnjs.makeAction(makeJob()),null);
 			assertNotNull(id);
 			doRun(id);
 			assertSuccessful(id);
@@ -92,7 +92,7 @@ public class TestHTTPStaging extends EMSTestBase {
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
 			server.setVerySlowMode(true);
-			String id=(String)mgr.add(xnjs.makeAction(makeJSDL()),null);
+			String id=(String)mgr.add(xnjs.makeAction(makeJob()),null);
 			assertNotNull(id);
 			Thread.sleep(4000);
 			System.out.println(mgr.abort(id, null));
@@ -115,17 +115,19 @@ public class TestHTTPStaging extends EMSTestBase {
 		assertNotNull(c);
 	}
 	
-	private JobDefinitionDocument makeJSDL(){
-		JobDefinitionDocument j=JobDefinitionDocument.Factory.newInstance();
-		j.addNewJobDefinition().addNewJobDescription().addNewApplication().setApplicationName("Date");
-		DataStagingType d=j.getJobDefinition().getJobDescription().addNewDataStaging();
-		d.setFileName("infile");
-		d.setCreationFlag(CreationFlagEnumeration.OVERWRITE);
-		d.addNewSource().setURI(server.getURI());
-		DataStagingType d1=j.getJobDefinition().getJobDescription().addNewDataStaging();
-		d1.setFileName("infile2");
-		d1.setCreationFlag(CreationFlagEnumeration.OVERWRITE);
-		d1.addNewSource().setURI(server.getURI());
+	private JSONObject makeJob() throws JSONException {
+		JSONObject j = new JSONObject();
+		j.put("ApplicationName", "Date");
+		JSONArray in = new JSONArray();
+		JSONObject d = new JSONObject();
+		d.put("To", "infile");
+		d.put("From", server.getURI());
+		JSONObject d1 = new JSONObject();
+		d1.put("To", "infile2");
+		d1.put("From", server.getURI());
+		in.put(d);
+		in.put(d1);
+		j.put("Imports", in);
 		return j;
 	}
 	

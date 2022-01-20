@@ -2,9 +2,6 @@ package de.fzj.unicore.uas.fts;
 
 import java.util.Map;
 
-import org.unigrids.services.atomic.types.ProtocolType;
-import org.unigrids.x2006.x04.services.fts.SummaryType;
-
 import de.fzj.unicore.uas.impl.UASBaseModel;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 
@@ -12,17 +9,17 @@ public class FileTransferModel extends UASBaseModel {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final int STATUS_RUNNING=SummaryType.INT_RUNNING;
-	public static final int STATUS_DONE=SummaryType.INT_DONE;
-	public static final int STATUS_FAILED=SummaryType.INT_FAILED;
-	public static final int STATUS_UNDEFINED=SummaryType.INT_UNDEFINED;
-	public static final int STATUS_READY=SummaryType.INT_READY;
-
+	public static final int STATUS_UNDEFINED = 1;
+	public static final int STATUS_READY = 2;
+	public static final int STATUS_RUNNING = 3;
+	public static final int STATUS_DONE = 4;
+	public static final int STATUS_FAILED = 5;
+	
 	String source;
 
 	String target;
 
-	ProtocolType.Enum protocol;
+	String protocol;
 
 	String serviceSpec;
 
@@ -66,11 +63,11 @@ public class FileTransferModel extends UASBaseModel {
 		this.target = target;
 	}
 
-	public ProtocolType.Enum getProtocol() {
+	public String getProtocol() {
 		return protocol;
 	}
 
-	public void setProtocol(ProtocolType.Enum protocol) {
+	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
 

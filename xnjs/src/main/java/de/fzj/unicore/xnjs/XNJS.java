@@ -72,8 +72,6 @@ import de.fzj.unicore.xnjs.ems.processors.DataStagingProcessor;
 import de.fzj.unicore.xnjs.ems.processors.UsageLogger;
 import de.fzj.unicore.xnjs.fts.FTSProcessor;
 import de.fzj.unicore.xnjs.io.IOProperties;
-import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
-import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
 import de.fzj.unicore.xnjs.json.JSONJobProcessor;
 import de.fzj.unicore.xnjs.json.sweep.JSONSweepInstanceProcessor;
 import de.fzj.unicore.xnjs.json.sweep.JSONSweepProcessor;
@@ -251,13 +249,6 @@ public class XNJS {
 		if(!haveProcessingFor("FTS")){
 			setProcessingChain("FTS", "FTS", 
 					new String[]{FTSProcessor.class.getName(),
-			});
-		}
-
-		// JSDL - TODO deprecated
-		if(!haveProcessingFor("JSDL")){
-			setProcessingChain("JSDL", JSDLUtils.JSDL_JOBDEFINITION, 
-					new String[]{JSDLProcessor.class.getName(),UsageLogger.class.getName(),
 			});
 		}
 	}

@@ -40,26 +40,16 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
-import org.apache.xmlbeans.SchemaProperty;
-import org.apache.xmlbeans.XmlObject;
-import org.ggf.schemas.byteio.x2005.x10.byteIo.TransferInformationType;
-import org.ggf.schemas.byteio.x2005.x10.byteIo.TransferInformationTypeDocument;
 import org.junit.Test;
-import org.oasisOpen.docs.wsrf.rl2.CurrentTimeDocument;
-import org.unigrids.x2006.x04.services.fts.FileTransferPropertiesDocument;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.SMSProperties;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
-import de.fzj.unicore.uas.fts.byteio.ByteIO;
-import de.fzj.unicore.uas.fts.byteio.RandomByteIO;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
@@ -69,8 +59,6 @@ import de.fzj.unicore.xnjs.io.IFileTransferCreator;
 import de.fzj.unicore.xnjs.io.IOCapabilities;
 import eu.unicore.services.Capabilities;
 import eu.unicore.services.Capability;
-import eu.unicore.services.ws.client.RegistryClient;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.configuration.ConfigurationException;
 
 public class TestVarious {
@@ -110,36 +98,11 @@ public class TestVarious {
 		assertTrue(0<i);
 	}
 
-	@Test
-	public void testRegistryContentMaker(){
-	   CurrentTimeDocument ct=CurrentTimeDocument.Factory.newInstance();
-	   ct.addNewCurrentTime().setCalendarValue(Calendar.getInstance());
-	   assertTrue(RegistryClient.makeContent(new XmlObject[]{ct}).toString().contains("CurrentTime"));
-	}
-	
-	@Test
-	public void testFTProps(){
-		   FileTransferPropertiesDocument pd=FileTransferPropertiesDocument.Factory.newInstance();
-		   pd.addNewFileTransferProperties();
-		   SchemaProperty[] sp=pd.getFileTransferProperties().schemaType().getElementProperties();
-			for(SchemaProperty p: sp){
-					p.getName();
-			}
-	}
 		
 	@Test
 	public void testMakeSMSLocal(){
 		String in="\\";
 		assertTrue(in.replaceAll("\\\\", "/").equals("/"));
-	}
-	
-	@Test
-	public void testEPRUtils(){
-		String dn="CN=Test server";
-		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
-		WSServerUtilities.addServerIdentity(epr, dn);
-		String out=WSServerUtilities.extractServerIDFromEPR(epr);
-		assertEquals(dn, out);
 	}
 	
 	@Test
@@ -160,37 +123,6 @@ public class TestVarious {
 			}
 			assertEquals(dirs[i],dir);
 			assertEquals(names[i],filename);
-		}
-	}
-
-	@Test
-	public void testByteIOCodec1()throws Exception{
-		TransferInformationTypeDocument tid=TransferInformationTypeDocument.Factory.newInstance();
-		TransferInformationType ti=tid.addNewTransferInformationType();
-		String mechanism=RandomByteIO.TRANSFER_SIMPLE;
-		ti.set(ByteIO.encode(mechanism, "foobar".getBytes()));
-		
-		ti.setTransferMechanism(mechanism);
-		assertTrue(tid.toString().contains("data"));
-		assertTrue(tid.toString().contains("Zm9vYmFy"));
-	}
-
-	@Test
-	public void testByteIOCodec4()throws Exception{
-		TransferInformationTypeDocument tid=TransferInformationTypeDocument.Factory.newInstance();
-		TransferInformationType ti=tid.addNewTransferInformationType();
-		String mechanism=RandomByteIO.TRANSFER_SIMPLE;
-		ti.set(ByteIO.encode(mechanism, "foobar".getBytes()));
-		ti.setTransferMechanism(mechanism);
-		assertTrue(tid.toString().contains("data"));
-		assertTrue(tid.toString().contains("Zm9vYmFy"));
-		//decode
-		try{
-			String s=new String(ByteIO.decode(mechanism, ti));
-			assertTrue("foobar".equals(s));
-		}catch(Exception e){
-			e.printStackTrace();
-			fail();
 		}
 	}
 

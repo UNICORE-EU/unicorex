@@ -12,8 +12,6 @@ import de.fzj.unicore.xnjs.idb.GrounderImpl;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.IDBImpl;
 import de.fzj.unicore.xnjs.idb.Incarnation;
-import de.fzj.unicore.xnjs.incarnation.ITweaker;
-import de.fzj.unicore.xnjs.incarnation.IncarnationTweaker;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.impl.FileTransferEngine;
 import de.fzj.unicore.xnjs.tsi.BasicExecution;
@@ -39,7 +37,6 @@ public class MyLocalTSIModule extends LocalTSIModule {
 		bind(TSI.class).to(LocalTS.class);
 		
 		bind(Incarnation.class).to(GrounderImpl.class);
-		bind(ITweaker.class).to(IncarnationTweaker.class);
 		bind(IDB.class).to(IDBImpl.class);
 		
 		bind(IFileTransferEngine.class).to(FileTransferEngine.class);

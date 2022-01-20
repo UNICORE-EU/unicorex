@@ -62,7 +62,6 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.IExecutionContextManager;
 import de.fzj.unicore.xnjs.ems.event.EventHandler;
 import de.fzj.unicore.xnjs.ems.event.XnjsEvent;
-import de.fzj.unicore.xnjs.incarnation.ITweaker;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSInfo;
@@ -350,8 +349,8 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	public static class MyExec extends Execution {
 
 		@Inject
-		public MyExec(XNJS xnjs, ITweaker tw, TSIConnectionFactory factory, IBSSState bss){
-			super(xnjs,tw,factory, bss);
+		public MyExec(XNJS xnjs, TSIConnectionFactory factory, IBSSState bss){
+			super(xnjs, factory, bss);
 		}
 
 		public static boolean failSubmits=false;

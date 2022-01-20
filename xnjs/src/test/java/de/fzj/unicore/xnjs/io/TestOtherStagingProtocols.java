@@ -14,7 +14,6 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.FileUtils;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -31,7 +30,6 @@ import com.icegreen.greenmail.user.UserException;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
 
-import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.EMSTestBase;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
@@ -378,11 +376,8 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 
 	private String createDummyParent()throws Exception{
-		JobDefinitionDocument xml=JobDefinitionDocument.Factory.newInstance();
-		xml.addNewJobDefinition().addNewJobDescription().addNewApplication().setApplicationName("Date");
-		Action job=xnjs.makeAction(xml);
-		String id=(String)mgr.add(job, null);
-		return id;
+		JSONObject jD = new JSONObject("{'ApplicationName': 'Date'}");
+		return (String)mgr.add(xnjs.makeAction(jD), null);
 	}
 
 	private String getWorkingDir(String actionID)throws Exception{

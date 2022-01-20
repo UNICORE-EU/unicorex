@@ -12,13 +12,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlObject;
 
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
 import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
@@ -32,11 +30,9 @@ import de.fzj.unicore.xnjs.util.ErrorCode;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import de.fzj.unicore.xnjs.util.ScriptEvaluator;
 import eu.unicore.security.Client;
-import eu.unicore.security.Xlogin;
 import eu.unicore.util.Log;
 
 /**
- * JSDL incarnation
  *  
  * @author schuller
  */
@@ -90,22 +86,6 @@ public class GrounderImpl implements Incarnation {
 		}
 
 		return result;
-	}
-
-	@Override
-	public String getUserLogin(Client client, Object job){
-		if(!(job instanceof XmlObject))return null;
-		String requestedLogin=JSDLUtils.extractUserName((XmlObject)job);
-		Xlogin xlogin = client.getXlogin();
-		return xlogin.isValid(requestedLogin) ? requestedLogin : xlogin.getUserName(); 
-	}
-
-	@Override
-	public String getUserGroup(Client client, Object job){
-		if(!(job instanceof XmlObject))return null;
-		String requestedGroup=JSDLUtils.extractUserGroup((XmlObject)job);
-		Xlogin xlogin = client.getXlogin();
-		return xlogin.isValidGroup(requestedGroup) ? requestedGroup : xlogin.getGroup(); 
 	}
 
 	@Override

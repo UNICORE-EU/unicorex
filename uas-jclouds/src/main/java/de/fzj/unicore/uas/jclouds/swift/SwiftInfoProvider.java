@@ -2,29 +2,14 @@ package de.fzj.unicore.uas.jclouds.swift;
 
 import java.util.Map;
 
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.FileSystemDocument;
-
 import de.fzj.unicore.uas.impl.sms.DefaultStorageInfoProvider;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 
 public class SwiftInfoProvider extends DefaultStorageInfoProvider {
 
 	public SwiftInfoProvider(Kernel kernel){
 		super(kernel);
-	}
-	
-	@Override
-	public FileSystemDocument getInformation(StorageDescription storageDesc,
-			Client client, IStorageAdapter storage) {
-		FileSystemDocument fsd = FileSystemDocument.Factory.newInstance();
-		fsd.addNewFileSystem();
-		fsd.getFileSystem().setDescription(storageDesc.getDescription());
-		if(storage!=null)fsd.getFileSystem().setDescription(storage.getFileSystemIdentifier());
-		fsd.getFileSystem().setName(storageDesc.getName());
-		return fsd;
 	}
 
 	@Override

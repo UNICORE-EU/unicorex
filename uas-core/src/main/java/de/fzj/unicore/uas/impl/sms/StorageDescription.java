@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.fzj.unicore.uas.SMSProperties;
-import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -147,9 +146,9 @@ public class StorageDescription implements Serializable, Cloneable {
 	}
 
 	@SuppressWarnings("unchecked") 
-	public Class<? extends StorageManagement> getStorageClass() {
+	public Class<? extends SMSBaseImpl> getStorageClass() {
 		try{
-			return clazz!=null ? (Class<? extends StorageManagement>)(Class.forName(clazz)) : null;
+			return clazz!=null ? (Class<? extends SMSBaseImpl>)(Class.forName(clazz)) : null;
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		}

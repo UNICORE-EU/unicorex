@@ -49,7 +49,7 @@ import de.fzj.unicore.xnjs.ems.EMSTestBase;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.Processor;
 import de.fzj.unicore.xnjs.io.XnjsFile;
-import de.fzj.unicore.xnjs.jsdl.JSDLProcessor;
+import de.fzj.unicore.xnjs.json.JSONJobProcessor;
 import de.fzj.unicore.xnjs.tsi.local.LocalTS;
 
 /**
@@ -80,9 +80,9 @@ public class TestLocalTS extends EMSTestBase {
 
 	@Test
 	public void testCreateProcessor() throws Exception{
-		Processor p=xnjs.createProcessor("JSDL");
+		Processor p=xnjs.createProcessor("JSON");
 		assertNotNull(p);
-		assertTrue(p.toString().contains(JSDLProcessor.class.getName()));
+		assertTrue(p.toString().contains(JSONJobProcessor.class.getName()));
 	}
 
 	@Test

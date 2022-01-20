@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
+import de.fzj.unicore.uas.fts.FileTransferModel;
 import de.fzj.unicore.uas.fts.FiletransferInitParameters;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.ContainerProperties;
@@ -45,7 +46,7 @@ public class HttpFileTransferImpl extends FileTransferImpl {
 			setOK();
 		}catch(Exception e){
 			LogUtil.logException("Error initialising BFT filetransfer",e,logger);
-			setStatus(STATUS_FAILED, "Error initialising BFT filetransfer");
+			setStatus(FileTransferModel.STATUS_FAILED, "Error initialising BFT filetransfer");
 			throw e;
 		}
 	}
@@ -102,7 +103,7 @@ public class HttpFileTransferImpl extends FileTransferImpl {
 	public void processMessages(PullPoint messageIterator) {
 		while(messageIterator.hasNext()){
 			getModel().setDescription(messageIterator.next().getBody());
-			getModel().setStatus(STATUS_FAILED);
+			getModel().setStatus(FileTransferModel.STATUS_FAILED);
 		}
 	}
 

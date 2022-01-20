@@ -3,14 +3,12 @@ package de.fzj.unicore.uas.fts;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.unigrids.services.atomic.types.ProtocolType;
-
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 
 public class FiletransferInitParameters extends BaseInitParameters {
 
-	public ProtocolType.Enum protocol;
+	public String protocol;
 
 	public String actionID;
 

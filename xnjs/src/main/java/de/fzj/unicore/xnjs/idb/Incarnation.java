@@ -40,7 +40,6 @@ import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.security.Client;
-import eu.unicore.security.Xlogin;
 
 /**
  * An interface for realizing abstract resource definitions
@@ -49,31 +48,6 @@ import eu.unicore.security.Xlogin;
  * @author schuller
  */
 public interface Incarnation {
-	
-	/**
-	 * get the user Xlogin to use, by analysing the job description and
-	 * the client object
-	 * @see Xlogin
-	 * @see Client
-	 * 
-	 * @param client - the client
-	 * @param job - the job description
-	 * @return the preferred user login to use
-	 */
-	public String getUserLogin(Client client, Object job);
-	
-	/**
-	 * get the user group to use, by analysing the job description and
-	 * the client object
-	 * @see Xlogin
-	 * @see Client
-	 * 
-	 * @param client - the client
-	 * @param job - the job description
-	 * @return the preferred user group to use
-	 */
-	public String getUserGroup(Client client, Object job);
-	
 
 	/**
 	 * Generate a full {@link ApplicationInfo} object from the supplied "abstract" ApplicationInfo

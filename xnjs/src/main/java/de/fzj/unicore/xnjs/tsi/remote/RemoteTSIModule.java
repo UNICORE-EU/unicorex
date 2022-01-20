@@ -11,8 +11,6 @@ import de.fzj.unicore.xnjs.idb.GrounderImpl;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.IDBImpl;
 import de.fzj.unicore.xnjs.idb.Incarnation;
-import de.fzj.unicore.xnjs.incarnation.ITweaker;
-import de.fzj.unicore.xnjs.incarnation.IncarnationTweaker;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.impl.FileTransferEngine;
 import de.fzj.unicore.xnjs.tsi.IExecution;
@@ -30,16 +28,11 @@ public class RemoteTSIModule extends AbstractModule {
 
 	@Override
 	protected void configure(){
-
 		bind(IExecutionContextManager.class).to(LocalECManager.class);
 		bind(TSIConnectionFactory.class).to(DefaultTSIConnectionFactory.class);
 		bind(TSI.class).to(RemoteTSI.class);
-		
 		bind(Incarnation.class).to(GrounderImpl.class);
-		bind(ITweaker.class).to(IncarnationTweaker.class);		
-
 		bind(IFileTransferEngine.class).to(FileTransferEngine.class);
-		
 		bindIDB();
 		bind(IBSSState.class).to(BSSState.class);
 		bindReservation();

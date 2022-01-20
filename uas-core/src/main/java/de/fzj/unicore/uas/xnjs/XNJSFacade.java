@@ -33,7 +33,6 @@
 package de.fzj.unicore.uas.xnjs;
 
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -41,15 +40,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlObject;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ApplicationType;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesDocument;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
 import org.json.JSONObject;
-import org.unigrids.services.atomic.types.PermissionsType;
-import org.unigrids.services.atomic.types.TextInfoType;
-import org.unigrids.x2006.x04.services.sms.FilterType;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -70,11 +61,7 @@ import de.fzj.unicore.xnjs.ems.Manager;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
-import de.fzj.unicore.xnjs.io.CompositeFindOptions;
-import de.fzj.unicore.xnjs.io.Permissions;
-import de.fzj.unicore.xnjs.io.SimpleFindOptions;
 import de.fzj.unicore.xnjs.io.http.IConnectionFactory;
-import de.fzj.unicore.xnjs.jsdl.JSDLRenderer;
 import de.fzj.unicore.xnjs.persistence.IActionStoreFactory;
 import de.fzj.unicore.xnjs.persistence.JDBCActionStoreFactory;
 import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
@@ -84,7 +71,6 @@ import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
 import de.fzj.unicore.xnjs.tsi.remote.RemoteTSIModule;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
@@ -281,14 +267,6 @@ public class XNJSFacade {
 			return null;
 		}
 	}
-	
-	public Action makeAction(JobDefinitionDocument doc){
-		try{
-			return xnjs.makeAction(doc);
-		}catch(Exception e){
-			return null;
-		}
-	}
 
 	public final Action getAction(String id){
 		try{
@@ -420,54 +398,6 @@ public class XNJSFacade {
 	}
 
 	/**
-	 * Returns the applications known to the XNJS
-	 * @deprecated consider using getDefinedApplications() instead
-	 */
-	public final ApplicationType[] getDefinedApplicationTypes(Client client){
-		Collection<ApplicationInfo> apps = getDefinedApplications(client);
-		ApplicationType[]at=new ApplicationType[apps.size()];
-		int i=0;
-		for(ApplicationInfo app: apps){
-			at[i]=ApplicationType.Factory.newInstance();
-			at[i].setApplicationName(app.getName());
-			at[i].setApplicationVersion(app.getVersion());
-			i++;
-		}
-		return at;
-	}
-
-	/**
-	 * Returns the TextInfo resources configured in the XNJS IDB
-	 */
-	public final TextInfoType[] getDefinedTextInfo(){
-		IDB idb = getIDB();
-		Map<String,String> infos = idb.getTextInfoProperties();
-		TextInfoType[] res=new TextInfoType[infos.keySet().size()];
-		int i=0;
-		for(String name: infos.keySet()){
-			res[i]=TextInfoType.Factory.newInstance();
-			res[i].setName(name);
-			res[i].setValue(infos.get(name));
-			i++;
-		}
-		return res;
-	}
-
-	/**
-	 * Returns the system resources	
-	 */
-	public final ResourcesType getResources(Client c){
-		try {
-			IDB gr = getIDB();
-			return new JSDLRenderer().render(gr.getDefaultPartition()).getResources();
-		} catch (Exception e) {
-			LogUtil.logException("Could not obtain resource information from XNJS.",e);
-			return ResourcesType.Factory.newInstance();
-		}
-	}
-
-
-	/**
 	 * get a TSI for accessing files
 	 * @param storageRoot -  the directory the TSI initally points to
 	 * @param client -  the client object with authN/ authZ information
@@ -529,83 +459,12 @@ public class XNJSFacade {
 	}
 
 	/**
-	 * insert a "site-specific" resource request into the JSDL Resources document
-	 *  
-	 */
-	public static void insertXNJSResourceSpec(String name, double value, ResourcesDocument resources){
-		String s="<xnjs:ResourceSetting xmlns:xnjs=\"http://www.fz-juelich.de/unicore/xnjs/idb\">"
-				+"<xnjs:Name>"+name+"</xnjs:Name>"
-				+"<xnjs:Value xmlns:jsdl=\"http://schemas.ggf.org/jsdl/2005/11/jsdl\"><jsdl:Exact>"+value+"</jsdl:Exact></xnjs:Value>"
-				+"</xnjs:ResourceSetting>";
-		try{
-			XmlObject o=XmlObject.Factory.parse(s);
-			//and append to resources doc...
-			WSServerUtilities.append(o, resources);
-		}catch(Exception e){
-			LogUtil.logException("Error building site-specific resource",e);
-		}
-	}
-
-	/**
 	 * get the last instant that the IDB was updated
 	 *  
 	 * @return long - the last update time (in millis)
 	 */
 	public final long getLastIDBUpdate(){
 		return getIDB().getLastUpdateTime();
-	}
-
-	/**
-	 * recursively build the filter options for the find command
-	 * @param filter
-	 * @return {@link CompositeFindOptions}
-	 */
-	public final CompositeFindOptions getFindOptions(final FilterType filter){
-		CompositeFindOptions cfo=new CompositeFindOptions();
-		if(filter!=null){
-			String name=filter.getNameMatch();
-			if(name!=null){
-				cfo.and(SimpleFindOptions.stringMatch(name, false));
-			}
-			String regExp=filter.getNameMatchRegExp();
-			if(regExp!=null){
-				cfo.and(SimpleFindOptions.regExpMatch(regExp, false));
-			}
-			Calendar before=filter.getBefore();
-			if(before!=null){
-				cfo.and(SimpleFindOptions.lastAccessBefore(before,false));
-			}
-			Calendar after=filter.getAfter();
-			if(after!=null){
-				cfo.and(SimpleFindOptions.lastAccessAfter(after,false));
-			}
-			//check sub filters...
-			if(filter.getAndFilter()!=null){
-				CompositeFindOptions andCFO=getFindOptions(filter.getAndFilter());
-				cfo.and(andCFO);
-			}
-			if(filter.getOrFilter()!=null){
-				CompositeFindOptions orCFO=getFindOptions(filter.getOrFilter());
-				cfo.or(orCFO);
-			}
-		}
-		return cfo;
-	}
-
-	public static Permissions getXNJSPermissions(PermissionsType uasPermissions){
-		Permissions perm=new Permissions();
-		perm.setExecutable(uasPermissions.getExecutable());
-		perm.setReadable(true);//all else would be complete nonsense
-		perm.setWritable(uasPermissions.getWritable());
-		return perm;
-	}
-
-	public static PermissionsType getUASPermissions(Permissions xnjsPermissions){
-		PermissionsType perm=PermissionsType.Factory.newInstance();
-		perm.setExecutable(xnjsPermissions.isExecutable());
-		perm.setReadable(true);//all else would be complete nonsense
-		perm.setWritable(xnjsPermissions.isWritable());
-		return perm;
 	}
 
 	/**

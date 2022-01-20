@@ -3,7 +3,6 @@ package de.fzj.unicore.uas.trigger.impl;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.JobDefinitionDocument;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.Builder;
@@ -35,7 +34,7 @@ public class BatchJobAction extends BaseAction {
 		Map<String,String>context = getContext(storage, filePath, client, xnjs);
 		String json=expandVariables(job.toString(), context);
 		Builder b=new Builder(json);
-		JobDefinitionDocument job=b.getJob();
+		JSONObject job = b.getJSON();
 		de.fzj.unicore.xnjs.ems.Action action = xnjs.makeAction(job);
 		action.setUmask(storage.getUmask());
 		action.getProcessingContext().put(de.fzj.unicore.xnjs.ems.Action.AUTO_SUBMIT, Boolean.TRUE);

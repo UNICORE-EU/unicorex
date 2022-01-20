@@ -5,10 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.net.URI;
 
 import org.junit.Test;
-import org.unigrids.services.atomic.types.PermissionsDocument;
 
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.xnjs.io.Permissions;
 
 public class TestVarious {
 
@@ -24,18 +22,7 @@ public class TestVarious {
 		URI uri=new URI("bft:http://somehost:1234?res=mystorage#foo.txt");
 		assertEquals("http://somehost:1234?res=mystorage", uri.getSchemeSpecificPart());
 	}
-	
-	@Test
-	public void testPermissionConverter(){
-		PermissionsDocument pd=PermissionsDocument.Factory.newInstance();
-		pd.addNewPermissions();
-		Permissions p=XNJSFacade.getXNJSPermissions(pd.getPermissions());
-		assertEquals("r--",String.valueOf(p));
-		pd.getPermissions().setExecutable(true);
-		pd.getPermissions().setWritable(true);
-		p=XNJSFacade.getXNJSPermissions(pd.getPermissions());
-		assertEquals("rwx",String.valueOf(p));
-	}
+
 
 	@Test
 	public void testExtractStorageURL() throws Exception {

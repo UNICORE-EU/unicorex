@@ -1,7 +1,5 @@
 package de.fzj.unicore.xnjs.resources;
 
-import de.fzj.unicore.xnjs.jsdl.JSDLResourceSet;
-
 public class ReservationResource extends BaseResource{
 
 	private static final long serialVersionUID=1l;
@@ -9,7 +7,7 @@ public class ReservationResource extends BaseResource{
 	private String reservationID;
 	
 	public ReservationResource(String reservationID){
-		super(JSDLResourceSet.RESERVATION_ID,Category.RESERVATION);
+		super(ResourceSet.RESERVATION_ID,Category.RESERVATION);
 		this.reservationID=reservationID;
 	}
 	

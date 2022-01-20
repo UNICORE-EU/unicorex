@@ -16,7 +16,6 @@ import javax.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.unigrids.services.atomic.types.ProtocolType;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.SMSProperties;
@@ -105,7 +104,7 @@ public class Storages extends ServicesBase {
 		try{
 			JSONObject json = new JSONObject(jsonString);
 			String file = json.getString("file");
-			ProtocolType.Enum protocol = ProtocolType.Enum.forString(json.optString("protocol","BFT"));
+			String protocol = json.optString("protocol","BFT");
 			Boolean overwrite = Boolean.valueOf(json.optString("overwrite","true"));
 			Long numBytes = Long.valueOf(json.optString("numBytes","-1"));
 			Map<String,String>extraParameters = JSONUtil.asMap(json.optJSONObject("extraParameters"));
@@ -133,7 +132,7 @@ public class Storages extends ServicesBase {
 		try{
 			JSONObject json = new JSONObject(jsonString);
 			String file = json.getString("file");
-			ProtocolType.Enum protocol = ProtocolType.Enum.forString(json.optString("protocol","BFT"));
+			String protocol = json.optString("protocol","BFT");
 			Map<String,String>extraParameters = JSONUtil.asMap(json.optJSONObject("extraParameters"));
 			String id = ((SMSBaseImpl)getResource()).createFileExport(file, protocol, extraParameters);
 			String location = getBaseURL()+"/client-server-transfers/"+id;
@@ -195,10 +194,10 @@ public class Storages extends ServicesBase {
 		return new Files(kernel, getResource(), filesURL);
 	}
 
-	public JSONObject getFiletransferProperties(String id, ProtocolType.Enum protocol) throws Exception {
+	public JSONObject getFiletransferProperties(String id, String protocol) throws Exception {
 		JSONObject o = new JSONObject();
 		FileTransferImpl ftResource = (FileTransferImpl) kernel.getHome(UAS.CLIENT_FTS).get(id);
-		o.put("protocol", protocol.toString());
+		o.put("protocol", protocol);
 		o.put("parent", getBaseURL()+"/storages/"+resource.getUniqueID());
 		FileTransferModel m = ftResource.getModel();
 		o.put("isExport", String.valueOf(m.getIsExport()));

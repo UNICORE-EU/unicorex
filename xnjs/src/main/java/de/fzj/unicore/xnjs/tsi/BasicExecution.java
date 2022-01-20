@@ -66,7 +66,6 @@ import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
-import de.fzj.unicore.xnjs.incarnation.ITweaker;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.tsi.local.LocalExecution;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIProperties;
@@ -87,9 +86,6 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 	@Inject
 	protected XNJSProperties properties;
-	
-	@Inject
-	protected ITweaker incarnationTweaker;
 
 	@Inject
 	private LocalTSIProperties tsiProperties;
@@ -133,7 +129,6 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			if(current >= limit)throw new TSIBusyException("Joblimit reached: there are <"+current+"> running jobs");
 		}
 		ApplicationInfo appDescription=job.getApplicationInfo();
-		incarnationTweaker.preScript(appDescription, job, idb);
 		ExecutionContext ec=job.getExecutionContext();
 		LocalExecution ex=new LocalExecution(job.getUUID(), tsiProperties, manager, buildCommand(job, idb), ec);
 		ex.execute();
@@ -164,7 +159,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		else{
 			result = buildDirectCommand(job, idb);
 		}
-		return incarnationTweaker.postScript(job.getApplicationInfo(), job, idb, result);
+		return result;
 	}
 
 	private String buildShellWrappedCommand(Action jsdlAction, IDB idb)throws ExecutionException{

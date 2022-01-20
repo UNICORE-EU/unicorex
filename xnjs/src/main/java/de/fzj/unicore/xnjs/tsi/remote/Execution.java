@@ -62,7 +62,6 @@ import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
-import de.fzj.unicore.xnjs.incarnation.ITweaker;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.tsi.BasicExecution;
 import de.fzj.unicore.xnjs.tsi.TSI;
@@ -107,7 +106,7 @@ public class Execution extends BasicExecution {
 	public static final String BSS_SUBMIT_COUNT="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_BSSSUBMITCOUNT";
 
 	@Inject
-	public Execution(XNJS xnjs, ITweaker tw, TSIConnectionFactory factory, IBSSState bss){
+	public Execution(XNJS xnjs, TSIConnectionFactory factory, IBSSState bss){
 		this.xnjs = xnjs;
 		this.connectionFactory = factory;
 		this.bss = bss;
@@ -124,7 +123,6 @@ public class Execution extends BasicExecution {
 	@Override
 	public int submit(Action job) throws ExecutionException {
 		ApplicationInfo appDescription=job.getApplicationInfo();
-		incarnationTweaker.preScript(appDescription, job, idb);
 		ExecutionContext ec=job.getExecutionContext();
 		int initialStatus = ActionStatus.QUEUED;
 		boolean isFirstSubmit = null==job.getProcessingContext().get(BSS_SUBMIT_COUNT);
@@ -138,8 +136,7 @@ public class Execution extends BasicExecution {
 			job.addLogTrace(msg);
 		}
 
-		String tsiCmdInitial = createTSIScript(job);
-		String tsiCmd=incarnationTweaker.postScript(appDescription, job, idb, tsiCmdInitial);
+		String tsiCmd = createTSIScript(job);
 
 		String tsiHost=null;
 		String msg;
@@ -160,8 +157,7 @@ public class Execution extends BasicExecution {
 				res=conn.send(tsiCmd);
 				idLine=conn.getIdLine();
 				if(isFirstSubmit) {
-					job.addLogTrace("Command is:");
-					job.addLogTrace(tsiCmd);
+					job.addLogTrace("Command is: "+tsiCmd);
 				}
 				if(res.contains("TSI_FAILED")){
 					job.addLogTrace("TSI reply: FAILED.");

@@ -35,20 +35,11 @@ package de.fzj.unicore.uas.impl.sms;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
-import org.unigrids.services.atomic.types.ACLEntryType;
-import org.unigrids.services.atomic.types.ACLEntryTypeType;
-import org.unigrids.services.atomic.types.ACLType;
-import org.unigrids.services.atomic.types.GridFileType;
-import org.unigrids.services.atomic.types.MetadataType;
-import org.unigrids.services.atomic.types.ProtocolType;
-import org.unigrids.services.atomic.types.TextInfoType;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
@@ -63,13 +54,11 @@ import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 import de.fzj.unicore.uas.xnjs.TSIStorageAdapterFactory;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.ACLEntry;
 import de.fzj.unicore.xnjs.io.ACLEntry.Type;
 import de.fzj.unicore.xnjs.io.ChangeACL;
 import de.fzj.unicore.xnjs.io.ChangeACL.ACLChangeMode;
 import de.fzj.unicore.xnjs.io.FileSet;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.Permissions;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import de.fzj.unicore.xnjs.tsi.BatchMode;
@@ -291,86 +280,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		return res;
 	}
 
-	/**
-	 * converts from XNJSfile to GridFile
-	 * 
-	 * @param f - the XNJS file info
-	 * @param gf - the Grid file info
-	 * @param addMetadata - whether to attach metadata
-	 */
-	protected void convert(XnjsFile f, GridFileType gf, boolean addMetadata)throws Exception{
-		gf.setPath(f.getPath());
-		gf.setSize(f.getSize());
-		gf.setIsDirectory(f.isDirectory());
-		gf.setLastModified(f.getLastModified());
-		Permissions p=f.getPermissions();
-		gf.addNewPermissions().setReadable(p.isReadable());
-		gf.getPermissions().setWritable(p.isWritable());
-		gf.getPermissions().setExecutable(p.isExecutable());
-		if(addMetadata){
-			MetadataManager mm=getMetadataManager();
-			try{
-				if (mm!= null)
-					attachMetadata(f,gf,mm);
-			}catch(Exception ex){
-				LogUtil.logException("Error attaching metadata for file "+f.getPath(), ex);
-			}
-		}
-		if (f.getUNIXPermissions() != null)
-			gf.setFilePermissions(f.getUNIXPermissions());
-		if (f.getGroup() != null)
-			gf.setGroup(f.getGroup());
-		if (f.getOwner() != null)
-			gf.setOwner(f.getOwner());
-
-		if (f instanceof XnjsFileWithACL) {
-			XnjsFileWithACL fWithACL = (XnjsFileWithACL) f;
-			ACLEntry[] acl = fWithACL.getACL();
-			if (acl != null) {
-				ACLType xmlACL = gf.addNewACL();
-				for (ACLEntry aclEntry: acl) {
-					ACLEntryType xmlACLEntry = xmlACL.addNewEntry();
-					xmlACLEntry.setPermissions(aclEntry.getPermissions());
-					xmlACLEntry.setSubject(aclEntry.getSubject());
-					if (aclEntry.getType() == ACLEntry.Type.GROUP)
-						xmlACLEntry.setType(ACLEntryTypeType.GROUP);
-					else
-						xmlACLEntry.setType(ACLEntryTypeType.USER);
-					xmlACLEntry.setDefaultACL(aclEntry.isDefaultACL());
-				}
-			}
-		}
-	}
-
-	protected void attachMetadata(XnjsFile f, GridFileType gridFile, MetadataManager metaManager)throws Exception{
-		if(gridFile.getIsDirectory())return;
-		String resourceName=gridFile.getPath();
-		Map<String,String> metadata=metaManager.getMetadataByName(resourceName);
-		MetadataType md=gridFile.addNewMetadata();
-		for(Map.Entry<String, String> item: metadata.entrySet()){
-			String key=item.getKey();
-			String value=item.getValue();
-			if("Content-MD5".equalsIgnoreCase(key)){
-				md.setContentMD5(value);
-			}
-			else if("Content-Type".equalsIgnoreCase(key)){
-				md.setContentType(value);
-			}
-			else{
-				TextInfoType t=md.addNewProperty();
-				t.setName(key);
-				t.setValue(value);
-			}
-		}
-	}
-
-	/**
-	 * converts from XNJSfile to GridFileType
-	 */
-	protected void convert(XnjsFile f, GridFileType gf)throws Exception{
-		convert(f,gf,false);
-	}
-
 	@Override
 	public void processMessages(PullPoint p){
 		List<String>fileTransferUIDs = getModel().getFileTransferUIDs();
@@ -440,7 +349,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @return UID of the new filetransfer resource
 	 * @throws Exception
 	 */
-	public String createFileImport(String file, ProtocolType.Enum protocol, boolean overwrite, 
+	public String createFileImport(String file,String protocol, boolean overwrite, 
 			long numBytes, Map<String,String>extraParameters)
 			throws Exception {
 		FiletransferInitParameters init = new FiletransferInitParameters();
@@ -466,7 +375,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @return UID of the new filetransfer resource
 	 * @throws Exception
 	 */
-	public String createFileExport(String file, ProtocolType.Enum protocol,Map<String,String>extraParameters)
+	public String createFileExport(String file, String protocol,Map<String,String>extraParameters)
 			throws Exception {
 		FiletransferInitParameters init = new FiletransferInitParameters();
 		String source=makeSMSLocal(file);
@@ -494,7 +403,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @param protocol - the protocol to use
 	 * @return EPR
 	 */
-	private String createFileTransfer(FiletransferInitParameters initParam, ProtocolType.Enum protocol)
+	private String createFileTransfer(FiletransferInitParameters initParam, String protocol)
 			throws Exception{
 		initParam.smsUUID = getUniqueID();
 		initParam.workdir = getStorageRoot();
@@ -629,16 +538,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	public boolean isTriggerEnabled(){
 		SMSModel m = getModel();
 		return m.storageDescription!=null && m.storageDescription.isEnableTrigger();
-	}
-
-
-	protected EndpointReferenceType createRemoteStorageEPR(URI uri)
-	{
-		EndpointReferenceType epr=EndpointReferenceType.Factory.newInstance();
-		String withoutScheme=uri.getSchemeSpecificPart();
-		String upToFragment = withoutScheme.split("#")[0];
-		epr.addNewAddress().setStringValue(upToFragment);
-		return epr;
 	}
 
 	public String getUmask() {

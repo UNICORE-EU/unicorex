@@ -40,10 +40,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-import org.ggf.schemas.jsdl.x2005.x11.jsdl.ResourcesType;
-
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
@@ -53,11 +49,10 @@ import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
-import de.fzj.unicore.xnjs.jsdl.JSDLResourceSet;
-import de.fzj.unicore.xnjs.jsdl.JSDLUtils;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.tsi.TSI;
+import de.fzj.unicore.xnjs.util.UnitParser;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
@@ -664,26 +659,7 @@ public class TSIUtils {
 		commands.append("\n");
 		return commands.toString();
 	}
-	
-	/**
-	 * If given, extract the reservation ID from the JSDL Resources element<br/>
-	 * It is assumed to be in an element<br/> &lt;u:ReservationReference
-	 * xmlns:u="http://www.unicore.eu/unicore/xnjs"&gt;...&lt;u:ReservationReference&gt;
-	 * 
-	 * @param rt -
-	 *            Resources
-	 * @return A reservation ID
-	 */
-	public static String extractReservationID(ResourcesType rt) {
-		XmlObject[] xo = rt.selectChildren(JSDLResourceSet.RESERVATION_REFERENCE);
-		if (xo == null || xo.length != 1) {
-			return null;
-		}
-		XmlCursor c = xo[0].newCursor();
-		String id = c.getTextValue();
-		c.dispose();
-		return id;
-	}
+
 
 	/**
 	 * Build the command to the UNICORE TSI for making a resource reservation.
@@ -700,7 +676,7 @@ public class TSIUtils {
 		if(client!=null && client.getXlogin()!=null){
 			commands.append("#TSI_RESERVATION_OWNER " + client.getXlogin().getUserName() + "\n");
 		}
-		DateFormat df = JSDLUtils.getDateFormat();
+		DateFormat df = UnitParser.getISO8601();
 		commands.append("#TSI_STARTTIME " + df.format(startTime.getTime())
 		+ "\n");
 		// insert resource spec

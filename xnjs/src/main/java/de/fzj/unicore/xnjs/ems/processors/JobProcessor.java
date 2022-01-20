@@ -65,7 +65,6 @@ import de.fzj.unicore.xnjs.ems.event.XnjsEvent;
 import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
-import de.fzj.unicore.xnjs.incarnation.TweakerExecutionException;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
@@ -543,14 +542,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			aes.set(ApplicationExecutionStatus.MAIN_EXECUTION);
 			action.setStatus(initialState);
 			storeTimeStamp(TIME_SUBMITTED);
-		}catch(TweakerExecutionException tex){
-			String msg="Could not submit job: "+tex.getMessage();
-
-			action.addLogTrace(msg);
-			setToDoneAndFailed(msg);
-			throw new ProcessingException(msg,tex);
-
-		}catch(ExecutionException ex){
+		} catch(ExecutionException ex){
 			String msg="Could not submit job: "+ex.getMessage();
 
 			Integer submitCount=(Integer)action.getProcessingContext().get(Execution.BSS_SUBMIT_COUNT);

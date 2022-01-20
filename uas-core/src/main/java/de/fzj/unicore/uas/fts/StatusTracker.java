@@ -33,14 +33,14 @@ public class StatusTracker implements Observer<TransferInfo>{
 			r = home.getForUpdate(resourceID);
 			ServerToServerTransferModel model = (ServerToServerTransferModel)r.getModel();
 			Status s = info.getStatus();
-			int newStatus = FileTransferImpl.STATUS_RUNNING;
+			int newStatus = FileTransferModel.STATUS_RUNNING;
 			String msg = "OK.";
 			if(s.equals(Status.FAILED)){
-				newStatus = FileTransferImpl.STATUS_FAILED;
+				newStatus = FileTransferModel.STATUS_FAILED;
 				msg = info.getStatusMessage();
 			}
 			else if(s.equals(Status.DONE)){
-				newStatus = FileTransferImpl.STATUS_DONE;
+				newStatus = FileTransferModel.STATUS_DONE;
 				msg = "File transfer done.";
 			}
 			model.status = newStatus;

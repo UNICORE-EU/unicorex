@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
-import de.fzj.unicore.uas.StorageManagement;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.util.DefaultOnStartup;
@@ -101,7 +100,7 @@ public class InitSharedStorages implements Runnable{
 		// allow user access via ACL
 		map.acl.add(new ACLEntry(OperationType.modify, "user", MatchType.ROLE));
 		home.createResource(map);
-		DefaultOnStartup.publishWS(kernel, home.getServiceName(), id, StorageManagement.SMS_PORT);
+		DefaultOnStartup.publishWS(kernel, home.getServiceName(), id, "StorageManagement");
 		logger.info("Added shared Storage resource '"+id+"' "+desc);
 	}
 

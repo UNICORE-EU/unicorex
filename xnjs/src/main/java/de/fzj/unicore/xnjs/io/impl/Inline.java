@@ -56,8 +56,9 @@ public class Inline implements IFileTransfer {
 	private final XNJS configuration;
 	private OverwritePolicy overwrite;
 	private String inlineData;
+	private String umask = null;
 	private final TransferInfo info;
-	
+
 	public Inline(XNJS configuration, Client client, String workingDirectory, String target) {
 		this.configuration=configuration;
 		this.client=client;
@@ -75,7 +76,12 @@ public class Inline implements IFileTransfer {
 		this.inlineData = data;
 		if(data!=null)info.setDataSize(inlineData.length());
 	}
-	
+
+	@Override
+	public void setUmask(String umask) {
+		this.umask = umask;
+	}
+
 	/**
 	 * uses TSI link to write inline data to the target
 	 */
@@ -83,6 +89,7 @@ public class Inline implements IFileTransfer {
 		info.setStatus(Status.RUNNING);
 		if(tsi == null){
 			tsi=configuration.getTargetSystemInterface(client);
+			if(umask!=null)tsi.setUmask(umask);
 		}
 		tsi.setStorageRoot(workingDirectory);
 		boolean append = OverwritePolicy.APPEND.equals(overwrite);

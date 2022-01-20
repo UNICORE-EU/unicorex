@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
-import org.unigrids.services.atomic.types.ProtocolType;
 
 import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -218,7 +217,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 			action.setNotBefore(model.scheduledStartTime);
 		}
 		//set the actual protocol
-		model.protocol = ProtocolType.Enum.forString(protocol);
+		model.protocol = protocol;
 		model.fileTransferUID = action.getUUID();
 		return action;
 	}
