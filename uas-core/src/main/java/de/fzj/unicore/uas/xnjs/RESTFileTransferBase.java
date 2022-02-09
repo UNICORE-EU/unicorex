@@ -184,7 +184,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	{
 		try{
 			Kernel kernel = configuration.get(Kernel.class);
-			sec = kernel.getClientConfiguration().clone();
+			sec = kernel.getClientConfiguration();
 			String user = client.getDistinguishedName();
 			auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
 					new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), user);

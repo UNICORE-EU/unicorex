@@ -41,7 +41,7 @@ public class CDMIStorageAdapterFactory implements StorageAdapterFactory {
 
 	public CDMIStorageAdapter createStorageAdapter(Kernel kernel, IAuthCallback authCallback, String endpoint)
 			throws IOException {
-		ClientProperties cp = kernel.getClientConfiguration().clone();
+		ClientProperties cp = kernel.getClientConfiguration();
 		cp.setSslAuthn(false);
 		cp.setSslEnabled(endpoint.startsWith("https"));
 		cp.setValidator(new BinaryCertChainValidator(true));

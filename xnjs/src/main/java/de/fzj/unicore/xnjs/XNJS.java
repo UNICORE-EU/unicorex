@@ -33,7 +33,6 @@
 
 package de.fzj.unicore.xnjs;
 
-import java.io.FileNotFoundException;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.Calendar;
@@ -61,7 +60,6 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 
 import de.fzj.unicore.persist.PersistenceProperties;
-import de.fzj.unicore.persist.cluster.Cluster;
 import de.fzj.unicore.xnjs.ConfigurationSource.ProcessorChain;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -81,7 +79,6 @@ import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
-import eu.unicore.util.configuration.ConfigurationException;
 
 /**
  * XNJS main class<br/>
@@ -437,20 +434,6 @@ public class XNJS {
 
 	public PersistenceProperties getPersistenceProperties(){
 		return persistenceProperties;
-	}
-
-	public boolean isClusterEnabled(){
-		return persistenceProperties.getBooleanValue(PersistenceProperties.DB_LOCKS_DISTRIBUTED);
-	}
-
-	public Cluster getCluster() {
-		if(!isClusterEnabled())return null;
-		try{
-			return Cluster.getInstance(persistenceProperties.getFileValueAsString(
-					PersistenceProperties.DB_CLUSTER_CONFIG, false));
-		}catch(FileNotFoundException fe){
-			throw new ConfigurationException("Cannot setup cluster instance", fe);
-		}
 	}
 
 	public String getProperty(String key){

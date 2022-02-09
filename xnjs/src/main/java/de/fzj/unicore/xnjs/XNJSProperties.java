@@ -86,7 +86,7 @@ public class XNJSProperties extends PropertiesHelper {
 						"If not set, the subsystem will be disabled."));
 		META.put(ALLOW_USER_EXECUTABLE, new PropertyMD("true").setBoolean().
 				setDescription("Whether to allow user-defined executables. If set to false, only applications defined in the IDB may be run."));
-		META.put(STRICT_USERINPUT_CHECKING, new PropertyMD("true").setBoolean().
+		META.put(STRICT_USERINPUT_CHECKING, new PropertyMD("false").setBoolean().
 				setDescription("Whether to be restrictive in checking user-supplied arguments and environment variables. Set to true if you do not want ANY user code to run on your TSI node."));
 		META.put(STAGING_FS_WAIT, new PropertyMD("false").setBoolean().
 				setDescription("Whether to add a waiting loop for files to appear on shared filesystems."));

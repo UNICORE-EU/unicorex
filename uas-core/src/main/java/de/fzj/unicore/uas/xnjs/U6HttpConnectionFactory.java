@@ -25,7 +25,7 @@ public class U6HttpConnectionFactory implements IConnectionFactory{
 	
 	@Override
 	public HttpClient getConnection(String url, Client client) {
-		IClientConfiguration auth=kernel.getClientConfiguration().clone();
+		IClientConfiguration auth = kernel.getClientConfiguration();
 		try {
 			DefaultClientConfiguration cc = (DefaultClientConfiguration)auth;
 			cc.setSslAuthn(false);

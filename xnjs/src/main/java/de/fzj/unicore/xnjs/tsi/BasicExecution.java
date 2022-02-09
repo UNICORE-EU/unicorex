@@ -373,9 +373,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			if(runTime>0){
 				job.getExecutionContext().setEstimatedEndtime(System.currentTimeMillis()+1000*runTime);
 			}
-		}catch(Exception e){
-			// nop
-		}
+		}catch(Exception e){}
 	}
 
 	/**

@@ -35,6 +35,7 @@ package de.fzj.unicore.xnjs.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -212,6 +213,10 @@ public class TestResourceIncarnation {
 		testRes=g.incarnateResources(request, null);
 		incarnated = ResourceRequest.find(testRes,"AStringResource").getRequestedValue();
 		assertEquals("myvalue", incarnated);
+		
+		incarnated = ResourceRequest.findAndRemove(testRes,"AStringResource").getRequestedValue();
+		assertEquals("myvalue", incarnated);
+		assertNull(ResourceRequest.find(testRes,"AStringResource"));
 	}
 
 	@Test

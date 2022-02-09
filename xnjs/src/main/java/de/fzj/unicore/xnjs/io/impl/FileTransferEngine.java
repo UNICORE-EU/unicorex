@@ -50,10 +50,6 @@ import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Logger;
 
-import com.hazelcast.topic.ITopic;
-import com.hazelcast.topic.Message;
-import com.hazelcast.topic.MessageListener;
-
 import de.fzj.unicore.persist.Persist;
 import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.PersistenceFactory;
@@ -87,7 +83,7 @@ import eu.unicore.security.Client;
  * @author schuller
  */
 @Singleton
-public class FileTransferEngine implements IFileTransferEngine, MessageListener<FileTransferEngine.FileTransferEvent> {
+public class FileTransferEngine implements IFileTransferEngine{
 
 	private static final Logger logger=LogUtil.getLogger(LogUtil.IO,FileTransferEngine.class);
 
@@ -114,13 +110,7 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 	}
 	
 	private Map<String,TransferInfo> createInfoMap(){
-		if(xnjs.isClusterEnabled()){
-			getHZTopic().addMessageListener(this);
-			return xnjs.getCluster().getMap("XNJS.filetransferinfo", String.class, TransferInfo.class);
-		}
-		else{
-			return new ConcurrentHashMap<>();
-		}
+		return new ConcurrentHashMap<>();
 	}
 
 	private synchronized void loadExtensions(){
@@ -274,29 +264,9 @@ public class FileTransferEngine implements IFileTransferEngine, MessageListener<
 		ftMap.remove(id);
 		ftInfo.remove(id);
 	}
-	
+
 	public synchronized void abort(String id) {
-		if(xnjs.isClusterEnabled()){
-			FileTransferEvent message = new FileTransferEvent("abort", id);
-			getHZTopic().publish(message);
-		}
-		else{
-			ftMap.get(id).abort();
-		}
-	}
-	
-	protected ITopic<FileTransferEvent> getHZTopic(){
-		return xnjs.getCluster().getHazelcast().getTopic("XNJS.filetransfer.events");
-	}
-	
-	public void onMessage(Message<FileTransferEvent> message){
-		FileTransferEvent event = message.getMessageObject();
-		IFileTransfer ft = ftMap.get(event.id);
-		if(ft!=null){
-			if("abort".equals(event.type)){
-				ft.abort();
-			}
-		}
+		ftMap.get(id).abort();
 	}
 
 	public static class FileTransferEvent implements Serializable {

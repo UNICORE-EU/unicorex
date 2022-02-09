@@ -39,12 +39,7 @@ public class Dispatcher extends Thread {
 	}
 
 	private BlockingQueue<QueueEntry> createQueue(){
-		if(xnjs!=null && xnjs.isClusterEnabled()){
-			return xnjs.getCluster().getQueue("XNJS.action_id_queue");
-		}
-		else{
-			return new DelayQueue<QueueEntry>();
-		}
+		return new DelayQueue<QueueEntry>();
 	}
 
 	/**
@@ -120,7 +115,7 @@ public class Dispatcher extends Thread {
 		private static final long serialVersionUID = 1l;
 
 		/**
-		 * minimum waiting time (milliseconds) before an Action is processed again
+		 * minimum waiting time (milliseconds) before the Action is processed again
 		 */
 		public static final int QUEUE_DELAY=50;
 
@@ -128,17 +123,9 @@ public class Dispatcher extends Thread {
 
 		final long lastAccessed;
 
-		/**
-		 * @param actionID
-		 * @param lastAccessed - in millis
-		 */
-		public QueueEntry(String actionID, long lastAccessed){
-			this.actionID=actionID;
-			this.lastAccessed=lastAccessed;
-		}
-
 		public QueueEntry(String actionID){
-			this(actionID,System.currentTimeMillis());
+			this.actionID = actionID;
+			this.lastAccessed = System.currentTimeMillis();
 		}
 
 		public long getDelay(TimeUnit unit) {

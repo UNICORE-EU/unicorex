@@ -55,7 +55,7 @@ public class KeystoneAuth implements IAuthCallback {
 	}
 
 	protected TokenCacheEntry getNewToken() throws Exception {
-		ClientProperties cp = kernel.getClientConfiguration().clone();
+		ClientProperties cp = kernel.getClientConfiguration();
 		cp.setSslAuthn(false);
 		cp.setSslEnabled(endpoint.startsWith("https"));
 		/* disable server cert verification */		

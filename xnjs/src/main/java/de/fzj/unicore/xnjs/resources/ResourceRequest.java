@@ -82,9 +82,18 @@ public class ResourceRequest implements Serializable  {
 		return null;
 	}
 	
+	public static ResourceRequest findAndRemove(Collection<ResourceRequest>req, String name){
+		for(ResourceRequest r: req){
+			if(r.getName().equals(name)) {
+				req.remove(r);
+				return r;
+			}
+		}
+		return null;
+	}
+
 	public static void removeQuietly(Collection<ResourceRequest>req, String name){
-		ResourceRequest r = find(req,name);
-		if(r!=null)req.remove(r);
+		findAndRemove(req, name);
 	}
 
 	public static List<ResourceRequest> merge(Collection<ResourceRequest > defaults, Collection<ResourceRequest>overrides){

@@ -66,7 +66,7 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 	}
 
 	protected void send(String url, int newStatus, Client client, Action action) throws Exception {
-		IClientConfiguration security = kernel.getClientConfiguration().clone();
+		IClientConfiguration security = kernel.getClientConfiguration();
 		String user = client.getDistinguishedName();
 		IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
 				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), user);

@@ -64,7 +64,7 @@ public class CDMITest extends Base {
 		// small test whether we can access...
 		String cdmiEndpoint = cdmiProps.getProperty("endpoint");
 		String path = cdmiProps.getProperty("path");
-		ClientProperties cp = kernel.getClientConfiguration().clone();
+		ClientProperties cp = kernel.getClientConfiguration();
 		cp.setSslAuthn(false);
 		cp.setSslEnabled(cdmiEndpoint.startsWith("https"));
 		/* disable server cert verification */		

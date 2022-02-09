@@ -59,6 +59,10 @@ public class IDBImpl implements IDB {
 	public static final Pattern ARG_PATTERN=Pattern.compile("\\s?(.*?)"+"("+VAR+")(.*?)\\s*", Pattern.DOTALL);
 	public static final String DEFAULT_PARTITION = "DEFAULT_PARTITION";
 	
+	public static final String DEFAULT_EXECUTE_TEMPLATE = "#!/bin/bash\n#COMMAND\n#SCRIPT\n";
+
+	public static final String DEFAULT_SUBMIT_TEMPLATE = "#!/bin/bash\n#COMMAND\n#RESOURCES\n#SCRIPT\n";
+
 	protected static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,IDBImpl.class);
 
 	private final Collection<ApplicationInfo> idb = new ArrayList<>();
@@ -287,13 +291,13 @@ public class IDBImpl implements IDB {
 	@Override
 	public String getSubmitTemplate() {
 		doCheckAndUpdateIDB();
-		return submitTemplate;
+		return submitTemplate!=null ? submitTemplate : DEFAULT_SUBMIT_TEMPLATE;
 	}
 
 	@Override
 	public String getExecuteTemplate() {
 		doCheckAndUpdateIDB();
-		return executeTemplate;
+		return executeTemplate!=null ? executeTemplate : DEFAULT_EXECUTE_TEMPLATE;
 	}
 
 	public void setExecuteTemplate(String template) {

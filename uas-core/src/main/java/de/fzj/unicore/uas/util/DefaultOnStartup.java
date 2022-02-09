@@ -112,7 +112,7 @@ public class DefaultOnStartup implements Runnable{
 			finally{
 				tsfLock.unlock();
 			}
-			publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, "TargetSystemFactoryService");
+			publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, "TargetSystemFactory");
 		}
 	}
 

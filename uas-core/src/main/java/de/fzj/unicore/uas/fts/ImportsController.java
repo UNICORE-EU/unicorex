@@ -101,7 +101,7 @@ public class ImportsController implements IFTSController {
 			String user = client.getDistinguishedName();
 			IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
 					new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), user);
-			remoteStorage = new StorageClient(remoteEndpoint, kernel.getClientConfiguration().clone(), auth);
+			remoteStorage = new StorageClient(remoteEndpoint, kernel.getClientConfiguration(), auth);
 		}
 	}
 	

@@ -59,18 +59,12 @@ public class Jobs extends ServicesBase {
 
 	
 	/**
-	 * submit a job to any of our accessible target system instances
-	 * 
-	 * @param json - JSON job
-	 * @return address of new resource
-	 * 
-	 * @throws JSONException
-	 * @throws PersistenceException
+	 * get the BSS job details for this job
 	 */
 	@GET
 	@Path("/{uniqueID}/details")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response details() throws Exception {
+	public Response details() {
 		try{
 			JobManagementImpl resource = getResource();
 			String xnjsReference = resource.getXNJSReference();
@@ -103,7 +97,7 @@ public class Jobs extends ServicesBase {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ConcurrentAccess(allow=true)
-	public Response submit(String json) throws Exception {
+	public Response submit(String json) {
 		try{
 			checkSubmissionEnabled(kernel);
 			Builder job = new Builder(json);
@@ -249,6 +243,7 @@ public class Jobs extends ServicesBase {
 		String location = baseURL+"/jobs/"+id;
 		return location;
 	}
+
 
 	public static void checkSubmissionEnabled(Kernel kernel) throws WebApplicationException {		
 		TargetSystemHomeImpl tssHome = (TargetSystemHomeImpl)kernel.getHome(UAS.TSS);
