@@ -98,6 +98,8 @@ public class TestTSI extends RemoteTSITestCase{
 		try(TSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
+			assertTrue(c.compareVersion(TSIConnection.RECOMMENDED_TSI_VERSION));
+			
 		}
 
 		try(TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1)){
@@ -117,8 +119,6 @@ public class TestTSI extends RemoteTSITestCase{
 
 		RemoteTSI tsi=makeTSI();
 		assertNotNull(tsi);
-		String v=tsi.getFactory().getTSIVersion();
-		assertTrue(TSIUtils.compareVersion(v, TSIConnection. RECOMMENDED_TSI_VERSION));
 		assertEquals("UNICORE TSI at localhost:65431",tsi.getFileSystemIdentifier());
 	}
 

@@ -33,7 +33,6 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -81,12 +80,12 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 
 	@Override
 	protected RemoteTSIModule getTSIModule(ConfigurationSource cs){
-		return new MyTSIModule(cs.getProperties());
+		return new MyTSIModule(cs.getProperties(), xnjs);
 	}
 
 	public static class MyTSIModule extends RemoteTSIModule{
-		public MyTSIModule(Properties p){
-			super(p);
+		public MyTSIModule(Properties p, XNJS xnjs){
+			super(p, xnjs);
 		}
 
 		@Override
@@ -286,24 +285,6 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		assertEquals(BSS_STATE.RUNNING,st.get("2795100").bssState);
 		System.out.println(summary.toString());
 		assertEquals(2, summary.queueFilling.get("NORMAL").intValue());
-	}
-
-	@Test
-	public void testVersionCompare(){
-		assertTrue(TSIUtils.compareVersion("1.2.3", "1.2.3"));
-		assertTrue(TSIUtils.compareVersion("1.2.3.4", "1.2.3"));
-		assertTrue(TSIUtils.compareVersion("1.2.4", "1.2.3"));
-		assertTrue(TSIUtils.compareVersion("2.2.3", "1.2.3"));
-		assertTrue(TSIUtils.compareVersion("2.0", "1.2.3"));
-
-
-		assertFalse(TSIUtils.compareVersion("1.2.2", "1.2.3"));
-		assertFalse(TSIUtils.compareVersion("1.2", "1.2.3"));
-		assertFalse(TSIUtils.compareVersion("1.2.2.4", "1.2.3"));
-
-		//test number format problems
-		assertFalse(TSIUtils.compareVersion("TESTING", "1.2.3"));
-
 	}
 
 	@Test

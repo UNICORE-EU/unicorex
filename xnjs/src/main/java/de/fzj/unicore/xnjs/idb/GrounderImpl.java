@@ -24,6 +24,7 @@ import de.fzj.unicore.xnjs.resources.StringResource;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import de.fzj.unicore.xnjs.tsi.remote.TSIProperties;
 import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.util.ErrorCode;
@@ -368,7 +369,7 @@ public class GrounderImpl implements Incarnation {
 
 	private String checkLegal(String input, String desc){
 		if(properties.getBooleanValue(XNJSProperties.STRICT_USERINPUT_CHECKING)){
-			return TSIUtils.checkLegal(input, desc);
+			return TSIMessages.checkLegal(input, desc);
 		}
 		else return input;
 	}

@@ -69,7 +69,7 @@ import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.tsi.local.LocalExecution;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIProperties;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
@@ -98,6 +98,9 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	
 	@Inject
 	protected TSIFactory tsiFactory;
+	
+	@Inject
+	protected TSIMessages tsiMessages;
 	
 	@Inject
 	protected InternalManager manager;
@@ -172,9 +175,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		}
 		String tmpName="TSI_submit_"+System.currentTimeMillis();
 		String cmdFile=workDir+tmpName;
-		boolean addWaitingLoop = properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT);
-		
-		String cmd=TSIUtils.makeSubmitCommand(jsdlAction, idb, grounder, properties, null, addWaitingLoop);
+		String cmd = tsiMessages.makeSubmitCommand(jsdlAction, null);
 		//write to file
 		OutputStreamWriter writer=null;
 		try{
@@ -369,7 +370,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	 */
 	protected void updateEstimatedEndtime(Action job){
 		try{
-			int runTime=TSIUtils.getRuntime(job.getExecutionContext().getResourceRequest());
+			int runTime = TSIMessages.getRuntime(job.getExecutionContext().getResourceRequest());
 			if(runTime>0){
 				job.getExecutionContext().setEstimatedEndtime(System.currentTimeMillis()+1000*runTime);
 			}

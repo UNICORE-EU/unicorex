@@ -265,6 +265,40 @@ public class TSIConnection implements AutoCloseable {
 		sb.append("]");
 		return sb.toString();
 	}
+	
+	/**
+	 * compares versions
+	 * @param tsiVersion - the current TSI version
+	 * @param minRequired - the mininum required version
+	 * @return <code>true</code> if tsiVersion >= minRequired, <code>false</code> otherwise
+	 */
+	public boolean compareVersion(String minRequired) {
+		if(tsiVersion==null)return false;
+
+		String[] curS = tsiVersion.split("\\.");
+		String[] reqS = minRequired.split("\\.");
+		int[] cur = new int[curS.length];
+		int[] req = new int[reqS.length];
+		try{
+			for (int i=0; i<curS.length; i++)
+				cur[i] = Integer.parseInt(curS[i]);
+			for (int i=0; i<reqS.length; i++)
+				req[i] = Integer.parseInt(reqS[i]);
+		}
+		catch(NumberFormatException ex){
+			return false;
+		}
+		for (int i=0; i<Math.min(cur.length, req.length); i++) {
+			if (cur[i] < req[i])
+				return false;
+			else if (cur[i] > req[i])
+				return true;
+		}
+		if (cur.length >= req.length)
+			return true;
+		return false;
+	}
+
 
 	private void appendSocketInfo(Socket s, StringBuilder sb){
 		try{
@@ -325,29 +359,18 @@ public class TSIConnection implements AutoCloseable {
 		private synchronized String _send(String data, boolean sendUser) throws IOException {
 			StringBuilder reply = new StringBuilder();
 			// Check the outgoing data to prevent users messing with the protocol
-			// (e.g. in file names) and acquiring another identity
-			//
-			// ENDOFMESSAGE will confuse the TSI so exclude
-			// #TSI_IDENTITY should appear once only (0 for PING, picked up in
-			// TSI)
-			// => anything else is suspicious
-			if (data.indexOf("ENDOFMESSAGE") > -1)
-				throw new IOException(
-						"TSI message (user data?) contains ENDOFMESSAGE, this is not allowed");
-
-			// The user ID information is inserted here so the
-			// incoming string cannot contain one
-
-			if (data.indexOf("#TSI_IDENTITY") > -1) {
+			// (e.g. in file names) 
+			String[] forbidden = new String[] {"ENDOFMESSAGE", "#TSI_IDENTITY"};
+			for(String s: forbidden) {
+				if (data.indexOf(s) > -1)
 					throw new IOException(
-							"TSI message or user's data changes identity far too many times (#TSI_IDENTITY found)");
+							"TSI message or user data contains '"+s+"', this is not allowed");
 			}
-
 			try {
 				logger.debug("--> [{}] {}", idLine, data);
 				output.print(data);
 				if (sendUser){
-					output.print("\n#TSI_IDENTITY " + idLine + "\n");
+					output.print("\n#TSI_IDENTITY " + idLine+"\n");
 				}
 				output.print("\nENDOFMESSAGE\n");
 				output.flush();
@@ -539,7 +562,7 @@ public class TSIConnection implements AutoCloseable {
 		}
 		if(tsiVersion!=null && !issuedWarning) {
 			issuedWarning = true;
-			if(!TSIUtils.compareVersion(tsiVersion, RECOMMENDED_TSI_VERSION)){
+			if(compareVersion(RECOMMENDED_TSI_VERSION)){
 				logger.warn("TSI host <{}> runs version <{}> which is outdated. "
 						+ "UNICORE will try to work in backwards compatible way, "
 						+ "but some features may not work. " +

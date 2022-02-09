@@ -77,6 +77,7 @@ import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.persistence.IActionStoreFactory;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 
@@ -115,6 +116,8 @@ public class XNJS {
 
 	private final TSIFactory tsiFactory;
 
+	private final TSIMessages tsiMessages;
+
 	private final Map<Class<?>,Object>attributes=new HashMap<Class<?>,Object>();
 
 	/**
@@ -151,6 +154,7 @@ public class XNJS {
 				return t;
 			}
 		});
+		tsiMessages = new TSIMessages(this, baseProperties);
 
 		AbstractModule common = new AbstractModule() {
 
@@ -185,6 +189,11 @@ public class XNJS {
 			@Provides
 			public TSIFactory getTSIFactory(){
 				return tsiFactory;
+			}
+
+			@Provides
+			public TSIMessages getTSIMessages(){
+				return tsiMessages;
 			}
 
 			@Provides

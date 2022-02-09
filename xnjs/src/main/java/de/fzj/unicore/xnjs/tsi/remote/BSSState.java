@@ -42,12 +42,22 @@ public class BSSState implements IBSSState {
 
 	private final Map<String,BSSInfo> bssInfo = new ConcurrentHashMap<>();
 
+	@Inject
 	private TSIConnectionFactory connectionFactory;
 
+	@Inject
 	private TSIProperties tsiProperties;
 
+	@Inject
+	private XNJS xnjs;
+
+	@Inject
 	private IDB idb;
 
+	@Inject
+	private TSIMessages tsiMessages;
+
+	@Inject
 	private InternalManager eventHandler;
 
 	private volatile BSSSummary summary = new BSSSummary();
@@ -80,15 +90,13 @@ public class BSSState implements IBSSState {
 	private long lastLoggedTSIFailure = -1;
 	private final long interval = 60*60*1000;
 
-	@Inject
-	public BSSState(XNJS xnjs, TSIConnectionFactory connectionFactory, InternalManager eventHandler, IDB idb, TSIProperties tsiProperties) {
-		this.connectionFactory = connectionFactory;
-		this.eventHandler = eventHandler;
-		this.idb = idb;
-		this.tsiProperties = tsiProperties;
-
+	private boolean haveInit = false;
+	
+	@Override
+	public synchronized void init() {
+		if(haveInit)return;
+		haveInit = true;
 		updateConfigParameters();
-
 		//schedule BSS status update
 		Runnable r=new Runnable(){
 			public void run(){
@@ -408,7 +416,7 @@ public class BSSState implements IBSSState {
 
 	private String doGetProcessListing(TSIConnection tsiConnection) throws IOException {
 		String res = null;
-		if(TSIUtils.compareVersion(tsiConnection.getTSIVersion(), "8.3.0")) {
+		if(tsiConnection.compareVersion("8.3.0")) {
 			res = tsiConnection.send(TSIUtils.makeGetProcessListCommand());
 		}
 		else {

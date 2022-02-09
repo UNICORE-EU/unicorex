@@ -110,6 +110,7 @@ public class Execution extends BasicExecution {
 		this.xnjs = xnjs;
 		this.connectionFactory = factory;
 		this.bss = bss;
+		this.bss.init();
 		computeBudgets = buildComputeBudgetCache();
 	}
 

@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 
 /**
@@ -70,7 +71,7 @@ public class ExecutionContext implements Serializable{
 	private boolean runOnLoginNode;
 	
 	//PID file name (for interactive execution on the login node)
-	private String pidFileName=TSIUtils.PID_FILENAME;
+	private String pidFileName = TSIMessages.PID_FILENAME;
 		
 	//the process exit code
 	private Integer exitCode;
@@ -81,7 +82,7 @@ public class ExecutionContext implements Serializable{
 	//the resources requested for executing the job
 	private List<ResourceRequest> resourceRequest = new ArrayList<>();
 
-	private String exitCodeFileName=TSIUtils.EXITCODE_FILENAME;
+	private String exitCodeFileName = TSIMessages.EXITCODE_FILENAME;
 	
 	//the preferred execution host (hostname or IP)
 	private String preferredExecutionHost;

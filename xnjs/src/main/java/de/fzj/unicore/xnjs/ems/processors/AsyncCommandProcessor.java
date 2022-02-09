@@ -16,6 +16,7 @@ import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIBusyException;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
 
@@ -56,10 +57,10 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 			ec.setOutcomeDirectory(ec.getWorkingDirectory()+".UNICORE_"+subCommand.id+tsi.getFileSeparator());	
 		}
 		tsi.mkdir(ec.getOutcomeDirectory());
-		ec.setExitCodeFileName(subCommand.id+"_"+TSIUtils.EXITCODE_FILENAME);
+		ec.setExitCodeFileName(subCommand.id+"_" + TSIMessages.EXITCODE_FILENAME);
 		ec.setIgnoreExitCode(subCommand.ignoreExitCode);
 		ec.setRunOnLoginNode(true);
-		ec.setPIDFileName(subCommand.id+"_"+TSIUtils.PID_FILENAME);
+		ec.setPIDFileName(subCommand.id+"_" + TSIMessages.PID_FILENAME);
 		ec.getEnvironment().putAll(subCommand.env);
 		ec.setPreferredExecutionHost(subCommand.preferredExecutionHost);
 		ec.setStderr(subCommand.stderr);

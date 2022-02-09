@@ -1,35 +1,3 @@
-/*********************************************************************************
- * Copyright (c) 2006 Forschungszentrum Juelich GmbH 
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * (1) Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaimer at the end. Redistributions in
- * binary form must reproduce the above copyright notice, this list of
- * conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution.
- * 
- * (2) Neither the name of Forschungszentrum Juelich GmbH nor the names of its 
- * contributors may be used to endorse or promote products derived from this 
- * software without specific prior written permission.
- * 
- * DISCLAIMER
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************************/
-
 package de.fzj.unicore.xnjs.tsi.remote;
 
 import java.io.BufferedReader;
@@ -41,6 +9,11 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
+import com.google.inject.Singleton;
+
+import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
@@ -66,7 +39,8 @@ import eu.unicore.security.Xlogin;
  * 
  * @author schuller
  */
-public class TSIUtils {
+@Singleton
+public class TSIMessages {
 
 	public static final String EXITCODE_FILENAME = "UNICORE_SCRIPT_EXIT_CODE";
 	public static final String PID_FILENAME = "UNICORE_SCRIPT_PID";
@@ -75,7 +49,14 @@ public class TSIUtils {
 
 	static boolean  _unittestnoexitcode=false;
 
-	private TSIUtils() {
+	private final XNJS xnjs;
+
+	private final XNJSProperties properties;
+
+	@Inject
+	public TSIMessages(XNJS xnjs, XNJSProperties properties) {
+		this.xnjs = xnjs;
+		this.properties = properties;
 	}
 
 	/**
@@ -83,12 +64,12 @@ public class TSIUtils {
 	 *
 	 * @return TSI commmand string
 	 */
-	public static String makeSubmitCommand(Action job, 
-			IDB idb, Incarnation grounder, 
-			XNJSProperties properties, String credentials, boolean addWaitingLoop) throws ExecutionException {
+	public String makeSubmitCommand(Action job, String credentials) throws ExecutionException {
 		ApplicationInfo applicationInfo = job.getApplicationInfo();
 		Client client=job.getClient();
 		ExecutionContext ec = job.getExecutionContext();
+		IDB idb = xnjs.get(IDB.class);
+		Incarnation grounder = xnjs.get(Incarnation.class);
 
 		String template = idb.getSubmitTemplate()
 				.replace("#COMMAND", "#TSI_SUBMIT\n");
@@ -169,7 +150,7 @@ public class TSIUtils {
 		commands.append("PATH=$PATH:. ; export PATH\n");
 		f.format("cd %s\n", ec.getWorkingDirectory());
 
-		if(addWaitingLoop) {
+		if(properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT)) {
 			// make sure all staged input files are available ON THE WORKER NODE
 			insertImportedFilesWaitingLoop(commands, job);
 		}
@@ -253,7 +234,7 @@ public class TSIUtils {
 	/**
 	 * make sure all staged input files are available ON THE NODE where stuff will be running
 	 */
-	public static void insertImportedFilesWaitingLoop(StringBuilder commands, Action job) {
+	private void insertImportedFilesWaitingLoop(StringBuilder commands, Action job) {
 		try
 		{
 			List<DataStageInInfo> stageIns = job.getStageIns();
@@ -303,8 +284,8 @@ public class TSIUtils {
 	/**
 	 * generate an EXECUTE_SCRIPT command
 	 */
-	public static String makeExecuteScript(String script, ExecutionContext ec,
-			IDB idb, String credentials) {
+	public String makeExecuteScript(String script, ExecutionContext ec, String credentials) {
+		IDB idb = xnjs.get(IDB.class);
 		String template = idb.getExecuteTemplate()
 				.replace("#COMMAND", "#TSI_EXECUTESCRIPT\n");
 
@@ -344,8 +325,8 @@ public class TSIUtils {
 	/**
 	 * generate an EXECUTE_SCRIPT command for running a command asynchronously
 	 */
-	public static String makeExecuteAsyncScript(Action job,	IDB idb, String credentials, boolean waitingLoop) {
-
+	public String makeExecuteAsyncScript(Action job,	String credentials) {
+		IDB idb = xnjs.get(IDB.class);
 		String template = idb.getExecuteTemplate()
 				.replace("#COMMAND", "#TSI_EXECUTESCRIPT\n");
 		ExecutionContext ec=job.getExecutionContext();
@@ -363,7 +344,9 @@ public class TSIUtils {
 
 		commands.append(" { ");
 		
-		if(waitingLoop) insertImportedFilesWaitingLoop(commands, job);
+		if(properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT)) {
+			insertImportedFilesWaitingLoop(commands, job);
+		}
 
 		commands.append(ai.getExecutable());
 		for(String arg: ai.getArguments()){
@@ -471,7 +454,7 @@ public class TSIUtils {
 	 * @param bssid
 	 * @return command string to send to the TSI
 	 */
-	public static String makeAbortCommand(String bssid) {
+	public String makeAbortCommand(String bssid) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_ABORTJOB\n");
 		commands.append("#TSI_BSSID ").append(bssid).append("\n");
@@ -484,7 +467,7 @@ public class TSIUtils {
 	 * @param bssid
 	 * @return command string to send to the TSI
 	 */
-	public static String makeCancelCommand(String bssid) {
+	public String makeCancelCommand(String bssid) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_CANCELJOB\n");
 		commands.append("#TSI_BSSID ").append(bssid).append("\n");
@@ -498,7 +481,7 @@ public class TSIUtils {
 	 * @param bssid
 	 * @return command string to send to the TSI
 	 */
-	public static String makeGetJobInfoCommand(String bssid, String credentials) {
+	public String makeGetJobInfoCommand(String bssid, String credentials) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_GETJOBDETAILS\n");
 		if(credentials!=null){
@@ -513,7 +496,7 @@ public class TSIUtils {
 	 * 
 	 * @return command string to send to the TSI
 	 */
-	public static String makeStatusCommand(String credentials) {
+	public String makeStatusCommand(String credentials) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_GETSTATUSLISTING\n");
 		if(credentials!=null){
@@ -530,7 +513,7 @@ public class TSIUtils {
 	 * @param length
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makeGetFileChunkCommand(String file, long start,
+	public String makeGetFileChunkCommand(String file, long start,
 			long length) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_GETFILECHUNK\n");
@@ -546,7 +529,7 @@ public class TSIUtils {
 	 * @param append
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makePutFilesCommand(boolean append) {
+	public String makePutFilesCommand(boolean append) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_PUTFILES\n");
 		String action = append ? "3" : "0";
@@ -560,7 +543,7 @@ public class TSIUtils {
 	 * @param append
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makePutFileChunkCommand(String file, String mode, long length, boolean append) {
+	public String makePutFileChunkCommand(String file, String mode, long length, boolean append) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_PUTFILECHUNK\n");
 		String action = append ? "3" : "0";
@@ -570,7 +553,7 @@ public class TSIUtils {
 		return commands.toString();
 	}
 
-	public static String makeUFTPGetFileCommand(
+	public String makeUFTPGetFileCommand(
 			String host, int port, String secret,
 			String remoteFile, 
 			String localFile, 
@@ -597,7 +580,7 @@ public class TSIUtils {
 		return commands.toString();
 	}
 
-	public static String makeUFTPPutFileCommand(
+	public String makeUFTPPutFileCommand(
 			String host, int port, String secret,
 			String remoteFile, 
 			String localFile, 
@@ -633,7 +616,7 @@ public class TSIUtils {
 	 *            the requested start time
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makeMakeReservationCommand(List<ResourceRequest>rt, Calendar startTime, Client client) {
+	public String makeMakeReservationCommand(List<ResourceRequest>rt, Calendar startTime, Client client) {
 		StringBuilder commands = new StringBuilder();
 		commands.append("#TSI_MAKE_RESERVATION\n");
 		if(client!=null && client.getXlogin()!=null){
@@ -651,7 +634,7 @@ public class TSIUtils {
 	 * 
 	 * @param reservationID - the ID of the reservation to cancel
 	 */
-	public static String makeCancelReservationCommand(String reservationID) {
+	public String makeCancelReservationCommand(String reservationID) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_CANCEL_RESERVATION\n");
 		commands.append("#TSI_RESERVATION_REFERENCE " + reservationID + "\n");
@@ -666,7 +649,7 @@ public class TSIUtils {
 	 *            the ID of the reservation to query
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makeQueryReservationCommand(String reservationID) {
+	public String makeQueryReservationCommand(String reservationID) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_QUERY_RESERVATION\n");
 		commands.append("#TSI_RESERVATION_REFERENCE " + reservationID + "\n");
@@ -681,7 +664,7 @@ public class TSIUtils {
 	 * @param recurse - recurse in case of a directory listing 
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makeLSCommand(String path, boolean normal, boolean recurse) {
+	public String makeLSCommand(String path, boolean normal, boolean recurse) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_LS\n");
 		String mode = normal? (recurse ? "R" : "N"): "A" ;
@@ -696,7 +679,7 @@ public class TSIUtils {
 	 * @param path - the file/directory to stat or list
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makeDFCommand(String path) {
+	public String makeDFCommand(String path) {
 		StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_DF\n");
 		commands.append("#TSI_FILE ").append(path).append("\n");
@@ -709,7 +692,7 @@ public class TSIUtils {
 	 * 
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makeGetBudgetCommand() {
+	public String makeGetBudgetCommand() {
 		return "#TSI_GET_COMPUTE_BUDGET\n";
 	}
 
@@ -719,7 +702,7 @@ public class TSIUtils {
 	 *
 	 * @return a string for sending to the UNICORE TSI
 	 */
-	public static String makeGetProcessListCommand() {
+	public String makeGetProcessListCommand() {
 		return "#TSI_GETPROCESSLISTING\n";
 	}
 
@@ -729,7 +712,7 @@ public class TSIUtils {
 	 * 
 	 * @return the queue / partition name the job will be submitted into
 	 */
-	public static String appendTSIResourceSpec(StringBuilder commands, List<ResourceRequest> resources) {
+	public String appendTSIResourceSpec(StringBuilder commands, List<ResourceRequest> resources) {
 
 		int run_time = -1; // walltime
 
@@ -860,7 +843,7 @@ public class TSIUtils {
 	 * Appends the environment to the commands argument in the 'key="value"; export key' format.
 	 * Also appends umask setting if is set.
 	 */
-	public static void appendEnvironment(StringBuilder commands,
+	private void appendEnvironment(StringBuilder commands,
 			ExecutionContext ec, boolean filter) {
 		Formatter f = new Formatter(commands, null);
 		if (ec.getUmask() != null) {
@@ -893,11 +876,11 @@ public class TSIUtils {
 		} catch (Exception e) {}
 	}
 
+	
 	/**
 	 * Prepares a standard groups string for a TSI call requesting membership in all groups configured
 	 * by attribute sources and possibly refined by user preferences.
 	 * @param client
-	 * @param tsiVersion
 	 */
 	public static String prepareGroupsString(Client client) {
 		Xlogin xlogin = client.getXlogin();
@@ -934,7 +917,6 @@ public class TSIUtils {
 	 * Prepares a groups string for a TSI call requesting membership in all groups allowed for the user
 	 * in attribute sources + all default OS groups.
 	 * @param client
-	 * @param tsiVersion
 	 */
 	public static String prepareAllGroupsString(Client client) {
 		Xlogin xlogin = client.getXlogin();
@@ -951,14 +933,14 @@ public class TSIUtils {
 		return sb.toString();
 	}
 
-	public static String makePauseCommand(String bssid) {
+	public String makePauseCommand(String bssid) {
 		final StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_HOLDJOB\n");
 		commands.append("#TSI_BSSID " + bssid + "\n");
 		return commands.toString();
 	}
 
-	public static String makeResumeCommand(String bssid) {
+	public String makeResumeCommand(String bssid) {
 		final StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_RESUMEJOB\n");
 		commands.append("#TSI_BSSID " + bssid + "\n");

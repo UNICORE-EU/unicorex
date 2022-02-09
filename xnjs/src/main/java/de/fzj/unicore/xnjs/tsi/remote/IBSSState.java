@@ -11,6 +11,8 @@ import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSSummary;
 
 public interface IBSSState {
 
+	public void init();
+
 	public void toggleStatusUpdates(boolean enable);
 
 	public Lock getBSSLock();
