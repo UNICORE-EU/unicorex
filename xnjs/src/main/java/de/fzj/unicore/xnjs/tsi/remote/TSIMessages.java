@@ -9,10 +9,6 @@ import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import com.google.inject.Singleton;
-
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
@@ -31,7 +27,7 @@ import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 
 /**
- * Helpers to
+ * Helper to
  * <ul>
  * <li> generate commands to the UNICORE TSI</li>
  * <li> deal with some replies such as status listings and directory listings</li>
@@ -39,7 +35,6 @@ import eu.unicore.security.Xlogin;
  * 
  * @author schuller
  */
-@Singleton
 public class TSIMessages {
 
 	public static final String EXITCODE_FILENAME = "UNICORE_SCRIPT_EXIT_CODE";
@@ -53,7 +48,6 @@ public class TSIMessages {
 
 	private final XNJSProperties properties;
 
-	@Inject
 	public TSIMessages(XNJS xnjs, XNJSProperties properties) {
 		this.xnjs = xnjs;
 		this.properties = properties;
@@ -384,7 +378,7 @@ public class TSIMessages {
 	 * @return two lines of the directory listing
 	 * @throws IllegalArgumentException if the result from TSI  makes no sense
 	 */
-	public static String[] readTSILSLine(BufferedReader br) throws IllegalArgumentException {
+	public String[] readTSILSLine(BufferedReader br) throws IllegalArgumentException {
 		String lines[] = new String[2];
 		lines[0] = "";
 		try {
@@ -423,7 +417,7 @@ public class TSIMessages {
 		return lines;
 	}
 
-	public static String readTSIDFLine(BufferedReader br) throws ExecutionException{
+	public String readTSIDFLine(BufferedReader br) throws ExecutionException{
 		String line = "";
 		while (line != null) {
 			try{
@@ -553,7 +547,7 @@ public class TSIMessages {
 		return commands.toString();
 	}
 
-	public String makeUFTPGetFileCommand(
+	public static String makeUFTPGetFileCommand(
 			String host, int port, String secret,
 			String remoteFile, 
 			String localFile, 
@@ -580,7 +574,7 @@ public class TSIMessages {
 		return commands.toString();
 	}
 
-	public String makeUFTPPutFileCommand(
+	public static String makeUFTPPutFileCommand(
 			String host, int port, String secret,
 			String remoteFile, 
 			String localFile, 
