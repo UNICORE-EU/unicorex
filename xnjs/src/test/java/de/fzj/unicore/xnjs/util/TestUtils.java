@@ -21,7 +21,7 @@ import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
-import de.fzj.unicore.xnjs.tsi.remote.RemoteTSI;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 
 public class TestUtils {
 
@@ -270,7 +270,7 @@ public class TestUtils {
 		};
 		int i=0;
 		for(String in: inputs){
-			String out = RemoteTSI.sanitize(in);
+			String out = TSIMessages.sanitize(in);
 			assertEquals("Sanitize error", sanitized[i], out);
 			i++;
 		}

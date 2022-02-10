@@ -49,7 +49,6 @@ import org.apache.logging.log4j.Logger;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.io.ACLEntry;
 import de.fzj.unicore.xnjs.io.ACLEntry.Type;
 import de.fzj.unicore.xnjs.io.ACLSupportCache;
@@ -85,13 +84,17 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private StringBuilder commands=new StringBuilder();
 
-	private final TSIProperties tsiProperties;
+	@Inject
+	private TSIProperties tsiProperties;
 
-	private final TSIConnectionFactory factory;
+	@Inject
+	private TSIConnectionFactory factory;
 
-	private final IDB idb;
+	@Inject
+	private TSIMessages tsiMessages;
 
-	private final ACLSupportCache aclSupportCache;
+	@Inject
+	private ACLSupportCache aclSupportCache;
 
 	private String user = "nobody";
 	private String group = "NONE";
@@ -99,8 +102,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private boolean autoCommit;
 
 	private Client client;
-
-	private final int bufsize;
 
 	private final String fileSeparator = "/";
 
@@ -114,15 +115,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	// timeout waiting for a TSI connection (before creating a new one)
 	static final int timeout = 5000;
-
-	@Inject
-	public RemoteTSI(TSIProperties tsiProperties, TSIConnectionFactory factory, IDB idb, ACLSupportCache aclSupportCache){
-		this.tsiProperties = tsiProperties;
-		this.factory = factory;
-		this.idb = idb;
-		this.aclSupportCache = aclSupportCache;
-		bufsize = tsiProperties.getIntValue(TSIProperties.TSI_BUFFERSIZE);
-	}
 
 	@Override
 	public void setPreferredTSIHost(String host){
@@ -139,7 +131,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		this.client=client;
 		if(client!=null){
 			user=client.getSelectedXloginName();
-			group=TSIUtils.prepareGroupsString(client);
+			group = TSIMessages.prepareGroupsString(client);
 		} else {
 			user="nobody";
 			group="NONE";
@@ -186,7 +178,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private String doCommit()throws ExecutionException{
 		if(commands.length()==0)return null;
-		String tsiCmd=TSIUtils.makeExecuteScript(commands.toString(), ec, idb, extractCredentials());
+		String tsiCmd = tsiMessages.makeExecuteScript(commands.toString(), ec, extractCredentials());
 		return doTSICommand(tsiCmd);
 	}
 
@@ -214,7 +206,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 */
 	private String makeTarget(String relativePath, boolean sanitize){
 		String target = IOUtils.getNormalizedPath(getStorageRoot()+fileSeparator+relativePath);
-		return sanitize ? sanitize(target) : target;
+		return sanitize ? TSIMessages.sanitize(target) : target;
 	}
 
 	/**
@@ -238,7 +230,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private String doTSICommandWithAllGroups(String tsiCmd) throws ExecutionException{
 		String groups = null;
 		if (client!=null){
-			groups=TSIUtils.prepareAllGroupsString(client);
+			groups = TSIMessages.prepareAllGroupsString(client);
 		}
 		return doTSICommandLowLevel(tsiCmd, groups);
 	}
@@ -371,7 +363,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			String oldRoot=storageRoot;
 			try{
 				storageRoot="/";
-				is=getInputStream(ec.getWorkingDirectory()+"/"+TSIUtils.EXITCODE_FILENAME);
+				is=getInputStream(ec.getWorkingDirectory()+"/"+TSIMessages.EXITCODE_FILENAME);
 				br=new BufferedReader(new InputStreamReader(is));
 				String s=br.readLine();
 				int i=Integer.parseInt(s);
@@ -396,7 +388,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		begin();
 		String target = makeQuotedTarget(dir);
 		commands.append(tsiProperties.getValue(TSIProperties.TSI_MKDIR) 
-				+ " -m " + TSIUtils.getDirPerm(umask) 
+				+ " -m " + TSIMessages.getDirPerm(umask) 
 				+ " "+ target + "\n");
 		String reply = commit();
 		checkNoErrors(reply);
@@ -417,7 +409,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		try{
 			try(TSIConnection conn = getConnection()){
 				String cmd="echo ${"+name+"}";
-				String tsicmd=TSIUtils.makeExecuteScript(cmd, null, idb, extractCredentials());
+				String tsicmd = tsiMessages.makeExecuteScript(cmd, null, extractCredentials());
 				String res = conn.send(tsicmd);
 				if(!res.contains("TSI_OK")){
 					String msg="Command execution failed. TSI reply:"+res;
@@ -435,7 +427,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	public String resolve(String name)throws ExecutionException{
 		try(TSIConnection conn = getConnection()){
 			String cmd="echo \""+name+"\"";
-			String tsicmd=TSIUtils.makeExecuteScript(cmd, null, idb, extractCredentials());
+			String tsicmd = tsiMessages.makeExecuteScript(cmd, null, extractCredentials());
 			String res=conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
 				String msg="Command execution failed. TSI reply:"+res;
@@ -522,7 +514,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		int pos=0;
 		while(true){
 			try {
-				String[] lines=TSIUtils.readTSILSLine(br);
+				String[] lines = tsiMessages.readTSILSLine(br);
 				if(lines[0]==null)break;
 				pos++;
 				if(pos<=offset)continue;
@@ -554,7 +546,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		int pos=0;
 		while(true){
 			try {
-				String[] lines=TSIUtils.readTSILSLine(br);
+				String[] lines = tsiMessages.readTSILSLine(br);
 				if(lines[0]==null)break;
 				pos++;
 				if(pos<=offset)continue;
@@ -578,7 +570,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		BufferedReader br=new BufferedReader(new StringReader(res+"\n"));
 		while(true){
 			try {
-				String[] lines=TSIUtils.readTSILSLine(br);
+				String[] lines = tsiMessages.readTSILSLine(br);
 				if(lines[0]!=null){
 					files.add(parseLine(lines));
 				}else break;
@@ -603,11 +595,11 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * @throws Exception
 	 */
 	public String doLS(String file,boolean normal, boolean recurse)throws ExecutionException{
-		return runTSICommand(TSIUtils.makeLSCommand(makeTarget(file), normal, recurse));	
+		return runTSICommand(tsiMessages.makeLSCommand(makeTarget(file), normal, recurse));	
 	}
 
 	String doExecuteScript(String cmd)throws ExecutionException{
-		String tsicmd=TSIUtils.makeExecuteScript(cmd, null, idb, extractCredentials());
+		String tsicmd = tsiMessages.makeExecuteScript(cmd, null, extractCredentials());
 		try(TSIConnection conn = getConnection()){
 			String res=conn.send(tsicmd);
 			if(res.startsWith("TSI_FAILED")){
@@ -665,13 +657,13 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * @throws ExecutionException
 	 */
 	public XnjsStorageInfo doDF(String path)throws ExecutionException{
-		String cmd = TSIUtils.makeDFCommand(path);
+		String cmd = tsiMessages.makeDFCommand(path);
 		String res = null;
 		try{
 			res = runTSICommand(cmd);	
 			return parseDFReply(res);
 		}catch(Exception ex){
-			throw new ExecutionException("Error executing TSI_DF. Reply was "+res);
+			throw new ExecutionException("Error executing TSI_DF. Reply was "+res, ex);
 		}
 	}
 
@@ -679,7 +671,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		XnjsStorageInfo info=new XnjsStorageInfo();
 		BufferedReader br=new BufferedReader(new StringReader(dfReply+"\n"));
 		while(true){
-			String line=TSIUtils.readTSIDFLine(br);
+			String line = tsiMessages.readTSIDFLine(br);
 			if(line==null)break;
 			String[]parts=line.split(" ");
 			String key=parts[0];
@@ -703,7 +695,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * @throws ExecutionException
 	 */
 	public List<BudgetInfo> getComputeTimeBudget() throws ExecutionException {
-		String cmd = TSIUtils.makeGetBudgetCommand();
+		String cmd = tsiMessages.makeGetBudgetCommand();
 		String res = null;
 		try{
 			res = runTSICommand(cmd);	
@@ -720,7 +712,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		BufferedReader br=new BufferedReader(new StringReader(reply+"\n"));
 
 		while(true){
-			String line=TSIUtils.readTSIDFLine(br);
+			String line = tsiMessages.readTSIDFLine(br);
 			if(line==null)break;
 			try {
 				budget.add(new BudgetInfo(line));
@@ -740,7 +732,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		//figure out length of file
 		final String target=makeTarget(file, false);
 
-		return new BackedInputStream(bufsize) {
+		return new BackedInputStream(tsiProperties.getIntValue(TSIProperties.TSI_BUFFERSIZE)) {
 
 			@Override
 			protected long getTotalDataSize() throws IOException {
@@ -773,7 +765,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		BufferedReader br=new BufferedReader(new StringReader(res+"\n"));
 		while(true){
 			try {
-				String[] lines=TSIUtils.readTSILSLine(br);
+				String[] lines = tsiMessages.readTSILSLine(br);
 				if(lines[0]!=null){
 					lengthFromLS=parseLine(lines).getSize();
 					break;
@@ -791,7 +783,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 */
 	private int readChunk(String file,byte[] buf,long offset, long length)throws IOException{
 		tsiLogger.debug("read from <{}> numbytes={}", file, length);
-		String tsicmd=TSIUtils.makeGetFileChunkCommand(file,offset,length);
+		String tsicmd = tsiMessages.makeGetFileChunkCommand(file,offset,length);
 		try(TSIConnection conn = getConnection()){
 			String res=conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
@@ -825,7 +817,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Override
 	public OutputStream getOutputStream(final String file,final boolean append,long numbytes) throws ExecutionException {
 		final String target=makeTarget(file,false);
-		return new BackedOutputStream (append,bufsize){
+		return new BackedOutputStream (append, tsiProperties.getIntValue(TSIProperties.TSI_BUFFERSIZE)){
 
 			@Override
 			public void writeBuffer() throws IOException {
@@ -864,9 +856,9 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	private void writeChunk(String file, byte[] buf, int numBytes, boolean append)throws IOException,TSIUnavailableException, ExecutionException{
 		tsiLogger.debug("Write to {}, append={}, numBytes={}", file, append, numBytes);
 		try(TSIConnection conn = getConnection()){
-			String permissions=TSIUtils.getFilePerm(umask) ;
+			String permissions = TSIMessages.getFilePerm(umask) ;
 
-			String tsicmd = TSIUtils.makePutFileChunkCommand(file, permissions, numBytes, append);
+			String tsicmd = tsiMessages.makePutFileChunkCommand(file, permissions, numBytes, append);
 			String res=conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
 				throw new IOException("Execution on TSI server failed. Reply was "+res);
@@ -912,10 +904,10 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	@Override
 	public String[] getGroups() throws ExecutionException {
-		String cmd=TSIUtils.makeExecuteScript(tsiProperties.getValue(TSIProperties.TSI_GROUPS), ec, idb, extractCredentials());
-		String reply=doTSICommandWithAllGroups(cmd);
+		String cmd = tsiMessages.makeExecuteScript(tsiProperties.getValue(TSIProperties.TSI_GROUPS), ec, extractCredentials());
+		String reply = doTSICommandWithAllGroups(cmd);
 		try{
-			String groups=TSIUtils.readTSIDFLine(new BufferedReader(new StringReader(reply)));
+			String groups = tsiMessages.readTSIDFLine(new BufferedReader(new StringReader(reply)));
 			return groups.split("\\s+");
 		}
 		catch(Exception ex){
@@ -1062,10 +1054,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		if(f == null)throw new ExecutionException(errorMessage);
 		if(!f.isDirectory())throw new ExecutionException(errorMessage+" File exists!");
 		if(noPreferredHost)preferredHost = null;
-	}
-
-	public static String sanitize(String input){
-		return TSIUtils.sanitize(input);
 	}
 
 	public TSIConnectionFactory getFactory(){

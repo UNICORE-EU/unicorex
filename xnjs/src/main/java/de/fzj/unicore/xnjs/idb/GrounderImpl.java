@@ -26,7 +26,6 @@ import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
 import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import de.fzj.unicore.xnjs.tsi.remote.TSIProperties;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.util.ErrorCode;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import de.fzj.unicore.xnjs.util.ScriptEvaluator;

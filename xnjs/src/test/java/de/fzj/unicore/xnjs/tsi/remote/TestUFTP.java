@@ -57,7 +57,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIUtils.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), 0, -1, false, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		assertEquals(Utils.md5(source1), Utils.md5(new File(targetDir, "downloaded.test.dat")));
@@ -80,7 +80,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIUtils.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), offset, length, false, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		assertEquals(Utils.md5("test data\n".getBytes("UTF-8")), Utils.md5(new File(targetDir, "downloaded.test.dat")));
@@ -104,7 +104,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIUtils.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		File downloadedFile = new File(targetDir, "downloaded.test.dat");
@@ -122,7 +122,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		command = TSIUtils.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 
@@ -144,7 +144,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIUtils.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), 0, -1, false, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		assertEquals(Utils.md5(source1), Utils.md5(new File(targetDir, "uploaded.test.dat")));
@@ -168,7 +168,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIUtils.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), offset, length, false, ec);
 
 		runCommand(command, targetDir.getAbsolutePath());
@@ -192,7 +192,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIUtils.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		File uploadedFile = new File(targetDir, "uploaded.test.dat");
@@ -209,7 +209,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		command = TSIUtils.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 

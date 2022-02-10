@@ -27,7 +27,6 @@ import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import de.fzj.unicore.xnjs.ems.event.EventHandler;
-import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSSummary;
@@ -52,13 +51,10 @@ public class BSSState implements IBSSState {
 	private XNJS xnjs;
 
 	@Inject
-	private IDB idb;
+	private InternalManager eventHandler;
 
 	@Inject
 	private TSIMessages tsiMessages;
-
-	@Inject
-	private InternalManager eventHandler;
 
 	private volatile BSSSummary summary = new BSSSummary();
 
@@ -144,7 +140,7 @@ public class BSSState implements IBSSState {
 			if(bssLocked) {
 				String res = null;
 				try(TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", null, timeout)){
-					res = conn.send(TSIUtils.makeStatusCommand(null));
+					res = conn.send(tsiMessages.makeStatusCommand(null));
 					log.trace("BSS Status listing: \n{}", res);
 				}
 				parts.add(updateBatchJobStates(bssInfo, res, eventHandler));
@@ -417,11 +413,11 @@ public class BSSState implements IBSSState {
 	private String doGetProcessListing(TSIConnection tsiConnection) throws IOException {
 		String res = null;
 		if(tsiConnection.compareVersion("8.3.0")) {
-			res = tsiConnection.send(TSIUtils.makeGetProcessListCommand());
+			res = tsiConnection.send(tsiMessages.makeGetProcessListCommand());
 		}
 		else {
 			String script = tsiProperties.getValue(TSIProperties.BSS_PS);
-			res = tsiConnection.send(TSIUtils.makeExecuteScript(script, null, idb, null));
+			res = tsiConnection.send(tsiMessages.makeExecuteScript(script, null, null));
 		}
 		return res;
 	}

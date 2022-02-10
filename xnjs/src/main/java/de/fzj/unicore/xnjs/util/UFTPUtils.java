@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 
 public class UFTPUtils {
 
@@ -12,7 +12,7 @@ public class UFTPUtils {
 		boolean get = "GET".equalsIgnoreCase(spec.getString("operation"));
 
 		if(get) {
-		return TSIUtils.makeUFTPGetFileCommand(
+		return TSIMessages.makeUFTPGetFileCommand(
 				spec.getString("host"),
 				spec.getInt("port"),
 				spec.getString("secret"),
@@ -25,7 +25,7 @@ public class UFTPUtils {
 				ec);
 		}
 		else {
-			return TSIUtils.makeUFTPPutFileCommand(
+			return TSIMessages.makeUFTPPutFileCommand(
 					spec.getString("host"),
 					spec.getInt("port"),
 					spec.getString("secret"),

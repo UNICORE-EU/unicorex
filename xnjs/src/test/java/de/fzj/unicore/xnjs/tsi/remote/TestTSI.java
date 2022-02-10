@@ -464,8 +464,8 @@ public class TestTSI extends RemoteTSITestCase{
 			assertEquals(localhost,c.getTSIAddress());
 			c.setSocketTimeouts(3000, false);
 			ExecutionContext ec = new ExecutionContext();
-			IDB idb = xnjs.get(IDB.class);
-			String message = TSIUtils.makeExecuteScript("sleep 10", ec, idb, null);
+			TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
+			String message = tsiMessages.makeExecuteScript("sleep 10", ec, null);
 			c.sendNoUser(message);
 		}catch(IOException ex) {
 			assertTrue(ex.getMessage().contains("TSI <localhost>"));

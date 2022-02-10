@@ -5,7 +5,6 @@ import java.util.Properties;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
-import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.IExecutionContextManager;
 import de.fzj.unicore.xnjs.ems.LocalECManager;
 import de.fzj.unicore.xnjs.idb.GrounderImpl;
@@ -22,12 +21,9 @@ import de.fzj.unicore.xnjs.tsi.TSI;
 public class RemoteTSIModule extends AbstractModule {
 	
 	protected final Properties properties;
-	private final XNJS xnjs;
-	private IBSSState bssState;
 
-	public RemoteTSIModule(Properties properties, XNJS xnjs) {
+	public RemoteTSIModule(Properties properties) {
 		this.properties = properties;
-		this.xnjs = xnjs;
 	}
 
 	@Override
@@ -38,6 +34,7 @@ public class RemoteTSIModule extends AbstractModule {
 		bind(Incarnation.class).to(GrounderImpl.class);
 		bind(IFileTransferEngine.class).to(FileTransferEngine.class);
 		bindIDB();
+		bind(IBSSState.class).to(BSSState.class);
 		bindReservation();
 		bindExecution();
 	}
@@ -45,14 +42,6 @@ public class RemoteTSIModule extends AbstractModule {
 	@Provides
 	public TSIProperties getTSIProperties(){
 		return new TSIProperties(properties);
-	}
-	
-	@Provides
-	public synchronized IBSSState getBSSState(){
-		if(bssState==null) {
-			
-		}
-		return bssState;
 	}
 	
 	protected void bindExecution(){

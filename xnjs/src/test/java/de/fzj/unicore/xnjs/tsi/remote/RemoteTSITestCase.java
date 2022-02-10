@@ -83,7 +83,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 	}
 
 	protected AbstractModule getTSIModule(ConfigurationSource cs){
-		return new RemoteTSIModule(cs.getProperties(), xnjs);
+		return new RemoteTSIModule(cs.getProperties());
 	}
 
 

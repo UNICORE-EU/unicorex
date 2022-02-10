@@ -40,7 +40,6 @@ import java.util.List;
 
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 
 /**
  * The execution context defines a job's execution environment<br>

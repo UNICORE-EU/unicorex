@@ -17,7 +17,6 @@ import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIBusyException;
 import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
 
 /**

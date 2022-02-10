@@ -54,7 +54,6 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
-import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -80,12 +79,12 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 
 	@Override
 	protected RemoteTSIModule getTSIModule(ConfigurationSource cs){
-		return new MyTSIModule(cs.getProperties(), xnjs);
+		return new MyTSIModule(cs.getProperties());
 	}
 
 	public static class MyTSIModule extends RemoteTSIModule{
-		public MyTSIModule(Properties p, XNJS xnjs){
-			super(p, xnjs);
+		public MyTSIModule(Properties p){
+			super(p);
 		}
 
 		@Override
@@ -330,8 +329,8 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	public static class MyExec extends Execution {
 
 		@Inject
-		public MyExec(XNJS xnjs, TSIConnectionFactory factory, IBSSState bss){
-			super(xnjs, factory, bss);
+		public MyExec(TSIConnectionFactory factory, IBSSState bss, TSIMessages tsiMessages){
+			super(factory, bss, tsiMessages);
 		}
 
 		public static boolean failSubmits=false;

@@ -41,17 +41,17 @@ public class Reservation implements IReservation {
 	@Inject
 	private TSIProperties tsiProperties;
 	
+	@Inject
+	private TSIMessages tsiMessages;
+	
 	/**
-	 *Cancel a reservation on the classic TSI
-	 *
-	 *@see TSIUtils#makeCancelReservationCommand(String)
-	 *
+	 * Cancel a reservation
 	 */
 	public void cancelReservation(String reservationID, Client client)
 	throws ExecutionException {
 		try{
 			logger.debug("Cancel reservation {} for client {}", reservationID, client);
-			String tsiCmd=TSIUtils.makeCancelReservationCommand(reservationID);
+			String tsiCmd = tsiMessages.makeCancelReservationCommand(reservationID);
 			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
@@ -68,8 +68,8 @@ public class Reservation implements IReservation {
 	}
 
 	/**
-	 * Make a reservation on the classic TSI.<br/>
-	 * 
+	 * Make a reservation
+	 *
 	 * <ul> 
 	 * <li>the resource request is incarnated, i.e. the resource defaults from the IDB 
 	 *     are merged in</li>
@@ -83,7 +83,7 @@ public class Reservation implements IReservation {
 			logger.debug("Processing resource reservation {}\nStart time {}", resources, startTime.getTime());
 			List<ResourceRequest>resourceRequest = parseResourceRequest(resources);
 			List<ResourceRequest>incarnated = grounder.incarnateResources(resourceRequest, client);
-			String tsiCmd = TSIUtils.makeMakeReservationCommand(incarnated, startTime, client);
+			String tsiCmd = tsiMessages.makeMakeReservationCommand(incarnated, startTime, client);
 			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
@@ -91,8 +91,7 @@ public class Reservation implements IReservation {
 					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
 					throw new ExecutionException(ec);
 				}
-				String resID=res.replace("TSI_OK","").trim(); //strip TSI_OK and newlines
-				return resID;
+				return res.replace("TSI_OK","").trim();
 			}
 		}catch(Exception e){
 			logger.error("Could not reserve resources.",e);
@@ -126,7 +125,7 @@ public class Reservation implements IReservation {
 
 		try{
 			logger.debug("Querying resource reservation {} for client {}", reservationID, client.getDistinguishedName());
-			String tsiCmd=TSIUtils.makeQueryReservationCommand(reservationID);
+			String tsiCmd = tsiMessages.makeQueryReservationCommand(reservationID);
 			String res;
 			try(TSIConnection conn = getTSIConnection(client)){
 				res = conn.send(tsiCmd);

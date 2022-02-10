@@ -176,7 +176,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeout)throws TSIUnavailableException{
 		if(isShutdown)throw new TSIUnavailableException("TSI server is shutting down.");
 		String user = client.getXlogin().getUserName();
-		String group = TSIUtils.prepareGroupsString(client);
+		String group = TSIMessages.prepareGroupsString(client);
 		return getTSIConnection(user,group,preferredHost,timeout);
 	}
 

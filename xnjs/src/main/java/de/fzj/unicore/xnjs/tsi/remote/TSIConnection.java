@@ -65,8 +65,6 @@ public class TSIConnection implements AutoCloseable {
 
 	private String idLine;
 
-	private static final int BUFSZ = 64000;
-
 	public static final String TSI_OK = "TSI_OK";
 
 	private final Command command;
@@ -482,8 +480,8 @@ public class TSIConnection implements AutoCloseable {
 
 			try {
 				// build unformatted data IO streams on the socket
-				input = new BufferedInputStream(s.getInputStream(), BUFSZ);
-				output = new BufferedOutputStream(s.getOutputStream(), BUFSZ);
+				input = new BufferedInputStream(s.getInputStream(), 65536);
+				output = new BufferedOutputStream(s.getOutputStream(), 65536);
 			} catch (IOException ex) {
 				IOUtils.closeQuietly(s);
 				throw ex;

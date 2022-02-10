@@ -52,7 +52,6 @@ import org.json.JSONObject;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSConstants;
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
@@ -93,9 +92,9 @@ public class Execution extends BasicExecution {
 	 */
 	private int gracePeriod = 120*1000;
 
-	private final XNJS xnjs;
-
 	private final TSIConnectionFactory connectionFactory;
+
+	private final TSIMessages tsiMessages;
 
 	private final IBSSState bss;
 
@@ -106,10 +105,10 @@ public class Execution extends BasicExecution {
 	public static final String BSS_SUBMIT_COUNT="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_BSSSUBMITCOUNT";
 
 	@Inject
-	public Execution(XNJS xnjs, TSIConnectionFactory factory, IBSSState bss){
-		this.xnjs = xnjs;
+	public Execution(TSIConnectionFactory factory, IBSSState bss, TSIMessages tsiMessages){
 		this.connectionFactory = factory;
 		this.bss = bss;
+		this.tsiMessages = tsiMessages;
 		this.bss.init();
 		computeBudgets = buildComputeBudgetCache();
 	}
@@ -212,13 +211,9 @@ public class Execution extends BasicExecution {
 	}
 
 	private String createDefaultTSIScript(Action job) throws ExecutionException {
-		XNJSProperties properties = xnjs.getXNJSProperties();
-		boolean addWaitingLoop = properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT);
-		String credentials = extractBSSCredentials(job);
-		boolean runOnLoginNode = job.getExecutionContext().isRunOnLoginNode();
-		return runOnLoginNode ? 
-				TSIUtils.makeExecuteAsyncScript(job, idb, credentials, addWaitingLoop) : 
-				TSIUtils.makeSubmitCommand(job, idb, grounder, properties, credentials, addWaitingLoop);
+		return job.getExecutionContext().isRunOnLoginNode() ? 
+				tsiMessages.makeExecuteAsyncScript(job, extractBSSCredentials(job)) : 
+				tsiMessages.makeSubmitCommand(job, extractBSSCredentials(job));
 	}
 	
 	//for interactive execution, read the PID of the submitted script
@@ -427,7 +422,7 @@ public class Execution extends BasicExecution {
 						terminateInteractiveJob(job, false);
 					}
 					else{
-						runTSICommand(TSIUtils.makeAbortCommand(bssid), job.getClient(), null, true);
+						runTSICommand(tsiMessages.makeAbortCommand(bssid), job.getClient(), null, true);
 					}
 				}
 			}catch(Exception ex){//wrap it
@@ -448,7 +443,7 @@ public class Execution extends BasicExecution {
 		String signal = kill? "-9 ": "";
 		String script = "pkill "+signal+"-P "+pid+" ; kill "+signal+pid;
 		try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(), tsiNode, timeout)) {
-			String res=conn.send(TSIUtils.makeExecuteScript(script, null, idb, extractBSSCredentials(job)));
+			String res = conn.send(tsiMessages.makeExecuteScript(script, null, extractBSSCredentials(job)));
 			if(res==null || !res.startsWith("TSI_OK")){
 				throw new ExecutionException("Could not get terminate process. TSI reply: "+res);
 			}
@@ -489,7 +484,7 @@ public class Execution extends BasicExecution {
 			BSS_STATE status = info!=null ? info.bssState : null;
 			if(status != null) {
 				jobExecLogger.debug("Pausing job <"+bssid+"> on TSI server.");
-				runTSICommand(TSIUtils.makePauseCommand(bssid), job.getClient(), null, true);
+				runTSICommand(tsiMessages.makePauseCommand(bssid), job.getClient(), null, true);
 			}
 		}
 		catch (Exception e) {
@@ -513,7 +508,7 @@ public class Execution extends BasicExecution {
 			BSS_STATE status = info!=null ? info.bssState : null;
 			if(status != null) {
 				jobExecLogger.debug("Resuming job <"+bssid+"> on TSI server.");
-				runTSICommand(TSIUtils.makeResumeCommand(bssid), job.getClient(), null, true);
+				runTSICommand(tsiMessages.makeResumeCommand(bssid), job.getClient(), null, true);
 			}
 		} catch (Exception e) {
 			jobExecLogger.error("Error resuming.", e);
@@ -536,7 +531,7 @@ public class Execution extends BasicExecution {
 		}
 		try {
 			jobExecLogger.debug("Getting details for job <"+bssid+"> from TSI.");
-			String det = runTSICommand(TSIUtils.makeGetJobInfoCommand(bssid, extractBSSCredentials(job)), job.getClient(), null, true);
+			String det = runTSICommand(tsiMessages.makeGetJobInfoCommand(bssid, extractBSSCredentials(job)), job.getClient(), null, true);
 			return det.replace("TSI_OK", "").trim();
 		} catch (Exception e) {
 			jobExecLogger.error("Error getting job details.", e);

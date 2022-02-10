@@ -97,7 +97,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 	
 	private final Map<String,IFileTransfer> ftMap = new ConcurrentHashMap<>();
 	
-	private final Map<String,TransferInfo> ftInfo;
+	private final Map<String,TransferInfo> ftInfo = new ConcurrentHashMap<>();
 
 	@Inject
 	public FileTransferEngine(XNJS xnjs) {
@@ -105,12 +105,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 		this.persistenceProperties = xnjs.getPersistenceProperties();
 		creators = new ArrayList<>();
 		protocols = new ArrayList<>();
-		ftInfo = createInfoMap();
 		loadExtensions();
-	}
-	
-	private Map<String,TransferInfo> createInfoMap(){
-		return new ConcurrentHashMap<>();
 	}
 
 	private synchronized void loadExtensions(){
