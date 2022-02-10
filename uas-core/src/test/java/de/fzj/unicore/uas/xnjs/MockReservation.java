@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 
-import eu.unicore.services.utils.Utilities;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.idb.Incarnation;
@@ -16,8 +15,9 @@ import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus.Status;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.security.Client;
+import eu.unicore.services.utils.Utilities;
 
 public class MockReservation implements IReservation {
 
@@ -43,7 +43,8 @@ public class MockReservation implements IReservation {
 			Incarnation gr=configuration.get(Incarnation.class);
 			List<ResourceRequest>resourceRequest = parseResourceRequest(resources);
 			List<ResourceRequest>incarnated=gr.incarnateResources(resourceRequest, client);
-			String tsiCmd=TSIUtils.makeMakeReservationCommand(incarnated,startTime,client);
+			TSIMessages tsiMessages = configuration.get(TSIMessages.class);
+			String tsiCmd = tsiMessages.makeMakeReservationCommand(incarnated,startTime,client);
 			lastTSICommand=tsiCmd;
 			String resID=Utilities.newUniqueID();
 			ReservationStatus rs=new ReservationStatus();

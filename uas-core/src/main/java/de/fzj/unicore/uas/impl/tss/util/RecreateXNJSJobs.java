@@ -21,7 +21,7 @@ import de.fzj.unicore.xnjs.ems.ProcessingException;
 import de.fzj.unicore.xnjs.ems.processors.DefaultProcessor;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import de.fzj.unicore.xnjs.tsi.TSI;
-import de.fzj.unicore.xnjs.tsi.remote.TSIUtils;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
@@ -140,7 +140,7 @@ public class RecreateXNJSJobs implements Runnable{
 			tsi.setStorageRoot(action.getExecutionContext().getWorkingDirectory());
 			int result=ActionResult.UNKNOWN;
 			try{
-				XnjsFileWithACL f=tsi.getProperties(TSIUtils.EXITCODE_FILENAME);
+				XnjsFileWithACL f = tsi.getProperties(TSIMessages.EXITCODE_FILENAME);
 				if(f!=null){
 					result=ActionResult.SUCCESSFUL;
 				}
