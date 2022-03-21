@@ -88,6 +88,7 @@ public class Inline implements IFileTransfer {
 		boolean append = OverwritePolicy.APPEND.equals(overwrite);
 		try(OutputStreamWriter os = new OutputStreamWriter(tsi.getOutputStream(info.getTarget(),append),"UTF-8")){
 			os.write(inlineData);
+			os.flush(); // flush here to avoid possible race condition
 			info.setTransferredBytes(inlineData.length());
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){
