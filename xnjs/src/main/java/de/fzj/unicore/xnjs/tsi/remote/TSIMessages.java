@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -19,6 +18,7 @@ import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
+import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.tsi.TSI;
@@ -46,11 +46,11 @@ public class TSIMessages {
 
 	private final XNJS xnjs;
 
-	private final XNJSProperties properties;
+	private final IOProperties ioProperties;
 
-	public TSIMessages(XNJS xnjs, XNJSProperties properties) {
+	public TSIMessages(XNJS xnjs) {
 		this.xnjs = xnjs;
-		this.properties = properties;
+		this.ioProperties = xnjs.getIOProperties();
 	}
 
 	/**
@@ -144,7 +144,7 @@ public class TSIMessages {
 		commands.append("PATH=$PATH:. ; export PATH\n");
 		f.format("cd %s\n", ec.getWorkingDirectory());
 
-		if(properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT)) {
+		if(ioProperties.getBooleanValue(IOProperties.STAGING_FS_WAIT)) {
 			// make sure all staged input files are available ON THE WORKER NODE
 			insertImportedFilesWaitingLoop(commands, job);
 		}
@@ -232,7 +232,7 @@ public class TSIMessages {
 		try
 		{
 			List<DataStageInInfo> stageIns = job.getStageIns();
-			if(stageIns.size()==0)return;
+			if(stageIns==null || stageIns.size()==0)return;
 			int timeout = 20; //seconds
 			StringBuffer fileList = new StringBuffer();
 			for(DataStagingInfo dst:stageIns){
@@ -319,7 +319,7 @@ public class TSIMessages {
 	/**
 	 * generate an EXECUTE_SCRIPT command for running a command asynchronously
 	 */
-	public String makeExecuteAsyncScript(Action job,	String credentials) {
+	public String makeExecuteAsyncScript(Action job, String credentials) {
 		IDB idb = xnjs.get(IDB.class);
 		String template = idb.getExecuteTemplate()
 				.replace("#COMMAND", "#TSI_EXECUTESCRIPT\n");
@@ -338,7 +338,7 @@ public class TSIMessages {
 
 		commands.append(" { ");
 		
-		if(properties.getBooleanValue(XNJSProperties.STAGING_FS_WAIT)) {
+		if(ioProperties.getBooleanValue(IOProperties.STAGING_FS_WAIT)) {
 			insertImportedFilesWaitingLoop(commands, job);
 		}
 

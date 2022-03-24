@@ -49,7 +49,6 @@ import com.codahale.metrics.Histogram;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSConstants;
-import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
@@ -68,6 +67,7 @@ import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
+import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.io.StagingInfo;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.TSI;
@@ -732,7 +732,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			return true;
 		}
 
-		long timeout = 1000 * xnjs.getXNJSProperties().getIntValue(XNJSProperties.STAGING_FS_GRACE);
+		long timeout = 1000 * xnjs.getIOProperties().getIntValue(IOProperties.STAGING_FS_GRACE);
 		Long firstFailure = (Long) action.getProcessingContext().get(KEY_FIRST_STAGEOUT_FAILURE);
 		long currentTime = System.currentTimeMillis();
 		if(firstFailure == null)
@@ -913,6 +913,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected void addStageIn() throws ProcessingException{
 		try{
 			List<DataStageInInfo>toStage = extractStageInInfo();
+			action.setStageIns(toStage);
 			StagingInfo stageInfo = new StagingInfo(toStage);
 			String subId=manager.addSubAction(stageInfo,
 					XNJSConstants.jsdlStageInActionType, action, true);

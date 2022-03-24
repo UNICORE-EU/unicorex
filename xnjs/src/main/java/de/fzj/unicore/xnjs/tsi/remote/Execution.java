@@ -53,7 +53,6 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 import de.fzj.unicore.xnjs.XNJSConstants;
-import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
@@ -61,6 +60,7 @@ import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
+import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.tsi.BasicExecution;
 import de.fzj.unicore.xnjs.tsi.TSI;
@@ -352,7 +352,7 @@ public class Execution extends BasicExecution {
 					//No exit code. For example, due to NFS problems it might occur that we need to re-check
 					if(job.getProcessingContext().get(EXITCODE_RECHECK)==null){
 						job.getProcessingContext().put(EXITCODE_RECHECK, Boolean.TRUE);
-						int timeout = 1000 * properties.getIntValue(XNJSProperties.STAGING_FS_GRACE);
+						int timeout = 1000 * ioProperties.getIntValue(IOProperties.STAGING_FS_GRACE);
 						job.getProcessingContext().put(CUSTOM_GRACE_PERIOD, Integer.valueOf(timeout));
 						job.getProcessingContext().put(GRACE_PERIOD_start, System.currentTimeMillis());
 						job.setDirty();

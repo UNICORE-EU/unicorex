@@ -51,9 +51,6 @@ public class XNJSProperties extends PropertiesHelper {
 	
 	public static final String STRICT_USERINPUT_CHECKING = "strictUserInputChecking";
 
-	public static final String STAGING_FS_GRACE = "staging.filesystemGraceTime";
-	public static final String STAGING_FS_WAIT = "staging.addWaitingLoop";
-
 	public static final String SWEEP_LIMIT = "parameterSweepLimit";
 
 	@DocumentationReferenceMeta
@@ -88,10 +85,6 @@ public class XNJSProperties extends PropertiesHelper {
 				setDescription("Whether to allow user-defined executables. If set to false, only applications defined in the IDB may be run."));
 		META.put(STRICT_USERINPUT_CHECKING, new PropertyMD("false").setBoolean().
 				setDescription("Whether to be restrictive in checking user-supplied arguments and environment variables. Set to true if you do not want ANY user code to run on your TSI node."));
-		META.put(STAGING_FS_WAIT, new PropertyMD("false").setBoolean().
-				setDescription("Whether to add a waiting loop for files to appear on shared filesystems."));
-		META.put(STAGING_FS_GRACE, new PropertyMD("10").setInt().setPositive().
-				setDescription("Grace time (in seconds) when waiting for files to appear on shared filesystems."));
 		META.put("localtsi", new PropertyMD().setCanHaveSubkeys().
 				setDescription("Properties for configuring the embedded Java TSI (if used). See separate docs."));
 		META.put("staging", new PropertyMD().setCanHaveSubkeys().
@@ -127,7 +120,7 @@ public class XNJSProperties extends PropertiesHelper {
 		"xnjs.jobExecution.allowUserExecutable",
 	};
 	// new config keys (without the prefix)
-	private static final String[]newNames = {STAGING_FS_GRACE, 
+	private static final String[]newNames = {"XNJS.staging.filesystemGraceTime", 
 		ALLOW_USER_EXECUTABLE,
 	};
 

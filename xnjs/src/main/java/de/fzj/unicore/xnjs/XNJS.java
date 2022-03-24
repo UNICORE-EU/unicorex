@@ -154,7 +154,7 @@ public class XNJS {
 				return t;
 			}
 		});
-		tsiMessages = new TSIMessages(this, baseProperties);
+		tsiMessages = new TSIMessages(this);
 
 		AbstractModule common = new AbstractModule() {
 
@@ -213,7 +213,7 @@ public class XNJS {
 	}
 
 	public static String writeShortHeader(){
-		return "XNJS "+getVersion()+" (c) Forschungszentrum Juelich 2005-2020";
+		return "XNJS "+getVersion()+" (c) Forschungszentrum Juelich 2005-2022";
 	}
 
 	public Calendar getStartTime() throws Exception{

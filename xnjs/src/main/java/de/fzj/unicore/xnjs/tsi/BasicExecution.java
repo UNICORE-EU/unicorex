@@ -66,6 +66,7 @@ import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
+import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.tsi.local.LocalExecution;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIProperties;
@@ -86,6 +87,9 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 	@Inject
 	protected XNJSProperties properties;
+
+	@Inject
+	protected IOProperties ioProperties;
 
 	@Inject
 	private LocalTSIProperties tsiProperties;

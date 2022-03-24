@@ -32,6 +32,7 @@ public class IOProperties extends PropertiesHelper {
 	public static final String FT_THREADS = "threads";
 
 	public static final String STAGING_FS_GRACE = "filesystemGraceTime";
+	public static final String STAGING_FS_WAIT = "addWaitingLoop";
 
 	public static final String WGET = "wget";
 	public static final String WGET_PARAMS = "wgetParameters";
@@ -55,6 +56,8 @@ public class IOProperties extends PropertiesHelper {
 		
 		META.put(STAGING_FS_GRACE, new PropertyMD("10").setInt().setPositive().
 				setDescription("Grace time (in seconds) when waiting for files to appear on shared filesystems."));
+		META.put(STAGING_FS_WAIT, new PropertyMD("false").setBoolean().
+				setDescription("Whether to add a waiting loop for files to appear on shared filesystems."));
 		
 		META.put(WGET, new PropertyMD().
 				setDescription("Location of the 'wget' executable used for HTTP stage-ins. " +
