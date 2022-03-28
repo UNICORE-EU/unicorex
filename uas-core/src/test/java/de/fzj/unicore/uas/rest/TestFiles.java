@@ -146,6 +146,9 @@ public class TestFiles extends Base {
 		partial = getPartialContent(client, file, 1, -1);
 		assertEquals("est data", partial);
 		
+		partial = getTailOfContent(client, file, 4);
+		assertEquals("data", partial);
+		
 	}
 
 	@Test
@@ -210,6 +213,18 @@ public class TestFiles extends Base {
 	private String getPartialContent(BaseClient client, String file, long offset, long length) throws Exception {
 		String range = "bytes="+offset+"-";
 		if(length>-1)range+=String.valueOf(length+offset-1);
+		
+		Map<String,String>headers = new HashMap<>();
+		headers.put("Range", range);
+		client.setURL(file);
+		HttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM, headers);
+		int status = client.getLastHttpStatus();
+		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_PARTIAL_CONTENT, status);
+		return EntityUtils.toString(response.getEntity());
+	}
+	
+	private String getTailOfContent(BaseClient client, String file, long tail) throws Exception {
+		String range = "bytes=-"+tail;
 		
 		Map<String,String>headers = new HashMap<>();
 		headers.put("Range", range);

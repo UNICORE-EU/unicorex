@@ -309,12 +309,13 @@ public class Files extends RESTRendererBase {
 			is = sms.getStorageAdapter().getInputStream(path);
 			boolean wantRange = range!=null;
 			if(wantRange){
+				long size = props.getSize();
 				try{
-					is = makeRangedStream(range, is);
+					is = makeRangedStream(range, is, size);
 				}
 				catch(Exception ex){
 					de.fzj.unicore.xnjs.util.IOUtils.closeQuietly(is);
-					return handleError(400,"Range header '"+range+"' cannot be parsed", ex, logger);
+					return handleError(416,"Range header '"+range+"' cannot be parsed", ex, logger);
 				}
 				return Response.status(Status.PARTIAL_CONTENT).entity(is).type(mt).build();
 			}
@@ -328,21 +329,27 @@ public class Files extends RESTRendererBase {
 		}
 	}
 
-	private InputStream makeRangedStream(String rangeHeader, InputStream source) throws IOException {
+	private InputStream makeRangedStream(String rangeHeader, InputStream source, long fileSize) throws IOException {
 		String[] rangeSpec = rangeHeader.split("=");
 		if(!"bytes".equals(rangeSpec[0]))throw new IllegalArgumentException();
-		String range = rangeSpec[1];
+		String range = rangeSpec[1].trim();
 
 		long offset = 0;
 		long length = -1;
 		String[] tok = range.split("-");
-		offset = Long.parseLong(tok[0]);
-		if(offset<0)throw new IllegalArgumentException();
-		if(tok.length>1){
-			long last = Long.parseLong(tok[1]);
-			if(last<offset)throw new IllegalArgumentException();
-			length = last+1-offset;
+		boolean wantLastlastPart = range.startsWith("-"); // e.g. "Range: bytes=-100" for the last 100 bytes
+		if(wantLastlastPart) {
+			offset = fileSize - Long.parseLong(tok[1]);
 		}
+		else {
+			offset = Long.parseLong(tok[0]);
+			if(tok.length>1){
+				long last = Long.parseLong(tok[1]);
+				if(last<offset)throw new IllegalArgumentException();
+				length = last+1-offset;
+			}
+		}
+		if(offset<0)throw new IllegalArgumentException();
 		while(offset>0){
 			offset -= source.skip(offset);
 		}

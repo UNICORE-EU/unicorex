@@ -208,6 +208,21 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 		get.addHeader("Range", "bytes="+offset+"-"+(offset+length-1));
 		return read(os, get, client);
 	}
+	
+	/**
+	 * read the given number of bytes from the end of the file
+	 * and write them to the given output stream
+	 * 
+	 * @param numberOfBytes - how many bytes to read
+	 * @param os - stream to write to
+	 */
+	public long readTail(long numberOfBytes, OutputStream os)
+			throws IOException {
+		HttpClient client = getClient();
+		HttpGet get = new HttpGet(accessURL);
+		get.addHeader("Range", "bytes=-"+numberOfBytes);
+		return read(os, get, client);
+	}
 
 	//copy all data from an input stream to an output stream
 	private long copy(InputStream in, OutputStream out)throws IOException{
