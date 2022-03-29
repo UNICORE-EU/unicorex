@@ -57,7 +57,18 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 
 	@Override
 	protected void extractFromJobDescription()throws ExecutionException{
-		//NOP, because this will be done in the instances 
+		try {
+			action.setStageIns(extractStageInInfo());
+			action.setStageOuts(extractStageOutInfo());
+			action.setDirty();
+		} catch (Exception e) {
+			if(e instanceof ExecutionException){
+				throw (ExecutionException)e;
+			}
+			else{
+				throw new ExecutionException(e);
+			}
+		}
 	}
 
 	/**

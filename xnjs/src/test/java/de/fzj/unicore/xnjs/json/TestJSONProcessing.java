@@ -1,7 +1,9 @@
 package de.fzj.unicore.xnjs.json;
 
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.Action;
@@ -28,11 +30,16 @@ public class TestJSONProcessing extends EMSTestBase {
 
 	@Test
 	public void testSingleJSONJob() throws Exception {
-		String j = jobs[3];
+		String j = jobs[1];
 		System.out.println("Running job: "+j);
 		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),null);
+		Action a = mgr.getAction(id);
+		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		doRun(id);
 		assertSuccessful(id);
+		a = mgr.getAction(id);
+		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
+		assertNull(a.getStageIns());
 	}
 	
 	private static String[] pre_post_jobs = { 
@@ -70,6 +77,8 @@ public class TestJSONProcessing extends EMSTestBase {
 	public void testSweepJobs() throws Exception {
 		for(String j: sweep_jobs) {
 			System.out.println("Running job: "+j);
+			JSONObject job = loadJSONObject(j);
+			System.out.println(job.toString(2));
 			String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),null);
 			try {
 				doRun(id);

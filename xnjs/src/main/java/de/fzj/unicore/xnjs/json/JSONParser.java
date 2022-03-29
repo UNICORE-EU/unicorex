@@ -113,6 +113,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		dsi.setSources(new URI[]{new URI(source)});
 		if(source.startsWith("inline:")) {
 			dsi.setInlineData(JSONUtils.readMultiLine("Data", "", spec));
+			spec.put("Data","n/a"); // avoid storing inline data in the DB forever
 		}
 		extractDataStagingOptions(spec, dsi);
 		return dsi;

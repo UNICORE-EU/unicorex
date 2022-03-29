@@ -186,24 +186,13 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			if(hasStageIn()){
 				action.setStatus(ActionStatus.PREPROCESSING);
 				action.addLogTrace("Status set to PREPROCESSING (staging in).");
-				//check if we do stage in
-				if(xnjs.haveProcessingFor(XNJSConstants.jsdlStageInActionType)){
-					addStageIn();
-					//sleep till stage-ins are done
-					action.setWaiting(true);
-				}
-				else  {
-					action.addLogTrace("Staging in not done (no processing configured).");
-					setToReady();
-					return;
-				}
+				addStageIn();
+				action.setWaiting(true);
 			}
 			else{
-				//nothing to stage in
 				action.addLogTrace("No staging in needed.");
 				setToReady();
 			}
-			//processing problems?	
 		}catch(Exception ex){
 			String msg="Error processing action "+ex.getMessage();
 			action.addLogTrace(msg);
@@ -232,6 +221,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected void handleStagingIn(String id)throws ExecutionException, ProcessingException{
 		ActionResult res=checkSubAction(id, "Stage in", false);
 		if(res!=null){
+			action.setStageIns(null); // save some space in the DB
 			if(!res.isSuccessful()){
 				//TODO: policy on this or not?
 				setToDoneAndFailed("Staging in failed. Reason: "+res.getErrorMessage());
@@ -912,8 +902,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	//deal with adding new stage-in action
 	protected void addStageIn() throws ProcessingException{
 		try{
-			List<DataStageInInfo>toStage = extractStageInInfo();
-			action.setStageIns(toStage);
+			List<DataStageInInfo>toStage = action.getStageIns();
 			StagingInfo stageInfo = new StagingInfo(toStage);
 			String subId=manager.addSubAction(stageInfo,
 					XNJSConstants.jsdlStageInActionType, action, true);
@@ -927,11 +916,9 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 	//deal with adding new stage-out action
 	protected void addStageOut() throws ProcessingException{
-		//check if we need stage out	
 		try{
-			//check if we can process STAGE_OUT
-			if(xnjs.haveProcessingFor(XNJSConstants.jsdlStageOutActionType)){
-				List<DataStageOutInfo>toStage=extractStageOutInfo();
+			List<DataStageOutInfo>toStage = action.getStageOuts();
+			if(toStage!=null && toStage.size()>0){
 				StagingInfo stageOut = new StagingInfo(toStage);
 				String subId=manager.addSubAction((Serializable)stageOut,
 						XNJSConstants.jsdlStageOutActionType, action, true);
@@ -940,7 +927,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				action.setWaiting(true);
 			}
 			else  {
-				action.addLogTrace("Staging out not done.");
+				action.addLogTrace("Nothing to stage out.");
 				setToDoneSuccessfully();
 			}
 		}catch(Exception ex){

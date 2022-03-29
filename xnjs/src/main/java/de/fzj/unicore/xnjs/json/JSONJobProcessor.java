@@ -43,6 +43,12 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		return jobDescription;
 	}
 	
+	// useful if information is in the job description 
+	// that should not be kept long-term in the DB
+	protected void rewriteJobDescription(JSONObject modified) {
+		action.setAjd(modified.toString());
+	}
+
 	/**
 	 * if the job is a parameter sweep job, change the action type
 	 * so that the JSONSweepProcessor} can take over
@@ -95,9 +101,9 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			Client c=action.getClient();
 			if(c!=null && email!=null)c.setUserEmail(email);
 
-			extractStageInInfo();
-			extractStageOutInfo();
-
+			action.setStageIns(extractStageInInfo());
+			action.setStageOuts(extractStageOutInfo());
+			rewriteJobDescription(jobDescription);
 			action.setDirty();
 
 		} catch (Exception e) {
