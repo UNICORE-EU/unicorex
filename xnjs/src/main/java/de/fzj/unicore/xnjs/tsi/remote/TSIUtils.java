@@ -394,10 +394,9 @@ public class TSIUtils {
 		}
 		commands.append("#TSI_DISCARD_OUTPUT true\n");
 		commands.append("#TSI_SCRIPT\n");
+		commands.append("cd " + ec.getWorkingDirectory() + "\n");
 
 		appendEnvironment(commands, ec, true);
-
-		commands.append("cd " + ec.getWorkingDirectory() + "\n");
 
 		commands.append(" { ");
 		
