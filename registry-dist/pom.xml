@@ -38,7 +38,7 @@
   <dependencies>
     <dependency>
       <groupId>eu.unicore.services</groupId>
-      <artifactId>use-wsrflite</artifactId>
+      <artifactId>use-rest</artifactId>
     </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
