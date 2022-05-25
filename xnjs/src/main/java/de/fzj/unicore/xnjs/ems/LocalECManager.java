@@ -98,10 +98,15 @@ public class LocalECManager implements IExecutionContextManager {
 				logger.info("Re-connecting to "+uspaceInfo(action));
 			}
 			if(targetSystem instanceof BatchMode) {
-				((BatchMode)targetSystem).commitBatch();
+				String res = ((BatchMode)targetSystem).commitBatch();
+				if (res!=null) {
+					res = res.replaceFirst("TSI_OK", "").trim().replace("\n", " - ");
+				}
 				if(targetSystem instanceof RemoteTSI) {
-					((RemoteTSI)targetSystem).assertIsDirectory(wd, 
-							"Could not create job working directory <"+uspace+">!");
+					RemoteTSI rTSI = (RemoteTSI)targetSystem;
+					String node = rTSI.getLastUsedTSIHost();
+					rTSI.assertIsDirectory(wd,
+							"Could not create job working directory <%s> on TSI <%s>! TSI reply: %s", uspace, node, res);
 				}
 			}
 			ec = new ExecutionContext();

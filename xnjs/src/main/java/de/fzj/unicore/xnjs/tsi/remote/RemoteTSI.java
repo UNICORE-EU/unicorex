@@ -406,38 +406,12 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	@Override
 	public String getEnvironment(String name)throws ExecutionException{
-		try{
-			try(TSIConnection conn = getConnection()){
-				String cmd="echo ${"+name+"}";
-				String tsicmd = tsiMessages.makeExecuteScript(cmd, null, extractCredentials());
-				String res = conn.send(tsicmd);
-				if(!res.contains("TSI_OK")){
-					String msg="Command execution failed. TSI reply:"+res;
-					ErrorCode err = new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, msg);
-					throw new ExecutionException(err);
-				}
-				return res.replace("TSI_OK", "").trim();
-			}
-		}catch(Exception e){
-			throw new ExecutionException(e);
-		}
+		return doExecuteScript("echo ${"+name+"}");
 	}
 
 	@Override
 	public String resolve(String name)throws ExecutionException{
-		try(TSIConnection conn = getConnection()){
-			String cmd="echo \""+name+"\"";
-			String tsicmd = tsiMessages.makeExecuteScript(cmd, null, extractCredentials());
-			String res=conn.send(tsicmd);
-			if(!res.contains("TSI_OK")){
-				String msg="Command execution failed. TSI reply:"+res;
-				ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
-				throw new ExecutionException(ec);
-			}
-			return res.replace("TSI_OK", "").trim();
-		}catch(IOException e){
-			throw new ExecutionException(e);
-		}
+		return doExecuteScript("echo \""+name+"\"");
 	}
 
 	@Override
@@ -598,18 +572,24 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return runTSICommand(tsiMessages.makeLSCommand(makeTarget(file), normal, recurse));	
 	}
 
-	String doExecuteScript(String cmd)throws ExecutionException{
+	private String doExecuteScript(String cmd)throws ExecutionException {
 		String tsicmd = tsiMessages.makeExecuteScript(cmd, null, extractCredentials());
 		try(TSIConnection conn = getConnection()){
-			String res=conn.send(tsicmd);
-			if(res.startsWith("TSI_FAILED")){
-				throw new IOException("TSI ERROR: Could not execute command: <"+cmd+"> TSI reply: "+res);
+			try {
+				String res = conn.send(tsicmd);
+				if(!res.contains("TSI_OK")){
+					String msg="Command execution on TSI <"+lastUsedTSIHost+"> failed. TSI reply:" + res;
+					ErrorCode err = new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, msg);
+					throw new ExecutionException(err);
+				}
+				return res.replace("TSI_OK", "").trim();
+			}catch(IOException ioe) {
+				throw new ExecutionException(Log.createFaultMessage("Command execution on TSI <"
+						+lastUsedTSIHost+"> failed.", ioe));
 			}
-			return res;
-		}catch(IOException e){
-			throw new ExecutionException(e);
 		}
 	}
+
 	/**
 	 * for the format see the comment for ls()
 	 * @param lines - one or two TSI listing lines
@@ -861,7 +841,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			String tsicmd = tsiMessages.makePutFileChunkCommand(file, permissions, numBytes, append);
 			String res=conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
-				throw new IOException("Execution on TSI server failed. Reply was "+res);
+				throw new IOException("Execution on TSI <"+lastUsedTSIHost+"> failed. Reply was "+res);
 			}
 			conn.sendData(buf,0,numBytes);
 			conn.getLine(); // extra ENDOFMESSAGE
@@ -931,7 +911,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		}
 		if(!res.contains("TSI_OK")) {
 			throw new ExecutionException(
-					"ACL operation on TSI server failed. Reply was " + res);
+					"ACL operation on TSI <"+lastUsedTSIHost+"> failed. Reply was " + res);
 		}
 		return res;
 	}
@@ -1044,15 +1024,15 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return Integer.toOctalString(this.umask);
 	}
 
-	public void assertIsDirectory(String dir, String errorMessage)throws ExecutionException{
+	public void assertIsDirectory(String dir, String format, Object... args)throws ExecutionException{
 		boolean noPreferredHost = false;
 		if(preferredHost==null){
 			preferredHost = lastUsedTSIHost;
 			noPreferredHost = true;
 		}
 		XnjsFile f = getProperties(dir);
-		if(f == null)throw new ExecutionException(errorMessage);
-		if(!f.isDirectory())throw new ExecutionException(errorMessage+" File exists!");
+		if(f == null)throw new ExecutionException(String.format(format, args));
+		if(!f.isDirectory())throw new ExecutionException(String.format(format+" File exists!", args));
 		if(noPreferredHost)preferredHost = null;
 	}
 
@@ -1064,7 +1044,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		try(TSIConnection conn = getConnection()){
 			String res=conn.send(command);
 			if(res.startsWith("TSI_FAILED")){
-				throw new ExecutionException("TSI ERROR: Error executing command. TSI reply: "+res);
+				throw new ExecutionException("TSI ERROR: Error executing command on TSI <"+lastUsedTSIHost+">. TSI reply: "+res);
 			}
 			return res;
 		}
@@ -1077,7 +1057,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		if (reply==null)return;
 		reply = reply.replaceFirst("TSI_OK", "").trim();
 		if(reply.length()>0) {
-			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "TSI ERROR: '"+reply+"'");
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "TSI <"+lastUsedTSIHost+"> ERROR: '"+reply+"'");
 		}
 	}
 }
