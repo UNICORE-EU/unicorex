@@ -45,10 +45,6 @@
     </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
-      <artifactId>use-wsrflite</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>eu.unicore.services</groupId>
       <artifactId>use-pdp</artifactId>
     </dependency>
     <dependency>

@@ -22,7 +22,6 @@ import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 
 
 /**
@@ -100,8 +99,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 			ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
 			m.setServiceName(getServiceName());
 			m.setDeletedResource(getUniqueID());
-			getKernel().getMessaging().getChannel(WSServerUtilities.extractResourceID(model.serviceSpec))
-			.publish(m);
+			getKernel().getMessaging().getChannel(model.serviceSpec).publish(m);
 		}
 		catch(Exception ex){}
 		super.destroy();

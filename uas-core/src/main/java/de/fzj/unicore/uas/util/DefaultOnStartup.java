@@ -56,14 +56,14 @@ import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.registry.LocalRegistryClient;
 import eu.unicore.services.registry.RegistryHandler;
-import eu.unicore.services.ws.client.RegistryClient;
+import eu.unicore.services.rest.client.RegistryClient;
 import eu.unicore.util.Log;
 
 /**
  * Startup code that initialises the registry and creates the default 
  * TargetSystemFactory service.<br/>
  * 
- * To run, add the classname to the uas.config property "uas.onstartup.*"
+ * To run, add the classname to the uas.config property "container.onstartup.*"
  */
 public class DefaultOnStartup implements Runnable{
 

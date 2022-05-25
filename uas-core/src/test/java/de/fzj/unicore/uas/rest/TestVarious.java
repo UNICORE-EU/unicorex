@@ -1,4 +1,4 @@
-package de.fzj.unicore.uas.testsuite;
+package de.fzj.unicore.uas.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

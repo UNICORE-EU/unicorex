@@ -27,18 +27,9 @@
      <groupId>junit</groupId>
      <artifactId>junit</artifactId>
     </dependency>
-    <!--dependency>
-     <groupId>eu.unicore</groupId>
-     <artifactId>uas-types</artifactId>
-     <version>${project.version}</version>
-    </dependency-->
     <dependency>
      <groupId>eu.unicore.services</groupId>
      <artifactId>use-restclient</artifactId>
-    </dependency>
-    <dependency>
-     <groupId>eu.unicore.services</groupId>
-     <artifactId>use-wsrfclient</artifactId>
     </dependency>
    <dependency>
      <groupId>commons-io</groupId>

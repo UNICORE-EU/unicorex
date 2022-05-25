@@ -1,23 +1,17 @@
 package eu.unicore.client.registry;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.oasisOpen.docs.wsrf.sg2.EntryType;
-import org.w3.x2005.x08.addressing.EndpointReferenceType;
 
 import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
-import eu.unicore.services.ws.WSUtilities;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
@@ -110,38 +104,12 @@ public class RegistryClient implements IRegistryClient {
 		return auth;
 	}
 
-	public static Endpoint toEP(EntryType sgEntry){
-		return toEP(sgEntry, false);
-	}
-
 	public static Endpoint toEP(Map<String,String>content){
 		Endpoint ep = new Endpoint(content.get(ENDPOINT));
 		ep.setInterfaceName(content.get(INTERFACE_NAME));
 		ep.setServerPublicKey(content.get(SERVER_PUBKEY));
 		ep.setServerIdentity(content.get(SERVER_IDENTITY));
 		return ep;
-	}
-
-	public static Endpoint toEP(EntryType sgEntry, boolean forceWSRF){
-		return toEP(parse(sgEntry.getMemberServiceEPR()));
-	}
-
-	public static Map<String,String> parse(EndpointReferenceType memberEPR){
-		Map<String,String> res = new HashMap<>();
-		String dn = WSUtilities.extractServerIDFromEPR(memberEPR);
-		if(dn!=null){
-			res.put(SERVER_IDENTITY,dn);
-		}
-		QName q = WSUtilities.extractInterfaceName(memberEPR);
-		if(q!=null){
-			res.put(INTERFACE_NAME,q.getLocalPart());
-		}
-		res.put(ENDPOINT, memberEPR.getAddress().getStringValue());
-		String pem = WSUtilities.extractPublicKey(memberEPR);
-		if(pem!=null){
-			res.put(SERVER_PUBKEY,pem);
-		}
-		return res;
 	}
 
 	public static final String ENDPOINT = "href";

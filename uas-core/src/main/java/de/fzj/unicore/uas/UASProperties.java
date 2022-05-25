@@ -148,10 +148,6 @@ public class UASProperties extends PropertiesHelper {
 	 */
 	public static final String METADATA_MANAGER_CLASSNAME="metadata.managerClass";
 
-	/** @deprecated **/
-	public static final String GRIDBEAN_DIR = "gridbean.directory";
-
-
 	private Collection<StorageDescription> addOnStorages;
 	private Map<String, StorageDescription> factories;
 
@@ -221,8 +217,6 @@ public class UASProperties extends PropertiesHelper {
 
 		// deprecated stuff
 		META.put("bes.", new PropertyMD().setDeprecated().setHidden().setCanHaveSubkeys());
-		META.put(GRIDBEAN_DIR, new PropertyMD().setPath().
-				setDescription("(DEPRECATED, UNUSED)"));
 		META.put(TSF_XNJS_CONFIGFILE, new PropertyMD().setPath().setDeprecated().
 				setDescription("(DEPRECATED, UNUSED)"));
 		META.put(SMS_PROTOCOLS, new PropertyMD().setUpdateable().setDeprecated().

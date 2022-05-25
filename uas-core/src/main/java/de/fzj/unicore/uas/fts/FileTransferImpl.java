@@ -52,7 +52,6 @@ import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.ws.utils.WSServerUtilities;
 
 /**
  * a WS-Resource representing a File transfer<br/>
@@ -99,14 +98,13 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 		String parentID = map.smsUUID;
 		m.setParentUID(parentID);
 		m.setParentServiceName(UAS.SMS);
+		m.serviceSpec = parentID;
 		m.workdir = map.workdir;
 		m.isExport = map.isExport;
 		m.overWrite = map.overwrite;
 		m.umask = map.umask;
 		m.numberOfBytes = map.numbytes;
 		m.extraParameters = map.extraParameters;
-		//setup resource properties
-		m.serviceSpec = UAS.SMS+"?res="+parentID;
 		initialiseSourceAndTarget(rawsource, rawtarget);
 		m.setStorageAdapterFactory(map.storageAdapterFactory);
 		logger.info("New file transfer: "+toString());
@@ -183,17 +181,6 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	protected OutputStream createNewOutputStream(boolean append)throws IOException,ExecutionException{
 		OutputStream os=getStorageAdapter().getOutputStream(getModel().getTarget(),append);
 		return os;
-	}
-
-	/*
-	 * generates a fully-qualified URI string, including protocol and SMS
-	 * reference. The URI is encoded properly.
-	 */
-	protected String makeQualifiedURI(String path){
-		String serviceSpec = getModel().getServiceSpec();
-		String serviceURL=WSServerUtilities.makeAddress(serviceSpec, kernel.getContainerProperties());
-		String prefix=getModel().getProtocol().toLowerCase()+":"+serviceURL+"#";
-		return urlEncode(prefix+path);
 	}
 
 	/**

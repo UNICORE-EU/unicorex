@@ -152,7 +152,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	 * 
 	 * @return the unique id of the newly created SMS
 	 */
-	protected String createUspace(Action a){
+	protected String createUspace(Action a) throws Exception {
 		StorageInitParameters init = new StorageInitParameters(getUniqueID()+"-uspace", TerminationMode.NEVER);
 		StorageDescription description = kernel.getAttribute(UASProperties.class).parseStorage(UASProperties.USPACE_SMS_PREFIX, 
 				"UspaceOf-"+getUniqueID(), false);
@@ -167,14 +167,8 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		init.xnjsReference = getXNJSReference();
 		init.acl = getModel().getAcl();
 		init.inheritSharing = true;
-		String id = null;
-		try {
-			Home smsHome=kernel.getHome(UAS.SMS);
-			id = smsHome.createResource(init);
-		} catch (Exception e) {
-			LogUtil.logException("Could not create storage for job",e,logger);
-		}
-		return id;
+		Home smsHome=kernel.getHome(UAS.SMS);
+		return smsHome.createResource(init);
 	}
 
 	/**

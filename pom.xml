@@ -75,16 +75,6 @@
       </dependency>
       <dependency>
 	<groupId>eu.unicore.services</groupId>
-	<artifactId>use-wsrfclient</artifactId>
-	<version>${use.version}</version>
-      </dependency>
-      <dependency>
-	<groupId>eu.unicore.services</groupId>
-	<artifactId>use-wsrflite</artifactId>
-	<version>${use.version}</version>
-      </dependency>
-      <dependency>
-	<groupId>eu.unicore.services</groupId>
 	<artifactId>use-rest</artifactId>
 	<version>${use.version}</version>
       </dependency>
