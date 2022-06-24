@@ -8,8 +8,8 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
+import de.fzj.unicore.uas.features.StorageAccessStartupTask;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
-import de.fzj.unicore.uas.util.DefaultOnStartup;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters.TerminationMode;
@@ -66,14 +66,13 @@ public class InitDefaultStorageFactory implements Runnable{
 			}finally{
 				smfLock.unlock();
 			}
-			DefaultOnStartup.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, "StorageFactory");
+			StorageAccessStartupTask.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, "StorageFactory");
 		}
 	}
 
 	private void doCreateSMF(Home smfHome)throws ResourceNotCreatedException{
 		String defaultSmfName = StorageFactoryHomeImpl.DEFAULT_SMF_NAME;
 		BaseInitParameters init = new BaseInitParameters(defaultSmfName, TerminationMode.NEVER);
-		init.publishToRegistry = true;
 		UASProperties props = kernel.getAttribute(UASProperties.class);
 		Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactoryImpl.class);
 		init.resourceClassName = clazz.getName();

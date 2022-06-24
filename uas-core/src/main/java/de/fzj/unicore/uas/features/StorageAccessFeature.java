@@ -1,14 +1,10 @@
 package de.fzj.unicore.uas.features;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferHomeImpl;
 import de.fzj.unicore.uas.fts.uftp.UFTPStartupTask;
 import de.fzj.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl;
-import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.utils.deployment.FeatureImpl;
 
@@ -26,17 +22,16 @@ public class StorageAccessFeature extends FeatureImpl {
 	@Override
 	public void setKernel(Kernel kernel) {
 		super.setKernel(kernel);
-		getInitTasks().add(new UFTPStartupTask(kernel));
-	}
-	
-	@Override
-	public Map<String, Class<? extends Home>> getHomeClasses(){
-		Map<String, Class<? extends Home>> homeClasses = new HashMap<>();
 		homeClasses.put(UAS.SMS, StorageManagementHomeImpl.class);
 		homeClasses.put(UAS.SMF, StorageFactoryHomeImpl.class);
 		homeClasses.put(UAS.SERVER_FTS, FileTransferHomeImpl.class);
 		homeClasses.put(UAS.CLIENT_FTS, FileTransferHomeImpl.class);
-		return homeClasses;
+		getStartupTasks().add(new StorageAccessStartupTask(kernel));
+	}
+	
+	@Override
+	public void initialise() throws Exception {
+		new UFTPStartupTask(kernel).run();
 	}
 
 }

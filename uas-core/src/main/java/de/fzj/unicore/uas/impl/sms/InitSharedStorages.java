@@ -9,7 +9,7 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.util.DefaultOnStartup;
+import de.fzj.unicore.uas.features.StorageAccessStartupTask;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.security.OperationType;
 import eu.unicore.services.Home;
@@ -23,8 +23,7 @@ import eu.unicore.services.security.ACLEntry.MatchType;
 /**
  * Creates the configured shared storage instances of the StorageManagement service
  * 
- * It is run from either the {@link DefaultOnStartup} class, or by adding the class name
- * to the container.onstartup.* property
+ * It is run from the {@link StorageAccessStartupTask}
  * 
  * @author schuller
  */
@@ -87,8 +86,7 @@ public class InitSharedStorages implements Runnable{
 		
 		StorageInitParameters map = new StorageInitParameters(id, TerminationMode.NEVER);
 		map.storageDescription = desc;
-		map.publishToRegistry = false;
-		
+
 		// do not resolve and/or create directory scan 
 		// since we do not have a client context here
 		map.skipResolve = true;
@@ -100,7 +98,6 @@ public class InitSharedStorages implements Runnable{
 		// allow user access via ACL
 		map.acl.add(new ACLEntry(OperationType.modify, "user", MatchType.ROLE));
 		home.createResource(map);
-		DefaultOnStartup.publishWS(kernel, home.getServiceName(), id, "StorageManagement");
 		logger.info("Added shared Storage resource '"+id+"' "+desc);
 	}
 
