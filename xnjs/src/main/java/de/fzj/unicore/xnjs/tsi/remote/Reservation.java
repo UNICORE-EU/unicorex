@@ -44,6 +44,8 @@ public class Reservation implements IReservation {
 	@Inject
 	private TSIMessages tsiMessages;
 	
+	private String lastTSIHost = "n/a";
+
 	/**
 	 * Cancel a reservation
 	 */
@@ -55,13 +57,12 @@ public class Reservation implements IReservation {
 			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
-					String msg="Resource reservation on classic TSI failed. Reply was <"+res+">";
+					String msg="Resource reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
 					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
 					throw new ExecutionException(ec);
 				}
 			}
 		}catch(Exception e){
-			logger.error("Could not cancel reservation.",e);
 			throw new ExecutionException(e);
 		}
 
@@ -73,28 +74,27 @@ public class Reservation implements IReservation {
 	 * <ul> 
 	 * <li>the resource request is incarnated, i.e. the resource defaults from the IDB 
 	 *     are merged in</li>
-	 * <li>the reservation request is sent to the classic TSI as a #TSI_MAKE_RESERVATION command</li>
+	 * <li>the reservation request is sent to the TSI as a #TSI_MAKE_RESERVATION command</li>
 	 * <li>the TSI replies with TSI_OK and the reservation ID.</li>
 	 * </ul>
 	 */
 	public String makeReservation(Map<String,String> resources, Calendar startTime,
 			Client client) throws ExecutionException {
 		try{
-			logger.debug("Processing resource reservation {}\nStart time {}", resources, startTime.getTime());
+			logger.debug("Processing resource reservation {} Start time {}", resources, startTime.getTime());
 			List<ResourceRequest>resourceRequest = parseResourceRequest(resources);
 			List<ResourceRequest>incarnated = grounder.incarnateResources(resourceRequest, client);
 			String tsiCmd = tsiMessages.makeMakeReservationCommand(incarnated, startTime, client);
 			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
-					String msg="Resource reservation on classic TSI failed. Reply was <"+res+">";
+					String msg="Resource reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
 					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
 					throw new ExecutionException(ec);
 				}
 				return res.replace("TSI_OK","").trim();
 			}
 		}catch(Exception e){
-			logger.error("Could not reserve resources.",e);
 			throw new ExecutionException(e);
 		}
 	}
@@ -102,7 +102,7 @@ public class Reservation implements IReservation {
 	/**
 	 * Query a reservation.<br/>
 	 * 
-	 * This sends a line "#TSI_RESERVATION_REFERENCE NNN" to the classic TSI,
+	 * This sends a line "#TSI_RESERVATION_REFERENCE NNN" to the TSI,
 	 * which replies with TSI_OK followed by one mandatory line
 	 * <code>
 	 * STATUS START_TIME
@@ -130,14 +130,13 @@ public class Reservation implements IReservation {
 			try(TSIConnection conn = getTSIConnection(client)){
 				res = conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
-					String msg="Query resource reservation on classic TSI failed. Reply was <"+res+">";
+					String msg="Query resource reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
 					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
 					throw new ExecutionException(ec);
 				}
 			}
 			rs=parseTSIReply(res);
 		}catch(Exception e){
-			LogUtil.logException("Could not query reservation.",e,logger);
 			throw new ExecutionException(e);
 		}
 		return rs;
@@ -159,7 +158,10 @@ public class Reservation implements IReservation {
 
 	protected TSIConnection getTSIConnection(Client client) throws TSIUnavailableException {
 		String admin=getReservationAdmin(client);
-		return tsiConnectionFactory.getTSIConnection(admin, null, null, -1);
+		lastTSIHost = "n/a";
+		TSIConnection c = tsiConnectionFactory.getTSIConnection(admin, null, null, -1);
+		lastTSIHost = c.getTSIHostName();
+		return c;
 	}
 	
 	/**
@@ -198,7 +200,7 @@ public class Reservation implements IReservation {
 	}
 
 	public List<ResourceRequest> parseResourceRequest(Map<String,String> source) throws Exception {
-		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
+		List<ResourceRequest> req = new ArrayList<>();
 		if(source!=null) {
 			for(Map.Entry<String, String> e: source.entrySet()) {
 				req.add(new ResourceRequest(e.getKey(), e.getValue()));
