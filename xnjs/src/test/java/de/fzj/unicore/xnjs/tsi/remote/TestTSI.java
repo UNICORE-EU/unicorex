@@ -457,22 +457,16 @@ public class TestTSI extends RemoteTSITestCase{
 	@Test
 	public void testTimeoutHandling()throws Exception {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
-		assertNotNull(f);
-		TSIConnection c = f.getTSIConnection("nobody", null,"localhost",-1);
-		try {
-			InetAddress localhost=InetAddress.getByName("localhost");
+		InetAddress localhost=InetAddress.getByName("localhost");
+		ExecutionContext ec = new ExecutionContext();
+		TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
+		String message = tsiMessages.makeExecuteScript("sleep 10", ec, null);
+		try (TSIConnection c = f.getTSIConnection("nobody", null, "localhost", -1)){
 			assertEquals(localhost,c.getTSIAddress());
 			c.setSocketTimeouts(3000, false);
-			ExecutionContext ec = new ExecutionContext();
-			TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
-			String message = tsiMessages.makeExecuteScript("sleep 10", ec, null);
 			c.sendNoUser(message);
 		}catch(IOException ex) {
-			assertTrue(ex.getMessage().contains("TSI <localhost>"));
-			assertTrue(c.isShutdown());
-			assertFalse(c.getConnector().isOK());
-		}finally {
-			c.close();
+			assertTrue("Got TSI error: "+ex.getMessage(), ex.getMessage().contains("TSI <localhost>"));
 		}
 	}
 
@@ -490,11 +484,6 @@ public class TestTSI extends RemoteTSITestCase{
 		}catch(ExecutionException ee1) {
 			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("ERROR:"));
 		}
-	}
-	
-	@Test 
-	public void testUtils1() throws Exception {
-		
 	}
 	
 	private void writeFile(String path, String content)throws Exception{

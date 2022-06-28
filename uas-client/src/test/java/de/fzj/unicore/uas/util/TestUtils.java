@@ -4,10 +4,10 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class TestPair {
+public class TestUtils {
 
 	@Test
-	public void test(){
+	public void testPair(){
 		Pair<String, Integer> p1=new Pair<String,Integer>("test", 1);
 		assertEquals("test",p1.getM1());
 		assertEquals(Integer.valueOf(1),p1.getM2());
@@ -20,4 +20,11 @@ public class TestPair {
 		
 		assertEquals(p1,p2);
 	}
+
+	@Test(expected = RuntimeException.class)
+	public void testLimitedBAOS() throws Exception {
+		LimitedByteArrayOutputStream lb = new LimitedByteArrayOutputStream(16);
+		lb.write(new byte[32]);
+	}
+
 }
