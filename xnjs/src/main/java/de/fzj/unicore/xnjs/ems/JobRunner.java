@@ -106,7 +106,7 @@ public class JobRunner extends Thread {
 	 *   </ul> 
 	 */
 	public void run() {
-		logger.info("Worker "+getName()+" starting.");
+		logger.info("Worker {} starting.", getName());
 		try{
 			while(!isInterrupted){
 				while(mgr.isPaused())Thread.sleep(300);
@@ -131,7 +131,7 @@ public class JobRunner extends Thread {
 				}
 			}
 		}catch(InterruptedException ie){
-			logger.info(getName()+" stopped.");
+			logger.info("Worker {} stopped.", getName());
 			return;
 		}
 	}

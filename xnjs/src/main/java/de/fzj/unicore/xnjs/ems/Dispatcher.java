@@ -34,12 +34,8 @@ public class Dispatcher extends Thread {
 	public Dispatcher(XNJS xnjs) throws Exception {
 		this.xnjs = xnjs;
 		this.jobs = xnjs.getActionStore("JOBS");
-		this.workQueue = createQueue();
+		this.workQueue = new DelayQueue<>();
 		this.setName("XNJS-"+xnjs.getID()+"-Dispatcher");
-	}
-
-	private BlockingQueue<QueueEntry> createQueue(){
-		return new DelayQueue<QueueEntry>();
 	}
 
 	/**

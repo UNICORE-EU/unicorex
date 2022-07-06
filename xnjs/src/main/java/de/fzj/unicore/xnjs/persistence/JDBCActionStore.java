@@ -156,15 +156,11 @@ public class JDBCActionStore extends AbstractActionStore {
 				activeJobs.write(action);
 			}else{
 				doneJobs.write(new DoneAction(action));
-				activeJobs.remove(action.getUUID());
+				activeJobs.delete(action.getUUID());
 			}
 		}
 		else{
-			if(action.getStatus()!=ActionStatus.DONE){
-				activeJobs.unlock(action);
-			}else{
-				doneJobs.unlock(new DoneAction(action));
-			}
+			activeJobs.unlock(action);
 		}
 	}
 
