@@ -1,26 +1,26 @@
 {
 
-Rules:[
+"Rules": [
 
   {
-    Name: noop1,
-    Match: ".*pdf",
-    Action: 
+    "Name": "noop1",
+    "Match": ".*pdf",
+    "Action": 
     {
-       Type: NOOP,
-    },
+       "Type": "NOOP"
+    }
   },
 
   {
-    Name: local1,
-    Match: ".*jpg",
-    Action: 
+    "Name": "local1",
+    "Match": ".*jpg",
+    "Action": 
     {
-       Type: LOCAL,
-       Command: "ls -l ${UC_FILE_NAME}",
-    },
+       "Type": "LOCAL",
+       "Command": "ls -l ${UC_FILE_NAME}"
+    }
   }
 
-],
+]
 
 }

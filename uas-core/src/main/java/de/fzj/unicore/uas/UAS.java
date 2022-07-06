@@ -38,10 +38,8 @@ import eu.unicore.services.USEContainer;
 import eu.unicore.util.Log;
 
 /**
- * Main class, intended to run the UAS as a set of standalone services,
- * including a target system factory, job management etc. It is based on the
- * USE hosting environment, and uses the XNJS as back-end execution engine.
- * 
+ * Main UNICORE/X class, used to launch the container
+ *
  * @author schuller
  */
 public class UAS extends USEContainer {
@@ -49,16 +47,13 @@ public class UAS extends USEContainer {
 	public static final String TSF = "TargetSystemFactoryService";
 	public static final String TSS = "TargetSystemService";
 	public static final String JMS = "JobManagement";
+	public static final String RESERVATIONS = "ReservationManagement";
 	public static final String SMS = "StorageManagement";
 	public static final String SMF = "StorageFactory";
-	public static final String RESERVATIONS = "ReservationManagement";
-	public static final String ENUMERATION = "Enumeration";
 	public static final String META = "MetadataManagement";
-	public static final String TASK = "Task";
-	
 	public static final String SERVER_FTS = "ServerServerFileTransfer";
-	
 	public static final String CLIENT_FTS = "ClientServerFileTransfer";
+	public static final String TASK = "Task";
 	
 	/**
 	 * If one of the following is used as protocol for file transfers,

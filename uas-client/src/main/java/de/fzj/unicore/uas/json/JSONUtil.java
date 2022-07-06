@@ -103,15 +103,14 @@ public class JSONUtil {
 		return l;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static Map<String,String>asMap(JSONObject o){
-		Map<String,String>result=new HashMap<String, String>();
+		Map<String,String>result=new HashMap<>();
 		if(o!=null){
-			Iterator<String>i=o.keys();
+			Iterator<String>i = o.keys();
 			while(i.hasNext()){
-				String s=i.next();
+				String s = i.next();
 				try{
-					result.put(s,o.getString(s));
+					result.put(s, String.valueOf(o.get(s)));
 				}catch(JSONException ex){}
 			}
 		}

@@ -48,10 +48,7 @@ public class FileList extends BaseServiceClient {
 		bc.setURL(url);
 		JSONObject content = props.getJSONObject("content");
 		List<FileListEntry> res = new ArrayList<>();
-		
-		@SuppressWarnings("unchecked")
-		Iterator<String>children = (Iterator<String>)content.keys();
-		
+		Iterator<String>children = content.keys();
 		while(children.hasNext()){
 			String child = children.next();
 			res.add(new FileListEntry(child, content.getJSONObject(child)));

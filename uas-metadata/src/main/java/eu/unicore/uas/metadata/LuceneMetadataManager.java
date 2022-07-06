@@ -31,7 +31,6 @@
  ********************************************************************************/
 package eu.unicore.uas.metadata;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,9 +43,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.metadata.Metadata;
+import org.json.JSONObject;
 
+import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.metadata.ExtractionStatistics;
 import de.fzj.unicore.uas.metadata.FederatedSearchResultCollection;
 import de.fzj.unicore.uas.metadata.SearchResult;
@@ -60,7 +62,6 @@ import eu.unicore.security.Client;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.ThreadingServices;
-import eu.unicore.uas.metadata.utils.JSONAdapter;
 
 /**
  * This class manage all core stuff for metadata management.
@@ -99,11 +100,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
      * Default number of documents returned in the search process
      */
     public static final int DEFAULT_NUMBER_OF_MATCHES = 200;
-    private static final int BUFFERSIZE = 1024;
-    
-
     private static final Logger LOG = LogUtil.getLogger(LogUtil.DATA, LuceneMetadataManager.class);
-    private static final JSONAdapter FORMATER = new JSONAdapter();
     private IStorageAdapter storage;
     private LuceneIndexer indexer;
     private Kernel kernel;
@@ -116,10 +113,6 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         this.kernel=kernel;
     }
 
-
-    /*
-     * Here come the methods from de.fzj.unicore.uas.metadata.MetadataManager
-     */
     @Override
     public void createMetadata(String resourceName, Map<String, String> lstMetadata) throws IOException {
     	isStorageReady();
@@ -132,10 +125,10 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         Map<String, String> copy = new HashMap<>(lstMetadata);
         copy.put(Metadata.RESOURCE_NAME_KEY, resourceName);
 
-        byte[] metadata = FORMATER.convert(copy);
+        String metadata = JSONUtil.asJSON(copy).toString();
         try {
-            writeData(fileName, metadata);
-            indexer.createMetadata(resourceName, copy, new String(metadata));
+            writeData(fileName, metadata.toString());
+            indexer.createMetadata(resourceName, copy, metadata);
             if(autoCommit)commit();
         } catch (IOException ex) {
             throw new IOException("Unable to create metadata for resource <" + resourceName + ">", ex);
@@ -153,11 +146,11 @@ public class LuceneMetadataManager implements StorageMetadataManager {
             Map<String, String> original = getMetadataByName(resourceName);
             Map<String, String> merged = mergeMetadata(original, lstMetadata);
             merged.put(Metadata.RESOURCE_NAME_KEY, resourceName);
-            byte[] metadata = FORMATER.convert(merged);
+            String metadata = JSONUtil.asJSON(merged).toString();
             if(!lstMetadata.isEmpty()){
 	            writeData(fileName, metadata);
             }
-            indexer.updateMetadata(resourceName, merged, new String(metadata));
+            indexer.updateMetadata(resourceName, merged, metadata);
             if(autoCommit)commit();
         } catch (IOException ex) {
             throw new IOException("Unable to update metadata for resource <" + resourceName + ">", ex);
@@ -287,14 +280,12 @@ public class LuceneMetadataManager implements StorageMetadataManager {
             //XXX: we might consider creating the file for the future.
             return metadata;
         }
-
-        byte[] data = readFully(fileName);
         try {
-            metadata = FORMATER.convert(data);
+            JSONObject o = new JSONObject(readFully(fileName));
+            return JSONUtil.asMap(o);
         } catch (Exception ex) {
             throw new IOException("Unkown data format of metadata read from file: <" + fileName + "> ", ex);
         }
-        return metadata;
     }
     
     @Override
@@ -319,43 +310,38 @@ public class LuceneMetadataManager implements StorageMetadataManager {
     }
 
     /**
-     * Write data to a grid file via storage
+     * Write data to file via storage
      *
      * @param fileName filename
-     * @param metadata byte array with metadata
+     * @param metadata string
      * @throws IOException
      */
-    protected void writeData(String fileName, byte[] metadata) throws IOException {
-        OutputStream os;
+    protected void writeData(String fileName, String metadata) throws IOException {
         if (storage == null) {
             throw new IllegalStateException("Storage cannot be null");
         }
         if (fileName == null || fileName.trim().isEmpty()) {
             throw new IllegalArgumentException("File name cannot be null nor empty");
         }
-        if (metadata == null || metadata.length == 0) {
+        if (metadata == null || metadata.length() == 0) {
             throw new IllegalArgumentException("Metadata cannot be null nor empty");
         }
 
-        try {
-            //    if (storage.getProperties(fileName).isDirectory()) throw new IllegalArgumentException(String.format("Write target %s is a directory",fileName));
-            os = storage.getOutputStream(fileName, false);
-            os.write(metadata);
-            os.flush();
-            os.close();
+        try(OutputStream os = storage.getOutputStream(fileName, false)){
+            os.write(metadata.getBytes("UTF-8"));
         } catch (ExecutionException ex) {
             throw new IOException("Unable to write metadata", ex);
         }
     }
 
     /**
-     * Read grid file via storage into a byte array
+     * Read file on storage into string
      *
      * @param fileName
-     * @return byte [] array 
+     * @return string
      * @throws IOException
      */
-    protected byte[] readFully(String fileName) throws IOException {
+    protected String readFully(String fileName) throws IOException {
 
         if (storage == null) {
             throw new IllegalStateException("Storage cannot be null");
@@ -363,26 +349,11 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         if (fileName == null || fileName.trim().isEmpty()) {
             throw new IllegalArgumentException("Filename cannot be null nor empty");
         }
-
-        InputStream is = null;
-        try {
-            is = storage.getInputStream(fileName);
+        try (InputStream is = storage.getInputStream(fileName)){
+            return IOUtils.toString(is, "UTF-8");
         } catch (ExecutionException ex) {
             throw new IOException(String.format("Unable to open file %s to read metadata", fileName), ex);
         }
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        byte[] buf = new byte[BUFFERSIZE];
-        int r = 0;
-        while (true) {
-            r = is.read(buf);
-            if (r < 0) {
-                break;
-            }
-            bos.write(buf, 0, r);
-        }
-        is.close();
-        return bos.toByteArray();
     }
 
     /**

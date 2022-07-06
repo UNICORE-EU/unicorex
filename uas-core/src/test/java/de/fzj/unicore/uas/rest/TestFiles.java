@@ -192,14 +192,7 @@ public class TestFiles extends Base {
 		String resource  = url+"/core/storages";
 		BaseClient client = new BaseClient(resource,kernel.getClientConfiguration());
 		System.out.println("Accessing "+resource);
-		JSONObject task = new JSONObject();
-		HttpResponse response = client.post(task);
-		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),201, status);
-		String storage = response.getFirstHeader("Location").getValue();
-		System.out.println("created: "+storage);
-		EntityUtils.consumeQuietly(response.getEntity());
-		return storage;
+		return client.create(new JSONObject());
 	}
 
 	private String getContent(BaseClient client, String file) throws Exception {

@@ -22,7 +22,7 @@ public class AdminServiceClient extends BaseServiceClient {
 	public Result runCommand(String command, Map<String,String> params) throws Exception {
 		Result r = new Result();
 		JSONObject res = executeAction(command, JSONUtil.asJSON(params));
-		r.successful = Boolean.parseBoolean(res.getString("success"));
+		r.successful = Boolean.parseBoolean(String.valueOf(res.get("success")));
 		r.message = res.getString("message");
 		r.results = JSONUtil.asMap(res.getJSONObject("results"));
 		return r;
@@ -31,8 +31,7 @@ public class AdminServiceClient extends BaseServiceClient {
 	public List<AdminCommand> getCommands() throws Exception {
 		List<AdminCommand> r = new ArrayList<>();
 		JSONObject links = getProperties().getJSONObject("_links");
-		@SuppressWarnings("unchecked")
-		Iterator<String> keys = links.sortedKeys();
+		Iterator<String> keys = links.keys();
 		while(keys.hasNext()) {
 			String key = keys.next();
 			if(!key.startsWith("action:"))continue;
@@ -53,11 +52,19 @@ public class AdminServiceClient extends BaseServiceClient {
 		public String message;
 		public boolean successful;
 		public Map<String,String>results;
+		public String toString() {
+			return "Result: success="+successful+
+					", message="+message+
+					", results="+String.valueOf(results);
+		}
 	}
 	
 	public static class AdminCommand {
 		public String name;
 		public String description;
+		public String toString() {
+			return "AdminCommand "+name+": "+description;
+		}
 	}
 	
 }

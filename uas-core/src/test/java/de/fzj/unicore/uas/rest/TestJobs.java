@@ -3,8 +3,6 @@ package de.fzj.unicore.uas.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,25 +21,18 @@ public class TestJobs extends SecuredBase {
 
 	@Test
 	public void testJobSubmission() throws Exception {
-		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		String resource  = url+"/core/jobs";
-		System.out.println("Accessing "+resource);
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
+		System.out.println("Accessing "+url);
 		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration(), auth);
+		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), auth);
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
-		HttpResponse response = client.post(task);
-		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),201, status);
-		String jobUrl = response.getFirstHeader("Location").getValue();
+		String jobUrl = client.create(task);
 		System.out.println("created: "+jobUrl);
-		EntityUtils.consumeQuietly(response.getEntity());
 		
 		// get job properties
 		client.setURL(jobUrl);
 		JSONObject jobProps = client.getJSON();
-		status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),200, status);
 		System.out.println("*** new job: ");
 		System.out.println(jobProps.toString(2));
 		
@@ -56,19 +47,16 @@ public class TestJobs extends SecuredBase {
 		client.setURL(jobsURL);
 		// check that the job URL is listed
 		System.out.println(client.getJSON().toString(2));
-		
 		assertTrue(contains(client.getJSON().getJSONArray("jobs"),jobUrl));
-		
 	}
 	
 	
 	@Test
 	public void testTaggedJobs() throws Exception {
-		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		String resource  = url+"/core/jobs";
-		System.out.println("Accessing "+resource);
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
+		System.out.println("Accessing "+url);
 		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		BaseClient client = new BaseClient(resource,kernel.getClientConfiguration(), auth);
+		BaseClient client = new BaseClient(url,kernel.getClientConfiguration(), auth);
 		
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
@@ -76,33 +64,24 @@ public class TestJobs extends SecuredBase {
 		tags.put("test");
 		tags.put("foo");
 		task.put("Tags", tags);
-		
-		HttpResponse response = client.post(task);
-		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),201, status);
-		String jobUrl = response.getFirstHeader("Location").getValue();
+		String jobUrl = client.create(task);
 		System.out.println("created: "+jobUrl);
-		EntityUtils.consumeQuietly(response.getEntity());
-		
-		// get job properties
+
 		client.setURL(jobUrl);
 		JSONObject jobProps = client.getJSON();
-		status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),200, status);
 		System.out.println("*** new job: ");
 		System.out.println(jobProps.toString(2));
 		tags = jobProps.getJSONArray("tags");
 		assertTrue(contains(tags, "foo"));
 		assertTrue(contains(tags, "test"));
-		
+
 		// check listing with a query works
-		client.setURL(resource+"?tags=foo");
+		client.setURL(url+"?tags=foo");
 		JSONArray taggedJobs = client.getJSON().getJSONArray("jobs");
 		assertEquals(1, taggedJobs.length());
-		client.setURL(resource+"?tags=nope");
+		client.setURL(url+"?tags=nope");
 		taggedJobs = client.getJSON().getJSONArray("jobs");
 		assertEquals(0, taggedJobs.length());
-		
 	}
 	
 	@Test

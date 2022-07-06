@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.utils.URIBuilder;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.JSONUtil;
@@ -110,7 +111,12 @@ public class BaseServiceClient {
 	}
 	
 	public JSONObject executeAction(String name, JSONObject params) throws Exception {
-		String url = getLinkUrl("action:"+name);
+		String url;
+		try {
+			url = getLinkUrl("action:"+name);
+		} catch(JSONException e) {
+			throw new IllegalArgumentException("No such action: "+name, e);
+		}
 		bc.pushURL(url);
 		try {
 			HttpResponse res = bc.post(params);

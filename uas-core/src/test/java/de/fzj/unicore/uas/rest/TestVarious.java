@@ -63,6 +63,7 @@ public class TestVarious extends Base {
 		assertEquals(Status.SUCCESSFUL, c.getStatus());
 		assertEquals(Integer.valueOf(13), c.getExitCode());
 		assertEquals("test123", c.getStatusMessage());	
+		System.out.println(c.getProperties().toString(2));
 	}
 	
 	private void createAndStoreResult(String uuid)throws Exception{

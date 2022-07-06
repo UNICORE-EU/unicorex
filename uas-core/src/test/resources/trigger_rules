@@ -1,51 +1,51 @@
 {
 
-DirectoryScan:{
+"DirectoryScan": {
 
-  IncludeDirs: [".*dir.*"],
-  Interval: 10,
+  "IncludeDirs": [".*dir.*"],
+  "Interval": 10
   
 },
 
-Rules:[
+"Rules": [
   {
-    Name: computeMD5Sum,
-    Match: ".*\\.txt",
-    Action: 
+    "Name": "computeMD5Sum",
+    "Match": ".*\\.txt",
+    "Action": 
     {
-       Type: LOCAL,
-       Command:  "/usr/bin/md5sum $\{UC_FILE_NAME\}",
-       Outcome: "$\{UC_BASE_DIR\}/out",
-       Stdout:  "$\{UC_FILE_NAME\}.md5",
-    },
+       "Type": "LOCAL",
+       "Command":  "/usr/bin/md5sum ${UC_FILE_NAME}",
+       "Outcome": "${UC_BASE_DIR}/out",
+       "Stdout":  "${UC_FILE_NAME}.md5"
+    }
    },
 
   {
-    Name: runAScript,
-    Match: ".*\\.foo",
-    Action: 
+    "Name": "runAScript",
+    "Match": ".*\\.foo",
+    "Action": 
     {
-       Type: LOCAL,
-       Command:  "$\{UC_CURRENT_DIR\}/bin/foo.sh $\{UC_FILE_NAME\}",
-       Outcome: "$\{UC_CURRENT_DIR\}/out",
-       Stdout:  "$\{UC_FILE_NAME\}.scripted_md5",
-    },
+       "Type": "LOCAL",
+       "Command":  "${UC_CURRENT_DIR}/bin/foo.sh ${UC_FILE_NAME}",
+       "Outcome": "${UC_CURRENT_DIR}/out",
+       "Stdout":  "${UC_FILE_NAME}.scripted_md5"
+    }
   },
    
   {
-    Name: batchMD5,
-    Match: ".*\\.test3",
-    Action: 
+    "Name": "batchMD5",
+    "Match": ".*\\.test3",
+    "Action": 
     {
-       Type: BATCH,
-       Job:  {
-         Executable: "/usr/bin/md5sum",
-         Arguments: [ "$\{UC_FILE_PATH\}" ],
-         Stdout: "$\{UC_FILE_NAME\}.md5",
+       "Type": "BATCH",
+       "Job":  {
+         "Executable": "/usr/bin/md5sum",
+         "Arguments": [ "${UC_FILE_PATH}" ],
+         "Stdout": "${UC_FILE_NAME}.md5"
        }
-    },
-  },
+    }
+  }
    
- ],
+ ]
  
 }

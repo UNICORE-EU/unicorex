@@ -97,8 +97,7 @@ public class TestMetadata extends Base {
 
 		// extraction
 		FileClient baseDir = sms.getFileClient("/");
-		JSONObject params = new JSONObject();
-		JSONObject reply = baseDir.executeAction("extract", params);
+		JSONObject reply = baseDir.executeAction("extract", new JSONObject());
 		System.out.println(reply.toString(2));
 		
 

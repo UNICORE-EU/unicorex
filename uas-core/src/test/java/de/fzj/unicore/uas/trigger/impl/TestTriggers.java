@@ -7,41 +7,41 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
-import org.junit.Assert;
 import org.junit.Test;
 
-import de.fzj.unicore.uas.Base;
 import de.fzj.unicore.uas.trigger.Rule;
 import de.fzj.unicore.uas.trigger.RuleSet;
-import de.fzj.unicore.uas.trigger.xnjs.TriggerProcessor;
-import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import eu.unicore.client.Endpoint;
-import eu.unicore.client.core.StorageClient;
-import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
 
-public class TestTriggers extends Base {
+public class TestTriggers {
+
+	@Test
+	public void testRuleFileCorrectness() throws Exception {
+		try(InputStream is=new FileInputStream("src/test/resources/testing_rules"))
+		{	
+			new RuleFactory(null, "test123").readRules(is);
+		}
+		try(InputStream is=new FileInputStream("src/test/resources/trigger_rules"))
+		{
+			new RuleFactory(null, "test123").readRules(is);
+		}
+	}
 
 	@Test
 	public void testRuleFactory()throws Exception{
-		InputStream is=new FileInputStream("src/test/resources/testing_rules");
 		RuleFactory rf=new RuleFactory(null, "test123");
 		RuleSet rules=null;
-		try{
+		try(InputStream is=new FileInputStream("src/test/resources/testing_rules"))
+		{
 			rules=rf.readRules(is);
-		}finally{
-			is.close();
 		}
 		System.out.println(rules);
 		Rule noop1=getRule("noop1", rules);
@@ -68,7 +68,7 @@ public class TestTriggers extends Base {
 	public void testReplace() throws Exception {
 		String json = FileUtils.readFileToString(new File("src/test/resources/testing_rules"), "UTF-8");
 		JSONObject j = new JSONObject(json);
-		Map<String,String>ctx = new HashMap<String, String>();
+		Map<String,String>ctx = new HashMap<>();
 		ctx.put("UC_FILE_NAME","replaced.txt");
 		json = new BaseAction() {
 			@Override
@@ -80,81 +80,6 @@ public class TestTriggers extends Base {
 		j = new JSONObject(json);
 		System.out.println(j.toString(2));
 		assertTrue(json.contains("replaced.txt"));
-	}
-	
-	
-	@Test
-	public void testReplaceMany() throws Exception {
-		String json = FileUtils.readFileToString(new File("src/test/resources/testing_rules"), "UTF-8");
-		JSONObject j = new JSONObject(json);
-		assertNotNull(j);
-		Map<String,String>ctx = new HashMap<String, String>();
-		ctx.put("UC_FILE_NAME","replaced.txt");
-		BaseAction a = new BaseAction() {
-			@Override
-			public void fire(IStorageAdapter storage, String filePath, Client client,
-					XNJS xnjs) throws Exception {
-			}
-		};
-		String n="";
-		long l=0;
-		long start = System.currentTimeMillis();
-		for(int x = 0; x<1000;x++){
-			n = a.expandVariables(json, ctx);
-			l+=n.hashCode();
-		}
-		long duration = System.currentTimeMillis() - start;
-		System.out.println("Took "+duration+" ms.");
-		System.out.println(n+l);
-		j = new JSONObject(json);
-	}
-	
-	@Test
-	public void testDirectoryScan()throws Exception{
-		String url = kernel.getContainerProperties().getContainerURL()
-				+"/rest/core/storagefactories/default_storage_factory";
-		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
-				kernel.getClientConfiguration(), null);
-		Map<String,String>settings = new HashMap<>();
-		settings.put("trigger.disable","true");
-		StorageClient sms = smf.createStorage(null, null, settings, null);
-		// write a rule file
-		InputStream is=new FileInputStream("src/test/resources/trigger_rules");
-		sms.upload(RuleFactory.RULE_FILE_NAME).writeAllData(is);
-		
-		// write data files
-		sms.upload("/dir/test.txt").write("this is a test\n".getBytes());
-		sms.upload("/dir/test2.txt").write("this is a test in a subdirectory\n".getBytes());
-		
-		// triggering won't touch files that are not yet old enough
-		Thread.sleep(8000);
-		
-		// setup the scan
-		String sID =  new File(new URI(sms.getEndpoint().getUrl()).getPath()).getName();
-		Client client=new Client();
-		client.setAnonymousClient();
-		XNJS xnjs=XNJSFacade.get(null, kernel).getXNJS();
-		SetupDirectoryScan sds=new SetupDirectoryScan(sID, "/", client, xnjs, -1, 
-				new String[]{"/dir/.*txt"}, null, 10, false);
-		String actionID=sds.call();
-		
-		int i=0;
-		do{
-			Thread.sleep(1000);
-			i++;
-		}while(!hasRun(xnjs,actionID)&& i<300);
-		
-		// allow some grace time - processing is async
-		Thread.sleep(5000);
-		// check the expected outfile is there
-		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
-		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
-	}
-	
-	private boolean hasRun(XNJS xnjs, String actionID)throws Exception{
-		Action a=xnjs.get(InternalManager.class).getAction(actionID);
-		Long l=(Long)a.getProcessingContext().get(TriggerProcessor.LAST_RUN_TIME);
-		return l!=null && l>0 && l<System.currentTimeMillis();
 	}
 
 }

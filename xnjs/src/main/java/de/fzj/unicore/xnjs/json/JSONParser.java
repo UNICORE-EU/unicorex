@@ -207,7 +207,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
 		if(source!=null && source.length()>0) {
 			for(String name: JSONObject.getNames(source)) {
-				String value = parseResourceValue(name, source.getString(name));
+				String value = parseResourceValue(name, String.valueOf(source.get(name)));
 				if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
 				req.add(new ResourceRequest(name, value));
 			}

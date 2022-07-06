@@ -235,9 +235,15 @@ public class Files extends RESTRendererBase {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response handleAction(@PathParam("path")String path, @PathParam("action")String action, String jsonString) throws Exception {
-
-		if(!"extract".equals(action))throw new WebApplicationException("Action '"+action+"' not available.", 404);
-
+		if("extract".equals(action)) {
+			return handleMetadataExtraction(path, jsonString);
+		}
+		else {
+			throw new WebApplicationException("Action '"+action+"' not available.", 404);
+		}
+	}
+	
+	protected Response handleMetadataExtraction(String path, String jsonString) throws Exception {
 		try{
 			if(path== null || path.isEmpty())path="/";
 			if(!path.startsWith("/"))path="/"+path;
@@ -271,7 +277,7 @@ public class Files extends RESTRendererBase {
 
 			return Response.ok(reply.toString(),MediaType.APPLICATION_JSON).build();
 		}catch(Exception ex){
-			return handleError("Error handling action '"+action+"'", ex, logger);
+			return handleError("Error setting up metadata extraction", ex, logger);
 		}
 	}
 
