@@ -13,6 +13,8 @@ import org.apache.tika.parser.Parser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import eu.unicore.uas.metadata.LuceneIndexer;
+
 /**
  * Simple metadata extractor, extracts only file extension.
  *
@@ -35,7 +37,7 @@ public class ExtensionParser implements Parser {
 
     @Override
     public void parse(InputStream stream, ContentHandler handler, Metadata metadata, ParseContext context) throws IOException, SAXException, TikaException {
-        String path = metadata.get(Metadata.RESOURCE_NAME_KEY);
+        String path = metadata.get(LuceneIndexer.RESOURCE_NAME_KEY);
                
         String ext = FilenameUtils.getExtension(path);
         if (!ext.isEmpty()) {

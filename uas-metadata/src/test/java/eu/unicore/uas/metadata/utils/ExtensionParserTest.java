@@ -14,6 +14,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.xml.sax.SAXException;
 
+import eu.unicore.uas.metadata.LuceneIndexer;
+
 /**
  *
  * @author jj
@@ -49,7 +51,7 @@ public class ExtensionParserTest {
         String path = "/home/user/file/name.extt";
 
         Metadata meta = new Metadata();
-        meta.add(Metadata.RESOURCE_NAME_KEY, path);
+        meta.add(LuceneIndexer.RESOURCE_NAME_KEY, path);
         parser.parse(null, handler, meta, parseContext);
 
         System.out.printf("Metadata for file (%s) are:\n", path);
@@ -59,12 +61,12 @@ public class ExtensionParserTest {
 
         assertEquals(2, meta.size());
         assertEquals("extt", meta.get("Tags"));
-        assertEquals(path, meta.get(Metadata.RESOURCE_NAME_KEY));
+        assertEquals(path, meta.get(LuceneIndexer.RESOURCE_NAME_KEY));
 
         //and no extension:
         path = "/home/usr/file/nameWithoutExtension";
         meta = new Metadata();
-        meta.add(Metadata.RESOURCE_NAME_KEY, path);
+        meta.add(LuceneIndexer.RESOURCE_NAME_KEY, path);
         parser.parse(null, handler, meta, parseContext);
         System.out.printf("Metadata for file (%s) are:\n", path);
         for (String key : meta.names()) {
@@ -72,7 +74,7 @@ public class ExtensionParserTest {
         }
 
         assertEquals(1, meta.size());
-        assertEquals(path, meta.get(Metadata.RESOURCE_NAME_KEY));
+        assertEquals(path, meta.get(LuceneIndexer.RESOURCE_NAME_KEY));
 
     }
 
@@ -82,7 +84,7 @@ public class ExtensionParserTest {
         String path2 = "/home/user/file2/File2.name.ext";
 
         Metadata meta = new Metadata();
-        meta.add(Metadata.RESOURCE_NAME_KEY, path1);
+        meta.add(LuceneIndexer.RESOURCE_NAME_KEY, path1);
         parser.parse(null, handler, meta, parseContext);
 
         System.out.printf("Metadata for file1 (%s) are:\n", path1);
@@ -92,11 +94,11 @@ public class ExtensionParserTest {
 
         assertEquals(2, meta.size());
         assertEquals("extt", meta.get("Tags"));
-        assertEquals(path1, meta.get(Metadata.RESOURCE_NAME_KEY));
+        assertEquals(path1, meta.get(LuceneIndexer.RESOURCE_NAME_KEY));
 
         //and reparse:
         meta = new Metadata();
-        meta.add(Metadata.RESOURCE_NAME_KEY, path2);
+        meta.add(LuceneIndexer.RESOURCE_NAME_KEY, path2);
         parser.parse(null, handler, meta, parseContext);
         System.out.printf("Metadata for file2 (%s) are:\n", path2);
         for (String key : meta.names()) {
@@ -105,7 +107,7 @@ public class ExtensionParserTest {
 
         assertEquals(2, meta.size());
         assertEquals("ext", meta.get("Tags"));
-        assertEquals(path2, meta.get(Metadata.RESOURCE_NAME_KEY));
+        assertEquals(path2, meta.get(LuceneIndexer.RESOURCE_NAME_KEY));
 
     }
 
@@ -117,7 +119,7 @@ public class ExtensionParserTest {
     @Test
     public void testNonProper() throws IOException, SAXException, TikaException {
         Metadata meta = new Metadata();
-        meta.add(Metadata.RESOURCE_NAME_KEY, "");
+        meta.add(LuceneIndexer.RESOURCE_NAME_KEY, "");
         parser.parse(null, handler, meta, null);
     }
 }

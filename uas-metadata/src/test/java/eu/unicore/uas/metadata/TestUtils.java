@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.lucene.document.Document;
-import org.apache.tika.metadata.Metadata;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -38,7 +37,7 @@ public class TestUtils {
         Document doc = LuceneIndexer.createMetadataDocument(standardMetadata, resourceName, conents);
         assertNotNull(doc);
         assertFalse(doc.getFields().isEmpty());
-        assertEquals(resourceName, doc.get(Metadata.RESOURCE_NAME_KEY));
+        assertEquals(resourceName, doc.get(LuceneIndexer.RESOURCE_NAME_KEY));
 
         Map<String, String> meta = LuceneIndexer.extractMetadataFromDocument(doc);
         assertFalse(meta.isEmpty());

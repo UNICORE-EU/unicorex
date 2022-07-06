@@ -45,7 +45,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
-import org.apache.tika.metadata.Metadata;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.JSONUtil;
@@ -123,7 +122,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
 
         //for security reasons we copy and overwrite the resourceName
         Map<String, String> copy = new HashMap<>(lstMetadata);
-        copy.put(Metadata.RESOURCE_NAME_KEY, resourceName);
+        copy.put(LuceneIndexer.RESOURCE_NAME_KEY, resourceName);
 
         String metadata = JSONUtil.asJSON(copy).toString();
         try {
@@ -145,7 +144,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         try {
             Map<String, String> original = getMetadataByName(resourceName);
             Map<String, String> merged = mergeMetadata(original, lstMetadata);
-            merged.put(Metadata.RESOURCE_NAME_KEY, resourceName);
+            merged.put(LuceneIndexer.RESOURCE_NAME_KEY, resourceName);
             String metadata = JSONUtil.asJSON(merged).toString();
             if(!lstMetadata.isEmpty()){
 	            writeData(fileName, metadata);

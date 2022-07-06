@@ -59,7 +59,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 
 import de.fzj.unicore.uas.metadata.SearchResult;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -98,6 +98,9 @@ public class LuceneIndexer {
 	public static final String CONTENT_KEY = "contents";
 	//default search key:
 	private static final String SEARCH_KEY = CONTENT_KEY;
+
+	public static final String RESOURCE_NAME_KEY = TikaCoreProperties.RESOURCE_NAME_KEY;
+	
 	private final String dataDirectory;
 	private final Directory directory;
 
@@ -149,7 +152,7 @@ public class LuceneIndexer {
 	 */
 	public void createMetadata(String resourceName, Map<String, String> metadata, String contents) throws IOException {
 		Document document = createMetadataDocument(metadata, resourceName, contents);
-		indexWriter.deleteDocuments(new Term(Metadata.RESOURCE_NAME_KEY, resourceName));
+		indexWriter.deleteDocuments(new Term(RESOURCE_NAME_KEY, resourceName));
 		indexWriter.addDocument(document);
 	}
 
@@ -159,7 +162,7 @@ public class LuceneIndexer {
 	 * @throws IOException
 	 */
 	public void removeMetadata(final String resourceName) throws IOException {
-		indexWriter.deleteDocuments(new Term(Metadata.RESOURCE_NAME_KEY, resourceName));
+		indexWriter.deleteDocuments(new Term(RESOURCE_NAME_KEY, resourceName));
 	}
 
 	/**
@@ -221,7 +224,7 @@ public class LuceneIndexer {
 			TopDocs results = searcher.search(query, maximalHits);
 			for (ScoreDoc scoreDoc : results.scoreDocs) {
 				SearchResult result = new SearchResult();
-				result.setResourceName(searcher.doc(scoreDoc.doc).get(Metadata.RESOURCE_NAME_KEY));
+				result.setResourceName(searcher.doc(scoreDoc.doc).get(RESOURCE_NAME_KEY));
 				ret.add(result);
 			}
 			return ret;
@@ -287,7 +290,7 @@ public class LuceneIndexer {
 	protected Document getDocument(final String resourceName) throws IOException {
 		IndexSearcher searcher = new IndexSearcher(DirectoryReader.open(directory));
 		try {
-			Query query = new TermQuery(new Term(Metadata.RESOURCE_NAME_KEY, resourceName)); 
+			Query query = new TermQuery(new Term(RESOURCE_NAME_KEY, resourceName)); 
 			//XXX: it might be possible that there are more documents for the resourceName... should we merge?
 			TopDocs result = searcher.search(query, 1);
 			//XXX: return empty or throw an exception?
@@ -384,12 +387,12 @@ public class LuceneIndexer {
 		}
 		
 		//it might be already in the metadata: update
-		doc.removeField(Metadata.RESOURCE_NAME_KEY);
+		doc.removeField(RESOURCE_NAME_KEY);
 		FieldType type = new FieldType();
 		type.setTokenized(false);
 		type.setStored(true);
 		type.setIndexOptions(IndexOptions.DOCS);
-		doc.add(new Field(Metadata.RESOURCE_NAME_KEY, resource, type));
+		doc.add(new Field(RESOURCE_NAME_KEY, resource, type));
 
 		if (contents != null && !contents.trim().isEmpty()) {
 			doc.add(new Field(LuceneIndexer.CONTENT_KEY, contents, TextField.TYPE_NOT_STORED));

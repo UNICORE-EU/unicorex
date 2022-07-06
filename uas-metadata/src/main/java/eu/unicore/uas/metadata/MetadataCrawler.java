@@ -335,7 +335,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	private Map<String, String> extractMetadata(String file) throws ExecutionException, IOException, SAXException, TikaException {
 		Map<String, String> ret = new HashMap<String, String>();
 		Metadata meta = new Metadata();
-		meta.add(Metadata.RESOURCE_NAME_KEY, file);
+		meta.add(LuceneIndexer.RESOURCE_NAME_KEY, file);
 		InputStream is = storage.getInputStream(file);
 		parser.parse(is, handler, meta, parseContext);
 		is.close();
