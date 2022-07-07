@@ -30,7 +30,7 @@
 
     <compiler.fork>false</compiler.fork>
     <use.version>4.4.0</use.version>
-    <persistence.version>0.300</persistence.version>
+    <persistence.version>0.301</persistence.version>
     <metrics.version>4.2.10</metrics.version>
     <uftp.version>2.12.0</uftp.version>
     <guice.version>5.1.0</guice.version>
@@ -38,7 +38,7 @@
     <jclouds.version>2.5.0</jclouds.version>
     <groovy.version>4.0.3</groovy.version>
     <lucene.version>9.2.0</lucene.version>
-    <tika.version>2.4.0</tika.version>
+    <tika.version>2.4.1</tika.version>
   </properties>
 
   <modules>
