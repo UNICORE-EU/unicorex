@@ -14,7 +14,6 @@ import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.registry.IRegistryClient;
 import eu.unicore.client.registry.RegistryClient;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProvider;
-import eu.unicore.security.wsutil.client.authn.DelegationSpecification;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -52,7 +51,7 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 		for(Endpoint site: sites){
 			if(addressFilter.accept(site)){
 				addProducer(new CoreClientProducer(site, 
-						configurationProvider.getClientConfiguration(site.getUrl(),null,DelegationSpecification.DO_NOT),
+						configurationProvider.getClientConfiguration(site.getUrl()),
 						auth, 
 						addressFilter));
 			}
