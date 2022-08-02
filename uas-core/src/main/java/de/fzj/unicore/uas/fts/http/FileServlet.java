@@ -2,7 +2,6 @@ package de.fzj.unicore.uas.fts.http;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class FileServlet extends DefaultServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Map<String,Long> transferredBytes=new ConcurrentHashMap<String,Long>();
+	private final Map<String,Long> transferredBytes=new ConcurrentHashMap<>();
 
 	private final Kernel kernel;
 
@@ -91,11 +90,9 @@ public class FileServlet extends DefaultServlet {
 
 	@Override
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		UResource r=getResource(request.getRequestURI());
-		InputStream in =null;
-		try(OutputStream out =r.getOutputStream()){
-			in = request.getInputStream();
-			IOUtils.copy(in,out);
+		UResource r = getResource(request.getRequestURI());
+		try(OutputStream out = r.getOutputStream()){
+			IOUtils.copy(request.getInputStream(), out);
 			response.setStatus(HttpURLConnection.HTTP_NO_CONTENT);
 		}
 	} 
@@ -106,7 +103,6 @@ public class FileServlet extends DefaultServlet {
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		UResource r=getResource(request.getRequestURI());
-		InputStream in =null;
 		//check that it is the proper type
 		String contentType=request.getHeader("Content-Type");
 		if(contentType==null || contentType.indexOf(multipart)==-1){
@@ -114,8 +110,7 @@ public class FileServlet extends DefaultServlet {
 		}
 		//OK just read the body
 		try(OutputStream out = r.getOutputStream()){
-			in = request.getInputStream();
-			IOUtils.copy(in,out);
+			IOUtils.copy(request.getInputStream(),out);
 			response.setStatus(HttpURLConnection.HTTP_NO_CONTENT);
 		}
 	} 

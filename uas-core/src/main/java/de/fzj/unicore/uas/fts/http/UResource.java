@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.logging.log4j.Logger;
@@ -13,18 +13,13 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.messaging.Message;
 import eu.unicore.util.Log;
 
 /**
- * Implementation of a Jetty {@link Resource} that keeps a reference to
- * the {@link Client} owning the filetransfer, and the path to the actual
- * file<br/>.
- * 
- * The TSI input/output streams are used, so this works with classic UNICORE TSIs
- * as well.  
+ * Implementation of a Jetty {@link Resource} that accesses a file via
+ * a TSI / IStorageAdapter
  * 
  * @author schuller
  * @since 1.0.1
@@ -228,7 +223,7 @@ public class UResource extends Resource {
 	}
 
 	@Override
-	public URL getURL() {
+	public URI getURI() {
 		return null;
 	}
 
