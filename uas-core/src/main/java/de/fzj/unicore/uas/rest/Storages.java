@@ -327,19 +327,17 @@ public class Storages extends ServicesBase {
 	@Override
 	protected void updateLinks() {
 		super.updateLinks();
-		links.add(new Link("files",getBaseURL()+"/storages/"+resource.getUniqueID()+"/files","Files"));
-		
+		String base = getBaseURL()+"/storages/"+resource.getUniqueID();
+		links.add(new Link("files", base+"/files", "Files"));
+		if(!getModel().getStorageDescription().isDisableMetadata()){
+			links.add(new Link("metadata-search", base+"/search", "Search in metadata"));
+			links.add(new Link("metadata-extract", base+"/files/actions/extract", "Extract metadata"));
+		}
+		links.add(new Link("action:copy", base+"/actions/copy", "Copy file 'from' to file 'to'."));
+		links.add(new Link("action:rename", base+"/actions/rename","Rename file 'from' to file 'to'."));
 		String smfID = getModel().getParentUID();
 		if(smfID != null){
-			links.add(new Link("factory",getBaseURL()+"/storagefactories/"+smfID,"Storage Factory"));
+			links.add(new Link("factory",getBaseURL()+"/storagefactories/"+smfID, "Storage Factory"));
 		}
-		
-		if(!getModel().getStorageDescription().isDisableMetadata()){
-			links.add(new Link("metadata-search",getBaseURL()+"/storages/"+resource.getUniqueID()+"/search","Search in metadata"));
-			links.add(new Link("metadata-extract",getBaseURL()+"/storages/"+resource.getUniqueID()+"/files/actions/extract","Extract metadata"));
-		}
-		
-		links.add(new Link("action:copy",getBaseURL()+"/storages/"+resource.getUniqueID()+"/actions/copy","Copy file 'from' to file 'to'."));
-		links.add(new Link("action:rename",getBaseURL()+"/storages/"+resource.getUniqueID()+"/actions/rename","Rename file 'from' to file 'to'."));
 	}
 }

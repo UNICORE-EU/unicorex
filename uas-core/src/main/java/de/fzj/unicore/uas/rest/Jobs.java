@@ -184,16 +184,14 @@ public class Jobs extends ServicesBase {
 	protected void updateLinks() {
 		super.updateLinks();
 		JobModel model = getModel();
+		String base =  baseURL+"/jobs/"+resource.getUniqueID();
+		links.add(new Link("details", base+"/details", "BSS job details"));
+		links.add(new Link("action:start", base+"/actions/start", "Start"));
+		links.add(new Link("action:abort", base+"/actions/abort", "Abort"));
+		links.add(new Link("action:restart", base+"/actions/restart", "Restart"));
 
-		links.add(new Link("workingDirectory", baseURL+"/storages/"+model.getUspaceId(),"Working directory"));
+		links.add(new Link("workingDirectory", baseURL+"/storages/"+model.getUspaceId(), "Working directory"));
 		links.add(new Link("parentTSS", baseURL+"/sites/"+model.getParentUID(), "Parent TSS"));
-		links.add(new Link("details", baseURL+"/jobs/"+resource.getUniqueID()+"/details", "BSS job details"));
-
-		// TODO these should be state-dependent
-		links.add(new Link("action:start", baseURL+"/jobs/"+resource.getUniqueID()+"/actions/start","Start"));
-		links.add(new Link("action:abort", baseURL+"/jobs/"+resource.getUniqueID()+"/actions/abort","Abort"));
-		links.add(new Link("action:restart", baseURL+"/jobs/"+resource.getUniqueID()+"/actions/restart","Restart"));
-
 	}
 
 	synchronized TargetSystemImpl findTSS(Builder job) throws Exception {
@@ -240,8 +238,7 @@ public class Jobs extends ServicesBase {
 		finally{
 			if(tss2!=null)kernel.getHome(UAS.TSS).persist(tss2);
 		}
-		String location = baseURL+"/jobs/"+id;
-		return location;
+		return baseURL+"/jobs/"+id;
 	}
 
 

@@ -71,14 +71,14 @@ public class Base extends ApplicationBaseResource {
 		return getHTML();
 	}
 
-	final static String[] resources = new String[]{"registries",
+	final static String[] resources = new String[]{
 			"factories","sites","jobs",
 			"storages","storagefactories",
 			"transfers","client-server-transfers", 
 			"tasks"
 	};
 
-	final static String[] serviceNames = new String[]{null, 
+	final static String[] serviceNames = new String[]{
 			UAS.TSF, UAS.TSS, UAS.JMS,
 			UAS.SMS, UAS.SMF, 
 			UAS.SERVER_FTS, UAS.CLIENT_FTS,
@@ -93,7 +93,7 @@ public class Base extends ApplicationBaseResource {
 			boolean enabled = tsf!=null && tsf.isJobSubmissionEnabled();
 			String msg = tsf==null? "No job submission at this site." 
 					: tsf.getHighMessage();
-			Map<String,Object> js = new HashMap<String, Object>();
+			Map<String,Object> js = new HashMap<>();
 			props.put("jobSubmission", js);
 			js.put("enabled", enabled);
 			js.put("message", msg);
