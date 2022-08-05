@@ -34,13 +34,8 @@
     <package.release>1</package.release>
     <!-- this is the UNICORE/X version we are packaging -->
     <ux.version>${project.parent.version}</ux.version>
-    <!-- configuration of the "docman" tool -->
-    <docman.enabled/>
-    <doc.src>src/doc/manual.txt</doc.src>
-    <doc.target>unicorex-manual</doc.target>
-    <doc.template>plain</doc.template>
-    <!-- generate doc on configuration properties -->
-    <doc.includeBundle>file:src/doc/ux-documentation.properties</doc.includeBundle>
+    <!-- internal workflow -->
+    <wfe.version>3.4.0</wfe.version>
   </properties>
 
   <dependencies>
@@ -58,7 +53,13 @@
       <groupId>eu.unicore</groupId>
       <artifactId>uas-jclouds</artifactId>
       <version>${ux.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.unicore.workflow</groupId>
+      <artifactId>workflowservice</artifactId>
+      <version>${wfe.version}</version>
     </dependency> 
+
   </dependencies>
 
   <build>

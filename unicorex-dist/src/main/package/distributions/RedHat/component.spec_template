@@ -48,9 +48,11 @@ This package contains the UNICORE/X server.
 %config %attr(0644 unicore unicore) "/etc/unicore/unicorex/votruststore.jks"
 %config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/container.properties"
 %config(noreplace) %attr(0600 unicore unicore)"/etc/unicore/unicorex/xnjs.properties"
+%config(noreplace) %attr(0600 unicore unicore)"/etc/unicore/unicorex/workflow.properties"
 %config %attr(0644 unicore unicore)"/etc/unicore/unicorex/xacml2.config"
 %config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/01basicRules.xml"
 %config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/10coreServices.xml"
+%config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/20workflowServices.xml"
 %config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/xacml2Policies/99finalDeny.xml"
 
 %attr(0644 unicore unicore) "/usr/lib/systemd/system/unicore-unicorex.service"
