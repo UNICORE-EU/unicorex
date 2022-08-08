@@ -1,5 +1,7 @@
 package de.fzj.unicore.uas.impl.sms;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.logging.log4j.Logger;
@@ -8,7 +10,6 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.impl.LockSupport;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.features.StorageAccessStartupTask;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.Home;
@@ -16,6 +17,10 @@ import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.exceptions.ResourceUnknownException;
+import eu.unicore.services.registry.LocalRegistryClient;
+import eu.unicore.services.registry.RegistryHandler;
+import eu.unicore.services.rest.client.RegistryClient;
+import eu.unicore.util.Log;
 
 /**
  * Creates the "default" instance of the StorageFactory service
@@ -66,7 +71,7 @@ public class InitDefaultStorageFactory implements Runnable{
 			}finally{
 				smfLock.unlock();
 			}
-			StorageAccessStartupTask.publishWS(kernel, UAS.SMF, StorageFactoryHomeImpl.DEFAULT_SMF_NAME, "StorageFactory");
+			publishWS();
 		}
 	}
 
@@ -77,7 +82,26 @@ public class InitDefaultStorageFactory implements Runnable{
 		Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactoryImpl.class);
 		init.resourceClassName = clazz.getName();
 		smfHome.createResource(init);
-		logger.info("Added default StorageFactory resource '"+defaultSmfName+"' of type <"+clazz.getName()+">.");
+		logger.info("Added default StorageFactory resource '{}' of type <{}>.", defaultSmfName, clazz.getName());
+	}
+
+	private void publishWS(){
+		try{
+			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
+			Map<String,String> res = new HashMap<>();
+			String endpoint = kernel.getContainerProperties().getContainerURL()+"/rest/core/storagefactories/"
+                              + StorageFactoryHomeImpl.DEFAULT_SMF_NAME;
+			res.put(RegistryClient.ENDPOINT, endpoint);
+			res.put(RegistryClient.INTERFACE_NAME, UAS.SMF);
+			String dn = kernel.getSecurityManager().getServerIdentity();
+			if(dn!=null) {
+				res.put(RegistryClient.SERVER_IDENTITY,dn);
+			}
+			lrc.addEntry(endpoint, res, null);
+		}catch(Exception ex){
+			Log.logException("Could not publish to local registry", ex, logger);
+		}
+		
 	}
 
 }

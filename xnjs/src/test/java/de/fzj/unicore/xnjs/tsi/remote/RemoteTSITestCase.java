@@ -93,7 +93,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 	}
 
 	protected String getTSIMachine(){
-		return "localhost";
+		return "127.0.0.1";
 	}
 
 	protected String getTSIPort(){

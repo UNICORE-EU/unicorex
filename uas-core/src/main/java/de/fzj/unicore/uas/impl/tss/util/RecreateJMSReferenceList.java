@@ -87,16 +87,10 @@ public class RecreateJMSReferenceList implements Runnable{
 						}
 					}
 				}catch(ResourceUnknownException re){
-					logger.debug("Job <"+jobID+"> not found any more.");
+					logger.debug("Job <{}> not found any more.", jobID);
 				}
 			}
-			TargetSystemImpl tss=null;
-			try{
-				try{
-					tss=(TargetSystemImpl)tssHome.getForUpdate(tssID);	
-				}catch(ResourceUnknownException rue){
-					logger.error(rue);
-				}
+			try(TargetSystemImpl tss = (TargetSystemImpl)tssHome.getForUpdate(tssID)){
 				List<String> ids = tss.getModel().getJobIDs();
 				int count = 0;
 				for(String id: oldJobs){
@@ -107,8 +101,8 @@ public class RecreateJMSReferenceList implements Runnable{
 				}
 				logger.info("Added <"+count+"> existing jobs to new target system");
 			}
-			finally{
-				tssHome.getStore().persist(tss);
+			catch(ResourceUnknownException rue){
+				logger.error(rue);
 			}
 		}catch(Exception ex){
 			logger.error("Could not restore jobs for "+client.getDistinguishedName(),ex);

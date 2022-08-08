@@ -32,25 +32,14 @@
 
 package de.fzj.unicore.uas.features;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
-
 import de.fzj.unicore.uas.impl.sms.InitDefaultStorageFactory;
 import de.fzj.unicore.uas.impl.sms.InitSharedStorages;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.registry.LocalRegistryClient;
-import eu.unicore.services.registry.RegistryHandler;
-import eu.unicore.services.rest.client.RegistryClient;
-import eu.unicore.util.Log;
 
 /**
  * Startup code that initialises the storage factory and storages
  */
 public class StorageAccessStartupTask implements Runnable{
-
-	private static final Logger logger = Log.getLogger(Log.UNICORE,StorageAccessStartupTask.class);
 
 	private final Kernel kernel;
 
@@ -79,24 +68,6 @@ public class StorageAccessStartupTask implements Runnable{
 	
 	public String toString(){
 		return getClass().getName();
-	}
-	
-	public static void publishWS(Kernel kernel, String serviceName, String uid, String interfaceName){
-		try{
-			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
-			Map<String,String> res = new HashMap<>();
-			String endpoint = kernel.getContainerProperties().getBaseUrl()+"/"+serviceName+"?res="+uid;
-			res.put(RegistryClient.ENDPOINT, endpoint);
-			res.put(RegistryClient.INTERFACE_NAME, interfaceName);
-			String dn = kernel.getSecurityManager().getServerIdentity();
-			if(dn!=null) {
-				res.put(RegistryClient.SERVER_IDENTITY,dn);
-			}
-			lrc.addEntry(endpoint, res, null);
-		}catch(Exception ex){
-			Log.logException("Could not publish to local registry", ex, logger);
-		}
-		
 	}
 
 }

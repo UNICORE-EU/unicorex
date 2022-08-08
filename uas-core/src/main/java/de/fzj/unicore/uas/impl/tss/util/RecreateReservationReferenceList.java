@@ -16,7 +16,6 @@ import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.exceptions.ResourceUnknownException;
-import eu.unicore.util.Log;
 
 /**
  * Re-creates the list of accessible reservation references in a TSS as it is created.
@@ -67,33 +66,24 @@ public class RecreateReservationReferenceList implements Runnable{
 				}
 			}
 			
-			logger.info("Re-generating reservation reference list for " + user);
-			List<String>oldReservations=new ArrayList<String>();
+			logger.info("Re-generating reservation reference list for {}", user);
+			List<String>oldReservations = new ArrayList<>();
 			for(String reservationID: getExistingReservations()){
 				try{
 					ReservationManagementImpl reservation=(ReservationManagementImpl)reservations.get(reservationID);
 					if(reservation.getOwner() ==null || X500NameUtils.equal(reservation.getOwner(), user)){
 						oldReservations.add(reservationID);
-						try{
-							reservation=(ReservationManagementImpl)reservations.getForUpdate(reservationID);
-							reservation.getModel().setParentUID(tssID);
-							reservations.persist(reservation);
-						}catch(Exception ex){
-							Log.logException("Could not change TSS ID of reservation <"+reservationID+">", ex, logger);
+						try(ReservationManagementImpl r2 =(ReservationManagementImpl)reservations.getForUpdate(reservationID)){
+							r2.getModel().setParentUID(tssID);
 						}
 					}
 				}catch(ResourceUnknownException re){
-					logger.debug("Reservation <"+reservationID+"> not found any more.");
+					logger.debug("Reservation <{}> not found any more.", reservationID);
 				}
 			}
-			TargetSystemImpl tss=null;
-			try{
-				tss=(TargetSystemImpl)tssHome.getForUpdate(tssID);
+			try(TargetSystemImpl tss=(TargetSystemImpl)tssHome.getForUpdate(tssID)){
 				tss.getModel().getReservationIDs().addAll(oldReservations);
-				logger.info("Added <"+oldReservations.size()+"> existing reservations to target system");
-			}
-			finally{
-				if(tss!=null)tssHome.getStore().persist(tss);
+				logger.info("Added <{}> existing reservations to target system", oldReservations.size());
 			}
 		}catch(Exception ex){
 			logger.error("Could not restore reservations for "+client.getDistinguishedName(),ex);

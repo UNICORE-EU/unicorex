@@ -99,14 +99,8 @@ public class GenerateJMSInstances implements Runnable{
 	}
 
 	protected void add(Action action)throws Exception{
-		TargetSystemImpl tss=(TargetSystemImpl)tssHome.getForUpdate(tssID);
-		try{
-			String id = tss.createJobResource(action,null);
-			tss.registerJob(id);
-		}finally{
-			if(tss!=null){
-				tssHome.persist(tss);
-			}
+		try(TargetSystemImpl tss=(TargetSystemImpl)tssHome.getForUpdate(tssID)){
+			tss.registerJob(tss.createJobResource(action,null));
 		}
 	}
 

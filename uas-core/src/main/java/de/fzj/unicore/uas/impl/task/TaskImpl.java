@@ -39,7 +39,6 @@ import java.util.Map;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
-import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Kernel;
 
@@ -102,32 +101,21 @@ public class TaskImpl extends BaseResourceImpl {
 	 * @throws Exception
 	 */
 	public static void putResult(Kernel kernel, String uuid, Map<String, String> result, String message, int exitCode)throws Exception {
-		Home home=kernel.getHome(UAS.TASK);
-		TaskImpl ti=(TaskImpl)home.getForUpdate(uuid);
-		try{
+		try(TaskImpl ti=(TaskImpl)kernel.getHome(UAS.TASK).getForUpdate(uuid)){
 			TaskModel model = ti.getModel();
 			model.setStatus("SUCCESSFUL");
 			model.setStatusMessage(message);
 			model.setExitCode(exitCode);
 			model.setResult(result);
 		}
-		finally{
-			home.persist(ti);
-		}
 	}
 	
 	public static void failTask(Kernel kernel, String uuid, String message, int exitCode)throws Exception {
-		Home home=kernel.getHome(UAS.TASK);
-		TaskImpl ti=(TaskImpl)home.getForUpdate(uuid);
-		try{
+		try(TaskImpl ti=(TaskImpl)kernel.getHome(UAS.TASK).getForUpdate(uuid)){
 			TaskModel model = ti.getModel();
 			model.setStatus("FAILED");
 			model.setStatusMessage(message);
 			model.setExitCode(exitCode);
 		}
-		finally{
-			home.persist(ti);
-		}
 	}
-	
 }

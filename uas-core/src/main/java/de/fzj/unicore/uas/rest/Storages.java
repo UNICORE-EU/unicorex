@@ -259,14 +259,9 @@ public class Storages extends ServicesBase {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createSMS(String jsonString) throws Exception {
 		try{
-			StorageFactoryImpl smf = findSMF();
-			try{
+			try(StorageFactoryImpl smf = (StorageFactoryImpl)home.getForUpdate(findSMF())){
 				String id = StorageFactories.createSMS(smf,jsonString);
-				String location = getBaseURL()+"/storages/"+id;
-				return Response.created(new URI(location)).build();
-			}
-			finally{
-				kernel.getHome(UAS.SMF).persist(smf);
+				return Response.created(new URI(getBaseURL()+"/storages/"+id)).build();
 			}
 		}catch(Exception ex){
 			return handleError("Error creating storage", ex, logger);
@@ -313,15 +308,14 @@ public class Storages extends ServicesBase {
 		return super.doSetProperty(name, value);
 	}
 
-	// returns the first available SMF instance (usually there will be just one!)
-	synchronized StorageFactoryImpl findSMF() throws PersistenceException {
+	// returns the ID of the first available SMF instance (usually there will be just one!)
+	synchronized String findSMF() throws PersistenceException {
 		Home home = kernel.getHome(UAS.SMF);
-		if(home == null)
+		if(home == null) {
 			throw new IllegalStateException("StorageFactory service is not available at this site!");	
-
+		}
 		Client client = AuthZAttributeStore.getClient();
-		String smf = home.getAccessibleResources(client).get(0);
-		return (StorageFactoryImpl)home.getForUpdate(smf);
+		return home.getAccessibleResources(client).get(0);
 	}
 
 	@Override

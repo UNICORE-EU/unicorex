@@ -107,8 +107,8 @@ public class Sites extends ServicesBase {
 			Builder job = new Builder(json);
 			TargetSystemImpl tss = (TargetSystemImpl)resource;
 			Jobs.checkSubmissionEnabled(kernel);
-			String location = Jobs.doSubmit(job, tss, kernel, getBaseURL());
-			return Response.created(new URI(location)).build();
+			String jobID = Jobs.doSubmit(job, tss, kernel);
+			return Response.created(new URI(getBaseURL()+"/jobs/"+jobID)).build();
 		}catch(Exception ex){
 			return handleError("Could not submit job", ex, logger);
 		}
@@ -129,23 +129,17 @@ public class Sites extends ServicesBase {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createTSS(String jsonString) throws Exception {
 		try{
-			String id = null;
-			TargetSystemFactoryImpl tsf = findTSF();
-			try{
-				id = SiteFactories.createTSS(tsf,jsonString);
+			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)home.getForUpdate(findTSF())){
+				String id = SiteFactories.createTSS(tsf,jsonString);
+				return Response.created(new URI(getBaseURL()+"/sites/"+id)).build();
 			}
-			finally{
-				kernel.getHome(UAS.TSF).persist(tsf);
-			}
-			String location = getBaseURL()+"/sites/"+id;
-			return Response.created(new URI(location)).build();
 		}catch(Exception ex){
 			return handleError("Could not create TSS",ex,logger);
 		}
 	}
 	
-	// returns the first available TSF instance (usually there will be just one!)
-	synchronized TargetSystemFactoryImpl findTSF() throws PersistenceException {
+	// returns the ID of the first available TSF instance (usually there will be just one!)
+	synchronized String findTSF() throws PersistenceException {
 		Home home = kernel.getHome(UAS.TSF);
 		if(home == null)
 			throw new IllegalStateException("TargetSystemFactory service is not available at this site!");	
@@ -156,8 +150,7 @@ public class Sites extends ServicesBase {
 			throw new AuthorisationException("There are no accessible targetsystem factories for: " +client+
 					" Please check your security setup!");
 		}
-		String tsf = tsfs.get(0);
-		return (TargetSystemFactoryImpl)home.getForUpdate(tsf);
+		return tsfs.get(0);
 	}
 	
 	@Override

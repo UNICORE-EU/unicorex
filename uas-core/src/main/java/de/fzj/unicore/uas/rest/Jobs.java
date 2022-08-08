@@ -102,8 +102,8 @@ public class Jobs extends ServicesBase {
 			checkSubmissionEnabled(kernel);
 			Builder job = new Builder(json);
 			TargetSystemImpl tss = findTSS(job);
-			String location = doSubmit(job, tss, kernel, baseURL);
-			return Response.created(new URI(location)).build();
+			String id = doSubmit(job, tss, kernel);
+			return Response.created(new URI(baseURL+"/"+id)).build();
 		}catch(Exception ex){
 			int status = 500;
 			if (ex.getClass().isAssignableFrom(AuthorisationException.class)) {
@@ -198,19 +198,15 @@ public class Jobs extends ServicesBase {
 		Home home = kernel.getHome(UAS.TSS);
 		Client client = AuthZAttributeStore.getClient();
 		if(home.getAccessibleResources(client).size()==0){
-			TargetSystemFactoryImpl tsf = findTSF();
-			try{
+			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)home.getForUpdate(findTSF())){
 				tsf.createTargetSystem();
-			}
-			finally{
-				kernel.getHome(UAS.TSF).persist(tsf);
 			}
 		}
 		String tss = home.getAccessibleResources(client).get(0);
 		return (TargetSystemImpl)home.get(tss);
 	}
 
-	synchronized TargetSystemFactoryImpl findTSF() throws PersistenceException {
+	synchronized String findTSF() throws PersistenceException {
 		Home home = kernel.getHome(UAS.TSF);
 		Client client = AuthZAttributeStore.getClient();
 		List<String> tsfs = home.getAccessibleResources(client);
@@ -218,27 +214,22 @@ public class Jobs extends ServicesBase {
 			throw new AuthorisationException("There are no accessible targetsystem factories for: " +client+
 					" Please check your security setup!");
 		}
-		String tsf = tsfs.get(0);
-		return (TargetSystemFactoryImpl)home.getForUpdate(tsf);
+		return tsfs.get(0);
 	}
 
 	/**
 	 * submission code used from both Jobs and Sites resources
+	 * returns ID of the new job instance
 	 */
-	public static String doSubmit(Builder job, TargetSystemImpl tss, Kernel kernel, String baseURL) 
+	public static String doSubmit(Builder job, TargetSystemImpl tss, Kernel kernel) 
 	throws Exception {
 		boolean autoRun = !Boolean.parseBoolean(job.getProperty("haveClientStageIn"));
 		String id = tss.submit(job.getJSON(), autoRun, null, job.getTags());
 		// store new job ID in model - need a write lock on the tss
-		TargetSystemImpl tss2 = null;
-		try {
-			tss2 = (TargetSystemImpl)kernel.getHome(UAS.TSS).getForUpdate(tss.getUniqueID());
+		try (TargetSystemImpl tss2 = (TargetSystemImpl)kernel.getHome(UAS.TSS).getForUpdate(tss.getUniqueID())){
 			tss2.registerJob(id);
 		}
-		finally{
-			if(tss2!=null)kernel.getHome(UAS.TSS).persist(tss2);
-		}
-		return baseURL+"/jobs/"+id;
+		return id;
 	}
 
 

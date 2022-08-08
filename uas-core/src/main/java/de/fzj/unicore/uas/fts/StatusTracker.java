@@ -28,9 +28,7 @@ public class StatusTracker implements Observer<TransferInfo>{
 	}
 	
 	public void update(TransferInfo info){
-		Resource r = null;
-		try{
-			r = home.getForUpdate(resourceID);
+		try(Resource r = home.getForUpdate(resourceID)){
 			ServerToServerTransferModel model = (ServerToServerTransferModel)r.getModel();
 			Status s = info.getStatus();
 			int newStatus = FileTransferModel.STATUS_RUNNING;
@@ -49,11 +47,6 @@ public class StatusTracker implements Observer<TransferInfo>{
 			model.setNumberOfBytes(info.getDataSize());
 		}catch(Exception ex){
 			Log.logException("Cannot update file transfer info", ex, logger);
-		}
-		finally{
-			if(r!=null)try{
-				home.persist(r);
-			}catch(Exception ex){}
 		}
 	}
 

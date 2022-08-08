@@ -105,7 +105,7 @@ public class JobManagementStartupTask implements Runnable{
 			finally{
 				tsfLock.unlock();
 			}
-			publishWS(kernel, tsfHome.getServiceName(), defaultTsfName, "TargetSystemFactory");
+			publishWS(defaultTsfName);
 		}
 	}
 
@@ -116,21 +116,20 @@ public class JobManagementStartupTask implements Runnable{
 		Class<?>clazz = props.getClassValue(UASProperties.TSF_CLASS, TargetSystemFactoryImpl.class);
 		init.resourceClassName = clazz.getName();
 		tsfHome.createResource(init);
-		logger.info("Added default TSF resource '"+defaultTsfName+"' of type <"+clazz.getName()+">.");
+		logger.info("Added default TSF resource '{}' of type <{}>.", defaultTsfName, clazz.getName());
 	}
 
 	public String toString(){
 		return getClass().getName();
 	}
-	
-	// TODO only publish href
-	public static void publishWS(Kernel kernel, String serviceName, String uid, String interfaceName){
+
+	private void publishWS(String uid){
 		try{
 			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
 			Map<String,String> res = new HashMap<>();
-			String endpoint = kernel.getContainerProperties().getBaseUrl()+"/"+serviceName+"?res="+uid;
+			String endpoint = kernel.getContainerProperties().getContainerURL()+"/rest/core/factories/"+uid;
 			res.put(RegistryClient.ENDPOINT, endpoint);
-			res.put(RegistryClient.INTERFACE_NAME, interfaceName);
+			res.put(RegistryClient.INTERFACE_NAME, UAS.TSF);
 			String dn = kernel.getSecurityManager().getServerIdentity();
 			if(dn!=null) {
 				res.put(RegistryClient.SERVER_IDENTITY,dn);

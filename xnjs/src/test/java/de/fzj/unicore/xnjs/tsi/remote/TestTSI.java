@@ -101,12 +101,12 @@ public class TestTSI extends RemoteTSITestCase{
 			
 		}
 
-		try(TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1)){
-			InetAddress localhost=InetAddress.getByName("localhost");
+		try(TSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){
+			InetAddress localhost=InetAddress.getByName("127.0.0.1");
 			assertEquals(localhost,c.getTSIAddress());
 		}
 		int n = f.getNumberOfPooledConnections();
-		try(TSIConnection c=f.getTSIConnection("nobody", null,"localhost",-1)){}
+		try(TSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
 
 		try{
@@ -118,7 +118,7 @@ public class TestTSI extends RemoteTSITestCase{
 
 		RemoteTSI tsi=makeTSI();
 		assertNotNull(tsi);
-		assertEquals("UNICORE TSI at localhost:65431",tsi.getFileSystemIdentifier());
+		assertEquals("UNICORE TSI at 127.0.0.1:65431",tsi.getFileSystemIdentifier());
 	}
 
 	@Test
@@ -456,16 +456,16 @@ public class TestTSI extends RemoteTSITestCase{
 	@Test
 	public void testTimeoutHandling()throws Exception {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
-		InetAddress localhost=InetAddress.getByName("localhost");
+		InetAddress localhost=InetAddress.getByName("127.0.0.1");
 		ExecutionContext ec = new ExecutionContext();
 		TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
 		String message = tsiMessages.makeExecuteScript("sleep 10", ec, null);
-		try (TSIConnection c = f.getTSIConnection("nobody", null, "localhost", -1)){
+		try (TSIConnection c = f.getTSIConnection("nobody", null, "127.0.0.1", -1)){
 			assertEquals(localhost,c.getTSIAddress());
 			c.setSocketTimeouts(3000, false);
 			c.sendNoUser(message);
 		}catch(IOException ex) {
-			assertTrue("Got TSI error: "+ex.getMessage(), ex.getMessage().contains("TSI <localhost>"));
+			assertTrue("Got TSI error: "+ex.getMessage(), ex.getMessage().contains("TSI <127.0.0.1>"));
 		}
 	}
 

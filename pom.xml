@@ -30,7 +30,7 @@
 
     <compiler.fork>false</compiler.fork>
     <use.version>4.4.0</use.version>
-    <persistence.version>0.301</persistence.version>
+    <persistence.version>0.302</persistence.version>
     <metrics.version>4.2.10</metrics.version>
     <uftp.version>2.12.0</uftp.version>
     <guice.version>5.1.0</guice.version>
@@ -112,11 +112,6 @@
 	<groupId>de.fzj.unicore</groupId>
 	<artifactId>jsdl-xmlbeans</artifactId>
 	<version>2.2.4</version>
-      </dependency>
-      <dependency>
-	<groupId>xalan</groupId>
-	<artifactId>xalan</artifactId>
-	<version>2.7.2</version>
       </dependency>
       <dependency>
 	<groupId>org.json</groupId>
