@@ -10,6 +10,7 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
+import de.fzj.unicore.xnjs.XNJSConstants;
 import de.fzj.unicore.xnjs.ems.Action;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
@@ -59,7 +60,7 @@ public class GenerateJMSInstances implements Runnable{
 	
 	public void run(){
 		try{
-			logger.info("Regenerating UNICORE jobs for "+client.getDistinguishedName());
+			logger.info("Regenerating UNICORE jobs for {}", client.getDistinguishedName());
 			AuthZAttributeStore.setClient(client);
 			XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
 			int num = 0;
@@ -71,13 +72,13 @@ public class GenerateJMSInstances implements Runnable{
 						add(action);
 						num++;
 					}catch(Exception ex){
-						logger.error("Could not restore job for : "+action.getUUID(),ex);
+						logger.error("Could not restore job: {}", action.getUUID(),ex);
 					}
 				}
 			}
-			logger.info("Restored <"+num+"> UNICORE jobs for "+client.getDistinguishedName());
+			logger.info("Restored <{}> UNICORE jobs for {}", num, client.getDistinguishedName());
 		}catch(Exception ex){
-			logger.error("Could not restore jobs for "+client,ex);
+			logger.error("Could not restore jobs for ", client.getDistinguishedName(), ex);
 		}
 	}
 
@@ -86,9 +87,9 @@ public class GenerateJMSInstances implements Runnable{
 		if(action.isInternal()){
 			return false;
 		}
-		//only accept jsdl actions
+		//only accept jobs
 		String type=action.getType();
-		if(!"JSDL".equals(type))return false;
+		if(!XNJSConstants.jobActionType.equals(type))return false;
 		//and those which belong to the current user
 		String owner=action.getClient().getDistinguishedName();
 		return client.getDistinguishedName().equalsIgnoreCase(owner);

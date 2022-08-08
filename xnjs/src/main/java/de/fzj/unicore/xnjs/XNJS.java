@@ -226,17 +226,17 @@ public class XNJS {
 	 */
 	protected void assureDefaultProcessingAvailable(){
 
-		if(!haveProcessingFor("JSON")){
-			setProcessingChain("JSON", "JSON", 
+		if(!haveProcessingFor(XNJSConstants.jobActionType)){
+			setProcessingChain(XNJSConstants.jobActionType, "JSON", 
 					new String[]{JSONJobProcessor.class.getName(),UsageLogger.class.getName(),
 			});
 		}
-		if(!haveProcessingFor(XNJSConstants.jsdlStageInActionType)){
-			setProcessingChain(XNJSConstants.jsdlStageInActionType, null, 
+		if(!haveProcessingFor(XNJSConstants.jobStageInActionType)){
+			setProcessingChain(XNJSConstants.jobStageInActionType, null, 
 					new String[]{DataStagingProcessor.class.getName()});
 		}
-		if(!haveProcessingFor(XNJSConstants.jsdlStageOutActionType)){
-			setProcessingChain(XNJSConstants.jsdlStageOutActionType, null, 
+		if(!haveProcessingFor(XNJSConstants.jobStageOutActionType)){
+			setProcessingChain(XNJSConstants.jobStageOutActionType, null, 
 					new String[]{DataStagingProcessor.class.getName()});
 		}
 		if(!haveProcessingFor(XNJSConstants.asyncCommandType)){

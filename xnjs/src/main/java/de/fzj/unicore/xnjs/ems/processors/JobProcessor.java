@@ -905,7 +905,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			List<DataStageInInfo>toStage = action.getStageIns();
 			StagingInfo stageInfo = new StagingInfo(toStage);
 			String subId=manager.addSubAction(stageInfo,
-					XNJSConstants.jsdlStageInActionType, action, true);
+					XNJSConstants.jobStageInActionType, action, true);
 			action.getProcessingContext().put(subactionkey_in,subId);
 			action.addLogTrace("Adding stage in subaction with id="+subId);
 			action.setWaiting(true);
@@ -921,7 +921,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			if(toStage!=null && toStage.size()>0){
 				StagingInfo stageOut = new StagingInfo(toStage);
 				String subId=manager.addSubAction((Serializable)stageOut,
-						XNJSConstants.jsdlStageOutActionType, action, true);
+						XNJSConstants.jobStageOutActionType, action, true);
 				action.addLogTrace("Adding stage out subaction with id="+subId);
 				action.getProcessingContext().put(subactionkey_out, subId);
 				action.setWaiting(true);

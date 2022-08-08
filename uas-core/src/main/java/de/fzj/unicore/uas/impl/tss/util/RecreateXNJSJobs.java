@@ -12,6 +12,7 @@ import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.XNJSConstants;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
@@ -57,7 +58,7 @@ public class RecreateXNJSJobs implements Runnable{
 
 	public void run(){
 		try{
-			logger.info("Regenerating UNICORE XNJS Jobs for "+client.getDistinguishedName());
+			logger.info("Regenerating UNICORE XNJS Jobs for {}", client.getDistinguishedName());
 			ensureProcessing();
 			XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
 			for(String jobID: existingJobs){
@@ -74,12 +75,12 @@ public class RecreateXNJSJobs implements Runnable{
 					}
 				}
 				catch(Exception ex){
-					logger.error("Could not restore XNJS action for : "+jobID,ex);
+					logger.error("Could not restore XNJS action: {}", jobID, ex);
 				}
 				
 			}
 		}catch(Exception ex){
-			logger.error("Could not restore jobs for "+client,ex);
+			logger.error("Could not restore jobs for {}", client.getDistinguishedName(), ex);
 		}
 	}
 
@@ -87,7 +88,7 @@ public class RecreateXNJSJobs implements Runnable{
 	protected void ensureProcessing(){
 		XNJS config=XNJSFacade.get(xnjsReference, kernel).getXNJS();
 		synchronized(config){
-			List<String> chain=config.getProcessorChain("JSON");
+			List<String> chain = config.getProcessorChain(XNJSConstants.jobActionType);
 			if(!ReCreateProcessor.class.getName().equals(chain.get(0))){
 				chain.add(0,ReCreateProcessor.class.getName());
 			}
@@ -103,7 +104,7 @@ public class RecreateXNJSJobs implements Runnable{
 		Action a=new Action();
 		a.setUUID(jms.getUniqueID());
 		a.setClient(client);
-		a.setType("JSON");
+		a.setType(XNJSConstants.jobActionType);
 		a.setStatus(ActionStatus.DONE);
 		a.setResult(new ActionResult(ActionResult.UNKNOWN, 
 				"Job was lost and restored during server restart."));

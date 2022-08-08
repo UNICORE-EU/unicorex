@@ -86,7 +86,7 @@ public class RecreateReservationReferenceList implements Runnable{
 				logger.info("Added <{}> existing reservations to target system", oldReservations.size());
 			}
 		}catch(Exception ex){
-			logger.error("Could not restore reservations for "+client.getDistinguishedName(),ex);
+			logger.error("Could not restore reservations for {}", client.getDistinguishedName(),ex);
 		}
 	}
 

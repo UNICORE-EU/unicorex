@@ -28,14 +28,14 @@ public class TSSAsynchInitialisation extends AsynchActionWithCallback<TargetSyst
 	@Override
 	public void taskFinished(TargetSystemImpl resource) {
 		resource.setResourceStatus(ResourceStatus.READY);
-		log.info("Finished init/update of TSS "+resource.getUniqueID());
+		log.info("Finished init/update of TSS {}", resource.getUniqueID());
 	}
 
 	@Override
 	public void taskFailed(TargetSystemImpl resource, RuntimeException ex) {
-		String msg=Log.createFaultMessage("Failed init/update of TSS "+resource.getUniqueID(),ex);
+		String msg = Log.createFaultMessage("Failed init/update of TSS "+resource.getUniqueID(), ex);
 		resource.setResourceStatus(ResourceStatus.ERROR);
 		resource.setStatusMessage(msg);
-		log.error("Failed init/update of TSS "+resource.getUniqueID(),ex);
+		log.error("Failed init/update of TSS {}", resource.getUniqueID(),ex);
 	}
 }

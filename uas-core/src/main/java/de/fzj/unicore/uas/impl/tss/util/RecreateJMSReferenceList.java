@@ -53,8 +53,7 @@ public class RecreateJMSReferenceList implements Runnable{
 		try{
 			AuthZAttributeStore.setClient(client);
 			String user = client.getDistinguishedName();
-			logger.info("Re-generating job list for " + X500NameUtils.getReadableForm(user));
-			
+			logger.info("Re-generating job list for {}", X500NameUtils.getReadableForm(user));
 			//check if owner has more TSSs
 			Collection<String>tssIds=tssHome.getStore().getUniqueIDs();
 			tssIds.remove(tssID);
@@ -99,13 +98,13 @@ public class RecreateJMSReferenceList implements Runnable{
 						count++;
 					}
 				}
-				logger.info("Added <"+count+"> existing jobs to new target system");
+				logger.info("Added <{}> existing jobs to new target system", count);
 			}
 			catch(ResourceUnknownException rue){
 				logger.error(rue);
 			}
 		}catch(Exception ex){
-			logger.error("Could not restore jobs for "+client.getDistinguishedName(),ex);
+			logger.error("Could not restore jobs for {}", client.getDistinguishedName(),ex);
 		}
 	}
 
