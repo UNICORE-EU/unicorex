@@ -108,4 +108,9 @@ public interface TSIConnectionFactory {
 	 */
 	public Map<String,String>getTSIConnectorStates();
 
+	/**
+	 * returns true if the TSIConnectionFactory is in an operational state
+	 */
+	public boolean isRunning();
+
 }

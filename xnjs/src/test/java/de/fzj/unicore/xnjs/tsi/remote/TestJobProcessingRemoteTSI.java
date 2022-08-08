@@ -289,7 +289,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	@Test
 	public void testGetProcessListing() throws Exception {
 		BSSState bss = xnjs.get(BSSState.class);
-		Set<String> ps = bss.getProcessList("localhost");
+		Set<String> ps = bss.getProcessList("127.0.0.1");
 		System.out.println(ps);
 	}
 

@@ -131,8 +131,11 @@ public class BSSState implements IBSSState {
 
 	//updates the status hashmap. Called periodically from a scheduler thread
 	private void updateBSSStates() throws Exception {
+		if(!connectionFactory.isRunning()) {
+			log.debug("TSI not (yet) running, skipping");
+			return;
+		}
 		List<BSSSummary> parts = new ArrayList<>();
-		
 		// BSS jobs
 		boolean bssLocked = false;
 		try {

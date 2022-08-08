@@ -95,9 +95,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	// how many connections to "keep alive" in the pool
 	private int keepConnections = 4;
 
-	private volatile boolean isShutdown = true;
-
-	private volatile boolean started = false;
+	private volatile boolean isRunning = false;
 
 	private String tsiVersion=null;
 
@@ -111,6 +109,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 
 	@Override
 	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)throws TSIUnavailableException{
+		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
 		TSIConnection conn = getFromPool(preferredHost, timeout);
 		if(conn==null){
@@ -174,7 +173,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	
 	@Override
 	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeout)throws TSIUnavailableException{
-		if(isShutdown)throw new TSIUnavailableException("TSI server is shutting down.");
+		if(!isRunning)throw new TSIUnavailableException("TSI server is shutting down.");
 		String user = client.getXlogin().getUserName();
 		String group = TSIMessages.prepareGroupsString(client);
 		return getTSIConnection(user,group,preferredHost,timeout);
@@ -205,7 +204,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 			try{
 				return c.createNewTSIConnection(server);
 			}catch(Exception ex){
-				log.debug("{} is not available: {}",c,ex);
+				log.debug("{} is not available: {}", c, ex.getMessage());
 				lastException=ex;
 			}
 		}
@@ -268,11 +267,14 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		liveConnections.decrementAndGet();
 	}
 
+	public boolean isRunning() {
+		return isRunning;
+	}
 	/**
 	 * startup the factory and create connectors to all configured TSI hosts
 	 */
 	public synchronized void start() {
-		if(started)return;
+		if(isRunning)return;
 		try {
 			tsiProperties = configuration.get(TSIProperties.class);
 			assert(tsiProperties!=null);
@@ -312,14 +314,12 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 
 			machine=machineSpec.toString(); // to also include port
 			tsiDescription=machine+", XNJS listens on port "+replyport;
-			isShutdown = false;
 			keepConnections = tsiProperties.getIntValue(TSIProperties.TSI_POOL_SIZE);
-			log.info("TSI connection: "+getConnectionStatus());
-			started = true;
+			log.info("TSI connection: {}", getConnectionStatus());
+			isRunning = true;
 		}
 		catch(Exception ex){
-			log.error("Cannot setup TSI Connection Factory", ex);
-			throw new RuntimeException("Config is messed up, cannot setup TSI Connection factory.",ex);
+			throw new RuntimeException("Cannot setup TSI Connection Factory" ,ex);
 		}
 		try {
 			 configuration.get(IExecution.class);
@@ -334,7 +334,8 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	 * shutdown the factory
 	 */
 	public void stop() {
-		isShutdown=true;
+		if(!isRunning)return;
+		isRunning = false;
 		//kill incoming socket
 		try{
 			log.info("Shutting down TSI listener socket");
@@ -347,6 +348,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 			}
 			pool.clear();
 		}
+
 	}
 
 	/**
@@ -361,7 +363,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	}
 
 	public String getConnectionStatus(){
-		if(isShutdown){
+		if(!isRunning){
 			return "N/A [not started]";
 		}
 		StringBuilder sb=new StringBuilder();
