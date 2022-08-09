@@ -23,6 +23,6 @@ jobs:
       if: always()
       with:
       name: test-output
-        path: |
+      path: |
           xnjs/target/tsi-logs/
           */target/surefire-reports/
