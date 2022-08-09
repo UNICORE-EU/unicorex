@@ -129,7 +129,8 @@ public class Sites extends ServicesBase {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createTSS(String jsonString) throws Exception {
 		try{
-			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)home.getForUpdate(findTSF())){
+			Home tsfHome = kernel.getHome(UAS.TSF);
+			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)tsfHome.getForUpdate(findTSF())){
 				String id = SiteFactories.createTSS(tsf,jsonString);
 				return Response.created(new URI(getBaseURL()+"/sites/"+id)).build();
 			}
