@@ -221,7 +221,7 @@ public class Execution extends BasicExecution {
 		Thread.sleep(3000); // async submit, so PID file may not yet be written - let's try and avoid errors later
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
 		ExecutionContext ec=job.getExecutionContext();
-		String pidFile=ec.getOutcomeDirectory()+"/"+ec.getPIDFileName();
+		String pidFile=ec.getOutputDirectory()+"/"+ec.getPIDFileName();
 		jobExecLogger.debug("Reading PID from "+pidFile);
 		long pid=0;
 		for(int i=0; i<3; i++){
@@ -241,7 +241,7 @@ public class Execution extends BasicExecution {
 	private String readAllocationID(Action job, String preferredTSINode) throws IOException, ExecutionException, InterruptedException {
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
 		ExecutionContext ec = job.getExecutionContext();
-		String file = ec.getOutcomeDirectory()+"/ALLOCATION_ID";
+		String file = ec.getOutputDirectory()+"/ALLOCATION_ID";
 		jobExecLogger.debug("Reading allocation ID from " + file);
 		for(int i=0; i<3; i++){
 			try{

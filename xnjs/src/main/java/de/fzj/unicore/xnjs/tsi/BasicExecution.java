@@ -348,7 +348,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		if(job.getExecutionContext().getExitCode()!=null)return true;
 		TSI tsi = tsiFactory.createTSI(job.getClient());
 		ExecutionContext ctx=job.getExecutionContext();
-		tsi.setStorageRoot(ctx.getOutcomeDirectory());
+		tsi.setStorageRoot(ctx.getOutputDirectory());
 		XnjsFile f=tsi.getProperties(ctx.getExitCodeFileName());
 		if(f==null)return false;
 		try(BufferedReader br = new BufferedReader(new InputStreamReader(

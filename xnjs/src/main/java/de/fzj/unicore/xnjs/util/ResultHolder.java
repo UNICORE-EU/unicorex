@@ -83,7 +83,7 @@ public class ResultHolder {
 	 * @throws ExecutionException
 	 */
 	public String readOutcomeFile(String file)throws IOException, ExecutionException{
-		return doReadFile(a.getExecutionContext().getOutcomeDirectory()+"/"+file);
+		return doReadFile(a.getExecutionContext().getOutputDirectory()+"/"+file);
 	}
 	
 	public Action getAction(){

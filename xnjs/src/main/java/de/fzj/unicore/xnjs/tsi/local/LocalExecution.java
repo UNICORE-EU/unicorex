@@ -201,7 +201,7 @@ public class LocalExecution implements Runnable {
 
 			//err
 			stderr=ec.isDiscardOutput() ? NullOutputStream.NULL_OUTPUT_STREAM
-					 : new FileOutputStream(ec.getOutcomeDirectory()+File.separator+ec.getStderr());
+					 : new FileOutputStream(ec.getOutputDirectory()+File.separator+ec.getStderr());
 			err=new DataMover(p.getErrorStream(),stderr);
 
 			while(true){
@@ -216,7 +216,7 @@ public class LocalExecution implements Runnable {
 			}
 			//out
 			stdout=ec.isDiscardOutput() ? NullOutputStream.NULL_OUTPUT_STREAM
-			        : new FileOutputStream(ec.getOutcomeDirectory()+File.separator+ec.getStdout());
+			        : new FileOutputStream(ec.getOutputDirectory()+File.separator+ec.getStdout());
 			out=new DataMover(p.getInputStream(),stdout);
 			out.run();
 

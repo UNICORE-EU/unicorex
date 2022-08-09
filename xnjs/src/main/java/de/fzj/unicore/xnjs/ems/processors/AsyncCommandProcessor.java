@@ -50,12 +50,12 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		TSI tsi = xnjs.getTargetSystemInterface(action.getClient());
 		tsi.setUmask(subCommand.umask);
 		if(subCommand.workingDir != null) ec.setWorkingDirectory(subCommand.workingDir);
-		if(subCommand.outcomeDir != null){
-			ec.setOutcomeDirectory(subCommand.outcomeDir);
+		if(subCommand.outputDir != null){
+			ec.setOutputDirectory(subCommand.outputDir);
 		}else{
-			ec.setOutcomeDirectory(ec.getWorkingDirectory()+".UNICORE_"+subCommand.id+tsi.getFileSeparator());	
+			ec.setOutputDirectory(ec.getWorkingDirectory()+".UNICORE_"+subCommand.id+tsi.getFileSeparator());	
 		}
-		tsi.mkdir(ec.getOutcomeDirectory());
+		tsi.mkdir(ec.getOutputDirectory());
 		ec.setExitCodeFileName(subCommand.id+"_" + TSIMessages.EXITCODE_FILENAME);
 		ec.setIgnoreExitCode(subCommand.ignoreExitCode);
 		ec.setRunOnLoginNode(true);
@@ -162,7 +162,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		public String preferredExecutionHost; //preferred TSI host
 		
 		//outcome directory for the command (if null, outcome goes to working dir)
-		public String outcomeDir;
+		public String outputDir;
 		public String stdout="stdout";
 		public String stderr="stderr";
 		public String umask;

@@ -100,7 +100,7 @@ public class AsyncCommandHelper {
 			a.setUmask(subCommand.umask);
 			a.setApplicationInfo(new ApplicationInfo());
 			xnjs.get(IExecutionContextManager.class).getContext(a);
-			a.getExecutionContext().setOutcomeDirectory(subCommand.outcomeDir);
+			a.getExecutionContext().setOutputDirectory(subCommand.outputDir);
 			return (String)manager.addInternalAction(a);
 		}
 	}

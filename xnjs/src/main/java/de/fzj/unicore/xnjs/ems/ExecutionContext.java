@@ -53,7 +53,7 @@ public class ExecutionContext implements Serializable{
 	private String workingDirectory = "./";
 	
 	//the outcome dir (by default equal to the working dir)
-	private String outcomeDirectory;
+	private String outputDirectory;
 	
 	private HashMap<String,String> environment = new HashMap<>();
 	
@@ -130,12 +130,12 @@ public class ExecutionContext implements Serializable{
 	/**
 	 * @return outcome directory (which is guaranteed to end with the target system's file separator)
 	 */
-	public String getOutcomeDirectory() {
-		return outcomeDirectory!=null? outcomeDirectory : workingDirectory;
+	public String getOutputDirectory() {
+		return outputDirectory!=null? outputDirectory : workingDirectory;
 	}
 	
-	public void setOutcomeDirectory(String outcomeDirectory) {
-		this.outcomeDirectory = outcomeDirectory;
+	public void setOutputDirectory(String outcomeDirectory) {
+		this.outputDirectory = outcomeDirectory;
 	}
 
 	public String getStderr() {

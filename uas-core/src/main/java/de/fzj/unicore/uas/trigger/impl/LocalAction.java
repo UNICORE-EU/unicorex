@@ -51,7 +51,7 @@ public class LocalAction extends BaseAction {
 			ach.setStdout(expandVariables(stdout,context));
 		}
 		if(outDir!=null){
-			ach.getSubCommand().outcomeDir=expandVariables(outDir,context);
+			ach.getSubCommand().outputDir=expandVariables(outDir,context);
 		}
 		ach.setUmask(storage.getUmask());
 		ach.submit();

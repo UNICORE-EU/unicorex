@@ -87,7 +87,7 @@ public class TSIMessages {
 			f.format("#TSI_CREDENTIALS %s\n", credentials);
 		}
 
-		f.format("#TSI_OUTCOME_DIR %s\n", ec.getOutcomeDirectory());
+		f.format("#TSI_OUTCOME_DIR %s\n", ec.getOutputDirectory());
 		f.format("#TSI_USPACE_DIR %s\n", ec.getWorkingDirectory());
 		
 		String stdout=ec.getStdout()!=null? checkLegal(ec.getStdout(),"Stdout") : "stdout";
@@ -172,7 +172,7 @@ public class TSIMessages {
 		}
 		// remove any pre-existing exit code file (e.g. job restart case)
 		if(!_unittestnoexitcode){
-			f.format("rm -f %s/%s\n", ec.getOutcomeDirectory(), ec.getExitCodeFileName());
+			f.format("rm -f %s/%s\n", ec.getOutputDirectory(), ec.getExitCodeFileName());
 		}
 
 		// user-defined pre-command
@@ -206,7 +206,7 @@ public class TSIMessages {
 			// write the application exit code to a special file
 			commands.append("\n");
 			if(!_unittestnoexitcode){
-				f.format("echo $? > %s/%s\n", ec.getOutcomeDirectory(),ec.getExitCodeFileName());
+				f.format("echo $? > %s/%s\n", ec.getOutputDirectory(),ec.getExitCodeFileName());
 			}
 		}
 		
@@ -332,7 +332,15 @@ public class TSIMessages {
 		}
 		commands.append("#TSI_DISCARD_OUTPUT true\n");
 		commands.append("#TSI_SCRIPT\n");
-		commands.append("cd ").append(ec.getWorkingDirectory()).append("\n");
+		if (ec.getWorkingDirectory() != null) {
+			commands.append("UC_WORKING_DIRECTORY=").append(ec.getWorkingDirectory());
+			commands.append("; export UC_WORKING_DIRECTORY\n");
+		}
+		if (ec.getOutputDirectory() != null) {
+			commands.append("UC_OUTPUT_DIRECTORY=").append(ec.getOutputDirectory());
+			commands.append("; export UC_OUTPUT_DIRECTORY\n");
+		}
+		commands.append("cd $UC_WORKING_DIRECTORY\n");
 
 		appendEnvironment(commands, ec, true);
 
@@ -351,22 +359,19 @@ public class TSIMessages {
 			commands.append("/dev/null");
 		}
 		else{
-			commands.append(ec.getOutcomeDirectory()).append(ec.getStdout());
+			commands.append("$UC_OUTPUT_DIRECTORY/").append(ec.getStdout());
 		}
-
 		commands.append(" 2> ");
 		if(ec.isDiscardOutput()){
 			commands.append("/dev/null");
 		}
 		else{
-			commands.append(ec.getOutcomeDirectory()).append(ec.getStderr());
+			commands.append("$UC_OUTPUT_DIRECTORY/").append(ec.getStderr());
 		}
 
-		commands.append("; echo $? > ").append(ec.getOutcomeDirectory()).append("/");
-		commands.append(ec.getExitCodeFileName());
+		commands.append("; echo $? > $UC_OUTPUT_DIRECTORY/").append(ec.getExitCodeFileName());
 		commands.append(" ; } & ");
-		commands.append("echo $! > ").append(ec.getOutcomeDirectory()).append("/");
-		commands.append(ec.getPIDFileName());
+		commands.append("echo $! > $UC_OUTPUT_DIRECTORY/").append(ec.getPIDFileName());
 		return template.replace("#SCRIPT", commands.toString());
 	}
 
@@ -565,7 +570,7 @@ public class TSIMessages {
 		commands.append("\n#TSI_UFTP_OFFSET ").append(offset);
 		commands.append("\n#TSI_UFTP_LENGTH ").append(length);
 		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
-		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutcomeDirectory());
+		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutputDirectory());
 		commands.append("\n#TSI_STDOUT ").append(ec.getStdout());
 		commands.append("\n#TSI_STDERR ").append(ec.getStderr());
 		commands.append("\n#TSI_PID_FILE ").append(ec.getPIDFileName());
@@ -592,7 +597,7 @@ public class TSIMessages {
 		commands.append("\n#TSI_UFTP_OFFSET ").append(offset);
 		commands.append("\n#TSI_UFTP_LENGTH ").append(length);
 		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
-		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutcomeDirectory());
+		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutputDirectory());
 		commands.append("\n#TSI_STDOUT ").append(ec.getStdout());
 		commands.append("\n#TSI_PID_FILE ").append(ec.getPIDFileName());
 		commands.append("\n#TSI_EXIT_CODE_FILE ").append(ec.getExitCodeFileName());
@@ -843,9 +848,6 @@ public class TSIMessages {
 		if (ec.getUmask() != null) {
 			f.format("#TSI_UMASK %s\n", ec.getUmask());
 			f.format("umask %s\n", ec.getUmask());
-		}
-		if (ec.getWorkingDirectory() != null) {
-			f.format("UC_WORKING_DIRECTORY=\"%s\"; export UC_WORKING_DIRECTORY\n", ec.getWorkingDirectory());
 		}
 		for (Map.Entry<String, String> env : ec.getEnvironment().entrySet()) {
 			String key = env.getKey();
