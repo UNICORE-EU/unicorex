@@ -28,9 +28,11 @@ import eu.unicore.uftp.server.requests.UFTPTransferRequest;
 public class TestUFTP extends RemoteTSITestCase {
 
 	private static UFTPDServerRunner uftpd = null;
-
+	private static InetAddress localhost;
+	
 	@BeforeClass
 	public static void startUFTPD() throws Exception {
+		localhost = InetAddress.getByName("127.0.0.1");
 		uftpd = new UFTPDServerRunner();
 		uftpd.start();
 	}
@@ -44,7 +46,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testUftpGet() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -57,7 +58,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPGetFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), 0, -1, false, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		assertEquals(Utils.md5(source1), Utils.md5(new File(targetDir, "downloaded.test.dat")));
@@ -65,7 +66,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testUftpGetWithRestart() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -80,7 +80,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPGetFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), offset, length, false, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		assertEquals(Utils.md5("test data\n".getBytes("UTF-8")), Utils.md5(new File(targetDir, "downloaded.test.dat")));
@@ -88,7 +88,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testUftpGetInTwoParts() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -104,7 +103,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPGetFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		File downloadedFile = new File(targetDir, "downloaded.test.dat");
@@ -122,7 +121,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		command = TSIMessages.makeUFTPGetFileCommand("localhost", uftpd.srvPort, secret,
+		command = TSIMessages.makeUFTPGetFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 
@@ -131,7 +130,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testUftpPut() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -144,7 +142,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPPutFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), 0, -1, false, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		assertEquals(Utils.md5(source1), Utils.md5(new File(targetDir, "uploaded.test.dat")));
@@ -152,7 +150,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testUftpPutWithRestart() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -168,7 +165,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPPutFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), offset, length, false, ec);
 
 		runCommand(command, targetDir.getAbsolutePath());
@@ -177,7 +174,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testUftpPutInTwoParts() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -192,7 +188,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		String command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		String command = TSIMessages.makeUFTPPutFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 		File uploadedFile = new File(targetDir, "uploaded.test.dat");
@@ -209,7 +205,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 		ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
-		command = TSIMessages.makeUFTPPutFileCommand("localhost", uftpd.srvPort, secret,
+		command = TSIMessages.makeUFTPPutFileCommand("127.0.0.1", uftpd.srvPort, secret,
 				"uploaded.test.dat", "test.dat", sourceDir.getAbsolutePath(), offset, length, true, ec);
 		runCommand(command, targetDir.getAbsolutePath());
 
@@ -218,7 +214,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testCommandProcessingGET() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -236,7 +231,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		String id = parent.getUUID();
 		mgr.add(parent, parent.getClient());
 		JSONObject cmd = UFTPUtils.jsonBuilder().
-				host("localhost").
+				host("127.0.0.1").
 				port(uftpd.srvPort).
 				secret(secret).
 				get().
@@ -255,7 +250,6 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	@Test
 	public void testCommandProcessingPUT() throws Exception {
-		InetAddress localhost = InetAddress.getByName("localhost");
 		File sourceDir = mkTmpDir();
 		File source1 = new File(sourceDir, "test.dat");
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
@@ -273,7 +267,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		String id = parent.getUUID();
 		mgr.add(parent, parent.getClient());
 		JSONObject cmd = UFTPUtils.jsonBuilder().
-				host("localhost").
+				host("127.0.0.1").
 				port(uftpd.srvPort).
 				secret(secret).
 				put().

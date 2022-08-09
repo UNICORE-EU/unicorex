@@ -21,7 +21,7 @@ public class UFTPDServerRunner {
 		this.srvPort = serverPort;
 		this.jobPort = jobPort;
 		try {
-			 host = InetAddress.getByName("localhost");
+			 host = InetAddress.getByName("127.0.0.1");
 		}catch(Exception ex) {
 			throw new RuntimeException(ex);
 		}
@@ -29,7 +29,7 @@ public class UFTPDServerRunner {
 	
 	public UFTPDServerRunner() {
 		try {
-			 host = InetAddress.getByName("localhost");
+			 host = InetAddress.getByName("127.0.0.1");
 		}catch(Exception ex) {
 			throw new RuntimeException(ex);
 		}
