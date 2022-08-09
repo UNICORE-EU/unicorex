@@ -129,7 +129,7 @@ public class JobManagementStartupTask implements Runnable{
 			Map<String,String> res = new HashMap<>();
 			String endpoint = kernel.getContainerProperties().getContainerURL()+"/rest/core/factories/"+uid;
 			res.put(RegistryClient.ENDPOINT, endpoint);
-			res.put(RegistryClient.INTERFACE_NAME, UAS.TSF);
+			res.put(RegistryClient.INTERFACE_NAME, "TargetSystemFactory");
 			String dn = kernel.getSecurityManager().getServerIdentity();
 			if(dn!=null) {
 				res.put(RegistryClient.SERVER_IDENTITY,dn);

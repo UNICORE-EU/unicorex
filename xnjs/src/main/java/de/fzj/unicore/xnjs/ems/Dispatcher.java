@@ -27,7 +27,7 @@ public class Dispatcher extends Thread {
 
 	protected final BlockingQueue<QueueEntry> workQueue;
 
-	volatile boolean isInterrupted=false;
+	volatile boolean isInterrupted = false;
 
 	private final XNJS xnjs;
 
@@ -74,8 +74,9 @@ public class Dispatcher extends Thread {
 		availableRunners.offer(runner);
 	}
 
-	public void interrupt() {
-		isInterrupted=true;
+	public synchronized void interrupt() {
+		if(isInterrupted)return;
+		isInterrupted = true;
 		logger.debug("{} stopping", getName());
 		super.interrupt();
 	}
@@ -97,9 +98,8 @@ public class Dispatcher extends Thread {
 				while(q.getDelay(TimeUnit.MILLISECONDS)>0)Thread.sleep(50);
 				r.process(q.getActionID());
 			}
-		}catch(InterruptedException ie){
-			logger.info("{} stopped.", getName());
-		}
+		}catch(Exception ie){}
+		logger.info("{} stopped.", getName());
 	}
 
 	public void process(String actionID){

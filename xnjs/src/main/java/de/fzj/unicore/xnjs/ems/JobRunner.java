@@ -84,7 +84,8 @@ public class JobRunner extends Thread {
 		logger.debug("Job runner thread "+n+" starting");
 	}
 
-	public void interrupt() {
+	public synchronized void interrupt() {
+		if(isInterrupted)return;
 		isInterrupted=true;
 		logger.debug(getName()+" stopping");
 		count.decrementAndGet();
@@ -130,7 +131,7 @@ public class JobRunner extends Thread {
 					dispatcher.notifyAvailable(this);
 				}
 			}
-		}catch(InterruptedException ie){
+		}catch(Exception ie){
 			logger.info("Worker {} stopped.", getName());
 			return;
 		}

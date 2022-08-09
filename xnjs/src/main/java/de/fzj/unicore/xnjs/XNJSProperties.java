@@ -25,7 +25,7 @@ import eu.unicore.util.configuration.PropertyMD;
 @Singleton
 public class XNJSProperties extends PropertiesHelper {
 
-	private static final Logger logger=Log.getLogger(Log.SERVICES, XNJSProperties.class);
+	private static final Logger logger=Log.getLogger(Log.CONFIGURATION, XNJSProperties.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX="XNJS.";
@@ -54,7 +54,8 @@ public class XNJSProperties extends PropertiesHelper {
 	public static final String SWEEP_LIMIT = "parameterSweepLimit";
 
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
+
 	static
 	{
 		META.put(RESUBMIT_COUNT, new PropertyMD("3").setInt().setPositive().

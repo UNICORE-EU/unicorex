@@ -23,7 +23,7 @@ import eu.unicore.util.configuration.PropertyMD;
 @Singleton
 public class TSIProperties extends PropertiesHelper {
 
-	private static final Logger logger=Log.getLogger(Log.SERVICES, TSIProperties.class);
+	private static final Logger logger=Log.getLogger(Log.CONFIGURATION, TSIProperties.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX="CLASSICTSI.";
@@ -72,7 +72,8 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String RES_ADMIN_USER="reservationAdminUser";
 	
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
+
 	static
 	{
 		// connection settings

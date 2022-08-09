@@ -86,15 +86,12 @@ public class TSIMessages {
 		if(credentials!=null){
 			f.format("#TSI_CREDENTIALS %s\n", credentials);
 		}
-
 		f.format("#TSI_OUTCOME_DIR %s\n", ec.getOutputDirectory());
 		f.format("#TSI_USPACE_DIR %s\n", ec.getWorkingDirectory());
-		
 		String stdout=ec.getStdout()!=null? checkLegal(ec.getStdout(),"Stdout") : "stdout";
 		f.format("#TSI_STDOUT %s\n", stdout);
 		String stderr=ec.getStderr()!=null? checkLegal(ec.getStderr(),"Stderr") : "stderr";
 		f.format("#TSI_STDERR %s\n", stderr);
-
 		String jobName=job.getJobName()!=null ? checkLegal(job.getJobName(), "Job name") : "UNICORE_Job";
 		f.format("#TSI_JOBNAME %s\n", jobName);
 		String email="NONE";
@@ -102,7 +99,6 @@ public class TSIMessages {
 			email = checkLegal(client.getUserEmail(),"Email");
 		}
 		f.format("#TSI_EMAIL %s\n", email);
-
 		boolean normalMode = !applicationInfo.isRawJob();
 		if(normalMode){
 			String queue = appendTSIResourceSpec(commands, rt);
@@ -128,9 +124,6 @@ public class TSIMessages {
 
 		// add environment settings from context
 		appendEnvironment(commands, ec, true);
-
-		// add XNJS environment variables UC_XXXX
-		
 		// Set User DN as env variable
 		// useful e.g. if mapping multiple certs to single ulogin
 		if (client!=null) {
@@ -138,11 +131,17 @@ public class TSIMessages {
 			String dn=client.getDistinguishedName().replaceAll("\"", "_");
 			f.format("UC_USERDN=\"%s\"; export UC_USERDN\n", dn);
 		}
-
+		
 		// add "." to PATH to make sure user executable can be specified without
 		// having to prefix "./"
 		commands.append("PATH=$PATH:. ; export PATH\n");
-		f.format("cd %s\n", ec.getWorkingDirectory());
+		if (ec.getWorkingDirectory() != null) {
+			f.format("UC_WORKING_DIRECTORY=\"%s\"; export UC_WORKING_DIRECTORY\n", ec.getWorkingDirectory());
+		}
+		if (ec.getOutputDirectory() != null) {
+			f.format("UC_OUTPUT_DIRECTORY=\"%s\"; export UC_OUTPUT_DIRECTORY\n", ec.getOutputDirectory());
+		}
+		commands.append("cd ${UC_WORKING_DIRECTORY}\n");
 
 		if(ioProperties.getBooleanValue(IOProperties.STAGING_FS_WAIT)) {
 			// make sure all staged input files are available ON THE WORKER NODE
@@ -172,7 +171,7 @@ public class TSIMessages {
 		}
 		// remove any pre-existing exit code file (e.g. job restart case)
 		if(!_unittestnoexitcode){
-			f.format("rm -f %s/%s\n", ec.getOutputDirectory(), ec.getExitCodeFileName());
+			f.format("rm -f ${UC_OUTPUT_DIRECTORY}/%s\n", ec.getExitCodeFileName());
 		}
 
 		// user-defined pre-command
@@ -199,14 +198,14 @@ public class TSIMessages {
 			String input = null;
 			input = ec.getStdin() != null ? ec.getStdin() : null;
 			if (input != null) {
-				exeBuilder.append(" < ").append(input);
+				exeBuilder.append(" < ${UC_WORKING_DIRECTORY}/").append(input);
 			}
 			commands.append(exeBuilder.toString()).append("\n");
 
 			// write the application exit code to a special file
 			commands.append("\n");
 			if(!_unittestnoexitcode){
-				f.format("echo $? > %s/%s\n", ec.getOutputDirectory(),ec.getExitCodeFileName());
+				f.format("echo $? > ${UC_OUTPUT_DIRECTORY}/%s\n", ec.getExitCodeFileName());
 			}
 		}
 		
@@ -340,7 +339,7 @@ public class TSIMessages {
 			commands.append("UC_OUTPUT_DIRECTORY=").append(ec.getOutputDirectory());
 			commands.append("; export UC_OUTPUT_DIRECTORY\n");
 		}
-		commands.append("cd $UC_WORKING_DIRECTORY\n");
+		commands.append("cd ${UC_WORKING_DIRECTORY}\n");
 
 		appendEnvironment(commands, ec, true);
 
@@ -359,19 +358,19 @@ public class TSIMessages {
 			commands.append("/dev/null");
 		}
 		else{
-			commands.append("$UC_OUTPUT_DIRECTORY/").append(ec.getStdout());
+			commands.append("${UC_OUTPUT_DIRECTORY}/").append(ec.getStdout());
 		}
 		commands.append(" 2> ");
 		if(ec.isDiscardOutput()){
 			commands.append("/dev/null");
 		}
 		else{
-			commands.append("$UC_OUTPUT_DIRECTORY/").append(ec.getStderr());
+			commands.append("${UC_OUTPUT_DIRECTORY}/").append(ec.getStderr());
 		}
 
-		commands.append("; echo $? > $UC_OUTPUT_DIRECTORY/").append(ec.getExitCodeFileName());
+		commands.append("; echo $? > ${UC_OUTPUT_DIRECTORY}/").append(ec.getExitCodeFileName());
 		commands.append(" ; } & ");
-		commands.append("echo $! > $UC_OUTPUT_DIRECTORY/").append(ec.getPIDFileName());
+		commands.append("echo $! > ${UC_OUTPUT_DIRECTORY}/").append(ec.getPIDFileName());
 		return template.replace("#SCRIPT", commands.toString());
 	}
 
@@ -820,11 +819,11 @@ public class TSIMessages {
 		f.format("#TSI_QUEUE %s\n", queue);
 		
 		// Set some resources as environment variables
-		f.format("#UC_NODES=%d; export UC_NODES\n", nodes);
-		f.format("#UC_PROCESSORS_PER_NODE=%d; export UC_PROCESSORS_PER_NODE\n", processors_per_node);
-		f.format("#UC_TOTAL_PROCESSORS=%d; export UC_TOTAL_PROCESSORS\n", total_processors);
-		f.format("#UC_RUNTIME=%d; export UC_RUNTIME\n", run_time);
-		f.format("#UC_MEMORY_PER_NODE=%d; export UC_MEMORY_PER_NODE\n", memory);
+		f.format("UC_NODES=%d; export UC_NODES\n", nodes);
+		f.format("UC_PROCESSORS_PER_NODE=%d; export UC_PROCESSORS_PER_NODE\n", processors_per_node);
+		f.format("UC_TOTAL_PROCESSORS=%d; export UC_TOTAL_PROCESSORS\n", total_processors);
+		f.format("UC_RUNTIME=%d; export UC_RUNTIME\n", run_time);
+		f.format("UC_MEMORY_PER_NODE=%d; export UC_MEMORY_PER_NODE\n", memory);
 
 		f.close();
 

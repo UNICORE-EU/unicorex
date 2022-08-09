@@ -24,7 +24,7 @@ import eu.unicore.util.configuration.PropertyMD;
 @Singleton
 public class IOProperties extends PropertiesHelper {
 
-	private static final Logger logger=Log.getLogger(Log.SERVICES, IOProperties.class);
+	private static final Logger logger=Log.getLogger(Log.CONFIGURATION, IOProperties.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX=XNJSProperties.PREFIX+"staging.";
@@ -48,7 +48,8 @@ public class IOProperties extends PropertiesHelper {
 	public static final String MAIL_WRAPPER="mailSendScript";
 	
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
+
 	static
 	{
 		META.put(FT_THREADS, new PropertyMD("4").setInt().setPositive().

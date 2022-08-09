@@ -24,7 +24,7 @@ import eu.unicore.util.configuration.PropertyMD;
 @Singleton
 public class LocalTSIProperties extends PropertiesHelper {
 
-	private static final Logger logger=Log.getLogger(Log.SERVICES, LocalTSIProperties.class);
+	private static final Logger logger=Log.getLogger(Log.CONFIGURATION, LocalTSIProperties.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX=XNJSProperties.PREFIX+"localtsi.";
@@ -38,7 +38,8 @@ public class LocalTSIProperties extends PropertiesHelper {
 	public final static String WORKER_THREADS = "workerThreads";
 	
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
+
 	static
 	{
 		META.put(JOBLIMIT, new PropertyMD("0").setInt().
