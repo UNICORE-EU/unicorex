@@ -11,16 +11,14 @@ import Utils
 
 class UserCache(object):
 
-    def __init__(self, cache_ttl, LOG, use_id_to_resolve_groups = False):
+    def __init__(self, cache_ttl, LOG, use_id_to_resolve_groups = True):
         self.cache_ttl = cache_ttl
         self.LOG = LOG
         self.all_groups = {}
-        self.groups_cache = {}
         self.uids = {}
         self.gids = {}
         self.homes = {}
         self.groups = {}
-        self.members = {}
         self.users_timestamps = {}
         self.groups_timestamps = {}
         self.use_id_to_resolve_groups = use_id_to_resolve_groups
@@ -64,15 +62,6 @@ class UserCache(object):
         else:
             return gid
 
-    # returns all members of a given group name
-    def get_members_4group(self, group):
-        self.prepare_groups(group)
-        members = self.members.get(group)
-        if members is None:
-            return []
-        else:
-            return members
-
     # returns primary gid for a username
     def get_gid_4user(self, user):
         self.prepare_users(user)
@@ -99,14 +88,15 @@ class UserCache(object):
     # Establish the list of all (including supplementary) groups the user
     # is member of.
     # Arguments: user name and primary group id.
-    def get_gids_4user_nc(self, user, gid):
+    def get_gids_4user_nc(self, user, gid, old_info = None):
         if self.use_id_to_resolve_groups:
             all_groups = self.get_gids_4user_via_id(user, gid)
         else:
             all_groups = self.get_gids_4user_via_getgrall(user, gid)
         
-        self.LOG.debug("Established groups list for the user %s : %s" % (
-            user, str(all_groups)))
+        if str(all_groups)!=str(old_info):
+            self.LOG.debug("Updated groups list for the user %s : %s" % (
+                user, str(all_groups)))
         return all_groups
     
     # implementation using grp.getgrall()
@@ -130,19 +120,14 @@ class UserCache(object):
     # Argument: group name
     def update_group_info(self, group):
         self.groups[group] = None
-        self.members[group] = None
         self.groups_timestamps[group] = None
         try:
             g = grp.getgrnam(group)
         except KeyError:
-            self.LOG.debug("Unknown group requested: %s" % group)
-            return []  # TODO is this the correct behaviour?
+            return
 
         self.groups[group] = g.gr_gid
-        self.members[group] = g.gr_mem
         self.groups_timestamps[group] = time.time()
-        self.LOG.debug("New group information obtained for %s (%s %s)" % (
-            group, g.gr_gid, g.gr_mem))
 
     # Fills up all per user caches with freshly obtained information
     # Argument: user name
@@ -150,18 +135,16 @@ class UserCache(object):
         self.uids[user] = None
         self.gids[user] = None
         self.homes[user] = None
+        old_group_info = self.all_groups.get(user, None)
         self.all_groups[user] = None
         self.users_timestamps[user] = None
         try:
-            (name, _, uid, gid, _, home, _) = pwd.getpwnam(user)
+            (_, _, uid, gid, _, home, _) = pwd.getpwnam(user)
         except KeyError:
             self.LOG.debug("No such user: %s" % user)
             return
-
-        self.LOG.debug(
-            "New user information obtained for %s (%s %s)" % (user, uid, gid))
         self.uids[user] = uid
         self.gids[user] = gid
         self.homes[user] = home
-        self.all_groups[user] = self.get_gids_4user_nc(user, gid)
+        self.all_groups[user] = self.get_gids_4user_nc(user, gid, old_group_info)
         self.users_timestamps[user] = time.time()

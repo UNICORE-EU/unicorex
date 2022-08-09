@@ -41,8 +41,8 @@ def check_membership(group, group_gid, user, config):
     enforce_os_gids = config['tsi.enforce_os_gids']
     user_cache = config['tsi.user_cache']
     if enforce_os_gids and group_gid != user_cache.get_gid_4user(user):
-        mem_list = user_cache.get_members_4group(group)
-        if user not in mem_list:
+        user_gids = user_cache.get_gids_4user(user)
+        if group_gid not in user_gids:
             return False
     return True
 
@@ -58,7 +58,7 @@ def get_primary_group(primary, user, user_cache, fail_on_invalid_gids, config,
                 raise RuntimeError("Attempt to run a task with an unknown "
                                    "primary group: %s" % primary)
             else:
-                LOG.warning("XNJS requested primary group %s, but it "
+                LOG.warning("UNICORE/X requested primary group %s, but it "
                           "is not available on the OS. Using default "
                           "for the user %s" % (primary, user))
                 new_gid = user_cache.get_gid_4user(user)
@@ -78,8 +78,6 @@ def get_primary_group(primary, user, user_cache, fail_on_invalid_gids, config,
 
 
 def get_supplementary_groups(requested_groups, primary, user, config, LOG):
-    LOG.debug("Supplementary groups for: request = %s primary = %s "
-              "user = %s" % (requested_groups, primary, user))
     user_cache = config['tsi.user_cache']
     fail_on_invalid_gids = config['tsi.fail_on_invalid_gids']
     sup_gids = {}
@@ -94,14 +92,13 @@ def get_supplementary_groups(requested_groups, primary, user, config, LOG):
                 for d in default_gids:
                     sup_gids[d] = True
         else:
-            LOG.debug("Checking group %s" % g)
             tmp = user_cache.get_gid_4group(g)
             if tmp == -1:
                 if fail_on_invalid_gids:
                     raise RuntimeError("Attempt to run a task with an unknown "
                                        "supplementary group %s" % g)
                 else:
-                    LOG.warning("XNJS requested supplementary "
+                    LOG.warning("UNICORE/X requested supplementary "
                               "group %s, but it is not available on the OS. "
                               "Ignoring." % g)
                     continue
@@ -206,9 +203,7 @@ def restore_id(config, LOG):
     """
     Restore the process' UID and GID to the stored values (usually root)
     """
-
     euid, egid = (config['tsi.effective_uid'], config['tsi.effective_gid'])
-    LOG.debug("Resetting ID to (%s %s)" % (euid, egid))
     setting_uids = config['tsi.switch_uid']
 
     if setting_uids:
