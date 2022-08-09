@@ -103,7 +103,7 @@ public class Jobs extends ServicesBase {
 			Builder job = new Builder(json);
 			TargetSystemImpl tss = findTSS(job);
 			String id = doSubmit(job, tss, kernel);
-			return Response.created(new URI(baseURL+"/"+id)).build();
+			return Response.created(new URI(baseURL+"/jobs/"+id)).build();
 		}catch(Exception ex){
 			int status = 500;
 			if (ex.getClass().isAssignableFrom(AuthorisationException.class)) {
@@ -198,7 +198,8 @@ public class Jobs extends ServicesBase {
 		Home home = kernel.getHome(UAS.TSS);
 		Client client = AuthZAttributeStore.getClient();
 		if(home.getAccessibleResources(client).size()==0){
-			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)home.getForUpdate(findTSF())){
+			Home tsfHome = kernel.getHome(UAS.TSF);
+			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)tsfHome.getForUpdate(findTSF())){
 				tsf.createTargetSystem();
 			}
 		}

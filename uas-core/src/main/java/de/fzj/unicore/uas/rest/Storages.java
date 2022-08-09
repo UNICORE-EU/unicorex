@@ -259,7 +259,8 @@ public class Storages extends ServicesBase {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response createSMS(String jsonString) throws Exception {
 		try{
-			try(StorageFactoryImpl smf = (StorageFactoryImpl)home.getForUpdate(findSMF())){
+			Home smfHome = kernel.getHome(UAS.SMF);
+			try(StorageFactoryImpl smf = (StorageFactoryImpl)smfHome.getForUpdate(findSMF())){
 				String id = StorageFactories.createSMS(smf,jsonString);
 				return Response.created(new URI(getBaseURL()+"/storages/"+id)).build();
 			}
