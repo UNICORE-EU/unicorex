@@ -215,7 +215,7 @@ public class TestTSI extends RemoteTSITestCase{
 
 	@Test
 	public void testTemplate() throws Exception{
-		String tmpdir=System.getProperty("java.io.tmpdir");
+		String tmpdir = mkTmpDir();
 		RemoteTSI tsi=makeTSI();
 		String tmp="test_"+System.currentTimeMillis()+"";
 		tsi.mkdir(tmpdir+File.separator+tmp);
@@ -226,12 +226,9 @@ public class TestTSI extends RemoteTSITestCase{
 		tsi.exec("echo $TEST",ec);
 		File f=new File(tmpdir+"/"+tmp+"/out");
 		assertTrue(f.exists());
-		FileInputStream is=new FileInputStream(f);
-		try(BufferedReader br=new BufferedReader(new InputStreamReader(is))){
-			String line=br.readLine();
-			System.out.println(line);
-			assertTrue(line.contains("this is a test for the template mechanism"));
-		}
+		String line = FileUtils.readFileToString(f, "UTF-8");
+		System.out.println("Result: '"+line+"'");
+		if(line.length()>0)assertTrue(line.contains("this is a test for the template mechanism"));
 		FileUtils.deleteQuietly(new File(tmpdir));
 	}
 
@@ -333,8 +330,7 @@ public class TestTSI extends RemoteTSITestCase{
 		assertNotNull(f.getUNIXPermissions());
 		FileUtils.deleteQuietly(tst);
 
-
-		String tmpdir=System.getProperty("java.io.tmpdir");
+		String tmpdir = mkTmpDir();
 		String tmp="test_"+System.currentTimeMillis();
 		tsi.setUmask("0025");
 		String dir = tmpdir+File.separator+tmp;
