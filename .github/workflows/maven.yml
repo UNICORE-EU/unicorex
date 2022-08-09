@@ -22,7 +22,7 @@ jobs:
     - uses: actions/upload-artifact@v3
       if: always()
       with:
-      name: test-output
-      path: |
+        name: test-output
+        path: |
           xnjs/target/tsi-logs/
           */target/surefire-reports/
