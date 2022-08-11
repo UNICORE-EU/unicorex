@@ -60,7 +60,6 @@ public class Tasks extends ServicesBase {
 	@Override
 	protected void updateLinks() {
 		super.updateLinks();
-		// TODO should be state-dependent
 		links.add(new Link("action:abort",getBaseURL()+"/tasks/"+resource.getUniqueID()+"/actions/abort","Abort"));
 	}
 

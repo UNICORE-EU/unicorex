@@ -14,7 +14,7 @@ public abstract class FiletransferClient extends BaseServiceClient {
 	}
 	
 	public Long getTransferredBytes() throws Exception {
-		return Long.parseLong(getProperties().getString("transferredBytes"));
+		return getProperties().getLong("transferredBytes");
 	}
 
 	public String getProtocol() throws Exception {

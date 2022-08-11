@@ -249,7 +249,6 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		IStorageAdapter sms = getStorageAdapter();
 		XnjsFile parent=sms.getProperties(s);
 		if(parent==null){
-			//create
 			sms.mkdir(s);
 		}
 		else if(!parent.isDirectory()){

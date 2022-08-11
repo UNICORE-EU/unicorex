@@ -76,11 +76,9 @@
           <excludes>
             <exclude>**/functional/**</exclude>
             <exclude>**/*$*</exclude>
-            <exclude>**/registry/TestRegistryDiscover</exclude>
           </excludes>
-          <forkMode>always</forkMode>
-          <useSystemClassloader>true</useSystemClassloader>
-          <failIfNoTests>false</failIfNoTests>
+          <forkCount>1</forkCount>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
     </plugins>

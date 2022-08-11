@@ -25,9 +25,14 @@ public class FileClient extends BaseServiceClient {
 	
 	public void chmod(String unixPermissions) throws Exception {
 		JSONObject o = new JSONObject();
-		o.put("unixPermissions", unixPermissions);
+		o.put("permissions", unixPermissions);
 		HttpResponse res = bc.put(o);
 		bc.checkError(res);
+		JSONObject reply = bc.asJSON(res);
+		String msg = reply.optString("permissions", "n/a");
+		if(!"OK".contentEquals(msg)) {
+			throw new Exception("Could not change permissions: "+msg);
+		}
 	}
 
 	public Map<String, String> getMetadata() throws Exception {

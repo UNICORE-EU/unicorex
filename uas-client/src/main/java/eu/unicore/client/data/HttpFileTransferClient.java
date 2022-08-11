@@ -184,10 +184,8 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 			if(result<200 || result >299 ){
 				throw new IOException("Can't write data, server returned "+status);
 			}
-			if(logger.isDebugEnabled()){
-				logger.debug("Total transferred bytes: "+totalBytesTransferred
-						+", HTTP return status "+status);
-			}
+			logger.debug("Total transferred bytes: {}, HTTP return status {}",
+					totalBytesTransferred, status);
 		}finally{
 			upload.releaseConnection();
 		}

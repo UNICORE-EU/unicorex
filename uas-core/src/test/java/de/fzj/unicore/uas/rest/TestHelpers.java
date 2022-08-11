@@ -27,7 +27,7 @@ import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
 import eu.unicore.util.httpclient.ClientProperties;
 
-public class TestVarious extends Base {
+public class TestHelpers extends Base {
 	String url;
 
 	@Test

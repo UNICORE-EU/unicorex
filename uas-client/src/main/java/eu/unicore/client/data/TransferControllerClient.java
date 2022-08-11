@@ -36,7 +36,7 @@ public class TransferControllerClient extends FiletransferClient {
 	}
 	
 	public Long getSize() throws Exception {
-		return Long.parseLong(getProperties().optString("size","-1"));
+		return getProperties().optLong("size", -1);
 	}
 
 	public boolean hasFailed() throws Exception {

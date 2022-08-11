@@ -11,6 +11,7 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.ServerToServerFileTransferImpl;
 import de.fzj.unicore.uas.fts.ServerToServerTransferModel;
 import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
+import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
@@ -54,7 +55,12 @@ public class Transfers extends ServicesBase {
 		o.put("status",resource.getStatus());
 		o.put("statusMessage", resource.getFiletransferStatusMessage());
 		o.put("transferredBytes",resource.getTransferredBytes());
-		o.put("size", resource.getDataSize());
+		if(Status.CREATED==resource.getStatus()) {
+			o.put("size", -1);
+		}
+		else {
+			o.put("size", resource.getDataSize());
+		}
 	}
 	
 	@Override

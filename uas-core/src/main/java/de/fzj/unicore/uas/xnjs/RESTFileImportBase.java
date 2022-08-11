@@ -58,8 +58,8 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 			setup();
 			getRemoteInfo();
 			collectFilesToTransfer();
-			preTransferSanityChecks();
 			info.setStatus(Status.RUNNING);
+			preTransferSanityChecks();
 			runTransfers();
 			setPermissions();
 			info.setStatus(Status.DONE);
