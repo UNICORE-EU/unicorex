@@ -8,6 +8,10 @@ single compute cluster (or just a file system).
 
 UNICORE/X requires
 
- * Java 8 or later
+ * Java 11 or later
  * a server certificate
 
+## Documentation
+
+See the [UNICORE/X manual] 
+(https://unicore-docs.readthedocs.io/en/latest/admin-docs/unicorex/index.html)

@@ -1,4 +1,4 @@
-package de.fzj.unicore.client.functional.cdmi;
+package de.fzj.unicore.uas.cdmi.functional;
 
 import static org.junit.Assert.assertTrue;
 

@@ -12,11 +12,14 @@
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicore-parent</artifactId>
-    <version>2.1</version>
+    <version>2.2</version>
   </parent>
 
   <scm>
-
+    <connection>scm:git:git://github.com/UNICORE-EU/unicorex.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/UNICORE-EU/unicorex.git</developerConnection>
+    <url>https://github.com/UNICORE-EU/unicorex</url>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
@@ -36,7 +39,7 @@
     <guice.version>5.1.0</guice.version>
     <guava.version>31.1-jre</guava.version>
     <jclouds.version>2.5.0</jclouds.version>
-    <groovy.version>4.0.3</groovy.version>
+    <groovy.version>4.0.4</groovy.version>
     <lucene.version>9.2.0</lucene.version>
     <tika.version>2.4.1</tika.version>
   </properties>
@@ -190,11 +193,11 @@
           </exclusion>
 	</exclusions>
       </dependency>
-    <dependency>
-      <groupId>org.apache.groovy</groupId>
-      <artifactId>groovy</artifactId>
-      <version>${groovy.version}</version>
-    </dependency>
+      <dependency>
+	<groupId>org.apache.groovy</groupId>
+	<artifactId>groovy</artifactId>
+	<version>${groovy.version}</version>
+      </dependency>
       <dependency>
 	<groupId>com.google.guava</groupId>
 	<artifactId>guava</artifactId>
@@ -228,7 +231,7 @@
             <groupId>javax.annotation</groupId>
             <artifactId>jsr250-api</artifactId>
           </exclusion>
-        </exclusions>
+	</exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -254,68 +257,22 @@
           </configuration>
         </plugin>
         <plugin>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.0-beta-9</version>
-          <configuration>
-            <tagBase>https://unicore.svn.sourceforge.net/svnroot/unicore/unicorex/tags</tagBase>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.8</version>
-          <configuration>
-	    <forkCount>1</forkCount>
-	    <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
-            <failIfNoTests>false</failIfNoTests>
-          </configuration>
-        </plugin>
-        <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-eclipse-plugin</artifactId>
           <configuration>
             <useProjectReferences>false</useProjectReferences>
           </configuration>
         </plugin>
-        <plugin>
+	<!-- report TODOs etc-->
+	<plugin>
           <groupId>org.codehaus.mojo</groupId>
-          <artifactId>cobertura-maven-plugin</artifactId>
+          <artifactId>taglist-maven-plugin</artifactId>
           <version>2.4</version>
           <configuration>
-            <instrumentation>
-              <excludes>
-                <!-- exclude generated xmlbeans code-->
-                <exclude>**/xmlbeans/**/*.class</exclude>
-                <exclude>de/fzj/unicore/uas/ft/http/HTTP*.class</exclude>
-                <exclude>de/fzj/unicore/uas/ft/http/HTTP*.class</exclude>
-                <exclude>eu/unicore/unicore6/**/*.class</exclude>
-                <exclude>org/unigrids/**/*.class</exclude>
-                <exclude>org/ogf/**/*.class</exclude>
-                <exclude>org/ggf/**/*.class</exclude>
-                <exclude>org/w3/**/*.class</exclude>
-                <exclude>com/intel/gpe/gridbeans/**/*.class</exclude>
-	        <exclude>schemaorg_apache_xmlbeans/**/*.class</exclude>
-              </excludes>
-            </instrumentation>
+            <linkXRef>false</linkXRef>
+            <aggregate>true</aggregate>
           </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>clean</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      <!-- report TODOs etc-->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>taglist-maven-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <linkXRef>false</linkXRef>
-          <aggregate>true</aggregate>
-        </configuration>
-      </plugin>
+	</plugin>
       </plugins>
     </pluginManagement>
   </build>

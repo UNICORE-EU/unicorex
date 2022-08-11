@@ -10,6 +10,7 @@ import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.Model;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.rest.client.UsernamePassword;
 import eu.unicore.util.httpclient.ClientProperties;
 
 /**
@@ -55,7 +56,7 @@ public class CDMIStorageAdapterFactory implements StorageAdapterFactory {
 		String tokenEndpoint = model.getTokenEndpoint();
 		IAuthCallback authCallback = tokenEndpoint!=null ? 
 				new KeystoneAuth(tokenEndpoint, username, password, kernel) : 
-				new BasicAuth(username, password);
+				new UsernamePassword(username, password);
 		return authCallback;
 	}
 

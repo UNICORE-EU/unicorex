@@ -128,7 +128,7 @@ public class CDMIClient extends BaseClient {
 			HttpResponse res = execute(put);
 			int code = res.getStatusLine().getStatusCode();
 			if(logger.isDebugEnabled()){
-				logger.debug("Created directory <"+dir+"> : "+res.getStatusLine());
+				logger.debug("Created directory <{}>: {}", dir, res.getStatusLine());
 			}
 			if(code>299)throw new IOException("Could not create <"+dir+"> : "+res.getStatusLine().toString());
 		}finally{
@@ -153,9 +153,7 @@ public class CDMIClient extends BaseClient {
 			put.setEntity(new StringEntity(object.toString()));
 			HttpResponse res = execute(put);
 			int code = res.getStatusLine().getStatusCode();
-			if(logger.isDebugEnabled()){
-				logger.debug("Wrote to URI <"+uri+"> : "+res.getStatusLine());
-			}
+			logger.debug("Wrote to URI <"+uri+"> : "+res.getStatusLine());
 			if(code>299)throw new IOException(res.getStatusLine().toString());
 		}finally{
 			put.reset();
@@ -167,16 +165,14 @@ public class CDMIClient extends BaseClient {
 		if(offset>-1){
 			uri += "?valuetransferencoding;value:bytes="+offset+"-"+(length-1);
 		}
-		if(logger.isDebugEnabled())logger.debug("Reading "+uri);
+		logger.debug("Reading {}", uri);
 		HttpGet get = new HttpGet(uri);
 		try{
 			get.setHeader("Accept", CDMI_OBJECT.toString());
 			get.setHeader("Content-Type", CDMI_OBJECT.toString());
 			HttpResponse res = execute(get);
 			checkError(res);
-			if(logger.isDebugEnabled()){
-				logger.debug("Read from to URI <"+uri+"> : "+res.getStatusLine());
-			}
+			logger.debug("Read from to URI <{}> : {}", uri, res.getStatusLine());
 			JSONObject j = asJSON(res);
 			boolean isBase64 = "base64".equals(j.getString("valuetransferencoding"));
 			String val = j.getString("value");

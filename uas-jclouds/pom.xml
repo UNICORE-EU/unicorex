@@ -55,9 +55,7 @@
           <excludes>
             <exclude>**/functional/**</exclude>
           </excludes>
-          <forkMode>pertest</forkMode>
-          <useSystemClassloader>true</useSystemClassloader>
-        </configuration>
+          </configuration>
       </plugin>
     </plugins>
   </build>

@@ -1,4 +1,4 @@
-package de.fzj.unicore.uas.jclouds;
+package de.fzj.unicore.uas;
 
 import static org.junit.Assert.assertTrue;
 
@@ -9,7 +9,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
-import de.fzj.unicore.uas.UAS;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.registry.RegistryClient;

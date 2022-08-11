@@ -8,8 +8,8 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import de.fzj.unicore.uas.Base;
 import de.fzj.unicore.uas.UAS;
-import de.fzj.unicore.uas.jclouds.Base;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.HttpFileTransferClient;
