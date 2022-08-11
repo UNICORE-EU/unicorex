@@ -75,10 +75,8 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 				sad.enabled=newSettings.enabled;
 				if(sad.updateInterval!=newSettings.updateInterval){
 					sad.updateInterval=newSettings.updateInterval;
-					if(logger.isDebugEnabled()){
-						logger.debug("Update interval for directory scan <"+action.getUUID()+"> changed to "
-								+sad.updateInterval);
-					}
+					logger.debug("Update interval for directory scan <{}> changed to {}",
+							action.getUUID(), sad.updateInterval);
 				}
 				action.setDirty();
 			}
@@ -111,25 +109,19 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 			Client client = new Client();
 			Xlogin xlogin = new Xlogin(new String[]{directory.getOwner()});
 			client.setXlogin(xlogin);
-			if(logger.isDebugEnabled()){
-				logger.debug("Running trigger on <"+directory+"> using uid <"+directory.getOwner()+">");	
-			}
+			logger.debug("Running trigger on <{}> using uid <{}>", directory, directory.getOwner());	
 			IStorageAdapter storage = getStorageAdapter(client);
 			RuleFactory rf=new RuleFactory(storage, storageUID);
 			ScanSettings settings=rf.parseSettings(dir);
 			if(settings == null){
-				if(logger.isDebugEnabled()){
-					logger.debug("No trigger settings for <"+dir+">");
-				}
+				logger.debug("No trigger settings for <{}>", dir);
 				return;
 			}
 			RuleSet rules=rf.getRules(dir);
 			XnjsFile[]files=findFiles(settings, dir,client);
 			if(files.length>0){
 				TriggerRunner tr=new TriggerRunner(files, rules, storage, client, xnjs);
-				if(logger.isDebugEnabled()){
-					logger.debug("Executing trigger run on <"+files.length+"> files.");	
-				}
+				logger.debug("Executing trigger run on <{}> files.", files.length);	
 				getKernel().getContainerProperties().getThreadingServices().getExecutorService().submit(tr);
 			}
 		}catch(Exception ex){
@@ -152,15 +144,10 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 		long lastRun = getLastRun();
 		long graceMillis = 500*settings.gracePeriod;
 		
-		if(logger.isDebugEnabled()){
-			logger.debug("Last run "+lastRun);
-		}
-		List<XnjsFile>files = new ArrayList<XnjsFile>();
+		List<XnjsFile>files = new ArrayList<>();
 		
 		boolean includeCurrentDir=matches(baseDir,settings);
-		if(logger.isDebugEnabled()){
-			logger.debug("Include files in "+baseDir+" : "+includeCurrentDir);
-		}
+		logger.debug("Include files in {}: {}", baseDir, includeCurrentDir);
 		IStorageAdapter storage=getStorageAdapter(client);
 		XnjsFile[]xFiles=storage.ls(baseDir);
 		for(XnjsFile xf: xFiles){
@@ -177,14 +164,12 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 						&& lastMod >= lastRun 
 						&& lastMod+graceMillis < System.currentTimeMillis())
 				{
-					if(logger.isDebugEnabled()){
-						logger.debug("Adding: "+xf.getPath());
-					}
+					logger.debug("Adding: {}", xf.getPath());
 					files.add(xf);
 				}
 				else{
-					if(logger.isDebugEnabled() && includeCurrentDir){
-						logger.debug("Skipping : "+xf.getPath()+ " lastModified "+lastMod);
+					if(includeCurrentDir){
+						logger.debug("Skipping : {} lastModified {}", xf.getPath(), lastMod);
 					}
 				}
 			}
@@ -207,7 +192,7 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 	 */
 	protected XnjsFile[] findDirectories(ScanSettings settings, String baseDir, 
 			Client client)throws Exception {
-		List<XnjsFile>result = new ArrayList<XnjsFile>();
+		List<XnjsFile>result = new ArrayList<>();
 		IStorageAdapter storage=getStorageAdapter(client);
 		XnjsFile[]xFiles=storage.ls(baseDir);
 		for(XnjsFile xf: xFiles){
@@ -293,7 +278,7 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 		return res;
 	}
 
-	private Map<String, Pattern>patterns=new HashMap<String, Pattern>();
+	private Map<String, Pattern>patterns=new HashMap<>();
 
 	private Pattern getPattern(String expr){
 		Pattern p=patterns.get(expr);

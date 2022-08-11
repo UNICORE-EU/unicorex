@@ -75,10 +75,8 @@ public class TriggerProcessor extends DefaultProcessor {
 				sad.enabled=newSettings.enabled;
 				if(sad.updateInterval!=newSettings.updateInterval){
 					sad.updateInterval=newSettings.updateInterval;
-					if(logger.isDebugEnabled()){
-						logger.debug("Update interval for directory scan <"+action.getUUID()+"> changed to "
-								+sad.updateInterval);
-					}
+					logger.debug("Update interval for directory scan <{}> changed to {}",
+							action.getUUID(), sad.updateInterval);
 				}
 				action.setDirty();
 			}
@@ -89,9 +87,7 @@ public class TriggerProcessor extends DefaultProcessor {
 					if(files.length>0){
 						TriggerRunner tr=new TriggerRunner(files, rules, getStorageAdapter(), action.getClient(), xnjs);
 						getKernel().getContainerProperties().getThreadingServices().getExecutorService().submit(tr);
-						if(logger.isDebugEnabled()){
-							logger.debug("Executing trigger run on <"+files.length+"> files.");	
-						}
+						logger.debug("Executing trigger run on <{}> files.", files.length);	
 					}
 					updateLastRunTime(thisRun-1000*sad.gracePeriod);
 				}catch(Exception ex){
@@ -135,12 +131,10 @@ public class TriggerProcessor extends DefaultProcessor {
 		if(logger.isDebugEnabled()){
 			logger.debug("Last run "+lastRun);
 		}
-		List<XnjsFile>files = new ArrayList<XnjsFile>();
+		List<XnjsFile>files = new ArrayList<>();
 		
 		boolean includeCurrentDir=matches(baseDir,settings);
-		if(logger.isDebugEnabled()){
-			logger.debug("Include files in "+baseDir+" : "+includeCurrentDir);
-		}
+		logger.debug("Include files in {}: {}", baseDir, includeCurrentDir);
 		IStorageAdapter storage=getStorageAdapter();
 		XnjsFile[]xFiles=storage.ls(baseDir);
 		for(XnjsFile xf: xFiles){
@@ -157,14 +151,12 @@ public class TriggerProcessor extends DefaultProcessor {
 						&& lastMod >= lastRun 
 						&& lastMod+graceMillis < System.currentTimeMillis())
 				{
-					if(logger.isDebugEnabled()){
-						logger.debug("Adding: "+xf.getPath());
-					}
+					logger.debug("Adding: {}", xf.getPath());
 					files.add(xf);
 				}
 				else{
-					if(logger.isDebugEnabled() && includeCurrentDir){
-						logger.debug("Skipping : "+xf.getPath()+ " lastModified "+lastMod);
+					if(includeCurrentDir){
+						logger.debug("Skipping : {} lastModified {}", xf.getPath(), lastMod);
 					}
 				}
 			}
@@ -174,7 +166,7 @@ public class TriggerProcessor extends DefaultProcessor {
 	}
 
 	protected long getLastRun(){
-		Long l=(Long)action.getProcessingContext().get(LAST_RUN_TIME);
+		Long l = action.getProcessingContext().getAs(LAST_RUN_TIME, Long.class);
 		return l!=null? l.longValue() : 0;
 	}
 
