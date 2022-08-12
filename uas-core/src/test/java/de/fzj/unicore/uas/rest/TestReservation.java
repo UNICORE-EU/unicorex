@@ -1,31 +1,29 @@
 package de.fzj.unicore.uas.rest;
 
-import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
-import eu.unicore.client.Endpoint;
-import eu.unicore.client.core.CoreClient;
-import eu.unicore.client.core.SiteClient;
+import eu.unicore.client.Job;
+import eu.unicore.client.Job.Resources;
+import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.UsernamePassword;
 
-/**
- * TBD
- */
 public class TestReservation extends Base {
 
 	@Test
 	public void test1() throws Exception{
-		CoreClient c = new CoreClient(
-				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+		BaseClient c = new BaseClient(
+				kernel.getContainerProperties().getContainerURL()+"/rest/core/reservations",
 				kernel.getClientConfiguration(),
 				new UsernamePassword("demouser", "test123"));
-		SiteClient tss = c.getSiteFactoryClient().getOrCreateSite();
-
-		//as our config uses a dummy reservation module, we support reservations
-		assertTrue(Boolean.parseBoolean(tss.getProperties().getString("supportsReservation")));
-			
+		Job j = new Job();
+		Resources r = j.resources();
+		r.runtime("60m");
+		r.nodes(1);
+		String url = c.create(j.getJSON());
+		BaseClient c2 = new BaseClient(url, kernel.getClientConfiguration(),
+				new UsernamePassword("demouser", "test123"));
+		System.out.println(c2.getJSON().toString(2));
 	}
 
 }

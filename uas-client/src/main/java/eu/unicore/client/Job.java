@@ -338,7 +338,6 @@ public class Job {
 		INTERACTIVE,
 		RAW,
 		ALLOCATE,
-		IN_ALLOCATION
 	}
 
 }

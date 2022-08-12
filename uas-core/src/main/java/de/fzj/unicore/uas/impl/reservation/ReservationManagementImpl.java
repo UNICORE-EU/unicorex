@@ -6,11 +6,12 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
+import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
-import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
+import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 
 /**
@@ -75,19 +76,6 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 		catch(Exception e){
 			LogUtil.logException("Could not send internal message.",e,logger);
 		}
-		try{
-			ReservationModel m = getModel();
-			Client client=getClient();
-			//TODO LOCAL call flag should be always set EXCEPT when call comes from the outside
-			if(Client.Type.LOCAL==client.getType() || Client.Type.ANONYMOUS==client.getType()){
-				client.setXlogin(m.xlogin);
-				logger.info("Cancelling reservation "+m.reservationReference+" using xlogin "+m.xlogin);
-			}
-			getXNJSFacade().getReservation().cancelReservation(m.reservationReference, getClient());
-		}
-		catch(Exception e){
-			LogUtil.logException("Could not cancel resource reservation.",e,logger);
-		}
 		super.destroy();
 	}
 
@@ -101,5 +89,29 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 			lastUpdate=System.currentTimeMillis();
 		}
 		return reservationStatus;
+	}
+
+	public void cancel()throws Exception{
+		try{
+			getXNJSFacade().getReservation().cancelReservation(getModel().reservationReference, getClient());
+		}
+		catch(Exception e){
+			LogUtil.logException("Could not cancel resource reservation.",e,logger);
+		}
+	}
+
+	private Action xnjsAction;
+
+	/**
+	 * Get the underlying XNJS action
+	 */
+	public synchronized Action getXNJSAction(){
+		if(xnjsAction == null){
+			xnjsAction = getXNJSFacade().getAction(getUniqueID());
+			if(xnjsAction==null){
+				throw new ResourceUnknownException();
+			}
+		}
+		return xnjsAction;
 	}
 }

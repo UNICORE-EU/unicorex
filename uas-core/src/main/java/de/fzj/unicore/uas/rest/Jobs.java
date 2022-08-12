@@ -1,13 +1,13 @@
 package de.fzj.unicore.uas.rest;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -21,7 +21,6 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.impl.job.JobModel;
-import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.json.Builder;
@@ -31,6 +30,7 @@ import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.tsi.IExecution;
+import eu.unicore.client.Job;
 import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
@@ -101,7 +101,7 @@ public class Jobs extends ServicesBase {
 		try{
 			checkSubmissionEnabled(kernel);
 			Builder job = new Builder(json);
-			TargetSystemImpl tss = findTSS(job);
+			TargetSystemImpl tss = Sites.findTSS(kernel);
 			String id = doSubmit(job, tss, kernel);
 			return Response.created(new URI(baseURL+"/jobs/"+id)).build();
 		}catch(Exception ex){
@@ -113,6 +113,50 @@ public class Jobs extends ServicesBase {
 		}
 	}
 
+	/**
+	 * For allocations, this allows to submit a job into the
+	 * allocation. If this is not an allocation job, an error
+	 * will be raised
+	 *
+	 * @param json - JSON job
+	 * @return address of new resource
+	 *
+	 * @throws JSONException
+	 * @throws PersistenceException
+	 */
+	@POST
+	@Path("/{uniqueID}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@ConcurrentAccess(allow=true)
+	public Response submitIntoAllocation(String json, @PathParam("uniqueID")String id) throws Exception {
+		try{
+			Builder job = new Builder(json);
+			job.setJobType(Job.Type.INTERACTIVE);
+			Action action = getResource().getXNJSAction();
+			if(!action.getApplicationInfo().isAllocateOnly()) {
+				throw new Exception("This job is not an allocation.");
+			}
+			if(ActionStatus.RUNNING!=action.getStatus()) {
+				throw new Exception("Allocation is not active. Status is "+
+						ActionStatus.toString(action.getStatus()));
+			}
+			String bssID =  action.getBSID();
+			if(bssID==null){
+				throw new Exception("Allocation ID cannot be null.");
+			}
+			// TODO hardcoded Slurm variable - will fix eventually
+			job.getParameters().put("SLURM_JOB_ID", bssID);
+			job.getParameters().put("UC_BSS_ALLOCATION_ID", bssID);
+			Home tssHome = (TargetSystemHomeImpl)kernel.getHome(UAS.TSS);
+			String tssID = getModel().getParentUID();
+			TargetSystemImpl tss = (TargetSystemImpl)tssHome.get(tssID);
+			Jobs.checkSubmissionEnabled(kernel);
+			String jobID = Jobs.doSubmit(job, tss, kernel);
+			return Response.created(new URI(getBaseURL()+"/jobs/"+jobID)).build();
+		}catch(Exception ex){
+			return handleError("Could not submit task into allocation", ex, logger);
+		}
+	}
 	@Override
 	protected void doHandleAction(String action, JSONObject param) throws Exception {
 		JobManagementImpl job = getResource();
@@ -192,30 +236,6 @@ public class Jobs extends ServicesBase {
 
 		links.add(new Link("workingDirectory", baseURL+"/storages/"+model.getUspaceId(), "Working directory"));
 		links.add(new Link("parentTSS", baseURL+"/sites/"+model.getParentUID(), "Parent TSS"));
-	}
-
-	synchronized TargetSystemImpl findTSS(Builder job) throws Exception {
-		Home home = kernel.getHome(UAS.TSS);
-		Client client = AuthZAttributeStore.getClient();
-		if(home.getAccessibleResources(client).size()==0){
-			Home tsfHome = kernel.getHome(UAS.TSF);
-			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)tsfHome.getForUpdate(findTSF())){
-				tsf.createTargetSystem();
-			}
-		}
-		String tss = home.getAccessibleResources(client).get(0);
-		return (TargetSystemImpl)home.get(tss);
-	}
-
-	synchronized String findTSF() throws PersistenceException {
-		Home home = kernel.getHome(UAS.TSF);
-		Client client = AuthZAttributeStore.getClient();
-		List<String> tsfs = home.getAccessibleResources(client);
-		if(tsfs == null|| tsfs.size() == 0){
-			throw new AuthorisationException("There are no accessible targetsystem factories for: " +client+
-					" Please check your security setup!");
-		}
-		return tsfs.get(0);
 	}
 
 	/**

@@ -122,7 +122,7 @@ public class StorageClient extends BaseServiceClient {
 		}
 		List<String> result = new ArrayList<>();
 		JSONObject links = searchResult.getJSONObject("_links");
-		for(String name: JSONObject.getNames(links)) {
+		for(String name: links.keySet()) {
 			if(name.startsWith("search-result")) {
 				result.add(links.getJSONObject(name).getString("href"));
 			}

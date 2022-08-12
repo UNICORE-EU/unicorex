@@ -37,6 +37,7 @@ public class CoreServices extends Application implements USERestApplication {
 		classes.add(Storages.class);
 		classes.add(StorageFactories.class);
 		classes.add(Jobs.class);
+		classes.add(Reservations.class);
 		classes.add(Transfers.class);
 		classes.add(ClientTransfers.class);
 		classes.add(Tasks.class);

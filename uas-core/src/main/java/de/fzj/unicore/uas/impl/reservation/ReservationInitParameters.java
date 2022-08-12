@@ -13,6 +13,8 @@ public class ReservationInitParameters extends BaseInitParameters {
 	
 	public String tssReference;
 
+	public boolean isBSSAllocation = true;
+
 	public ReservationInitParameters() {
 		super(null,TerminationMode.DEFAULT);
 	}

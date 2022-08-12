@@ -186,6 +186,15 @@ public class Builder {
 		json.put("Job type", jobType.toString());
 	}
 
+	public JSONObject getParameters() {
+		JSONObject parameters = json.optJSONObject("Parameters");
+		if(parameters==null) {
+			parameters = new JSONObject();
+			json.put("Parameters", parameters);
+		}
+		return parameters;
+	}
+
 	public void writeTo(Writer os) {
 		try{
 			os.write(json.toString(2)+"\n");

@@ -62,12 +62,10 @@ import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.json.JSONParser;
-import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
-import eu.unicore.services.Kernel;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.exceptions.TerminationTimeChangeRejectedException;
@@ -357,44 +355,6 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 	@Override
 	public void setUmask(String umask){
 		getModel().setUmask(umask);
-		Client client=getClient();
-		TSI ret = XNJSFacade.get(getModel().getXnjsReference(), kernel).getTargetSystemInterface(client);
-		ret.setUmask(umask);
-	}
-
-	public void deleteJobs(List<String>jobs) {
-		List<String>toRemove=new ArrayList<String>();
-		List<String>jobIDs = getModel().getJobIDs();
-		for(String j: jobs){
-			if(jobIDs.contains(j))toRemove.add(j);
-		}
-		Runnable r = new AsyncJobDelete(kernel, toRemove);
-		logger.info("Deleting jobs for <"+getClient().getDistinguishedName()+"> : "+toRemove);
-		kernel.getContainerProperties().getThreadingServices().getExecutorService().execute(r);
-		jobIDs.removeAll(toRemove);
-	}
-
-	public static class AsyncJobDelete implements Runnable{
-
-		private final Kernel kernel;
-
-		private final List<String>toRemove;
-
-		public AsyncJobDelete(Kernel kernel, List<String>toRemove){
-			this.kernel=kernel;
-			this.toRemove=toRemove;
-		}
-		public void run(){
-			Home home=kernel.getHome(UAS.JMS);
-			for(String j: toRemove){
-				try{
-					home.getForUpdate(j).destroy();
-					home.destroyResource(j);
-				}catch(Exception ex){
-					Log.logException("Could not destroy job "+j, ex, logger);
-				}
-			}
-		}
 	}
 
 }

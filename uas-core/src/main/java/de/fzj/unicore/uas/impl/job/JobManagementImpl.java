@@ -54,7 +54,7 @@ import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 
 /**
- * implements a Job resource, and allows job management through WSRF
+ * implements a Job resource
  * 
  * @author schuller
  */
@@ -73,12 +73,12 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	
 	public void start() throws Exception {
 		getXNJSFacade().getManager().run(getUniqueID(), AuthZAttributeStore.getClient());
-		logger.info("Started "+getUniqueID());
+		logger.info("Started {}", getUniqueID());
 	}
 	
 
 	public void abort() throws Exception {
-		getXNJSFacade().getManager().abort(getUniqueID(),	AuthZAttributeStore.getClient());
+		getXNJSFacade().getManager().abort(getUniqueID(), AuthZAttributeStore.getClient());
 	}
 	
 	@Override
@@ -87,7 +87,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	}
 	
 	/**
-	 * initialise the new WS Resource<br>
+	 * initialise the new job resource<br>
 	 * this will submit the job to the XNJS and setup the Job's resource properties
 	 */
 	@Override
@@ -110,7 +110,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		if(!initParams.no_xnjs_submit){
 			Client client = AuthZAttributeStore.getClient();
 			getXNJSFacade().getManager().add(action, client);
-			logger.info("Submitted job with id "+action.getUUID()+ " for client "+client);
+			logger.info("Submitted job with id {} for client {}", action.getUUID(), client);
 		}
 		
 		m.setUspaceId(createUspace(action));
@@ -162,7 +162,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		description.setCleanup(false);
 		description.setDisableMetadata(true);
 		description.setEnableTrigger(false);
-		description.setDescription("Job's workspace");
+		description.setDescription("Job workspace");
 		init.storageDescription = description;
 		init.xnjsReference = getXNJSReference();
 		init.acl = getModel().getAcl();
@@ -182,8 +182,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	private Action xnjsAction;
 	
 	/**
-	 * Get the underlying XNJS action. This is cached between calls to this method
-	 * in order to speed up access, e.g. for rendering the resource properties
+	 * Get the underlying XNJS action
 	 */
 	public synchronized Action getXNJSAction(){
 		if(xnjsAction == null){

@@ -73,6 +73,7 @@ public class Base extends ApplicationBaseResource {
 
 	final static String[] resources = new String[]{
 			"factories","sites","jobs",
+			"reservations",
 			"storages","storagefactories",
 			"transfers","client-server-transfers", 
 			"tasks"
@@ -80,6 +81,7 @@ public class Base extends ApplicationBaseResource {
 
 	final static String[] serviceNames = new String[]{
 			UAS.TSF, UAS.TSS, UAS.JMS,
+			UAS.RESERVATIONS,
 			UAS.SMS, UAS.SMF, 
 			UAS.SERVER_FTS, UAS.CLIENT_FTS,
 			UAS.TASK,

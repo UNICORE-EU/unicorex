@@ -30,9 +30,9 @@ import de.fzj.unicore.uas.json.Builder;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
-import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.PagingHelper;
 import eu.unicore.services.rest.RESTUtils;
@@ -73,13 +73,13 @@ public class Sites extends ServicesBase {
 		props.put("resources", resources);
 		
 		Client client = AuthZAttributeStore.getClient();
-		List<String> apps = new ArrayList<String>();
+		List<String> apps = new ArrayList<>();
 		for(ApplicationInfo app: tss.getXNJSFacade().getDefinedApplications(client)){
 			apps.add(app.getName()+IDBContentRendering.appSeparator+app.getVersion());
 		}
 		props.put("applications", apps);
 		
-		Map<String,String> textInfo = new HashMap<String, String>();
+		Map<String,String> textInfo = new HashMap<>();
 		textInfo.putAll(idb.getTextInfoProperties());
 		props.put("otherInfo", textInfo);
 		
@@ -130,28 +130,14 @@ public class Sites extends ServicesBase {
 	public Response createTSS(String jsonString) throws Exception {
 		try{
 			Home tsfHome = kernel.getHome(UAS.TSF);
-			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)tsfHome.getForUpdate(findTSF())){
+			String tsfID = SiteFactories.findTSF(kernel);
+			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)tsfHome.getForUpdate(tsfID)){
 				String id = SiteFactories.createTSS(tsf,jsonString);
 				return Response.created(new URI(getBaseURL()+"/sites/"+id)).build();
 			}
 		}catch(Exception ex){
 			return handleError("Could not create TSS",ex,logger);
 		}
-	}
-	
-	// returns the ID of the first available TSF instance (usually there will be just one!)
-	synchronized String findTSF() throws PersistenceException {
-		Home home = kernel.getHome(UAS.TSF);
-		if(home == null)
-			throw new IllegalStateException("TargetSystemFactory service is not available at this site!");	
-		
-		Client client = AuthZAttributeStore.getClient();
-		List<String> tsfs = home.getAccessibleResources(client);
-		if(tsfs == null|| tsfs.size() == 0){
-			throw new AuthorisationException("There are no accessible targetsystem factories for: " +client+
-					" Please check your security setup!");
-		}
-		return tsfs.get(0);
 	}
 	
 	@Override
@@ -224,6 +210,20 @@ public class Sites extends ServicesBase {
 	public Applications getApplicationResource() {
 		String appURL = getBaseURL()+"/"+getResourcesName()+"/"+resourceID+"/applications";
 		return new Applications(kernel, getModel().getXnjsReference(), appURL);
+	}
+
+	public static synchronized TargetSystemImpl findTSS(Kernel kernel) throws Exception {
+		Home home = kernel.getHome(UAS.TSS);
+		Client client = AuthZAttributeStore.getClient();
+		if(home.getAccessibleResources(client).size()==0){
+			String tsfID = SiteFactories.findTSF(kernel);
+			Home tsfHome = kernel.getHome(UAS.TSF);
+			try(TargetSystemFactoryImpl tsf = (TargetSystemFactoryImpl)tsfHome.getForUpdate(tsfID)){
+				tsf.createTargetSystem();
+			}
+		}
+		String tss = home.getAccessibleResources(client).get(0);
+		return (TargetSystemImpl)home.get(tss);
 	}
 
 }

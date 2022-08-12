@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
+import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TSFModel;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
@@ -23,7 +24,10 @@ import de.fzj.unicore.uas.util.UnitParser;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
+import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
+import eu.unicore.services.Home;
+import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
@@ -56,13 +60,13 @@ public class SiteFactories extends ServicesBase {
 		props.put("resources", resources);
 
 		Client client = AuthZAttributeStore.getClient();
-		List<String> apps = new ArrayList<String>();
+		List<String> apps = new ArrayList<>();
 		for(ApplicationInfo app: tsf.getXNJSFacade().getDefinedApplications(client)){
 			apps.add(app.getName()+IDBContentRendering.appSeparator+app.getVersion());
 		}
 		props.put("applications", apps);
 
-		Map<String,String> textInfo = new HashMap<String, String>();
+		Map<String,String> textInfo = new HashMap<>();
 		textInfo.putAll(idb.getTextInfoProperties());
 		props.put("otherInfo", textInfo);
 		try {
@@ -129,4 +133,18 @@ public class SiteFactories extends ServicesBase {
 		return tsf.createTargetSystem(tt,parameters);
 	}
 
+	// returns the ID of the first available TSF instance (usually there will be just one!)
+	public static synchronized String findTSF(Kernel kernel) throws PersistenceException {
+		Home home = kernel.getHome(UAS.TSF);
+		if(home == null) {
+			throw new IllegalStateException("TargetSystemFactory service is not available at this site!");
+		}
+		Client client = AuthZAttributeStore.getClient();
+		List<String> tsfs = home.getAccessibleResources(client);
+		if(tsfs == null|| tsfs.size() == 0){
+			throw new AuthorisationException("There are no accessible targetsystem factories for: " +client+
+					" Please check your security setup!");
+		}
+		return tsfs.get(0);
+	}
 }

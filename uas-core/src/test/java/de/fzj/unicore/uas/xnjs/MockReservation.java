@@ -1,6 +1,5 @@
 package de.fzj.unicore.uas.xnjs;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -8,9 +7,11 @@ import java.util.Map;
 
 import com.google.inject.Inject;
 
+import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.idb.Incarnation;
+import de.fzj.unicore.xnjs.json.JSONParser;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.ReservationStatus;
@@ -21,7 +22,7 @@ import eu.unicore.services.utils.Utilities;
 
 public class MockReservation implements IReservation {
 
-	private static Map<String, ReservationStatus> reservations=new HashMap<String, ReservationStatus>();
+	private static Map<String, ReservationStatus> reservations=new HashMap<>();
 
 	public static String lastTSICommand;
 	
@@ -79,12 +80,6 @@ public class MockReservation implements IReservation {
 	}
 
 	public List<ResourceRequest> parseResourceRequest(Map<String,String> source) throws Exception {
-		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
-		if(source!=null) {
-			for(Map.Entry<String, String> e: source.entrySet()) {
-				req.add(new ResourceRequest(e.getKey(), e.getValue()));
-			}
-		}
-		return req;
+		return new JSONParser().parseResourceRequest(JSONUtil.asJSON(source));
 	}
 }
