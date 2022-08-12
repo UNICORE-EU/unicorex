@@ -36,4 +36,17 @@ public class SiteClient extends BaseServiceClient {
 		Endpoint ep = endpoint.cloneTo(url);
 		return new EnumerationClient(ep, security, auth);
 	}
+
+	public AllocationClient createAllocation(JSONObject allocation) throws Exception {
+		HttpResponse resp = bc.post(allocation);
+		bc.checkError(resp);
+		if(201 != resp.getStatusLine().getStatusCode()){
+			throw new Exception("Unexpected return status: "+
+					resp.getStatusLine().getStatusCode());
+		}
+		String url = resp.getFirstHeader("Location").getValue();
+		Endpoint ep = endpoint.cloneTo(url);
+		return new AllocationClient(ep, security, auth);
+	}
+
 }

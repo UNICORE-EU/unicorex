@@ -190,8 +190,8 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
 	public ApplicationMetadata parseApplicationMetadata(JSONObject source) throws Exception {
 		ApplicationMetadata meta = new ApplicationMetadata();
-		if(source!=null && JSONObject.getNames(source)!=null) {
-			for(String name: JSONObject.getNames(source)) {
+		if(source!=null) {
+			for(String name: source.keySet()) {
 				JSONObject optionJ = source.getJSONObject(name);
 				meta.getOptions().add(parseOptionDescription(name, optionJ));
 			}
@@ -204,9 +204,9 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	}
 
 	public List<ResourceRequest> parseResourceRequest(JSONObject source) throws Exception {
-		List<ResourceRequest> req = new ArrayList<ResourceRequest>();
+		List<ResourceRequest> req = new ArrayList<>();
 		if(source!=null && source.length()>0) {
-			for(String name: JSONObject.getNames(source)) {
+			for(String name: source.keySet()) {
 				String value = parseResourceValue(name, String.valueOf(source.get(name)));
 				if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
 				req.add(new ResourceRequest(name, value));
@@ -252,7 +252,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		p.setCpuArchitecture(source.optString("CPUArchitecture", "x86"));
 		p.setDefaultPartition(source.optBoolean("IsDefaultPartition", false));
 		JSONObject resources = source.getJSONObject("Resources");
-		for(String resource: JSONObject.getNames(resources)) {
+		for(String resource: resources.keySet()) {
 			JSONObject spec = resources.optJSONObject(resource);
 			if(spec!=null) {
 				p.getResources().putResource(createResource(resource, spec));	
@@ -353,7 +353,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return new IntResource(name, valI,maxI,minI, ResourceSet.getCategory(name));
 	}
 	
-	protected UnitParser getUnitParser(String resourceName) {
+	public static UnitParser getUnitParser(String resourceName) {
 		if(ResourceSet.RUN_TIME.equalsIgnoreCase(resourceName)) {
 			return UnitParser.getTimeParser(0);
 		}

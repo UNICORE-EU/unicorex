@@ -91,7 +91,7 @@ public class JSONUtils {
 	}
 	
 	public static boolean hasKey(JSONObject source, String... keys) {
-		for(String name: JSONObject.getNames(source)) {
+		for(String name: source.keySet()) {
 			for(String k: keys) {
 				if(name.equals(k))return true;
 			}

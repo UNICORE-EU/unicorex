@@ -16,6 +16,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import eu.unicore.client.Job;
 import eu.unicore.util.Log;
 
 /**
@@ -31,7 +32,7 @@ public class Builder {
 	
 	protected final JSONObject json;
 
-	protected final Set<Requirement>requirements=new HashSet<Requirement>();
+	protected final Set<Requirement>requirements=new HashSet<>();
 
 	protected boolean initialised;
 
@@ -179,6 +180,10 @@ public class Builder {
 
 	public String getProperty(String key,String defaultValue) {
 		return JSONUtil.getString(json, key,defaultValue);
+	}
+	
+	public void setJobType(Job.Type jobType) {
+		json.put("Job type", jobType.toString());
 	}
 
 	public void writeTo(Writer os) {

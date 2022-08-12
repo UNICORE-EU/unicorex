@@ -158,7 +158,6 @@ public class JobRunner extends Thread {
 			LogUtil.fillLogContext(a);
 			Processor p = xnjs.createProcessor(a.getType());
 			logger.debug("Processing Action <{}> in status {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
-			
 			p.process(a);
 			logger.trace("New status for Action <{}>: {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
 			newStatus=a.getStatus();

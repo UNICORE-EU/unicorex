@@ -166,7 +166,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		f=new File(a.getExecutionContext().getWorkingDirectory(),a.getExecutionContext().getStderr());
 		assertTrue(f.exists());
 
-		assertTrue(a.getLog().toString().contains("#TSI_TIME 30"));
+		assertTrue(a.getLog().toString().contains("#TSI_TIME 1800"));
 		assertTrue(a.getLog().toString().contains("#TSI_PROJECT qcd"));
 	}
 

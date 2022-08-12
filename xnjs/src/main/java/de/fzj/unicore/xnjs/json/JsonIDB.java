@@ -63,7 +63,7 @@ public class JsonIDB implements IDBParser {
 	protected void readPartitions(JSONObject source) throws Exception {
 		if(source==null)return;
 		boolean haveDefault = false;
-		for(String name: JSONObject.getNames(source)) {
+		for(String name: source.keySet()) {
 			Partition p = new JSONParser().parsePartition(name, source.getJSONObject(name));
 			idb.getPartitionsInternal().add(p);
 			logger.info("Read: <"+p+">");
@@ -105,7 +105,7 @@ public class JsonIDB implements IDBParser {
 	
 	protected void readInfo(JSONObject source) throws Exception {
 		if(source==null)return;
-		for(String name: JSONObject.getNames(source)) {
+		for(String name: source.keySet()) {
 			idb.getTextInfoPropertiesNoUpdate().put(name, source.getString(name));
 		}
 	}

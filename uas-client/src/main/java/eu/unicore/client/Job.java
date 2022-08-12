@@ -173,7 +173,7 @@ public class Job {
 	}
 
 	public Job run_on_login_node(String node) {
-		JSONUtil.putQuietly(json, "Job type", "INTERACTIVE");
+		type(Type.INTERACTIVE);
 		if(node!=null){
 			JSONUtil.putQuietly(json, "Login node", node);
 		}
@@ -184,6 +184,11 @@ public class Job {
 	
 	public Job wait_for_client_stage_in() {
 		JSONUtil.putQuietly(json, "haveClientStageIn", "true");
+		return this;
+	}
+	
+	public Job type(Job.Type type) {
+		JSONUtil.putQuietly(json, "Job type", String.valueOf(type));
 		return this;
 	}
 
@@ -327,4 +332,13 @@ public class Job {
 			return this;
 		}
 	}
+	
+	public enum Type {
+		NORMAL,
+		INTERACTIVE,
+		RAW,
+		ALLOCATE,
+		IN_ALLOCATION
+	}
+
 }

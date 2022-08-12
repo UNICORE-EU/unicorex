@@ -130,7 +130,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected boolean isEmptyJob() {
-		return JSONObject.getNames(getJobDescriptionDocument()).length==0;
+		return getJobDescriptionDocument().keySet().isEmpty();
 	}
 
 	@Override
@@ -209,7 +209,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		JSONObject j = getJobDescriptionDocument();
 		JSONObject parameters = j.optJSONObject("Parameters");
 		if(parameters!=null) {
-			for(String name: JSONObject.getNames(parameters)) {
+			for(String name: parameters.keySet()) {
 				if(parameters.get(name) instanceof JSONObject) {
 					return true;
 				}
@@ -232,7 +232,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		JSONObject j = getJobDescriptionDocument();
 		JSONObject parameters = j.optJSONObject("Parameters");
 		if(parameters!=null) {
-			for(String name: JSONObject.getNames(parameters)) {
+			for(String name: parameters.keySet()) {
 				if(parameters.get(name) instanceof JSONObject) {
 					sweepSpec = new ParameterSweep(name, parameters.getJSONObject(name));
 				}

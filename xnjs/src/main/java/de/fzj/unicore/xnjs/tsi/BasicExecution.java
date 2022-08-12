@@ -125,6 +125,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	// for limiting the number of concurrently running jobs (embedded TSI!)
 	private final Set<String>runningJobUIDs=Collections.synchronizedSet(new HashSet<String>());
 	private final AtomicInteger runningJobCount = new AtomicInteger(0);
+	private final AtomicInteger jobIndex = new AtomicInteger(0);
 
 	/**
 	 * job submission, override in subclasses if using a BSS
@@ -142,6 +143,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		job.addLogTrace("Submitted executable: "+appDescription.getExecutable());
 		runningJobCount.incrementAndGet();
 		runningJobUIDs.add(job.getUUID());
+		job.setBSID("INTERNAL-TSI-"+jobIndex.incrementAndGet());
 		return ActionStatus.QUEUED;
 	}
 
