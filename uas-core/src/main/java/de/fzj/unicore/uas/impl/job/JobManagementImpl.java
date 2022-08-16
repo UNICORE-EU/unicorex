@@ -99,23 +99,19 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		JobModel m = getModel();
 		JobInitParameters initParams = (JobInitParameters) init;
 		Action action=(Action)initParams.action;
-		
+		Client client = AuthZAttributeStore.getClient();
+		logger.info("New job with id {} for client {}", action.getUUID(), client);
 		m.setParentUID(initParams.parentUUID);
 		m.setParentServiceName(UAS.TSS);
-		
 		if(initParams.autostart){
 			action.getProcessingContext().put(Action.AUTO_SUBMIT,"true");
 		}
-		
 		if(!initParams.no_xnjs_submit){
-			Client client = AuthZAttributeStore.getClient();
 			getXNJSFacade().getManager().add(action, client);
 			logger.info("Submitted job with id {} for client {}", action.getUUID(), client);
 		}
-		
 		m.setUspaceId(createUspace(action));
 		m.setSubmissionTime(Calendar.getInstance());
-		
 		String[] tags = initParams.initialTags;
 		if(tags!=null && tags.length>0){
 			m.getTags().addAll(Arrays.asList(tags));
@@ -141,8 +137,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		}
 		catch(Exception e){}
 		try{
-			Home smsHome = kernel.getHome(UAS.SMS);
-			smsHome.destroyResource(getModel().getUspaceId());
+			kernel.getHome(UAS.SMS).destroyResource(getModel().getUspaceId());
 		}catch(Exception e){}
 		super.destroy();
 	}

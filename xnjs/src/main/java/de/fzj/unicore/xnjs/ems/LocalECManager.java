@@ -90,12 +90,12 @@ public class LocalECManager implements IExecutionContextManager {
 			String wd = action.getUUID();
 			String uspace = baseDirectory+targetSystem.getFileSeparator()+wd+targetSystem.getFileSeparator();
 			if(targetSystem.getProperties(wd)==null){
-				logger.info("Creating "+uspaceInfo(action));
+				logger.info("Creating {}", uspaceInfo(action));
 				targetSystem.setUmask(action.getUmask());
 				targetSystem.mkdir(wd);
 			}
 			else{
-				logger.info("Re-connecting to "+uspaceInfo(action));
+				logger.info("Re-connecting to {}", uspaceInfo(action));
 			}
 			if(targetSystem instanceof BatchMode) {
 				String res = ((BatchMode)targetSystem).commitBatch();
