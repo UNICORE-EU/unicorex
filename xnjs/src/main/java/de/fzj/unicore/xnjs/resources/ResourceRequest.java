@@ -24,8 +24,6 @@ public class ResourceRequest implements Serializable  {
 	
 	private String requestedValue;
 	
-	private boolean verify = true;
-	
 	public ResourceRequest(String name, String value){
 		this.name=name;
 		this.requestedValue=value;
@@ -45,14 +43,6 @@ public class ResourceRequest implements Serializable  {
 
 	public String toString(){
 		return name+"="+requestedValue;
-	}
-	
-	public boolean verify(){
-		return verify;
-	}
-
-	public void setVerify(boolean verify){
-		this.verify = verify;
 	}
 
 	/**

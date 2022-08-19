@@ -1,8 +1,6 @@
 package de.fzj.unicore.xnjs.resources;
 
-public class StringResource extends BaseResource{
-	
-	private static final long serialVersionUID=1L;
+public class StringResource extends Resource{
 	
 	private String value;
 	
@@ -14,19 +12,13 @@ public class StringResource extends BaseResource{
 	public StringResource(String name, String value){
 		this(name,value,null);
 	}
-	
-	public Resource copy() {
-		return new StringResource(this.name, this.value, this.category);
-	}
 
+	@Override
 	public String getValue() {
 		return value;
 	}
 	
-	public void setStringValue(String val) {
-		value=val;
-	}
-	
+	@Override
 	public boolean isInRange(Object otherValue){
 		if( ! (otherValue.getClass().isAssignableFrom(StringResource.class)
 			|| otherValue instanceof String) )

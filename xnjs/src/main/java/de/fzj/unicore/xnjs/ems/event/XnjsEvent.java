@@ -18,7 +18,7 @@ public interface XnjsEvent {
 	 * allows to perform some operation on the action when
 	 * the event is handled
 	 * 
-	 * @param action - the action
+	 * @param action - the action (never null)
 	 */
 	public void callback(final Action action);
 }

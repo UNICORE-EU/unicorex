@@ -1,8 +1,6 @@
 package de.fzj.unicore.xnjs.resources;
 
-public class IntResource extends BaseResource implements RangeResource {
-
-	private static final long serialVersionUID=1L;
+public class IntResource extends Resource implements RangeResource {
 
 	private Long value;
 
@@ -19,10 +17,6 @@ public class IntResource extends BaseResource implements RangeResource {
 
 	public IntResource(String name, Long value){
 		this(name,value,null,null,null);
-	}
-
-	public Resource copy() {
-		return new IntResource(this.name, this.value, this.upper, this.lower, this.category);
 	}
 
 	public Long getValue() {
@@ -65,16 +59,12 @@ public class IntResource extends BaseResource implements RangeResource {
 		return true;
 	}
 
-	/**
-	 * get the upper bound
-	 */
+	@Override
 	public Long getUpper() {
 		return upper;
 	}
 
-	/**
-	 * get the lower bound
-	 */
+	@Override
 	public Long getLower() {
 		return lower;
 	}

@@ -8,15 +8,13 @@ import java.util.List;
  * 
  * @author schuller
  */
-public class ValueListResource extends BaseResource{
+public class ValueListResource extends Resource {
 
-	private static final long serialVersionUID=1L;
-
-	protected final List<String> validValues=new ArrayList<String>();
+	protected final List<String> validValues = new ArrayList<>();
 
 	protected String selectedValue;
 
-	public ValueListResource(String name, String val, List<String>allowed,Category category){
+	public ValueListResource(String name, String val, List<String>allowed, Category category){
 		super(name,category);
 		validValues.addAll(allowed);
 		this.selectedValue=val;
@@ -24,15 +22,6 @@ public class ValueListResource extends BaseResource{
 
 	public void setSelectedValue(String val){
 		selectedValue=val;
-	}
-	
-	public void setStringValue(String val){
-		selectedValue=val;
-	}
-
-	public void setValidValues(List<String>values){
-		validValues.clear();
-		validValues.addAll(values);
 	}
 
 	public String[] getValidValues(){
@@ -60,11 +49,6 @@ public class ValueListResource extends BaseResource{
 			otherSelected=otherList.selectedValue;
 		}
 		return otherSelected==null || validValues.contains(otherSelected);
-	}
-
-	@Override
-	public Resource copy() {
-		return new ValueListResource(name,selectedValue,validValues,category);
 	}
 
 	public String toString(){

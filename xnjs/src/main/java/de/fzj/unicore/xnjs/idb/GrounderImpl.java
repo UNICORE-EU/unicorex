@@ -285,7 +285,7 @@ public class GrounderImpl implements Incarnation {
 		// verify requested resources
 		ResourceSet resources = selectedPartition.getResources();
 		for(ResourceRequest rr: userRequest){
-			boolean doVerify = rr.verify();
+			boolean doVerify = true;
 			String name = rr.getName();
 			String value = rr.getRequestedValue();
 			if(value==null)continue;

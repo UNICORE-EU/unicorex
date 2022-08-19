@@ -13,8 +13,4 @@ public class TSIBusyException extends Exception {
 		super(msg);
 	}
 
-	public TSIBusyException(Throwable t) {
-		super(t);
-	}
-
 }

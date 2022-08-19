@@ -19,8 +19,10 @@ import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.Partition;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
-import de.fzj.unicore.xnjs.resources.IntResource;
 import de.fzj.unicore.xnjs.resources.Resource;
+import de.fzj.unicore.xnjs.resources.BooleanResource;
+import de.fzj.unicore.xnjs.resources.DoubleResource;
+import de.fzj.unicore.xnjs.resources.IntResource;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
@@ -129,6 +131,19 @@ public class TestJSONParser {
 				"		    		'Type'  : 'CHOICE'," + 
 				"		    		'AllowedValues' : ['gold','silver','bronze']" + 
 				"               },"+
+				"               FloatyThing: {"+
+				"		    		'Type'  : 'DOUBLE'," + 
+				"		    		'Range' : '0-2.718'" + 
+				"               },"+
+				"               ValuedUser: {"+
+				"		    		'Type'  : 'BOOLEAN'," +
+				"		    		'Description'  : 'Can write decent bug reports'," +
+				"		    		'Default'  : 'true'" +
+				"               },"+
+				"               NodeType: {"+
+				"		    		'Type'  : 'CHOICE'," + 
+				"		    		'AllowedValues' : ['intel','amd','nvidia']" + 
+				"               },"+
 				"				}," + 
 				"	    	}," + 
 				"		}," + 
@@ -158,6 +173,20 @@ public class TestJSONParser {
 		r = p.getResources().getResource("QoS");
 		assertNotNull(r);
 		assertTrue( ((ValueListResource)r).isInRange("gold"));
+		r = p.getResources().getResource("FloatyThing");
+		assertNotNull(r);
+		assertTrue( ((DoubleResource)r).isInRange("1.23"));
+		System.out.println(r);
+		r = p.getResources().getResource("ValuedUser");
+		assertNotNull(r);
+		assertTrue( ((BooleanResource)r).isInRange("false"));
+		assertNotNull(r.getDescription());
+		assertNotNull(r.getCategory());
+		System.out.println(r);
+		r = p.getResources().getResource("NodeType");
+		assertNotNull(r);
+		assertTrue( ((ValueListResource)r).isInRange("nvidia"));
+		assertNotNull(r.getCategory());
 		System.out.println(r);
 	}
 	

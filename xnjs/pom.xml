@@ -81,8 +81,6 @@
             <exclude>**/TestACL*</exclude>
             <exclude>**/TestingIOCapabilities</exclude>
           </excludes>
-	  <forkCount>1</forkCount>
-	  <argLine>-Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
         </configuration>
       </plugin>
       <plugin>

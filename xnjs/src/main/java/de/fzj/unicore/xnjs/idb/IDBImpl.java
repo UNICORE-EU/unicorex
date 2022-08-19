@@ -160,7 +160,7 @@ public class IDBImpl implements IDB {
 		if(havePerUserExtensions){
 			// get update interval in seconds
 			String update = xnjsProperties.getValue("XNJS.idbfile.ext.updateInterval");
-			if(update==null)update = "60";
+			if(update==null)update = "300";
 			extensionUpdateInterval = 1000*Integer.parseInt(update);
 		}
 	}
@@ -218,7 +218,7 @@ public class IDBImpl implements IDB {
 			TSI tsi = tsiFactory.createTSI(client);
 			List<ExtensionInfo> extensionsPerUser = resolvedExtensionsPerUser.get(dn);
 			if(extensionsPerUser==null){
-				extensionsPerUser = new ArrayList<ExtensionInfo>();
+				extensionsPerUser = new ArrayList<>();
 				for(ExtensionInfo e: extensionInfo){
 					extensionsPerUser.add(new ExtensionInfo(e.path));
 				}
@@ -248,7 +248,7 @@ public class IDBImpl implements IDB {
 	}
 
 	protected Collection<String> getFiles(String pathPattern, Client client) throws ExecutionException {
-		Collection<String> results = new HashSet<String>();
+		Collection<String> results = new HashSet<>();
 		if(SimpleFindOptions.isWildCard(pathPattern)){
 			File path = new File(pathPattern);
 			String base = path.getParent();
@@ -270,8 +270,7 @@ public class IDBImpl implements IDB {
 
 	@Override
 	public String getTextInfo(String name) {
-		doCheckAndUpdateIDB();
-		return textInfoProperties.get(name);
+		return getTextInfoProperties().get(name);
 	}
 
 	@Override
@@ -486,14 +485,10 @@ public class IDBImpl implements IDB {
 		parser.handleFile(file);
 	}
 	
-	public IDBParser getParser(File file) {
-		boolean json = false;
+	public IDBParser getParser(File file) throws Exception {
 		try (InputStream fis = new FileInputStream(file)){
-			new JSONObject(IOUtils.toString(fis, "UTF-8"));
-			json = true;
-		}catch(Exception ex) {}
-		if(!json)throw new IllegalArgumentException("IDB is not in JSON format");
-		return new JsonIDB(this);
+			return getParser(fis);
+		}
 	}
 	
 	protected IDBParser getParser(InputStream source) throws Exception {

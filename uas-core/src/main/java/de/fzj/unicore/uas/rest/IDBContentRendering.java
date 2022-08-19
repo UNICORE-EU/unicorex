@@ -29,7 +29,7 @@ public class IDBContentRendering {
 	public static final String appSeparator = "---v";
 	
 	public static Map<String, Object> asMap(ResourceSet rs){
-		Map<String,Object> resources = new HashMap<String, Object>();
+		Map<String,Object> resources = new HashMap<>();
 		try{
 			for(Resource r: rs.getResources()){
 				resources.put(r.getName(), render(r));
@@ -40,7 +40,7 @@ public class IDBContentRendering {
 	}
 	
 	public static Map<String, Object> asMap(List<Partition> partitions){
-		Map<String,Object> resources = new HashMap<String, Object>();
+		Map<String,Object> resources = new HashMap<>();
 		try{
 			for(Partition p: partitions){
 				resources.put(p.getName(), asMap(p.getResources()));
@@ -70,7 +70,7 @@ public class IDBContentRendering {
 	}
 	
 	public static Map<String,Object> asMap(ApplicationMetadata meta){
-		Map<String,Object> result = new HashMap<String, Object>();
+		Map<String,Object> result = new HashMap<>();
 		for(OptionDescription opt: meta.getOptions()){
 			if(opt.getName()!=null)result.put(opt.getName(), asMap(opt));
 		}
@@ -78,7 +78,7 @@ public class IDBContentRendering {
 	}
 	
 	public static Map<String,Object> asMap(OptionDescription opt){
-		Map<String,Object> result = new HashMap<String, Object>();
+		Map<String,Object> result = new HashMap<>();
 		result.put("Description", opt.getDescription());
 		result.put("Type", String.valueOf(opt.getType()));
 		String[] vv = opt.getValidValues();

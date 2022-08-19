@@ -1,8 +1,6 @@
 package de.fzj.unicore.xnjs.resources;
 
-import java.io.Serializable;
-
-public interface Resource extends Serializable {
+public abstract class Resource {
 
 	public static enum Category {
 		PROCESSING, 
@@ -18,36 +16,52 @@ public interface Resource extends Serializable {
 		OTHER
 	}
 	
-	public String getStringValue();
 	
-	/**
-	 * set the selected value for this resource as a String
-	 */
-	public void setStringValue(String value);
+	protected Category category = Category.OTHER;
 	
-	public Double getDoubleValue();
-
-	public String getName();
+	protected String name;
 	
-	public String getDescription();
+	protected String description;
 	
-	public void setDescription(String description);
+	public Resource(String name, Category category) {
+		this.name=name;
+		this.category=category;
+	}
 	
-	public Object getValue();
-	
-	/**
-	 * make a deep copy of this resource
-	 */
-	public Resource copy();
-	
-	public Category getCategory();
-	
-	public void setCategory(Category category);
+	public abstract Object getValue();
 	
 	/**
 	 * check if the given value is within the validity range of this resource
 	 * @param otherValue
 	 */
-	public boolean isInRange(Object otherValue);
+	public abstract boolean isInRange(Object otherValue);
+	
+	public Category getCategory() {
+		return category;
+	}
+
+	public void setCategory(Category category) {
+		this.category=category;
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public String getStringValue() {
+		return getValue()!=null?String.valueOf(getValue()):null;
+	}
+
+	public Double getDoubleValue(){
+		return getStringValue()!=null?Double.valueOf(getStringValue()):null;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
 }

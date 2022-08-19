@@ -51,7 +51,10 @@ import org.junit.Test;
 import de.fzj.unicore.xnjs.BaseModule;
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.Action;
+import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
 import de.fzj.unicore.xnjs.resources.IntResource;
@@ -276,6 +279,26 @@ public class TestResourceIncarnation {
 		List<ResourceRequest>request = new ArrayList<>();
 		request.add(new ResourceRequest(ResourceSet.TOTAL_CPUS, "1024"));
 		g.incarnateResources(request,null);
+	}
+	
+	@Test
+	public void testIncarnate_Nodes_with_script() throws Exception {
+		List<ResourceRequest>request = new ArrayList<>();
+		request.add(new ResourceRequest(ResourceSet.NODES, "1"));
+		request.add(new ResourceRequest(ResourceSet.CPUS_PER_NODE, "${2*SCALE}"));
+		Action a = new Action();
+		ExecutionContext ec = new ExecutionContext();
+		ec.getEnvironment().put("SCALE", "32");
+		ApplicationInfo app = new ApplicationInfo();
+		a.setApplicationInfo(app);
+		app.setResourceRequest(request);
+		a.setExecutionContext(ec);
+		List<ResourceRequest> testRes = g.incarnateResources(a);
+		//check correct values are available
+		int nodes = Integer.valueOf(ResourceRequest.find(testRes,ResourceSet.NODES).getRequestedValue());
+		assertEquals(nodes,1);
+		int cpusPerNode = Integer.valueOf(ResourceRequest.find(testRes,ResourceSet.CPUS_PER_NODE).getRequestedValue());
+		assertEquals(cpusPerNode, 64);
 	}
 
 }

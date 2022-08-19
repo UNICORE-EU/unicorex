@@ -1,20 +1,13 @@
 package de.fzj.unicore.xnjs.resources;
 
 
-public class BooleanResource extends BaseResource {
+public class BooleanResource extends Resource {
 
-	private static final long serialVersionUID = 1L;
-	
 	private Boolean value;
 	
 	public BooleanResource(String name, Boolean value, Category category) {
 		super(name, category);
 		this.value=value;
-	}
-
-	@Override
-	public Resource copy() {
-		return new BooleanResource(name,value,category);
 	}
 
 	@Override
@@ -35,12 +28,8 @@ public class BooleanResource extends BaseResource {
 
 	public String toString(){
 		StringBuilder sb=new StringBuilder();
-		sb.append(name).append("=").append(value);
+		sb.append(name).append("[boolean, category=").append(category).append("] ").append(value);
 		return sb.toString();
-	}
-	
-	public void setStringValue(String value){
-		this.value = value==null? null : Boolean.parseBoolean(value);
 	}
 	
 }

@@ -167,15 +167,14 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 */
 	protected void handleCreated()throws ProcessingException{
 		try{
+			storeTimeStamp(TIME_START);
 			setupNotifications();
-
 			if(isEmptyJob()){
 				String msg="Empty job description. Setting to DONE.";
 				action.addLogTrace(msg);
 				setToDoneSuccessfully();
 				return;
 			}
-			storeTimeStamp(TIME_START);
 			try{
 				extractFromJobDescription();
 				setEnvironmentVariables();

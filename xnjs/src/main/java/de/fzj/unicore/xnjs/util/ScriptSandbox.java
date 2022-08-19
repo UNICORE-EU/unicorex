@@ -20,9 +20,8 @@ import groovy.lang.GroovyShell;
 import groovy.security.GroovyCodeSourcePermission;
 
 /**
- * provides a secured environment for the evaluation of dynamic scripts, such
- * as those used in conditions of variable modifications.
- * 
+ * provides a secured environment for the evaluation of dynamic scripts
+ *
  * @author schuller
  */
 public class ScriptSandbox {

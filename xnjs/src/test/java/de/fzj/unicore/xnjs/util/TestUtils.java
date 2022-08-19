@@ -250,6 +250,14 @@ public class TestUtils {
 		assertEquals("2",eval.evaluateToString(script, vars));
 	}
 	
+	@Test(expected=java.security.AccessControlException.class)
+	public void testSandbox()throws Exception{
+		String script = "System.exit(1)";
+		Map<String,String> vars = new HashMap<String, String>();
+		ScriptEvaluator eval = new ScriptEvaluator();
+		eval.evaluateToInteger(script, vars);
+	}
+
 	@Test
 	public void testExtractGroovyExpressions()throws Exception{
 		assertFalse(ScriptEvaluator.isScript("123"));

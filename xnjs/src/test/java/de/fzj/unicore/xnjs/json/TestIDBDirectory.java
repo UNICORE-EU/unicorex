@@ -36,6 +36,7 @@ package de.fzj.unicore.xnjs.json;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -53,6 +54,8 @@ import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
+import eu.unicore.security.Client;
+import eu.unicore.security.Xlogin;
 
 /**
  * tests the IDBImpl class with json content
@@ -73,6 +76,8 @@ public class TestIDBDirectory {
 		FileUtils.deleteQuietly(fileSpace);
 		cs.getProperties().put("XNJS.filespace",fileSpace.getAbsolutePath());
 		cs.getProperties().put("XNJS.idbfile","src/test/resources/resources/jsonidb.dir");
+		File ext = new File("src/test/resources/resources/per-user.idb");
+		cs.getProperties().put("XNJS.idbfile.ext.1", ext.getAbsolutePath());
 		cs.addModule(new BaseModule(cs.getProperties()));
 		cs.addModule(new LocalTSIModule(cs.getProperties()));
 		return cs;
@@ -81,6 +86,11 @@ public class TestIDBDirectory {
 	@Test
 	public void testApps(){
 		assertNotNull(idb.getApplication("Date", null, null));
+		assertNull(idb.getApplication("NoSuchApp", null, null));
+		// user specific app
+		Client c = new Client();
+		c.setXlogin(new Xlogin(new String[]{"nobody"}));
+		assertNotNull(idb.getApplication("MyDate", null, c));
 	}
 
 	@Test

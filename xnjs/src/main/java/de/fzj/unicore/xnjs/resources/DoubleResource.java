@@ -1,8 +1,6 @@
 package de.fzj.unicore.xnjs.resources;
 
-public class DoubleResource extends BaseResource implements RangeResource{
-
-	private static final long serialVersionUID=1L;
+public class DoubleResource extends Resource implements RangeResource {
 
 	private Double value;
 
@@ -21,16 +19,8 @@ public class DoubleResource extends BaseResource implements RangeResource{
 		this(name,value,null,null,null);
 	}
 
-	public Resource copy() {
-		return new DoubleResource(this.name, this.value, this.upper, this.lower, this.category);
-	}
-
 	public Double getValue() {
 		return value;
-	}
-
-	public void setStringValue(String v){
-		value = v==null? null : Double.parseDouble(v);
 	}
 	
 	public boolean isInRange(Object otherValue){
@@ -64,16 +54,12 @@ public class DoubleResource extends BaseResource implements RangeResource{
 		return true;
 	}
 
-	/**
-	 * get the upper bound
-	 */
+	@Override
 	public Double getUpper() {
 		return upper;
 	}
 
-	/**
-	 * get the lower bound
-	 */
+	@Override
 	public Double getLower() {
 		return lower;
 	}
