@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Random;
 
@@ -23,6 +24,7 @@ import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.uftp.dpc.UFTPConstants;
 import eu.unicore.uftp.dpc.Utils;
+import eu.unicore.uftp.server.requests.UFTPPingRequest;
 import eu.unicore.uftp.server.requests.UFTPTransferRequest;
 
 public class TestUFTP extends RemoteTSITestCase {
@@ -35,6 +37,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		localhost = InetAddress.getByName("127.0.0.1");
 		uftpd = new UFTPDServerRunner();
 		uftpd.start();
+		waitForUFTPD();
 	}
 
 	@AfterClass
@@ -42,6 +45,20 @@ public class TestUFTP extends RemoteTSITestCase {
 		if(uftpd!=null)try{
 			uftpd.stop();
 		}catch(Exception e) {}
+	}
+
+	// startup might be a bit slow - let's wait until uftpd answers to pings
+	private static void waitForUFTPD() throws InterruptedException {
+		int i=0;
+		while(i<30) {
+			Thread.sleep(1000);
+			UFTPPingRequest ping = new UFTPPingRequest();
+			try{
+				ping.sendTo(localhost, uftpd.jobPort);
+				return;
+			}catch(IOException ioe) {}
+			i++;
+		}
 	}
 
 	@Test
