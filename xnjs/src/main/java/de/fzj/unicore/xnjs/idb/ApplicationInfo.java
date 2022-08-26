@@ -331,7 +331,10 @@ public class ApplicationInfo implements Cloneable, Serializable {
 	}
 
 	public static enum JobType {
-		BATCH, INTERACTIVE, RAW,
+		ON_LOGIN_NODE,
+		BATCH,
+		RAW,
+		ALLOCATE
 	}
 	
 }

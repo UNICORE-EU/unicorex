@@ -10,6 +10,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
+import de.fzj.unicore.xnjs.idb.ApplicationInfo.JobType;
 import de.fzj.unicore.xnjs.idb.ApplicationInfoParser;
 import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.OptionDescription;
@@ -59,21 +60,21 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		
 		app.setResourceRequest(parseResourceRequest(source.optJSONObject("Resources")));
 
-		String jobType = source.optString("Job type", "normal");
-		if("INTERACTIVE".equalsIgnoreCase(jobType)) {
-			app.setRunOnLoginNode(true);
-			app.setPreferredLoginNode(source.optString("Login node", null));
-		}
-		else if("RAW".equalsIgnoreCase(jobType)) {
-			String file = source.optString("BSS file", null);
-			if(file==null)throw new Exception("Job type 'raw' requires 'BSS file'");
-			app.setRawBatchFile(file);
-		}
-		else if("ALLOCATE".equalsIgnoreCase(jobType)) {
-			app.setAllocateOnly();
-		}
-		else if(!"NORMAL".equalsIgnoreCase(jobType)) {
-			throw new IllegalArgumentException("Unknown value for 'Job type'");
+		switch(parseJobType(source)){
+			case ON_LOGIN_NODE:
+				app.setRunOnLoginNode(true);
+				app.setPreferredLoginNode(source.optString("Login node", null));
+				break;
+			case RAW:
+				String file = source.optString("BSS file", null);
+				if(file==null)throw new Exception("Job type 'raw' requires 'BSS file'");
+				app.setRawBatchFile(file);
+				break;
+			case ALLOCATE:
+				app.setAllocateOnly();
+				break;
+			case BATCH:
+				break;
 		}
 		
 		app.setStdout(source.optString("Stdout",null));
@@ -85,6 +86,14 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
 	public String parseUmask(JSONObject job) {
 		return JSONUtils.getStringAlt(job, "Umask", "umask");
+	}
+
+	public JobType parseJobType(JSONObject job) {
+		String jt = job.optString("Job type", "BATCH").toUpperCase();
+		// accept 8.x values for these
+		if("INTERACTIVE".equals(jt))jt = "ON_LOGIN_NODE";
+		if("NORMAL".equals(jt))jt = "BATCH";
+		return JobType.valueOf(jt.toUpperCase());
 	}
 
 	private void parseEnvironment(JSONArray j, ApplicationInfo app){

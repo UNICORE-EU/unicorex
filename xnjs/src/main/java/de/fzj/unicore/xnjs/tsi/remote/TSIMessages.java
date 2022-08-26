@@ -39,6 +39,7 @@ public class TSIMessages {
 
 	public static final String EXITCODE_FILENAME = "UNICORE_SCRIPT_EXIT_CODE";
 	public static final String PID_FILENAME = "UNICORE_SCRIPT_PID";
+	public static final String ALLOCATION_ID = "ALLOCATION_ID";
 
 	private static final int MEGABYTE=1024*1024;
 
@@ -444,6 +445,22 @@ public class TSIMessages {
 			return line;
 		}
 		return null;
+	}
+
+	/**
+	 * parse the allocation ID file produced by a job of type "allocate"
+	 * @param tsiReply
+	 * @return array contaning the job ID and the BSS variable name for sending the job ID later
+	 */
+	public String[] readAllocationID(String tsiReply) {
+		if(tsiReply==null || tsiReply.trim().length()==0) {
+			throw new IllegalArgumentException("Empty "+ALLOCATION_ID+" file?");
+		}
+		String[]tokens = tsiReply.trim().split("\\n");
+		String id = tokens[0];
+		String jobIDVariableName = tokens.length>1 ?
+				tokens[1] : "SLURM_JOB_ID";
+		return new String[] {id, jobIDVariableName};
 	}
 
 	/**

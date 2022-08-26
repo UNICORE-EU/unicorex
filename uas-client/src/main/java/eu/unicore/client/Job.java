@@ -173,7 +173,7 @@ public class Job {
 	}
 
 	public Job run_on_login_node(String node) {
-		type(Type.INTERACTIVE);
+		type(Type.ON_LOGIN_NODE);
 		if(node!=null){
 			JSONUtil.putQuietly(json, "Login node", node);
 		}
@@ -334,8 +334,8 @@ public class Job {
 	}
 	
 	public enum Type {
-		NORMAL,
-		INTERACTIVE,
+		ON_LOGIN_NODE,
+		BATCH,
 		RAW,
 		ALLOCATE,
 	}

@@ -450,6 +450,21 @@ public class TestTSI extends RemoteTSITestCase{
 	}
 	
 	@Test
+	public void testParseAllocationReply()throws Exception{
+		TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
+		String r1 = "12345\n";
+		String[]parsed = tsiMessages.readAllocationID(r1);
+		Assert.assertEquals(2, parsed.length);
+		Assert.assertEquals("12345", parsed[0]);
+		String r2 = "67890\nSOME_VAR_NAME\n";
+		parsed = tsiMessages.readAllocationID(r2);
+		Assert.assertEquals(2, parsed.length);
+		Assert.assertEquals("67890", parsed[0]);
+		parsed = tsiMessages.readAllocationID(r2);
+		Assert.assertEquals("SOME_VAR_NAME", parsed[1]);
+	}
+
+	@Test
 	public void testTimeoutHandling()throws Exception {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		InetAddress localhost=InetAddress.getByName("127.0.0.1");

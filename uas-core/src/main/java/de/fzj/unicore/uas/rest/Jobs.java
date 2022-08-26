@@ -30,6 +30,7 @@ import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.tsi.IExecution;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.client.Job;
 import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
@@ -130,12 +131,12 @@ public class Jobs extends ServicesBase {
 	@ConcurrentAccess(allow=true)
 	public Response submitIntoAllocation(String json, @PathParam("uniqueID")String id) throws Exception {
 		try{
-			Builder job = new Builder(json);
-			job.setJobType(Job.Type.INTERACTIVE);
 			Action action = getResource().getXNJSAction();
 			if(!action.getApplicationInfo().isAllocateOnly()) {
 				throw new Exception("This job is not an allocation.");
 			}
+			Builder job = new Builder(json);
+			job.setJobType(Job.Type.ON_LOGIN_NODE);
 			if(ActionStatus.RUNNING!=action.getStatus()) {
 				throw new Exception("Allocation is not active. Status is "+
 						ActionStatus.toString(action.getStatus()));
@@ -144,9 +145,8 @@ public class Jobs extends ServicesBase {
 			if(bssID==null){
 				throw new Exception("Allocation ID cannot be null.");
 			}
-			// TODO hardcoded Slurm variable - will fix eventually
-			job.getParameters().put("SLURM_JOB_ID", bssID);
-			job.getParameters().put("UC_BSS_ALLOCATION_ID", bssID);
+			String varName = action.getProcessingContext().getAs(TSIMessages.ALLOCATION_ID, String.class);
+			if(varName!=null)job.getParameters().put(varName, bssID);
 			Home tssHome = (TargetSystemHomeImpl)kernel.getHome(UAS.TSS);
 			String tssID = getModel().getParentUID();
 			TargetSystemImpl tss = (TargetSystemImpl)tssHome.get(tssID);
@@ -187,6 +187,7 @@ public class Jobs extends ServicesBase {
 		String name = action.getJobName();
 		props.put("name", name!=null ? name : "N/A");
 		props.put("submissionPreferences", model.getStoredPreferences());
+		props.put("jobType", getJobType(action));
 		renderStatus(props, resource, action);
 		return props;
 	}
@@ -307,5 +308,14 @@ public class Jobs extends ServicesBase {
 				return "UNDEFINED";
 		}
 	}
-	
+
+	public static String getJobType(Action a) {
+		String jt = "n/a";
+		if(a.getApplicationInfo()!=null) {
+			if(a.getApplicationInfo().isRunOnLoginNode())jt = "ON_LOGIN_NODE";
+			else if(a.getApplicationInfo().isAllocateOnly())jt = "ALLOCATE";
+			else jt ="BATCH";
+		}
+		return jt;
+	}
 }

@@ -237,16 +237,19 @@ public class Execution extends BasicExecution {
 		}
 		throw new ExecutionException(ErrorCode.ERR_INTERACTIVE_SUBMIT_FAILURE, "Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
 	}
-	
+
 	private String readAllocationID(Action job, String preferredTSINode) throws IOException, ExecutionException, InterruptedException {
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
 		ExecutionContext ec = job.getExecutionContext();
-		String file = ec.getOutputDirectory()+"/ALLOCATION_ID";
-		jobExecLogger.debug("Reading allocation ID from " + file);
+		String file = ec.getOutputDirectory()+"/"+TSIMessages.ALLOCATION_ID;
+		jobExecLogger.debug("Reading allocation ID from {}", file);
 		for(int i=0; i<3; i++){
 			try{
-				String pid = IOUtils.readTSIFile(tsi, file, 1024).trim();
-				if(pid.length()>0)return pid;
+				String[] allocationInfo = tsiMessages.readAllocationID(IOUtils.readTSIFile(tsi, file, 1024));
+				String allocationID = allocationInfo[0];
+				job.getProcessingContext().put(TSIMessages.ALLOCATION_ID, allocationInfo[1]);
+				job.setDirty();
+				return allocationID;
 			}
 			catch(Exception ex){
 				String msg = Log.createFaultMessage("Error reading file <"+file+"> on <"+preferredTSINode+"> (attempt "+(i+1)+")"+(i<2?", will retry":""), ex);

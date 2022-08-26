@@ -118,7 +118,7 @@ public class XNJS {
 
 	private final TSIMessages tsiMessages;
 
-	private final Map<Class<?>,Object>attributes=new HashMap<Class<?>,Object>();
+	private final Map<Class<?>,Object>attributes = new HashMap<>();
 
 	/**
 	 * creates a new instance of the XNJS with its own configuration<br>

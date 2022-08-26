@@ -1,5 +1,6 @@
 package de.fzj.unicore.uas.rest;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
@@ -37,6 +38,7 @@ public class TestAllocations extends Base {
 			i++;
 			Thread.sleep(1000);
 		}
+		Assert.assertEquals("ALLOCATE", alloc.getProperties().get("jobType"));
 		Job j2 = new Job();
 		j2.executable("date");
 		JobClient jobClient = alloc.submit(j2.getJSON());
@@ -45,6 +47,7 @@ public class TestAllocations extends Base {
 			i++;
 			Thread.sleep(1000);
 		}
+		Assert.assertEquals("ON_LOGIN_NODE", jobClient.getProperties().get("jobType"));
 		System.out.println(jobClient.getProperties().toString(2));
 		
 	}

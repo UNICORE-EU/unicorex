@@ -15,7 +15,7 @@ public class ProcessingContext implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Map<String,Wrapper<Serializable>>contents=new HashMap<String, Wrapper<Serializable>>();
+	private final Map<String,Wrapper<Serializable>>contents = new HashMap<>();
 	
 	public <T> T getAs(String key, Class<T>clazz){
 		Wrapper<?> wrapper=contents.get(key);
@@ -61,15 +61,15 @@ public class ProcessingContext implements Serializable {
 		if(!(content instanceof Serializable)){
 			throw new IllegalArgumentException("Not serializable : "+content.getClass());
 		}
-		contents.put(key, new Wrapper<Serializable>((Serializable)content));
+		contents.put(key, new Wrapper<>((Serializable)content));
 	}
 	
 	public void put(String key, Serializable content){
-		contents.put(key, new Wrapper<Serializable>(content));
+		contents.put(key, new Wrapper<>(content));
 	}
 
 	public void put(Class<?>key, Serializable content){
-		contents.put(key.getName(), new Wrapper<Serializable>(content));
+		contents.put(key.getName(), new Wrapper<>(content));
 	}
 
 }
