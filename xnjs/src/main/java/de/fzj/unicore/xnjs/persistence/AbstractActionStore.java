@@ -67,7 +67,7 @@ public abstract class AbstractActionStore implements IActionStore{
 
 	protected String name;
 
-	protected final Map<String,Integer>states=new ConcurrentHashMap<String,Integer>();
+	protected final Map<String,Integer>states = new ConcurrentHashMap<>();
 	
 	public void setName(String name){
 		this.name=name;

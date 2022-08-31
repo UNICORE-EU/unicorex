@@ -49,7 +49,7 @@ import de.fzj.unicore.xnjs.XNJS;
 @Singleton
 public class JDBCActionStoreFactory implements IActionStoreFactory{
 
-	private final Map<String,JDBCActionStore> map=new HashMap<String,JDBCActionStore>();
+	private final Map<String,JDBCActionStore> map = new HashMap<>();
 
 	public synchronized IActionStore getInstance(String id, XNJS config) throws Exception {
 		JDBCActionStore m=map.get(id);

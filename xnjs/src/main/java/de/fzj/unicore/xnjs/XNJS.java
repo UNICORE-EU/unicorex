@@ -120,6 +120,9 @@ public class XNJS {
 
 	private final Map<Class<?>,Object>attributes = new HashMap<>();
 
+	public XNJS(ConfigurationSource configSource) throws Exception{
+		this(configSource, null);
+	}
 	/**
 	 * creates a new instance of the XNJS with its own configuration<br>
 	 * (does not yet start the XNJS!)
@@ -127,10 +130,10 @@ public class XNJS {
 	 * @param configSource
 	 * @throws Exception
 	 */
-	public XNJS(ConfigurationSource configSource) throws Exception{
+	public XNJS(ConfigurationSource configSource, String identifier) throws Exception{
 		assert configSource!=null;
 		this.config = configSource;
-		uniqueID=String.valueOf(id.incrementAndGet());
+		uniqueID = identifier!=null? identifier : String.valueOf(id.incrementAndGet());
 
 		metricRegistry = configSource.getMetricRegistry();
 		tsiFactory = new TSIFactory(this);

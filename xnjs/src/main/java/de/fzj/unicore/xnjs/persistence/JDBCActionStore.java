@@ -45,6 +45,8 @@ import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.persist.PersistenceFactory;
 import de.fzj.unicore.persist.PersistenceProperties;
 import de.fzj.unicore.persist.impl.PersistImpl;
+import de.fzj.unicore.persist.impl.PersistenceDescriptor;
+import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.util.Log;
@@ -61,7 +63,10 @@ public class JDBCActionStore extends AbstractActionStore {
 	private Persist<DoneAction>doneJobs;
 
 	@Inject
-	PersistenceProperties properties;
+	private PersistenceProperties properties;
+	
+	@Inject
+	private XNJS xnjs;
 	
 	//max time (seconds) to wait for a lock
 	private int getForUpdateTimeoutPeriod=5; 
@@ -105,9 +110,18 @@ public class JDBCActionStore extends AbstractActionStore {
 	}
 	
 	protected void start()throws PersistenceException {
-		activeJobs=(PersistImpl<Action>)PersistenceFactory.get(properties).getPersist(Action.class);
+		PersistenceFactory pf = PersistenceFactory.get(properties);
+		PersistenceDescriptor pd1 = PersistenceDescriptor.get(Action.class);
+		if(!"1".equals(xnjs.getID())) {
+			pd1.setTableName(pd1.getTableName()+"_"+xnjs.getID());
+		}
+		activeJobs = (PersistImpl<Action>)pf.getPersist(Action.class, pd1);
 		checkVersion(activeJobs, "JOBS");
-		doneJobs=PersistenceFactory.get(properties).getPersist(DoneAction.class);
+		PersistenceDescriptor pd2 = PersistenceDescriptor.get(DoneAction.class);
+		if(!"1".equals(xnjs.getID())) {
+			pd2.setTableName(pd2.getTableName()+"_"+xnjs.getID());
+		}
+		doneJobs = pf.getPersist(DoneAction.class, pd2);
 		doneJobs.setLockSupport(((PersistImpl<Action>)activeJobs).getLockSupport());
 	}
 
