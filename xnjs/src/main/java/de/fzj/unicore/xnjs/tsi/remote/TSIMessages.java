@@ -39,7 +39,7 @@ public class TSIMessages {
 
 	public static final String EXITCODE_FILENAME = "UNICORE_SCRIPT_EXIT_CODE";
 	public static final String PID_FILENAME = "UNICORE_SCRIPT_PID";
-	public static final String ALLOCATION_ID = "ALLOCATION_ID";
+	public static final String ALLOCATION_ID = "UNICORE_ALLOCATION_ID";
 
 	private static final int MEGABYTE=1024*1024;
 
@@ -86,6 +86,9 @@ public class TSIMessages {
 		}
 		if(credentials!=null){
 			f.format("#TSI_CREDENTIALS %s\n", credentials);
+		}
+		if(applicationInfo.isAllocateOnly()) {
+			f.format("#TSI_ALLOCATION_ID %s\n", TSIMessages.ALLOCATION_ID);
 		}
 		f.format("#TSI_OUTCOME_DIR %s\n", ec.getOutputDirectory());
 		f.format("#TSI_USPACE_DIR %s\n", ec.getWorkingDirectory());

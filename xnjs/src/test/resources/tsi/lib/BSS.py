@@ -51,8 +51,9 @@ class BSS(BSSBase):
         job_mode = Utils.extract_parameter(message, "JOB_MODE", "normal")
         if job_mode.startswith("alloc"):
             os.chdir(uspace_dir)
+            alloc_id_file = Utils.extract_parameter(message, "ALLOCATION_ID")
             cmd = message
-            cmd += "\n\n{ echo 123456 > ALLOCATION_ID ; echo $? > UNICORE_SCRIPT_EXIT_CODE ; } & "
+            cmd += "\n\n{ echo 123456 > %s ; echo $? > UNICORE_SCRIPT_EXIT_CODE ; } & " % alloc_id_file
             cmd += "echo $! > UNICORE_SCRIPT_PID \n"
             cmds_file_name = "UNICORE_Job_1234"
             with open(cmds_file_name, "w") as job:
