@@ -14,13 +14,13 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  * 
  * @author schuller
  */
-public class AllocationClient extends JobClient {
+public class AllocationClient extends JobClient implements IJobSubmission {
 
 	public AllocationClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
-	public JobClient submit(JSONObject job) throws Exception {
+	public JobClient submitJob(JSONObject job) throws Exception {
 		HttpResponse resp = bc.post(job);
 		bc.checkError(resp);
 		if(201 != resp.getStatusLine().getStatusCode()){

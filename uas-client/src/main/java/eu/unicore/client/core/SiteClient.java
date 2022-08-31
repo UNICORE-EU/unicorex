@@ -13,7 +13,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  * 
  * @author schuller
  */
-public class SiteClient extends BaseServiceClient {
+public class SiteClient extends BaseServiceClient implements IJobSubmission {
 
 	public SiteClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
