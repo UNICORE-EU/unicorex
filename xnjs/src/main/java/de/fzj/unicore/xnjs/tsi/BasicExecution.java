@@ -348,7 +348,8 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	 */
 	protected boolean getExitCode(Action job)throws Exception{
 		if(job.getExecutionContext().getExitCode()!=null)return true;
-		TSI tsi = tsiFactory.createTSI(job.getClient());
+		TSI tsi = tsiFactory.createTSI(job.getClient(),
+				job.getExecutionContext().getPreferredExecutionHost());
 		ExecutionContext ctx=job.getExecutionContext();
 		tsi.setStorageRoot(ctx.getOutputDirectory());
 		XnjsFile f=tsi.getProperties(ctx.getExitCodeFileName());

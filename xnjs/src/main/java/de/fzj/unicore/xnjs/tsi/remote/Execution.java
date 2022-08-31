@@ -128,8 +128,11 @@ public class Execution extends BasicExecution {
 		boolean isFirstSubmit = null==job.getProcessingContext().get(BSS_SUBMIT_COUNT);
 		boolean runOnLoginNode = ec.isRunOnLoginNode();
 		boolean allocateOnly = appDescription.isAllocateOnly();
+		if(job.getProcessingContext().get(TSIMessages.ALLOCATION_ID)!=null && isFirstSubmit) {
+			String allocationID = job.getProcessingContext().getAs(TSIMessages.ALLOCATION_ID, String.class);
+			job.addLogTrace("Submitting into allocation with ID <"+allocationID+">");
+		}
 		String preferredTSIHost=ec.getPreferredExecutionHost();
-		
 		if(runOnLoginNode && isFirstSubmit){
 			String msg = "Execution on login node" + 
 		          (preferredTSIHost==null? "" : ", requested node: <"+preferredTSIHost+">");
@@ -267,12 +270,10 @@ public class Execution extends BasicExecution {
 	protected String extractBSSCredentials(Action job){
 		return null;
 	}
-	
-	// TODO refactor into smaller pieces
+
 	public void updateStatus(Action job) throws ExecutionException {
 		try{		
 			final String bssID=job.getBSID();
-			final String jobID=job.getUUID();
 			if(bssID==null){
 				throw new Exception("Status check can't be done: action "+job.getUUID()+" does not have a batch system ID.");
 			}
@@ -281,106 +282,8 @@ public class Execution extends BasicExecution {
 				jobExecLogger.debug("No status info for action {} bssid={}", job.getUUID(), bssID);
 				return;
 			}
-			
-			jobExecLogger.debug("Action {} bssid={} is {}",job.getUUID(), bssID, info.bssState);
-			if(info.queue!=null){
-				job.getExecutionContext().setBatchQueue(info.queue);
-				job.setDirty();
-			}
-
-			// re-set grace period if we have a valid status
-			if(!BSS_STATE.CHECKING_FOR_EXIT_CODE.equals(info.bssState)){
-				resetGracePeriod(job);
-			}
-			
-			if(BSS_STATE.QUEUED.equals(info.bssState)){
-				job.setStatus(ActionStatus.QUEUED);
-			}
-			else if(BSS_STATE.RUNNING.equals(info.bssState)){
-				//get progress indication 
-				//TODO this is not working if the action is suspended...
-				updateProgress(job);
-				
-				updateEstimatedEndtime(job);
-				job.setStatus(ActionStatus.RUNNING);
-			}
-			else if(BSS_STATE.UNKNOWN.equals(info.bssState) || BSS_STATE.CHECKING_FOR_EXIT_CODE.equals(info.bssState)){
-				//check if exit code can be read
-				boolean haveExitCode=getExitCode(job);
-				if(!haveExitCode){
-					if(!hasGracePeriodPassed(job)){
-						jobExecLogger.debug("Waiting for {} BSS id={} to finish and write exit code file.", jobID, bssID);
-						info.bssState = BSS_STATE.CHECKING_FOR_EXIT_CODE;
-					}
-					else {
-						jobExecLogger.debug("Assuming job  {} BSS id={} is completed.", jobID, bssID);
-						info.bssState = BSS_STATE.COMPLETED;
-					}
-				}
-				else{
-					jobExecLogger.debug("Have exit code for {}, assuming it is completed.", jobID);
-					info.bssState = BSS_STATE.COMPLETED;
-				}
-			}
-
-			if (BSS_STATE.COMPLETED.equals(info.bssState)){
-				//check exit code
-				if(job.getExecutionContext().getExitCode()==null)getExitCode(job);
-				Integer exitCode=job.getExecutionContext().getExitCode();
-
-				if(exitCode!=null){
-					if(job.getApplicationInfo().isAllocateOnly() &&
-						job.getProcessingContext().get("ALLOCATION_COMPLETE")==null)
-					{
-						String allocID = readAllocationID(job, job.getExecutionContext().getPreferredExecutionHost());
-						job.addLogTrace("Allocation successful, BSS ID = "+allocID);
-						bss.removeBSSInfo(bssID);
-						job.setBSID(allocID);
-						bss.putBSSInfo(new BSSInfo(allocID, jobID, BSS_STATE.RUNNING));
-						updateEstimatedEndtime(job);
-						job.setStatus(ActionStatus.RUNNING);
-						job.getProcessingContext().put("ALLOCATION_COMPLETE", "true");
-						return;
-					}
-					job.addLogTrace("Job completed on BSS.");
-					job.setStatus(ActionStatus.POSTPROCESSING);
-					try{
-						job.setBssDetails(getBSSJobDetails(job));
-					}catch(Exception ex) {
-						job.addLogTrace("Could not get BSS job details.");
-					}
-					bss.removeBSSInfo(bssID);
-				}
-				else{
-					//No exit code. For example, due to NFS problems it might occur that we need to re-check
-					if(job.getProcessingContext().get(EXITCODE_RECHECK)==null){
-						job.getProcessingContext().put(EXITCODE_RECHECK, Boolean.TRUE);
-						int timeout = 1000 * ioProperties.getIntValue(IOProperties.STAGING_FS_GRACE);
-						job.getProcessingContext().put(CUSTOM_GRACE_PERIOD, Integer.valueOf(timeout));
-						job.getProcessingContext().put(GRACE_PERIOD_start, System.currentTimeMillis());
-						job.setDirty();
-						jobExecLogger.debug("Will allow job "+jobID+" a grace period of "+timeout+" millis for exit code file.");
-					}
-					else{
-						if(hasGracePeriodPassed(job)){
-							//Still no exit code -> assume the user script was not completed successfully!
-							if(!job.getExecutionContext().isRunOnLoginNode()){
-								try{
-									String details=getBSSJobDetails(job);
-									job.addLogTrace("Detailed job information from batch system: "+details);
-									job.setBssDetails(details);
-								}catch(ExecutionException ee){
-									//we already logged	it
-								}
-								job.fail("Job did not complete normally on BSS, please check standard error file and job log for more information.");
-							}
-							else{
-								job.fail("Execution was not completed (no exit code file found), please check standard error file <"+job.getExecutionContext().getStderr()+">");
-							}
-							bss.removeBSSInfo(bssID);
-						}
-					}
-				}
+			if (hasJobCompleted(job, info)){
+				handleCompleted(job);
 			}
 		}catch(Exception ex){
 			jobExecLogger.error("Error updating job status.",ex);
@@ -388,6 +291,120 @@ public class Execution extends BasicExecution {
 		}
 	}
 
+	private boolean hasJobCompleted(Action job, BSSInfo info) throws Exception {
+		final String bssID = job.getBSID();
+		final String jobID = job.getUUID();
+
+		jobExecLogger.debug("Action {} bssid={} is {}", jobID, bssID, info.bssState);
+		if(info.queue!=null){
+			job.getExecutionContext().setBatchQueue(info.queue);
+			job.setDirty();
+		}
+		// re-set grace period if we have a valid status
+		if(!BSS_STATE.CHECKING_FOR_EXIT_CODE.equals(info.bssState)){
+			resetGracePeriod(job);
+		}
+
+		switch (info.bssState) {
+
+		case QUEUED:
+			job.setStatus(ActionStatus.QUEUED);
+			break;
+
+		case RUNNING:
+			//TODO progress update is not working if action is suspended
+			updateProgress(job);
+			updateEstimatedEndtime(job);
+			job.setStatus(ActionStatus.RUNNING);
+			break;
+
+		case CHECKING_FOR_EXIT_CODE:
+			//check if exit code can be read
+			boolean haveExitCode=getExitCode(job);
+			if(!haveExitCode){
+				if(!hasGracePeriodPassed(job)){
+					jobExecLogger.debug("Waiting for {} BSS id={} to finish and write exit code file.", jobID, bssID);
+					info.bssState = BSS_STATE.CHECKING_FOR_EXIT_CODE;
+				}
+				else {
+					jobExecLogger.debug("Assuming job {} BSS id={} is completed.", jobID, bssID);
+					info.bssState = BSS_STATE.COMPLETED;
+				}
+			}
+			else{
+				jobExecLogger.debug("Have exit code for {}, assuming it is completed.", jobID);
+				info.bssState = BSS_STATE.COMPLETED;
+			}
+			break;
+
+		default:
+			break;
+		}
+
+		return BSS_STATE.COMPLETED.equals(info.bssState);
+	}
+
+	private void handleCompleted(Action job) throws Exception {
+		final String bssID = job.getBSID();
+		final String jobID = job.getUUID();
+
+		//check exit code
+		if(job.getExecutionContext().getExitCode()==null)getExitCode(job);
+		Integer exitCode=job.getExecutionContext().getExitCode();
+
+		if(exitCode!=null){
+			if(job.getApplicationInfo().isAllocateOnly() &&
+				job.getProcessingContext().get("ALLOCATION_COMPLETE")==null) {
+				String allocID = readAllocationID(job, job.getExecutionContext().getPreferredExecutionHost());
+				job.addLogTrace("Allocation successful, BSS ID = "+allocID);
+				bss.removeBSSInfo(bssID);
+				job.setBSID(allocID);
+				bss.putBSSInfo(new BSSInfo(allocID, jobID, BSS_STATE.RUNNING));
+				updateEstimatedEndtime(job);
+				job.setStatus(ActionStatus.RUNNING);
+				job.getProcessingContext().put("ALLOCATION_COMPLETE", "true");
+				return;
+			}
+			job.addLogTrace("Job completed on BSS.");
+			job.setStatus(ActionStatus.POSTPROCESSING);
+			try{
+				job.setBssDetails(getBSSJobDetails(job));
+			}catch(Exception ex) {
+				job.addLogTrace("Could not get BSS job details.");
+			}
+			bss.removeBSSInfo(bssID);
+		}
+		else{
+			//No exit code. For example, due to NFS problems it might occur that we need to re-check
+			if(job.getProcessingContext().get(EXITCODE_RECHECK)==null){
+				job.getProcessingContext().put(EXITCODE_RECHECK, Boolean.TRUE);
+				int timeout = 1000 * ioProperties.getIntValue(IOProperties.STAGING_FS_GRACE);
+				job.getProcessingContext().put(CUSTOM_GRACE_PERIOD, Integer.valueOf(timeout));
+				job.getProcessingContext().put(GRACE_PERIOD_start, System.currentTimeMillis());
+				job.setDirty();
+				jobExecLogger.debug("Will allow job {} a grace period of {} millis for exit code file.", jobID, timeout);
+			}
+			else{
+				if(hasGracePeriodPassed(job)){
+					//Still no exit code -> assume the user script was not completed successfully!
+					if(!job.getExecutionContext().isRunOnLoginNode()){
+						try{
+							String details=getBSSJobDetails(job);
+							job.addLogTrace("Detailed job information from batch system: "+details);
+							job.setBssDetails(details);
+						}catch(ExecutionException ee){
+							//we already logged	it
+						}
+						job.fail("Job did not complete normally on BSS, please check standard error file and job log for more information.");
+					}
+					else{
+						job.fail("Execution was not completed (no exit code file found), please check standard error file <"+job.getExecutionContext().getStderr()+">");
+					}
+					bss.removeBSSInfo(bssID);
+				}
+			}
+		}
+	}
 	private boolean hasGracePeriodPassed(Action job){
 		int myGracePeriod = gracePeriod;
 		Long timeOfFirstStatusCheck=(Long)job.getProcessingContext().get(GRACE_PERIOD_start);
@@ -552,6 +569,9 @@ public class Execution extends BasicExecution {
 			BSS_STATE state = BSS_STATE.UNKNOWN;
 			if(a.getExecutionContext().isRunOnLoginNode()) {
 				interactive++;
+				state = BSS_STATE.RUNNING;
+			}
+			if(a.getApplicationInfo().isAllocateOnly()) {
 				state = BSS_STATE.RUNNING;
 			}
 			bss.putBSSInfo(new BSSInfo(a.getBSID(), a.getUUID(), state));
