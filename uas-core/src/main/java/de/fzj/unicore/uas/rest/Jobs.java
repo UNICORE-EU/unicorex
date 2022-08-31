@@ -145,8 +145,12 @@ public class Jobs extends ServicesBase {
 			if(bssID==null){
 				throw new Exception("Allocation ID cannot be null.");
 			}
+			if(bssID.startsWith("INTERACTIVE")) {
+				throw new Exception("Allocation is not yet ready!");
+			}
 			String varName = action.getProcessingContext().getAs(TSIMessages.ALLOCATION_ID, String.class);
 			if(varName!=null)job.getParameters().put(varName, bssID);
+			job.setProperty(TSIMessages.ALLOCATION_ID, bssID);
 			Home tssHome = (TargetSystemHomeImpl)kernel.getHome(UAS.TSS);
 			String tssID = getModel().getParentUID();
 			TargetSystemImpl tss = (TargetSystemImpl)tssHome.get(tssID);

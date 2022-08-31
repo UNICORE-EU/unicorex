@@ -41,7 +41,7 @@ public class TestAllocations extends Base {
 		Assert.assertEquals("ALLOCATE", alloc.getProperties().get("jobType"));
 		Job j2 = new Job();
 		j2.executable("date");
-		JobClient jobClient = alloc.submit(j2.getJSON());
+		JobClient jobClient = alloc.submitJob(j2.getJSON());
 		i = 0;
 		while(!jobClient.isFinished()&& i<3600) {
 			i++;

@@ -62,6 +62,7 @@ import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.json.JSONParser;
+import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
@@ -131,6 +132,11 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		action.setUmask(umask);
 		if(autoStartWhenReady){
 			action.getProcessingContext().put(Action.AUTO_SUBMIT, Boolean.TRUE);
+		}
+		String allocationID = job.optString(TSIMessages.ALLOCATION_ID, null);
+		if(allocationID!=null) {
+			action.getProcessingContext().put(TSIMessages.ALLOCATION_ID, allocationID);
+			job.remove(TSIMessages.ALLOCATION_ID);
 		}
 		return createJobResource(action, tt, tags);
 	}
