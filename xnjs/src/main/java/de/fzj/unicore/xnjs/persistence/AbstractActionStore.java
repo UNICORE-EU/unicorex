@@ -41,10 +41,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.util.LogUtil;
+import eu.unicore.util.Log;
 
 /**
  * Stores actions in some storage back-end.
@@ -83,18 +83,18 @@ public abstract class AbstractActionStore implements IActionStore{
 	 * @throws PersistenceException
 	 * @throws TimeoutException
 	 */
-	public void doCleanup()throws PersistenceException, TimeoutException{
+	public void doCleanup()throws Exception, TimeoutException{
 		for(String key: getUniqueIDs()){
 			Action a=get(key);
 			if(a!=null)remove(a);
 		}
 	}
 
-	public Action get(String key) throws PersistenceException{
+	public Action get(String key) throws Exception{
 		return doGet(key);
 	}
 
-	public Action getForUpdate(String key) throws TimeoutException, PersistenceException{
+	public Action getForUpdate(String key) throws TimeoutException, Exception{
 		Action a=doGetForUpdate(key);
 		if(a!=null){
 			states.put(key, a.getStatus());
@@ -113,12 +113,12 @@ public abstract class AbstractActionStore implements IActionStore{
 	 * @throws PersistenceException
 	 * @throws TimeoutException
 	 */
-	protected abstract Action tryGetForUpdate(String id)throws PersistenceException,TimeoutException;
+	protected abstract Action tryGetForUpdate(String id)throws Exception,TimeoutException;
 
 	public int getTotalActionsInStore(){
 		try{
 			return size();
-		}catch(PersistenceException pe){
+		}catch(Exception pe){
 			return -1;
 		}
 	}
@@ -127,19 +127,19 @@ public abstract class AbstractActionStore implements IActionStore{
 		return toString();
 	}
 
-	public void put(String key, Action value)throws PersistenceException{
+	public void put(String key, Action value)throws Exception{
 		doStore(value);
 		states.put(key,value.getStatus());
 	}
 
-	public void remove(Action a)throws PersistenceException{
+	public void remove(Action a)throws Exception{
 		states.remove(a.getUUID());
 		doRemove(a);
 	}
 
-	public abstract int size() throws PersistenceException;
+	public abstract int size() throws Exception;
 
-	public int size(int status) throws PersistenceException{
+	public int size(int status) throws Exception{
 		int i=0;
 		for(Integer s: states.values()){
 			if(s.intValue()==status)i++;
@@ -151,43 +151,47 @@ public abstract class AbstractActionStore implements IActionStore{
 	 * get the unique IDs of active actions (i.e. where status is not DONE)
 	 * @throws PersistenceException
 	 */
-	public abstract Collection<String> getActiveUniqueIDs() throws PersistenceException;
+	public abstract Collection<String> getActiveUniqueIDs() throws Exception;
 
 	/**
 	 * store a DAO in the backend store. this method is responsible for checking the
 	 * "dirty" status
 	 */
-	protected abstract void doStore(Action action) throws PersistenceException;
+	protected abstract void doStore(Action action) throws Exception;
 
 	/**
 	 * get a DAO from the backend store
 	 */
-	protected abstract Action doGet(String id) throws PersistenceException;
+	protected abstract Action doGet(String id) throws Exception;
 
 	/**
 	 * get a DAO from the backend store, aquiring a write lock
 	 */
-	protected abstract Action doGetForUpdate(String id) throws PersistenceException, TimeoutException;
+	protected abstract Action doGetForUpdate(String id) throws Exception, TimeoutException;
 
 	/**
 	 * delete a DAO in the backend store
 	 */
-	protected abstract void doRemove(Action a) throws PersistenceException;
+	protected abstract void doRemove(Action a) throws Exception;
 
-	public String printDiagnostics()throws PersistenceException{
+	public String printDiagnostics() {
 		StringBuilder sb=new StringBuilder();
 		long start=System.currentTimeMillis();
 		String newline=System.getProperty("line.separator");
 		sb.append("DIAGONSTIC INFO storage <"+name+"."+id+">"+newline);
 		sb.append(newline);
-		sb.append("Entries in database: "+getUniqueIDs().size()+newline);
-		sb.append("DONE: "+size(ActionStatus.DONE)+newline);
-		sb.append("RUNNING: "+size(ActionStatus.RUNNING)+newline);
-		sb.append("READY: "+size(ActionStatus.READY)+newline);
-		sb.append("PENDING: "+size(ActionStatus.PENDING)+newline);
-		sb.append("QUEUED: "+size(ActionStatus.QUEUED)+newline);
-		sb.append("PREPROCESSING: "+size(ActionStatus.PREPROCESSING)+newline);
-		sb.append("POSTPROCESSING: "+size(ActionStatus.POSTPROCESSING)+newline);
+		try {
+			sb.append("Entries in database: "+getUniqueIDs().size()+newline);
+			sb.append("DONE: "+size(ActionStatus.DONE)+newline);
+			sb.append("RUNNING: "+size(ActionStatus.RUNNING)+newline);
+			sb.append("READY: "+size(ActionStatus.READY)+newline);
+			sb.append("PENDING: "+size(ActionStatus.PENDING)+newline);
+			sb.append("QUEUED: "+size(ActionStatus.QUEUED)+newline);
+			sb.append("PREPROCESSING: "+size(ActionStatus.PREPROCESSING)+newline);
+			sb.append("POSTPROCESSING: "+size(ActionStatus.POSTPROCESSING)+newline);
+		}catch(Exception e) {
+			sb.append("ERROR: "+Log.createFaultMessage("", e));
+		}
 		long time=System.currentTimeMillis()-start;
 		sb.append("Implementation: "+getClass().getName()+newline);
 		sb.append("Time to generate diagnostic info: "+time+" ms."+newline);

@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.job.JobManagementImpl;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -114,7 +113,7 @@ public class RecreateXNJSJobs implements Runnable{
 		xnjs.get(Manager.class).add(a, client);
 	}
 
-	private Collection<String>getExistingJobs()throws PersistenceException{
+	private Collection<String>getExistingJobs()throws Exception{
 		return jmsHome.getStore().getUniqueIDs();
 	}
 	

@@ -45,7 +45,6 @@ import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import de.fzj.unicore.xnjs.ems.event.StartJobEvent;
@@ -131,7 +130,7 @@ public class BasicManager implements Manager, InternalManager {
 		try {
 			Collection<String>ids = jobs.getUniqueIDs();
 			return (String[])ids.toArray(new String [ids.size()]);
-		} catch (PersistenceException e) {
+		} catch (Exception e) {
 			throw new ExecutionException(e);
 		}
 	}
@@ -169,20 +168,14 @@ public class BasicManager implements Manager, InternalManager {
 	@Override
 	public Action getAction(String id)throws ExecutionException{
 		try{
-			Action a=jobs.get(id);
-			return a;
+			return jobs.get(id);
 		}catch(Exception e){
 			throw new ExecutionException(e);
 		}
 	}
 
-	public Action getActionForUpdate(String id)throws TimeoutException,PersistenceException{
+	public Action getActionForUpdate(String id)throws TimeoutException,Exception{
 		return jobs.getForUpdate(id);
-	}
-
-	@Override
-	public Action getNextActionForProcessing() throws InterruptedException,ExecutionException{
-		throw new RuntimeException();
 	}
 
 	/**
@@ -207,11 +200,12 @@ public class BasicManager implements Manager, InternalManager {
 					jobs.remove(a);
 					logger.debug("[{}] Action is destroyed.", id);
 				}
-			}catch(PersistenceException e){
-				logger.error("Persistence problem",e);
 			}
 			catch(TimeoutException te){
 				logger.error("Internal Error: can't remove job <"+a.getUUID()+">");
+			}
+			catch(Exception e){
+				logger.error("Persistence problem",e);
 			}
 		}
 		else{
@@ -232,7 +226,7 @@ public class BasicManager implements Manager, InternalManager {
 			a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", t));
 			try{
 				jobs.put(a.getUUID(),a);
-			}catch(PersistenceException pe){
+			}catch(Exception pe){
 				LogUtil.logException("Persistence problem", pe, logger);
 			}
 			if(a.getParentActionID()!=null){
@@ -269,7 +263,7 @@ public class BasicManager implements Manager, InternalManager {
 			if(a!=null)try{
 				jobs.put(id,a);
 				dispatcher.process(id);
-			}catch(PersistenceException pe){
+			}catch(Exception pe){
 				throw new ExecutionException(pe);
 			}
 		}
@@ -293,7 +287,7 @@ public class BasicManager implements Manager, InternalManager {
 			if(a!=null)try{
 				jobs.put(id,a);	
 				dispatcher.process(id);
-			}catch(PersistenceException pe){
+			}catch(Exception pe){
 				throw new ExecutionException(pe);
 			}
 		}
@@ -320,7 +314,7 @@ public class BasicManager implements Manager, InternalManager {
 				try {
 					jobs.put(id,a);
 					dispatcher.process(id);
-				} catch (PersistenceException e) {
+				} catch (Exception e) {
 					throw new ExecutionException(e);
 				}	
 		}
@@ -402,7 +396,7 @@ public class BasicManager implements Manager, InternalManager {
 			logger.debug("Adding internal action <{}> of type <{}>", actionID, a.getType());
 			jobs.put(actionID, a);
 			dispatcher.process(actionID);
-		}catch(PersistenceException pe){
+		}catch(Exception pe){
 			throw new ExecutionException(pe);
 		}
 		return a.getUUID();
@@ -414,7 +408,7 @@ public class BasicManager implements Manager, InternalManager {
 			Action a=jobs.get(actionID);
 			if(a==null)throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"No such action.");
 			return a.getStatus()==ActionStatus.DONE;
-		}catch(PersistenceException pe){
+		}catch(Exception pe){
 			throw new ExecutionException(pe);
 		}
 
@@ -437,7 +431,7 @@ public class BasicManager implements Manager, InternalManager {
 					jobs.put(actionID, a);
 					dispatcher.process(actionID);
 				}
-			}catch(PersistenceException pe){
+			}catch(Exception pe){
 				LogUtil.logException("Error storing action", pe,logger);
 			}
 		}
@@ -447,7 +441,7 @@ public class BasicManager implements Manager, InternalManager {
 	public int getAllJobs(){
 		try {
 			return jobs.size();
-		} catch (PersistenceException e) {
+		} catch (Exception e) {
 			LogUtil.logException("Error getting number of actions", e, logger);
 			return -1;
 		}
@@ -457,7 +451,7 @@ public class BasicManager implements Manager, InternalManager {
 	public int getDoneJobs(){
 		try {
 			return jobs.size(ActionStatus.DONE);
-		} catch (PersistenceException e) {
+		} catch (Exception e) {
 			return -1;
 		}
 	}	
@@ -538,7 +532,7 @@ public class BasicManager implements Manager, InternalManager {
 							try {
 								jobs.put(actionID, a);
 								dispatcher.process(actionID);
-							} catch (PersistenceException e) {
+							} catch (Exception e) {
 								throw new RuntimeException(e);
 							}
 						}

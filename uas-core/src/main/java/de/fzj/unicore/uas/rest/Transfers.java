@@ -5,7 +5,7 @@ import java.util.Map;
 
 import javax.ws.rs.Path;
 
-import com.nimbusds.jose.shaded.json.JSONObject;
+import org.json.JSONObject;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.ServerToServerFileTransferImpl;

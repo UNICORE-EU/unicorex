@@ -17,7 +17,6 @@ import javax.ws.rs.core.Response;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.SMSProperties;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
@@ -310,7 +309,7 @@ public class Storages extends ServicesBase {
 	}
 
 	// returns the ID of the first available SMF instance (usually there will be just one!)
-	synchronized String findSMF() throws PersistenceException {
+	synchronized String findSMF() throws Exception {
 		Home home = kernel.getHome(UAS.SMF);
 		if(home == null) {
 			throw new IllegalStateException("StorageFactory service is not available at this site!");	

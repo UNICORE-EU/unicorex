@@ -48,21 +48,6 @@ import de.fzj.unicore.xnjs.ems.event.XnjsEvent;
 public interface InternalManager extends EventHandler {
 	
 	/**
-	 * Get an Action for processing<br>
-	 * 
-	 * An action must explicitly "returned" to the manager using 
-	 *   doneProcessing() if everything went well, or
-	 *   errorProcessing() if errors occured
-	 * <br>
-	 * This method will not return the same action twice, if no call to
-	 * doneProcessing() or errorProcessing() has been made.
-	 *
-	 * @throws ExecutionException
-	 * @throws {@link InterruptedException}
-	 */
-	public Action getNextActionForProcessing() throws InterruptedException, ExecutionException;
-	
-	/**
 	 * notify manager that processing is done
 	 */
 	public void doneProcessing(Action a);

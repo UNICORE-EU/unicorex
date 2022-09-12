@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
@@ -124,7 +123,7 @@ public class FTSProcessor extends DefaultProcessor {
 	protected FTSInfo getFTSInfo() throws ProcessingException {
 		try{
 			return xnjs.get(IFileTransferEngine.class).getFTSStorage().read(action.getUUID());
-		}catch(PersistenceException e) {
+		}catch(Exception e) {
 			throw new ProcessingException(e);
 		}
 	}
@@ -132,7 +131,7 @@ public class FTSProcessor extends DefaultProcessor {
 	protected void storeFTSInfo(FTSInfo info) throws ProcessingException  {
 		try{
 			xnjs.get(IFileTransferEngine.class).getFTSStorage().write(info);
-		}catch(PersistenceException e) {
+		}catch(Exception e) {
 			throw new ProcessingException(e);
 		}
 	}

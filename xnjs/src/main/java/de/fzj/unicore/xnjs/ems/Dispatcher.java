@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
@@ -49,10 +48,8 @@ public class Dispatcher extends Thread {
 					workQueue.add(q);
 				}
 			}
-		}catch(PersistenceException pe){
-			LogUtil.logException("Can't read IDs from persistence.", pe, logger);
 		}
-		catch(RuntimeException re){
+		catch(Exception re){
 			LogUtil.logException("Error refilling work queue.", re, logger);
 		}
 	}

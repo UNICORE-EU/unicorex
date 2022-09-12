@@ -72,7 +72,7 @@ public class JDBCActionStore extends AbstractActionStore {
 	private int getForUpdateTimeoutPeriod=5; 
 
 	@Override
-	protected Action doGet(String id) throws PersistenceException {
+	protected Action doGet(String id) throws Exception {
 		Action a=null;
 		DoneAction da=doneJobs.read(id);
 		if(da!=null)a=da.getAction();
@@ -83,7 +83,7 @@ public class JDBCActionStore extends AbstractActionStore {
 	}
 
 	@Override
-	protected Action doGetForUpdate(String id)throws PersistenceException,TimeoutException {
+	protected Action doGetForUpdate(String id)throws Exception, TimeoutException {
 		try{
 			Action a=null;
 			DoneAction da=null;
@@ -101,7 +101,7 @@ public class JDBCActionStore extends AbstractActionStore {
 		}
 	}
 
-	protected Action tryGetForUpdate(String id)throws PersistenceException,TimeoutException {
+	protected Action tryGetForUpdate(String id)throws Exception, TimeoutException {
 		try{
 			return activeJobs.tryGetForUpdate(id);
 		}catch(InterruptedException te){
@@ -109,7 +109,7 @@ public class JDBCActionStore extends AbstractActionStore {
 		}
 	}
 	
-	protected void start()throws PersistenceException {
+	protected void start()throws Exception {
 		PersistenceFactory pf = PersistenceFactory.get(properties);
 		PersistenceDescriptor pd1 = PersistenceDescriptor.get(Action.class);
 		if(!"1".equals(xnjs.getID())) {
@@ -130,7 +130,7 @@ public class JDBCActionStore extends AbstractActionStore {
 	 * If not, check system property and drop all data
 	 * @param p - the persist impl to check
 	 */
-	protected void checkVersion(Persist<?> p, String tableName)throws PersistenceException{
+	protected void checkVersion(Persist<?> p, String tableName)throws Exception{
 		Collection<String>ids=p.getIDs();
 		try{
 			if(ids.size()>0){
@@ -158,13 +158,13 @@ public class JDBCActionStore extends AbstractActionStore {
 	}
 
 	@Override
-	protected void doRemove(Action a)throws PersistenceException {
+	protected void doRemove(Action a)throws Exception {
 		activeJobs.remove(a.getUUID());
 		doneJobs.remove(a.getUUID());
 	}
 
 	@Override
-	protected void doStore(Action action)throws PersistenceException{
+	protected void doStore(Action action)throws Exception{
 		if(action.isDirty()){
 			if(action.getStatus()!=ActionStatus.DONE){
 				activeJobs.write(action);
@@ -179,19 +179,19 @@ public class JDBCActionStore extends AbstractActionStore {
 	}
 
 	@Override
-	public Collection<String> getUniqueIDs()throws PersistenceException  {
+	public Collection<String> getUniqueIDs()throws Exception  {
 		Collection<String>all=activeJobs.getIDs();
 		all.addAll(doneJobs.getIDs());
 		return all;
 	}
 
 	@Override
-	public Collection<String> getActiveUniqueIDs()throws PersistenceException  {
+	public Collection<String> getActiveUniqueIDs()throws Exception  {
 		return activeJobs.getIDs();
 	}
 
 	@Override
-	public int size()throws PersistenceException {
+	public int size()throws Exception {
 		int all=activeJobs.getRowCount();
 		all+=doneJobs.getRowCount();
 		return all;
@@ -210,7 +210,7 @@ public class JDBCActionStore extends AbstractActionStore {
 		this.getForUpdateTimeoutPeriod=time;
 	}
 
-	public void removeAll()throws PersistenceException{
+	public void removeAll()throws Exception{
 		activeJobs.removeAll();
 		doneJobs.removeAll();
 	}

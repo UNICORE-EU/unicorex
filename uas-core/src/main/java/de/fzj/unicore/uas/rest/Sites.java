@@ -21,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TSSModel;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
@@ -163,8 +162,7 @@ public class Sites extends ServicesBase {
 	@ConcurrentAccess(allow=true)
 	public Response listJobs(@QueryParam("offset") int offset, 
 			@QueryParam("num") @DefaultValue(value="100") int num,
-			@QueryParam("tags") String tags
-			) throws JSONException, PersistenceException {
+			@QueryParam("tags") String tags){
 		try{
 			PagingHelper ph = new PagingHelper(getBaseURL()+"/"+getResourcesName()+"/"+model.getUniqueID()+"/jobs", 
 					getBaseURL()+"/jobs","jobs");
@@ -180,7 +178,7 @@ public class Sites extends ServicesBase {
 		}
 	}
 	
-	protected List<String>getTaggedJobs(String tagSpec) throws PersistenceException { 
+	protected List<String>getTaggedJobs(String tagSpec) throws Exception { 
 		Home jmsHome = kernel.getHome(UAS.JMS);
 		Client c=AuthZAttributeStore.getClient(); 
 		String[] tags = tagSpec.split("[ +,]");
@@ -198,11 +196,15 @@ public class Sites extends ServicesBase {
 	@Path("/{uniqueID}/jobs")
 	@Produces(MediaType.TEXT_HTML)
 	@ConcurrentAccess(allow=true)
-	public String listJobsHTML(@QueryParam("offset") int offset, 
-			@QueryParam("num") @DefaultValue(value="100") int num) throws PersistenceException {
-		PagingHelper ph = new PagingHelper(getBaseURL()+"/"+getResourcesName()+"/"+model.getUniqueID(), 
-				getBaseURL(),"jobs");
-		return ph.renderHTML(offset, num, getModel().getJobIDs());
+	public Response listJobsHTML(@QueryParam("offset") int offset, 
+			@QueryParam("num") @DefaultValue(value="100") int num){
+		try {
+			PagingHelper ph = new PagingHelper(getBaseURL()+"/"+getResourcesName()+"/"+model.getUniqueID(), 
+					getBaseURL(),"jobs");
+			return Response.ok(ph.renderHTML(offset, num, getModel().getJobIDs()), MediaType.TEXT_HTML).build();
+		}catch(Exception ex) {
+			return handleError("Could not list jobs", ex, logger);
+		}
 	}
 	
 

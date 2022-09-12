@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -105,7 +104,7 @@ public class GenerateJMSInstances implements Runnable{
 		}
 	}
 
-	private Collection<String>getExistingJobs()throws PersistenceException{
+	private Collection<String>getExistingJobs()throws Exception{
 		return jms.getStore().getUniqueIDs();
 	}
 

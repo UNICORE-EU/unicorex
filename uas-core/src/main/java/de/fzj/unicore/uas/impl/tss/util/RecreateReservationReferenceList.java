@@ -90,7 +90,7 @@ public class RecreateReservationReferenceList implements Runnable{
 		}
 	}
 
-	private Collection<String>getExistingReservations()throws PersistenceException{
+	private Collection<String>getExistingReservations()throws Exception{
 		return reservations.getStore().getUniqueIDs();
 	}
 

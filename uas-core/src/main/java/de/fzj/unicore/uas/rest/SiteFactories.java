@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TSFModel;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
@@ -134,7 +133,7 @@ public class SiteFactories extends ServicesBase {
 	}
 
 	// returns the ID of the first available TSF instance (usually there will be just one!)
-	public static synchronized String findTSF(Kernel kernel) throws PersistenceException {
+	public static synchronized String findTSF(Kernel kernel) throws Exception {
 		Home home = kernel.getHome(UAS.TSF);
 		if(home == null) {
 			throw new IllegalStateException("TargetSystemFactory service is not available at this site!");

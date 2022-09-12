@@ -33,14 +33,14 @@
 
     <compiler.fork>false</compiler.fork>
     <use.version>4.4.0</use.version>
-    <persistence.version>0.302</persistence.version>
-    <metrics.version>4.2.10</metrics.version>
+    <persistence.version>0.400</persistence.version>
+    <metrics.version>4.2.12</metrics.version>
     <uftp.version>2.13.0</uftp.version>
     <guice.version>5.1.0</guice.version>
     <guava.version>31.1-jre</guava.version>
     <jclouds.version>2.5.0</jclouds.version>
-    <groovy.version>4.0.4</groovy.version>
-    <lucene.version>9.2.0</lucene.version>
+    <groovy.version>4.0.5</groovy.version>
+    <lucene.version>9.3.0</lucene.version>
     <tika.version>2.4.1</tika.version>
   </properties>
 

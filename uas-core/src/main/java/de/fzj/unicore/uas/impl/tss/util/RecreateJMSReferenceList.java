@@ -108,7 +108,7 @@ public class RecreateJMSReferenceList implements Runnable{
 		}
 	}
 
-	private Collection<String>getExistingJobs()throws PersistenceException{
+	private Collection<String>getExistingJobs()throws Exception{
 		return jms.getStore().getUniqueIDs();
 	}
 

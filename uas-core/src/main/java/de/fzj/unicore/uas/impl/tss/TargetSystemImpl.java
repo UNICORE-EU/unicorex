@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
@@ -154,7 +153,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 				tt.add(Calendar.DATE, 1);
 				home.setTerminationTime(getUniqueID(),tt);
 			}
-		}catch(PersistenceException e){
+		}catch(Exception e){
 			Log.logException("Persistence error.", e, logger);
 			throw new UnableToSetTerminationTimeException("Persistence error.");
 		}
