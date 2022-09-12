@@ -31,7 +31,7 @@ CP=.$(@cdRoot@find "$LIB" -name "*.jar" -exec printf ":{}" \;)
 PARAM=$*
 if [ "$PARAM" = "" ]
 then
-  PARAM=${CONF}/uas.config
+  PARAM=${CONF}/unicorex.config
 fi
 
 #

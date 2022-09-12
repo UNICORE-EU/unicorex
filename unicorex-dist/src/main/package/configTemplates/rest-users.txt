@@ -1,9 +1,6 @@
 #
 # Username/password file for user authentication 
-# for the REST API
 #
-# Username/password authentication is enabled/disabled in uas.config !
-# 
 
 #
 # format:

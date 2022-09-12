@@ -7,14 +7,12 @@ services for a single compute cluster (or just a file system).
 
 ## Download
 
-UNICORE/X is distributed as part of the "Core Server" bundle and
-can be downloaded from SourceForge
-https://sourceforge.net/projects/unicore/files/Servers/Core/
+UNICORE/X is distributed as part of the "Core Server" bundle and can be
+[downloaded from SourceForge](https://sourceforge.net/projects/unicore/files/Servers/Core)
 
 ## Documentation
 
-See the [UNICORE/X manual] 
-(https://unicore-docs.readthedocs.io/en/latest/admin-docs/unicorex/index.html)
+See the [UNICORE/X manual](https://unicore-docs.readthedocs.io/en/latest/admin-docs/unicorex/index.html)
 
 ## Building from source
 

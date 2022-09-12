@@ -41,8 +41,8 @@ case "$1" in
       	chown unicore:unicore /etc/unicore/unicorex/rest-users.txt
 	chmod 644 /etc/unicore/unicorex/rest-users.txt
 
-	chown unicore:unicore /etc/unicore/unicorex/uas.config
-	chmod 600 /etc/unicore/unicorex/uas.config
+	chown unicore:unicore /etc/unicore/unicorex/unicorex.config
+	chmod 600 /etc/unicore/unicorex/unicorex.config
 
 	chown unicore:unicore /etc/unicore/unicorex/vo.config
 	chmod 600 /etc/unicore/unicorex/vo.config

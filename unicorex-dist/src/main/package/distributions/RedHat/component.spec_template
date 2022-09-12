@@ -43,7 +43,7 @@ This package contains the UNICORE/X server.
 %config(noreplace) %attr(0644 unicore unicore)"/etc/unicore/unicorex/simpleidb"
 %config(noreplace) %attr(0644 unicore unicore) "/etc/unicore/unicorex/simpleuudb"
 %config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/rest-users.txt"
-%config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/uas.config"
+%config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/unicorex.config"
 %config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/vo.config"
 %config %attr(0644 unicore unicore) "/etc/unicore/unicorex/votruststore.jks"
 %config(noreplace) %attr(0600 unicore unicore) "/etc/unicore/unicorex/container.properties"
