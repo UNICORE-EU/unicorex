@@ -725,6 +725,14 @@ public class TSIMessages {
 	}
 
 	/**
+	 * builds the command required to get user's ssh public keys
+	 * @return
+	 */
+	public String makeGetUserInfoCommand() {
+		return "#TSI_GET_USER_INFO\n";
+	}
+	
+	/**
 	 * Extract the resources from the <code>&lt;ResourceSet&gt;</code>
 	 * and put them into #TSI_NNN strings<br/>
 	 * 

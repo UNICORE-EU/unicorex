@@ -71,6 +71,8 @@ import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
 import de.fzj.unicore.xnjs.tsi.remote.RemoteTSIModule;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.rest.security.UserPublicKeyCache;
+import eu.unicore.services.rest.security.UserPublicKeyCache.UserInfoSource;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
@@ -225,6 +227,14 @@ public class XNJSFacade {
 		Properties props = kernel.getContainerProperties().getRawProperties();
 		try{
 			configure(mode, props, uasConfig);
+			UserPublicKeyCache cache = kernel.getAttribute(UserPublicKeyCache.class);
+			if(cache!=null) {
+				Collection<UserInfoSource>sources = cache.getUserInfoSources();
+				for(UserInfoSource s: sources) {
+					if(s instanceof TSIUserInfoLoader)return;
+				}
+				sources.add(new TSIUserInfoLoader(kernel));
+			}
 		}
 		catch(Exception e){
 			throw new RuntimeException("Error configuring XNJS.",e);

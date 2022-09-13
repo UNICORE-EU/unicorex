@@ -703,6 +703,36 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return budget;
 	}
 
+	public List<String> getUserPublicKeys() throws ExecutionException {
+		String cmd = tsiMessages.makeGetUserInfoCommand();
+		String res = null;
+		try{
+			res = runTSICommand(cmd);	
+			return parseGetUserInfoReply(res);
+		}catch(Exception ex){
+			String msg = Log.createFaultMessage("Error executing TSI_GET_USER_INFO", ex)
+					+" TSI reply was "+res;
+			throw new ExecutionException(msg);
+		}
+	}
+	
+	private List<String> parseGetUserInfoReply(String reply)throws ExecutionException {
+		List<String> result = new ArrayList<>();
+		BufferedReader br = new BufferedReader(new StringReader(reply+"\n"));
+		while(true){
+			String line = tsiMessages.readTSIDFLine(br);
+			if(line==null)break;
+			try {
+				if(line.startsWith("Accepted key")) {
+					result.add(line.split(":")[1]);
+				}
+			}catch(Exception ex) {
+				Log.logException("Could not get_user_info reply item <"+line+">", ex, tsiLogger);
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * read file from TSI<br/>
 	 * 

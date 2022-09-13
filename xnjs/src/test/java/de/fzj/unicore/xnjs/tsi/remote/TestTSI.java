@@ -496,6 +496,18 @@ public class TestTSI extends RemoteTSITestCase{
 		}
 	}
 	
+	@Test
+	public void testGetUserInfo() {
+		RemoteTSI tsi=makeTSI();
+		try{
+			List<String>reply = tsi.getUserPublicKeys();
+			System.out.println(reply);
+		}catch(ExecutionException ee1) {
+			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("ERROR:"));
+		}
+	}
+	
+	
 	private void writeFile(String path, String content)throws Exception{
 		try(OutputStreamWriter osw=new OutputStreamWriter(makeTSI().getOutputStream(path))){
 			osw.write(content);
