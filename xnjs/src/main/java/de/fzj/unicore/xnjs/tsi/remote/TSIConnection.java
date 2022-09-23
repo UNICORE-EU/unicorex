@@ -44,6 +44,8 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.SSLSocket;
 
@@ -264,16 +266,18 @@ public class TSIConnection implements AutoCloseable {
 		return sb.toString();
 	}
 	
+	public boolean compareVersion(String minRequired) {
+		if(tsiVersion==null)return false;
+		return doCompareVersions(tsiVersion, minRequired);
+	}
 	/**
 	 * compares versions
 	 * @param tsiVersion - the current TSI version
 	 * @param minRequired - the mininum required version
 	 * @return <code>true</code> if tsiVersion >= minRequired, <code>false</code> otherwise
 	 */
-	public boolean compareVersion(String minRequired) {
-		if(tsiVersion==null)return false;
-
-		String[] curS = tsiVersion.split("\\.");
+	public static boolean doCompareVersions(String haveVersion, String minRequired) {
+		String[] curS = haveVersion.split("\\.");
 		String[] reqS = minRequired.split("\\.");
 		int[] cur = new int[curS.length];
 		int[] req = new int[reqS.length];
@@ -547,9 +551,9 @@ public class TSIConnection implements AutoCloseable {
 	}
 
 
-	private static boolean issuedWarning=false;
+	private static final Map<String, Boolean> issuedWarnings = new HashMap<>();
 
-	public static final String RECOMMENDED_TSI_VERSION = "8.3.0";
+	public static final String RECOMMENDED_TSI_VERSION = "9.0.0";
 
 	/**
 	 * get the TSI version
@@ -558,14 +562,20 @@ public class TSIConnection implements AutoCloseable {
 		if(tsiVersion==null){
 			tsiVersion = doGetVersion();
 		}
-		if(tsiVersion!=null && !issuedWarning) {
-			issuedWarning = true;
-			if(compareVersion(RECOMMENDED_TSI_VERSION)){
-				logger.warn("TSI host <{}> runs version <{}> which is outdated. "
-						+ "UNICORE will try to work in backwards compatible way, "
-						+ "but some features may not work. " +
-						"It is strongly suggested to update your TSI.", getTSIHostName(), tsiVersion);
-			}
+		if(tsiVersion!=null) {
+			try {
+				String tsiHost = getTSIHostName();
+				Boolean issuedWarning = issuedWarnings.get(tsiHost);
+				if(issuedWarning==null) {
+					issuedWarnings.put(tsiHost, Boolean.TRUE);
+					if(!compareVersion(RECOMMENDED_TSI_VERSION)){
+						logger.warn("TSI host <{}> runs version <{}> which is outdated. "
+							+ "Some features may not work as expected. " +
+							"It is suggested to update your TSI to version <{}> or higher.",
+							tsiHost, tsiVersion, RECOMMENDED_TSI_VERSION);
+					}
+				}
+			}catch(Exception e) {}
 		}
 		return tsiVersion;
 	}

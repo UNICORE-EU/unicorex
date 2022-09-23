@@ -21,6 +21,7 @@ import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
+import de.fzj.unicore.xnjs.tsi.remote.TSIConnection;
 import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 
 public class TestUtils {
@@ -357,6 +358,16 @@ public class TestUtils {
 		for(String b: budgetInfos) {
 			assertEquals(12, new BudgetInfo(b).getPercentRemaining());
 		}
+	}
+
+	@Test
+	public void testTSIVersionCompare() throws Exception {
+		assertTrue(TSIConnection.doCompareVersions("9.0.0", "8.3.0"));
+		assertTrue(TSIConnection.doCompareVersions("8.3.0", "8.2.0"));
+		assertTrue(TSIConnection.doCompareVersions("8.3.1", "8.3.0"));
+		assertFalse(TSIConnection.doCompareVersions("8.1.0", "8.3.0"));
+		assertFalse(TSIConnection.doCompareVersions("8.1.0", "8.1.1"));
+		assertFalse(TSIConnection.doCompareVersions("8.1.1", "8.1.2"));
 	}
 
 }
