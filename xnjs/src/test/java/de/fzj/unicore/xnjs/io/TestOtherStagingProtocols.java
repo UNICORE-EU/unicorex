@@ -20,11 +20,6 @@ import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
-import com.icegreen.greenmail.user.GreenMailUser;
-import com.icegreen.greenmail.user.UserException;
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetupTest;
-
 import de.fzj.unicore.xnjs.ems.EMSTestBase;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
@@ -46,22 +41,11 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	static final int wait_time=1000;
 
-	private GreenMail greenMail;
-
 	private FakeFtpServer ftpServer;
 
 	@Before
 	public void startHelperServers()throws Exception{
-		setupMailServer();
 		setupFTPServer();
-	}
-
-	private void setupMailServer()throws UserException{
-		if(greenMail!=null)greenMail.stop();
-		greenMail = new GreenMail(ServerSetupTest.SMTP_IMAP);
-		GreenMailUser user=greenMail.setUser("testuser@localhost", "testuser", "test123");
-		user.create();
-		greenMail.start();
 	}
 
 	private void setupFTPServer(){
@@ -85,7 +69,6 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	@After
 	public void stopServers()throws Exception{
-		greenMail.stop();
 		ftpServer.stop();
 	}
 
