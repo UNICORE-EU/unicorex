@@ -31,6 +31,10 @@
      <groupId>eu.unicore.services</groupId>
      <artifactId>use-restclient</artifactId>
     </dependency>
+    <dependency>
+     <groupId>eu.unicore.security</groupId>
+     <artifactId>secutils-cxf</artifactId>
+    </dependency>
    <dependency>
      <groupId>commons-io</groupId>
      <artifactId>commons-io</artifactId>

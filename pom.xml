@@ -33,6 +33,7 @@
 
     <compiler.fork>false</compiler.fork>
     <use.version>4.4.0</use.version>
+    <secutils.version>3.3.1</secutils.version>
     <persistence.version>0.400</persistence.version>
     <metrics.version>4.2.12</metrics.version>
     <uftp.version>2.13.0</uftp.version>
@@ -79,6 +80,11 @@
 	<version>${use.version}</version>
       </dependency>
       <dependency>
+	<groupId>eu.unicore.security</groupId>
+	<artifactId>secutils-cxf</artifactId>
+	<version>${secutils.version}</version>
+      </dependency>
+      <dependency>
 	<groupId>eu.unicore.services</groupId>
 	<artifactId>use-rest</artifactId>
 	<version>${use.version}</version>
@@ -86,11 +92,6 @@
       <dependency>
 	<groupId>eu.unicore.services</groupId>
 	<artifactId>use-core</artifactId>
-	<version>${use.version}</version>
-      </dependency>
-      <dependency>
-	<groupId>eu.unicore.services</groupId>
-	<artifactId>use-wsrftypes</artifactId>
 	<version>${use.version}</version>
       </dependency>
       <dependency>
