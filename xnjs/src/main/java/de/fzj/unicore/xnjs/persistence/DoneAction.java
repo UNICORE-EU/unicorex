@@ -14,7 +14,7 @@ import de.fzj.unicore.xnjs.ems.Action;
  * @author schuller
  */
 @Table(name="FINISHED_JOBS")
-@JSON(customHandlers={Wrapper.WrapperConverter.class})
+@JSON(customHandlers={Wrapper.WrapperConverter.class,GSONUtils.XmlBeansConverter.class})
 public class DoneAction implements Serializable{
 
 	private static final long serialVersionUID = 1L;

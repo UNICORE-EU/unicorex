@@ -46,6 +46,7 @@ import de.fzj.unicore.persist.util.Wrapper;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
+import de.fzj.unicore.xnjs.persistence.GSONUtils;
 import eu.unicore.security.Client;
 
 /**
@@ -55,7 +56,7 @@ import eu.unicore.security.Client;
  * @author schuller
  */
 @Table(name="JOBS")
-@JSON(customHandlers={Wrapper.WrapperConverter.class})
+@JSON(customHandlers={Wrapper.WrapperConverter.class,GSONUtils.XmlBeansConverter.class})
 public class Action implements Serializable {
 
 	private static final long serialVersionUID=1L;

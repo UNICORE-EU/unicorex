@@ -54,6 +54,14 @@
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.xmlbeans</groupId>
+      <artifactId>xmlbeans</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.imunity.samly</groupId>
+      <artifactId>samly2</artifactId>
+    </dependency>
   </dependencies>
   
   <build>
