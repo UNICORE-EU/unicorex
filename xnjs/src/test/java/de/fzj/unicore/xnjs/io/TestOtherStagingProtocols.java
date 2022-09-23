@@ -5,13 +5,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URL;
-
-import javax.mail.BodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -37,7 +32,6 @@ import de.fzj.unicore.xnjs.io.impl.DefaultTransferCreator;
 import de.fzj.unicore.xnjs.io.impl.FTPDownload;
 import de.fzj.unicore.xnjs.io.impl.FTPUpload;
 import de.fzj.unicore.xnjs.io.impl.FileTransferEngine;
-import de.fzj.unicore.xnjs.io.impl.MailtoUpload;
 import de.fzj.unicore.xnjs.io.impl.ScpDownload;
 import de.fzj.unicore.xnjs.io.impl.ScpUpload;
 import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
@@ -93,87 +87,6 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 	public void stopServers()throws Exception{
 		greenMail.stop();
 		ftpServer.stop();
-	}
-
-	@Test
-	public void testMailtoSimple()throws Exception{
-
-		int smtpPort=greenMail.getSmtp().getPort();
-
-		xnjs.setProperty("XNJS.localtsi.useShell", "false");
-		xnjs.getIOProperties().setProperty("mailPort", String.valueOf(smtpPort));
-
-		String dummyParent=createDummyParent();
-		String wd=getWorkingDir(dummyParent);
-		Client client=createClient();
-		FileOutputStream fos=new FileOutputStream(new File(wd,"test"));
-		fos.write("this is some testdata".getBytes());
-		fos.close();
-		MailtoUpload d=new MailtoUpload(client,wd,"test", "schuller@localhost?subject=test subject&body=foo", xnjs);
-		d.getInfo().setParentActionID(dummyParent);
-		assertEquals(Status.CREATED, d.getInfo().getStatus());
-		assertEquals("test subject",d.getSubject());
-		assertEquals("foo",d.getBody());
-
-		Thread t=new Thread(d);
-		t.start();
-		greenMail.waitForIncomingEmail(wait_time, 1);
-
-		MimeMessage[] messages=greenMail.getReceivedMessages();
-
-		assertEquals(1,messages.length);
-		MimeMessage message=messages[0];
-		assertEquals("test subject",message.getSubject());
-		assertTrue(message.getContentType().startsWith("multipart/mixed;"));
-		MimeMultipart mp = (MimeMultipart) message.getContent();
-		assertEquals(2, mp.getCount());
-		BodyPart p1=mp.getBodyPart(0);
-		assertEquals("foo",p1.getContent());
-		BodyPart p2=mp.getBodyPart(1);
-		String p2_text=IOUtils.toString(p2.getInputStream(), 200);
-		assertEquals("this is some testdata",p2_text);
-	}
-
-	@Test
-	public void testMailtoAuth()throws Exception{
-
-		int smtpPort=greenMail.getSmtp().getPort();
-
-		xnjs.setProperty("XNJS.localtsi.useShell", "false");
-
-		xnjs.getIOProperties().setProperty("mailPort", String.valueOf(smtpPort));
-		xnjs.getIOProperties().setProperty("mailUser", "testuser");
-		xnjs.getIOProperties().setProperty("mailPassword", "test123");
-
-		String dummyParent=createDummyParent();
-		String wd=getWorkingDir(dummyParent);
-		Client client=createClient();
-		FileOutputStream fos=new FileOutputStream(new File(wd,"test"));
-		fos.write("this is some testdata".getBytes());
-		fos.close();
-		MailtoUpload d=new MailtoUpload(client,wd,"test", "testuser@localhost?subject=test subject&body=foo", xnjs);
-		d.getInfo().setParentActionID(dummyParent);
-		assertEquals(Status.CREATED, d.getInfo().getStatus());
-		assertEquals("test subject",d.getSubject());
-		assertEquals("foo",d.getBody());
-
-		Thread t=new Thread(d);
-		t.start();
-		greenMail.waitForIncomingEmail(wait_time, 1);
-
-		MimeMessage[] messages=greenMail.getReceivedMessages();
-
-		assertEquals(1,messages.length);
-		MimeMessage message=messages[0];
-		assertEquals("test subject",message.getSubject());
-		assertTrue(message.getContentType().startsWith("multipart/mixed;"));
-		MimeMultipart mp = (MimeMultipart) message.getContent();
-		assertEquals(2, mp.getCount());
-		BodyPart p1=mp.getBodyPart(0);
-		assertEquals("foo",p1.getContent());
-		BodyPart p2=mp.getBodyPart(1);
-		String p2_text=IOUtils.toString(p2.getInputStream(), 200);
-		assertEquals("this is some testdata",p2_text);
 	}
 
 	@Test

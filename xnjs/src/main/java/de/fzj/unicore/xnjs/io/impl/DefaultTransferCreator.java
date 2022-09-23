@@ -63,7 +63,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 
 	@Override
 	public String getProtocol() {
-		return "ftp, gsiftp, scp, http, https, mailto, file, link, inline";
+		return "ftp, gsiftp, scp, http, https, file, link, inline";
 	}
 	
 	@Override
@@ -73,7 +73,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 
 	@Override
 	public String getStageOutProtocol() {
-		return "ftp, gsiftp, scp, http, https, mailto, file";
+		return "ftp, gsiftp, scp, http, https, file";
 	}
 
 	@Override
@@ -91,9 +91,6 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		}
 		if("scp".equalsIgnoreCase(scheme)){
 			return new ScpUpload(client,workingDirectory,source,target,configuration,credentials);
-		}
-		if("mailto".equalsIgnoreCase(scheme)){
-			return new MailtoUpload(client, workingDirectory, source, target.getSchemeSpecificPart(), configuration);
 		}
 		if("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)){
 			return new HTTPFileUpload(client, workingDirectory, source, target.toString(), configuration,credentials);

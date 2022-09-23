@@ -33,7 +33,6 @@
 
 package de.fzj.unicore.xnjs;
 
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -46,8 +45,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
+//import org.apache.xmlbeans.XmlCursor;
+//import org.apache.xmlbeans.XmlObject;
 import org.json.JSONObject;
 
 import com.codahale.metrics.Histogram;
@@ -383,22 +382,6 @@ public class XNJS {
 	public void setProcessingChain(String actionType, String jdType, String[] chain){
 		ProcessorChain pc = new ProcessorChain(actionType, jdType, chain);
 		config.getProcessingChains().put(actionType, pc);
-	}
-
-	public Action makeAction(XmlObject job){
-		return makeAction(job, java.util.UUID.randomUUID().toString());
-	}
-
-	public Action makeAction(XmlObject job, String uuid){
-		Action a=new Action(uuid);
-		XmlCursor c=job.newCursor();
-		c.toFirstChild();
-		String qn=c.getName().getNamespaceURI();
-		String type=config.getJobType(qn);
-		if(type==null)return null;
-		a.setAjd((Serializable)job);
-		a.setType(type);
-		return a;
 	}
 	
 	public Action makeAction(JSONObject job){
