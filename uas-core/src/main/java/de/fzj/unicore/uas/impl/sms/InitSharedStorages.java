@@ -96,9 +96,9 @@ public class InitSharedStorages implements Runnable{
 			desc.setEnableTrigger(false);
 		}
 		// allow user access via ACL
-		map.acl.add(new ACLEntry(OperationType.modify, "user", MatchType.ROLE));
+		map.acl.add(new ACLEntry(OperationType.write, "user", MatchType.ROLE));
 		home.createResource(map);
-		logger.info("Added shared Storage resource '"+id+"' "+desc);
+		logger.info("Added shared Storage resource '{}' {}", id, desc);
 	}
 
 }

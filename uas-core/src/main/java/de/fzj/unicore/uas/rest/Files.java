@@ -47,6 +47,8 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
+import eu.unicore.security.OperationType;
+import eu.unicore.security.SEIOperationType;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Kernel;
@@ -160,6 +162,7 @@ public class Files extends RESTRendererBase {
 	@Path("/{path:.*}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@SEIOperationType(OperationType.write)
 	public Response modify(@PathParam("path")String path, String jsonString) throws Exception {
 
 		try{
@@ -367,6 +370,7 @@ public class Files extends RESTRendererBase {
 	 */
 	@PUT
 	@Path("/{path:.*}")
+	@SEIOperationType(OperationType.write)
 	public Response upload(@PathParam("path")String path, InputStream content, @QueryParam("size") Long size, 
 			@HeaderParam("Content-Type") String mediaType) 
 					throws Exception {
@@ -400,6 +404,7 @@ public class Files extends RESTRendererBase {
 	 */
 	@DELETE
 	@Path("/{path:.*}")
+	@SEIOperationType(OperationType.write)
 	public Response delete(@PathParam("path")String path) 
 			throws Exception {
 
