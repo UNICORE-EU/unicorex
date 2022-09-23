@@ -18,11 +18,6 @@ set -e
 
 case "$1" in
     remove)
-	/etc/init.d/unicore-registry stop
-	if [ -e /sbin/insserv ]
- 	then
-    	 /sbin/insserv -r unicore-registry
- 	fi 
     ;;
     upgrade|deconfigure)
     ;;

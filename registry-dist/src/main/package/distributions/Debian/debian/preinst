@@ -22,7 +22,6 @@ case "$1" in
      /usr/sbin/useradd -c "UNICORE" -g unicore \
     -s /bin/false -r -d /usr/share/unicore unicore 2>/dev/null || :
 
-
     ;;
 
     abort-upgrade)

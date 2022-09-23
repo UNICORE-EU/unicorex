@@ -1,4 +1,3 @@
-%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 Buildroot: %{_builddir}/%{name}-root
 Name: unicore-@component-name@@component-suffix@
 Version: @component-version@
@@ -8,7 +7,6 @@ License: BSD
 Distribution: RedHat
 Group: System Environment/Daemons
 URL: https://www.unicore.eu
-Requires: java-1.@java-main-version@.0-openjdk
 AutoReqProv: no
 BuildArch: @component-architecture@
 Packager: UNICORE unicore-support@lists.sourceforge.net
@@ -39,7 +37,7 @@ This package contains the UNICORE Registry server.
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/startup.properties"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/logging.properties"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/simpleuudb"
-%config %attr(0600 unicore unicore) "/etc/unicore/registry/uas.config"
+%config %attr(0600 unicore unicore) "/etc/unicore/registry/registry.config"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2.config"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/01basicRules.xml"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/30registryServices.xml"

@@ -38,7 +38,7 @@ fi
 PARAM=$*
 if [ "$PARAM" = "" ]
 then
-  PARAM=@etc@/uas.config
+  PARAM=@etc@/registry.config
 fi
 
 #
@@ -47,9 +47,6 @@ fi
 
 CLASSPATH=$CP; export CLASSPATH
 
-nohup ${JAVA} ${MEM} ${OPTS} ${DEFS} de.fzj.unicore.wsrflite.USEContainer ${PARAM} REGISTRY > ${STARTLOG} 2>&1  & echo $! > ${PID}
+nohup ${JAVA} ${MEM} ${OPTS} ${DEFS} eu.unicore.services.USEContainer ${PARAM} REGISTRY > ${STARTLOG} 2>&1  & echo $! > ${PID}
 
-echo "Registry UNICORE/X server starting"
-
-
-
+echo "UNICORE shared Registry server starting"

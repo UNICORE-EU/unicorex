@@ -20,14 +20,6 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <distributionManagement>
-<!-- where the website is deployed -->
-    <site>
-      <id>unicore.eu</id>
-      <url>dav:https://unicore-dev.zam.kfa-juelich.de/documentation/unicorex-${project.version}</url>
-    </site>
-  </distributionManagement>
-
   <properties>
     <!-- package version and release index -->
     <package.version>${project.version}</package.version>

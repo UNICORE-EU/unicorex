@@ -20,79 +20,23 @@ set -e
 case "$1" in
     configure)
 	# Config files
-	chown unicore:unicore /etc/unicore/unicorex/
+	chown -R unicore:unicore /etc/unicore/unicorex/
 	chmod 755 /etc/unicore/unicorex/
-
-	chown unicore:unicore /etc/unicore/unicorex/xacml2Policies
+	chmod 644 /etc/unicore/unicorex/*
 	chmod 755 /etc/unicore/unicorex/xacml2Policies
-	
-	chown unicore:unicore /etc/unicore/unicorex/startup.properties
-	chmod 644 /etc/unicore/unicorex/startup.properties
+	chmod 644 /etc/unicore/unicorex/xacml2Policies/*.xml
 
-	chown unicore:unicore /etc/unicore/unicorex/logging.properties
-	chmod 644 /etc/unicore/unicorex/logging.properties
+	chown unicore:unicore /usr/sbin/unicore-unicorex-*.sh
+	chmod 744 /usr/sbin/unicore-unicorex-*.sh
 
-	chown unicore:unicore /etc/unicore/unicorex/simpleidb
-	chmod 644 /etc/unicore/unicorex/simpleidb
-
-	chown unicore:unicore /etc/unicore/unicorex/simpleuudb
-	chmod 644 /etc/unicore/unicorex/simpleuudb
-
-      	chown unicore:unicore /etc/unicore/unicorex/rest-users.txt
-	chmod 644 /etc/unicore/unicorex/rest-users.txt
-
-	chown unicore:unicore /etc/unicore/unicorex/unicorex.config
-	chmod 600 /etc/unicore/unicorex/unicorex.config
-
-	chown unicore:unicore /etc/unicore/unicorex/vo.config
-	chmod 600 /etc/unicore/unicorex/vo.config
-
-	chown unicore:unicore /etc/unicore/unicorex/votruststore.jks
-	chmod 644 /etc/unicore/unicorex/votruststore.jks
-	
-	chown unicore:unicore /etc/unicore/unicorex/container.properties
-	chmod 600 /etc/unicore/unicorex/container.properties
-	
-	chown unicore:unicore /etc/unicore/unicorex/xacml2.config
-	chmod 644 /etc/unicore/unicorex/xacml2.config
-	
-	chown unicore:unicore /etc/unicore/unicorex/xnjs.properties
-	chmod 600 /etc/unicore/unicorex/xnjs.properties
-
-	chown unicore:unicore /etc/unicore/unicorex/xacml2Policies/*.xml
-	chmod 600 /etc/unicore/unicorex/xacml2Policies/*.xml
-
-	chown unicore:unicore /usr/sbin/unicore-unicorex-start.sh
-	chmod 744 /usr/sbin/unicore-unicorex-start.sh
-	
-	chown unicore:unicore /usr/sbin/unicore-unicorex-stop.sh
-	chmod 744 /usr/sbin/unicore-unicorex-stop.sh
-	
-	chown unicore:unicore /usr/sbin/unicore-unicorex-status.sh
-	chmod 744 /usr/sbin/unicore-unicorex-status.sh
-	
-	# Documentation
-	chmod 755 /usr/share/doc/unicore/unicorex/
-	chmod 644 /usr/share/doc/unicore/unicorex/*
-	
-	# jar files
 	chmod 755 /usr/share/unicore/unicorex/lib
 	chmod 644 /usr/share/unicore/unicorex/lib/*.jar
 
-	# logs
 	chown unicore:unicore /var/log/unicore
 	chmod 755 /var/log/unicore
 	
 	chown unicore:unicore /var/log/unicore/unicorex
 	chmod 755 /var/log/unicore/unicorex
-	
-	chown unicore:unicore /var/run/unicore
-	chmod 755 /var/run/unicore
-	
-	chown unicore:unicore /var/lib/unicore
-	chmod 750 /var/lib/unicore
-	chown unicore:unicore /var/lib/unicore/unicorex
-	chmod 750 /var/lib/unicore/unicorex
 	
 	;;
 
