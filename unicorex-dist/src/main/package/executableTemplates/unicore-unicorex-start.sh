@@ -28,19 +28,19 @@ fi
 #
 CP=.$(@cdRoot@find "$LIB" -name "*.jar" -exec printf ":{}" \;)
 
-PARAM=$*
 if [ "$PARAM" = "" ]
 then
   PARAM=${CONF}/unicorex.config
 fi
+SERVERNAME=${SERVERNAME:-"UNICOREX"}
 
 #
 # go
 #
 
-CLASSPATH=$CP ; export CLASSPATH
+CLASSPATH=$CP; export CLASSPATH
 
-nohup $JAVA ${MEM} ${OPTS} ${DEFS} de.fzj.unicore.uas.UAS ${PARAM} UNICOREX > $STARTLOG 2>&1  & echo $! > $PID
+nohup $JAVA ${MEM} ${OPTS} ${DEFS} de.fzj.unicore.uas.UAS ${PARAM} ${SERVERNAME} > ${STARTLOG} 2>&1  & echo $! > ${PID}
 
 echo "UNICORE/X starting"
 

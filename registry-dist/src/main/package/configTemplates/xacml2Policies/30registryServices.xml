@@ -6,14 +6,16 @@
         RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
 
   <Description>
-    Default policy for the UNICORE Registry server
+    Default policy for the UNICORE shared Registry.
+     - Everyone can read the registry content.
+     - Only clients with role "server") may get write access.
     Intended as part of a full set that includes the basic rules and a final DENY.
   </Description>
 
   <Target/>
 
   <Rule RuleId="Registry:Permit:ReadAccess" Effect="Permit">
-    <Description>Read access to the registry is granted to everybody.</Description>
+    <Description> Read access to the registry is granted to everybody. </Description>
     <Target>
       <Resources>
         <Resource>
@@ -32,18 +34,13 @@
         </Apply>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
 	  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GET</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">HEAD</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">OPTIONS</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GetResourcePropertyDocument</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GetResourceProperty</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">QueryResourceProperties</AttributeValue>
         </Apply>
       </Apply>
     </Condition>
   </Rule>
 
   <Rule RuleId="Registry:Permit:WriteAccessServers" Effect="Permit">
-    <Description>Write access to the registry is granted to role='server'.</Description>
+    <Description> Write access to the registry is granted if role='server'. </Description>
     <Target>
       <Resources>
         <Resource>
@@ -54,12 +51,6 @@
         </Resource>
       </Resources>
       <Actions>
-        <Action>
-          <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
-            <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Add</AttributeValue>
-            <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string"/>
-          </ActionMatch>
-        </Action>
         <Action>
           <ActionMatch MatchId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
             <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">POST</AttributeValue>

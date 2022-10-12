@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Policy xmlns="urn:oasis:names:tc:xacml:2.0:policy:schema:os" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd" PolicyId="unicorePolicy:basicRules" RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
   <Description>
-    This is the access control policy containing the basic UNICORE access rules.
-    First matching rule will apply.
-     - Admins (i.e. users with a role "admin") are granted full access
-     - All clients with the role "banned" are denied
-     - Access is granted, if the owner of accessed resource is the current user
-     - Access is granted, if the check of the user-defined ACL was passed
-     - It is forbidden to destroy, set a termination time on or
-       change properties of any service
+    This is the access control policy containing basic UNICORE access rules:
+     - Admins (i.e. clients with role "admin") are granted full access
+     - All clients with role "banned" are denied
+     - Access is granted for the owner of the accessed resource
+     - Access is granted if the accessed resource's ACL allows it
+     - It is forbidden to destroy or change properties of any service
+    Intended as the first part of a full set that including more rules and a final DENY.
   </Description>
   <Target/>
 
@@ -54,7 +53,7 @@
   </Rule>
 
   <Rule RuleId="Basic:Permit:ByACL" Effect="Permit">
-    <Description>Access granted for resources shared via user ACL.</Description>
+    <Description> Access granted to resources shared via user ACL. </Description>
     <Target/>
     <Condition>
       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-equal">
@@ -66,9 +65,8 @@
     </Condition>
   </Rule>
 
-  <Rule RuleId="Basic:Deny:ModificationsOfNotOwned" Effect="Deny">
-    <Description> Forbid modification operations on any service.
-    </Description>
+  <Rule RuleId="Basic:Deny:ModifyNotOwned" Effect="Deny">
+    <Description> Forbid modify/delete of any service. </Description>
     <Target/>
     <Condition>
       <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-is-in">
@@ -76,14 +74,8 @@
           <ActionAttributeDesignator AttributeId="urn:oasis:names:tc:xacml:1.0:action:action-id" DataType="http://www.w3.org/2001/XMLSchema#string" MustBePresent="true"/>
         </Apply>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PutResourcePropertyDocument</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SetResourceProperties</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">InsertResourceProperties</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">UpdateResourceProperties</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DeleteResourceProperties</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">Destroy</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">SetTerminationTime</AttributeValue>
 	  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">DELETE</AttributeValue>
+	  <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">PUT</AttributeValue>
         </Apply>
       </Apply>
     </Condition>

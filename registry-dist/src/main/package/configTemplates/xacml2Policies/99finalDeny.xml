@@ -4,11 +4,9 @@
 	xsi:schemaLocation="urn:oasis:names:tc:xacml:2.0:policy:schema:os http://docs.oasis-open.org/xacml/access_control-xacml-2.0-policy-schema-os.xsd"
 	PolicyId="unicorePolicy:finalDeny"
 	RuleCombiningAlgId="urn:oasis:names:tc:xacml:1.0:rule-combining-algorithm:first-applicable">
-
-	<Description>
-	The final Deny rule - used as fall through
-  	</Description>
-
-	<Target />
- 	<Rule RuleId="FinalRule" Effect="Deny" />
+  <Description>
+    The final Deny rule - used as fall through.
+  </Description>
+  <Target />
+  <Rule RuleId="FinalRule" Effect="Deny" />
 </Policy>

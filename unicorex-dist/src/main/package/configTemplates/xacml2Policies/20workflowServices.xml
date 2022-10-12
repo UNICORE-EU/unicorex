@@ -6,10 +6,10 @@
   </Description>
 
   <Target/>
-  
+
   <Rule RuleId="Permit:WFServices_for_user" Effect="Permit">
     <Description> Full access to the WorkflowFactory service
-                  is granted for users with the "user" role. 
+                  is granted for clients with role="user".
     </Description>
     <Target>
       <Resources>
@@ -38,8 +38,7 @@
   </Rule>
   
   <Rule RuleId="Permit:WFServices_read_access" Effect="Permit">
-    <Description> READ access to the /workflows endpoint is granted. 
-    </Description>
+    <Description> READ access to the /rest/workflows endpoint is granted. </Description>
     <Target>
       <Resources>
 	<Resource>
@@ -57,8 +56,6 @@
         </Apply>
         <Apply FunctionId="urn:oasis:names:tc:xacml:1.0:function:string-bag">
           <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">GET</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">HEAD</AttributeValue>
-          <AttributeValue DataType="http://www.w3.org/2001/XMLSchema#string">OPTIONS</AttributeValue>
         </Apply>
       </Apply>
     </Condition>

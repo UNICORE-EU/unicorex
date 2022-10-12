@@ -123,6 +123,20 @@
 	<groupId>io.imunity.samly</groupId>
 	<artifactId>samly2</artifactId>
 	<version>2.7.1</version>
+	<exclusions>
+	  <exclusion>
+	    <groupId>com.sun.xml.ws</groupId>
+	    <artifactId>jaxws-ri</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>eu.eu-emi.security</groupId>
+	    <artifactId>canl</artifactId>
+	  </exclusion>
+	  <exclusion>
+	    <groupId>org.apache.santuario</groupId>
+	    <artifactId>xmlsec</artifactId>
+	  </exclusion>
+	</exclusions>
       </dependency>
       <dependency>
 	<groupId>org.json</groupId>
