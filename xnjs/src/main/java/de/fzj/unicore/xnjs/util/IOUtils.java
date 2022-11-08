@@ -330,12 +330,10 @@ public class IOUtils {
 		return format.format(number);
 	}
 
-	public static void closeQuietly(Closeable stream){
-		try{
-			stream.close();
-		}catch(Exception ex) {}
+	// TODO not needed since we have commons-io
+	public static void closeQuietly(Closeable ... streams){
+		org.apache.commons.io.IOUtils.closeQuietly(streams);
 	}
-
 
 	/**
 	 * Include the path in single quotes "'" so the shell will not process the 

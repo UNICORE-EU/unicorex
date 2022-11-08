@@ -152,78 +152,8 @@ public class TSIMessages {
 			insertImportedFilesWaitingLoop(commands, job);
 		}
 
-		// executable
-		String executable = applicationInfo.getExecutable();
-		boolean haveExecutable = executable!=null && executable.length()>0;
-		
-		if(haveExecutable) {
-			f.format("UC_EXECUTABLE=\"%s\"; export UC_EXECUTABLE\n", executable);
-			//better guess the actual executable, by using the first part of
-			//the executable line that is non-whitespace
-			String executableGuess=executable;
-			try{
-				String[] tok=executable.split(" ");
-				for(String t: tok){
-					if(!t.trim().isEmpty()){
-						executableGuess=t;
-						break;
-					}
-				}
-			}catch(Exception ex){}
-			f.format("chmod u+x %s 2> /dev/null \n", executableGuess);
-
-		}
-		// remove any pre-existing exit code file (e.g. job restart case)
-		if(!_unittestnoexitcode){
-			f.format("rm -f ${UC_OUTPUT_DIRECTORY}/%s\n", ec.getExitCodeFileName());
-		}
-
-		// user-defined pre-command
-		String userPre = applicationInfo.getUserPreCommand();
-		if(userPre != null && !applicationInfo.isUserPreCommandOnLoginNode()){
-			commands.append("# user defined pre-command\n");
-			commands.append(userPre).append("\n");
-		}
-
-		// prologue (from IDB)
-		if(applicationInfo.getPrologue()!=null) {
-			commands.append(applicationInfo.getPrologue()).append("\n");
-		}
-
-		// setup executable
-		if(haveExecutable) {
-			StringBuilder exeBuilder = new StringBuilder();
-			exeBuilder.append(applicationInfo.getExecutable());
-
-			for (String a : applicationInfo.getArguments()) {
-				exeBuilder.append(" ").append(a);
-			}
-
-			String input = null;
-			input = ec.getStdin() != null ? ec.getStdin() : null;
-			if (input != null) {
-				exeBuilder.append(" < ${UC_WORKING_DIRECTORY}/").append(input);
-			}
-			commands.append(exeBuilder.toString()).append("\n");
-
-			// write the application exit code to a special file
-			commands.append("\n");
-			if(!_unittestnoexitcode){
-				f.format("echo $? > ${UC_OUTPUT_DIRECTORY}/%s\n", ec.getExitCodeFileName());
-			}
-		}
-		
-		// epilogue (from IDB)
-		if(applicationInfo.getEpilogue()!=null) {
-			commands.append(applicationInfo.getEpilogue()).append("\n");
-		}
-
-		// user-defined post-command
-		String userPost = applicationInfo.getUserPostCommand();
-		if(userPost != null && !applicationInfo.isUserPostCommandOnLoginNode()){
-			commands.append("\n# user defined post-command\n");
-			commands.append(userPost).append("\n");
-		}
+		// executable (user-pre, prologue, main, epilogue, user-post)
+		insertExecutable(commands, applicationInfo, ec, false);
 		f.close();
 		return template.replace("#SCRIPT", commands.toString());
 	}
@@ -253,7 +183,7 @@ public class TSIMessages {
 				catch(Exception e){}
 			}
 
-			// wait for stage-ins to be visible on network file system			
+			// wait for stage-ins to be visible on network file system
 			commands.append("end=$((`date +%s`+").append(timeout).append("))\n");
 			commands.append("_l=\"true\"\n");
 			commands.append("while [ \"$_l\" = \"true\" ]\n");
@@ -276,6 +206,94 @@ public class TSIMessages {
 
 		}
 		catch (Exception e) {}
+	}
+
+	private void insertExecutable(StringBuilder commands, ApplicationInfo applicationInfo, ExecutionContext ec,
+			boolean redirectOutput) {
+		Formatter f = new Formatter(commands);
+		String executable = applicationInfo.getExecutable();
+		boolean haveExecutable = executable!=null && executable.length()>0;
+		if(haveExecutable) {
+			executable = executable.trim();
+			f.format("UC_EXECUTABLE=\"%s\"; export UC_EXECUTABLE\n", executable);
+			//better guess the actual executable, by using the first part of
+			//the executable line that is non-whitespace
+			String executableGuess=executable;
+			try{
+				String[] tok=executable.split(" ");
+				for(String t: tok){
+					if(!t.trim().isEmpty()){
+						executableGuess=t;
+						break;
+					}
+				}
+			}catch(Exception ex){}
+			f.format("chmod u+x %s 2> /dev/null \n", executableGuess);
+
+		}
+		// remove any pre-existing exit code file (e.g. job restart case)
+		if(!_unittestnoexitcode){
+			f.format("rm -f ${UC_OUTPUT_DIRECTORY}/%s\n", ec.getExitCodeFileName());
+		}
+
+		String stdout = ec.isDiscardOutput()? "/dev/null" : "${UC_OUTPUT_DIRECTORY}/"+ec.getStdout();
+		String stderr = ec.isDiscardOutput()? "/dev/null" : "${UC_OUTPUT_DIRECTORY}/"+ec.getStderr();
+		String redirect = " >> "+stdout+" 2>> "+stderr;
+
+		// user-defined pre-command
+		String userPre = applicationInfo.getUserPreCommand();
+		if(userPre != null && !applicationInfo.isUserPreCommandOnLoginNode()){
+			commands.append("# user defined pre-command\n");
+			commands.append(userPre);
+			if(redirectOutput)commands.append(redirect);
+			commands.append("\n");
+		}
+
+		// prologue (from IDB)
+		if(applicationInfo.getPrologue()!=null) {
+			commands.append(applicationInfo.getPrologue());
+			if(redirectOutput)commands.append(redirect);
+			commands.append("\n");
+		}
+
+		// setup executable
+		if(haveExecutable) {
+			StringBuilder exeBuilder = new StringBuilder();
+			exeBuilder.append(applicationInfo.getExecutable());
+			for (String a : applicationInfo.getArguments()) {
+				exeBuilder.append(" ").append(a);
+			}
+			if(redirectOutput)exeBuilder.append(redirect);
+			String input = null;
+			input = ec.getStdin() != null ? ec.getStdin() : null;
+			if (input != null) {
+				exeBuilder.append(" < ${UC_WORKING_DIRECTORY}/").append(input);
+			}
+			commands.append(exeBuilder.toString()).append("\n");
+
+			// write the application exit code to a special file
+			commands.append("\n");
+			if(!_unittestnoexitcode){
+				f.format("echo $? > ${UC_OUTPUT_DIRECTORY}/%s\n", ec.getExitCodeFileName());
+			}
+		}
+		
+		// epilogue (from IDB)
+		if(applicationInfo.getEpilogue()!=null) {
+			commands.append(applicationInfo.getEpilogue());
+			if(redirectOutput)commands.append(redirect);
+			commands.append("\n");
+		}
+
+		// user-defined post-command
+		String userPost = applicationInfo.getUserPostCommand();
+		if(userPost != null && !applicationInfo.isUserPostCommandOnLoginNode()){
+			commands.append("\n# user defined post-command\n");
+			commands.append(userPost);
+			if(redirectOutput)commands.append(redirect);
+			commands.append("\n");
+		}
+		f.close();
 	}
 	
 	/**
@@ -330,54 +348,35 @@ public class TSIMessages {
 		ApplicationInfo ai=job.getApplicationInfo();
 		ec.getEnvironment().putAll(ai.getEnvironment());
 		StringBuilder commands = new StringBuilder();
+		Formatter f = new Formatter(commands, null);
+
 		if(credentials!=null){
-			commands.append("#TSI_CREDENTIALS ").append(credentials).append("\n");
+			f.format("#TSI_CREDENTIALS %s\n", credentials);
 		}
 		commands.append("#TSI_DISCARD_OUTPUT true\n");
 		commands.append("#TSI_SCRIPT\n");
 		if (ec.getWorkingDirectory() != null) {
-			commands.append("UC_WORKING_DIRECTORY=").append(ec.getWorkingDirectory());
-			commands.append("; export UC_WORKING_DIRECTORY\n");
+			f.format("UC_WORKING_DIRECTORY=%s; export UC_WORKING_DIRECTORY\n", ec.getWorkingDirectory());
 		}
 		if (ec.getOutputDirectory() != null) {
-			commands.append("UC_OUTPUT_DIRECTORY=").append(ec.getOutputDirectory());
-			commands.append("; export UC_OUTPUT_DIRECTORY\n");
+			f.format("UC_OUTPUT_DIRECTORY=%s; export UC_OUTPUT_DIRECTORY\n", ec.getOutputDirectory());
 		}
 		commands.append("cd ${UC_WORKING_DIRECTORY}\n");
 
 		appendEnvironment(commands, ec, true);
 
-		commands.append(" { ");
+		commands.append("{ ");
 		
 		if(ioProperties.getBooleanValue(IOProperties.STAGING_FS_WAIT)) {
 			insertImportedFilesWaitingLoop(commands, job);
 		}
 
-		commands.append(ai.getExecutable());
-		for(String arg: ai.getArguments()){
-			commands.append(" ").append(arg);
-		}
-		commands.append(" > ");
-		if(ec.isDiscardOutput()){
-			commands.append("/dev/null");
-		}
-		else{
-			commands.append("${UC_OUTPUT_DIRECTORY}/").append(ec.getStdout());
-		}
-		commands.append(" 2> ");
-		if(ec.isDiscardOutput()){
-			commands.append("/dev/null");
-		}
-		else{
-			commands.append("${UC_OUTPUT_DIRECTORY}/").append(ec.getStderr());
-		}
+		insertExecutable(commands, ai, ec, true);
 
-		commands.append("; echo $? > ${UC_OUTPUT_DIRECTORY}/").append(ec.getExitCodeFileName());
-		commands.append(" ; } & ");
-		commands.append("echo $! > ${UC_OUTPUT_DIRECTORY}/").append(ec.getPIDFileName());
+		f.format("} & echo $! > ${UC_OUTPUT_DIRECTORY}/%s", ec.getPIDFileName());
+		f.close();
 		return template.replace("#SCRIPT", commands.toString());
 	}
-
 
 	/**
 	 * read a line from a TSI LS result, skipping irrelevant lines

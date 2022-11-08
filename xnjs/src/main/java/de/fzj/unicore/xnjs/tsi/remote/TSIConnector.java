@@ -78,17 +78,22 @@ public class TSIConnector {
 		InetAddress actualTSIAddress=null;
 		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
 		int readTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_TIMEOUT);
-		
 		int replyport = properties.getTSIMyPort();
-		server.setSoTimeout(connectTimeout);
-		actualTSIAddress=signalShepherd(server, "newtsiprocess "+replyport+"\n");
-
-		// Wait for connection requests (commands first, then data)
-		Socket commands_socket = server.accept();
-		Socket data_socket = server.accept();
-
+		Socket commands_socket = null;
+		Socket data_socket = null;
+		synchronized(server) {
+			server.setSoTimeout(connectTimeout);
+			actualTSIAddress = signalShepherd(server, "newtsiprocess "+replyport+"\n");
+			// Wait for TSI callback (commands first, then data)
+			try {
+				commands_socket = server.accept();
+				data_socket = server.accept();
+			} catch(IOException ioe) {
+				IOUtils.closeQuietly(commands_socket, data_socket);
+				throw ioe;
+			}
+		}
 		boolean no_check = properties.getBooleanValue(TSIProperties.TSI_NO_CHECK);
-		
 		// Make sure that pair comes from same machine
 		if(!no_check && !commands_socket.getInetAddress().equals(data_socket.getInetAddress())) {
 			String msg = "TSI problem: data/command socket address mismatch"
@@ -100,7 +105,9 @@ public class TSIConnector {
 			try {
 				// just in case the connect/accept mechanism is messed up 
 				// for some reason (like tsi restarts)
-				server.reInit();
+				synchronized(server) {
+					server.reInit();
+				}
 			}catch(Exception ex) {}
 			throw new IOException(msg);
 		}
@@ -111,8 +118,7 @@ public class TSIConnector {
 					+ "Expected: "+actualTSIAddress
 					+ "Got: " +commands_socket.getInetAddress()
 					+ ". Contact site administration!";
-			IOUtils.closeQuietly(data_socket);
-			IOUtils.closeQuietly(commands_socket);
+			IOUtils.closeQuietly(commands_socket, data_socket);
 			try {
 				// just in case the connect/accept mechanism is messed up 
 				// for some reason (like tsi restarts)
