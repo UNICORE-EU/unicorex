@@ -1,5 +1,6 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,7 +17,7 @@ import de.fzj.unicore.xnjs.util.IOUtils;
 /**
  * Small helper to create XNJS server and client sockets for communication with TSI. 
  */
-public class TSISocketFactory extends XNJSSocketFactory {
+public class TSISocketFactory extends XNJSSocketFactory implements AutoCloseable, Closeable {
 	
 	private ServerSocket server;
 
@@ -77,7 +78,7 @@ public class TSISocketFactory extends XNJSSocketFactory {
 	}
 
 	public void close()throws IOException{
-		server.close();
+		IOUtils.closeQuietly(server);
 	}
 
 	public boolean useSSL(){

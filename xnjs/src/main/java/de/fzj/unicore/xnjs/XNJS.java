@@ -54,6 +54,7 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.SlidingWindowReservoir;
 import com.google.inject.AbstractModule;
+import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
@@ -300,7 +301,7 @@ public class XNJS {
 
 		try{
 			return injector.getInstance(clazz);
-		}catch(RuntimeException ex){
+		}catch(ConfigurationException ex){
 			if(optional) {
 				return null;
 			}
