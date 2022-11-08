@@ -171,28 +171,23 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		return result;
 	}
 
-	private String buildShellWrappedCommand(Action jsdlAction, IDB idb)throws ExecutionException{
-		String workDir=jsdlAction.getExecutionContext().getWorkingDirectory();
+	private String buildShellWrappedCommand(Action action, IDB idb)throws ExecutionException{
+		String workDir = action.getExecutionContext().getWorkingDirectory();
 		//handle case that workDir is not absolute
 		File wd=new File(workDir);
 		if(!wd.isAbsolute()){
 			workDir=wd.getAbsolutePath();
-			jsdlAction.getExecutionContext().setWorkingDirectory(workDir);
+			action.getExecutionContext().setWorkingDirectory(workDir);
 		}
 		String tmpName="TSI_submit_"+System.currentTimeMillis();
 		String cmdFile=workDir+tmpName;
-		String cmd = tsiMessages.makeSubmitCommand(jsdlAction, null);
+		String cmd = tsiMessages.makeSubmitCommand(action, null);
 		//write to file
-		OutputStreamWriter writer=null;
-		try{
-			TSI tsi = tsiFactory.createTSI(jsdlAction.getClient());
-			writer=new OutputStreamWriter(tsi.getOutputStream(cmdFile));
+		TSI tsi = tsiFactory.createTSI(action.getClient());
+		try(OutputStreamWriter writer = new OutputStreamWriter(tsi.getOutputStream(cmdFile))){
 			writer.write(cmd);
 		}catch(IOException ioe){
 			throw new ExecutionException(ioe);
-		}
-		finally{
-			IOUtils.closeQuietly(writer);
 		}
 		return tsiProperties.getShell()+" "+cmdFile;
 	}
