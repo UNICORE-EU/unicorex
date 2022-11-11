@@ -35,10 +35,12 @@ package de.fzj.unicore.xnjs.io.impl;
 
 import java.io.InputStream;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
@@ -92,15 +94,16 @@ public class HTTPFileUpload extends AsyncFilemover{
 			IConnectionFactory cf=configuration.get(IConnectionFactory.class);
 			
 			HttpPut put=new HttpPut(info.getTarget());
-			put.setEntity(new InputStreamEntity(is,-1));
+			put.setEntity(new InputStreamEntity(is, -1, ContentType.WILDCARD));
 			if(credentials!=null){
 				put.addHeader("Authorization", credentials.getHTTPAuthorizationHeader(client));
 			}
 			HttpClient httpClient=cf.getConnection(info.getTarget(), client);
-			HttpResponse response=httpClient.execute(put);
-			int code=response.getStatusLine().getStatusCode();
-			if(code<200 || code>=300){
-				throw new Exception("Error performing upload: server returned <"+response.getStatusLine()+">");
+			try(ClassicHttpResponse response = httpClient.executeOpen(null, put, HttpClientContext.create())){
+				int code=response.getCode();
+				if(code<200 || code>=300){
+					throw new Exception("Error performing upload: server returned <"+response.getReasonPhrase()+">");
+				}
 			}
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){

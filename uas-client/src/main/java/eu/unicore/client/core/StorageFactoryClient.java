@@ -3,7 +3,6 @@ package eu.unicore.client.core;
 import java.util.Calendar;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.JSONUtil;
@@ -35,15 +34,8 @@ public class StorageFactoryClient extends BaseServiceClient {
 			json.put("terminationTime", UnitParser.getISO8601().format(tt.getTime()));
 		}
 		json.put("parameters", JSONUtil.asJSON(parameters));
-		HttpResponse resp = bc.post(json);
-		bc.checkError(resp);
-		if(201 != resp.getStatusLine().getStatusCode()){
-			throw new Exception("Unexpected return status: "+
-					resp.getStatusLine().getStatusCode());
-		}
-		String url = resp.getFirstHeader("Location").getValue();
-		Endpoint ep = endpoint.cloneTo(url);
-		return new StorageClient(ep, security, auth);
+		String url = bc.create(json);
+		return new StorageClient(new Endpoint(url), security, auth);
 	}
 
 }

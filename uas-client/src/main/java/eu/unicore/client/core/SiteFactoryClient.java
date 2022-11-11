@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.JSONUtil;
@@ -36,15 +35,8 @@ public class SiteFactoryClient extends BaseServiceClient {
 			json.put("terminationTime", UnitParser.getISO8601().format(tt.getTime()));
 		}
 		json.put("parameters", JSONUtil.asJSON(parameters));
-		HttpResponse resp = bc.post(json);
-		bc.checkError(resp);
-		if(201 != resp.getStatusLine().getStatusCode()){
-			throw new Exception("Unexpected return status: "+
-					resp.getStatusLine().getStatusCode());
-		}
-		String url = resp.getFirstHeader("Location").getValue();
-		Endpoint ep = endpoint.cloneTo(url);
-		return new SiteClient(ep, security, auth);
+		String url = bc.create(json);
+		return new SiteClient(endpoint.cloneTo(url), security, auth);
 	}
 
 	public SiteClient getOrCreateSite() throws Exception {

@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.CoreClientCapabilities.RESTFTClientCapability;
@@ -152,27 +152,25 @@ public class StorageClient extends BaseServiceClient {
 			if(numBytes>-1)json.put("numBytes", BigInteger.valueOf(numBytes));
 			
 			BaseClient c = createTransport(endpoint.getUrl()+"/imports", security, auth);
-			HttpResponse res = c.post(json);
-			c.checkError(res);
-			JSONObject response = c.asJSON(res);
-			
-			Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
-			FiletransferClient fts = clazz.getConstructor(
-					new Class[] { Endpoint.class, JSONObject.class, IClientConfiguration.class, IAuthCallback.class }
-					).newInstance(
-									new Object[] { ep, response, security, auth});
-			
-			if(append) {
-				if(fts instanceof FiletransferOptions.IAppendable) {
-					((FiletransferOptions.IAppendable)fts).setAppend();
+			try(ClassicHttpResponse res = c.post(json)){
+				JSONObject response = c.asJSON(res);
+				Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
+				FiletransferClient fts = clazz.getConstructor(new Class[] { 
+						Endpoint.class, JSONObject.class, 
+						IClientConfiguration.class, IAuthCallback.class }
+						).newInstance(new Object[] { ep, response, security, auth});
+				if(append) {
+					if(fts instanceof FiletransferOptions.IAppendable) {
+						((FiletransferOptions.IAppendable)fts).setAppend();
+					}
+					else throw new Exception("Append requested, but not supported by client implementation <"
+							+fts.getClass()+"> for protocol <"+protocol+">");
 				}
-				else throw new Exception("Append requested, but not supported by client implementation <"
-						+fts.getClass()+"> for protocol <"+protocol+">");
+				if(fts instanceof Configurable){
+					((Configurable)fts).configure(extraParameters);
+				}
+				return fts;
 			}
-			if(fts instanceof Configurable){
-				((Configurable)fts).configure(extraParameters);
-			}
-			return fts;
 		} catch (Exception e) {
 			String msg=Log.createFaultMessage("Can't create import.", e);
 			throw new IOException(msg,e);
@@ -197,20 +195,18 @@ public class StorageClient extends BaseServiceClient {
 			json.put("extraParameters", JSONUtil.asJSON(extraParameters));
 			
 			BaseClient c = createTransport(endpoint.getUrl()+"/exports", security, auth);
-			HttpResponse res = c.post(json);
-			c.checkError(res);
-			JSONObject response = c.asJSON(res);
-			
-			Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
-			FiletransferClient fts = clazz.getConstructor(
-					new Class[] { Endpoint.class, JSONObject.class, IClientConfiguration.class, IAuthCallback.class }
-					).newInstance(
-									new Object[] { ep, response, security, auth});
-			
-			if(fts instanceof Configurable){
-				((Configurable)fts).configure(extraParameters);
+			try(ClassicHttpResponse res = c.post(json)){
+				JSONObject response = c.asJSON(res);
+				Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
+				FiletransferClient fts = clazz.getConstructor(
+						new Class[] { Endpoint.class, JSONObject.class, IClientConfiguration.class, IAuthCallback.class }
+						).newInstance(
+								new Object[] { ep, response, security, auth});
+				if(fts instanceof Configurable){
+					((Configurable)fts).configure(extraParameters);
+				}
+				return fts;
 			}
-			return fts;
 		} catch (Exception e) {
 			String msg=Log.createFaultMessage("Can't create import.", e);
 			throw new IOException(msg,e);
@@ -237,10 +233,8 @@ public class StorageClient extends BaseServiceClient {
 		json.put("file", fileName);
 		if(protocol!=null)json.put("protocol",protocol);
 		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
-		HttpResponse res = c.post(json);
-		c.checkError(res);
-		Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
-		return new TransferControllerClient(ep, security, auth);
+		String url = c.create(json);
+		return new TransferControllerClient(new Endpoint(url), security, auth);
 	}
 	
 	/**
@@ -256,10 +250,8 @@ public class StorageClient extends BaseServiceClient {
 		json.put("target", targetURL);
 		if(protocol!=null)json.put("protocol",protocol);
 		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
-		HttpResponse res = c.post(json);
-		c.checkError(res);
-		Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
-		return new TransferControllerClient(ep, security, auth);
+		String url = c.create(json);
+		return new TransferControllerClient(new Endpoint(url), security, auth);
 	}
 	
 	@SuppressWarnings("unchecked")

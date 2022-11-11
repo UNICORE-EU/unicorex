@@ -1,19 +1,20 @@
 package eu.unicore.client.data;
 
 import java.io.ByteArrayInputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.io.input.BoundedInputStream;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
@@ -76,21 +77,12 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	}
 
 	private InputStream getInputStream(HttpClient client, final HttpGet get) throws IOException {
-		HttpResponse response = client.execute(get);
-		int result = response.getStatusLine().getStatusCode();
-		//check for 200 response
+		ClassicHttpResponse response = client.executeOpen(null, get, HttpClientContext.create());
+		int result = response.getCode();
 		if(result<200 || result >299 ){
-			String status = response.getStatusLine().toString();
-			get.reset();
-			throw new IOException("Can't read remote data, server returned "+status);
+			throw new IOException("Can't read remote data, server returned "+response.getReasonPhrase());
 		}
-		final InputStream is = response.getEntity().getContent();
-		return new FilterInputStream(is){
-			public void close(){
-				try{is.close();}catch(Exception ex) {}
-				get.releaseConnection();
-			}
-		};
+		return response.getEntity().getContent();
 	}
 	
 	/**
@@ -145,7 +137,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	@Override
 	public void writeAllData(final InputStream is)throws Exception{
 		HttpClient client = getClient();
-		HttpEntityEnclosingRequestBase upload = createMethodForUpload();
+		ClassicHttpRequest upload = createMethodForUpload();
 		//monitor transfer progress, costs a bit performance though
 		InputStream decoratedStream = new InputStream(){
 			@Override
@@ -173,21 +165,19 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 				return r;
 			}
 		};
-		upload.setEntity(new InputStreamEntity(decoratedStream,-1));
+		ContentType ct = upload instanceof HttpPut?
+				ContentType.create("multipart/form-data"):
+				ContentType.APPLICATION_OCTET_STREAM;
+		upload.setEntity(new InputStreamEntity(decoratedStream,-1, ct));
 
 		totalBytesTransferred = Long.valueOf(0);
-		try{
-			HttpResponse response = client.execute(upload);
-			int result = response.getStatusLine().getStatusCode();
-			String status = response.getStatusLine().toString();
-			//check for 200 response
+		try(ClassicHttpResponse response = client.executeOpen(null, upload, HttpClientContext.create())){
+			int result = response.getCode();
 			if(result<200 || result >299 ){
-				throw new IOException("Can't write data, server returned "+status);
+				throw new IOException("Can't write data, server returned "+response.getReasonPhrase());
 			}
 			logger.debug("Total transferred bytes: {}, HTTP return status {}",
-					totalBytesTransferred, status);
-		}finally{
-			upload.releaseConnection();
+					totalBytesTransferred, response.getReasonPhrase());
 		}
 	}
 
@@ -284,19 +274,18 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 		append = true;
 	}
 	
-	protected HttpEntityEnclosingRequestBase createMethodForUpload(){
+	protected ClassicHttpRequest createMethodForUpload(){
 		return accessURL.contains("method=POST")? createPost(): createPut();
 	}
 
-	protected HttpEntityEnclosingRequestBase createPut(){
-		HttpEntityEnclosingRequestBase upload = new HttpPut(accessURL);
+	protected ClassicHttpRequest createPut(){
+		HttpPut upload = new HttpPut(accessURL);
 		if(append)upload.addHeader("X-UNICORE-AppendData", "true");
 		return upload;
 	}
 
-	protected HttpEntityEnclosingRequestBase createPost(){
-		HttpEntityEnclosingRequestBase upload = new HttpPost(accessURL);
-		upload.addHeader("Content-Type", "multipart/form-data; boundary=--part-boundary--");
+	protected ClassicHttpRequest createPost(){
+		HttpPost upload = new HttpPost(accessURL);
 		if(append)upload.addHeader("X-UNICORE-AppendData", "true");
 		return upload;
 	}

@@ -40,9 +40,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.protocol.HttpClientContext;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
@@ -134,13 +135,12 @@ public class HTTPFileDownload extends AsyncFilemover{
 			get.addHeader("Authorization", credentials.getHTTPAuthorizationHeader(client));
 		}
 		HttpClient httpClient=cf.getConnection(info.getSource(),client);
-		HttpResponse response=httpClient.execute(get);
-		int status=response.getStatusLine().getStatusCode();
+		ClassicHttpResponse response = httpClient.executeOpen(null, get, HttpClientContext.create());
+		int status=response.getCode();
 		if(status<200||status>=300){
-			throw new IOException("Error downloading file, server message: <"+response.getStatusLine()+">");
+			throw new IOException("Error downloading file, server message: <"+response.getReasonPhrase()+">");
 		}
 		return response.getEntity().getContent();
-
 	}
 
 }

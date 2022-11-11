@@ -1,18 +1,16 @@
 package eu.unicore.uas.metadata.utils;
 
-import java.io.IOException;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.parser.ParseContext;
+import static org.junit.Assert.assertEquals;
+
 import org.apache.tika.metadata.Metadata;
-import org.xml.sax.ContentHandler;
+import org.apache.tika.parser.ParseContext;
 import org.apache.tika.sax.BodyContentHandler;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.ContentHandler;
 
 import eu.unicore.uas.metadata.LuceneIndexer;
 
@@ -47,7 +45,7 @@ public class ExtensionParserTest {
     }
 
     @Test
-    public void testParseMethod() throws IOException, SAXException, TikaException {
+    public void testParseMethod() throws Exception {
         String path = "/home/user/file/name.extt";
 
         Metadata meta = new Metadata();
@@ -79,7 +77,7 @@ public class ExtensionParserTest {
     }
 
     @Test
-    public void testHandlerReuse() throws IOException, SAXException, TikaException {
+    public void testHandlerReuse() throws Exception {
         String path1 = "/home/user/file/name.extt";
         String path2 = "/home/user/file2/File2.name.ext";
 
@@ -117,7 +115,7 @@ public class ExtensionParserTest {
     }
 
     @Test
-    public void testNonProper() throws IOException, SAXException, TikaException {
+    public void testNonProper() throws Exception {
         Metadata meta = new Metadata();
         meta.add(LuceneIndexer.RESOURCE_NAME_KEY, "");
         parser.parse(null, handler, meta, null);

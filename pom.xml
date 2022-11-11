@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <description>UNICORE/X web services layer</description>
   <inceptionYear>2006</inceptionYear>
-  <version>2.4.1</version>
+  <version>2.5.0</version>
   <name>UNICORE/X Parent</name>
   
   <parent>
@@ -28,12 +28,12 @@
   </issueManagement>
 
   <properties>
-    <!-- goes into .jar manifests -->
-    <specification.version>9.0.0</specification.version>
+    <!-- goes into .jar manifests, dist poms and packaging versions -->
+    <specification.version>9.1.0</specification.version>
 
     <compiler.fork>false</compiler.fork>
-    <use.version>4.4.0</use.version>
-    <secutils.version>3.3.1</secutils.version>
+    <use.version>4.5.0</use.version>
+    <secutils.version>3.4.0</secutils.version>
     <persistence.version>0.401</persistence.version>
     <metrics.version>4.2.12</metrics.version>
     <uftp.version>2.13.0</uftp.version>
@@ -135,6 +135,10 @@
 	  <exclusion>
 	    <groupId>org.apache.santuario</groupId>
 	    <artifactId>xmlsec</artifactId>
+	  </exclusion>
+	   <exclusion>
+	    <groupId>xml-apis</groupId>
+	    <artifactId>xml-apis</artifactId>
 	  </exclusion>
 	</exclusions>
       </dependency>
@@ -270,14 +274,6 @@
 
     <pluginManagement>
       <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>xmlbeans-maven-plugin</artifactId>
-          <version>2.3.3</version>
-          <configuration>
-            <noUpa>true</noUpa>
-          </configuration>
-        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-eclipse-plugin</artifactId>

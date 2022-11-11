@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.xnjs;
 
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.classic.HttpClient;
 
 import de.fzj.unicore.xnjs.io.http.IConnectionFactory;
 import eu.unicore.security.Client;

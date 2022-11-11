@@ -2,7 +2,7 @@ package eu.unicore.client.data;
 
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.JSONUtil;
@@ -19,19 +19,18 @@ public class FileClient extends BaseServiceClient {
 	}
 
 	public void mkdir() throws Exception {
-		HttpResponse res = bc.post(null);
-		bc.checkError(res);
+		bc.postQuietly(null);
 	}
 	
 	public void chmod(String unixPermissions) throws Exception {
-		JSONObject o = new JSONObject();
-		o.put("permissions", unixPermissions);
-		HttpResponse res = bc.put(o);
-		bc.checkError(res);
-		JSONObject reply = bc.asJSON(res);
-		String msg = reply.optString("permissions", "n/a");
-		if(!"OK".contentEquals(msg)) {
-			throw new Exception("Could not change permissions: "+msg);
+		JSONObject req = new JSONObject();
+		req.put("permissions", unixPermissions);
+		try(ClassicHttpResponse res = bc.put(req)){
+			JSONObject reply = bc.asJSON(res);
+			String msg = reply.optString("permissions", "n/a");
+			if(!"OK".contentEquals(msg)) {
+				throw new Exception("Could not change permissions: "+msg);
+			}
 		}
 	}
 
@@ -43,11 +42,11 @@ public class FileClient extends BaseServiceClient {
 	public void putMetadata(Map<String, String> metadata) throws Exception {
 		JSONObject req = new JSONObject();
 		req.put("metadata", JSONUtil.asJSON(metadata));
-		HttpResponse res = bc.put(req);
-		bc.checkError(res);
-		String reply = bc.asJSON(res).optString("metadata", "n/a");
-		if(!"OK".equals(reply)) {
-			throw new Exception("Error updating metadata: "+reply);
+		try(ClassicHttpResponse res = bc.put(req)){
+			String reply = bc.asJSON(res).optString("metadata", "n/a");
+			if(!"OK".equals(reply)) {
+				throw new Exception("Error updating metadata: "+reply);
+			}
 		}
 	}
 	

@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
@@ -73,9 +73,9 @@ public class CDMITest extends Base {
 		client.setAuthCallback(kauth);
 		String url = cdmiEndpoint+path;
 		client.setURL(url);
-		HttpResponse res = client.get(CDMIClient.CDMI_CONTAINER);
-		if(res.getStatusLine().getStatusCode() != 200){
-			System.out.println(res.getStatusLine());
+		ClassicHttpResponse res = client.get(CDMIClient.CDMI_CONTAINER);
+		if(res.getCode() != 200){
+			System.out.println(res.getReasonPhrase());
 		}
 		System.out.println("*** "+url);
 		System.out.println(EntityUtils.toString(res.getEntity()));

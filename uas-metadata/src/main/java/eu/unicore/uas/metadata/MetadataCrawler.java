@@ -31,7 +31,6 @@
  ********************************************************************************/
 package eu.unicore.uas.metadata;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +49,6 @@ import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 import de.fzj.unicore.uas.metadata.ExtractionStatistics;
 import de.fzj.unicore.uas.util.LogUtil;
@@ -130,8 +128,8 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 			}
 		}
 		if(files!=null && files.size()>0){
-			LOG.info("Extracting from "+files.size()+" files...");
-			Map<String, MetadataFile.MD_State> statuses = new HashMap<String, MD_State>();
+			LOG.info("Extracting from {} files...", files.size());
+			Map<String, MetadataFile.MD_State> statuses = new HashMap<>();
 			for(String file: files){
 				try{
 					if(!MetadataFile.isMetadataFileName(file)){
@@ -257,7 +255,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	 */
 	protected static Map<String, MetadataFile.MD_State> statusCheck(List<String> files) {
 
-		Map<String, MetadataFile.MD_State> statuses = new HashMap<String, MD_State>();
+		Map<String, MetadataFile.MD_State> statuses = new HashMap<>();
 
 		for (String file : files) {
 			String resource = null;
@@ -332,13 +330,13 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		level--;
 	}
 
-	private Map<String, String> extractMetadata(String file) throws ExecutionException, IOException, SAXException, TikaException {
-		Map<String, String> ret = new HashMap<String, String>();
+	private Map<String, String> extractMetadata(String file) throws Exception {
+		Map<String, String> ret = new HashMap<>();
 		Metadata meta = new Metadata();
 		meta.add(LuceneIndexer.RESOURCE_NAME_KEY, file);
-		InputStream is = storage.getInputStream(file);
-		parser.parse(is, handler, meta, parseContext);
-		is.close();
+		try(InputStream is = storage.getInputStream(file)){
+			parser.parse(is, handler, meta, parseContext);
+		}
 		for (String key : meta.names()) {
 			ret.put(key, meta.get(key));
 		}
@@ -358,13 +356,10 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		try{
 			XnjsFile f=storage.getProperties(CRAWLER_CONTROL_FILENAME);
 			if(f!=null){
-				LOG.info("Found crawler control file "+f.getPath());
+				LOG.info("Found crawler control file {}", f.getPath());
 				Properties p=new Properties();
-				InputStream is=storage.getInputStream(f.getPath());
-				try{
+				try(InputStream is=storage.getInputStream(f.getPath())){
 					p.load(is);
-				}finally{
-					is.close();
 				}
 				CrawlerControl cc = CrawlerControl.create(p);
 				NameFilter i=cc.getIncludes()!=null?new PatternFilter(cc.getIncludes()):defaultIncludes;

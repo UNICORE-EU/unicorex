@@ -5,6 +5,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
+
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -191,7 +193,8 @@ public class ExportsController implements IFTSController {
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
-		String target = remoteEndpoint.getUrl()+"/files/"+to;
+		String target = remoteEndpoint.getUrl() +
+				FilenameUtils.normalize("/files/"+to, true);
 		if(protocol!=null)target=protocol+":"+target;
 		DataStageOutInfo info = dso.clone();
 		info.setTarget(new URI(target));

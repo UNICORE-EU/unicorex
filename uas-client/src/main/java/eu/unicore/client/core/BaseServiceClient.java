@@ -2,9 +2,9 @@ package eu.unicore.client.core;
 
 import java.util.List;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -119,9 +119,9 @@ public class BaseServiceClient {
 		}
 		bc.pushURL(url);
 		try {
-			HttpResponse res = bc.post(params);
+			ClassicHttpResponse res = bc.post(params);
 			bc.checkError(res);
-			if(HttpStatus.SC_NO_CONTENT==res.getStatusLine().getStatusCode()) {
+			if(HttpStatus.SC_NO_CONTENT==res.getCode()) {
 				return new JSONObject();
 			}
 			else {
@@ -145,8 +145,6 @@ public class BaseServiceClient {
 	 * @return JSON doc containing success/failure info
 	 */
 	public JSONObject setProperties(JSONObject properties) throws Exception {
-		HttpResponse res = bc.put(properties);
-		bc.checkError(res);
-		return bc.asJSON(res);
+		return bc.asJSON(bc.put(properties));
 	}
 }

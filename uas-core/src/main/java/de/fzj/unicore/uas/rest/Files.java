@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.Variant.VariantListBuilder;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.logging.log4j.Logger;
@@ -487,7 +488,8 @@ public class Files extends RESTRendererBase {
 				"Parent Storage"));
 		if(!sms.getModel().getStorageDescription().isDisableMetadata()){
 			String base = RESTUtils.makeHref(kernel, "core/storages", sms.getUniqueID());
-			links.add(new Link("action:extract",base+"/files/actions/extract/"+resourceID,
+			links.add(new Link("action:extract",
+					base+FilenameUtils.normalize("/files/actions/extract/"+resourceID),
 					"Extract metadata for this file"));
 		}
 	}

@@ -1,18 +1,17 @@
 package de.fzj.unicore.uas.cdmi;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequestBase;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONArray;
@@ -70,69 +69,54 @@ public class CDMIClient extends BaseClient {
 
 	public JSONObject getResourceInfo(String resource) throws Exception {
 		setURL(endpoint+resource+"?metadata");
-		HttpResponse res = get(CDMI_OBJECT);
-		try{
-			checkNotFound(res, resource);
-			checkError(res);
-			return asJSON(res);
-		}finally{
-			if(res instanceof CloseableHttpResponse){
-				((CloseableHttpResponse)res).close();
-			}
-		}
+		return getJSON(CDMI_OBJECT);
 	}
 
 	public JSONObject getDirectoryInfo(String container) throws Exception {
 		setURL(endpoint+container);
-		HttpResponse res = get(CDMI_CONTAINER);
-		checkNotFound(res, container);
-		checkError(res);
-		return asJSON(res);
+		return getJSON(CDMI_CONTAINER);
 	}
 
 	public List<String> listChildren(String container, int offset, int number) throws Exception {
 		setURL(endpoint+container);
-		HttpResponse res = get(CDMI_CONTAINER);
-		checkNotFound(res, container);
-		checkError(res);
-		JSONObject j = asJSON(res);
-		List<String>result = new ArrayList<String>();
-		JSONArray children = j.getJSONArray("children");
-		for(int i=0; i<children.length(); i++){
-			result.add(children.getString(i));
+		try(ClassicHttpResponse res = get(CDMI_CONTAINER)){
+			JSONObject j = asJSON(res);
+			List<String>result = new ArrayList<>();
+			JSONArray children = j.getJSONArray("children");
+			for(int i=0; i<children.length(); i++){
+				result.add(children.getString(i));
+			}
+			return result;
 		}
-		return result;
 	}
 
 	public boolean directoryExists(String container) throws Exception {
 		setURL(endpoint+container);
-		HttpResponse res = get(CDMI_CONTAINER);
-		close(res);
-		return 200 == res.getStatusLine().getStatusCode();
+		try(ClassicHttpResponse res = get(CDMI_CONTAINER)){
+			return 200 == res.getCode();
+		}
 	}
 
 	public boolean resourceExists(String resource) throws Exception {
 		setURL(endpoint+resource+"?metadata");
-		HttpResponse res = get(CDMI_OBJECT);
-		return 200 == res.getStatusLine().getStatusCode();
+		try(ClassicHttpResponse res = get(CDMI_OBJECT)){
+			return 200 == res.getCode();
+		}
 	}
 
 	public void createDirectory(String dir) throws Exception {
 		JSONObject content = new JSONObject();
 		content.put("metadata", new JSONObject());
 		HttpPut put = new HttpPut(endpoint+dir);
-		try{
-			put.setHeader("Accept", CDMI_CONTAINER.toString());
-			put.setHeader("Content-Type", CDMI_CONTAINER.toString());
-			put.setEntity(new StringEntity(content.toString()));
-			HttpResponse res = execute(put);
-			int code = res.getStatusLine().getStatusCode();
+		put.setHeader("Accept", CDMI_CONTAINER.toString());
+		put.setHeader("Content-Type", CDMI_CONTAINER.toString());
+		put.setEntity(new StringEntity(content.toString()));
+		try(ClassicHttpResponse res = execute(put)){
+			int code = res.getCode();
 			if(logger.isDebugEnabled()){
-				logger.debug("Created directory <{}>: {}", dir, res.getStatusLine());
+				logger.debug("Created directory <{}>: {}", dir, res.getCode());
 			}
-			if(code>299)throw new IOException("Could not create <"+dir+"> : "+res.getStatusLine().toString());
-		}finally{
-			put.reset();
+			if(code>299)throw new IOException("Could not create <"+dir+"> : "+new StatusLine(res));
 		}
 	}
 
@@ -146,17 +130,14 @@ public class CDMIClient extends BaseClient {
 			uri += "?value:"+first+"-"+last;
 		}
 		HttpPut put = new HttpPut(uri);
-		try{
-			put.setHeader("Accept", CDMI_OBJECT.toString());
-			put.setHeader("Content-Type", CDMI_OBJECT.toString());
-			if(partial)put.setHeader("X-CDMI-Partial", "true");
-			put.setEntity(new StringEntity(object.toString()));
-			HttpResponse res = execute(put);
-			int code = res.getStatusLine().getStatusCode();
-			logger.debug("Wrote to URI <"+uri+"> : "+res.getStatusLine());
-			if(code>299)throw new IOException(res.getStatusLine().toString());
-		}finally{
-			put.reset();
+		put.setHeader("Accept", CDMI_OBJECT.toString());
+		put.setHeader("Content-Type", CDMI_OBJECT.toString());
+		if(partial)put.setHeader("X-CDMI-Partial", "true");
+		put.setEntity(new StringEntity(object.toString()));
+		try(ClassicHttpResponse res = execute(put)){
+			int code = res.getCode();
+			logger.debug("Wrote to URI <"+uri+"> : "+res.getReasonPhrase());
+			if(code>299)throw new IOException("Could not write <"+path+"> : "+new StatusLine(res));
 		}
 	}
 
@@ -167,12 +148,10 @@ public class CDMIClient extends BaseClient {
 		}
 		logger.debug("Reading {}", uri);
 		HttpGet get = new HttpGet(uri);
-		try{
-			get.setHeader("Accept", CDMI_OBJECT.toString());
-			get.setHeader("Content-Type", CDMI_OBJECT.toString());
-			HttpResponse res = execute(get);
-			checkError(res);
-			logger.debug("Read from to URI <{}> : {}", uri, res.getStatusLine());
+		get.setHeader("Accept", CDMI_OBJECT.toString());
+		get.setHeader("Content-Type", CDMI_OBJECT.toString());
+		try(ClassicHttpResponse res = execute(get)){
+			logger.debug("Read from to URI <{}> : {}", uri, res.getReasonPhrase());
 			JSONObject j = asJSON(res);
 			boolean isBase64 = "base64".equals(j.getString("valuetransferencoding"));
 			String val = j.getString("value");
@@ -181,19 +160,10 @@ public class CDMIClient extends BaseClient {
 			int toCopy = Math.min(decoded.length,(int)length);
 			System.arraycopy(decoded, 0, buf, 0, toCopy);
 			return len;
-		}finally{
-			get.reset();
-		}
-	}
-	
-	protected void checkNotFound(HttpResponse response, String resource) throws Exception {
-		if(response.getStatusLine().getStatusCode()==404){
-			close(response);			
-			throw new FileNotFoundException("Not found: "+resource);
 		}
 	}
 
-	protected HttpResponse execute(HttpRequestBase method) throws Exception {
+	protected ClassicHttpResponse execute(HttpUriRequestBase method) throws Exception {
 		setVersion(method);
 		return super.execute(method);
 	}

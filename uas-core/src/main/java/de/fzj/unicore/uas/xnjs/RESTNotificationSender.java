@@ -8,7 +8,6 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.rest.Jobs;
@@ -89,8 +88,7 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 		Callable<String>task = new Callable<String>() {
 			@Override
 			public String call() throws Exception {
-				HttpResponse res = bc.post(message);
-				bc.checkError(res);
+				bc.postQuietly(message);
 				return "OK";
 			}
 		};

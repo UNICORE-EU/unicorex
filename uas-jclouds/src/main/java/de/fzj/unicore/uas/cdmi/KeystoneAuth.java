@@ -3,8 +3,8 @@ package de.fzj.unicore.uas.cdmi;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.http.HttpMessage;
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpMessage;
 import org.json.JSONObject;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
@@ -70,7 +70,7 @@ public class KeystoneAuth implements IAuthCallback {
 		auth.put("passwordCredentials",creds);
 		request.put("auth", auth);
 		
-		HttpResponse res = client.post(request);
+		ClassicHttpResponse res = client.post(request);
 		if(client.getLastHttpStatus()!=200){
 			throw new Exception("Error retrieving credentials: "+client.getLastStatus());
 		}

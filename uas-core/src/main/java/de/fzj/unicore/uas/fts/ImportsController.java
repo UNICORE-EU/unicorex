@@ -5,6 +5,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
+
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
 import de.fzj.unicore.xnjs.XNJS;
@@ -169,7 +171,8 @@ public class ImportsController implements IFTSController {
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
-		String source = remoteEndpoint.getUrl()+"/files/"+from.getPath();
+		String source = remoteEndpoint.getUrl() +
+				FilenameUtils.normalize("/files"+from.getPath(), true);
 		if(protocol!=null)source=protocol+":"+source;
 		DataStageInInfo info = dsi.clone();
 		info.setSources(new URI[]{new URI(source)});

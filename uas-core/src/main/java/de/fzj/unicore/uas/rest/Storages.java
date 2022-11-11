@@ -14,6 +14,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
@@ -234,10 +235,11 @@ public class Storages extends ServicesBase {
 				res.put("status", "OK");
 				List<SearchResult> results = mm.searchMetadataByContent(query, true);
 				res.put("numberOfResults", results.size());
-				String base = getBaseURL()+"/storages/"+resource.getUniqueID()+"/files/";
+				String base = getBaseURL()+"/storages/"+resource.getUniqueID();
 				int index = 1;
 				for(SearchResult sr : results){
-					links.add(new Link("search-result-"+index,base+sr.getResourceName()));
+					links.add(new Link("search-result-"+index,
+							base+FilenameUtils.normalize("/files/"+sr.getResourceName(), true)));
 					index++;
 				}
 				renderJSONLinks(res);

@@ -33,7 +33,7 @@
 
 package de.fzj.unicore.xnjs.io.http;
 
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.classic.HttpClient;
 
 import eu.unicore.security.Client;
 

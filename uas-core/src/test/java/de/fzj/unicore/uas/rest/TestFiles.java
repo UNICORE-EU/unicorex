@@ -9,10 +9,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.entity.ContentType;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -28,12 +28,12 @@ public class TestFiles extends Base {
 		String file = storage + "/files/test.txt";
 		putContent("test data", client, file);
 		client.setURL(file);
-		HttpResponse res = client.get(ContentType.APPLICATION_JSON);
-		System.out.println(Arrays.asList(res.getAllHeaders()));
-		assertTrue(res.containsHeader("Accept-Ranges"));
-		assertEquals("bytes", res.getFirstHeader("Accept-Ranges").getValue());
-		EntityUtils.consume(res.getEntity());
-		
+		try(ClassicHttpResponse res = client.get(ContentType.APPLICATION_JSON)){
+			System.out.println(Arrays.asList(res.getHeaders()));
+			assertTrue(res.containsHeader("Accept-Ranges"));
+			assertEquals("bytes", res.getFirstHeader("Accept-Ranges").getValue());
+			EntityUtils.consume(res.getEntity());
+		}
 		String props = client.getJSON().toString(2);
 		System.out.println(props);
 		JSONObject mod = new JSONObject();
@@ -59,15 +59,17 @@ public class TestFiles extends Base {
 		assertEquals("text/plain",prop2.getJSONObject("metadata").getString("Content-Type"));
 		
 		// check that GET returns the proper Content-Type
-		res = getFile(client, file);
-		System.out.println(Arrays.asList(res.getAllHeaders()));
-		assertTrue(res.containsHeader("Content-Type"));
-		assertEquals("text/plain", res.getFirstHeader("Content-Type").getValue());
-		EntityUtils.consume(res.getEntity());
-
+		try(ClassicHttpResponse res = getFile(client, file)){
+			System.out.println(Arrays.asList(res.getHeaders()));
+			assertTrue(res.containsHeader("Content-Type"));
+			assertEquals("text/plain", res.getFirstHeader("Content-Type").getValue());
+			EntityUtils.consume(res.getEntity());
+		}
 		// trigger auto-extract
 		JSONObject settings = new JSONObject();
-		client.setURL(client.getLink("action:extract"));
+		String u = client.getLink("action:extract");
+		System.out.println("posting to "+u);
+		client.setURL(u);
 		client.postQuietly(settings);
 	}
 	
@@ -197,10 +199,11 @@ public class TestFiles extends Base {
 
 	private String getContent(BaseClient client, String file) throws Exception {
 		client.setURL(file);
-		HttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM);
-		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_OK, status);
-		return EntityUtils.toString(response.getEntity());
+		try(ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM)){
+			int status = client.getLastHttpStatus();
+			assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_OK, status);
+			return EntityUtils.toString(response.getEntity());
+		}
 	}
 	
 	private String getPartialContent(BaseClient client, String file, long offset, long length) throws Exception {
@@ -210,10 +213,11 @@ public class TestFiles extends Base {
 		Map<String,String>headers = new HashMap<>();
 		headers.put("Range", range);
 		client.setURL(file);
-		HttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM, headers);
-		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_PARTIAL_CONTENT, status);
-		return EntityUtils.toString(response.getEntity());
+		try(ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM, headers)){
+			int status = client.getLastHttpStatus();
+			assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_PARTIAL_CONTENT, status);
+			return EntityUtils.toString(response.getEntity());
+		}
 	}
 	
 	private String getTailOfContent(BaseClient client, String file, long tail) throws Exception {
@@ -222,15 +226,16 @@ public class TestFiles extends Base {
 		Map<String,String>headers = new HashMap<>();
 		headers.put("Range", range);
 		client.setURL(file);
-		HttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM, headers);
-		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_PARTIAL_CONTENT, status);
-		return EntityUtils.toString(response.getEntity());
+		try(ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM, headers)){
+			int status = client.getLastHttpStatus();
+			assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_PARTIAL_CONTENT, status);
+			return EntityUtils.toString(response.getEntity());
+		}
 	}
 	
-	private HttpResponse getFile(BaseClient client, String file) throws Exception {
+	private ClassicHttpResponse getFile(BaseClient client, String file) throws Exception {
 		client.setURL(file);
-		HttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM);
+		ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM);
 		int status = client.getLastHttpStatus();
 		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_OK, status);
 		return response;

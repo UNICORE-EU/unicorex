@@ -10,7 +10,7 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -137,7 +137,7 @@ public class TestStorages extends Base {
 				"/rest/core/storages/WORK/files/test.txt";
 		TransferControllerClient tcc = sms.fetchFile(sourceURL, "test.txt", "BFT");
 		int c = 0;
-		while(!tcc.isComplete() && c<20){
+		while(!tcc.isComplete() && c<2000){
 			Thread.sleep(1000);
 			c++;
 		}

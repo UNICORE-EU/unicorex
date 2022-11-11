@@ -6,7 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
-import org.apache.http.client.HttpClient;
+import org.apache.hc.client5.http.classic.HttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
