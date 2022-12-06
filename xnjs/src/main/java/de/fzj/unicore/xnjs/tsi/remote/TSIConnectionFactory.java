@@ -32,6 +32,8 @@
 
 package de.fzj.unicore.xnjs.tsi.remote;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.Map;
 
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
@@ -112,5 +114,22 @@ public interface TSIConnectionFactory {
 	 * returns true if the TSIConnectionFactory is in an operational state
 	 */
 	public boolean isRunning();
+	
+	
+	/**
+	 * connect to a service via a TSI node (= port forwarding)
+	 * 
+	 * @param serviceHost - the host where the service is running, if null, localhost is used
+	 * @param servicePort - the port where the service is listening
+	 * @param tsiHost - the TSI node to use (can be null, if that makes sense)
+	 * @param user
+	 * @param group
+	 * @param timeoutMillis
+	 * @return connected socket
+	 * @throws TSIUnavailableException
+	 * @throws IOException
+	 */
+	public Socket connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
+			throws TSIUnavailableException, IOException;
 
 }

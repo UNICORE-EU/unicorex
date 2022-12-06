@@ -41,7 +41,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.channels.FileChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.attribute.PosixFilePermission;
@@ -654,5 +657,13 @@ public class LocalTS implements TSI {
 		return "0"+Integer.toOctalString(ret);
 	}
 
+	@Override
+	public Socket openConnection(String host, int port) throws Exception {
+		InetSocketAddress addr = host!=null ? 
+					new InetSocketAddress(host, port):
+					new InetSocketAddress(InetAddress.getLocalHost(), port);
+		return SocketChannel.open(addr).socket();
+	}
+	
 }
 

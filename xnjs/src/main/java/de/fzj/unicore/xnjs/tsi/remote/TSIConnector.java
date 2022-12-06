@@ -85,11 +85,11 @@ public class TSIConnector {
 			server.setSoTimeout(connectTimeout);
 			actualTSIAddress = signalShepherd(server, "newtsiprocess "+replyport+"\n");
 			// Wait for TSI callback (commands first, then data)
+			commands_socket = server.accept();
 			try {
-				commands_socket = server.accept();
 				data_socket = server.accept();
 			} catch(IOException ioe) {
-				IOUtils.closeQuietly(commands_socket, data_socket);
+				IOUtils.closeQuietly(commands_socket);
 				throw ioe;
 			}
 		}
@@ -134,7 +134,57 @@ public class TSIConnector {
 		newConn.setConnectionID(address+":"+port+"_"+counter.incrementAndGet());
 		return newConn;
 	}
-	
+
+	public Socket connectToService(TSISocketFactory server, String host, int port, String user, String group)throws IOException{
+		if(!isOK()){
+			throw new IOException(statusMessage);
+		}
+		try{
+			log.debug("Contacting TSI at {}:{}", address, port);
+			Socket s = doConnectToService(server, host, port, user, group);
+			log.info("Started port forwarding to {}:{}", host, port);
+			OK();
+			return s;
+		}
+		catch(IOException ex){
+			String msg = Log.createFaultMessage("Can't create connection to "+this, ex);
+			notOK(msg);
+			throw ex;
+		}
+	}
+
+	private Socket doConnectToService(TSISocketFactory server, String host, int port, String user, String group)
+			throws IOException {
+		// Ask shepherd for a new worker
+		InetAddress actualTSIAddress=null;
+		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
+		int replyport = properties.getTSIMyPort();
+		Socket result = null;
+		synchronized(server) {
+			server.setSoTimeout(connectTimeout);
+			String msg = String.format("start-forwarding %s %s:%s %s %s\n", replyport, host, port, user, group);
+			actualTSIAddress = signalShepherd(server, msg);
+			// Wait for TSI callback
+			result = server.accept();
+		}
+		boolean no_check = properties.getBooleanValue(TSIProperties.TSI_NO_CHECK);
+		// want socket to be from the correct place
+		if(!no_check && !result.getInetAddress().equals(actualTSIAddress)) {
+			String msg = "Invalid new TSI forwarding socket (wrong machine). "
+					+ "Expected: "+actualTSIAddress
+					+ "Got: " +result.getInetAddress()
+					+ ". Contact site administration!";
+			IOUtils.closeQuietly(result);
+			try {
+				// just in case the connect/accept mechanism is messed up 
+				// for some reason (like tsi restarts)
+				server.reInit();
+			}catch(Exception ex) {}
+			throw new IOException(msg);
+		}
+		return result;
+	}
+
 	public String toString(){
 		return "TSI connector @ "+address+":"+port;
 	}

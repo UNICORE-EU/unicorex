@@ -553,7 +553,7 @@ public class TSIConnection implements AutoCloseable {
 
 	private static final Map<String, Boolean> issuedWarnings = new HashMap<>();
 
-	public static final String RECOMMENDED_TSI_VERSION = "9.0.0";
+	public static final String RECOMMENDED_TSI_VERSION = "9.1.0";
 
 	/**
 	 * get the TSI version

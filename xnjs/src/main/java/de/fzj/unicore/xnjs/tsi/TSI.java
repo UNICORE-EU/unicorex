@@ -33,6 +33,9 @@
 
 package de.fzj.unicore.xnjs.tsi;
 
+import java.io.IOException;
+import java.net.Socket;
+
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
@@ -121,5 +124,16 @@ public interface TSI extends IStorageAdapter{
 	 * @return list of groups
 	 */
 	public String[]getGroups() throws TSIBusyException, ExecutionException;
+
+	/**
+	 * have the TSI make a connection to the service listening on the given host and port
+	 * 
+	 * @param host - hostname, or null if on the local TSI node
+	 * @param serverPort
+	 * @return a connected socket
+	 * @throws TSIBusyException
+	 * @throws IOException
+	 */
+	public Socket openConnection(String host, int serverPort) throws Exception;
 	
 }

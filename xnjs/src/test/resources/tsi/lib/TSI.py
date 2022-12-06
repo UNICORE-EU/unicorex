@@ -1,8 +1,5 @@
 """
-Main TSI module, containing the main processing loop and several utility
-methods.
-
-It handles the TSI_PING and TSI_EXECUTESCRIPT commands
+Main TSI module, containing the main processing loop
 """
 
 import os
@@ -14,10 +11,10 @@ import ACL, BecomeUser, BSS, Connector, Log, PAM, Reservation, Server, SSL, IO, 
 #
 # the TSI version
 #
-MY_VERSION = "9.0.0"
+MY_VERSION = "9.1.0"
 
 # supported Python versions
-REQUIRED_VERSION = (3, 4, 0)
+REQUIRED_VERSION = (3, 6, 0)
 
 
 def assert_version():
@@ -41,7 +38,7 @@ def setup_defaults(config):
     config['tsi.debug'] = 0
     config['tsi.use_syslog'] = False
     config['tsi.worker.id'] = 1
-    config['tsi.njs_machine'] = 'localhost'
+    config['tsi.unicorex_machine'] = 'localhost'
     config['tsi.safe_dir'] = '/tmp'
     config['tsi.keyfiles'] = ['.ssh/authorized_keys']
 
@@ -78,7 +75,11 @@ def process_config_value(key, value, config):
         allowed_dns.append(dn)
         config['tsi.allowed_dns'] = allowed_dns
     elif key == "tsi.keyfiles":
-        config["tsi.keyfiles"] = value.split(":")    
+        config["tsi.keyfiles"] = value.split(":")  
+    elif key== "tsi.njs_machine":
+        key="tsi_unicorex_machine"
+    elif key== "tsi_njs_port":
+        key="tsi_unicorex_port"
     else:
         config[key] = value
 
@@ -106,10 +107,11 @@ def setup_allowed_ips(config, LOG):
     """
     Configures IP addresses of UNICORE/X servers allowed to connect
     """
-    machines = config.get('tsi.njs_machine', 'localhost').split(",")
+    machines = config.get('tsi.unicorex_machine', 'localhost').split(",")
     ips = []
     LOG.info("Allowed UNICORE/X machines: %s" % machines)
     for machine in machines:
+        machine = machine.strip()
         try:
             ip = socket.gethostbyname(machine)
             ips.append(ip)
@@ -118,6 +120,27 @@ def setup_allowed_ips(config, LOG):
             LOG.error("Could not resolve: '%s'" % machine)
     config['tsi.allowed_ips'] = ips
 
+def setup_portrange(config, LOG):
+    """
+    Configures the (optional) range of local ports the TSI should use
+    """
+    rangespec = config.get("tsi.local_portrange", None)
+    first = 0
+    lower = -1
+    upper = -1
+    if rangespec is not None:
+        try:
+            lower,upper = rangespec.strip().split(":")
+            lower = int(lower)
+            upper = int(upper)
+            if upper<=lower:
+                raise Exception()
+            first = lower
+            LOG.info("Local port range used by TSI: %s - %s" % (lower, upper))
+        except:
+            raise Exception("Invalid 'tsi.local_portrange' specified, must be 'lower:upper'")
+    config["tsi.local_portrange"] = (first, lower, upper)
+      
 
 def read_config_file(file_name):
     """
@@ -141,9 +164,12 @@ def read_config_file(file_name):
             process_config_value(key, value, config)
     return config
 
+
 def finish_setup(config, LOG):
     setup_acl(config, LOG)
     setup_allowed_ips(config, LOG)
+    setup_portrange(config, LOG)
+
 
 def ping(message, connector, config, LOG):
     """ Returns TSI version."""
@@ -185,6 +211,7 @@ def get_user_info(message, connector, config, LOG):
     response += "status: %s\n" % status
     connector.write_message(response)
 
+
 def execute_script(message, connector, config, LOG):
     """ Executes a script. If the script contains a line
     #TSI_DISCARD_OUTPUT true
@@ -197,6 +224,10 @@ def execute_script(message, connector, config, LOG):
         connector.ok(output)
     else:
         connector.failed(output)
+
+def start_forwarding(message, forwarder, config, LOG):
+    """ starts forwarding threads """
+    forwarder.start_forwarding()
 
 
 def init_functions(bss):
@@ -228,12 +259,13 @@ def init_functions(bss):
         "TSI_FILE_ACL": ACL.process_acl,
     }
 
+
 def handle_function(function, command, message, connector, config, LOG):
     switch_uid = config.get('tsi.switch_uid', True)
     pam_enabled = config.get('tsi.open_user_sessions', False)
     cmd_spawns = command in [ "TSI_EXECUTESCRIPT", "TSI_SUBMIT", "TSI_UFTP" ]
     open_user_session = pam_enabled and cmd_spawns and switch_uid
-    if open_user_session:
+    if open_user_session and command!=None:
         # fork to avoid TSI process getting put into user slice
         pid = os.fork()
         if pid != 0:
@@ -263,6 +295,7 @@ def handle_function(function, command, message, connector, config, LOG):
             pam_session.close_session()
     if open_user_session:
         os._exit(0)
+
 
 def process(connector, config, LOG):
     """
@@ -341,12 +374,18 @@ def main(argv=None):
     os.chdir(config.get('tsi.safe_dir','/tmp'))
     bss.init(config, LOG)
     config['tsi.bss'] = bss
-    (command, data) = Server.connect(config, LOG)
+    (socket1, socket2, msg) = Server.connect(config, LOG)
     number = config.get('tsi.worker.id', 1)
-    LOG.reinit("TSI-worker", verbose, use_syslog)
-    LOG.info("Worker %s started." % str(number))
-    connector = Connector.Connector(command, data, LOG)
-    process(connector, config, LOG)
+    if msg==None:
+        LOG.reinit("TSI-worker", verbose, use_syslog)
+        LOG.info("Worker %s started." % str(number))
+        connector = Connector.Connector(socket1, socket2, LOG)
+        process(connector, config, LOG)
+    else:
+        LOG.reinit("TSI-port-forwarding", verbose, use_syslog)
+        LOG.info("Port forwarder worker %s started." % str(number))
+        forwarder = Connector.Forwarder(socket1, socket2, LOG)
+        handle_function(start_forwarding, None, msg, forwarder, config, LOG)
     return 0
 
 

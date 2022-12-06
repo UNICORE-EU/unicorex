@@ -32,7 +32,9 @@
 
 package de.fzj.unicore.xnjs.tsi.remote;
 
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -219,9 +221,9 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		throw new TSIUnavailableException(msg);
 	}
 
-	final Random r = new Random();
+	private final Random r = new Random();
 	
-	private TSIConnection doCreate(String preferredHost) throws TSIUnavailableException {
+	private TSIConnector getConnector(String preferredHost) {
 		List<TSIConnector>candidates = new ArrayList<>();
 		TSIConnector connector = null;
 		for(int i=0;i<connectors.length;i++){
@@ -232,9 +234,19 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		if(candidates.size()==0){
 			throw new IllegalArgumentException("No TSI is configured at '"+preferredHost+"'");
 		}
+		else if(candidates.size()==1) {
+			connector = candidates.get(0);
+		}
+		else {
+			connector = candidates.get(r.nextInt(candidates.size()));
+		}
+		return connector;
+		
+	}
+	
+	private TSIConnection doCreate(String preferredHost) throws TSIUnavailableException {
+		TSIConnector connector = getConnector(preferredHost);
 		try{
-			int select = r.nextInt(candidates.size());
-			connector = candidates.get(select);
 			return connector.createNewTSIConnection(server);
 		}catch(Exception e){
 			throw new TSIUnavailableException(connector+" is not available.");
@@ -427,6 +439,20 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 
 	TSISocketFactory getTSISocketFactory() {
 		return server;
+	}
+	
+	@Override
+	public Socket connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
+			throws TSIUnavailableException, IOException{
+		if(tsiHost!=null) {
+			return getConnector(tsiHost).connectToService(server, serviceHost, servicePort, user, group);
+		}else {
+			for(TSIConnector connector: connectors) {
+				return connector.connectToService(server, serviceHost, servicePort, user, group);
+			}
+			// unreachable
+			throw new TSIUnavailableException("No TSI connectors");
+		}
 	}
 
 }
