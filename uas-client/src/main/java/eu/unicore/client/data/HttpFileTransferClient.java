@@ -165,9 +165,9 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 				return r;
 			}
 		};
-		ContentType ct = upload instanceof HttpPut?
-				ContentType.create("multipart/form-data"):
-				ContentType.APPLICATION_OCTET_STREAM;
+		ContentType ct = upload instanceof HttpPut ?
+				ContentType.APPLICATION_OCTET_STREAM :
+				ContentType.create("multipart/form-data");
 		upload.setEntity(new InputStreamEntity(decoratedStream,-1, ct));
 
 		totalBytesTransferred = Long.valueOf(0);
@@ -275,18 +275,10 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	}
 	
 	protected ClassicHttpRequest createMethodForUpload(){
-		return accessURL.contains("method=POST")? createPost(): createPut();
-	}
-
-	protected ClassicHttpRequest createPut(){
-		HttpPut upload = new HttpPut(accessURL);
+		ClassicHttpRequest upload = accessURL.contains("method=POST") ?
+				new HttpPost(accessURL): new HttpPut(accessURL);
 		if(append)upload.addHeader("X-UNICORE-AppendData", "true");
 		return upload;
 	}
 
-	protected ClassicHttpRequest createPost(){
-		HttpPost upload = new HttpPost(accessURL);
-		if(append)upload.addHeader("X-UNICORE-AppendData", "true");
-		return upload;
-	}
 }
