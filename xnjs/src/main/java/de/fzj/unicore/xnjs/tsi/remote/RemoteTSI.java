@@ -39,7 +39,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
-import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -1093,7 +1093,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	}
 	
 	@Override
-	public Socket openConnection(String host, int port) throws Exception {
+	public SocketChannel openConnection(String host, int port) throws Exception {
 		return factory.connectToService(host, port, preferredHost, user, group);
 	}
 }

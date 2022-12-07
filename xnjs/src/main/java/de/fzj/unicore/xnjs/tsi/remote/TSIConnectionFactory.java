@@ -33,7 +33,7 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.Map;
 
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
@@ -125,11 +125,11 @@ public interface TSIConnectionFactory {
 	 * @param user
 	 * @param group
 	 * @param timeoutMillis
-	 * @return connected socket
+	 * @return connected SocketChannel
 	 * @throws TSIUnavailableException
 	 * @throws IOException
 	 */
-	public Socket connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
+	public SocketChannel connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
 			throws TSIUnavailableException, IOException;
 
 }

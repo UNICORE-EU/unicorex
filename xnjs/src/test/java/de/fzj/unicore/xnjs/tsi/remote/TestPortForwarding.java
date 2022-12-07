@@ -5,25 +5,33 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.Socket;
+import java.io.Reader;
+import java.nio.channels.SocketChannel;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import eu.unicore.util.ChannelUtils;
+
+/**
+ *  this tests forwarding for a non-SSL TSI connection
+ *  @see TestTSISSL for the SSL version
+ */
 public class TestPortForwarding extends RemoteTSITestCase {
 
 	private static EchoServer echo = null;
 	
 	@BeforeClass
-	public static void startUFTPD() throws Exception {
+	public static void startBackend() throws Exception {
 		echo = new EchoServer();
 		echo.start();
 	}
 
 	@AfterClass
-	public static void stopUFTPD() {
+	public static void stopBackend() {
 		if(echo!=null)try{
 			echo.shutdown();
 		}catch(Exception e) {}
@@ -33,15 +41,15 @@ public class TestPortForwarding extends RemoteTSITestCase {
 	public void testForwarding() throws Exception {
 		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		assertNotNull(tsi);
-		Socket s = tsi.openConnection("127.0.0.1", echo.getServerPort());
-		PrintWriter out = new PrintWriter(s.getOutputStream());
-		BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+		SocketChannel s = tsi.openConnection("127.0.0.1", echo.getServerPort());
+		PrintWriter w = new PrintWriter(new OutputStreamWriter(ChannelUtils.newOutputStream(s, 65536)), true);
+		Reader r = new InputStreamReader(ChannelUtils.newInputStream(s, 65536));
+		BufferedReader br = new BufferedReader(r);
 		System.out.println("Forwarding established");
 		String line = "this is a test";
 		System.out.println("--> "+line);
-		out.write(line+"\n");
-		out.flush();
-		String reply = in.readLine();
+		w.println(line);
+		String reply = br.readLine();
 		System.out.println("<-- "+reply);
 		assertEquals(line, reply);
 	}

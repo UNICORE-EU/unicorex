@@ -98,7 +98,7 @@ public class XNJSSocketFactory extends javax.net.SocketFactory{
 		}
 	}
 
-	protected synchronized SSLContext getSSLContext() throws IOException{
+	public synchronized SSLContext getSSLContext() throws IOException{
 		if(sslContext==null){
 			sslContext = new SocketFactoryCreator2(security.getCredential(),
 					security.getValidator(),

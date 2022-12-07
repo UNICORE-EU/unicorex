@@ -34,7 +34,7 @@
 package de.fzj.unicore.xnjs.tsi;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.channels.SocketChannel;
 
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -130,10 +130,10 @@ public interface TSI extends IStorageAdapter{
 	 * 
 	 * @param host - hostname, or null if on the local TSI node
 	 * @param serverPort
-	 * @return a connected socket
+	 * @return a connected SocketChannel
 	 * @throws TSIBusyException
 	 * @throws IOException
 	 */
-	public Socket openConnection(String host, int serverPort) throws Exception;
+	public SocketChannel openConnection(String host, int serverPort) throws Exception;
 	
 }

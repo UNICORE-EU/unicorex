@@ -2,14 +2,19 @@ package de.fzj.unicore.xnjs.tsi.remote;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.net.ssl.SSLEngine;
 
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.util.IOUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.util.Log;
+import eu.unicore.util.SSLSocketChannel;
 
 /**
  * connects to a TSI daemon on a given host and port
@@ -135,13 +140,13 @@ public class TSIConnector {
 		return newConn;
 	}
 
-	public Socket connectToService(TSISocketFactory server, String host, int port, String user, String group)throws IOException{
+	public SocketChannel connectToService(TSISocketFactory server, String host, int port, String user, String group)throws IOException{
 		if(!isOK()){
 			throw new IOException(statusMessage);
 		}
 		try{
 			log.debug("Contacting TSI at {}:{}", address, port);
-			Socket s = doConnectToService(server, host, port, user, group);
+			SocketChannel s = doConnectToService(server, host, port, user, group);
 			log.info("Started port forwarding to {}:{}", host, port);
 			OK();
 			return s;
@@ -153,35 +158,47 @@ public class TSIConnector {
 		}
 	}
 
-	private Socket doConnectToService(TSISocketFactory server, String host, int port, String user, String group)
+	private SocketChannel doConnectToService(TSISocketFactory server, String host, int port, String user, String group)
 			throws IOException {
-		// Ask shepherd for a new worker
 		InetAddress actualTSIAddress=null;
 		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
 		int replyport = properties.getTSIMyPort();
-		Socket result = null;
+		SocketChannel base = null;
+		SocketChannel result = null;
 		synchronized(server) {
 			server.setSoTimeout(connectTimeout);
 			String msg = String.format("start-forwarding %s %s:%s %s %s\n", replyport, host, port, user, group);
 			actualTSIAddress = signalShepherd(server, msg);
-			// Wait for TSI callback
-			result = server.accept();
+			base = server.accept(false).getChannel();
+			if(server.useSSL()) {
+				SSLEngine engine = server.getSSLContext().createSSLEngine(hostname, port);
+				engine.setUseClientMode(false);
+				result = new SSLSocketChannel(base, engine, null);
+				result.finishConnect();
+			}
+			else {
+				result = base;
+			}
 		}
 		boolean no_check = properties.getBooleanValue(TSIProperties.TSI_NO_CHECK);
-		// want socket to be from the correct place
-		if(!no_check && !result.getInetAddress().equals(actualTSIAddress)) {
-			String msg = "Invalid new TSI forwarding socket (wrong machine). "
-					+ "Expected: "+actualTSIAddress
-					+ "Got: " +result.getInetAddress()
-					+ ". Contact site administration!";
-			IOUtils.closeQuietly(result);
-			try {
-				// just in case the connect/accept mechanism is messed up 
-				// for some reason (like tsi restarts)
-				server.reInit();
-			}catch(Exception ex) {}
-			throw new IOException(msg);
+		if(!no_check) {
+			// want socket to be from the correct place
+			InetSocketAddress remoteAddr = (InetSocketAddress)base.getRemoteAddress();
+			if(!remoteAddr.getAddress().equals(actualTSIAddress)) {
+				String msg = "Invalid new TSI forwarding socket (wrong machine). "
+						+ "Expected: " + actualTSIAddress
+						+ "Got: "  + remoteAddr.getAddress()
+						+ ". Contact site administration!";
+				IOUtils.closeQuietly(result);
+				try {
+					// just in case the connect/accept mechanism is messed up 
+					// for some reason (like tsi restarts)
+					server.reInit();
+				}catch(Exception ex) {}
+				throw new IOException(msg);
+			}
 		}
+		result.configureBlocking(false);
 		return result;
 	}
 

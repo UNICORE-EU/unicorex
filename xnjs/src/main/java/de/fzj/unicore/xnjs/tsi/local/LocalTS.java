@@ -42,7 +42,6 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.FileSystems;
@@ -658,11 +657,11 @@ public class LocalTS implements TSI {
 	}
 
 	@Override
-	public Socket openConnection(String host, int port) throws Exception {
+	public SocketChannel openConnection(String host, int port) throws Exception {
 		InetSocketAddress addr = host!=null ? 
 					new InetSocketAddress(host, port):
 					new InetSocketAddress(InetAddress.getLocalHost(), port);
-		return SocketChannel.open(addr).socket();
+		return SocketChannel.open(addr);
 	}
 	
 }

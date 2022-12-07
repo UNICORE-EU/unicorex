@@ -34,8 +34,8 @@ package de.fzj.unicore.xnjs.tsi.remote;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -442,7 +442,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	}
 	
 	@Override
-	public Socket connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
+	public SocketChannel connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
 			throws TSIUnavailableException, IOException{
 		if(tsiHost!=null) {
 			return getConnector(tsiHost).connectToService(server, serviceHost, servicePort, user, group);

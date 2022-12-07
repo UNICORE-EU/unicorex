@@ -2,13 +2,14 @@ package de.fzj.unicore.xnjs.tsi.remote;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.nio.channels.ServerSocketChannel;
 
-import javax.net.ServerSocketFactory;
-import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.XNJSSocketFactory;
@@ -32,16 +33,7 @@ public class TSISocketFactory extends XNJSSocketFactory implements AutoCloseable
 		this.myPort=myPort;
 		TSIProperties tsiProps = xnjs.get(TSIProperties.class);
 		disableSSL=tsiProps.getBooleanValue(TSIProperties.TSI_DISABLE_SSL);
-		server = init();
-	}
-
-	private ServerSocket init()throws Exception{
-		if(useSSL()){
-			return createSSLServer();
-		}
-		else{
-			return createPlainServer();
-		}
+		server = createServer();
 	}
 
 	/**
@@ -49,28 +41,40 @@ public class TSISocketFactory extends XNJSSocketFactory implements AutoCloseable
 	 */
 	public void reInit() throws Exception {
 		IOUtils.closeQuietly(server);
-		server = init();
+		server = createServer();
 	}
 	
-	private ServerSocket createPlainServer()throws IOException{
-		return new ServerSocket(myPort);
+	private ServerSocket createServer()throws IOException{
+		ServerSocketChannel ssc = ServerSocketChannel.open();
+		ssc.bind(new InetSocketAddress(myPort));
+		return ssc.socket();
 	}
 
-	private ServerSocket createSSLServer()throws Exception{
-		ServerSocketFactory ssf=getSSLContext().getServerSocketFactory();
-		ServerSocket s=ssf.createServerSocket(myPort);
-		SSLServerSocket ssl=(SSLServerSocket)s;
-		ssl.setNeedClientAuth(security.doSSLAuthn());
-		ssl.setEnableSessionCreation(true);
-		return s;
+	public Socket accept()throws IOException{
+		Socket s = server.accept();
+		if(useSSL()) {
+			SSLSocketFactory ssf = getSSLContext().getSocketFactory();
+			InetSocketAddress peer = (InetSocketAddress)s.getRemoteSocketAddress();
+			SSLSocket ssl = (SSLSocket)ssf.createSocket(s, peer.getHostName(), peer.getPort(), true);
+			ssl.setUseClientMode(false);
+			ssl.startHandshake();
+			return ssl;
+		}
+		else return s;
 	}
 	
-	public Socket accept()throws IOException{
-		Socket s=server.accept();
-		if(useSSL()){
-			((SSLSocket)s).startHandshake();
+	/**
+	 * wait for a connection and return the socket
+	 * 
+	 * if init is <code>false</code> the raw socket is returned, without
+	 * any SSL support
+	 
+	 */ 
+	public Socket accept(boolean init)throws IOException{
+		if(init)return accept();
+		else {
+			return server.accept();
 		}
-		return s;
 	}
 
 	public void setSoTimeout(int timeout)throws SocketException{
