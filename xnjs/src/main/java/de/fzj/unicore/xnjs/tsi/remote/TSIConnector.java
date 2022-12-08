@@ -145,6 +145,7 @@ public class TSIConnector {
 			throw new IOException(statusMessage);
 		}
 		try{
+			if(host==null)host="localhost";
 			log.debug("Contacting TSI at {}:{}", address, port);
 			SocketChannel s = doConnectToService(server, host, port, user, group);
 			log.info("Started port forwarding to {}:{}", host, port);
@@ -191,7 +192,7 @@ public class TSIConnector {
 						+ ". Contact site administration!";
 				IOUtils.closeQuietly(result);
 				try {
-					// just in case the connect/accept mechanism is messed up 
+					// just in case the connect/accept mechanism is messed up
 					// for some reason (like tsi restarts)
 					server.reInit();
 				}catch(Exception ex) {}

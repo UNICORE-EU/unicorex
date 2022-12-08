@@ -1,19 +1,24 @@
 package de.fzj.unicore.uas.rest;
 
 import java.net.URI;
+import java.nio.channels.SocketChannel;
 import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.apache.cxf.jaxrs.impl.ResponseBuilderImpl;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.http.HttpStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,11 +30,13 @@ import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemImpl;
 import de.fzj.unicore.uas.json.Builder;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
+import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
 import de.fzj.unicore.xnjs.tsi.IExecution;
+import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.client.Job;
 import eu.unicore.security.AuthorisationException;
@@ -37,6 +44,7 @@ import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
+import eu.unicore.services.rest.RestServlet;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
@@ -161,6 +169,48 @@ public class Jobs extends ServicesBase {
 			return handleError("Could not submit task into allocation", ex, logger);
 		}
 	}
+
+	/**
+	 * 
+	 */
+	@GET
+	@Path("/{uniqueID}/forward-port")
+	public Response startForwarding(
+			@HeaderParam(value="Upgrade") String upgrade,
+			@QueryParam(value="host") String host,
+			@QueryParam(value="port") String portS)
+	{
+		try{
+			Action action = getResource().getXNJSAction();
+			String bssID =  action.getBSID();
+			if(bssID==null){
+				throw new Exception("Job BSSID cannot be null.");
+			}
+			if(portS==null) {
+				// TODO we might already have the host/port 
+				// via the job
+				throw new Exception("Port cannot be null");
+			}
+			if(host==null)host="localhost";
+			SocketChannel backend = getBackend(host, Integer.valueOf(portS));
+			ResponseBuilderImpl res = new ResponseBuilderImpl();
+			res.status(HttpStatus.SWITCHING_PROTOCOLS_101);
+			res.header("Upgrade", "UNICORE-Socket-Forwarding");
+			RestServlet.backends.set(backend);
+			return res.build();
+		}catch(Exception ex){
+			return handleError("Could not connect to backend service", ex, logger);
+		}
+	}
+
+	protected SocketChannel getBackend(String host, int port) throws Exception {
+		XNJS xnjs = getResource().getXNJSFacade().getXNJS();
+		Action action = getResource().getXNJSAction();
+		String tsiNode = action.getExecutionContext().getPreferredExecutionHost();
+		TSI tsi = xnjs.getTargetSystemInterface(AuthZAttributeStore.getClient(), tsiNode);
+		return tsi.openConnection(host, port);
+	}
+
 	@Override
 	protected void doHandleAction(String action, JSONObject param) throws Exception {
 		JobManagementImpl job = getResource();
@@ -238,6 +288,7 @@ public class Jobs extends ServicesBase {
 		links.add(new Link("action:start", base+"/actions/start", "Start"));
 		links.add(new Link("action:abort", base+"/actions/abort", "Abort"));
 		links.add(new Link("action:restart", base+"/actions/restart", "Restart"));
+		links.add(new Link("forwarding", base+"/forward-port", "Start port forwarding"));
 
 		links.add(new Link("workingDirectory", baseURL+"/storages/"+model.getUspaceId(), "Working directory"));
 		links.add(new Link("parentTSS", baseURL+"/sites/"+model.getParentUID(), "Parent TSS"));

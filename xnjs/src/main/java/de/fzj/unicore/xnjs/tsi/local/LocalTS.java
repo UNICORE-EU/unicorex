@@ -658,10 +658,8 @@ public class LocalTS implements TSI {
 
 	@Override
 	public SocketChannel openConnection(String host, int port) throws Exception {
-		InetSocketAddress addr = host!=null ? 
-					new InetSocketAddress(host, port):
-					new InetSocketAddress(InetAddress.getLocalHost(), port);
-		return SocketChannel.open(addr);
+		if(host==null)host="localhost";
+		return SocketChannel.open(new InetSocketAddress(host, port));
 	}
 	
 }
