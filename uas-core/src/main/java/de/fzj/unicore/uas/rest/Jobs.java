@@ -46,6 +46,7 @@ import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RestServlet;
 import eu.unicore.services.rest.USEResource;
+import eu.unicore.services.rest.client.ForwardingHelper;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.ConcurrentAccess;
@@ -175,24 +176,45 @@ public class Jobs extends ServicesBase {
 	 */
 	@GET
 	@Path("/{uniqueID}/forward-port")
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response startForwarding(
 			@HeaderParam(value="Upgrade") String upgrade,
 			@QueryParam(value="host") String host,
 			@QueryParam(value="port") String portS)
 	{
+		if(ForwardingHelper.REQ_UPGRADE_HEADER_VALUE.equalsIgnoreCase(upgrade)) {
+			try{
+				Action action = getResource().getXNJSAction();
+				String bssID = action.getBSID();
+				if(bssID==null){
+					throw new Exception("Job BSSID cannot be null.");
+				}
+				if(portS==null) {
+					// TODO we might already have the host/port via the job
+					throw new Exception("Port cannot be null");
+				}
+				return doStartForwarding(host, portS);
+			}catch(Exception ex){
+				return handleError("Could not connect to backend service", ex, logger);
+			}
+		}
+		else {
+			try {
+				// TODO return infos about accessible services
+				JSONObject info = new JSONObject();
+				info.put("status", "Nothing to see here yet.");
+				return Response.ok(info.toString()).build();
+			}catch(Exception ex) {
+				return handleError("Error generating forwarding information.", ex, logger);
+			}
+		}
+	}
+
+	protected Response doStartForwarding(String host, String portS) {
 		try{
-			Action action = getResource().getXNJSAction();
-			String bssID =  action.getBSID();
-			if(bssID==null){
-				throw new Exception("Job BSSID cannot be null.");
-			}
-			if(portS==null) {
-				// TODO we might already have the host/port 
-				// via the job
-				throw new Exception("Port cannot be null");
-			}
 			if(host==null)host="localhost";
-			SocketChannel backend = getBackend(host, Integer.valueOf(portS));
+			int port = Integer.valueOf(portS);
+			SocketChannel backend = getBackend(host, port);
 			ResponseBuilderImpl res = new ResponseBuilderImpl();
 			res.status(HttpStatus.SWITCHING_PROTOCOLS_101);
 			res.header("Upgrade", "UNICORE-Socket-Forwarding");
