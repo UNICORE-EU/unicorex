@@ -277,7 +277,7 @@ public class Storages extends ServicesBase {
 	 * <li>copy: with parameters 'from' and 'to'</li>
 	 * </ul>
 	 */
-	protected void doHandleAction(String name, JSONObject o) throws Exception {
+	protected JSONObject doHandleAction(String name, JSONObject o) throws Exception {
 		if("rename".equals(name)){
 			String source = o.optString("from", null);
 			String target= o.optString("to", null);
@@ -297,6 +297,7 @@ public class Storages extends ServicesBase {
 		else{
 			throw new WebApplicationException("Action '"+name+"' not available.", 404);
 		}
+		return null;
 	}
 
 	@Override

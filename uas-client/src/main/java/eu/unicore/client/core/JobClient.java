@@ -86,5 +86,5 @@ public class JobClient extends BaseServiceClient {
 	public void abort() throws Exception {
 		executeAction("abort", null);
 	}
-	
+
 }

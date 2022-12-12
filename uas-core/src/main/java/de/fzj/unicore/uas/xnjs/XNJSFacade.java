@@ -373,10 +373,6 @@ public class XNJSFacade {
 		return xnjs;
 	}
 
-	public TSI getTargetSystemInterface(Client client){
-		return xnjs.getTargetSystemInterface(client);
-	}
-	
 	/**
 	 * Returns the number of active jobs (RUNNING/QUEUED) in the various queues. 
 	 * The result may be <code>null</code>, if the system does not have queues 

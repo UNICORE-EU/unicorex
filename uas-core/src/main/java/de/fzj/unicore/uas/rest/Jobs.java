@@ -231,8 +231,9 @@ public class Jobs extends ServicesBase {
 	}
 
 	@Override
-	protected void doHandleAction(String action, JSONObject param) throws Exception {
+	protected JSONObject doHandleAction(String action, JSONObject param) throws Exception {
 		JobManagementImpl job = getResource();
+		JSONObject reply = null;
 		if("start".equals(action)){
 			job.start();
 		}
@@ -242,6 +243,7 @@ public class Jobs extends ServicesBase {
 		else if("restart".equals(action)){
 			job.restart();
 		}
+		return reply;
 	}
 
 	@Override
@@ -308,7 +310,6 @@ public class Jobs extends ServicesBase {
 		links.add(new Link("action:abort", base+"/actions/abort", "Abort"));
 		links.add(new Link("action:restart", base+"/actions/restart", "Restart"));
 		links.add(new Link("forwarding", base+"/forward-port", "Start port forwarding"));
-
 		links.add(new Link("workingDirectory", baseURL+"/storages/"+model.getUspaceId(), "Working directory"));
 		links.add(new Link("parentTSS", baseURL+"/sites/"+model.getParentUID(), "Parent TSS"));
 	}
