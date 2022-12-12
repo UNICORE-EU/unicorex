@@ -59,17 +59,17 @@ public class IDBImpl implements IDB {
 	public static final Pattern ARG_PATTERN=Pattern.compile("\\s?(.*?)"+"("+VAR+")(.*?)\\s*", Pattern.DOTALL);
 	public static final String DEFAULT_PARTITION = "DEFAULT_PARTITION";
 	
-	public static final String DEFAULT_EXECUTE_TEMPLATE = "#!/bin/bash\n#COMMAND\n#SCRIPT\n";
+	public static final String DEFAULT_EXECUTE_TEMPLATE = "#!/bin/bash -l\n#COMMAND\n#SCRIPT\n";
 
-	public static final String DEFAULT_SUBMIT_TEMPLATE = "#!/bin/bash\n#COMMAND\n#RESOURCES\n#SCRIPT\n";
+	public static final String DEFAULT_SUBMIT_TEMPLATE = "#!/bin/bash -l\n#COMMAND\n#RESOURCES\n#SCRIPT\n";
 
 	protected static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,IDBImpl.class);
 
 	private final Collection<ApplicationInfo> idb = new ArrayList<>();
 
-	protected final Map<String, String> filespaces = Collections.synchronizedMap(new HashMap<String,String>());
+	protected final Map<String, String> filespaces = Collections.synchronizedMap(new HashMap<>());
 
-	protected final Map<String, String> textInfoProperties = new HashMap<String, String>();
+	protected final Map<String, String> textInfoProperties = new HashMap<>();
 
 	protected String submitTemplate;
 
