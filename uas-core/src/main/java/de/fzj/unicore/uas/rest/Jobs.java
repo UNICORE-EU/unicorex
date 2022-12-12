@@ -171,9 +171,6 @@ public class Jobs extends ServicesBase {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	@GET
 	@Path("/{uniqueID}/forward-port")
 	@Produces(MediaType.APPLICATION_JSON)

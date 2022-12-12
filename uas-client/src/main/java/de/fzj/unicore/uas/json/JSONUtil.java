@@ -31,7 +31,7 @@ public class JSONUtil {
 	 */
 	public static String getString(JSONObject obj, String key, String defaultValue){
 		try{
-			return obj.getString(key);
+			return String.valueOf(obj.get(key));
 		}
 		catch(JSONException je){
 			return defaultValue;
