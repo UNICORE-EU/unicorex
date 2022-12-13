@@ -63,7 +63,6 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		switch(parseJobType(source)){
 			case ON_LOGIN_NODE:
 				app.setRunOnLoginNode(true);
-				app.setPreferredLoginNode(source.optString("Login node", null));
 				break;
 			case RAW:
 				String file = source.optString("BSS file", null);
@@ -76,6 +75,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 			case BATCH:
 				break;
 		}
+		app.setPreferredLoginNode(source.optString("Login node", null));
 		
 		app.setStdout(source.optString("Stdout",null));
 		app.setStderr(source.optString("Stderr",null));

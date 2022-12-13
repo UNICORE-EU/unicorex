@@ -177,7 +177,8 @@ public class Jobs extends ServicesBase {
 	public Response startForwarding(
 			@HeaderParam(value="Upgrade") String upgrade,
 			@QueryParam(value="host") String host,
-			@QueryParam(value="port") String portS)
+			@QueryParam(value="port") String portS,
+			@QueryParam(value="loginNode") String loginNode)
 	{
 		if(ForwardingHelper.REQ_UPGRADE_HEADER_VALUE.equalsIgnoreCase(upgrade)) {
 			try{
@@ -190,7 +191,7 @@ public class Jobs extends ServicesBase {
 					// TODO we might already have the host/port via the job
 					throw new Exception("Port cannot be null");
 				}
-				return doStartForwarding(host, portS);
+				return doStartForwarding(host, portS, loginNode);
 			}catch(Exception ex){
 				return handleError("Could not connect to backend service", ex, logger);
 			}
@@ -207,11 +208,11 @@ public class Jobs extends ServicesBase {
 		}
 	}
 
-	protected Response doStartForwarding(String host, String portS) {
+	protected Response doStartForwarding(String host, String portS, String loginNode) {
 		try{
 			if(host==null)host="localhost";
 			int port = Integer.valueOf(portS);
-			SocketChannel backend = getBackend(host, port);
+			SocketChannel backend = getBackend(host, port, loginNode);
 			ResponseBuilderImpl res = new ResponseBuilderImpl();
 			res.status(HttpStatus.SWITCHING_PROTOCOLS_101);
 			res.header("Upgrade", "UNICORE-Socket-Forwarding");
@@ -222,10 +223,11 @@ public class Jobs extends ServicesBase {
 		}
 	}
 
-	protected SocketChannel getBackend(String host, int port) throws Exception {
+	protected SocketChannel getBackend(String host, int port, String loginNode) throws Exception {
 		XNJS xnjs = getResource().getXNJSFacade().getXNJS();
 		Action action = getResource().getXNJSAction();
-		String tsiNode = action.getExecutionContext().getPreferredExecutionHost();
+		String tsiNode = loginNode!=null ?
+				loginNode : action.getExecutionContext().getPreferredExecutionHost();
 		TSI tsi = xnjs.getTargetSystemInterface(AuthZAttributeStore.getClient(), tsiNode);
 		return tsi.openConnection(host, port);
 	}

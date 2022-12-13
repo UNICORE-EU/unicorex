@@ -351,6 +351,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				cmd.workingDir = action.getExecutionContext().getWorkingDirectory();
 				cmd.ignoreExitCode = action.getApplicationInfo().isUserPreCommandIgnoreExitCode();
 				cmd.env.putAll(action.getExecutionContext().getEnvironment());
+				cmd.preferredExecutionHost = action.getApplicationInfo().getPreferredLoginNode();
 				String subID = createPrePostAction(cmd);
 				action.addLogTrace("Launched pre command <"+cmd.cmd+">");
 				getOrCreateList(subactionkey_pre).add(subID);
@@ -448,6 +449,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				cmd.cmd = post.toString();
 				cmd.workingDir = action.getExecutionContext().getWorkingDirectory();
 				cmd.env.putAll(action.getExecutionContext().getEnvironment());
+				cmd.preferredExecutionHost = action.getApplicationInfo().getPreferredLoginNode();
 				String subID = createPrePostAction(cmd);
 				action.addLogTrace("Launched post command <"+cmd.cmd+">");
 				getOrCreateList(subactionkey_post).add(subID);
