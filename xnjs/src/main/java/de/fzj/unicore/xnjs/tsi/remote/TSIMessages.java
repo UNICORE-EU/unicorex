@@ -434,6 +434,8 @@ public class TSIMessages {
 					continue nextline;
 				}
 			}
+			if (line.length() == 0)
+				continue;
 			return line;
 		}
 		return null;
