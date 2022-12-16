@@ -439,14 +439,17 @@ public class Execution extends BasicExecution {
 				if(status!=null) { 
 					jobExecLogger.debug("Aborting job <"+bssid+"> on TSI server");
 					if(job.getExecutionContext().isRunOnLoginNode()){
-						terminateInteractiveJob(job, false);
+						terminateInteractiveJob(job);
 					}
 					else{
 						runTSICommand(tsiMessages.makeAbortCommand(bssid), job.getClient(), null, true);
 					}
 				}
-			}catch(Exception ex){//wrap it
+			}catch(Exception ex){
 				jobExecLogger.error("Error aborting.",ex);
+				if(ex instanceof ExecutionException) {
+					throw (ExecutionException)ex;
+				}
 				throw new ExecutionException(ex);
 			}
 		}
@@ -456,17 +459,17 @@ public class Execution extends BasicExecution {
 	 * terminate the interactive job. 
 	 * If the 'kill' flag is true, a SIGKILL will be sent instead of the default SIGTERM
 	 */
-	protected void terminateInteractiveJob(Action job, boolean kill) throws ExecutionException, IOException {
+	protected void terminateInteractiveJob(Action job) throws ExecutionException, IOException {
 		String[] tok = job.getBSID().split("_");
 		String pid = tok[tok.length-1];
 		String tsiNode = job.getExecutionContext().getPreferredExecutionHost();
-		String signal = kill? "-9 ": "";
-		String script = "pkill "+signal+"-P "+pid+" ; kill "+signal+pid;
+		String script = tsiMessages.getAbortProcessCommand(pid);
+		if(!TSIConnection.doCompareVersions(connectionFactory.getTSIVersion(),"9.1.1")){
+			script = "pkill -P "+pid+"; kill "+pid;
+		}
 		try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(), tsiNode, timeout)) {
 			String res = conn.send(tsiMessages.makeExecuteScript(script, null, extractBSSCredentials(job)));
-			if(res==null || !res.startsWith("TSI_OK")){
-				throw new ExecutionException("Could not get terminate process. TSI reply: "+res);
-			}
+			TSIMessages.checkNoErrors(res, conn.getTSIHostName());
 		}
 	}
 	

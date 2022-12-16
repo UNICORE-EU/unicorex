@@ -76,8 +76,6 @@ import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 
 /**
- * Simple execution system<br>
- * 
  * @author schuller
  */
 @Singleton
@@ -204,9 +202,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		return res.toString();
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.ExecutionInterface#abort(de.fzj.unicore.xnjs.ems.Action)
-	 */
+	@Override
 	public void abort(Action job) throws ExecutionException {
 		try{
 			if(job.getStatus()==ActionStatus.RUNNING){
@@ -225,55 +221,43 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.ExecutionInterface#pause(de.fzj.unicore.xnjs.ems.Action)
-	 */
+	@Override
 	public void pause(Action job) throws ExecutionException {
 		throw new IllegalStateException("Operation is not supported.");
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.ExecutionInterface#resume(de.fzj.unicore.xnjs.ems.Action)
-	 */
+	@Override
 	public void resume(Action job) throws ExecutionException {
 		throw new IllegalStateException("Operation is not supported.");
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.ExecutionInterface#checkpoint(de.fzj.unicore.xnjs.ems.Action)
-	 */
+	@Override
 	public void checkpoint(Action job) throws ExecutionException {
 		throw new IllegalStateException("Operation is not supported.");
 	}
 
-	/* (non-Javadoc)
-	 * @see de.fzj.unicore.xnjs.ems.ExecutionInterface#restart(de.fzj.unicore.xnjs.ems.Action)
-	 */
+	@Override
 	public void restart(Action job) throws ExecutionException {
 		throw new IllegalStateException("Operation is not supported.");
 	}
 
-
+	@Override
 	public void updateStatus(Action job) throws ExecutionException {
-		try{
-			//skip QUEUED state for embedded TSI
-			if(job.getStatus()==ActionStatus.QUEUED){
-				job.setStatus(ActionStatus.RUNNING);
+		//skip QUEUED state for embedded TSI
+		if(job.getStatus()==ActionStatus.QUEUED){
+			job.setStatus(ActionStatus.RUNNING);
+		}
+		else if(job.getStatus()==ActionStatus.RUNNING){
+			//get progress
+			updateProgress(job);
+			//check for the exit code
+			boolean shellMode=job.getProcessingContext().get("localts.mode.shell")!=null;
+			if(shellMode){
+				updateExitCodeShellMode(job);
 			}
-			else if(job.getStatus()==ActionStatus.RUNNING){
-				//get progress
-				updateProgress(job);
-				//check for the exit code
-				boolean shellMode=job.getProcessingContext().get("localts.mode.shell")!=null;
-				if(shellMode){
-					updateExitCodeShellMode(job);
-				}
-				else{
-					updateExitCodeLocal(job);
-				}
+			else{
+				updateExitCodeLocal(job);
 			}
-		}catch(Exception ex){
-			throw new ExecutionException(ex);
 		}
 	}
 
@@ -295,7 +279,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		}
 	}
 
-	private void updateExitCodeShellMode(Action job)throws Exception{
+	private void updateExitCodeShellMode(Action job) throws ExecutionException {
 		String uid=job.getUUID();
 		if(LocalExecution.isRunning(uid))return;
 
@@ -341,7 +325,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	 * @return true if exit code was found
 	 * @param job
 	 */
-	protected boolean getExitCode(Action job)throws Exception{
+	protected boolean getExitCode(Action job)throws ExecutionException {
 		if(job.getExecutionContext().getExitCode()!=null)return true;
 		TSI tsi = tsiFactory.createTSI(job.getClient(),
 				job.getExecutionContext().getPreferredExecutionHost());
@@ -364,6 +348,8 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 				jobExecLogger.debug("Could not retrieve exit code.",e);
 			}
 			return false;
+		}catch(IOException ioe) {
+			throw new ExecutionException(ioe);
 		}
 	}
 

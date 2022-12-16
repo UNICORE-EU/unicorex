@@ -22,6 +22,7 @@ import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.tsi.TSI;
+import de.fzj.unicore.xnjs.util.ErrorCode;
 import de.fzj.unicore.xnjs.util.UnitParser;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
@@ -378,6 +379,8 @@ public class TSIMessages {
 		return template.replace("#SCRIPT", commands.toString());
 	}
 
+	private String [] ls_ignored = new String[] {"TSI_OK", "END_LISTING", "START_LISTING", "<", "-"};
+
 	/**
 	 * read a line from a TSI LS result, skipping irrelevant lines
 	 * 
@@ -389,24 +392,15 @@ public class TSIMessages {
 		String lines[] = new String[2];
 		lines[0] = "";
 		try {
-			while (lines[0] != null) {
+			nextline: while (lines[0] != null) {
 				lines[0] = br.readLine();
-				if (lines[0] == null)
-					break;
-				// ignore lines with special meaning
-				if (lines[0].startsWith("<"))
-					continue;
-				if (lines[0].startsWith("-"))
-					continue;
-				if (lines[0].startsWith("TSI_OK"))
-					continue;
-				if (lines[0].startsWith("END_LISTING"))
-					continue;
-				if (lines[0].startsWith("START_LISTING"))
-					continue;
-				if (lines[0].length() == 0)
-					continue;
-
+				if (lines[0] == null)break;
+				for(String i: ls_ignored) {
+					if(lines[0].startsWith(i)) {
+						continue nextline;
+					}
+				}
+				if (lines[0].length() == 0)continue;
 				lines[1] = br.readLine();
 				if (!lines[1].startsWith("--")) {
 					throw new IllegalArgumentException("Got invalid " +
@@ -424,26 +418,22 @@ public class TSIMessages {
 		return lines;
 	}
 
+	private String [] df_ignored = new String[] {"TSI_OK", "END_DF", "START_DF"};
+
 	public String readTSIDFLine(BufferedReader br) throws ExecutionException{
 		String line = "";
-		while (line != null) {
+		nextline: while (line != null) {
 			try{
 				line = br.readLine();
 			}catch(IOException ex){
 				throw new ExecutionException(ex);
 			}
-			if (line == null)
-				break;
-			// ignore lines with special meaning to xNJS
-			if (line.startsWith("TSI_OK"))
-				continue;
-			if (line.startsWith("END_DF"))
-				continue;
-			if (line.startsWith("START_DF"))
-				continue;
-			if (line.length() == 0)
-				continue;
-
+			if (line == null)break;
+			for(String i: df_ignored) {
+				if(line.startsWith(i)) {
+					continue nextline;
+				}
+			}
 			return line;
 		}
 		return null;
@@ -452,7 +442,7 @@ public class TSIMessages {
 	/**
 	 * parse the allocation ID file produced by a job of type "allocate"
 	 * @param tsiReply
-	 * @return array contaning the job ID and the BSS variable name for sending the job ID later
+	 * @return array containing the job ID and the BSS variable name for sending the job ID later
 	 */
 	public String[] readAllocationID(String tsiReply) {
 		if(tsiReply==null || tsiReply.trim().length()==0) {
@@ -969,6 +959,10 @@ public class TSIMessages {
 		return commands.toString();
 	}
 
+	public String getAbortProcessCommand(String pid) {
+		return xnjs.get(TSIProperties.class).getValue(TSIProperties.TSI_KILL).replace("[PID]", pid);
+	}
+
 
 	public static String getFilePerm(Integer umask) {
 		return Integer.toOctalString(TSI.DEFAULT_FILE_PERMS & ~umask); 
@@ -1028,4 +1022,19 @@ public class TSIMessages {
 		String sane = input.replace("'","'\\''");
 		return sane;
 	}
+
+	/**
+	 * check if TSI replied ONLY with TSI_OK
+	 * @param reply
+	 * @param tsiHost
+	 * @throws ExecutionException
+	 */
+	public static void checkNoErrors(String reply, String tsiHost) throws ExecutionException {
+		if (reply==null || !reply.startsWith("TSI_OK")
+			||  reply.replaceFirst("TSI_OK", "").trim().length()>0) {
+			String error = reply!=null? reply.replace("TSI_OK", "").trim() : "TSI reply is null";
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "TSI <"+tsiHost+"> ERROR: '"+error+"'");
+		}
+	}
+
 }

@@ -11,7 +11,7 @@ import ACL, BecomeUser, BSS, Connector, Log, PAM, Reservation, Server, SSL, IO, 
 #
 # the TSI version
 #
-MY_VERSION = "9.1.0"
+MY_VERSION = "9.1.1"
 
 # supported Python versions
 REQUIRED_VERSION = (3, 6, 0)

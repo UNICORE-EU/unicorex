@@ -11,7 +11,7 @@ import org.junit.Test;
 public class TestBSSState {
 
 	@Test
-	public void foo() throws Exception {
+	public void testParseProcessList() throws Exception {
 		String processList = FileUtils.readFileToString(
 				new File("src/test/resources/ps-test.txt"), "UTF-8");
 		String tsiNode = "localhost";

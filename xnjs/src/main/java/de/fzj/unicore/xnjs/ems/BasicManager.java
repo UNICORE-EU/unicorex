@@ -188,6 +188,7 @@ public class BasicManager implements Manager, InternalManager {
 				storeOperations.incrementAndGet();
 				String id=a.getUUID();
 				if(a.getStatus()==ActionStatus.DONE){
+					a.setWaiting(false);
 					jobs.put(id, a);
 				}
 				else if(a.getStatus()!=ActionStatus.DESTROYED){
@@ -304,6 +305,7 @@ public class BasicManager implements Manager, InternalManager {
 				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot abort the action.");
 			}
 			else{
+				a.addLogTrace("Got 'abort' request.");
 				a.setTransitionalStatus(ActionStatus.TRANSITION_ABORTING);
 				return "Action will be aborted";
 			}

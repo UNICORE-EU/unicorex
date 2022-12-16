@@ -52,6 +52,7 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String TSI_CHGRP="CHGRP";
 	public static final String TSI_GROUPS="GROUPS";
 	public static final String TSI_UMASK="UMASK";
+	public static final String TSI_KILL="KILL";
 	public static final String TSI_BUFFERSIZE="BUFFERSIZE";
 	
 	// various
@@ -124,6 +125,10 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Unix 'groups' command."));
 		META.put(TSI_UMASK, new PropertyMD("umask").
 				setDescription("Unix 'umask' command."));
+		META.put(TSI_KILL, new PropertyMD(
+				"SID=$(ps -e -osid,pid | egrep -o \"^\\s*[0-9]+ \\s*[PID]\" "
+				+ "| egrep -o \"^\\s*[0-9]+\"); pkill -s $SID").
+				setDescription("Unix command template for aborting a process and its child processes."));
 		META.put(TSI_BUFFERSIZE, new PropertyMD(String.valueOf(1024*1024)).setInt().setPositive().
 				setDescription("Buffer size (in bytes) for transferring data from/to the TSI."));
 		
@@ -133,7 +138,7 @@ public class TSIProperties extends PropertiesHelper {
 		META.put(BSS_NO_USER_INTERACTIVE_APPS, new PropertyMD("false").setBoolean().
 				setDescription("Disable execution of user commands on the TSI node."));
 		META.put(BSS_PS, new PropertyMD("ps -e").setDeprecated().
-				setDescription("Command to get the process list on the TSI node (Note: for TSI 8.3 and later this is configured in the TSI!)."));
+				setDescription("deprecated"));
 		META.put(BSS_MAX_RUNTIME_FOR_INTERACTIVE_APPS, new PropertyMD("-1").setInt().setDeprecated().
 				setDescription("(deprecated)"));
 		META.put(BSS_GRACE_PERIOD, new PropertyMD("2").setInt().setPositive().

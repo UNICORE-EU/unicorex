@@ -150,6 +150,11 @@ public abstract class EMSTestBase extends XNJSTestBase {
 		if(callback!=null)callback.run();
 	}
 	
+	protected void assertDone(String actionID)throws Exception{
+		int s = mgr.getStatus(actionID,null).intValue();
+		assertEquals("Expected DONE, was: "+ActionStatus.toString(s), ActionStatus.DONE, s);
+	}
+
 	protected void assertSuccessful(String actionID)throws Exception{
 		Action a=xnjs.get(InternalManager.class).getAction(actionID);
 		assertNotNull(a);

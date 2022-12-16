@@ -60,6 +60,7 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.IExecutionContextManager;
 import de.fzj.unicore.xnjs.ems.event.EventHandler;
 import de.fzj.unicore.xnjs.ems.event.XnjsEvent;
+import de.fzj.unicore.xnjs.idb.ApplicationInfo.JobType;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSInfo;
@@ -243,6 +244,23 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		MyExec.failSubmits = false;
 	}
 
+	@Test
+	public void testAbort() throws Exception {
+		JSONObject job = loadJSONObject(sleep);
+		job.put("Job type", JobType.ON_LOGIN_NODE.toString());
+		Action a=xnjs.makeAction(job);
+		Client c=new Client();
+		a.setClient(c);
+		c.setXlogin(new Xlogin(new String[] {"nobody"}));
+		String id=a.getUUID();
+		mgr.add(a,c);
+		mgr.run(id,	c);
+		Thread.sleep(2000);
+		mgr.abort(id, c);
+		Thread.sleep(3000);
+		assertDone(id);
+		assertNotSuccessful(id);
+	}
 
 	@Test
 	public void testParseStatusListing() throws Exception {

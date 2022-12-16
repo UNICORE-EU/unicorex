@@ -68,16 +68,10 @@ public class DefaultProcessor extends Processor {
 	public DefaultProcessor(XNJS xnjs){
 		super(xnjs);
 	}
-	protected void handleCancelling()throws ProcessingException{
-		action.addLogTrace("Job was cancelled by the user.");
-		action.setStatus(ActionStatus.DONE);
-		action.setResult(new ActionResult(ActionResult.USER_ABORTED, "Job was cancelled by the user."));
-	}
-	
+
 	protected void handleAborting()throws ProcessingException{
-		action.addLogTrace("Job was aborted by the user.");
 		action.setStatus(ActionStatus.DONE);
-		action.setResult(new ActionResult(ActionResult.USER_ABORTED, "Job was aborted by the user."));
+		action.setResult(new ActionResult(ActionResult.USER_ABORTED, "Job aborted."));
 	}
 	
 	protected void handlePausing()throws ProcessingException{
