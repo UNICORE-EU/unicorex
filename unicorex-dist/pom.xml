@@ -27,7 +27,7 @@
     <!-- this is the UNICORE/X version we are packaging -->
     <ux.version>${project.parent.version}</ux.version>
     <!-- internal workflow -->
-    <wfe.version>3.4.0</wfe.version>
+    <wfe.version>3.5.1</wfe.version>
   </properties>
 
   <dependencies>
