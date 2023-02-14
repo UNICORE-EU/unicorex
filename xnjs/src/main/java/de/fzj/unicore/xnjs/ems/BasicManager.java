@@ -46,6 +46,7 @@ import javax.inject.Singleton;
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.event.CallbackEvent;
 import de.fzj.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import de.fzj.unicore.xnjs.ems.event.StartJobEvent;
 import de.fzj.unicore.xnjs.ems.event.SubActionDoneEvent;
@@ -75,7 +76,7 @@ public class BasicManager implements Manager, InternalManager {
 	private IActionStore jobs;
 
 	private Dispatcher dispatcher;
-	
+
 	private volatile boolean isAcceptingNewActions = false;
 
 	private volatile boolean isPaused = false;
@@ -84,13 +85,13 @@ public class BasicManager implements Manager, InternalManager {
 
 	private final AtomicLong storeOperations=new AtomicLong(0);
 
-	private final XNJS configuration;
-	
+	private final XNJS xnjs;
+
 	private final IExecutionContextManager ecm;
-	
+
 	@Inject
-	public BasicManager(XNJS config, IExecutionContextManager ecm){
-		this.configuration = config;
+	public BasicManager(XNJS xnjs, IExecutionContextManager ecm){
+		this.xnjs = xnjs;
 		this.ecm = ecm;
 	}
 
@@ -109,9 +110,8 @@ public class BasicManager implements Manager, InternalManager {
 				action.addLogTrace("Client: "+client);
 			}
 			ecm.getContext(action);
-			boolean process=!action.isWaiting();
 			jobs.put(action.getUUID(),action);
-			if(process){
+			if(!action.isWaiting()){
 				dispatcher.process(action.getUUID());
 			}
 		}catch(Exception e){
@@ -138,11 +138,11 @@ public class BasicManager implements Manager, InternalManager {
 	@Override
 	public synchronized void start() throws Exception {
 		if(started)return;
-		jobs = configuration.getActionStore("JOBS");
+		jobs = xnjs.getActionStore("JOBS");
 		assert jobs!=null;
-		IExecutionSystemInformation ies = configuration.get(IExecutionSystemInformation.class, true);
+		IExecutionSystemInformation ies = xnjs.get(IExecutionSystemInformation.class, true);
 		if(ies!=null)ies.initialise(jobs);
-		dispatcher = new Dispatcher(configuration);
+		dispatcher = new Dispatcher(xnjs);
 		dispatcher.start();
 		startAcceptingNewActions();
 		started = true;
@@ -460,7 +460,7 @@ public class BasicManager implements Manager, InternalManager {
 
 	public int getTotalJobsOnSystem(){
 		try {
-			return configuration.get(IExecutionSystemInformation.class).getTotalNumberOfJobs();
+			return xnjs.get(IExecutionSystemInformation.class).getTotalNumberOfJobs();
 		} catch (Exception e) {
 			logger.warn("Could not get number of jobs on the system.",e);
 			return -1;
@@ -500,52 +500,44 @@ public class BasicManager implements Manager, InternalManager {
 
 	@Override
 	public void handleEvent(final XnjsEvent event) throws ExecutionException {
-		if (event==null)return;
 		final String actionID=event.getActionID();
-
-		if(event instanceof ContinueProcessingEvent){
-			if(actionID==null){
-				throw new NullPointerException("Can't have ContinueProcessingEvent with null action ID");
-			}
-			Runnable r=new Runnable(){
-				public void run(){
-					if(configuration.isStopped())return;
+		Runnable r=new Runnable(){
+			public void run(){
+				if(xnjs.isStopped())return;
+				if(event instanceof CallbackEvent) {
 					Action a=null;
 					try{
-						a=getActionForUpdate(actionID);
+						a = getActionForUpdate(actionID);
 						if(a!=null){
-							event.callback(a);
+							((CallbackEvent)event).callback(a, xnjs);
+							if(event instanceof ContinueProcessingEvent) {
+								dispatcher.process(actionID);
+							}
 						}
 					}catch(Exception ex){
 						// timeout is not really an error, so do not log it as such
 						if( !(ex instanceof TimeoutException)){	
-							try{
-								LogUtil.logException("Error processing continue event for action  <"+actionID+">", ex, logger);
-								Action d=getAction(actionID);
-								if(d!=null){
-									logger.debug(d.toString());
-								}
-							}catch(Exception ex1){}
+							LogUtil.logException("Error processing callback for action  <"+actionID+">", ex, logger);
 						}
-						configuration.getScheduledExecutor().schedule(this, 5000, TimeUnit.MILLISECONDS);
+						xnjs.getScheduledExecutor().schedule(this, 5000, TimeUnit.MILLISECONDS);
 					}
 					finally{
 						if(a!=null) {
 							try {
 								jobs.put(actionID, a);
-								dispatcher.process(actionID);
 							} catch (Exception e) {
 								throw new RuntimeException(e);
 							}
 						}
 					}
 				}
-			};
-			//queue it
-			configuration.getScheduledExecutor().schedule(r, 200, TimeUnit.MILLISECONDS);
-		}
+				else if(event instanceof ContinueProcessingEvent) {
+					dispatcher.process(actionID);
+				}
+			}
+		};
+		xnjs.getScheduledExecutor().schedule(r, 200, TimeUnit.MILLISECONDS);
 
-		else throw new IllegalArgumentException("Unknown event type <"+event.getClass().getName()+">");
 	}
 
 	@Override
@@ -559,7 +551,7 @@ public class BasicManager implements Manager, InternalManager {
 				}
 			}
 		};
-		configuration.getScheduledExecutor().schedule(r,time,units);
+		xnjs.getScheduledExecutor().schedule(r,time,units);
 	}
 
 }

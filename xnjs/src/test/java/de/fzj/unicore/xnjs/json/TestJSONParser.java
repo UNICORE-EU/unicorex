@@ -14,15 +14,16 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.Partition;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
-import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.BooleanResource;
 import de.fzj.unicore.xnjs.resources.DoubleResource;
 import de.fzj.unicore.xnjs.resources.IntResource;
+import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
@@ -107,7 +108,22 @@ public class TestJSONParser {
 		List<ResourceRequest>rrs = app.getResourceRequests();
 		assertEquals(0, rrs.size());
 	}
-	
+
+	@Test
+	public void testParseJSONApplication2() throws Exception {
+		String json = "{"
+				+ "Name: 'test',"
+				+ "Version: '1.0',"
+				+ "Prologue: ['module load test123', 'module load abc'],"
+				+ "Executable: '/bin/test',"
+				+ "PostCommand: ['zip $OUTPUT *.dat', 'md5sum $OUTPUT > $OUTPUT.md5'],"
+				+ "}";
+		
+		ApplicationInfo app = new JSONParser().parseApplicationInfo(new JSONObject(json));
+		assertEquals("module load test123\nmodule load abc\n", app.getPrologue());
+		assertEquals("zip $OUTPUT *.dat\nmd5sum $OUTPUT > $OUTPUT.md5\n", app.getPostCommand());
+	}
+
 	@Test
 	public void testParsePartition() throws Exception {
 		String json = "{ 'Partitions' : {" + 
@@ -249,5 +265,53 @@ public class TestJSONParser {
 		DataStageOutInfo dso = new JSONParser().parseStageOut(spec);
 		assertEquals("file.txt", dso.getFileName());
 		assertEquals(new URI("http://some-url"), dso.getTarget());
+	}
+
+	@Test
+	public void testParseNotificationURL() throws Exception {
+		JSONObject job = new JSONObject();
+		job.put("Notification", "http://some-url");
+		assertEquals("http://some-url", new JSONParser().parseNotificationURLs(job).get(0));
+		job.clear();
+		JSONObject spec = new JSONObject();
+		spec.put("URL", "http://some-url");
+		job.put("Notification", spec);
+		assertEquals("http://some-url", new JSONParser().parseNotificationURLs(job).get(0));
+	}
+
+	@Test
+	public void testParseNotificationStates() throws Exception {
+		JSONObject job = new JSONObject();
+		List<Integer>s = new JSONParser().parseNotificationTriggers(job);
+		assertTrue(s.contains(ActionStatus.RUNNING));
+		assertFalse(s.contains(ActionStatus.POSTPROCESSING));
+		assertTrue(s.contains(ActionStatus.DONE));
+		
+		JSONObject spec = new JSONObject();
+		JSONArray states = new JSONArray();
+		states.put("RUNNING");
+		states.put("POSTPROCESSING");
+		spec.put("status", states);
+		job.put("Notification", spec);
+		s = new JSONParser().parseNotificationTriggers(job);
+		assertTrue(s.contains(ActionStatus.RUNNING));
+		assertTrue(s.contains(ActionStatus.POSTPROCESSING));
+		assertFalse(s.contains(ActionStatus.DONE));
+	}
+
+	@Test
+	public void testParseNotificationBSSStates() throws Exception {
+		JSONObject job = new JSONObject();
+		List<String>s = new JSONParser().parseNotificationBSSTriggers(job);
+		assertEquals(s.size(), 0);
+		
+		JSONObject spec = new JSONObject();
+		JSONArray states = new JSONArray();
+		states.put("CONFIGURING");
+		spec.put("bssStatus", states);
+		job.put("Notification", spec);
+		s = new JSONParser().parseNotificationBSSTriggers(job);
+		assertEquals(s.size(), 1);
+		assertTrue(s.contains("CONFIGURING"));
 	}
 }

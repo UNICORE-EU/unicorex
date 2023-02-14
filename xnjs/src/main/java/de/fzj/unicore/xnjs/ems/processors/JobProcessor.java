@@ -955,7 +955,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			List<String>files=(List<String>)action.getProcessingContext().get(KEY_DELETEONTERMINATION);
 			if(files==null || files.size()==0)return;
-			//get uspace TSI			
 			TSI tsi=xnjs.getTargetSystemInterface(action.getClient());
 			tsi.setStorageRoot(action.getExecutionContext().getWorkingDirectory());
 			int c=0;

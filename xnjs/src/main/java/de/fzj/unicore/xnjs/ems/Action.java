@@ -50,9 +50,9 @@ import de.fzj.unicore.xnjs.persistence.GSONUtils;
 import eu.unicore.security.Client;
 
 /**
- * An Action is something that is managed by the XNJS, 
- * such as a job execution or a workflow<br>
- * 
+ * An Action is a unit of work processed and managed by the XNJS, 
+ * such as a job execution or a workflow
+ *
  * @author schuller
  */
 @Table(name="JOBS")
@@ -61,10 +61,8 @@ public class Action implements Serializable {
 
 	private static final long serialVersionUID=1L;
 
-	//the unique id of the action
 	private String UUID;
 
-	//the type of action
 	private String type;
 
 	// if internal, this action is not managed by an external entity
@@ -73,10 +71,8 @@ public class Action implements Serializable {
 	//optional the id assigned by the batch system
 	private String BSID;
 
-	// job details from the BSS
 	private String bssDetails="";
 
-	//the time by which the action will no longer be valid
 	private Date terminationTime;
 
 	//the EMS status of the action
@@ -85,7 +81,6 @@ public class Action implements Serializable {
 	//the EMS transition status of the action
 	private int transitionalStatus;
 
-	//the owner of this action
 	private Client client;
 
 	//human readable name
@@ -96,10 +91,9 @@ public class Action implements Serializable {
 
 	private ActionResult result;
 
-	//a log trace
 	private final List<String> log;
 
-	//a context for use during processing: can use arbitrary objects objects
+	//for storing state information used during processing
 	private ProcessingContext processingContext;
 
 	//the context during execution
@@ -108,18 +102,14 @@ public class Action implements Serializable {
 	//the application information
 	private ApplicationInfo applicationInfo;
 
-	//list of stage-ins
 	private List<DataStageInInfo>stageIns;
 	
-	//list of stage-outs
 	private List<DataStageOutInfo>stageOuts;
 	
-	//if this is true the action has been modified and needs to be persisted
+	// if true, Action needs to be written back into persistence
 	private transient boolean dirty=false;
 
-	//if this is true the action has been waiting and will wait for
-	//a wake-up event before continuing to be processed
-	//this is transient, so it gets cleared in case of a server restart
+	// if true, the action will wait for a wake-up event before continuing to be processed
 	private transient boolean waiting=false;
 
 	//the instant until this action should not be processed further
@@ -138,7 +128,9 @@ public class Action implements Serializable {
 
 	//list of URLs to send notifications to
 	private List<String>notificationURls;
-	
+	//list of raw BSS states to send notifications for
+	private List<String>notifyBSSStates;
+
 	/**
 	 * creates a new action with a pre-defined UUID</br>
 	 * The caller has to guarantee uniqueness!
@@ -148,7 +140,7 @@ public class Action implements Serializable {
 	public Action(String uuid){
 		UUID=uuid;
 		if(UUID==null)throw new IllegalArgumentException("UUID must be non-null.");
-		log=new ArrayList<String>();
+		log=new ArrayList<>();
 		processingContext=new ProcessingContext();
 		setResult(new ActionResult());
 		setStatus(ActionStatus.CREATED);
@@ -229,7 +221,7 @@ public class Action implements Serializable {
 	}
 
 	public void setAjd(Serializable ajd) {
-		this.ajd = new Wrapper<Serializable>(ajd);
+		this.ajd = new Wrapper<>(ajd);
 		setDirty();
 	}
 
@@ -364,6 +356,14 @@ public class Action implements Serializable {
 
 	public void setNotificationURLs(List<String> notificationURls) {
 		this.notificationURls = notificationURls;
+	}
+
+	public List<String> getNotifyBSSStates() {
+		return notifyBSSStates;
+	}
+
+	public void setNotifyBSSStates(List<String> notifyBSSStates) {
+		this.notifyBSSStates = notifyBSSStates;
 	}
 
 	public int getTransitionalStatus() {

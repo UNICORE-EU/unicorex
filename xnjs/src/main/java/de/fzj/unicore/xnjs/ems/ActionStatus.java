@@ -186,5 +186,25 @@ public class ActionStatus {
 		}
 		return null;
 	}
-
+	
+	public static int fromString(String s){
+		switch(s){
+			case "UNKNOWN": return UNKNOWN;
+			case "CREATED": return CREATED;
+			case "PREPROCESSING": return PREPROCESSING;
+			case "STAGINGIN": return PREPROCESSING;
+			case "READY": return READY;
+			case "PENDING": return PENDING;
+			case "QUEUED": return QUEUED;
+			case "PAUSED": return PAUSED;
+			case "FROZEN": return FROZEN;
+			case "RUNNING": return RUNNING;
+			case "POSTPROCESSING": return POSTPROCESSING;
+			case "STAGINGOUT": return POSTPROCESSING;
+			case "DONE": return DONE;
+			case "SUCCESSFUL": return DONE;
+			case "DESTROYED": return DESTROYED;
+		}
+		throw new IllegalArgumentException("Not a UNICORE status: "+s);
+	}
 }

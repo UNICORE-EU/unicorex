@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.InternalManager;
+import de.fzj.unicore.xnjs.ems.event.BssStatusChangeEvent;
 import de.fzj.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import de.fzj.unicore.xnjs.ems.event.EventHandler;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
@@ -203,8 +204,10 @@ public class BSSState implements IBSSState {
 		 * line per found job, first word is BSS job identifier and the second
 		 * word is one of RUNNING, QUEUED, COMPLETED, SUSPENDED
 		 * 
-		 * Optionally a third word indicates the queue name (careful, since many batch systems
-		 * do not list full queue names). Not all TSIs may support this.
+		 * A third word indicates the queue name (careful, since many batch systems
+		 * do not list full queue names)
+		 * 
+		 * (since TSI 9.1.3) A fourth word gives the original state as reported by the BSS
 		 */
 		BufferedReader br = new BufferedReader(new StringReader(tsiReply.trim()+"\n"));
 		String line = br.readLine();
@@ -260,16 +263,37 @@ public class BSSState implements IBSSState {
 					fill++;
 					queueFill.put(queue,fill);
 				}
+				
+				// real BSS state
+				String rawBssState = null;
+				if(tok.length>3){
+					rawBssState = tok[3];
+				}
 
 				BSSInfo info=statesMap.get(bssID);
 				if(info==null){
 					continue;
 				}
 				BSS_STATE oldValue = info.bssState;
+				String oldRawState = info.rawBSSState;
 				String jobID = info.jobID;
-				info.queue=queue;
+				info.bssState = newValue;
+				info.queue = queue;
+				info.rawBSSState = rawBssState;
+				boolean wantNotification = info.wantsNotifications
+						&& !rawBssState.equals(oldRawState);
+				if(wantNotification) {
+					if (handler != null) {
+						try {
+							log.debug("Raw BSS status changed: {} -> {}, sending 'continue' for: {}",
+									oldRawState, rawBssState, jobID);
+							handler.handleEvent(new BssStatusChangeEvent(jobID, rawBssState));
+						} catch (Exception ee) {
+							LogUtil.logException("Error sending change event",ee,log);
+						}
+					}
+				}				
 				if (!newValue.equals(oldValue)) {
-					info.bssState = newValue;
 					if (handler != null) {
 						try {
 							log.debug("BSS status changed: {} -> {}, sending 'continue' for: {}",

@@ -121,7 +121,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	protected static final String EXITCODE_RECHECK="CLASSICTSI.statusupdate.exitcode.recheck";
 
 	// for limiting the number of concurrently running jobs (embedded TSI!)
-	private final Set<String>runningJobUIDs=Collections.synchronizedSet(new HashSet<String>());
+	private final Set<String>runningJobUIDs = Collections.synchronizedSet(new HashSet<>());
 	private final AtomicInteger runningJobCount = new AtomicInteger(0);
 	private final AtomicInteger jobIndex = new AtomicInteger(0);
 
@@ -216,7 +216,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 					job.setResult(new ActionResult(ActionResult.USER_ABORTED));
 				}
 			}
-		}catch(Exception ex){//just wrap it
+		}catch(Exception ex){
 			throw new ExecutionException(ex);
 		}
 	}
@@ -243,14 +243,12 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 	@Override
 	public void updateStatus(Action job) throws ExecutionException {
-		//skip QUEUED state for embedded TSI
+		// embedded TSI does not really have QUEUED state
 		if(job.getStatus()==ActionStatus.QUEUED){
 			job.setStatus(ActionStatus.RUNNING);
 		}
 		else if(job.getStatus()==ActionStatus.RUNNING){
-			//get progress
 			updateProgress(job);
-			//check for the exit code
 			boolean shellMode=job.getProcessingContext().get("localts.mode.shell")!=null;
 			if(shellMode){
 				updateExitCodeShellMode(job);
@@ -272,7 +270,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			else{
 				job.getExecutionContext().setExitCode(exit);
 				job.setStatus(ActionStatus.POSTPROCESSING);
-				jobExecLogger.debug("["+uid+"] Status set to POSTPROCESSING.");
+				jobExecLogger.debug("[{}] Status set to POSTPROCESSING.", uid);
 				job.addLogTrace("Status set to POSTPROCESSING.");
 				decrementJobCounter(uid);
 			}
@@ -285,7 +283,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 		decrementJobCounter(job.getUUID());
 		
-		boolean haveExitCode=getExitCode(job);
+		boolean haveExitCode=readExitCode(job);
 		if(!haveExitCode){
 			int myGracePeriod=0;
 
@@ -321,11 +319,12 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	}
 
 	/**
-	 * get the exit code by reading the exit code file
-	 * @return true if exit code was found
+	 * attempt to read the exit code from the exit code file
+	 *
+	 * @return true if exit code file exists and exit code could be read
 	 * @param job
 	 */
-	protected boolean getExitCode(Action job)throws ExecutionException {
+	protected boolean readExitCode(Action job)throws ExecutionException {
 		if(job.getExecutionContext().getExitCode()!=null)return true;
 		TSI tsi = tsiFactory.createTSI(job.getClient(),
 				job.getExecutionContext().getPreferredExecutionHost());
@@ -341,7 +340,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 					int i=Integer.parseInt(s);
 					ctx.setExitCode(i);
 					job.addLogTrace("Exit code "+i);
-					jobExecLogger.debug("Script exited with code <"+i+">");
+					jobExecLogger.debug("Script exited with code <{}>",i);
 					return true;
 				}
 			}catch(Exception e){
@@ -381,7 +380,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			String s=br.readLine();
 			if(s!=null){
 				Float f=Float.parseFloat(s);
-				jobExecLogger.info("Found progress value <"+f+"> for job "+job.getUUID());
+				jobExecLogger.info("Found progress value <{}> for job {}", f, job.getUUID());
 				job.getExecutionContext().setProgress(f);
 				job.setDirty();
 			}
@@ -396,7 +395,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 		}catch(NumberFormatException nfe){
 			//progress file exists but weird value
-			jobExecLogger.warn("Application wrote faulty progress file for action "+job.getUUID());
+			jobExecLogger.warn("Application wrote faulty progress file for action {}", job.getUUID());
 		}catch(ExecutionException ee){
 			//no progress file written
 		}catch(IOException e){

@@ -37,11 +37,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -50,6 +47,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
@@ -59,12 +57,12 @@ import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.IExecutionContextManager;
 import de.fzj.unicore.xnjs.ems.event.EventHandler;
+import de.fzj.unicore.xnjs.ems.event.INotificationSender;
 import de.fzj.unicore.xnjs.ems.event.XnjsEvent;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo.JobType;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSInfo;
-import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSSummary;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.security.Client;
@@ -92,6 +90,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		protected void bindExecution(){
 			bind(IExecution.class).to(MyExec.class);
 			bind(IExecutionSystemInformation.class).to(MyExec.class);
+			bind(INotificationSender.class).to(MockNotificationSender.class);
 		}
 
 	}
@@ -104,10 +103,10 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 
 	@Test
 	public void testRunMulti() throws Exception {
-		ThreadPoolExecutor es = new ThreadPoolExecutor(4, 4, 
+		var es = new ThreadPoolExecutor(4, 4, 
 				60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
 
-		Callable<String> t1 = new Callable<String>() {
+		var t1 = new Callable<String>() {
 			public String call() {
 				try {
 					resourcesAndRedirect();
@@ -116,7 +115,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			}
 		};
 
-		Callable<String> t2 = new Callable<String>() {
+		var t2 = new Callable<String>() {
 			public String call() {
 				try {
 					submitInteractive();
@@ -125,7 +124,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			}
 		};
 
-		Callable<String> t3 = new Callable<String>() {
+		var t3 = new Callable<String>() {
 			public String call() {
 				try {
 					queueUpdate();
@@ -134,7 +133,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			}
 		};
 
-		CompletionService<String> cs = new ExecutorCompletionService<>(es);
+		var cs = new ExecutorCompletionService<String>(es);
 		cs.submit(t1);
 		cs.submit(t2);
 		cs.submit(t3);
@@ -264,8 +263,8 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 
 	@Test
 	public void testParseStatusListing() throws Exception {
-		String s1="QSTAT \n 2795100 RUNNING\n 2795100 RUNNING \n";
-		Map<String,BSSInfo>st=new HashMap<String, BSSInfo>();
+		var s1 = "QSTAT \n 2795100 RUNNING\n 2795100 RUNNING \n";
+		var st = new HashMap<String, BSSInfo>();
 		st.put("2795100", new BSSInfo("2795100", "j1", BSS_STATE.UNKNOWN));
 		BSSState.updateBatchJobStates(st,s1,null);
 		assertEquals(BSS_STATE.RUNNING,st.get("2795100").bssState);
@@ -275,30 +274,29 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	public void testParseLongStatusListing() throws Exception {
 		eventsReceived=0;
 		long entries=100000;
-		StringBuilder s1=new StringBuilder("QSTAT \n");
-		Map<String,BSSInfo>st=new HashMap<String, BSSInfo>();
+		var s1 = new StringBuilder("QSTAT \n");
+		var st = new HashMap<String, BSSInfo>();
 
 		for(int i=1;i<=entries;i++){
 			s1.append(i+" RUNNING DEFAULT_QUEUE\n");
 			st.put(String.valueOf(i), new BSSInfo(String.valueOf(i),"j"+i, BSS_STATE.UNKNOWN));
 		}
 
-		long start=System.currentTimeMillis();
+		var start = System.currentTimeMillis();
 		BSSState.updateBatchJobStates(st,s1.toString(),this);
-		long end=System.currentTimeMillis();
+		var end = System.currentTimeMillis();
 		System.out.println("Parsing qstat "+entries+" entries took "+(end-start)+ " msec.");
 		assertEquals(entries,eventsReceived);
 	}
 
 	@Test
 	public void testParseQueueInfo() throws Exception {
-		String s1="QSTAT \n 2795100 RUNNING FAST\n 2795101 RUNNING NORMAL\n 2795102 RUNNING NORMAL\n";
-
-		Map<String,BSSInfo>st=new HashMap<String, BSSInfo>();
+		var s1="QSTAT \n 2795100 RUNNING FAST\n 2795101 RUNNING NORMAL\n 2795102 RUNNING NORMAL\n";
+		var st = new HashMap<String, BSSInfo>();
 		st.put("2795100", new BSSInfo("2795100","j1",BSS_STATE.UNKNOWN));
 		st.put("2795101", new BSSInfo("2795101","j1",BSS_STATE.UNKNOWN));
 		st.put("2795102", new BSSInfo("2795102","j1",BSS_STATE.UNKNOWN));
-		BSSSummary summary = BSSState.updateBatchJobStates(st,s1,null);
+		var summary = BSSState.updateBatchJobStates(st,s1,null);
 		assertEquals(BSS_STATE.RUNNING,st.get("2795100").bssState);
 		System.out.println(summary.toString());
 		assertEquals(2, summary.queueFilling.get("NORMAL").intValue());
@@ -307,7 +305,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	@Test
 	public void testGetProcessListing() throws Exception {
 		BSSState bss = xnjs.get(BSSState.class);
-		Set<String> ps = bss.getProcessList("127.0.0.1");
+		var ps = bss.getProcessList("127.0.0.1");
 		System.out.println(ps);
 	}
 
@@ -335,6 +333,30 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		a.printLogTrace();
 	}
 
+	@Test
+	public void testNotifyJob() throws Exception {
+		MyExec.failSubmits=false;
+		String id="";
+		Action a = null;
+		JSONObject job = new JSONObject();
+		job.put("Executable", "sleep 20");
+		JSONObject notification = new JSONObject();
+		notification.put("URL", "dummy://notification-target");
+		JSONArray arr = new JSONArray();
+		arr.put("S");
+		notification.put("bssStatus", arr);
+		job.put("Notification", notification);
+		a = xnjs.makeAction(job);
+		Client c = new Client();
+		a.setClient(c);
+		c.setXlogin(new Xlogin(new String[] {"nobody"}));
+		id = a.getUUID();
+		mgr.add(a,c);
+		doRun(id);
+		assertSuccessful(id);
+		a = mgr.getAction(id);
+		a.printLogTrace();
+	}
 
 	private int eventsReceived=0;
 
@@ -365,6 +387,18 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 				}
 			}
 			return super.submit(job);
+		}
+	}
+	
+	@Singleton
+	public static class MockNotificationSender implements INotificationSender {
+
+		public MockNotificationSender() { }
+
+		@Override
+		public void send(JSONObject msg, Action job) throws Exception{
+			System.out.println("Notification: "+msg.toString(2));
+			job.addLogTrace("Sent to: "+job.getNotificationURLs().get(0));
 		}
 	}
 }

@@ -9,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo.JobType;
 import de.fzj.unicore.xnjs.idb.ApplicationInfoParser;
@@ -38,34 +39,34 @@ import de.fzj.unicore.xnjs.util.UnitParser;
 
 public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
-	public ApplicationInfo parseSubmittedApplication(JSONObject source) throws Exception {
+	public ApplicationInfo parseSubmittedApplication(JSONObject job) throws Exception {
 		ApplicationInfo app = new ApplicationInfo();
-		app.setName(source.optString("ApplicationName",null));
-		app.setVersion(source.optString("ApplicationVersion",null));
+		app.setName(job.optString("ApplicationName",null));
+		app.setVersion(job.optString("ApplicationVersion",null));
 
-		app.setUserPreCommand(source.optString("User precommand", null));
-		app.setUserPreCommandOnLoginNode(source.optBoolean("RunUserPrecommandOnLoginNode", true));
-		app.setUserPreCommandIgnoreExitCode(source.optBoolean("UserPrecommandIgnoreNonZeroExitCode", false));
+		app.setUserPreCommand(JSONUtils.readMultiLine("User precommand", null, job));
+		app.setUserPreCommandOnLoginNode(job.optBoolean("RunUserPrecommandOnLoginNode", true));
+		app.setUserPreCommandIgnoreExitCode(job.optBoolean("UserPrecommandIgnoreNonZeroExitCode", false));
 		
-		app.setExecutable(source.optString("Executable",null));
-		app.setArguments(JSONUtils.asStringArray(source.optJSONArray("Arguments")));
-		app.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Parameters")));
-		app.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Environment")));
-		parseEnvironment(source.optJSONArray("Environment"), app);
-		app.setIgnoreNonZeroExitCode(source.optBoolean("IgnoreNonZeroExitCode", false));
+		app.setExecutable(job.optString("Executable",null));
+		app.setArguments(JSONUtils.asStringArray(job.optJSONArray("Arguments")));
+		app.getEnvironment().putAll(JSONUtils.asStringMap(job.optJSONObject("Parameters")));
+		app.getEnvironment().putAll(JSONUtils.asStringMap(job.optJSONObject("Environment")));
+		parseEnvironment(job.optJSONArray("Environment"), app);
+		app.setIgnoreNonZeroExitCode(job.optBoolean("IgnoreNonZeroExitCode", false));
 
-		app.setUserPostCommand(source.optString("User postcommand", null));
-		app.setUserPostCommandOnLoginNode(source.optBoolean("RunUserPostcommandOnLoginNode", true));
-		app.setUserPostCommandIgnoreExitCode(source.optBoolean("UserPostcommandIgnoreNonZeroExitCode", false));
+		app.setUserPostCommand(JSONUtils.readMultiLine("User postcommand", null, job));
+		app.setUserPostCommandOnLoginNode(job.optBoolean("RunUserPostcommandOnLoginNode", true));
+		app.setUserPostCommandIgnoreExitCode(job.optBoolean("UserPostcommandIgnoreNonZeroExitCode", false));
 		
-		app.setResourceRequest(parseResourceRequest(source.optJSONObject("Resources")));
+		app.setResourceRequest(parseResourceRequest(job.optJSONObject("Resources")));
 
-		switch(parseJobType(source)){
+		switch(parseJobType(job)){
 			case ON_LOGIN_NODE:
 				app.setRunOnLoginNode(true);
 				break;
 			case RAW:
-				String file = source.optString("BSS file", null);
+				String file = job.optString("BSS file", null);
 				if(file==null)throw new Exception("Job type 'raw' requires 'BSS file'");
 				app.setRawBatchFile(file);
 				break;
@@ -75,11 +76,11 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 			case BATCH:
 				break;
 		}
-		app.setPreferredLoginNode(source.optString("Login node", null));
+		app.setPreferredLoginNode(job.optString("Login node", null));
 		
-		app.setStdout(source.optString("Stdout",null));
-		app.setStderr(source.optString("Stderr",null));
-		app.setStdin(source.optString("Stdin",null));
+		app.setStdout(job.optString("Stdout",null));
+		app.setStderr(job.optString("Stderr",null));
+		app.setStdin(job.optString("Stdin",null));
 		
 		return app;
 	}
@@ -181,16 +182,17 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		info.setVersion(source.getString("Version"));
 		info.setDescription(source.optString("Description", null));
 		
-		info.setPreCommand(source.optString("PreCommand", null));
-		info.setPrologue(source.optString("Prologue", null));
+		info.setPreCommand(JSONUtils.readMultiLine("PreCommand", null, source));
+		info.setPrologue(JSONUtils.readMultiLine("Prologue", null, source));
 		info.setExecutable(source.getString("Executable"));
 		info.setArguments(JSONUtils.asStringArray(source.optJSONArray("Arguments")));
 		info.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Environment")));
-		info.setEpilogue(source.optString("Epilogue", null));
+		info.setEpilogue(JSONUtils.readMultiLine("Epilogue", null, source));
+		
 		info.setRunOnLoginNode(source.optBoolean("RunOnLoginNode", false));
 		info.setIgnoreNonZeroExitCode(source.optBoolean("IgnoreNonZeroExitCode", false));
-		info.setPostCommand(source.optString("PostCommand", null));
-		
+		info.setPostCommand(JSONUtils.readMultiLine("PostCommand", null, source));
+
 		info.setResourceRequest(parseResourceRequest(source.optJSONObject("Resources")));
 		info.setMetadata(parseApplicationMetadata(source.optJSONObject("Parameters")));
 		
@@ -369,5 +371,48 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		else {
 			return UnitParser.getCapacitiesParser(0);
 		}
+	}
+	
+	public List<String>parseNotificationURLs(JSONObject job){
+		List<String> res = new ArrayList<>();
+		JSONObject spec = job.optJSONObject("Notification");
+		String url = null;
+		if(spec!=null) {
+			url = spec.optString("URL");
+		} else {
+			url = job.optString("Notification");
+			
+		}
+		if(url!=null) {
+			res.add(url);
+		}
+		return res;
+	}
+
+	public List<Integer>parseNotificationTriggers(JSONObject job){
+		List<Integer> res = new ArrayList<>();
+		JSONObject spec = job.optJSONObject("Notification");
+		if(spec!=null) {
+			String[] triggers = JSONUtils.asStringArray(spec.optJSONArray("status"));
+			for(String s: triggers) {
+				res.add(ActionStatus.fromString(s));
+			}
+		} else {
+			res.add(ActionStatus.RUNNING);
+			res.add(ActionStatus.DONE);
+		}
+		return res;
+	}
+	
+	public List<String>parseNotificationBSSTriggers(JSONObject job){
+		List<String> res = new ArrayList<>();
+		JSONObject spec = job.optJSONObject("Notification");
+		if(spec!=null) {
+			String[] triggers = JSONUtils.asStringArray(spec.optJSONArray("bssStatus"));
+			for(String s: triggers) {
+				res.add(s);
+			}
+		}
+		return res;
 	}
 }

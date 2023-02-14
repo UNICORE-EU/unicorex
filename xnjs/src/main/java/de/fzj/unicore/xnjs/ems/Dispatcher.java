@@ -18,7 +18,7 @@ public class Dispatcher extends Thread {
 
 	private static final Logger logger=LogUtil.getLogger(LogUtil.XNJS, Dispatcher.class); 
 
-	private IActionStore jobs;
+	private final IActionStore jobs;
 
 	private JobRunner[] workers;
 
@@ -88,9 +88,7 @@ public class Dispatcher extends Thread {
 		}
 		try{
 			while(!isInterrupted){
-				// get a free JobRunner
 				JobRunner r = availableRunners.take();
-				// get the next queue element to process
 				QueueEntry q = workQueue.take();
 				while(q.getDelay(TimeUnit.MILLISECONDS)>0)Thread.sleep(50);
 				r.process(q.getActionID());

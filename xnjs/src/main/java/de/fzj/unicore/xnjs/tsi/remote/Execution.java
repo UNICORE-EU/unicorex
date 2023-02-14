@@ -187,6 +187,8 @@ public class Execution extends BasicExecution {
 			}
 			job.setBSID(internalID);
 			BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
+			newJob.wantsNotifications = job.getNotificationURLs()!=null && 
+					!job.getNotificationURLs().isEmpty();
 			bss.putBSSInfo(newJob);
 			jobExecLogger.debug(msg);
 			job.addLogTrace(msg);
@@ -319,8 +321,7 @@ public class Execution extends BasicExecution {
 			break;
 
 		case CHECKING_FOR_EXIT_CODE:
-			//check if exit code can be read
-			boolean haveExitCode=getExitCode(job);
+			boolean haveExitCode = readExitCode(job);
 			if(!haveExitCode){
 				if(!hasGracePeriodPassed(job)){
 					jobExecLogger.debug("Waiting for {} BSS id={} to finish and write exit code file.", jobID, bssID);
@@ -349,7 +350,7 @@ public class Execution extends BasicExecution {
 		final String jobID = job.getUUID();
 
 		//check exit code
-		if(job.getExecutionContext().getExitCode()==null)getExitCode(job);
+		if(job.getExecutionContext().getExitCode()==null)readExitCode(job);
 		Integer exitCode=job.getExecutionContext().getExitCode();
 
 		if(exitCode!=null){
@@ -493,9 +494,6 @@ public class Execution extends BasicExecution {
 		return bss.getBSSSummary().queueFilling;
 	}
 
-	/**
-	 * @see de.fzj.unicore.xnjs.tsi.BasicExecution#pause(de.fzj.unicore.xnjs.ems.Action)
-	 */
 	@Override
 	public void pause(Action job) throws ExecutionException {
 		final String bssid = job.getBSID();
@@ -516,9 +514,6 @@ public class Execution extends BasicExecution {
 		}
 	}
 
-	/**
-	 * @see de.fzj.unicore.xnjs.tsi.BasicExecution#resume(de.fzj.unicore.xnjs.ems.Action)
-	 */
 	@Override
 	public void resume(Action job) throws ExecutionException {
 		final String bssid = job.getBSID();
@@ -637,7 +632,8 @@ public class Execution extends BasicExecution {
 		String jobID;
 		BSS_STATE bssState;
 		String queue;
-
+		String rawBSSState;
+		boolean wantsNotifications = false;
 		public BSSInfo(){}
 
 		public BSSInfo(String bssID,String jobID, BSS_STATE bssState){
