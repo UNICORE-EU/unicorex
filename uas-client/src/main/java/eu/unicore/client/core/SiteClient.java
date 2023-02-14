@@ -20,7 +20,13 @@ public class SiteClient extends BaseServiceClient implements IJobSubmission {
 
 	public JobClient submitJob(JSONObject job) throws Exception {
 		String newJob = bc.create(job);
-		return new JobClient(endpoint.cloneTo(newJob), security, auth);
+		String type = job.optString("Job type", "n/a");
+		if("ALLOCATE".equalsIgnoreCase(type)) {
+			return new AllocationClient(endpoint.cloneTo(newJob), security, auth);
+		}
+		else {
+			return new JobClient(endpoint.cloneTo(newJob), security, auth);
+		}
 	}
 
 	public EnumerationClient getJobsList() throws Exception {
