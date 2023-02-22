@@ -37,15 +37,11 @@ public class XNJSProperties extends PropertiesHelper {
 	
 	public static final String STATEDIR="statedir";
 	public static final String IDBFILE="idbfile";
-	public static final String IDBTYPE = "idbtype";
-	public static final String TSICLASS="tsiclass";
-
+	
 	public static final String XNJSWORKERS="numberofworkers";
 
 	public static final String RESUBMIT_COUNT = "bssResubmitCount";
 	public static final String RESUBMIT_DELAY = "bssResubmitDelay";
-
-	public static final String INCARNATION_TWEAKER_CONFIG = "incarnationTweakerConfig";
 
 	public static final String ALLOW_USER_EXECUTABLE = "allowUserExecutable";
 	
@@ -72,16 +68,8 @@ public class XNJSProperties extends PropertiesHelper {
 				setDescription("Directory on the UNICORE/X machine for storing XNJS state."));
 		META.put(IDBFILE, new PropertyMD().
 				setDescription("IDB configuration.").setCanHaveSubkeys());
-		META.put(IDBTYPE, new PropertyMD("json").
-				setDescription("IDB format: 'json' (default) or 'xml'"));
 		META.put(XNJSWORKERS, new PropertyMD("4").setInt().setNonNegative().
 				setDescription("Number of XNJS worker threads."));
-		META.put(TSICLASS, new PropertyMD().setClass(TSI.class).setDefault(LocalTS.class.getName()).
-				setDeprecated().
-				setDescription("(DEPRECATED) Java class name of the TSI implementation."));
-		META.put(INCARNATION_TWEAKER_CONFIG, new PropertyMD().setDefault(null).
-				setDescription("Path to configuration file for the incarnation tweaker subsystem. " +
-						"If not set, the subsystem will be disabled."));
 		META.put(ALLOW_USER_EXECUTABLE, new PropertyMD("true").setBoolean().
 				setDescription("Whether to allow user-defined executables. If set to false, only applications defined in the IDB may be run."));
 		META.put(STRICT_USERINPUT_CHECKING, new PropertyMD("false").setBoolean().

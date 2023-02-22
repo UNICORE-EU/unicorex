@@ -35,13 +35,18 @@ public class BssStatusChangeEvent implements CallbackEvent {
 				|| action.getNotificationURLs().isEmpty())return;
 		List<String>triggers = action.getNotifyBSSStates();
 		if(triggers.contains(newBssStatus)) {
-			INotificationSender notificationSender = xnjs.get(INotificationSender.class);
-			try {
-				JSONObject msg = new JSONObject();
-				msg.put("bssStatus", newBssStatus);
-				notificationSender.send(msg, action);
-			}catch(Exception ex) {
-				action.addLogTrace(Log.createFaultMessage("Could not send notification(s)", ex));
+			INotificationSender notificationSender = xnjs.get(INotificationSender.class, true);
+			if(notificationSender!=null) {
+				try {
+					JSONObject msg = new JSONObject();
+					msg.put("bssStatus", newBssStatus);
+					notificationSender.send(msg, action);
+				}catch(Exception ex) {
+					action.addLogTrace(Log.createFaultMessage("Could not send notification(s)", ex));
+				}
+			}
+			else {
+				action.addLogTrace("Notification(s) not sent: no notification sender configured.");
 			}
 		}
 	}

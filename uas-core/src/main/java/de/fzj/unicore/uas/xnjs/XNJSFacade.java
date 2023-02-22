@@ -58,6 +58,7 @@ import de.fzj.unicore.xnjs.ems.BasicManager;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.ems.InternalManager;
 import de.fzj.unicore.xnjs.ems.Manager;
+import de.fzj.unicore.xnjs.ems.event.INotificationSender;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
 import de.fzj.unicore.xnjs.idb.Incarnation;
@@ -79,10 +80,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
 /**
  * This facade class wrap some XNJS specifics to reduce 
  * clutter in the UAS implementation. Various helper methods
- * provide convenient access to XNJS functionality.<br/>
- * 
- * TODO document how to deal with multiple XNJS instances and
- * how the "default" XNJS instance works
+ * provide convenient access to XNJS functionality.
  * 
  * @author schuller
  */
@@ -147,10 +145,7 @@ public class XNJSFacade {
 		this.id=id;
 	}
 
-	/**
-	 * setup this XNJS instance
-	 */
-	public void configure(TSI_MODE mode, Properties properties, UASProperties uasProps)throws Exception{
+	private void configure(TSI_MODE mode, Properties properties, UASProperties uasProps)throws Exception{
 		ConfigurationSource cs = new ConfigurationSource();
 		cs.getProperties().putAll(properties);
 		cs.setMetricRegistry(kernel.getMetricRegistry());
@@ -195,6 +190,7 @@ public class XNJSFacade {
 			bind(Manager.class).to(BasicManager.class);
 			bind(IActionStoreFactory.class).to(JDBCActionStoreFactory.class);
 			bind(ActionStateChangeListener.class).to(RESTNotificationSender.class);
+			bind(INotificationSender.class).to(NotificationSender.class);
 		}
 		
 		@Provides
@@ -344,24 +340,14 @@ public class XNJSFacade {
 		}
 	}
 
-	/**
-	 * get the XNJS manager object
-	 * @return manager
-	 */
 	public final Manager getManager(){
 		return ems;
 	}
 
-	/**
-	 * get the XNJS Incarnation interface 
-	 */
 	public final Incarnation getGrounder(){
 		return xnjs.get(Incarnation.class);
 	}
 
-	/**
-	 * get the XNJS IDB for accessing resource info
-	 */
 	public final IDB getIDB(){
 		return xnjs.get(IDB.class);
 	}

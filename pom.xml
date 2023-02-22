@@ -29,12 +29,12 @@
 
   <properties>
     <!-- goes into .jar manifests, dist poms and packaging versions -->
-    <specification.version>9.1.1</specification.version>
+    <specification.version>9.1.2</specification.version>
 
     <compiler.fork>false</compiler.fork>
     <use.version>4.5.0</use.version>
     <secutils.version>3.4.1</secutils.version>
-    <persistence.version>0.402</persistence.version>
+    <persistence.version>0.403</persistence.version>
     <metrics.version>4.2.12</metrics.version>
     <uftp.version>2.13.0</uftp.version>
     <guice.version>5.1.0</guice.version>

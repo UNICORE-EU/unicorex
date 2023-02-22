@@ -275,7 +275,7 @@ public class TestJSONParser {
 		job.clear();
 		JSONObject spec = new JSONObject();
 		spec.put("URL", "http://some-url");
-		job.put("Notification", spec);
+		job.put("NotificationSettings", spec);
 		assertEquals("http://some-url", new JSONParser().parseNotificationURLs(job).get(0));
 	}
 
@@ -292,7 +292,7 @@ public class TestJSONParser {
 		states.put("RUNNING");
 		states.put("POSTPROCESSING");
 		spec.put("status", states);
-		job.put("Notification", spec);
+		job.put("NotificationSettings", spec);
 		s = new JSONParser().parseNotificationTriggers(job);
 		assertTrue(s.contains(ActionStatus.RUNNING));
 		assertTrue(s.contains(ActionStatus.POSTPROCESSING));
@@ -309,7 +309,7 @@ public class TestJSONParser {
 		JSONArray states = new JSONArray();
 		states.put("CONFIGURING");
 		spec.put("bssStatus", states);
-		job.put("Notification", spec);
+		job.put("NotificationSettings", spec);
 		s = new JSONParser().parseNotificationBSSTriggers(job);
 		assertEquals(s.size(), 1);
 		assertTrue(s.contains("CONFIGURING"));

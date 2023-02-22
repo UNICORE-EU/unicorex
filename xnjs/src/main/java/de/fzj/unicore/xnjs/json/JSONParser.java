@@ -375,7 +375,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
 	public List<String>parseNotificationURLs(JSONObject job){
 		List<String> res = new ArrayList<>();
-		JSONObject spec = job.optJSONObject("Notification");
+		JSONObject spec = job.optJSONObject("NotificationSettings");
 		String url = null;
 		if(spec!=null) {
 			url = spec.optString("URL");
@@ -391,7 +391,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 
 	public List<Integer>parseNotificationTriggers(JSONObject job){
 		List<Integer> res = new ArrayList<>();
-		JSONObject spec = job.optJSONObject("Notification");
+		JSONObject spec = job.optJSONObject("NotificationSettings");
 		if(spec!=null) {
 			String[] triggers = JSONUtils.asStringArray(spec.optJSONArray("status"));
 			for(String s: triggers) {
@@ -406,7 +406,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	
 	public List<String>parseNotificationBSSTriggers(JSONObject job){
 		List<String> res = new ArrayList<>();
-		JSONObject spec = job.optJSONObject("Notification");
+		JSONObject spec = job.optJSONObject("NotificationSettings");
 		if(spec!=null) {
 			String[] triggers = JSONUtils.asStringArray(spec.optJSONArray("bssStatus"));
 			for(String s: triggers) {

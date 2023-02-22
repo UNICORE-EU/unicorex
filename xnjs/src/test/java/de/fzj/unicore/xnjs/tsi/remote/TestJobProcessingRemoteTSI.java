@@ -345,7 +345,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		JSONArray arr = new JSONArray();
 		arr.put("S");
 		notification.put("bssStatus", arr);
-		job.put("Notification", notification);
+		job.put("NotificationSettings", notification);
 		a = xnjs.makeAction(job);
 		Client c = new Client();
 		a.setClient(c);

@@ -118,8 +118,9 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected void setupNotifications() {
-		action.setNotificationURLs(new JSONParser().parseNotificationURLs(getJobDescriptionDocument()));
-		action.setNotifyBSSStates(new JSONParser().parseNotificationBSSTriggers(getJobDescriptionDocument()));
+		JSONParser p = new JSONParser();
+		action.setNotificationURLs(p.parseNotificationURLs(getJobDescriptionDocument()));
+		action.setNotifyBSSStates(p.parseNotificationBSSTriggers(getJobDescriptionDocument()));
 	}
 
 	@Override

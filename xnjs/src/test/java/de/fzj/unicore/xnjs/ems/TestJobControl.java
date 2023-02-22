@@ -14,7 +14,6 @@ import eu.unicore.security.Client;
 
 public class TestJobControl extends EMSTestBase {
 
-	//jsdl document paths
 	private static String 
 	d1="src/test/resources/json/date.json";
 	private Client client=new Client();
@@ -64,12 +63,30 @@ public class TestJobControl extends EMSTestBase {
 		mgr.add(action,client);
 		waitUntilReady(id);
 		mgr.destroy(id,client);
-		//wait a bit and check it is gone
 		Thread.sleep(1000);
 		try{
 			mgr.getStatus(id, client);
 			fail();
 		}catch(ExecutionException te){
+			assertTrue(te.getMessage().contains("No such action"));
+			System.out.println("OK: exception "+LogUtil.createFaultMessage("", te));
+		}
+	}
+
+	@Test
+	public void testDestroyDone() throws Exception {
+		Action action=xnjs.makeAction(loadJSONObject(d1));
+		String id=action.getUUID();
+		mgr.add(action,client);
+		doRun(id);
+		waitUntilDone(id);
+		mgr.destroy(id,client);
+		Thread.sleep(1000);
+		try{
+			mgr.getStatus(id, client);
+			fail();
+		}catch(ExecutionException te){
+			assertTrue(te.getMessage().contains("No such action"));
 			System.out.println("OK: exception "+LogUtil.createFaultMessage("", te));
 		}
 	}
@@ -80,13 +97,11 @@ public class TestJobControl extends EMSTestBase {
 		String id=action.getUUID();
 		mgr.add(action,null);
 		doRun(id);
-		// restart it
 		mgr.restart(id, null);
 		waitUntilDone(id);
 		Action a=((BasicManager)mgr).getAction(id);
 		a.printLogTrace();
 		assertTrue(a.getLog().toString().contains("RESTARTING"));
-		//print stats
 		String timeProfile = JobProcessor.getTimeProfile(a.getProcessingContext());
 		System.out.println(timeProfile);
 	}

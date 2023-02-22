@@ -85,11 +85,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	public JobModel getModel(){
 		return (JobModel)model;
 	}
-	
-	/**
-	 * initialise the new job resource<br>
-	 * this will submit the job to the XNJS and setup the Job's resource properties
-	 */
+
 	@Override
 	public void initialise(InitParameters init)throws Exception{
 		if(model==null){
@@ -120,7 +116,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 
 	
 	/**
-	 * resource-specific destruction: send message about our demise
+	 * clean up resources on the back-end, including job directory
 	 */
 	@Override
 	public void destroy() {

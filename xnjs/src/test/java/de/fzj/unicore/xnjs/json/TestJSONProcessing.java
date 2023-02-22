@@ -66,7 +66,7 @@ public class TestJSONProcessing extends EMSTestBase {
 		Action a = mgr.getAction(id);
 		assertTrue(a.getLog().toString().contains("Total:"));
 	}
-	
+
 	private static String[] sweep_jobs = { 
 			"src/test/resources/json/parameter_sweep_values.json",
 	        "src/test/resources/json/parameter_sweep_range.json",

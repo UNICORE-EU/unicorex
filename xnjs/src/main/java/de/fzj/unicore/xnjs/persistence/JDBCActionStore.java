@@ -168,6 +168,9 @@ public class JDBCActionStore extends AbstractActionStore {
 		if(action.isDirty()){
 			if(action.getStatus()!=ActionStatus.DONE){
 				activeJobs.write(action);
+				if(action.getTransitionalStatus()==ActionStatus.TRANSITION_RESTARTING) {
+					doneJobs.delete(action.getUUID());
+				}
 			}else{
 				doneJobs.write(new DoneAction(action));
 				activeJobs.delete(action.getUUID());
