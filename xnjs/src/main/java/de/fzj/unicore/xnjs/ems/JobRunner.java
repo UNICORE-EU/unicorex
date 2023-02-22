@@ -152,7 +152,6 @@ public class JobRunner extends Thread {
 	//processes the action, and returns it to the manager
 	private void process(Action a){
 		int status=a.getStatus();
-		int newStatus;
 		XnjsEvent event = null;
 		try{
 			LogUtil.fillLogContext(a);
@@ -160,32 +159,14 @@ public class JobRunner extends Thread {
 			logger.trace("Processing Action <{}> in status {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
 			p.process(a);
 			logger.trace("New status for Action <{}>: {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
-			newStatus=a.getStatus();
-			if(newStatus!=status){
-				try {
-					if(changeListener!=null) {
-						changeListener.stateChanged(a);
-					}
-				}catch(Exception ex2){
-					logger.warn("Internal error during state change notification.",ex2);
-				}
-				if(newStatus==ActionStatus.DONE){
-					if(a.getParentActionID()!=null){
-						try{
-							String parent=a.getParentActionID();
-							event = new ContinueProcessingEvent(parent);
-						}
-						catch(Exception ex){
-							logger.error("Error sending notification",ex);
-						}
-					}
-				}
-			}
+			event = checkNotify(a, status);
 			mgr.doneProcessing(a);
 			if(event!=null)mgr.handleEvent(event);
 		}catch(ProcessingException pe){
 			try{
+				event = checkNotify(a, status);
 				mgr.errorProcessing(a, pe);
+				if(event!=null)mgr.handleEvent(event);
 			}catch(Exception ex){
 				logger.error("Error during error reporting for action <"+a.getUUID()+">",ex);
 			}
@@ -201,6 +182,31 @@ public class JobRunner extends Thread {
 		finally{
 			LogUtil.clearLogContext();
 		}
+	}
+
+	private XnjsEvent checkNotify(Action a, int oldStatus) {
+		int newStatus = a.getStatus();
+		XnjsEvent event = null;
+		if(newStatus!=oldStatus){
+			try {
+				if(changeListener!=null) {
+					changeListener.stateChanged(a);
+				}
+			}catch(Exception ex){
+				logger.warn("Internal error during state change notification.", ex);
+			}
+			if(newStatus==ActionStatus.DONE){
+				if(a.getParentActionID()!=null){
+					try{
+						event = new ContinueProcessingEvent(a.getParentActionID());
+					}
+					catch(Exception ex){
+						logger.error("Error sending notification", ex);
+					}
+				}
+			}
+		}
+		return event;
 	}
 
 }
