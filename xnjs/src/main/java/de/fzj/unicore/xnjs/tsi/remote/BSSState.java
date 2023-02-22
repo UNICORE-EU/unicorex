@@ -281,11 +281,12 @@ public class BSSState implements IBSSState {
 				info.queue = queue;
 				info.rawBSSState = rawBssState;
 				boolean wantNotification = info.wantsNotifications
+						&& rawBssState!=null
 						&& !rawBssState.equals(oldRawState);
 				if(wantNotification) {
 					if (handler != null) {
 						try {
-							log.debug("Raw BSS status changed: {} -> {}, sending 'continue' for: {}",
+							log.debug("Raw BSS status changed: {} -> {}, sending 'status change' for: {}",
 									oldRawState, rawBssState, jobID);
 							handler.handleEvent(new BssStatusChangeEvent(jobID, rawBssState));
 						} catch (Exception ee) {

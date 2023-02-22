@@ -47,21 +47,20 @@ public class NotificationSender implements INotificationSender {
 		}
 	}
 
-	protected void doSend(String url, JSONObject msg, Client client, Action action) throws Exception {
-		IClientConfiguration security = kernel.getClientConfiguration();
-		String user = client.getDistinguishedName();
-		IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
-				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), user);
-		final BaseClient bc = new BaseClient(url, security, auth);
-		final JSONObject message = new JSONObject();
-		Callable<String>task = new Callable<String>() {
+	protected void doSend(final String url, final JSONObject message, final Client client, final Action action)
+			throws Exception {
+		final IClientConfiguration security = kernel.getClientConfiguration();
+		final IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(),
+				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()),
+					client.getDistinguishedName());
+		Callable<String> task = new Callable<>() {
 			@Override
 			public String call() throws Exception {
-				bc.postQuietly(message);
+				new BaseClient(url, security, auth).postQuietly(message);
 				return "OK";
 			}
 		};
-		String res = new TimeoutRunner<String>(task, kernel.getContainerProperties().getThreadingServices(), 30, TimeUnit.SECONDS).call();
+		String res = new TimeoutRunner<String>(task, kernel.getContainerProperties().getThreadingServices(), 10, TimeUnit.SECONDS).call();
 		if(res==null)throw new TimeoutException();
 	}
 	
