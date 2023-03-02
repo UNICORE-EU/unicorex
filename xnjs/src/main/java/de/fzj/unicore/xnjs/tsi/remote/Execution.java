@@ -695,4 +695,8 @@ public class Execution extends BasicExecution {
 		}
 	}
 
+	public boolean isBeingTracked(Action job) throws ExecutionException{
+		return job!=null && job.getBSID()!=null && bss.getBSSInfo(job.getBSID())!=null;
+	}
+
 }

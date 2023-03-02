@@ -1,6 +1,7 @@
 package de.fzj.unicore.xnjs.ems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.ems.processors.JobProcessor;
+import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 
@@ -54,6 +56,7 @@ public class TestJobControl extends EMSTestBase {
 		System.out.println(a1.getResult().getErrorMessage());
 		assertEquals("USER_ABORTED",a1.getResult().getStatusString());
 		((BasicManager)mgr).doneProcessing(a1);
+		assertFalse(xnjs.get(IExecution.class).isBeingTracked(action));
 	}
 
 	@Test

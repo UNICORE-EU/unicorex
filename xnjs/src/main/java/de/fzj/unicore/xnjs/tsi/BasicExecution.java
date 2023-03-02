@@ -210,6 +210,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 				//in the LocalExecution
 				if(LocalExecution.isRunning(job.getUUID())){
 					LocalExecution.abort(job.getUUID());
+					decrementJobCounter(job.getUUID());
 					job.addLogTrace("User aborted.");
 					job.setStatus(ActionStatus.DONE);
 					job.addLogTrace("Status set to DONE.");
@@ -440,4 +441,9 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	public List<BudgetInfo> getComputeTimeBudget(Client client) throws ExecutionException {
 		return Collections.EMPTY_LIST;
 	}
+	
+	public boolean isBeingTracked(Action job) throws ExecutionException{
+		return job!=null && runningJobUIDs.contains(job.getUUID());
+	}
+
 }
