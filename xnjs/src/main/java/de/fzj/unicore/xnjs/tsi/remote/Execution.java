@@ -436,6 +436,7 @@ public class Execution extends BasicExecution {
 		else{
 			try{
 				BSSInfo info = bss.getBSSInfo(bssid);
+				bss.removeBSSInfo(bssid);
 				BSS_STATE status  = info!=null ? info.bssState : null;
 				if(status!=null) { 
 					jobExecLogger.debug("Aborting job <"+bssid+"> on TSI server");
