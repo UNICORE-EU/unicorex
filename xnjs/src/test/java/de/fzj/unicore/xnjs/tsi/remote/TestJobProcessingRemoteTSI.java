@@ -33,6 +33,7 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -257,8 +258,10 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		Thread.sleep(2000);
 		mgr.abort(id, c);
 		Thread.sleep(3000);
+		a = mgr.getAction(id);
 		assertDone(id);
 		assertNotSuccessful(id);
+		assertFalse(xnjs.get(IExecution.class).isBeingTracked(a));
 	}
 
 	@Test

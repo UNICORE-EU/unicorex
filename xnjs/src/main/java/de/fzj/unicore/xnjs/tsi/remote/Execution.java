@@ -436,6 +436,7 @@ public class Execution extends BasicExecution {
 		else{
 			try{
 				BSSInfo info = bss.getBSSInfo(bssid);
+				bss.removeBSSInfo(bssid);
 				BSS_STATE status  = info!=null ? info.bssState : null;
 				if(status!=null) { 
 					jobExecLogger.debug("Aborting job <"+bssid+"> on TSI server");
@@ -692,6 +693,10 @@ public class Execution extends BasicExecution {
 			}
 			return res;
 		}
+	}
+
+	public boolean isBeingTracked(Action job) throws ExecutionException{
+		return job!=null && job.getBSID()!=null && bss.getBSSInfo(job.getBSID())!=null;
 	}
 
 }
