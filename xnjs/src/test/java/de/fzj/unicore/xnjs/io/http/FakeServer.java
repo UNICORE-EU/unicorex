@@ -40,7 +40,7 @@ public class FakeServer implements Runnable {
 
 	private List<String> lastRequest = null;
 
-	public static boolean waitForContent = false;
+	public boolean waitForContent = false;
 
 	/**
 	 * creates a FakeServer listening on the given port

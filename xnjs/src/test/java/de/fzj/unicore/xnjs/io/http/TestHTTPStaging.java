@@ -120,7 +120,7 @@ public class TestHTTPStaging extends EMSTestBase {
 	
 	@Test
 	public void testHttpFTSExport() throws Exception {
-		FakeServer.waitForContent = true;
+		server.waitForContent = true;
 		File tFile=new File("target","xnjs_test"+System.currentTimeMillis());
 		String content = "this is a test";
 		FileUtils.write(tFile, content, "UTF-8");
