@@ -138,7 +138,6 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		URI source = info.getSources()[0]; // TODO
 		String scheme = source.getScheme();
 		String target = info.getFileName();
-		//DataStagingCredentials credentials = info.getCredentials();
 		if("inline".equalsIgnoreCase(scheme)){
 			InlineFTS ft = new InlineFTS(configuration, client, workingDirectory,target);
 			ft.setInlineData(info.getInlineData());
@@ -147,4 +146,13 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		return null;
 	}
 	
+	@Override
+	public IFTSController createFTSExport(Client client, String workingDirectory,  DataStageOutInfo info) {
+		URI target = info.getTarget();
+		String scheme = target.getScheme();
+		if(scheme.toLowerCase().startsWith("http")) {
+			return new HttpExportsController(configuration, client, target.toString(), info, workingDirectory);
+		}
+		return null;
+	}
 }

@@ -128,9 +128,12 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		return null;
 	}
 
-	protected boolean isREST(URI url) {
-		String uri = url.toString();
-		return uri.contains("/rest/core/storages/") && uri.contains("/files");
+	public static boolean isREST(URI url) {
+		return isREST(url.toString());
+	}
+	
+	public static boolean isREST(String url) {
+		return url.contains("/rest/core/storages/") && url.contains("/files");
 	}
 	
 	public String getProtocol() {
@@ -215,7 +218,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	 */
 	public static Pair<String,String>extractUrlInfo(String url){
 		Matcher m = restURLPattern.matcher(url);
-		if(!m.matches())throw new IllegalArgumentException("Improperly formed storage URL <"+url+">");
+		if(!m.matches())throw new IllegalArgumentException("Not a UNICORE REST storage URL <"+url+">");
 		String schemeSpec=m.group(1);
 		String protocol, scheme;
 		
@@ -230,7 +233,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		}
 		String base=m.group(2);
 		String rest_url = scheme+"://"+base;
-		return new Pair<String,String>(protocol, rest_url);
+		return new Pair<>(protocol, rest_url);
 	}
 
 	/**
@@ -274,6 +277,8 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	public IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info)
 			throws IOException {
 		URI target = info.getTarget();
+		if(!isREST(target))return null;
+
 		Pair<String,String>urlInfo = extractUrlInfo(target);
 		String protocol = urlInfo.getM1();
 		Endpoint ep = new Endpoint(urlInfo.getM2());

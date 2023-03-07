@@ -163,7 +163,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		}
 	}
 
-	public DataStagingCredentials extractCredentials(JSONObject jCredentials) throws Exception {
+	public static DataStagingCredentials extractCredentials(JSONObject jCredentials) throws Exception {
 		DataStagingCredentials creds=null;
 		if(JSONUtils.getString(jCredentials, "Username")!=null) {
 			creds = new UsernamePassword(JSONUtils.getString(jCredentials, "Username"), 

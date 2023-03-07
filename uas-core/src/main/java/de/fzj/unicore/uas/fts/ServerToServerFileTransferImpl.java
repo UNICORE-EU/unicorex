@@ -1,5 +1,6 @@
 package de.fzj.unicore.uas.fts;
 
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -205,10 +206,16 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 			j.put("source", model.source);
 			remote = model.source;
 		}
-		try {
-			Pair<String,String>urlInfo = UFileTransferCreator.extractUrlInfo(remote);
-			protocol = urlInfo.getM1();
-		}catch(Exception e) {}
+		if(UFileTransferCreator.isREST(remote)) {
+			try {
+				Pair<String,String>urlInfo = UFileTransferCreator.extractUrlInfo(remote);
+				protocol = urlInfo.getM1();
+			}catch(Exception e) {}
+		}
+		else {
+			// not a UNICORE storage URL - try to use the plain protocol
+			protocol = new URL(remote).getProtocol();
+		}
 		logger.debug("FTS action = {}", j.toString(2));
 		Action action = getXNJSFacade().getXNJS().makeAction(j, "FTS", model.getUniqueID());
 		if(model.scheduledStartTime>0){

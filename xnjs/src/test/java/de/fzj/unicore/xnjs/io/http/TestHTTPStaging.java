@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import java.io.File;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import de.fzj.unicore.xnjs.ems.ActionResult;
 import de.fzj.unicore.xnjs.ems.BasicManager;
 import de.fzj.unicore.xnjs.ems.EMSTestBase;
+import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.impl.HTTPFileDownload;
 import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
 
@@ -115,6 +117,34 @@ public class TestHTTPStaging extends EMSTestBase {
 		assertNotNull(c);
 	}
 	
+	
+	@Test
+	public void testHttpFTSExport() throws Exception {
+		FakeServer.waitForContent = true;
+		File tFile=new File("target","xnjs_test"+System.currentTimeMillis());
+		String content = "this is a test";
+		FileUtils.write(tFile, content, "UTF-8");
+		
+		JSONObject j = new JSONObject();
+		j.put("file", tFile.getName());
+		j.put("target", server.getURI());
+		j.put("workdir", new File("target").getAbsolutePath());
+		JSONObject creds = new JSONObject();
+		creds.put("Username", "demouser");
+		creds.put("Password", "test123");
+		j.put("credentials", creds);
+		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
+		assert e!=null;
+		String id=(String)mgr.add(xnjs.makeAction(j, "FTS",  java.util.UUID.randomUUID().toString()),null);
+		waitUntilDone(id);
+		mgr.getAction(id).printLogTrace();
+		System.out.println(mgr.getAction(id).getResult().toString());
+		assert server.getLastAuthNHeader()!=null;
+		System.out.println(server.getLastAuthNHeader());
+		System.out.println(server.getLastRequest());
+		assert server.getLastRequest().contains(content);
+	}
+	
 	private JSONObject makeJob() throws JSONException {
 		JSONObject j = new JSONObject();
 		j.put("ApplicationName", "Date");
@@ -131,4 +161,8 @@ public class TestHTTPStaging extends EMSTestBase {
 		return j;
 	}
 	
+	//timeout in seconds
+	protected int getTimeOut(){
+		return 6000;
+	}
 }

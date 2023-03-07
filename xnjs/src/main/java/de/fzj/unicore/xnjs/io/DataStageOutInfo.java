@@ -142,4 +142,8 @@ public class DataStageOutInfo implements Serializable, DataStagingInfo {
 	public DataStageOutInfo clone() throws CloneNotSupportedException {
 		return (DataStageOutInfo)super.clone();
 	}
+	
+	public String toString() {
+		return "'"+fileName+"' -> "+target.toString();
+	}
 }

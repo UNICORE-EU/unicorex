@@ -27,6 +27,7 @@ import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.io.TransferInfo;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
+import de.fzj.unicore.xnjs.json.JSONParser;
 import de.fzj.unicore.xnjs.util.JSONUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import de.fzj.unicore.xnjs.util.UnitParser;
@@ -95,7 +96,8 @@ public class FTSProcessor extends DefaultProcessor {
 			info.setFileName(ftSpec.getString("file"));
 			info.setOverwritePolicy(policy);
 			info.setTarget(new URI(urlEncode(ftSpec.getString("target"))));
-			
+			JSONObject creds = ftSpec.optJSONObject("credentials");
+			if(creds!=null)info.setCredentials(JSONParser.extractCredentials(creds));
 			ftc = xnjs.get(IFileTransferEngine.class).
 					createFTSExport(
 							action.getClient(),
@@ -108,6 +110,8 @@ public class FTSProcessor extends DefaultProcessor {
 			info.setOverwritePolicy(policy);
 			info.setSources(new URI[]{new URI(urlEncode(ftSpec.getString("source")))});
 			info.setInlineData(ftSpec.optString("data", null));
+			JSONObject creds = ftSpec.optJSONObject("credentials");
+			if(creds!=null)info.setCredentials(JSONParser.extractCredentials(creds));
 			ftc = xnjs.get(IFileTransferEngine.class).
 					createFTSImport(
 							action.getClient(),

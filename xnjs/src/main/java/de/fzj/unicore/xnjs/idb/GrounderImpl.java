@@ -314,10 +314,12 @@ public class GrounderImpl implements Incarnation {
 
 			if(doVerify){
 				if(resource==null){
-					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_UNKNOWN_RESOURCE,"Resource <"+name+"> is not available at this site."));
+					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_UNKNOWN_RESOURCE,"Resource <"
+							+name+"> is not available for partition <"+selectedPartition.getName()+">"));
 				}
 				if(!resource.isInRange(value)){
-					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,"Resource request <"+name+"="+value+"> is out of range."));
+					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,"Resource request <"
+							+name+"="+value+"> is out of range."));
 				}
 			}
 

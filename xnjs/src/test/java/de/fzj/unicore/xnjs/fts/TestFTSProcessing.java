@@ -20,7 +20,6 @@ public class TestFTSProcessing extends EMSTestBase {
 		
 		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
 		assert e!=null;
-		System.out.println(e.getClass().getName());
 		String id=(String)mgr.add(xnjs.makeAction(j, "FTS",  java.util.UUID.randomUUID().toString()),null);
 		waitUntilDone(id);
 		mgr.getAction(id).printLogTrace();

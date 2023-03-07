@@ -8,8 +8,6 @@ import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.xnjs.tsi.TSI;
-import de.fzj.unicore.xnjs.tsi.local.LocalTS;
 import eu.unicore.util.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
