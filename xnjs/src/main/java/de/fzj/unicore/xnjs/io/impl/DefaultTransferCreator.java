@@ -143,6 +143,9 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 			ft.setInlineData(info.getInlineData());
 			return ft;
 		}
+		else if(scheme.toLowerCase().startsWith("http")) {
+			return new HttpImportsController(configuration, client, info, workingDirectory);
+		}
 		return null;
 	}
 	
@@ -151,7 +154,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		URI target = info.getTarget();
 		String scheme = target.getScheme();
 		if(scheme.toLowerCase().startsWith("http")) {
-			return new HttpExportsController(configuration, client, target.toString(), info, workingDirectory);
+			return new HttpExportsController(configuration, client, info, workingDirectory);
 		}
 		return null;
 	}

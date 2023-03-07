@@ -145,6 +145,23 @@ public class TestHTTPStaging extends EMSTestBase {
 		assert server.getLastRequest().contains(content);
 	}
 	
+	@Test
+	public void testHttpFTSImport() throws Exception {
+		File tFile=new File("target","xnjs_test"+System.currentTimeMillis());
+		JSONObject j = new JSONObject();
+		j.put("file", tFile.getName());
+		j.put("source", server.getURI());
+		j.put("workdir", new File("target").getAbsolutePath());
+		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
+		assert e!=null;
+		String id=(String)mgr.add(xnjs.makeAction(j, "FTS",  java.util.UUID.randomUUID().toString()),null);
+		waitUntilDone(id);
+		mgr.getAction(id).printLogTrace();
+		System.out.println(mgr.getAction(id).getResult().toString());
+		System.out.println(server.getLastRequest());
+		assert answer.equals(FileUtils.readFileToString(tFile, "UTF-8"));
+	}
+	
 	private JSONObject makeJob() throws JSONException {
 		JSONObject j = new JSONObject();
 		j.put("ApplicationName", "Date");

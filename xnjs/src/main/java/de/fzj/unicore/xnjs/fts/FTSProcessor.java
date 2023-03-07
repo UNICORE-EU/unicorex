@@ -247,12 +247,15 @@ public class FTSProcessor extends DefaultProcessor {
 		TransferInfo ft = getInfo(ftId);
 		if(ft==null){
 			//TODO
-			throw new IllegalStateException("File transfer '"+ftId+"' not found! NOT YET IMPLEMENTED");
+			throw new IllegalStateException("File transfer '"+ftId+"' not found!");
 		}
 		if(ft.getStatus()==Status.DONE){
 			logger.debug("File transfer {} SUCCESSFUL.", ftId);
 			xnjs.get(IFileTransferEngine.class).cleanup(ftId);
 			info.setStatus(Status.DONE);
+			if(ft.getTransferredBytes()!=info.getSource().getSize()) {
+				info.getSource().setSize(ft.getTransferredBytes());
+			}
 		}
 		else if(ft.getStatus()==Status.FAILED){
 			logger.debug("File transfer {} FAILED.", ft.getUniqueId());

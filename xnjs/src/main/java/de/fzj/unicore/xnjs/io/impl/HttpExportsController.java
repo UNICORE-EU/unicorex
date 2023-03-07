@@ -44,11 +44,11 @@ public class HttpExportsController implements IFTSController {
 	
 	protected String target = "/";
 
-	public HttpExportsController(XNJS xnjs, Client client, String remoteStorageURL, DataStageOutInfo dso, String workingDirectory) {
+	public HttpExportsController(XNJS xnjs, Client client, DataStageOutInfo dso, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.client = client;
 		this.dso = dso;
-		this.remoteStorageURL = remoteStorageURL;
+		this.remoteStorageURL = dso.getTarget().toString();
 		this.workingDirectory = workingDirectory;
 	}
 
@@ -68,7 +68,7 @@ public class HttpExportsController implements IFTSController {
 	
 	@Override
 	public void setOverwritePolicy(OverwritePolicy overwrite) throws OptionNotSupportedException {
-		// NOP
+		dso.setOverwritePolicy(overwrite);
 	}
 
 	@Override
@@ -85,11 +85,7 @@ public class HttpExportsController implements IFTSController {
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
-	
-	protected void setup() throws Exception {
-		// TODO
-	}
-	
+
 	protected boolean isDirectory(String file) throws ExecutionException, IOException
 	{
 		XnjsFile f = getStorageAdapter().getProperties(file);
@@ -109,7 +105,6 @@ public class HttpExportsController implements IFTSController {
 	
 	@Override
 	public long collectFilesForTransfer(List<FTSTransferInfo> fileList) throws Exception {
-		setup();
 		String source = dso.getFileName();
 		if(FileSet.hasWildcards(source)){
 			sourceFileSet = new FileSet(source);
@@ -166,12 +161,10 @@ public class HttpExportsController implements IFTSController {
 	
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
-		setup();
 		DataStageOutInfo info = dso.clone();
 		info.setTarget(new URI(remoteStorageURL));
 		info.setFileName(from.getPath());
-		IFileTransfer ft = xnjs.get(IFileTransferEngine.class).createFileExport(client, workingDirectory, info);
-		return ft;
+		return xnjs.get(IFileTransferEngine.class).createFileExport(client, workingDirectory, info);
 	}
 
 	protected String getFileSpec(URI url) throws Exception {

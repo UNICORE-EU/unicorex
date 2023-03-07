@@ -254,6 +254,8 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	public IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info)
 			throws IOException {
 		URI source = info.getSources()[0];
+		if(!isREST(source))return null;
+
 		Pair<String,String>urlInfo = extractUrlInfo(source);
 		String protocol = urlInfo.getM1();
 		Endpoint ep = new Endpoint(urlInfo.getM2());
