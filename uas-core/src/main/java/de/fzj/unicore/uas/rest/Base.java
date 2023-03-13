@@ -102,7 +102,7 @@ public class Base extends ApplicationBaseResource {
 			return Response.ok().entity(token).build();
 		}
 		catch(Exception ex) {
-			return handleError("", ex, logger);
+			return handleError("Error creating token", ex, logger);
 		}
 	}
 
