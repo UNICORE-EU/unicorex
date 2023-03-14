@@ -126,7 +126,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		}
 		String xnjsReference = getModel().getXnjsReference();
 		Action action = XNJSFacade.get(xnjsReference, kernel).makeAction(job);
-		String umask = new JSONParser().parseUmask(job);
+		String umask = JSONParser.parseUmask(job);
 		if(umask == null)umask = getUmask();
 		action.setUmask(umask);
 		if(autoStartWhenReady){

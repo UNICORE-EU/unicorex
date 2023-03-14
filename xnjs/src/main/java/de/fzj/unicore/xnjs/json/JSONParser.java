@@ -9,10 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo.JobType;
-import de.fzj.unicore.xnjs.idb.ApplicationInfoParser;
 import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.OptionDescription;
 import de.fzj.unicore.xnjs.idb.OptionDescription.Type;
@@ -25,11 +23,11 @@ import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.impl.OAuthToken;
 import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
-import de.fzj.unicore.xnjs.resources.Resource;
-import de.fzj.unicore.xnjs.resources.Resource.Category;
 import de.fzj.unicore.xnjs.resources.BooleanResource;
 import de.fzj.unicore.xnjs.resources.DoubleResource;
 import de.fzj.unicore.xnjs.resources.IntResource;
+import de.fzj.unicore.xnjs.resources.Resource;
+import de.fzj.unicore.xnjs.resources.Resource.Category;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.StringResource;
@@ -37,9 +35,9 @@ import de.fzj.unicore.xnjs.resources.ValueListResource;
 import de.fzj.unicore.xnjs.util.JSONUtils;
 import de.fzj.unicore.xnjs.util.UnitParser;
 
-public class JSONParser implements ApplicationInfoParser<JSONObject>{
+public class JSONParser {
 	
-	public ApplicationInfo parseSubmittedApplication(JSONObject job) throws Exception {
+	public static ApplicationInfo parseSubmittedApplication(JSONObject job) throws Exception {
 		ApplicationInfo app = new ApplicationInfo();
 		app.setName(job.optString("ApplicationName",null));
 		app.setVersion(job.optString("ApplicationVersion",null));
@@ -85,11 +83,11 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return app;
 	}
 	
-	public String parseUmask(JSONObject job) {
+	public static String parseUmask(JSONObject job) {
 		return JSONUtils.getStringAlt(job, "Umask", "umask");
 	}
 
-	public JobType parseJobType(JSONObject job) {
+	public static JobType parseJobType(JSONObject job) {
 		String jt = job.optString("Job type", "BATCH").toUpperCase();
 		// accept 8.x values for these
 		if("INTERACTIVE".equals(jt))jt = "ON_LOGIN_NODE";
@@ -97,7 +95,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return JobType.valueOf(jt.toUpperCase());
 	}
 
-	private void parseEnvironment(JSONArray j, ApplicationInfo app){
+	private static void parseEnvironment(JSONArray j, ApplicationInfo app){
 		if(j==null)return;
 		for (int i = 0; i < j.length(); i++) {
 			try{
@@ -112,7 +110,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		}
 	}
 	
-	public DataStageInInfo parseStageIn(JSONObject spec) throws Exception {
+	public static DataStageInInfo parseStageIn(JSONObject spec) throws Exception {
 		DataStageInInfo dsi = new DataStageInInfo();
 		String to = JSONUtils.getStringAlt(spec, "To", "file");
 		String source = JSONUtils.getStringAlt(spec, "From", "source");
@@ -129,7 +127,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return dsi;
 	}
 
-	public DataStageOutInfo parseStageOut(JSONObject spec) throws Exception {
+	public static DataStageOutInfo parseStageOut(JSONObject spec) throws Exception {
 		DataStageOutInfo dso = new DataStageOutInfo();
 		String from = JSONUtils.getStringAlt(spec, "From", "file");
 		String target = JSONUtils.getStringAlt(spec, "To", "target");
@@ -139,7 +137,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return dso;
 	}
 	
-	public void extractDataStagingOptions(JSONObject spec, DataStagingInfo dsi) throws Exception {
+	public static void extractDataStagingOptions(JSONObject spec, DataStagingInfo dsi) throws Exception {
 		String creation = JSONUtils.getOrDefault(spec, "Mode", "overwrite");
 		if("append".equalsIgnoreCase(creation)){
 			dsi.setOverwritePolicy(OverwritePolicy.APPEND);
@@ -174,9 +172,8 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		}
 		return creds;
 	}
-	
-	@Override
-	public ApplicationInfo parseApplicationInfo(JSONObject source) throws Exception {
+
+	public static ApplicationInfo parseApplicationInfo(JSONObject source) throws Exception {
 		ApplicationInfo info = new ApplicationInfo();
 		info.setName(source.getString("Name"));
 		info.setVersion(source.getString("Version"));
@@ -199,7 +196,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return info;
 	}
 	
-	public ApplicationMetadata parseApplicationMetadata(JSONObject source) throws Exception {
+	public static ApplicationMetadata parseApplicationMetadata(JSONObject source) throws Exception {
 		ApplicationMetadata meta = new ApplicationMetadata();
 		if(source!=null) {
 			for(String name: source.keySet()) {
@@ -210,11 +207,11 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return meta;
 	}
 	
-	public String parseScriptTemplate(String key, JSONObject idb) {
+	public static String parseScriptTemplate(String key, JSONObject idb) {
 		return JSONUtils.readMultiLine(key, null, idb);
 	}
 
-	public List<ResourceRequest> parseResourceRequest(JSONObject source) throws Exception {
+	public static List<ResourceRequest> parseResourceRequest(JSONObject source) throws Exception {
 		List<ResourceRequest> req = new ArrayList<>();
 		if(source!=null && source.length()>0) {
 			for(String name: source.keySet()) {
@@ -226,7 +223,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return req;
 	}
 
-	private String parseResourceValue(String name, String value) {
+	private static String parseResourceValue(String name, String value) {
 		if(ResourceSet.MEMORY_PER_NODE.equals(name)
 				|| "Memory".equals(name)) {
 			return String.valueOf(UnitParser.getCapacitiesParser(0).getLongValue(value));
@@ -238,7 +235,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return value;
 	}
 	
-	public OptionDescription parseOptionDescription(String name, JSONObject source) throws JSONException {
+	public static OptionDescription parseOptionDescription(String name, JSONObject source) throws JSONException {
 		OptionDescription option = new OptionDescription();
 		option.setName(name);
 		String type =  source.optString("Type", "STRING").toUpperCase();
@@ -250,11 +247,11 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return option;
 	}
 	
-	public Partition parsePartition(JSONObject source) throws JSONException {
+	public static Partition parsePartition(JSONObject source) throws JSONException {
 		return parsePartition(source.getString("Name"), source);
 	}
 	
-	public Partition parsePartition(String name, JSONObject source) throws JSONException {
+	public static Partition parsePartition(String name, JSONObject source) throws JSONException {
 		Partition p = new Partition();
 		p.setName(name);
 		p.setDescription(source.optString("Description"));
@@ -275,7 +272,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return p;
 	}
 
-	public Resource createResource(JSONObject doc)
+	public static Resource createResource(JSONObject doc)
 			throws JSONException {
 		String name = doc.getString("Name");
 		if (name.trim().isEmpty())
@@ -284,7 +281,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 	}
 
 	
-	public Resource createResource(String name, JSONObject doc)
+	public static Resource createResource(String name, JSONObject doc)
 			throws JSONException {
 		Resource resource;
 		if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
@@ -341,7 +338,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return resource;
 	}
 	
-	public Resource createIntResource(String name, String valueSpec)
+	public static Resource createIntResource(String name, String valueSpec)
 			throws JSONException {
 		if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
 		
@@ -373,7 +370,7 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		}
 	}
 	
-	public List<String>parseNotificationURLs(JSONObject job){
+	public static List<String>parseNotificationURLs(JSONObject job){
 		List<String> res = new ArrayList<>();
 		JSONObject spec = job.optJSONObject("NotificationSettings");
 		String url = null;
@@ -389,22 +386,21 @@ public class JSONParser implements ApplicationInfoParser<JSONObject>{
 		return res;
 	}
 
-	public List<Integer>parseNotificationTriggers(JSONObject job){
-		List<Integer> res = new ArrayList<>();
+	public static List<String>parseNotificationTriggers(JSONObject job){
+		List<String> res = new ArrayList<>();
 		JSONObject spec = job.optJSONObject("NotificationSettings");
-		if(spec!=null) {
+		if(spec!=null && spec.optJSONArray("status")!=null) {
 			String[] triggers = JSONUtils.asStringArray(spec.optJSONArray("status"));
 			for(String s: triggers) {
-				res.add(ActionStatus.fromString(s));
+				res.add(s);
 			}
 		} else {
-			res.add(ActionStatus.RUNNING);
-			res.add(ActionStatus.DONE);
+			return null;
 		}
 		return res;
 	}
 	
-	public List<String>parseNotificationBSSTriggers(JSONObject job){
+	public static List<String>parseNotificationBSSTriggers(JSONObject job){
 		List<String> res = new ArrayList<>();
 		JSONObject spec = job.optJSONObject("NotificationSettings");
 		if(spec!=null) {

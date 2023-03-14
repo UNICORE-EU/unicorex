@@ -76,14 +76,14 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		ecm.getContext(action);
 		try{
 			JSONObject jd = getJobDescriptionDocument();
-			ApplicationInfo fromUser = new JSONParser().parseSubmittedApplication(jd);
+			ApplicationInfo fromUser = JSONParser.parseSubmittedApplication(jd);
 			ApplicationInfo applicationInfo = grounder.incarnateApplication(fromUser, client);
 			action.setApplicationInfo(applicationInfo);
 			updateExecutionContext(applicationInfo);
 
 			action.setJobName(getJobName());
 			action.setUmask(getUmask());
-			List<ResourceRequest>resourceRequest = new JSONParser().parseResourceRequest(
+			List<ResourceRequest>resourceRequest = JSONParser.parseResourceRequest(
 					jd.optJSONObject("Resources"));
 			action.getExecutionContext().setResourceRequest(resourceRequest);
 			String requestedProject = jd.optString("Project", null);
@@ -118,9 +118,9 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected void setupNotifications() {
-		JSONParser p = new JSONParser();
-		action.setNotificationURLs(p.parseNotificationURLs(getJobDescriptionDocument()));
-		action.setNotifyBSSStates(p.parseNotificationBSSTriggers(getJobDescriptionDocument()));
+		action.setNotificationURLs(JSONParser.parseNotificationURLs(getJobDescriptionDocument()));
+		action.setNotifyStates(JSONParser.parseNotificationTriggers(getJobDescriptionDocument()));
+		action.setNotifyBSSStates(JSONParser.parseNotificationBSSTriggers(getJobDescriptionDocument()));
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected String getUmask() {
-		String n = new JSONParser().parseUmask(getJobDescriptionDocument());
+		String n = JSONParser.parseUmask(getJobDescriptionDocument());
 		if(n==null) {
 			n = action.getUmask();
 		}
@@ -181,7 +181,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		if(imports!=null) {
 			for(int i = 0; i<imports.length(); i++) {
 				JSONObject in = imports.getJSONObject(i);
-				result.add(new JSONParser().parseStageIn(in));
+				result.add(JSONParser.parseStageIn(in));
 			}
 		}
 		return result;
@@ -194,7 +194,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		if(exports!=null) {
 			for(int i = 0; i<exports.length(); i++) {
 				JSONObject ex = exports.getJSONObject(i);
-				result.add(new JSONParser().parseStageOut(ex));
+				result.add(JSONParser.parseStageOut(ex));
 			}
 		}
 		return result;

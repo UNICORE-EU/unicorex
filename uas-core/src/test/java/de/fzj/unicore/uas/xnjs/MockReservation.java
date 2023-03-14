@@ -80,6 +80,6 @@ public class MockReservation implements IReservation {
 	}
 
 	public List<ResourceRequest> parseResourceRequest(Map<String,String> source) throws Exception {
-		return new JSONParser().parseResourceRequest(JSONUtil.asJSON(source));
+		return JSONParser.parseResourceRequest(JSONUtil.asJSON(source));
 	}
 }

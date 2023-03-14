@@ -114,7 +114,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		JSONObject j = loadJSONObject("src/test/resources/json/staging_credentials.json");
 		URL source=new URL("ftp://zam935:21/sampledata/fzj_unicore.txt");
 		JSONObject jCredentials = j.getJSONArray("Imports").getJSONObject(0).getJSONObject("Credentials");
-		UsernamePassword cred  = (UsernamePassword)new JSONParser().extractCredentials(jCredentials);
+		UsernamePassword cred  = (UsernamePassword)JSONParser.extractCredentials(jCredentials);
 		assertNotNull(cred);
 		URL urlWithCreds=IOUtils.addFTPCredentials(source, cred.getUser(), cred.getPassword());
 		assertTrue(urlWithCreds.toString().contains("interop:IshQ@zam935"));

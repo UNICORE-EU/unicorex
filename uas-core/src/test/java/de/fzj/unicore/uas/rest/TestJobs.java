@@ -103,6 +103,23 @@ public class TestJobs extends SecuredBase {
 		}
 		System.out.println(job.getProperties().toString(2));
 		assertTrue(job.getProperties().toString().contains(notificationURL));
+		
+		task = new JSONObject();
+		task.put("ApplicationName", "Date");
+		JSONObject notifications = new JSONObject();
+		notifications.put("URL", kernel.getContainerProperties().getContainerURL()+"/rest/foo");
+		JSONArray userDefinedTriggers = new JSONArray();
+		userDefinedTriggers.put("SUCCESSFUL");
+		notifications.put("status", userDefinedTriggers);
+		task.put("NotificationSettings", notifications);
+		job = site.submitJob(task);
+		
+		System.out.println("*** new job: "+job.getEndpoint().getUrl());
+		while(!job.isFinished()) {
+			Thread.sleep(1000);
+		}
+		System.out.println(job.getProperties().toString(2));
+		assertTrue(job.getProperties().toString().contains(notificationURL));
 	}
 	
 	

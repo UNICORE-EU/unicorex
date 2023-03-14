@@ -4,6 +4,7 @@ package de.fzj.unicore.xnjs.json;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.net.URI;
@@ -14,7 +15,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.Partition;
@@ -51,7 +51,7 @@ public class TestJSONParser {
 				+ "Resources: { Nodes: 2},"
 				+ "}";
 		
-		ApplicationInfo app = new JSONParser().parseApplicationInfo(new JSONObject(json));
+		ApplicationInfo app = JSONParser.parseApplicationInfo(new JSONObject(json));
 		assertEquals("test", app.getName());
 		assertEquals("1.0", app.getVersion());
 		assertEquals("some test app", app.getDescription());
@@ -93,7 +93,7 @@ public class TestJSONParser {
 				+ "Parameters: {},"
 				+ "Resources: {},"
 				+ "}";
-		ApplicationInfo app = new JSONParser().parseApplicationInfo(new JSONObject(json));
+		ApplicationInfo app = JSONParser.parseApplicationInfo(new JSONObject(json));
 		assertEquals("test", app.getName());
 		assertEquals("1.0", app.getVersion());
 		assertEquals("some test app", app.getDescription());
@@ -119,7 +119,7 @@ public class TestJSONParser {
 				+ "PostCommand: ['zip $OUTPUT *.dat', 'md5sum $OUTPUT > $OUTPUT.md5'],"
 				+ "}";
 		
-		ApplicationInfo app = new JSONParser().parseApplicationInfo(new JSONObject(json));
+		ApplicationInfo app = JSONParser.parseApplicationInfo(new JSONObject(json));
 		assertEquals("module load test123\nmodule load abc\n", app.getPrologue());
 		assertEquals("zip $OUTPUT *.dat\nmd5sum $OUTPUT > $OUTPUT.md5\n", app.getPostCommand());
 	}
@@ -165,7 +165,7 @@ public class TestJSONParser {
 				"		}," + 
 				"    },}";
 		JSONObject o = new JSONObject(json);
-		Partition p = new JSONParser().parsePartition("normal", o.getJSONObject("Partitions").getJSONObject("normal"));
+		Partition p = JSONParser.parsePartition("normal", o.getJSONObject("Partitions").getJSONObject("normal"));
 		System.out.println(p);
 		Resource r = p.getResources().getResource("Nodes");
 		assertEquals(Long.valueOf(1),((IntResource)r).getLower());
@@ -215,7 +215,7 @@ public class TestJSONParser {
 		array.put("bar");
 		idb.put("multiLine", array);
 		
-		String t1 = new JSONParser().parseScriptTemplate("singleLine", idb);
+		String t1 = JSONParser.parseScriptTemplate("singleLine", idb);
 		assertEquals("test123", t1);
 	}
 
@@ -227,7 +227,7 @@ public class TestJSONParser {
 		jrr.put("Project", "project123");
 		jrr.put("Queue", "test");
 		jrr.put("Reservation", "123");
-		List<ResourceRequest> rr = new JSONParser().parseResourceRequest(jrr);
+		List<ResourceRequest> rr = JSONParser.parseResourceRequest(jrr);
 		System.out.println(rr);
 		assertEquals("7200", ResourceRequest.find(rr, ResourceSet.RUN_TIME).getRequestedValue());
 		assertEquals("1024", ResourceRequest.find(rr, ResourceSet.MEMORY_PER_NODE).getRequestedValue());
@@ -241,7 +241,7 @@ public class TestJSONParser {
 		JSONObject spec = new JSONObject();
 		spec.put("From", "http://some-url");
 		spec.put("To", "file.txt");
-		DataStageInInfo dsi = new JSONParser().parseStageIn(spec);
+		DataStageInInfo dsi = JSONParser.parseStageIn(spec);
 		assertEquals("file.txt", dsi.getFileName());
 		assertEquals(1, dsi.getSources().length);
 	}
@@ -251,7 +251,7 @@ public class TestJSONParser {
 		JSONObject spec = new JSONObject();
 		spec.put("Data", "some inline data");
 		spec.put("To", "file.txt");
-		DataStageInInfo dsi = new JSONParser().parseStageIn(spec);
+		DataStageInInfo dsi = JSONParser.parseStageIn(spec);
 		assertEquals("file.txt", dsi.getFileName());
 		assertEquals(1, dsi.getSources().length);
 		assertTrue(dsi.getSources()[0].toString().startsWith("inline:"));
@@ -262,7 +262,7 @@ public class TestJSONParser {
 		JSONObject spec = new JSONObject();
 		spec.put("To", "http://some-url");
 		spec.put("From", "file.txt");
-		DataStageOutInfo dso = new JSONParser().parseStageOut(spec);
+		DataStageOutInfo dso = JSONParser.parseStageOut(spec);
 		assertEquals("file.txt", dso.getFileName());
 		assertEquals(new URI("http://some-url"), dso.getTarget());
 	}
@@ -271,38 +271,35 @@ public class TestJSONParser {
 	public void testParseNotificationURL() throws Exception {
 		JSONObject job = new JSONObject();
 		job.put("Notification", "http://some-url");
-		assertEquals("http://some-url", new JSONParser().parseNotificationURLs(job).get(0));
+		assertEquals("http://some-url", JSONParser.parseNotificationURLs(job).get(0));
 		job.clear();
 		JSONObject spec = new JSONObject();
 		spec.put("URL", "http://some-url");
 		job.put("NotificationSettings", spec);
-		assertEquals("http://some-url", new JSONParser().parseNotificationURLs(job).get(0));
+		assertEquals("http://some-url", JSONParser.parseNotificationURLs(job).get(0));
 	}
 
 	@Test
 	public void testParseNotificationStates() throws Exception {
 		JSONObject job = new JSONObject();
-		List<Integer>s = new JSONParser().parseNotificationTriggers(job);
-		assertTrue(s.contains(ActionStatus.RUNNING));
-		assertFalse(s.contains(ActionStatus.POSTPROCESSING));
-		assertTrue(s.contains(ActionStatus.DONE));
-		
+		List<String>s = JSONParser.parseNotificationTriggers(job);
+		assertNull(s);
 		JSONObject spec = new JSONObject();
 		JSONArray states = new JSONArray();
 		states.put("RUNNING");
 		states.put("POSTPROCESSING");
 		spec.put("status", states);
 		job.put("NotificationSettings", spec);
-		s = new JSONParser().parseNotificationTriggers(job);
-		assertTrue(s.contains(ActionStatus.RUNNING));
-		assertTrue(s.contains(ActionStatus.POSTPROCESSING));
-		assertFalse(s.contains(ActionStatus.DONE));
+		s = JSONParser.parseNotificationTriggers(job);
+		assertTrue(s.contains("RUNNING"));
+		assertTrue(s.contains("POSTPROCESSING"));
+		assertFalse(s.contains("DONE"));
 	}
 
 	@Test
 	public void testParseNotificationBSSStates() throws Exception {
 		JSONObject job = new JSONObject();
-		List<String>s = new JSONParser().parseNotificationBSSTriggers(job);
+		List<String>s = JSONParser.parseNotificationBSSTriggers(job);
 		assertEquals(s.size(), 0);
 		
 		JSONObject spec = new JSONObject();
@@ -310,7 +307,8 @@ public class TestJSONParser {
 		states.put("CONFIGURING");
 		spec.put("bssStatus", states);
 		job.put("NotificationSettings", spec);
-		s = new JSONParser().parseNotificationBSSTriggers(job);
+		s = JSONParser.parseNotificationBSSTriggers(job);
+		assertNull(JSONParser.parseNotificationTriggers(job));
 		assertEquals(s.size(), 1);
 		assertTrue(s.contains("CONFIGURING"));
 	}

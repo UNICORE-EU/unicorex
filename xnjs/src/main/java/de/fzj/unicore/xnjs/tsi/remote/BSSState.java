@@ -280,7 +280,7 @@ public class BSSState implements IBSSState {
 				info.bssState = newValue;
 				info.queue = queue;
 				info.rawBSSState = rawBssState;
-				boolean wantNotification = info.wantsNotifications
+				boolean wantNotification = info.wantsBSSStateChangeNotifications
 						&& rawBssState!=null
 						&& !rawBssState.equals(oldRawState);
 				if(wantNotification) {

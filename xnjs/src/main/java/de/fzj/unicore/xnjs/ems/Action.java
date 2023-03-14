@@ -128,6 +128,8 @@ public class Action implements Serializable {
 
 	//list of URLs to send notifications to
 	private List<String>notificationURls;
+	//list of states to send notifications for
+	private List<String>notifyStates;
 	//list of raw BSS states to send notifications for
 	private List<String>notifyBSSStates;
 
@@ -356,6 +358,14 @@ public class Action implements Serializable {
 
 	public void setNotificationURLs(List<String> notificationURls) {
 		this.notificationURls = notificationURls;
+	}
+
+	public List<String> getNotifyStates() {
+		return notifyStates;
+	}
+
+	public void setNotifyStates(List<String> notifyStates) {
+		this.notifyStates = notifyStates;
 	}
 
 	public List<String> getNotifyBSSStates() {

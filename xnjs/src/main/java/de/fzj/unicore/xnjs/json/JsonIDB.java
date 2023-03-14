@@ -56,15 +56,15 @@ public class JsonIDB implements IDBParser {
 		readPartitions(jsonidb.optJSONObject("Partitions"));
 		readApplications(jsonidb, idb.getIdb());
 		readInfo(jsonidb.optJSONObject("Info"));
-		idb.setExecuteTemplate(new JSONParser().parseScriptTemplate("ExecuteScriptTemplate", jsonidb));
-		idb.setSubmitTemplate(new JSONParser().parseScriptTemplate("SubmitScriptTemplate", jsonidb));
+		idb.setExecuteTemplate(JSONParser.parseScriptTemplate("ExecuteScriptTemplate", jsonidb));
+		idb.setSubmitTemplate(JSONParser.parseScriptTemplate("SubmitScriptTemplate", jsonidb));
 	}
 	
 	protected void readPartitions(JSONObject source) throws Exception {
 		if(source==null)return;
 		boolean haveDefault = false;
 		for(String name: source.keySet()) {
-			Partition p = new JSONParser().parsePartition(name, source.getJSONObject(name));
+			Partition p = JSONParser.parsePartition(name, source.getJSONObject(name));
 			idb.getPartitionsInternal().add(p);
 			logger.info("Read: <"+p+">");
 			if(p.isDefaultPartition()) {
@@ -88,12 +88,12 @@ public class JsonIDB implements IDBParser {
 		JSONArray apps = source.optJSONArray("Applications");
 		if(apps!=null) {
 			for(int i=0; i<apps.length();i++) {
-				idb.add(new JSONParser().parseApplicationInfo(apps.getJSONObject(i)));
+				idb.add(JSONParser.parseApplicationInfo(apps.getJSONObject(i)));
 			}
 		}
 		else {
 			if(source.optString("Name", null)!=null) {
-				idb.add(new JSONParser().parseApplicationInfo(source));
+				idb.add(JSONParser.parseApplicationInfo(source));
 			}
 		}
 	}

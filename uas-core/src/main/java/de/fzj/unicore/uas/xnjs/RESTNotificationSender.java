@@ -1,5 +1,7 @@
 package de.fzj.unicore.uas.xnjs;
 
+import java.util.List;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -38,7 +40,16 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 		if(action==null || action.getNotificationURLs()==null || action.getNotificationURLs().isEmpty())return;
 		
 		int status = action.getStatus();
-		if(!isTrigger(status, defaultTriggers))return;
+		boolean success = action.getResult().isSuccessful();
+		int[] triggers = defaultTriggers;
+		List<String> userdefinedTriggers = action.getNotifyStates();
+		if(userdefinedTriggers!=null) {
+			triggers = new int[userdefinedTriggers.size()];
+			for(int i=0; i<userdefinedTriggers.size();i++) {
+				triggers[i] = notifyFor(userdefinedTriggers.get(i), success);
+			}
+		}
+		if(!isTrigger(status, triggers))return;
 		
 		JSONObject message = new JSONObject();
 		ActionResult result = action.getResult();
@@ -61,4 +72,25 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 		}
 	}
 	
+
+	private int notifyFor(String userDefinedTrigger, boolean success){
+		switch (userDefinedTrigger){
+			case "STAGINGIN": 
+				return ActionStatus.PREPROCESSING;
+			case "STAGINGOUT": 
+				return ActionStatus.POSTPROCESSING;
+			case "RUNNING":
+				return ActionStatus.RUNNING;
+			case "QUEUED":
+				return ActionStatus.QUEUED;
+			case "READY": 
+				return ActionStatus.READY;
+			case "SUCCESSFUL":
+				return success? ActionStatus.DONE : -1;
+			case "FAILED":
+				return success? -1 : ActionStatus.DONE;
+			default:
+				return ActionStatus.UNKNOWN;
+		}
+	}
 }

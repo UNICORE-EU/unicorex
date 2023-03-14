@@ -155,7 +155,7 @@ public class Execution extends BasicExecution {
 				locked = lock.tryLock(120, TimeUnit.SECONDS);
 				if(!locked) {
 					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,
-							"Submission to TSI failed: Could not acquire lock (timeout)"));
+							"Could not acquire TSI submit lock (timeout)"));
 				}
 				res=conn.send(tsiCmd);
 				idLine=conn.getIdLine();
@@ -164,7 +164,7 @@ public class Execution extends BasicExecution {
 				}
 				if(res.contains("TSI_FAILED")){
 					job.addLogTrace("TSI reply: FAILED.");
-					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,"Submission to TSI failed. Reply was <"+res+">"));
+					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, res));
 				}
 			}
 			job.addLogTrace("TSI reply: submission OK.");
@@ -187,8 +187,12 @@ public class Execution extends BasicExecution {
 			}
 			job.setBSID(internalID);
 			BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
-			newJob.wantsNotifications = job.getNotificationURLs()!=null && 
-					!job.getNotificationURLs().isEmpty();
+			newJob.wantsBSSStateChangeNotifications = 
+					job.getNotificationURLs()!=null && 
+					!job.getNotificationURLs().isEmpty()
+					&& job.getNotifyBSSStates()!=null
+					&& !job.getNotifyBSSStates().isEmpty()
+					;
 			bss.putBSSInfo(newJob);
 			jobExecLogger.debug(msg);
 			job.addLogTrace(msg);
@@ -634,7 +638,7 @@ public class Execution extends BasicExecution {
 		BSS_STATE bssState;
 		String queue;
 		String rawBSSState;
-		boolean wantsNotifications = false;
+		boolean wantsBSSStateChangeNotifications = false;
 		public BSSInfo(){}
 
 		public BSSInfo(String bssID,String jobID, BSS_STATE bssState){
