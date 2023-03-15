@@ -378,9 +378,8 @@ public class JSONParser {
 			url = spec.optString("URL");
 		} else {
 			url = job.optString("Notification");
-			
 		}
-		if(url!=null) {
+		if(url!=null && !url.isEmpty()) {
 			res.add(url);
 		}
 		return res;

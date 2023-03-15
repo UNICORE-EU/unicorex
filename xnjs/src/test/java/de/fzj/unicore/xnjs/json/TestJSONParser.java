@@ -270,6 +270,7 @@ public class TestJSONParser {
 	@Test
 	public void testParseNotificationURL() throws Exception {
 		JSONObject job = new JSONObject();
+		assertTrue(JSONParser.parseNotificationURLs(job).isEmpty());
 		job.put("Notification", "http://some-url");
 		assertEquals("http://some-url", JSONParser.parseNotificationURLs(job).get(0));
 		job.clear();
