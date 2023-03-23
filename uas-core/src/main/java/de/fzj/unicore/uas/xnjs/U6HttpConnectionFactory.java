@@ -3,16 +3,16 @@ package de.fzj.unicore.uas.xnjs;
 import org.apache.hc.client5.http.classic.HttpClient;
 
 import de.fzj.unicore.xnjs.io.http.IConnectionFactory;
+import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
-import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**
  * creates HTTP(s) connections for plain http(s) data staging
- * using the UNICORE/X server's key/truststore
- * 
+ * trusts every server
+ *
  * @author schuller
  */
 public class U6HttpConnectionFactory implements IConnectionFactory{
@@ -25,12 +25,8 @@ public class U6HttpConnectionFactory implements IConnectionFactory{
 	
 	@Override
 	public HttpClient getConnection(String url, Client client) {
-		IClientConfiguration auth = kernel.getClientConfiguration();
-		try {
-			DefaultClientConfiguration cc = (DefaultClientConfiguration)auth;
-			cc.setSslAuthn(false);
-			cc.setSslEnabled(false);
-		} catch(Exception ex) {}
-		return HttpUtils.createClient(url, auth);
+		DefaultClientConfiguration cc =
+			new DefaultClientConfiguration(new BinaryCertChainValidator(true), null);
+		return HttpUtils.createClient(url, cc);
 	}
 }
