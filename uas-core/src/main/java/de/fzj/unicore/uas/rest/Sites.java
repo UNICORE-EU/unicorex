@@ -228,4 +228,8 @@ public class Sites extends ServicesBase {
 		return (TargetSystemImpl)home.get(tss);
 	}
 
+	@Override
+	public boolean usesKernelMessaging() {
+		return true;
+	}
 }

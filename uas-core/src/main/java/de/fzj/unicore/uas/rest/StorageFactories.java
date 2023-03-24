@@ -122,4 +122,9 @@ public class StorageFactories extends ServicesBase {
 		Map<String,String>parameters = JSONUtil.asMap(json.optJSONObject("parameters"));
 		return smf.createSMS(storageBackendType, name, tt, parameters);
 	}
+
+	@Override
+	public boolean usesKernelMessaging() {
+		return true;
+	}
 }

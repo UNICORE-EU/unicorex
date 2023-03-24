@@ -133,10 +133,9 @@ public class Reservations extends ServicesBase {
 	}
 
 	/**
-	 * submission code used from both Jobs and Sites resources
-	 * returns ID of the new job instance
+	 * creates the resource and returns its ID 
 	 */
-	public String doCreate(JSONObject spec, TargetSystemImpl tss) throws Exception {
+	protected String doCreate(JSONObject spec, TargetSystemImpl tss) throws Exception {
 		Map<String,String> resources = JSONUtil.asMap(spec.getJSONObject("Resources"));
 		String startTimeS = spec.optString("Start time", null);
 		Calendar startTime = Calendar.getInstance();

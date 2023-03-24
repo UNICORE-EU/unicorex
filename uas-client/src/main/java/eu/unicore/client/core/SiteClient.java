@@ -3,6 +3,7 @@ package eu.unicore.client.core;
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.Job;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
@@ -17,6 +18,10 @@ public class SiteClient extends BaseServiceClient implements IJobSubmission {
 	public SiteClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
+
+	public JobClient submitJob(Job job) throws Exception {
+		return submitJob(job.getJSON());
+	}	
 
 	public JobClient submitJob(JSONObject job) throws Exception {
 		String newJob = bc.create(job);

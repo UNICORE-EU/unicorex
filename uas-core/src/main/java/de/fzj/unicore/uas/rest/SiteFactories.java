@@ -146,4 +146,9 @@ public class SiteFactories extends ServicesBase {
 		}
 		return tsfs.get(0);
 	}
+
+	@Override
+	public boolean usesKernelMessaging() {
+		return true;
+	}
 }

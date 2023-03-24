@@ -72,6 +72,7 @@ import eu.unicore.services.exceptions.TerminationTimeChangeRejectedException;
 import eu.unicore.services.exceptions.UnableToSetTerminationTimeException;
 import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
+import eu.unicore.services.messaging.ResourceAddedMessage;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.utils.Utilities;
 import eu.unicore.util.Log;
@@ -103,14 +104,25 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 			while(p.hasNext()){
 				Message message=p.next();
 				if(message instanceof ResourceDeletedMessage){
-					ResourceDeletedMessage rdm=(ResourceDeletedMessage)message;
-					String id=rdm.getDeletedResource();
-					String service=rdm.getServiceName();
+					ResourceDeletedMessage rdm = (ResourceDeletedMessage)message;
+					String id = rdm.getDeletedResource();
+					String service = rdm.getServiceName();
 					if(UAS.JMS.equals(service)){
 						getModel().getJobIDs().remove(id);
 					}
 					else if(UAS.RESERVATIONS.equals(service)){
 						getModel().getReservationIDs().remove(id);
+					}
+				}
+				else if (message instanceof ResourceAddedMessage) {
+					ResourceAddedMessage ram = (ResourceAddedMessage)message;
+					String id = ram.getAddedResource();
+					String service = ram.getServiceName();
+					if(UAS.JMS.equals(service)){
+						getModel().getJobIDs().add(id);
+					}
+					else if(UAS.RESERVATIONS.equals(service)){
+						getModel().getReservationIDs().add(id);
 					}
 				}
 			}
@@ -340,7 +352,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		logger.debug("Removed TargetSystem resource <{}> owned by <{}>", getUniqueID(), ownerName);
 	}
 
-	//create a WS Resource for the reservation and return its UUID
+	// create a resource for the reservation and return its UUID
 	public String createReservationResource(Map<String,String> resources, Calendar startTime)throws Exception{
 		ReservationInitParameters init = new ReservationInitParameters();
 		init.xnjsReference = getModel().getXnjsReference();

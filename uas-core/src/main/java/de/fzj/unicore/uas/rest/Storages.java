@@ -337,4 +337,5 @@ public class Storages extends ServicesBase {
 			links.add(new Link("factory",getBaseURL()+"/storagefactories/"+smfID, "Storage Factory"));
 		}
 	}
+
 }

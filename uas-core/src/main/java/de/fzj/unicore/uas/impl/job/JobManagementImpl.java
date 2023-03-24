@@ -52,6 +52,7 @@ import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.utils.TimeProfile;
 
 /**
  * implements a Job resource
@@ -104,7 +105,6 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		}
 		if(!initParams.no_xnjs_submit){
 			getXNJSFacade().getManager().add(action, client);
-			logger.info("Submitted job with id {} for client {}", action.getUUID(), client);
 		}
 		m.setUspaceId(createUspace(action));
 		m.setSubmissionTime(Calendar.getInstance());
@@ -120,6 +120,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	 */
 	@Override
 	public void destroy() {
+		TimeProfile tp = AuthZAttributeStore.getTimeProfile();
 		try{
 			ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
 			m.setServiceName(getServiceName());
@@ -128,14 +129,18 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 			getKernel().getMessaging().getChannel(tssId).publish(m);
 		}
 		catch(Exception e){}
+		tp.time("sent_deleted_msg");
 		try{
 			getXNJSFacade().destroyAction(getUniqueID(), getClient());
 		}
 		catch(Exception e){}
+		tp.time("triggered_action_destroy");
 		try{
 			kernel.getHome(UAS.SMS).destroyResource(getModel().getUspaceId());
 		}catch(Exception e){}
+		tp.time("sms_destroyed");
 		super.destroy();
+		tp.time("jms_destroyed");
 	}
 	
 	/**

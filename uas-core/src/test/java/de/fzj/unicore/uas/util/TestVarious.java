@@ -285,4 +285,9 @@ public class TestVarious {
 		assertEquals("VARIABLE", asd.getStorageTypeAsString());
 		assertEquals("MY_WORK", asd.getPathSpec());
 	}
+
+	@Test
+	public void testMetricTimestamp() throws Exception {
+		
+	}
 }

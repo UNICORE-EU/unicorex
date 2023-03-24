@@ -67,9 +67,6 @@ import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.messaging.Message;
-import eu.unicore.services.messaging.PullPoint;
-import eu.unicore.services.messaging.ResourceAddedMessage;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.uftp.server.workers.UFTPWorker;
 
@@ -221,10 +218,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		init.workdir = getStorageRoot();
 		init.storageAdapterFactory = getStorageAdapterFactory();
 		init.xnjsReference = getModel().getXnjsReference();
-		String id=kernel.getHome(UAS.SERVER_FTS).createResource(init);
-		ResourceAddedMessage m=new ResourceAddedMessage(UAS.SERVER_FTS,id);
-		getKernel().getMessaging().getChannel(getUniqueID()).publish(m);
-		return id;
+		return kernel.getHome(UAS.SERVER_FTS).createResource(init);
 	}
 	
 	public void rename(String source, String target) throws Exception {
@@ -280,30 +274,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		return res;
 	}
 
-	@Override
-	public void processMessages(PullPoint p){
-		List<String>fileTransferUIDs = getModel().getFileTransferUIDs();
-		while(p.hasNext()){
-			Message message=p.next();
-			if(message instanceof ResourceDeletedMessage){
-				ResourceDeletedMessage rdm=(ResourceDeletedMessage)message;
-				String id=rdm.getDeletedResource();
-				String service=rdm.getServiceName();
-				if(UAS.SERVER_FTS.equals(service)){
-					fileTransferUIDs.remove(id);
-				}
-			}
-			else if(message instanceof ResourceAddedMessage){
-				ResourceAddedMessage ram=(ResourceAddedMessage)message;
-				String id=ram.getAddedResource();
-				String service=ram.getServiceName();
-				if(UAS.SERVER_FTS.equals(service)){
-					fileTransferUIDs.add(id);
-				}	
-			}
-		}
-	}
-
 	/**
 	 * resource-specific destruction: cleanup instances of metadata and enumeration instances  
 	 */
@@ -339,8 +309,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	}
 
 	/**
-	 * TODO controller method
-	 * 
+	 * create a new file import resource
+	 *
 	 * @param file
 	 * @param protocol
 	 * @param overwrite
@@ -366,8 +336,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	
 
 	/**
-	 * TODO controller method
-	 * 
+	 * create a new file export resource
+	 *
 	 * @param file
 	 * @param protocol
 	 * @param extraParameters

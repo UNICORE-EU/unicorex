@@ -43,6 +43,7 @@ import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.messaging.ResourceAddedMessage;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RestServlet;
 import eu.unicore.services.rest.USEResource;
@@ -108,18 +109,25 @@ public class Jobs extends ServicesBase {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ConcurrentAccess(allow=true)
 	public Response submit(String json) {
+		boolean ok = true;
+		Client client = AuthZAttributeStore.getClient();
+		String id = null;
 		try{
 			checkSubmissionEnabled(kernel);
 			Builder job = new Builder(json);
 			TargetSystemImpl tss = Sites.findTSS(kernel);
-			String id = doSubmit(job, tss, kernel);
+			id = doSubmit(job, tss, kernel);
 			return Response.created(new URI(baseURL+"/jobs/"+id)).build();
 		}catch(Exception ex){
 			int status = 500;
 			if (ex.getClass().isAssignableFrom(AuthorisationException.class)) {
 				status = 401;
 			}
+			ok = false;
 			return handleError(status, "Could not submit job", ex, logger);
+		}
+		finally {
+			if(ok)logger.info("Submitted job with id {} for client {}", id, client);
 		}
 	}
 
@@ -323,11 +331,9 @@ public class Jobs extends ServicesBase {
 	public static String doSubmit(Builder job, TargetSystemImpl tss, Kernel kernel) 
 	throws Exception {
 		boolean autoRun = !Boolean.parseBoolean(job.getProperty("haveClientStageIn"));
-		String id = tss.submit(job.getJSON(), autoRun, null, job.getTags());
-		// store new job ID in model - need a write lock on the tss
-		try (TargetSystemImpl tss2 = (TargetSystemImpl)kernel.getHome(UAS.TSS).getForUpdate(tss.getUniqueID())){
-			tss2.registerJob(id);
-		}
+		final String id = tss.submit(job.getJSON(), autoRun, null, job.getTags());
+		ResourceAddedMessage m = new ResourceAddedMessage(UAS.JMS, id);
+		kernel.getMessaging().getChannel(tss.getUniqueID()).publish(m);
 		return id;
 	}
 
