@@ -36,8 +36,8 @@ package de.fzj.unicore.xnjs.persistence;
 import java.util.Collection;
 import java.util.concurrent.TimeoutException;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.xnjs.ems.Action;
+import eu.unicore.persist.PersistenceException;
 
 /**
  * Interface to the action storage<br/>

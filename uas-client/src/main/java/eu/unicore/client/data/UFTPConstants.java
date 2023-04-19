@@ -44,8 +44,9 @@ public interface UFTPConstants {
 	public static final String PARAM_ENABLE_COMPRESSION="uftp.compression";
 
 	/**
-	 * use session mode?
+	 * dummy "file name" used for creating a UFTP session via UNICORE import/export
 	 */
-	public static final String PARAM_USE_SESSION = "uftp.useSessionMode";
+	public static final String SESSION_TAG = "__uftp_session__";
 
+	
 }

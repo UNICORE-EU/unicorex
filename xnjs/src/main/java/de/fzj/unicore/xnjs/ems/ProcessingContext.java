@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.fzj.unicore.persist.util.Wrapper;
+import eu.unicore.persist.util.Wrapper;
 
 /**
  * Processing context for an {@link Action}<br/>

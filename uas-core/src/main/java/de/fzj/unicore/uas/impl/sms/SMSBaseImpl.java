@@ -63,12 +63,12 @@ import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import de.fzj.unicore.xnjs.tsi.BatchMode;
 import de.fzj.unicore.xnjs.tsi.TSI;
+import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
-import eu.unicore.uftp.server.workers.UFTPWorker;
 
 /**
  * Basic storage resource implementation
@@ -349,14 +349,14 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			throws Exception {
 		FiletransferInitParameters init = new FiletransferInitParameters();
 		String source=makeSMSLocal(file);
-		if(!source.contains(UFTPWorker.sessionModeTag) && getProperties(source)==null){
+		if(!source.contains(UFTPConstants.SESSION_TAG) && getProperties(source)==null){
 			throw new FileNotFoundException("File <"+source+"> not found on storage");
 		}
 		init.source = source;
 		init.isExport = true;
 		init.extraParameters.putAll(extraParameters);
 		
-		if(!source.contains(UFTPWorker.sessionModeTag) && getMetadataManager()!=null){
+		if(!source.contains(UFTPConstants.SESSION_TAG) && getMetadataManager()!=null){
 			String ct = getMetadataManager().getMetadataByName(source).get("Content-Type");
 			if(ct!=null){
 				init.mimetype = ct;

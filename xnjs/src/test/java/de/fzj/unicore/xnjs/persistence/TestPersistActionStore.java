@@ -43,13 +43,13 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.fzj.unicore.persist.impl.PersistImpl;
-import de.fzj.unicore.persist.util.Export;
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.BasicManager;
 import de.fzj.unicore.xnjs.ems.EMSTestBase;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.persist.impl.PersistImpl;
+import eu.unicore.persist.util.Export;
 
 public class TestPersistActionStore extends EMSTestBase {
 

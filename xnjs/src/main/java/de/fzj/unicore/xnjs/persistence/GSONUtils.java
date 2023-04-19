@@ -15,7 +15,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
-import de.fzj.unicore.persist.util.GSONConverter;
+import eu.unicore.persist.util.GSONConverter;
 import eu.unicore.util.Log;
 
 public class GSONUtils  {

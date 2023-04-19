@@ -26,10 +26,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>de.fzj.unicore</groupId>
-      <artifactId>persistence</artifactId>
-    </dependency>
-    <dependency>
       <groupId>eu.unicore.services</groupId>
       <artifactId>use-rest</artifactId>
     </dependency>

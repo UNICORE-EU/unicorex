@@ -38,9 +38,9 @@ import java.util.UUID;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
-import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.TransferInfo;
+import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 

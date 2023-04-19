@@ -17,11 +17,7 @@ import eu.unicore.util.httpclient.HttpUtils;
  */
 public class U6HttpConnectionFactory implements IConnectionFactory{
 
-	private final Kernel kernel;
-	
-	public U6HttpConnectionFactory(Kernel kernel){
-		this.kernel = kernel;
-	}
+	public U6HttpConnectionFactory(Kernel kernel){}
 	
 	@Override
 	public HttpClient getConnection(String url, Client client) {

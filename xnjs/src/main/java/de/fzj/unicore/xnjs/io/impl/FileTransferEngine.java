@@ -50,11 +50,6 @@ import javax.inject.Singleton;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.persist.Persist;
-import de.fzj.unicore.persist.PersistenceException;
-import de.fzj.unicore.persist.PersistenceFactory;
-import de.fzj.unicore.persist.PersistenceProperties;
-import de.fzj.unicore.persist.impl.PersistImpl;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.fts.FTSInfo;
 import de.fzj.unicore.xnjs.fts.IFTSController;
@@ -67,6 +62,11 @@ import de.fzj.unicore.xnjs.io.IOCapabilities;
 import de.fzj.unicore.xnjs.io.TransferInfo;
 import de.fzj.unicore.xnjs.io.UnsupportedProtocolException;
 import de.fzj.unicore.xnjs.util.LogUtil;
+import eu.unicore.persist.Persist;
+import eu.unicore.persist.PersistenceException;
+import eu.unicore.persist.PersistenceFactory;
+import eu.unicore.persist.PersistenceProperties;
+import eu.unicore.persist.impl.PersistImpl;
 import eu.unicore.security.Client;
 
 /**

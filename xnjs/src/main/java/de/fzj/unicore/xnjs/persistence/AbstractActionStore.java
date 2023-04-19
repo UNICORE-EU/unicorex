@@ -44,6 +44,7 @@ import org.apache.logging.log4j.Logger;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
 import de.fzj.unicore.xnjs.util.LogUtil;
+import eu.unicore.persist.PersistenceException;
 import eu.unicore.util.Log;
 
 /**

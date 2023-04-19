@@ -20,6 +20,10 @@
     <relativePath>../pom.xml</relativePath>
   </parent>
 
+  <properties>
+    <automatic.module.name>eu.unicore.unicorex.core</automatic.module.name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>

@@ -39,16 +39,16 @@ import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 
-import de.fzj.unicore.persist.DataVersionException;
-import de.fzj.unicore.persist.Persist;
-import de.fzj.unicore.persist.PersistenceException;
-import de.fzj.unicore.persist.PersistenceFactory;
-import de.fzj.unicore.persist.PersistenceProperties;
-import de.fzj.unicore.persist.impl.PersistImpl;
-import de.fzj.unicore.persist.impl.PersistenceDescriptor;
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
+import eu.unicore.persist.DataVersionException;
+import eu.unicore.persist.Persist;
+import eu.unicore.persist.PersistenceException;
+import eu.unicore.persist.PersistenceFactory;
+import eu.unicore.persist.PersistenceProperties;
+import eu.unicore.persist.impl.PersistImpl;
+import eu.unicore.persist.impl.PersistenceDescriptor;
 import eu.unicore.util.Log;
 
 /**

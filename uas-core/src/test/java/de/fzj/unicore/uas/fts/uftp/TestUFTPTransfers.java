@@ -250,15 +250,11 @@ public class TestUFTPTransfers {
    		Map<String,String>params=new HashMap<String,String>();
    		params.put(UFTPConstants.PARAM_SECRET, "test123");
    		params.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
-   		params.put(UFTPConstants.PARAM_USE_SESSION, "true");
    		
    		FiletransferClient ftc = sms.createImport("test-import", false, -1, "UFTP", params);
    		Assert.assertNotNull(ftc);
    		Assert.assertTrue(ftc instanceof UFTPFileTransferClient);
    		System.out.println(ftc.getProperties());
-   		Boolean isSession = Boolean.parseBoolean(ftc.getProperties().getJSONObject("extraParameters").
-   				getString(UFTPConstants.PARAM_USE_SESSION));
-   		Assert.assertTrue(isSession);
    		
    		File testFile = new File("target/testfiles/data-"+System.currentTimeMillis());
    		int size = 1024;

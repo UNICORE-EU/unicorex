@@ -39,14 +39,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import de.fzj.unicore.persist.annotations.ID;
-import de.fzj.unicore.persist.annotations.Table;
-import de.fzj.unicore.persist.util.JSON;
-import de.fzj.unicore.persist.util.Wrapper;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.persistence.GSONUtils;
+import eu.unicore.persist.annotations.ID;
+import eu.unicore.persist.annotations.Table;
+import eu.unicore.persist.util.JSON;
+import eu.unicore.persist.util.Wrapper;
 import eu.unicore.security.Client;
 
 /**

@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
 
-import de.fzj.unicore.persist.util.Wrapper;
 import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
+import eu.unicore.persist.util.Wrapper;
 
 /**
  * Stores information about a single local file to be staged in

@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fzj.unicore.persist.annotations.ID;
-import de.fzj.unicore.persist.annotations.Table;
+import eu.unicore.persist.annotations.ID;
+import eu.unicore.persist.annotations.Table;
 
 /**
  * persistent information about a multi-file transfer

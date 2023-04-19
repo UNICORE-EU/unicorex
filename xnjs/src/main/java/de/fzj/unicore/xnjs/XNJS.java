@@ -45,8 +45,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
-//import org.apache.xmlbeans.XmlCursor;
-//import org.apache.xmlbeans.XmlObject;
 import org.json.JSONObject;
 
 import com.codahale.metrics.Histogram;
@@ -59,7 +57,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Provides;
 
-import de.fzj.unicore.persist.PersistenceProperties;
 import de.fzj.unicore.xnjs.ConfigurationSource.ProcessorChain;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -79,6 +76,7 @@ import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
 import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import de.fzj.unicore.xnjs.util.LogUtil;
+import eu.unicore.persist.PersistenceProperties;
 import eu.unicore.security.Client;
 
 /**

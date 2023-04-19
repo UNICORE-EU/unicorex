@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.reservation.ReservationManagementImpl;
 import de.fzj.unicore.uas.impl.reservation.ReservationModel;
@@ -27,6 +26,7 @@ import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.tsi.IExecution;
+import eu.unicore.persist.PersistenceException;
 import eu.unicore.security.AuthorisationException;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.USEResource;

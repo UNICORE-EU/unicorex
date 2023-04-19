@@ -2,11 +2,11 @@ package de.fzj.unicore.xnjs.persistence;
 
 import java.io.Serializable;
 
-import de.fzj.unicore.persist.annotations.ID;
-import de.fzj.unicore.persist.annotations.Table;
-import de.fzj.unicore.persist.util.JSON;
-import de.fzj.unicore.persist.util.Wrapper;
 import de.fzj.unicore.xnjs.ems.Action;
+import eu.unicore.persist.annotations.ID;
+import eu.unicore.persist.annotations.Table;
+import eu.unicore.persist.util.JSON;
+import eu.unicore.persist.util.Wrapper;
 
 /**
  * wrapper for storing "done" actions in a different database

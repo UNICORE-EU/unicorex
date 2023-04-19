@@ -1,6 +1,5 @@
 package de.fzj.unicore.uas.fts.uftp;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,8 +16,7 @@ import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
 import eu.unicore.uftp.dpc.Utils;
-import eu.unicore.uftp.server.requests.UFTPTransferRequest;
-import eu.unicore.uftp.server.workers.UFTPWorker;
+import eu.unicore.uftp.server.requests.UFTPSessionRequest;
 
 /**
  * server-side filetransfer ws-resource using the UFTP library
@@ -105,7 +103,6 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 			params.put(PARAM_ENCRYPTION_KEY,base64);
 		}
 		params.put(PARAM_ENABLE_COMPRESSION,String.valueOf(m.compress));
-		params.put(PARAM_USE_SESSION, "true");
 		return params;
 	}
 
@@ -207,13 +204,11 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		UFTPFiletransferModel m = getModel();
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		
-		boolean isExport = m.getIsExport();
-		File file = new File(m.getWorkdir(),UFTPWorker.sessionModeTag);
 		boolean append= m.getOverWrite()==false;
 		boolean compress = m.isCompress();
 		int rateLimit = cfg.getIntValue(UFTPProperties.PARAM_RATE_LIMIT);
 		InetAddress[] clientHosts = Utils.parseInetAddresses(m.clientHost, null);
-		UFTPTransferRequest job = new UFTPTransferRequest(clientHosts, user, secret, file, isExport); 
+		UFTPSessionRequest job = new UFTPSessionRequest(clientHosts, user, secret, m.getWorkdir()); 
 		job.setGroup(group);
 		job.setStreams(m.streams);
 		job.setKey(key);

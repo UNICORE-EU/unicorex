@@ -1,63 +1,64 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>eu.unicore</groupId>
+  <artifactId>uas-metadata</artifactId>
+  <version>2.5.4</version>
+  <packaging>jar</packaging>
+  <name>UNICORE/X Metadata service</name>
 
+  <parent>
     <groupId>eu.unicore</groupId>
-    <artifactId>uas-metadata</artifactId>
+    <artifactId>unicorex-parent</artifactId>
     <version>2.5.4</version>
-    <packaging>jar</packaging>
-    <name>UNICORE/X Metadata service</name>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
 
-    <parent>
-        <groupId>eu.unicore</groupId>
-        <artifactId>unicorex-parent</artifactId>
-        <version>2.5.4</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+  <properties>
+    <automatic.module.name>eu.unicore.unicorex.metadata</automatic.module.name>
+  </properties>
 
-    <dependencies>
-
-        <dependency>
-            <groupId>eu.unicore</groupId>
-            <artifactId>uas-core</artifactId>
-            <version>${project.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>ant</artifactId>
-                    <groupId>ant</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-	  <groupId>junit</groupId>
-	  <artifactId>junit</artifactId>
-	</dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers-standard-package</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-   
+  <dependencies>
+    <dependency>
+      <groupId>eu.unicore</groupId>
+      <artifactId>uas-core</artifactId>
+      <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>ant</artifactId>
+          <groupId>ant</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.lucene</groupId>
+      <artifactId>lucene-queryparser</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-parsers-standard-package</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.8.5</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 </project>

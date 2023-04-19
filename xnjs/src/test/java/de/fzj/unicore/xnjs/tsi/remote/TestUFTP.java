@@ -22,10 +22,9 @@ import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
 import de.fzj.unicore.xnjs.util.UFTPUtils;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
-import eu.unicore.uftp.dpc.UFTPConstants;
 import eu.unicore.uftp.dpc.Utils;
 import eu.unicore.uftp.server.requests.UFTPPingRequest;
-import eu.unicore.uftp.server.requests.UFTPTransferRequest;
+import eu.unicore.uftp.server.requests.UFTPSessionRequest;
 
 public class TestUFTP extends RemoteTSITestCase {
 
@@ -68,10 +67,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
 		File targetDir = mkTmpDir();
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(sourceDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(
+				new InetAddress[] {localhost}, "nobody", secret, sourceDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -90,10 +87,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		long length = -1;
 		File targetDir = mkTmpDir();
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(sourceDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(
+				new InetAddress[] {localhost}, "nobody", secret, sourceDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -113,10 +108,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		long offset = 0;
 		long length = 13;
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(sourceDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(new InetAddress[] {localhost},
+				"nobody", secret, sourceDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -131,10 +124,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		offset = 13;
 		length = -1;
 		secret = String.valueOf(System.currentTimeMillis());
-		job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(sourceDir, UFTPConstants.sessionModeTag), true);
+		job = new UFTPSessionRequest(new InetAddress[] {localhost},
+				"nobody", secret, sourceDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -152,10 +143,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
 		File targetDir = mkTmpDir();
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(targetDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(
+				new InetAddress[] {localhost}, "nobody", secret, targetDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -175,10 +164,8 @@ public class TestUFTP extends RemoteTSITestCase {
 
 		File targetDir = mkTmpDir();
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(targetDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(new InetAddress[] {localhost},
+				"nobody", secret, targetDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -198,10 +185,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		long length = 13;
 		File targetDir = mkTmpDir();
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(targetDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(new InetAddress[] {localhost},
+				"nobody", secret, targetDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -215,10 +200,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		offset = 13;
 		length = -1;
 		secret = String.valueOf(System.currentTimeMillis());
-		job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(targetDir, UFTPConstants.sessionModeTag), true);
+		job = new UFTPSessionRequest(new InetAddress[] {localhost},
+				"nobody", secret, targetDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 		ec = new ExecutionContext();
 		ec.setWorkingDirectory(targetDir.getAbsolutePath());
@@ -236,10 +219,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
 		File targetDir = mkTmpDir();
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(sourceDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(new InetAddress[] {localhost},
+				"nobody", secret, sourceDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 
 		Action parent = xnjs.makeAction(new JSONObject());
@@ -272,10 +253,8 @@ public class TestUFTP extends RemoteTSITestCase {
 		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
 		File targetDir = mkTmpDir();
 		String secret = String.valueOf(System.currentTimeMillis());
-		UFTPTransferRequest job = new UFTPTransferRequest(
-				new InetAddress[] {localhost}, 
-				"nobody", 
-				secret, new File(targetDir, UFTPConstants.sessionModeTag), true);
+		UFTPSessionRequest job = new UFTPSessionRequest(
+				new InetAddress[] {localhost}, "nobody", secret, targetDir.getAbsolutePath());
 		job.sendTo(localhost, uftpd.jobPort);
 
 		Action parent = xnjs.makeAction(new JSONObject());

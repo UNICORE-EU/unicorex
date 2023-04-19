@@ -39,7 +39,7 @@
       <artifactId>use-restclient</artifactId>
     </dependency>
     <dependency>
-      <groupId>de.fzj.unicore</groupId>
+      <groupId>eu.unicore</groupId>
       <artifactId>persistence</artifactId>
     </dependency>
     <dependency>

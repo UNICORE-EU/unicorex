@@ -35,10 +35,10 @@ package de.fzj.unicore.xnjs.io;
 
 import java.io.IOException;
 
-import de.fzj.unicore.persist.Persist;
-import de.fzj.unicore.persist.PersistenceException;
 import de.fzj.unicore.xnjs.fts.FTSInfo;
 import de.fzj.unicore.xnjs.fts.IFTSController;
+import eu.unicore.persist.Persist;
+import eu.unicore.persist.PersistenceException;
 import eu.unicore.security.Client;
 
 

@@ -21,7 +21,6 @@ import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.uftp.client.UFTPSessionClient;
-import eu.unicore.uftp.server.workers.UFTPWorker;
 import eu.unicore.util.Log;
 
 /**
@@ -123,7 +122,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 
 	protected void setupSessionMode()throws Exception{
 		Map<String,String>ep=getExtraParameters();
-		ftc = storage.createExport(UFTPWorker.sessionModeTag, "UFTP", ep);
+		ftc = storage.createExport(SESSION_TAG, "UFTP", ep);
 		if(localMode || !haveJavaClient) {
 			UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
 			sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());

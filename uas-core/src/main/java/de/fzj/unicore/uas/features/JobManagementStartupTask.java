@@ -38,8 +38,6 @@ import java.util.concurrent.locks.Lock;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.persist.PersistenceException;
-import de.fzj.unicore.persist.impl.LockSupport;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
@@ -47,6 +45,8 @@ import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
 import de.fzj.unicore.uas.rest.CoreServices;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
+import eu.unicore.persist.PersistenceException;
+import eu.unicore.persist.impl.LockSupport;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.Kernel;
