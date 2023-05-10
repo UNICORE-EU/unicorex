@@ -252,8 +252,12 @@ public class Job {
 			return credentials;
 		}
 
-		public void token(String token) throws JSONException {
+		public void bearerToken(String token) throws JSONException {
 			credentials.put("BearerToken", token);
+		}
+
+		public void token(String token) throws JSONException {
+			credentials.put("Token", token);
 		}
 
 		public void username(String username, String password) throws JSONException {

@@ -128,6 +128,44 @@ public class TestJSONParser {
 	}
 
 	@Test
+	public void testParseSubmittedApplication() throws Exception {
+		String json = "{"
+				+ "ApplicationName: 'test',"
+				+ "ApplicationVersion: '1.0',"
+				+ "User precommand: 'unzip $INPUT',"
+				+ "Arguments: ['-p $PARAM?','2','3'],"
+				+ "Environment: { 'X':'Y', 'A':'B', },"
+				+ "Job type: ON_LOGIN_NODE,"
+				+ "FailOnNonZeroExitCode: false,"
+				+ "User postcommand: 'zip $OUTPUT *.dat',"
+				+ "Parameters: { INPUT: 'input.zip',"
+				+               "OUTPUT: 'output.zip',"
+				+               "PARAM: 'lax',"
+				+ "},"
+				+ "Resources: { Nodes: 2},"
+				+ "}";
+		ApplicationInfo app = JSONParser.parseSubmittedApplication(new JSONObject(json));
+		assertEquals("test", app.getName());
+		assertEquals("1.0", app.getVersion());
+		assertEquals("unzip $INPUT", app.getUserPreCommand());
+		assertEquals("zip $OUTPUT *.dat", app.getUserPostCommand());
+		List<String>args = app.getArguments();
+		assertEquals(3, args.size());
+		assertTrue(args.contains("-p $PARAM?"));assertTrue(args.contains("2"));assertTrue(args.contains("3"));
+		Map<String,String> env = app.getEnvironment();
+		assertEquals(2 + 3, env.size());
+		assertEquals("B", env.get("A"));
+		assertEquals("Y", env.get("X"));
+		assertTrue(app.isRunOnLoginNode());
+		assertFalse(app.ignoreNonZeroExitCode());
+	    List<ResourceRequest>rrs = app.getResourceRequests();
+		assertEquals(1, rrs.size());
+		ResourceRequest rr = rrs.get(0);
+		assertEquals("Nodes", rr.getName());
+		assertEquals("2", rr.getRequestedValue());
+	}
+
+	@Test
 	public void testParsePartition() throws Exception {
 		String json = "{ 'Partitions' : {" + 
 				"		'normal': {" + 
