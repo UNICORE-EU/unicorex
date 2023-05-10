@@ -20,6 +20,9 @@ import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
 import de.fzj.unicore.xnjs.idb.Partition;
 import de.fzj.unicore.xnjs.io.DataStageInInfo;
 import de.fzj.unicore.xnjs.io.DataStageOutInfo;
+import de.fzj.unicore.xnjs.io.impl.AuthToken;
+import de.fzj.unicore.xnjs.io.impl.BearerToken;
+import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
 import de.fzj.unicore.xnjs.resources.BooleanResource;
 import de.fzj.unicore.xnjs.resources.DoubleResource;
 import de.fzj.unicore.xnjs.resources.IntResource;
@@ -246,6 +249,33 @@ public class TestJSONParser {
 		assertEquals(1, dsi.getSources().length);
 	}
 	
+	@Test
+	public void testParseStageInCredentials() throws Exception {
+		JSONObject spec = new JSONObject();
+		spec.put("From", "http://some-url");
+		spec.put("To", "file.txt");
+		JSONObject cred = new JSONObject();
+		cred.put("Username", "demo");
+		cred.put("Password", "foo");
+		spec.put("Credentials", cred);
+		DataStageInInfo dsi = JSONParser.parseStageIn(spec);
+		assertEquals("file.txt", dsi.getFileName());
+		assertEquals(1, dsi.getSources().length);
+		assertTrue(dsi.getCredentials() instanceof UsernamePassword);
+
+		cred = new JSONObject();
+		cred.put("Token", "foo");
+		spec.put("Credentials", cred);
+		dsi = JSONParser.parseStageIn(spec);
+		assertTrue(dsi.getCredentials() instanceof AuthToken);
+
+		cred = new JSONObject();
+		cred.put("BearerToken", "foo");
+		spec.put("Credentials", cred);
+		dsi = JSONParser.parseStageIn(spec);
+		assertTrue(dsi.getCredentials() instanceof BearerToken);
+	}
+
 	@Test
 	public void testParseInlineStageIn() throws Exception {
 		JSONObject spec = new JSONObject();

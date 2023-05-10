@@ -21,7 +21,8 @@ import de.fzj.unicore.xnjs.io.DataStagingCredentials;
 import de.fzj.unicore.xnjs.io.DataStagingInfo;
 import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
-import de.fzj.unicore.xnjs.io.impl.OAuthToken;
+import de.fzj.unicore.xnjs.io.impl.AuthToken;
+import de.fzj.unicore.xnjs.io.impl.BearerToken;
 import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
 import de.fzj.unicore.xnjs.resources.BooleanResource;
 import de.fzj.unicore.xnjs.resources.DoubleResource;
@@ -168,7 +169,10 @@ public class JSONParser {
 					JSONUtils.getString(jCredentials, "Password"));
 		}
 		else if(JSONUtils.getString(jCredentials, "BearerToken")!=null){
-			creds = new OAuthToken(JSONUtils.getString(jCredentials, "BearerToken"));
+			creds = new BearerToken(JSONUtils.getString(jCredentials, "BearerToken"));
+		}
+		else if(JSONUtils.getString(jCredentials, "Token")!=null){
+			creds = new AuthToken(JSONUtils.getString(jCredentials, "Token"));
 		}
 		return creds;
 	}

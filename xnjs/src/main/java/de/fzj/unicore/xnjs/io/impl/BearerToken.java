@@ -4,11 +4,11 @@ import de.fzj.unicore.xnjs.io.DataStagingCredentials;
 import eu.unicore.security.Client;
 
 /**
- * holds OAuth bearer token
+ * holds "Authorization: Bearer ..." value
  * 
  * @author schuller
  */
-public class OAuthToken implements DataStagingCredentials {
+public class BearerToken implements DataStagingCredentials {
 
 	private static final long serialVersionUID = 1l;
 	
@@ -16,7 +16,7 @@ public class OAuthToken implements DataStagingCredentials {
 	
 	public static String OAUTH_TOKEN = "UC_OAUTH_BEARER_TOKEN";
 	
-	public OAuthToken(String token){
+	public BearerToken(String token){
 		this.token = token;
 	}
 

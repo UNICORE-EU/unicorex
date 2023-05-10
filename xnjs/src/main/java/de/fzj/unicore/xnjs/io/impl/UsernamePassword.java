@@ -5,8 +5,8 @@ import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.security.Client;
 
 /**
- * holds username and password for some types of data staging, 
- * as found in the job description
+ * holds username and password for generating
+ * an HTTP "Authorization: Basic ..." header
  * 
  * @author schuller
  */
