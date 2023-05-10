@@ -3,7 +3,6 @@ package de.fzj.unicore.uas.admin;
 import java.util.Map;
 
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.admin.AdminAction;
 import eu.unicore.services.admin.AdminActionResult;
@@ -47,7 +46,8 @@ public class AbortJob implements AdminAction {
 		return new AdminActionResult(success,message);
 	}
 
-	private void abortAction(String requestedID, String xnjsReference,  Kernel kernel, boolean cleanup) throws ExecutionException {
+	private void abortAction(String requestedID, String xnjsReference,  Kernel kernel, boolean cleanup) 
+			throws Exception {
 		if(cleanup){
 			XNJSFacade.get(xnjsReference, kernel).destroyAction(requestedID, null);
 		}else{

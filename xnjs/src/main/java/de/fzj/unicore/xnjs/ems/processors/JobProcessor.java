@@ -217,7 +217,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void handleStagingIn(String id)throws ExecutionException, ProcessingException{
+	protected void handleStagingIn(String id)throws Exception{
 		ActionResult res=checkSubAction(id, "Stage in", false);
 		if(res!=null){
 			action.setStageIns(null); // save some space in the DB
@@ -272,7 +272,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		}
 	}
 
-
 	/**
 	 * set state to "pending"
 	 */
@@ -285,7 +284,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	/**
 	 * handle "PENDING" state
 	 */
-	protected void handlePending() throws ProcessingException{
+	protected void handlePending() throws Exception{
 		logger.trace("Handling PENDING state for Action {}",action.getUUID());
 
 		ApplicationExecutionStatus aes=action.getProcessingContext().get(ApplicationExecutionStatus.class);
@@ -317,7 +316,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	private List<String>getOrCreateList(String key){
 		List<String>ids=(List<String>)action.getProcessingContext().get(key);
 		if(ids==null){
-			ids=new ArrayList<String>();
+			ids = new ArrayList<>();
 			action.getProcessingContext().put(key, ids);
 		}
 		return ids;
@@ -378,7 +377,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 
 	@SuppressWarnings("unchecked")
-	protected void handlePreCommandRunning()throws ProcessingException{
+	protected void handlePreCommandRunning()throws Exception{
 		try{
 			List<String>ids=action.getProcessingContext().getAs(subactionkey_pre,List.class);
 			Iterator<String>iter=ids.iterator();
@@ -474,7 +473,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void handlePostCommandRunning()throws ProcessingException{
+	protected void handlePostCommandRunning()throws Exception{
 		try{
 			List<String>ids=action.getProcessingContext().getAs(subactionkey_post,List.class);
 			Iterator<String>iter=ids.iterator();
@@ -509,7 +508,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	/**
 	 * submits the given command array as a sub action
 	 */
-	protected String createPrePostAction(SubCommand cmd)throws ExecutionException{
+	protected String createPrePostAction(SubCommand cmd)throws Exception{
 		return manager.addSubAction(cmd, XNJSConstants.asyncCommandType, action, true);
 	}
 
@@ -604,7 +603,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	@Override
-	protected void handlePostProcessing() throws ProcessingException{
+	protected void handlePostProcessing() throws Exception{
 		ApplicationExecutionStatus aes=action.getProcessingContext().get(ApplicationExecutionStatus.class);
 
 		switch(aes.get()){
@@ -747,7 +746,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	/**
 	 * handle "STAGING_OUT"
 	 */
-	protected void handleStageOut() throws ProcessingException{
+	protected void handleStageOut() throws Exception{
 		if(getTimeStamp(TIME_START_STAGEOUT)==null)storeTimeStamp(TIME_START_STAGEOUT);
 
 		//get id of sub action
@@ -779,31 +778,27 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * @param deleteIfDone - whether to delete the action if it is finished
 	 * @return <code>ActionResult</code> if done, null otherwise
 	 */
-	protected ActionResult checkSubAction(String id, String name, boolean deleteIfDone)throws ProcessingException{
-		try{
-			if(manager.isActionDone(id)){
-				Action subAction=manager.getAction(id);
-				action.addLogTrace(name+" log:");
-				action.appendLogTraceFrom(subAction);
-				action.addLogTrace(name+" is DONE.");
-				ActionResult r=subAction.getResult();
-				if(!r.isSuccessful()){
-					StringBuilder errorDescription=new StringBuilder(name+" was NOT SUCCESSFUL");
-					if(r.getErrorMessage()!=null){
-						errorDescription.append(": "+r.getErrorMessage());
-					}
-					action.addLogTrace(errorDescription.toString());
+	protected ActionResult checkSubAction(String id, String name, boolean deleteIfDone) throws Exception {
+		if(manager.isActionDone(id)){
+			Action subAction=manager.getAction(id);
+			action.addLogTrace(name+" log:");
+			action.appendLogTraceFrom(subAction);
+			action.addLogTrace(name+" is DONE.");
+			ActionResult r=subAction.getResult();
+			if(!r.isSuccessful()){
+				StringBuilder errorDescription=new StringBuilder(name+" was NOT SUCCESSFUL");
+				if(r.getErrorMessage()!=null){
+					errorDescription.append(": "+r.getErrorMessage());
 				}
-				if(deleteIfDone){
-					ems.destroy(id, action.getClient());
-				}
-				return r;
+				action.addLogTrace(errorDescription.toString());
 			}
-			else{
-				return null;
+			if(deleteIfDone){
+				ems.destroy(id, action.getClient());
 			}
-		}catch(Exception ex){
-			throw new ProcessingException("Can't check subaction for "+name,ex);
+			return r;
+		}
+		else{
+			return null;
 		}
 	}
 
@@ -883,7 +878,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			return new TimeProfile(context).toString();
 		}catch(RuntimeException e){
-			e.printStackTrace();
 			return "Time profile data not available";
 		}
 	}
@@ -901,40 +895,30 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	//deal with adding new stage-in action
-	protected void addStageIn() throws ProcessingException{
-		try{
-			List<DataStageInInfo>toStage = action.getStageIns();
-			StagingInfo stageInfo = new StagingInfo(toStage);
-			String subId=manager.addSubAction(stageInfo,
-					XNJSConstants.jobStageInActionType, action, true);
-			action.getProcessingContext().put(subactionkey_in,subId);
-			action.addLogTrace("Adding stage in subaction with id="+subId);
-			action.setWaiting(true);
-		}catch(Exception ex){
-			throw new ProcessingException(ex);
-		}
+	protected void addStageIn() throws Exception{
+		List<DataStageInInfo>toStage = action.getStageIns();
+		StagingInfo stageInfo = new StagingInfo(toStage);
+		String subId=manager.addSubAction(stageInfo,
+				XNJSConstants.jobStageInActionType, action, true);
+		action.getProcessingContext().put(subactionkey_in,subId);
+		action.addLogTrace("Adding stage in subaction with id="+subId);
+		action.setWaiting(true);
 	}
 
 	//deal with adding new stage-out action
-	protected void addStageOut() throws ProcessingException{
-		try{
-			List<DataStageOutInfo>toStage = action.getStageOuts();
-			if(toStage!=null && toStage.size()>0){
-				StagingInfo stageOut = new StagingInfo(toStage);
-				String subId=manager.addSubAction((Serializable)stageOut,
-						XNJSConstants.jobStageOutActionType, action, true);
-				action.addLogTrace("Adding stage out subaction with id="+subId);
-				action.getProcessingContext().put(subactionkey_out, subId);
-				action.setWaiting(true);
-			}
-			else  {
-				action.addLogTrace("Nothing to stage out.");
-				setToDoneSuccessfully();
-			}
-		}catch(Exception ex){
-			String msg="Error processing action: "+ex.getMessage();
-			action.addLogTrace(msg);
-			throw new ProcessingException(ex);
+	protected void addStageOut() throws Exception{
+		List<DataStageOutInfo>toStage = action.getStageOuts();
+		if(toStage!=null && toStage.size()>0){
+			StagingInfo stageOut = new StagingInfo(toStage);
+			String subId=manager.addSubAction((Serializable)stageOut,
+					XNJSConstants.jobStageOutActionType, action, true);
+			action.addLogTrace("Adding stage out subaction with id="+subId);
+			action.getProcessingContext().put(subactionkey_out, subId);
+			action.setWaiting(true);
+		}
+		else  {
+			action.addLogTrace("Nothing to stage out.");
+			setToDoneSuccessfully();
 		}
 	}
 
@@ -1020,7 +1004,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		super.handleAborting();
 	}
 
-	protected void abortFileTransfers()throws ExecutionException{
+	protected void abortFileTransfers()throws Exception{
 		String id=null;
 		if(action.getStatus()==ActionStatus.PREPROCESSING){
 			id=(String)action.getProcessingContext().get(subactionkey_in);
@@ -1057,25 +1041,19 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 
 	@Override
-	protected void handleRestarting() throws ProcessingException {
-		try{
-			action.addLogTrace("RESTARTING job.");
-			action.getProcessingContext().remove(Execution.BSS_SUBMIT_COUNT);
-			action.getProcessingContext().remove(ApplicationExecutionStatus.class);
-			action.getProcessingContext().remove(TIME_SUBMITTED);
-			action.getProcessingContext().remove(TIME_START_PRE);
-			action.getProcessingContext().remove(TIME_START_MAIN);
-			action.getProcessingContext().remove(TIME_END_MAIN);
-			action.getProcessingContext().remove(TIME_START_POST);
-			action.getProcessingContext().remove(TIME_START_STAGEOUT);
-			action.setBSID(null);
-			action.setStatus(ActionStatus.PENDING);
-			action.addLogTrace("Status set to PENDING.");
-		}
-		catch(Exception ex){
-			throw new ProcessingException("Could not reset action state for restart",ex);
-		}
-		super.handleRestarting();
+	protected void handleRestarting() throws Exception {
+		action.addLogTrace("RESTARTING job.");
+		action.getProcessingContext().remove(Execution.BSS_SUBMIT_COUNT);
+		action.getProcessingContext().remove(ApplicationExecutionStatus.class);
+		action.getProcessingContext().remove(TIME_SUBMITTED);
+		action.getProcessingContext().remove(TIME_START_PRE);
+		action.getProcessingContext().remove(TIME_START_MAIN);
+		action.getProcessingContext().remove(TIME_END_MAIN);
+		action.getProcessingContext().remove(TIME_START_POST);
+		action.getProcessingContext().remove(TIME_START_STAGEOUT);
+		action.setBSID(null);
+		action.setStatus(ActionStatus.PENDING);
+		action.addLogTrace("Status set to PENDING.");
 	}
 
 	/**

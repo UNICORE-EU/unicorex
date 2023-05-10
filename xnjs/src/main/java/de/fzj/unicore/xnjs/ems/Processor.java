@@ -70,12 +70,9 @@ public abstract class Processor {
 	 * process the action: based on the action status, 
 	 * the various handle*() methods are called
 	 */
-	public final void process(Action a) throws ProcessingException{
-
+	public final void process(Action a) throws Exception{
 		this.action=a;
-
 		begin();
-
 		if(a.getTransitionalStatus()!=ActionStatus.TRANSITION_NONE){
 			try{
 				processTransition(action);
@@ -84,9 +81,9 @@ public abstract class Processor {
 				a.setTransitionalStatus(ActionStatus.TRANSITION_NONE);
 			}
 		}
-		
-		switch(action.getStatus()){
 
+		switch(action.getStatus()){
+		
 		case ActionStatus.DONE:
 			break;
 		
@@ -118,6 +115,10 @@ public abstract class Processor {
 			handlePostProcessing();
 			break;
 
+		case ActionStatus.PAUSED:
+			handlePaused();
+			break;
+
 		default:
 		}
 
@@ -128,7 +129,7 @@ public abstract class Processor {
 		}
 	}
 
-	final void processTransition(Action a)throws ProcessingException{
+	final void processTransition(Action a) throws Exception{
 		this.action=a;
 		
 		switch(action.getTransitionalStatus()){
@@ -159,68 +160,72 @@ public abstract class Processor {
 	/**
 	 * executed at the very beginning of process()
 	 */
-	protected abstract void begin() throws ProcessingException;
+	protected void begin() throws Exception {}
 
 	/**
 	 * executed at the very end of process()
 	 */
-	protected abstract void done() throws ProcessingException;
+	protected void done() throws Exception {}
 
 	/** handle state "CREATED"
 	 */
-	protected abstract void handleCreated() throws ProcessingException;
+	protected void handleCreated() throws Exception {}
 
 	/** handle state "PreProcessing"
 	 */
-	protected abstract void handlePreProcessing() throws ProcessingException;
+	protected void handlePreProcessing() throws Exception {}
 	/**
 	 * handle "READY" state
 	 */
-	protected abstract void handleReady() throws ProcessingException;
+	protected void handleReady() throws Exception {}
 
 	/**
 	 * handle "PENDING" state
 	 */
-	protected abstract void handlePending() throws ProcessingException;
+	protected void handlePending() throws Exception {}
 
 	/**
 	 * handle "QUEUED" state
 	 */
-	protected abstract void handleQueued() throws ProcessingException;
+	protected void handleQueued() throws Exception {}
 
 	/**
 	 * handle "RUNNING" state
 	 */
-	protected abstract void handleRunning() throws ProcessingException;
+	protected void handleRunning() throws Exception {}
 
 	/**
 	 * handle "POSTPROCESSING" state
 	 */
-	protected abstract void handlePostProcessing() throws ProcessingException;
+	protected void handlePostProcessing() throws Exception {}
 
+	/**
+	 * handle "PAUSED" state
+	 */
+	protected void handlePaused() throws Exception {}
+ 
 	/**
 	 * handle transitional "aborting" state
 	 */
-	protected abstract void handleAborting() throws ProcessingException;
+	protected void handleAborting() throws Exception {}
 
 	/**
 	 * handle transitional "pausing" state
 	 */
-	protected abstract void handlePausing() throws ProcessingException;
+	protected void handlePausing() throws Exception {}
 
 	/**
-	 * handle transitional "pausing" state
+	 * handle transitional "resuming" state
 	 */
-	protected abstract void handleResuming() throws ProcessingException;
-
+	protected void handleResuming() throws Exception {}
 
 	/**
 	 * handle transitional "removing" state
 	 */
-	protected abstract void handleRemoving() throws ProcessingException;
+	protected void handleRemoving() throws Exception {}
 	
 	/**
 	 * handle transitional "restarting" state
 	 */
-	protected abstract void handleRestarting() throws ProcessingException;
+	protected void handleRestarting() throws Exception {}
 }

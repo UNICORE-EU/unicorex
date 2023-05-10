@@ -68,11 +68,11 @@ public class AsyncCommandHelper {
 	 * create and submit the command
 	 * @throws ExecutionException
 	 */
-	public void submit()throws ExecutionException{
+	public void submit()throws Exception{
 		subActionID=createAction();
 	}
 
-	public boolean isDone()throws ExecutionException{
+	public boolean isDone()throws Exception{
 		if(subActionID==null)throw new IllegalStateException("Not submitted yet.");
 		Action sub=xnjs.get(InternalManager.class).getAction(subActionID);
 		if(ActionStatus.DONE==sub.getStatus()){
@@ -82,7 +82,7 @@ public class AsyncCommandHelper {
 		return false;
 	}
 
-	protected String createAction()throws ExecutionException{
+	protected String createAction() throws Exception{
 		InternalManager manager=xnjs.get(InternalManager.class);
 		if(parentActionID!=null){
 			Action parent=manager.getAction(parentActionID);
@@ -156,7 +156,7 @@ public class AsyncCommandHelper {
 		return subCommand;
 	}
 	
-	public void abort()throws ExecutionException{
+	public void abort()throws Exception{
 		if(subActionID!=null){
 			xnjs.get(Manager.class).abort(subActionID, client);
 		}

@@ -62,7 +62,7 @@ public interface InternalManager extends EventHandler {
 	 * @param id
 	 * @return Action or null if not found
 	 */
-	public Action getAction(String id)throws ExecutionException;
+	public Action getAction(String id)throws Exception;
 	
 	/**
 	 * construct a sub action and start processing it
@@ -73,19 +73,20 @@ public interface InternalManager extends EventHandler {
 	 * @param notifyDone - whether to notify the parent when the subaction is done
 	 * @return the unique id of the new action
 	 */
-	public String addSubAction(Serializable jobDescription, String type, Action parentAction, boolean notifyDone)throws ExecutionException;
+	public String addSubAction(Serializable jobDescription, String type, Action parentAction, boolean notifyDone)
+			throws Exception;
 	
 	/**
 	 * add an internal action
 	 */
-	public Object addInternalAction(Action a) throws ExecutionException;
+	public Object addInternalAction(Action a) throws Exception;
 	
 	/**
 	 * has the specified action finished (i.e. is the status = DONE)
 	 * @param actionID
 	 * @throws ExecutionException when the action is not found
 	 */
-	public boolean isActionDone(String actionID) throws ExecutionException;
+	public boolean isActionDone(String actionID) throws Exception;
 	
 	public int getAllJobs();
 	

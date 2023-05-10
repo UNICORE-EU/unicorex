@@ -60,6 +60,8 @@ public class DefaultProcessor extends Processor {
 	
 	protected final static String KEY_FIRST_STAGEOUT_FAILURE="FIRST_STAGEOUT_FAILURE";
 	
+	protected final static String KEY_STATUS_ON_UNPAUSE="__STATUS_ON_UNPAUSE";
+	
 	/**
 	 * By default give the (network) file system 10 seconds to show files 
 	 */
@@ -75,49 +77,18 @@ public class DefaultProcessor extends Processor {
 	}
 	
 	protected void handlePausing()throws ProcessingException{
+		Integer oldStatus = action.getStatus();
+		action.getProcessingContext().put(KEY_STATUS_ON_UNPAUSE, oldStatus);
 		action.setStatus(ActionStatus.PAUSED);
 	}
 	
+	protected void handlePaused()throws ProcessingException{
+		sleep(5000);
+	}
+	
 	protected void handleResuming()throws ProcessingException{
-		action.setStatus(ActionStatus.RUNNING);
-	}
-	
-	
-	/**
-	 * handle the "restarting" state.<br/>
-	 * This default implementation will do nothing!
-	 */
-	protected void handleRestarting()throws ProcessingException{
-	}
-	
-	protected void handleCreated()throws ProcessingException {
-	}
-
-	protected void handlePreProcessing() throws ProcessingException{
-	}
-
-	protected void handleReady() throws ProcessingException{
-	}
-
-	protected void handlePending()throws ProcessingException {
-	}
-
-	protected void handleQueued()throws ProcessingException {
-	}
-
-	protected void handleRunning() throws ProcessingException{
-	}
-
-	protected void handlePostProcessing() throws ProcessingException{
-	}
-
-	protected void begin()throws ProcessingException {
-	}
-
-	protected void done() throws ProcessingException{
-	}
-
-	protected void handleRemoving() throws ProcessingException{
+		Integer oldStatus = action.getProcessingContext().getAs(KEY_STATUS_ON_UNPAUSE, Integer.class);
+		action.setStatus(oldStatus);
 	}
 
 	/**
@@ -129,8 +100,7 @@ public class DefaultProcessor extends Processor {
 		action.setStatus(ActionStatus.DONE);
 		action.setResult(new ActionResult(ActionResult.NOT_SUCCESSFUL,reason));
 	}
-	
-	
+
 	/**
 	 * send the action to sleep for the specified time in millis, by
 	 * setting the "waiting" flag and scheduling a "continue" event
@@ -140,7 +110,7 @@ public class DefaultProcessor extends Processor {
 		action.setWaiting(true);
 		manager.scheduleEvent(new ContinueProcessingEvent(action.getUUID()), millis, TimeUnit.MILLISECONDS);
 	}
-	
+
 	/**
 	 * store the current system time as a Long object under the given key
 	 * @param key
@@ -158,7 +128,6 @@ public class DefaultProcessor extends Processor {
 		return (Long)action.getProcessingContext().get(key);
 	}
 
-
 	/**
 	 * allow to set action for unit testing
 	 * @param a - the action
@@ -166,5 +135,5 @@ public class DefaultProcessor extends Processor {
 	public void setAction(Action a){
 		this.action=a;
 	}
-	
+
 }

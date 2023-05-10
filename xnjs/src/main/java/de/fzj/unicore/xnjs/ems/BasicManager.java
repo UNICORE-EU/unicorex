@@ -96,43 +96,27 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	@Override
-	public Object add(Action action, Client client) throws ExecutionException {
-		if(action==null){
-			throw new NullPointerException("Can't add 'null' action.");
-		}
+	public Object add(Action action, Client client) throws Exception {
 		if(isAcceptingNewActions==false){
 			throw new ExecutionException(ErrorCode.ERR_XNJS_DISABLED,"XNJS does not accept new actions.");
 		}
-		try{
-			action.addLogTrace("Created with type '"+action.getType()+"'");
-			if(client!=null){
-				action.setClient(client);
-				action.addLogTrace("Client: "+client);
-			}
-			ecm.getContext(action);
-			jobs.put(action.getUUID(),action);
-			if(!action.isWaiting()){
-				dispatcher.process(action.getUUID());
-			}
-		}catch(Exception e){
-			if(e instanceof ExecutionException){
-				throw (ExecutionException)e;
-			}
-			else {
-				throw new ExecutionException(e);
-			}
+		action.addLogTrace("Created with type '"+action.getType()+"'");
+		if(client!=null){
+			action.setClient(client);
+			action.addLogTrace("Client: "+client);
+		}
+		ecm.getContext(action);
+		jobs.put(action.getUUID(),action);
+		if(!action.isWaiting()){
+			dispatcher.process(action.getUUID());
 		}
 		return action.getUUID();
 	}
 
 	@Override
-	public String[] list(Client client) throws ExecutionException {
-		try {
-			Collection<String>ids = jobs.getUniqueIDs();
-			return (String[])ids.toArray(new String [ids.size()]);
-		} catch (Exception e) {
-			throw new ExecutionException(e);
-		}
+	public String[] list(Client client) throws Exception {
+		Collection<String>ids = jobs.getUniqueIDs();
+		return (String[])ids.toArray(new String [ids.size()]);
 	}
 
 	@Override
@@ -155,23 +139,15 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	@Override
-	public Integer getStatus(String id, Client client) throws ExecutionException {
-		try{
-			Action a=jobs.get(id);
-			if(a==null)throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION, "No such action: "+id);
-			return a.getStatus();
-		}catch(Exception e){
-			throw new ExecutionException(e);
-		}
+	public Integer getStatus(String id, Client client) throws Exception {
+		Action a=jobs.get(id);
+		if(a==null)throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION, "No such action: "+id);
+		return a.getStatus();
 	}
 
 	@Override
-	public Action getAction(String id)throws ExecutionException{
-		try{
-			return jobs.get(id);
-		}catch(Exception e){
-			throw new ExecutionException(e);
-		}
+	public Action getAction(String id) throws Exception{
+		return jobs.get(id);
 	}
 
 	public Action getActionForUpdate(String id)throws TimeoutException,Exception{
@@ -245,57 +221,48 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	@Override
-	public Object pause(String id, Client client) throws ExecutionException {
-		Action a=null;
+	public Object pause(String id, Client client) throws Exception {
+		Action a = null;
 		try{
 			a=getActionForUpdate(id);
-			if(!ActionStatus.canPause(a.getStatus()))
+			if(ActionStatus.canPause(a.getStatus()))
 			{
-				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot pause the action.");
-			}
-			else{
 				a.setTransitionalStatus(ActionStatus.TRANSITION_PAUSING);
 				return "Action will be paused";
 			}
-		}
-		catch(Exception te){
-			throw new ExecutionException(te);
+			else{
+				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot pause the action.");
+			}
 		}finally{
-			if(a!=null)try{
+			if(a!=null) {
 				jobs.put(id,a);
 				dispatcher.process(id);
-			}catch(Exception pe){
-				throw new ExecutionException(pe);
 			}
 		}
 	}
 
 	@Override
-	public Object resume(String id, Client client) throws ExecutionException {
+	public Object resume(String id, Client client) throws Exception {
 		Action a=null;
 		try{
 			a=getActionForUpdate(id);
 			if(ActionStatus.canResume(a.getStatus())){
-				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot resume the action.");
-			}
-			else{
 				a.setTransitionalStatus(ActionStatus.TRANSITION_RESUMING);
 				return "Action will be resumed";
 			}
-		}catch(Exception te){
-			throw new ExecutionException(te);
+			else{
+				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot resume the action.");
+			}
 		}finally{
-			if(a!=null)try{
+			if(a!=null){
 				jobs.put(id,a);	
 				dispatcher.process(id);
-			}catch(Exception pe){
-				throw new ExecutionException(pe);
 			}
 		}
 	}
 
 	@Override
-	public Object abort(String id, Client client) throws ExecutionException {
+	public Object abort(String id, Client client) throws Exception {
 		Action a=null;
 		try{
 			a=getActionForUpdate(id);
@@ -309,70 +276,55 @@ public class BasicManager implements Manager, InternalManager {
 				a.setTransitionalStatus(ActionStatus.TRANSITION_ABORTING);
 				return "Action will be aborted";
 			}
-		}catch(Exception te){
-			throw new ExecutionException(te);
 		}finally{
-			if(a!=null)
-				try {
-					jobs.put(id,a);
-					dispatcher.process(id);
-				} catch (Exception e) {
-					throw new ExecutionException(e);
-				}	
+			if(a!=null){
+				jobs.put(id,a);
+				dispatcher.process(id);
+			}
 		}
 	}
 
 	@Override
-	public Object run(String id, Client client) throws ExecutionException {
-		Action a=null;
-		try{
-			a=getAction(id);
-			if(a==null) {
-				throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"Action with id="+id+" could not be found.");
-			}
-			//check status: must be "READY" or before
-			int s=a.getStatus();
-			if(!ActionStatus.canRun(s)){
-				return null;
-			}
-			//handle start as an async event
-			handleEvent(new StartJobEvent(id));
+	public Object run(String id, Client client) throws Exception {
+		Action a=getAction(id);
+		if(a==null) {
+			throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"Action with id="+id+" could not be found.");
 		}
-		catch(Exception te){
-			throw new ExecutionException(te);
+		//check status: must be "READY" or before
+		int s=a.getStatus();
+		if(!ActionStatus.canRun(s)){
+			return null;
 		}
+		//handle start as an async event
+		handleEvent(new StartJobEvent(id));
 		return ActionStatus.PENDING;
 	}
 
 	@Override
-	public Object restart(String id, Client client) throws ExecutionException {
-		try{
-			Action a = getAction(id);
-			if(a==null) {
-				throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"Action with id="+id+" could not be found.");
-			}
-			// check status: must be "DONE"
-			int s=a.getStatus();
-			if(!ActionStatus.canRestart(s)){
-				return null;
-			}
-			logger.info("Initiating restart for <{}>", id);
-			// required for move back into active Jobs - a bit dangerous
-			jobs.remove(a);
-			// re-set state so the JobRunner will submit it
-			a.setStatus(ActionStatus.PENDING);
-			a.setTransitionalStatus(ActionStatus.TRANSITION_RESTARTING);
-			jobs.put(id,a);
-			dispatcher.process(id);
+	public Object restart(String id, Client client) throws Exception {
+		Action a = getAction(id);
+		if(a==null) {
+			throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"Action with id="+id+" could not be found.");
 		}
-		catch(Exception te){
-			throw new ExecutionException(te);
+		// check status: must be "DONE"
+		int s=a.getStatus();
+		if(!ActionStatus.canRestart(s)){
+			return null;
 		}
+		logger.info("Initiating restart for <{}>", id);
+		// required for move back into active Jobs - a bit dangerous
+		jobs.remove(a);
+		// re-set state so the JobRunner will submit it
+		a.setStatus(ActionStatus.PENDING);
+		a.setTransitionalStatus(ActionStatus.TRANSITION_RESTARTING);
+		jobs.put(id,a);
+		dispatcher.process(id);
 		return ActionStatus.PENDING;
 	}
 
 	@Override
-	public String addSubAction(Serializable jobDescription, String type, Action parentAction, boolean notify) throws ExecutionException{
+	public String addSubAction(Serializable jobDescription, String type, Action parentAction, boolean notify) 
+			throws Exception{
 		String parentUUID=parentAction.getUUID();
 		Action soa=new Action();
 		soa.setType(type);
@@ -389,52 +341,36 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	@Override
-	public Object addInternalAction(Action a) throws ExecutionException{
+	public Object addInternalAction(Action a) throws Exception{
 		a.addLogTrace("Created with type '"+a.getType()+"'");
 		a.addLogTrace("Client: "+a.getClient());
 		a.setInternal(true);
 		String actionID = a.getUUID();
-		try {
-			logger.debug("Adding internal action <{}> of type <{}>", actionID, a.getType());
-			jobs.put(actionID, a);
-			dispatcher.process(actionID);
-		}catch(Exception pe){
-			throw new ExecutionException(pe);
-		}
+		logger.debug("Adding internal action <{}> of type <{}>", actionID, a.getType());
+		jobs.put(actionID, a);
+		dispatcher.process(actionID);
 		return a.getUUID();
 	}
 
 	@Override
-	public boolean isActionDone(String actionID) throws ExecutionException {
-		try{
-			Action a=jobs.get(actionID);
-			if(a==null)throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"No such action.");
-			return a.getStatus()==ActionStatus.DONE;
-		}catch(Exception pe){
-			throw new ExecutionException(pe);
-		}
-
+	public boolean isActionDone(String actionID) throws Exception {
+		Action a=jobs.get(actionID);
+		if(a==null)throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"No such action.");
+		return a.getStatus()==ActionStatus.DONE;
 	}
 
 	@Override
-	public void destroy(String actionID, Client client) throws ExecutionException {
+	public void destroy(String actionID, Client client) throws Exception {
 		Action a=null;
 		try{
 			a=jobs.getForUpdate(actionID);
 			a.setTransitionalStatus(ActionStatus.TRANSITION_REMOVING);
 			logger.debug("Destroying {}", actionID);
 		}
-		catch(Exception te){
-			throw new ExecutionException(te);
-		}
 		finally{
-			try{
-				if(a!=null){
-					jobs.put(actionID, a);
-					dispatcher.process(actionID);
-				}
-			}catch(Exception pe){
-				LogUtil.logException("Error storing action", pe,logger);
+			if(a!=null){
+				jobs.put(actionID, a);
+				dispatcher.process(actionID);
 			}
 		}
 	}

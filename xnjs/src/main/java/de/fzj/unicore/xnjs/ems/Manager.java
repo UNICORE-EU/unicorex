@@ -53,7 +53,7 @@ public interface Manager {
 	 * @param id
 	 * @return Action or null if not found
 	 */
-	public Action getAction(String id)throws ExecutionException;
+	public Action getAction(String id) throws Exception;
 	
 	/**
 	 * add a new job into the EMS on behalf of the client
@@ -63,7 +63,7 @@ public interface Manager {
 	 * 
 	 * @throws ExecutionException
 	 */
-	public Object add(Action job, Client client) throws ExecutionException;
+	public Object add(Action job, Client client) throws Exception;
 
 	/** 
 	 * run an Action that is ready
@@ -73,7 +73,7 @@ public interface Manager {
 	 * @return status 
 	 * @throws ExecutionException
 	 */
-	public Object run(String id, Client client) throws ExecutionException;
+	public Object run(String id, Client client) throws Exception;
 
 	/**
 	 * get the status of the Action identified by id
@@ -85,7 +85,7 @@ public interface Manager {
 	 * @return A status object
 	 * @throws ExecutionException
 	 */
-	public Integer getStatus(String id, Client client) throws ExecutionException;
+	public Integer getStatus(String id, Client client) throws Exception;
 	
 	/**
 	 * pause a running Action
@@ -95,7 +95,7 @@ public interface Manager {
 	 * @return A status object
 	 * @throws ExecutionException
 	 */
-	public Object pause(String id, Client client) throws ExecutionException;
+	public Object pause(String id, Client client) throws Exception;
 	
 	/** 
 	 * resume an Action that has been paused
@@ -105,7 +105,7 @@ public interface Manager {
 	 * @return A status object
 	 * @throws ExecutionException
 	 */
-	public Object resume(String id, Client client) throws ExecutionException;
+	public Object resume(String id, Client client) throws Exception;
 	
 	/** 
 	 * abort a running/paused action
@@ -115,7 +115,7 @@ public interface Manager {
 	 * @return A status object
 	 * @throws ExecutionException
 	 */
-	public Object abort(String id, Client client) throws ExecutionException;
+	public Object abort(String id, Client client) throws Exception;
 
 	
 	/** 
@@ -126,7 +126,7 @@ public interface Manager {
 	 * @return A status object
 	 * @throws ExecutionException
 	 */
-	public Object restart(String id, Client client) throws ExecutionException;
+	public Object restart(String id, Client client) throws Exception;
 
 	/**
 	 * destroys an action and cleans up 
@@ -136,7 +136,7 @@ public interface Manager {
 	 * 
 	 * @throws ExecutionException
 	 */
-	public void destroy(String job, Client client) throws ExecutionException;
+	public void destroy(String job, Client client) throws Exception;
 
 	
 	/**
@@ -146,5 +146,5 @@ public interface Manager {
 	 * @return list of job UUIDs
 	 * @throws ExecutionException
 	 */
-	public String[] list(Client client) throws ExecutionException;
+	public String[] list(Client client) throws Exception;
 }

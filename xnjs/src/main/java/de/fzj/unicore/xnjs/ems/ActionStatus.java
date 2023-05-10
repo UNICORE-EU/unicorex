@@ -122,9 +122,10 @@ public class ActionStatus {
 	 */
 	public static boolean canPause(int as){
 		switch(as){
-			case RUNNING:
-				return true;
-			default: return false;
+			case DONE:
+			case PAUSED:
+				return false;
+			default: return true;
 		}
 	}
 	/**

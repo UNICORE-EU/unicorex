@@ -36,7 +36,9 @@ package de.fzj.unicore.xnjs.ems.processors;
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStatus;
+import de.fzj.unicore.xnjs.ems.Processor;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 
@@ -55,7 +57,7 @@ import eu.unicore.security.Client;
  * @author ml054
  * @author golbi
  */
-public class UsageLogger extends DefaultProcessor {
+public class UsageLogger extends Processor {
 	
 	private static final Logger usage = LogUtil.getLogger(LogUtil.JOBS+".USAGE", UsageLogger.class);
 	
@@ -159,6 +161,14 @@ public class UsageLogger extends DefaultProcessor {
 		String ret = ret1.replace("]", "\\]");
 		return ret;
 	}
+
+	/**
+	 * allow to set action for unit testing
+	 */
+	public void setAction(Action a){
+		this.action=a;
+	}
+
 }
 
 

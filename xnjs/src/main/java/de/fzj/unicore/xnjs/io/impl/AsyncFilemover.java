@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
@@ -190,7 +189,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 			try{
 				ach.abort();
 			}
-			catch(ExecutionException ee){
+			catch(Exception ee){
 				LogUtil.logException("Can't abort file transfer program", ee ,logger);
 			}
 		}

@@ -38,6 +38,8 @@ public class TestJobControl extends EMSTestBase {
 		// notifications
 		MockChangeListener m = (MockChangeListener)xnjs.get(ActionStateChangeListener.class);
 		assertTrue(m.getOrCreate(id).get()>0);
+		String[] ids = mgr.list(client);
+		assertTrue(ids.length>0);
 	}
 
 	@Test
@@ -107,6 +109,19 @@ public class TestJobControl extends EMSTestBase {
 		assertTrue(a.getLog().toString().contains("RESTARTING"));
 		String timeProfile = JobProcessor.getTimeProfile(a.getProcessingContext());
 		System.out.println(timeProfile);
+	}
+
+	@Test
+	public void testPause() throws Exception {
+		Action action=xnjs.makeAction(loadJSONObject(d1));
+		String id=action.getUUID();
+		mgr.add(action,null);
+		mgr.pause(id, client);
+		Thread.sleep(200);
+		mgr.getStatus(id, client);
+		mgr.resume(id, client);
+		doRun(id);
+		waitUntilDone(id);
 	}
 
 }
