@@ -38,7 +38,7 @@
     <metrics.version>4.2.18</metrics.version>
     <uftp.version>2.14.0</uftp.version>
     <guice.version>6.0.0</guice.version>
-    <guava.version>31.1-jre</guava.version>
+    <guava.version>32.0.0-jre</guava.version>
     <jclouds.version>2.5.0</jclouds.version>
     <groovy.version>4.0.12</groovy.version>
     <lucene.version>9.6.0</lucene.version>
