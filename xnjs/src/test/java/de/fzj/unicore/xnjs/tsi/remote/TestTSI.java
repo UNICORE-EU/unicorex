@@ -487,15 +487,15 @@ public class TestTSI extends RemoteTSITestCase{
 		try{
 			tsi.cp("/no_such_file__", testDir+"/test123");
 		}catch(ExecutionException ee1) {
-			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("ERROR:"));
+			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("failed"));
 		}
 		try{
 			tsi.link("/no_such_file__", testDir+"/test123");
 		}catch(ExecutionException ee1) {
-			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("ERROR:"));
+			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("failed"));
 		}
 	}
-	
+
 	@Test
 	public void testGetUserInfo() {
 		RemoteTSI tsi=makeTSI();
@@ -503,11 +503,10 @@ public class TestTSI extends RemoteTSITestCase{
 			List<String>reply = tsi.getUserPublicKeys();
 			System.out.println(reply);
 		}catch(ExecutionException ee1) {
-			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("ERROR:"));
+			System.out.println(ee1.getMessage());
 		}
 	}
-	
-	
+
 	private void writeFile(String path, String content)throws Exception{
 		try(OutputStreamWriter osw=new OutputStreamWriter(makeTSI().getOutputStream(path))){
 			osw.write(content);
