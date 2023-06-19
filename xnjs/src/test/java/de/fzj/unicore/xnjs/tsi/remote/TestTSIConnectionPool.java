@@ -104,6 +104,7 @@ public class TestTSIConnectionPool extends RemoteTSITestCase {
 			String want = requests[i];
 			assertFalse(DefaultTSIConnectionFactory.matches(want, actual));
 		}
+		assertTrue(DefaultTSIConnectionFactory.matches(null, actual));
 	}
 	
 	@Override

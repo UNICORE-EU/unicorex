@@ -37,14 +37,10 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
@@ -72,17 +68,16 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 
 	protected TSIProperties tsiProperties;
 
-	private final BlockingDeque<TSIConnection> pool=new LinkedBlockingDeque<>();
+	private final Map<String, List<TSIConnection>> pool = new HashMap<>();
 	
 	// count pool content by TSI host name
 	private final Map<String,AtomicInteger> connectionCounter = new HashMap<>(); 
 
 	private TSIConnector[]connectors;
-	
 	private String[] tsiHostnames;
-
-	//current "position" in the TSI address pool
+	//current "position" in the TSI connector pool
 	private int pos=0;
+	private final Map<String,TSIConnector> connectorsByName = new HashMap<>();
 
 	private TSISocketFactory server=null;
 
@@ -113,7 +108,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
-		TSIConnection conn = getFromPool(preferredHost, timeout);
+		TSIConnection conn = getFromPool(preferredHost);
 		if(conn==null){
 			conn = createNewTSIConnection(preferredHost);
 		}
@@ -124,10 +119,10 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	}
 
 	// get a live connection to the preferred host, or null if none available
-	protected TSIConnection getFromPool(String preferredHost, int timeout){
+	protected TSIConnection getFromPool(String preferredHost){
 		TSIConnection conn;
 		while(true) {
-			conn = doGetFromPool(preferredHost, timeout);
+			conn = doGetFromPool(preferredHost);
 			if(conn==null || conn.isAlive()) break;
 			log.debug("Removing connection {}", conn.getConnectionID());
 			conn.shutdown();
@@ -136,36 +131,26 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 	}
 
 	// get a connection to the preferred host, or null if none available
-	private TSIConnection doGetFromPool(String preferredHost, int timeout) {
+	private TSIConnection doGetFromPool(String preferredHost) {
 		TSIConnection conn = null;
+		List<String>candidates = getTSIHostNames(preferredHost);
 		synchronized(pool){
-			if(pool.size()>0) {
-				if(preferredHost==null){
-					try{
-						if(timeout<=0)timeout=1;
-						conn = pool.pollFirst(timeout, TimeUnit.MILLISECONDS);
-					}catch(Exception te){/*ignored*/}
+			for(String host: candidates) {
+				List<TSIConnection> connections = getOrCreateConnectionList(host);
+				if(connections.size()>0) {
+					conn = connections.remove(0);
+					break;
 				}
-				else{
-					Iterator<TSIConnection>iterator = pool.iterator();
-					while(iterator.hasNext()){
-						TSIConnection s = iterator.next();
-						if(matches(preferredHost, s.getTSIHostName())){
-							conn = s;
-							iterator.remove();
-							break;
-						}
-					}
-				}
-			}
-			if(conn!=null){
-				connectionCounter.get(conn.getTSIHostName()).decrementAndGet();
-			}
+			}	
+		}
+		if(conn!=null){
+			connectionCounter.get(conn.getTSIHostName()).decrementAndGet();
 		}
 		return conn;
 	}
 
 	public static boolean matches(String preferredHost, String actualHost) {
+		if(preferredHost==null)return true;
 		if(preferredHost.contains("*") || preferredHost.contains("?")) {
 			return FilenameUtils.wildcardMatch(actualHost, preferredHost);
 		}
@@ -221,36 +206,56 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		throw new TSIUnavailableException(msg);
 	}
 
-	private final Random r = new Random();
-	
-	private TSIConnector getConnector(String preferredHost) {
-		List<TSIConnector>candidates = new ArrayList<>();
-		TSIConnector connector = null;
+	private List<String> getTSIHostNames(String preferredHost) {
+		List<String>candidates = new ArrayList<>();
 		for(int i=0;i<connectors.length;i++){
 			if(matches(preferredHost, connectors[i].getHostname())){
-				candidates.add(connectors[i]);
+				candidates.add(connectors[i].getHostname());
 			}
 		}
 		if(candidates.size()==0){
 			throw new IllegalArgumentException("No TSI is configured at '"+preferredHost+"'");
 		}
-		else if(candidates.size()==1) {
-			connector = candidates.get(0);
+		if(candidates.size()>1)Collections.shuffle(candidates);
+		return candidates;
+	}
+	
+	private TSIConnector getConnector(String preferredHost) {
+		List<String>candidates = getTSIHostNames(preferredHost);
+		TSIConnector connector = null;
+		for(String name: candidates){
+			connector = connectorsByName.get(name);
+			if(connector!=null)break;
 		}
-		else {
-			connector = candidates.get(r.nextInt(candidates.size()));
+		if(connector==null){
+			throw new IllegalArgumentException("No TSI is configured at '"+preferredHost+"'");
 		}
 		return connector;
 		
 	}
 	
 	private TSIConnection doCreate(String preferredHost) throws TSIUnavailableException {
-		TSIConnector connector = getConnector(preferredHost);
-		try{
-			return connector.createNewTSIConnection(server);
-		}catch(Exception e){
-			throw new TSIUnavailableException(connector+" is not available.");
+		List<String>candidates = getTSIHostNames(preferredHost);
+		Exception lastException = null;
+		//try all matching TSI hosts at least once
+		for(String name: candidates){
+			TSIConnector c = connectorsByName.get(name);
+			try{
+				return c.createNewTSIConnection(server);
+			}catch(Exception ex){
+				log.debug("{} is not available: {}", c, ex.getMessage());
+				lastException=ex;
+			}
 		}
+		//no luck, all TSIs are unavailable
+		String msg;
+		if(connectors.length>1){
+			msg = Log.createFaultMessage("None of the requested TSIs is available.",lastException);
+		}
+		else{
+			msg = Log.createFaultMessage("TSI unavailable", lastException);
+		}
+		throw new TSIUnavailableException(msg);
 	}
 
 	@Override
@@ -258,10 +263,11 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		try{
 			if(connection!=null && !connection.isShutdown()){
 				connection.endUse();
+				String name = connection.getTSIHostName();
 				synchronized (pool){
-					AtomicInteger count = connectionCounter.get(connection.getTSIHostName());
+					AtomicInteger count = connectionCounter.get(name);
 					if(count.get()<keepConnections){
-						pool.add(connection);
+						getOrCreateConnectionList(name).add(connection);
 						count.incrementAndGet();
 					}
 					else{
@@ -272,6 +278,15 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		}catch(Exception ex){
 			log.error(ex);
 		}
+	}
+
+	private List<TSIConnection> getOrCreateConnectionList(String hostname){
+		List<TSIConnection> connections = pool.get(hostname);
+		if(connections==null) {
+			connections = new ArrayList<>();
+			pool.put(hostname, connections);
+		}
+		return connections;
 	}
 
 	//notify of connection death
@@ -312,6 +327,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 				if(p==-1)throw new IllegalArgumentException("Missing port for TSI machine: "+host);
 				connectors[i] = createTSIConnector(host, p);
 				tsiHostnames[i] = host;
+				connectorsByName.put(host, connectors[i]);
 				if(i>0)machineSpec.append(", ");
 				machineSpec.append(host).append(":").append(p);
 				connectionCounter.put(host, new AtomicInteger(0));
@@ -355,19 +371,24 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		}catch(Exception ex){}
 		synchronized (pool) {
 			//kill pooled connections
-			for(TSIConnection c: pool){
-				try{c.shutdown();}catch(Exception ex){}
+			for(List<TSIConnection> cs: pool.values()){
+				for(TSIConnection c: cs) {
+					try{c.shutdown();}catch(Exception ex){}
+				}
 			}
 			pool.clear();
 		}
-
 	}
 
 	/**
 	 * how many connections do we have available
 	 */
 	public int getNumberOfPooledConnections(){
-		return pool.size();
+		int size = 0;
+		for(List<TSIConnection> l: pool.values()) {
+			size += l.size();
+		}
+		return size;
 	}
 
 	public int getLiveConnections(){
