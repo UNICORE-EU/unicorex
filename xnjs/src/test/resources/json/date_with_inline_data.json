@@ -2,18 +2,22 @@
   "ApplicationName": "Date",
 
   "Imports": [
-     { "From": "inline://dummy", 
+     { "From": "inline://dummy",
        "To": "input.txt",
        "Data": "this is some inline data"
      },
-     
-     { "From": "inline://dummy", 
+
+     { "From": "inline://dummy",
        "To": "input_2.txt",
-       "Data": ["this is some inline data", 
+       "Data": ["this is some inline data",
                "some more data"]
+     },
+
+     { "To": "input_3.txt",
+       "Data": "this is an inline stage-in without the 'From'"
      }
   ],
-  
+
   "Exports": [
     { "From": "stdout", "To": "file:///dev/null" }
   ]

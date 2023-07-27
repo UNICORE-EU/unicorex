@@ -214,7 +214,8 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			JSONArray imports = j.getJSONArray("Imports");
 			for(int i=0; i<imports.length(); i++) {
 				JSONObject im = imports.getJSONObject(i);
-				if(im.get("From")instanceof JSONArray) {
+				Object f = im.opt("From");
+				if(f!=null && f instanceof JSONArray) {
 					return true;
 				}
 			}
