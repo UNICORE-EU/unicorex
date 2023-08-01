@@ -45,7 +45,9 @@ import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
+import eu.unicore.services.messaging.ResourceDeletedMessage;
 
 /**
  * Implements the {@link TargetSystemFactory} interface.<br/>
@@ -106,14 +108,13 @@ public class TargetSystemFactoryImpl extends BaseResourceImpl {
 		getModel().addChild(UAS.TSS, id);
 		return id;
 	}
-	
+
 	@Override
 	public void processMessages(PullPoint p){
-		//check for deleted TSSs and remove them
 		while(p.hasNext()){
-			String m=(String)p.next().getBody();
-			if(m.startsWith("deleted:")){
-				String id=m.substring(m.indexOf(":")+1);
+			Message msg = p.next();
+			if(msg instanceof ResourceDeletedMessage) {
+				String id = ((ResourceDeletedMessage)msg).getDeletedResource();
 				logger.debug("Removing TSS with ID <{}>", id);
 				getModel().removeChild(id);
 			}
