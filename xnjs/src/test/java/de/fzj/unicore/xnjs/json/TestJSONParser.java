@@ -176,7 +176,7 @@ public class TestJSONParser {
 				"		    		'Range'  : '1-8'," + 
 				"		    		'Default' : '1'," + 
 				"				}," + 
-				"				GPUS: {" + 
+				"				GPUsPerNode: {" + 
 				"		    		'Range'  : '0-16'," + 
 				"				}," +
 				"				CPUsPerNode: '0-16'," +
@@ -211,7 +211,8 @@ public class TestJSONParser {
 		Resource r = p.getResources().getResource("Nodes");
 		assertEquals(Long.valueOf(1),((IntResource)r).getLower());
 		System.out.println(r);
-		r = p.getResources().getResource("GPUS");
+		r = p.getResources().getResource("GPUsPerNode");
+		assertNotNull(r);
 		System.out.println(r);
 		r = p.getResources().getResource("CPUsPerNode");
 		assertEquals(Long.valueOf(16),((IntResource)r).getUpper());
@@ -223,25 +224,20 @@ public class TestJSONParser {
 		assertEquals(String.valueOf(30*60),r.getStringValue());
 		System.out.println(r);
 		r = p.getResources().getResource("MemoryPerNode");
-		assertNotNull(r);
 		System.out.println(r);
 		assertEquals(Long.valueOf(1024*1024*1024),((IntResource)r).getUpper());
 		assertEquals("Debian",p.getOperatingSystem());
 		r = p.getResources().getResource("QoS");
-		assertNotNull(r);
 		assertTrue( ((ValueListResource)r).isInRange("gold"));
 		r = p.getResources().getResource("FloatyThing");
-		assertNotNull(r);
 		assertTrue( ((DoubleResource)r).isInRange("1.23"));
 		System.out.println(r);
 		r = p.getResources().getResource("ValuedUser");
-		assertNotNull(r);
 		assertTrue( ((BooleanResource)r).isInRange("false"));
 		assertNotNull(r.getDescription());
 		assertNotNull(r.getCategory());
 		System.out.println(r);
 		r = p.getResources().getResource("NodeType");
-		assertNotNull(r);
 		assertTrue( ((ValueListResource)r).isInRange("nvidia"));
 		assertNotNull(r.getCategory());
 		System.out.println(r);

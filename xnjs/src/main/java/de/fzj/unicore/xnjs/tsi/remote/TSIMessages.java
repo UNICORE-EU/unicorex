@@ -736,7 +736,7 @@ public class TSIMessages {
 		int nodes = -1;
 		int total_processors = -1;
 		int processors_per_node = -1;
-
+		int gpus_per_node = -1;
 		int memory = -1;
 
 		String queue="NONE";
@@ -806,7 +806,14 @@ public class TSIMessages {
 				nodes = Integer.valueOf(nodesRequest.getRequestedValue());
 			} catch (RuntimeException e) {}
 		}
-
+		
+		// GPUs per node
+		ResourceRequest gpusRequest=ResourceRequest.findAndRemove(resources, ResourceSet.GPUS_PER_NODE);
+		if(gpusRequest!=null){
+			try {
+				gpus_per_node = Integer.valueOf(gpusRequest.getRequestedValue());
+			} catch (RuntimeException e) {}
+		}
 		// memory per node
 		ResourceRequest memoryRequest=ResourceRequest.findAndRemove(resources, ResourceSet.MEMORY_PER_NODE);
 		if (memoryRequest!= null) {
@@ -828,6 +835,10 @@ public class TSIMessages {
 
 		if(memory>0){
 			f.format("#TSI_MEMORY %d\n", memory);
+		}
+
+		if(gpus_per_node>0){
+			f.format("#TSI_GPUS_PER_NODE %d\n", memory);
 		}
 
 		// can also have nodes not set at all (TSI does the mapping based on

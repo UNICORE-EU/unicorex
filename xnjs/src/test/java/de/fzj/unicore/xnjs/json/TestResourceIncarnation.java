@@ -186,7 +186,6 @@ public class TestResourceIncarnation {
 		assertEquals("bioinformatics", incarnated);
 
 		//case 3- user asked for an invalid project
-		
 		c = new Client();
 		request.clear();
 		request.add(new ResourceRequest(ResourceSet.PROJECT, "myleastfavoriteproject"));

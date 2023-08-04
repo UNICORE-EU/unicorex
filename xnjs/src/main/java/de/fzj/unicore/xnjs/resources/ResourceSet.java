@@ -34,7 +34,9 @@ public class ResourceSet implements Serializable {
 	public static final String PROJECT = "Project";
 	public static final String NODE_CONSTRAINTS = "NodeConstraints";
 	public static final String QOS = "QoS";
-	
+
+	public static final String GPUS_PER_NODE="GPUsPerNode";
+
 	protected final Map<String,Resource>resources = new HashMap<>();
 
 	/**
