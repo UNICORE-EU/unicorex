@@ -17,7 +17,9 @@ import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
+import de.fzj.unicore.xnjs.resources.BooleanResource;
 import de.fzj.unicore.xnjs.resources.Resource;
+import de.fzj.unicore.xnjs.resources.Resource.Category;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.StringResource;
@@ -307,6 +309,11 @@ public class GrounderImpl implements Incarnation {
 			if(ResourceSet.QOS.equals(name) && resource==null){
 				doVerify = false;
 				resource = new StringResource(ResourceSet.QOS, value);
+			}
+			if(ResourceSet.EXCLUSIVE.equals(name) && resource==null){
+				doVerify = false;
+				Boolean excl = Boolean.parseBoolean(value);
+				resource = new BooleanResource(ResourceSet.EXCLUSIVE, excl, Category.QOS_ATTRIBUTE);
 			}
 			if(ResourceSet.QUEUE.equals(name)){
 				continue;

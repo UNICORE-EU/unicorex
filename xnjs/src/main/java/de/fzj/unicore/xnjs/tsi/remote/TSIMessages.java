@@ -72,7 +72,7 @@ public class TSIMessages {
 
 		StringBuilder commands = new StringBuilder();
 		Formatter f = new Formatter(commands, null);
-				
+
 		commands.append("\n"); // start on a fresh line independent of the script template
 
 		List<ResourceRequest> rt=grounder.incarnateResources(job);
@@ -763,7 +763,14 @@ public class TSIMessages {
 			String qos = checkLegal(qosResource.getRequestedValue(), "QoS");
 			f.format("#TSI_QOS %s\n", qos);
 		}
-		
+
+		// exclusive execution
+		ResourceRequest exclusiveResource = ResourceRequest.findAndRemove(resources, ResourceSet.EXCLUSIVE);
+		if(exclusiveResource!=null){
+			String excl = checkLegal(exclusiveResource.getRequestedValue(), "Exclusive execution");
+			f.format("#TSI_EXCLUSIVE %s\n", excl);
+		}
+
 		// node constraints
 		ResourceRequest nodeConstraints = ResourceRequest.findAndRemove(resources, ResourceSet.NODE_CONSTRAINTS);
 		if(nodeConstraints!=null){

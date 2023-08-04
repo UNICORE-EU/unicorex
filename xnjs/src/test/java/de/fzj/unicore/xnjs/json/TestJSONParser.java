@@ -264,6 +264,8 @@ public class TestJSONParser {
 		jrr.put("Project", "project123");
 		jrr.put("Queue", "test");
 		jrr.put("Reservation", "123");
+		jrr.put("GPUsPerNode", "2");
+		jrr.put("Exclusive", "True");
 		List<ResourceRequest> rr = JSONParser.parseResourceRequest(jrr);
 		System.out.println(rr);
 		assertEquals("7200", ResourceRequest.find(rr, ResourceSet.RUN_TIME).getRequestedValue());
@@ -271,6 +273,8 @@ public class TestJSONParser {
 		assertEquals("test", ResourceRequest.find(rr, ResourceSet.QUEUE).getRequestedValue());
 		assertEquals("project123", ResourceRequest.find(rr, ResourceSet.PROJECT).getRequestedValue());
 		assertEquals("123", ResourceRequest.find(rr, ResourceSet.RESERVATION_ID).getRequestedValue());	
+		assertEquals("2", ResourceRequest.find(rr, ResourceSet.GPUS_PER_NODE).getRequestedValue());	
+		assertEquals("true", ResourceRequest.find(rr, ResourceSet.EXCLUSIVE).getRequestedValue());	
 	}
 	
 	@Test

@@ -236,6 +236,9 @@ public class JSONParser {
 		{
 			return String.valueOf(UnitParser.getTimeParser(0).getLongValue(value));
 		}
+		else if(ResourceSet.EXCLUSIVE.equals(name)) {
+			return String.valueOf(BooleanResource.parse(value));
+		}
 		return value;
 	}
 	
