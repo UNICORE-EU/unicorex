@@ -64,6 +64,7 @@ import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.persistence.IActionStore;
 import de.fzj.unicore.xnjs.tsi.BasicExecution;
 import de.fzj.unicore.xnjs.tsi.TSI;
+import de.fzj.unicore.xnjs.tsi.TSIBusyException;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
 import de.fzj.unicore.xnjs.util.ErrorCode;
 import de.fzj.unicore.xnjs.util.IOUtils;
@@ -98,6 +99,8 @@ public class Execution extends BasicExecution {
 
 	private final IBSSState bss;
 
+	private final TSIProperties tsiProperties;
+
 	// timeout waiting for a TSI connection (before creating a new one)
 	static final int timeout = 10000;
 
@@ -105,8 +108,9 @@ public class Execution extends BasicExecution {
 	public static final String BSS_SUBMIT_COUNT="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_BSSSUBMITCOUNT";
 
 	@Inject
-	public Execution(TSIConnectionFactory factory, IBSSState bss, TSIMessages tsiMessages){
+	public Execution(TSIConnectionFactory factory, IBSSState bss, TSIMessages tsiMessages, TSIProperties tsiProperties){
 		this.connectionFactory = factory;
+		this.tsiProperties = tsiProperties;
 		this.bss = bss;
 		this.tsiMessages = tsiMessages;
 		this.bss.init();
@@ -121,7 +125,16 @@ public class Execution extends BasicExecution {
 	}
 
 	@Override
-	public int submit(Action job) throws ExecutionException {
+	public int submit(Action job) throws ExecutionException, TSIBusyException {
+		int serverLimit = tsiProperties.getIntValue(TSIProperties.JOBLIMIT);
+		Integer customLimit = job.getProcessingContext().getAs("CLASSICTSI.jobLimit", Integer.class);
+		int jobLimit = customLimit!=null? customLimit.intValue() : serverLimit;
+		if(jobLimit>0) {
+			int numJobs = getNumberOfRunningJobs() + getNumberOfQueuedJobs();
+			if(numJobs>=jobLimit) {
+				throw new TSIBusyException("Too many running jobs.");
+			}
+		}
 		ApplicationInfo appDescription=job.getApplicationInfo();
 		ExecutionContext ec=job.getExecutionContext();
 		int initialStatus = ActionStatus.QUEUED;
@@ -654,9 +667,9 @@ public class Execution extends BasicExecution {
 	}
 
 	public static class BSSSummary{
-		final int running;
-		final int queued;
-		final int total;
+		int running;
+		int queued;
+		int total;
 		final Map<String,Integer>queueFilling;
 
 

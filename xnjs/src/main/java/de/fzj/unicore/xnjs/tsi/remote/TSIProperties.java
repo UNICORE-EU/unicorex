@@ -72,6 +72,11 @@ public class TSIProperties extends PropertiesHelper {
 	
 	public static final String RES_ADMIN_USER="reservationAdminUser";
 	
+	/**
+	 * limit on queued + running jobs - mostly useful with NOBATCH TSI
+	 */
+	public static final String JOBLIMIT = "jobLimit";
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
 
@@ -141,6 +146,8 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("deprecated"));
 		META.put(BSS_MAX_RUNTIME_FOR_INTERACTIVE_APPS, new PropertyMD("-1").setInt().setDeprecated().
 				setDescription("(deprecated)"));
+		META.put(JOBLIMIT, new PropertyMD("-1").setInt().
+				setDescription("Limit number of running jobs (useful with NOBATCH TSI, -1 = no limit)"));
 		META.put(BSS_GRACE_PERIOD, new PropertyMD("2").setInt().setPositive().
 				setDescription("How many times the XNJS will re-check job status in case of a 'lost' job."));
 		META.put(TSI_FILESYSTEM_ID, new PropertyMD().setDescription("TSI filesystem identifier which "

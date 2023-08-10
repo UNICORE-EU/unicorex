@@ -83,7 +83,7 @@ public class DefaultProcessor extends Processor {
 	}
 	
 	protected void handlePaused()throws ProcessingException{
-		sleep(5000);
+		sleep(5, TimeUnit.SECONDS);
 	}
 	
 	protected void handleResuming()throws ProcessingException{
@@ -100,15 +100,21 @@ public class DefaultProcessor extends Processor {
 		action.setStatus(ActionStatus.DONE);
 		action.setResult(new ActionResult(ActionResult.NOT_SUCCESSFUL,reason));
 	}
-
+	
 	/**
-	 * send the action to sleep for the specified time in millis, by
+	 * send the action to sleep for the specified time, by
 	 * setting the "waiting" flag and scheduling a "continue" event
-	 * @param millis
+	 * @param amount
+	 * @param units
 	 */
-	protected void sleep(int millis){
+	protected void sleep(int amount, TimeUnit units){
 		action.setWaiting(true);
-		manager.scheduleEvent(new ContinueProcessingEvent(action.getUUID()), millis, TimeUnit.MILLISECONDS);
+		manager.scheduleEvent(new ContinueProcessingEvent(action.getUUID()), amount, units);
+	}
+
+	@Deprecated
+	protected void sleep(int millis){
+		sleep(millis, TimeUnit.MILLISECONDS);
 	}
 
 	/**

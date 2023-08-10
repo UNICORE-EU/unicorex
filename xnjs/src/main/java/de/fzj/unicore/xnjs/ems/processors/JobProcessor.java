@@ -554,7 +554,12 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		}	
 		catch(TSIBusyException tbe){
 			//no problem, will retry
-			action.setWaiting(false);
+			Serializable logged = action.getProcessingContext().get("__delayed__submit__");
+			if(logged==null) {
+				action.addLogTrace("Submit delayed due to load limit.");
+				action.getProcessingContext().put("__delayed__submit__", "true");
+			}
+			sleep(30, TimeUnit.SECONDS);
 		}
 	}
 

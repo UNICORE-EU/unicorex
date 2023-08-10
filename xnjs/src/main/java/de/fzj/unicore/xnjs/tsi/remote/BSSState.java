@@ -432,6 +432,18 @@ public class BSSState implements IBSSState {
 
 	public void putBSSInfo(BSSInfo info) {
 		bssInfo.put(info.bssID, info);
+		// update numbers until the next regular scheduled update
+		summary.total+=1;
+		switch(info.bssState) {
+			case RUNNING:
+				summary.queued+=1;
+				break;
+			case QUEUED:
+				summary.queued+=1;
+				break;
+			default:
+				break;
+		}
 	}
 
 	public void removeBSSInfo(String bssid) {

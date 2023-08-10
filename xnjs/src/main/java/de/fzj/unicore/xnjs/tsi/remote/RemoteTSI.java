@@ -359,21 +359,17 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			commit();
 			tsiLogger.debug("Executed "+what+" in "+ec.getWorkingDirectory());
 			//get exit code
-			InputStream is=null;
-			BufferedReader br=null;
 			String oldRoot=storageRoot;
-			try{
-				storageRoot="/";
-				is=getInputStream(ec.getWorkingDirectory()+"/"+TSIMessages.EXITCODE_FILENAME);
-				br=new BufferedReader(new InputStreamReader(is));
+			storageRoot="/";
+			try(InputStream is = getInputStream(ec.getWorkingDirectory()+"/"+TSIMessages.EXITCODE_FILENAME);
+				BufferedReader br =new BufferedReader(new InputStreamReader(is)))
+			{
 				String s=br.readLine();
 				int i=Integer.parseInt(s);
 				ec.setExitCode(i);
 				tsiLogger.debug("Script exited with code <"+i+">");
 			}finally{
 				storageRoot=oldRoot;
-				IOUtils.closeQuietly(is);
-				IOUtils.closeQuietly(br);
 			}
 		}catch(Exception e){
 			throw new ExecutionException("Can't execute script.",e);

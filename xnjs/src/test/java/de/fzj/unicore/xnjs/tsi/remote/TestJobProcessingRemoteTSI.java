@@ -63,6 +63,7 @@ import de.fzj.unicore.xnjs.ems.event.XnjsEvent;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo.JobType;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
+import de.fzj.unicore.xnjs.tsi.TSIBusyException;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import de.fzj.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
 import de.fzj.unicore.xnjs.util.IOUtils;
@@ -372,8 +373,8 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	public static class MyExec extends Execution {
 
 		@Inject
-		public MyExec(TSIConnectionFactory factory, IBSSState bss, TSIMessages tsiMessages){
-			super(factory, bss, tsiMessages);
+		public MyExec(TSIConnectionFactory factory, IBSSState bss, TSIMessages tsiMessages, TSIProperties props){
+			super(factory, bss, tsiMessages, props);
 		}
 
 		public static boolean failSubmits=false;
@@ -381,7 +382,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		boolean ok = false;
 
 		@Override
-		public int submit(Action job)throws ExecutionException{
+		public int submit(Action job)throws ExecutionException, TSIBusyException {
 			if(failSubmits){
 				ok=!ok;
 				if(ok){

@@ -3,6 +3,7 @@ package de.fzj.unicore.xnjs.ems.processors;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
@@ -76,13 +77,12 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		try{
 			exec.submit(action);
 			action.setStatus(ActionStatus.RUNNING);
-			sleep(3000);
+			sleep(3, TimeUnit.SECONDS);
 		}catch(ExecutionException e){
 			throw new ProcessingException(e);
 		}catch(TSIBusyException tbe){
-			logger.debug("Could not submit action",tbe);
 			//will retry later
-			action.setWaiting(false);
+			sleep(5, TimeUnit.SECONDS);
 		}	
 	}
 	
@@ -91,7 +91,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		try{
 			exec.updateStatus(action);
 			if(action.getStatus()==ActionStatus.QUEUED){
-				sleep(3000);
+				sleep(3, TimeUnit.SECONDS);
 			}
 		}catch(ExecutionException ex){
 			String msg="Could not update status: "+ex.getMessage();
@@ -108,7 +108,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 		try{
 			exec.updateStatus(action);
 			if(action.getStatus()==ActionStatus.RUNNING){
-				sleep(30000);
+				sleep(30, TimeUnit.SECONDS);
 			}
 		}catch(ExecutionException ex){
 			String msg="Could not update status for action "+ex.getMessage();

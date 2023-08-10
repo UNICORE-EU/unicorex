@@ -223,7 +223,7 @@ public class FTSProcessor extends DefaultProcessor {
 				logger.debug("File transfers <{}> done.", action.getUUID());
 			}
 			else {
-				sleep(5);
+				sleep(5, TimeUnit.MILLISECONDS);
 			}
 		}
 		finally {

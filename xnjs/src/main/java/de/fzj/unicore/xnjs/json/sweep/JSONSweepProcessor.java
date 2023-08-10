@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -202,7 +203,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 		}
 		else{
 			//if we still have some running sweep instances, reduce CPU load
-			sleep(3000);
+			sleep(3, TimeUnit.SECONDS);
 		}
 	}
 
