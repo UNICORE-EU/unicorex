@@ -29,7 +29,7 @@
 
   <properties>
     <!-- goes into .jar manifests, dist poms and packaging versions -->
-    <specification.version>9.2.3</specification.version>
+    <specification.version>9.3.0</specification.version>
 
     <compiler.fork>false</compiler.fork>
     <use.version>4.6.0</use.version>
@@ -40,9 +40,9 @@
     <guice.version>6.0.0</guice.version>
     <guava.version>32.1.2-jre</guava.version>
     <jclouds.version>2.5.0</jclouds.version>
-    <groovy.version>4.0.13</groovy.version>
     <lucene.version>9.7.0</lucene.version>
     <tika.version>2.8.0</tika.version>
+    <spring.version>5.3.23</spring.version>
   </properties>
 
   <modules>
@@ -220,11 +220,6 @@
 	</exclusions>
       </dependency>
       <dependency>
-	<groupId>org.apache.groovy</groupId>
-	<artifactId>groovy</artifactId>
-	<version>${groovy.version}</version>
-      </dependency>
-      <dependency>
 	<groupId>com.google.guava</groupId>
 	<artifactId>guava</artifactId>
 	<version>${guava.version}</version>
@@ -258,6 +253,11 @@
             <artifactId>jsr250-api</artifactId>
           </exclusion>
 	</exclusions>
+      </dependency>
+      <dependency>
+	<groupId>org.springframework</groupId>
+	<artifactId>spring-expression</artifactId>
+	<version>${spring.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

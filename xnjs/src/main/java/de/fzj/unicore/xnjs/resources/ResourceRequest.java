@@ -45,6 +45,17 @@ public class ResourceRequest implements Serializable  {
 		return name+"="+requestedValue;
 	}
 
+	public int toInt() {
+		Double d = Double.parseDouble(String.valueOf(requestedValue));
+		return (int)Math.round(d);
+	}
+
+	public int toIntSafe() {
+		try {
+			return toInt();
+		}catch(RuntimeException re) { return -1; }
+	}
+
 	/**
 	 * helper to check whether a certain resource has been requested
 	 * @param req - the set of resources

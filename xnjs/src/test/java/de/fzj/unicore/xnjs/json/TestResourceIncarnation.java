@@ -236,6 +236,18 @@ public class TestResourceIncarnation {
 	}
 
 	@Test
+	public void testAcceptDoubles() throws Exception {
+		List<ResourceRequest>request = new ArrayList<>();
+		request.add(new ResourceRequest(ResourceSet.NODES, "1.0"));
+		request.add(new ResourceRequest(ResourceSet.CPUS_PER_NODE, "1.0"));
+		List<ResourceRequest> testRes = g.incarnateResources(request,null);
+		int nodes = ResourceRequest.find(testRes,ResourceSet.NODES).toInt();
+		assertEquals(nodes,1);
+		int cpusPerNode = ResourceRequest.find(testRes,ResourceSet.CPUS_PER_NODE).toInt();
+		assertEquals(cpusPerNode,1);
+	}
+
+	@Test
 	public void testIncarnate_TotalCPUs_Nodes_PPN() throws Exception {
 		List<ResourceRequest>request = new ArrayList<>();
 		request.add(new ResourceRequest(ResourceSet.NODES, "2"));
@@ -294,9 +306,9 @@ public class TestResourceIncarnation {
 		a.setExecutionContext(ec);
 		List<ResourceRequest> testRes = g.incarnateResources(a);
 		//check correct values are available
-		int nodes = Integer.valueOf(ResourceRequest.find(testRes,ResourceSet.NODES).getRequestedValue());
+		int nodes = ResourceRequest.find(testRes,ResourceSet.NODES).toInt();
 		assertEquals(nodes,1);
-		int cpusPerNode = Integer.valueOf(ResourceRequest.find(testRes,ResourceSet.CPUS_PER_NODE).getRequestedValue());
+		int cpusPerNode = ResourceRequest.find(testRes,ResourceSet.CPUS_PER_NODE).toInt();
 		assertEquals(cpusPerNode, 64);
 	}
 

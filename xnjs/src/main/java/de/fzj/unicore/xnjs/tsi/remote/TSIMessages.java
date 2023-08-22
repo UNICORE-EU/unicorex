@@ -794,47 +794,35 @@ public class TSIMessages {
 			}
 		}
 
-		// CPUs / nodes
+		// CPUs / nodes / GPUs
 		ResourceRequest totalCpusRequest=ResourceRequest.findAndRemove(resources, ResourceSet.TOTAL_CPUS);
 		if (totalCpusRequest!= null) {
-			try {
-				total_processors = Integer.valueOf(totalCpusRequest.getRequestedValue());
-			} catch (RuntimeException e) {}
+			total_processors = totalCpusRequest.toIntSafe();
 		}
 		ResourceRequest cpusRequest=ResourceRequest.findAndRemove(resources, ResourceSet.CPUS_PER_NODE);
 		if(cpusRequest!=null){
-			try {
-				processors_per_node = Integer.valueOf(cpusRequest.getRequestedValue());
-			} catch (RuntimeException e) {}
+			processors_per_node = cpusRequest.toIntSafe();
 		}
 		ResourceRequest nodesRequest=ResourceRequest.findAndRemove(resources, ResourceSet.NODES);
 		if (nodesRequest!= null) {
-			try {
-				nodes = Integer.valueOf(nodesRequest.getRequestedValue());
-			} catch (RuntimeException e) {}
+			nodes = nodesRequest.toIntSafe();
 		}
-		
-		// GPUs per node
 		ResourceRequest gpusRequest=ResourceRequest.findAndRemove(resources, ResourceSet.GPUS_PER_NODE);
 		if(gpusRequest!=null){
-			try {
-				gpus_per_node = Integer.valueOf(gpusRequest.getRequestedValue());
-			} catch (RuntimeException e) {}
+			gpus_per_node = gpusRequest.toIntSafe();
 		}
+
 		// memory per node
 		ResourceRequest memoryRequest=ResourceRequest.findAndRemove(resources, ResourceSet.MEMORY_PER_NODE);
 		if (memoryRequest!= null) {
 			try {
-				memory = Integer.valueOf(memoryRequest.getRequestedValue()) / MEGABYTE;
+				memory = Integer.valueOf(memoryRequest.toInt()) / MEGABYTE;
 			} catch (RuntimeException e) {}
 		}
 
 		// time, individual == wall clock time
 		run_time = getRuntime(resources);
 		ResourceRequest.removeQuietly(resources, ResourceSet.RUN_TIME);
-
-		//total number of processors
-		//int total=nodes!=-1? nodes*processors: processors;
 
 		if(run_time>0){
 			f.format("#TSI_TIME %d\n", run_time);

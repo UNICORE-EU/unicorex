@@ -220,47 +220,55 @@ public class TestUtils {
 	}
 	
 	@Test
-	public void testEvaluateGroovyExpressions()throws Exception{
-		String script = "A+B";
-		Map<String,String> vars = new HashMap<String, String>();
-		vars.put("A", "1");
-		vars.put("B", "2");
+	public void testEvaluator()throws Exception{
+		String script = "A";
+		Map<String,Object> vars = new HashMap<>();
+		vars.put("A", 1);
 		ScriptEvaluator eval = new ScriptEvaluator();
-		Integer i = eval.evaluateToInteger(script, vars);
+		System.out.println(eval.evaluate(script, vars));
+		script = "A == 1";
+		System.out.println(eval.evaluate(script, vars));
+		script = "A + 1";
+		Object x = eval.evaluate(script, vars);
+		System.out.println(x);
+		Integer d = Integer.valueOf(String.valueOf(x));
+		System.out.println(d);
+
+	}
+
+	@Test
+	public void testEvaluateExpressions()throws Exception{
+		String script = "A + B";
+		Map<String,Object> vars = new HashMap<>();
+		vars.put("A", 1);
+		vars.put("B", 2);
+		ScriptEvaluator eval = new ScriptEvaluator();
+		Object i = eval.evaluate(script, vars);
 		assertEquals((Integer)3,i);
 	
 		script = "3";
 		vars.clear();
-		i = eval.evaluateToInteger(script, vars);
+		i = eval.evaluate(script, vars);
 		assertEquals((Integer)3,i);
 	
 		script = "3.0 + A";
-		vars.put("A", "1.5");
-		Double d = eval.evaluateToDouble(script, vars);
+		vars.put("A", 1.5);
+		Object d = eval.evaluate(script, vars);
 		assertEquals((Double)4.5,d);
 		
-		script = "A + B";
+		script =  "A + B";
 		vars.put("A", "foo");
 		vars.put("B", "bar");
-		assertEquals("foobar",eval.evaluateToString(script, vars));
+		assertEquals("foobar",eval.evaluate(script, vars));
 		
-		// try something more tricky
-		script = "(A > B)? A : B";
-		vars.put("A", "1");
-		vars.put("B", "2");
-		assertEquals("2",eval.evaluateToString(script, vars));
-	}
-	
-	@Test(expected=java.security.AccessControlException.class)
-	public void testSandbox()throws Exception{
-		String script = "System.exit(1)";
-		Map<String,String> vars = new HashMap<String, String>();
-		ScriptEvaluator eval = new ScriptEvaluator();
-		eval.evaluateToInteger(script, vars);
+		script = "(A>B)? A : B";
+		vars.put("A", 11);
+		vars.put("B", 2);
+		assertEquals(11,eval.evaluate(script, vars));
 	}
 
 	@Test
-	public void testExtractGroovyExpressions()throws Exception{
+	public void testExtractExpressions()throws Exception{
 		assertFalse(ScriptEvaluator.isScript("123"));
 		String expr = "${A+B}";
 		assertTrue(ScriptEvaluator.isScript(expr));

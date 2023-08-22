@@ -33,7 +33,8 @@ public class IntResource extends Resource implements RangeResource {
 
 		if(otherValue instanceof String){
 			try{
-				v=Long.parseLong((String)otherValue);
+				Double d = Double.parseDouble(String.valueOf(otherValue));
+				v = Math.round(d);
 			}
 			catch(NumberFormatException ex){
 				return false;
