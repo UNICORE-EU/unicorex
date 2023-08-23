@@ -219,14 +219,12 @@ public class GrounderImpl implements Incarnation {
 		List<ResourceRequest>requested = ResourceRequest.merge(fromApplication, fromUser);
 
 		// evaluate any variables now
-		ScriptEvaluator eval = null;
 		for(ResourceRequest r: requested){
 			if(ScriptEvaluator.isScript(r.getRequestedValue())){
-				if(eval==null)eval=new ScriptEvaluator();
 				String script = ScriptEvaluator.extractScript(r.getRequestedValue());
 				try{
 					Map<String,String>env = job.getExecutionContext().getEnvironment();
-					String newValue = eval.evaluateAsString(script, env);
+					String newValue = ScriptEvaluator.evaluateAsString(script, env, null);
 					job.addLogTrace("Evaluated resource "+r.getName()+" as "+newValue);
 					r.setRequestedValue(newValue);
 				}catch(Exception e){

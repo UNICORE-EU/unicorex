@@ -23,29 +23,32 @@ public class ScriptEvaluator {
 
 	private static final Logger logger=Log.getLogger(Log.SERVICES,ScriptEvaluator.class);
 
+	private ScriptEvaluator() {}
+
 	/**
 	 * @param script
 	 * @param vars
 	 * @return the value of the evaluated expression
 	 * @throws IllegalArgumentException
 	 */
-	public Object evaluate(String script, final Map<String,Object> vars)throws IllegalArgumentException{
+	public static Object evaluate(String script, final Map<String,Object> vars, Object contextObject)throws IllegalArgumentException{
 		if(vars==null){
 			throw new IllegalArgumentException("Process variables can't be null.");
 		}
 		if(script==null){
 			throw new IllegalArgumentException("Expression can't be null.");
 		}
+		Object rootObject = contextObject!=null? contextObject : new DefaultRootObject();
 		SimpleEvaluationContext ctx = SimpleEvaluationContext.
-				forPropertyAccessors(new Lookup(vars)).
+				forPropertyAccessors(new MapAccessor(vars)).
 				withInstanceMethods().
-				withRootObject(new DefaultRootObject()).build();
+				withRootObject(rootObject).build();
 		Expression expr = new SpelExpressionParser().parseExpression(script);
 		logger.debug("Evaluating expression: {} with context {}", script, vars);
 		return expr.getValue(ctx);
 	}
 
-	public String evaluateAsString(String script, Map<String, String> vars)throws  IllegalArgumentException{
+	public static String evaluateAsString(String script, Map<String, String> vars, Object contextObject)throws  IllegalArgumentException{
 		Map<String,Object> var2 = new HashMap<>();
 		for(Map.Entry<String, String> entry: vars.entrySet()) {
 			Object v = entry.getValue();
@@ -54,7 +57,7 @@ public class ScriptEvaluator {
 			}catch(Exception e) {}
 			var2.put(entry.getKey(), v);
 		}
-		return String.valueOf(evaluate(script, var2));
+		return String.valueOf(evaluate(script, var2, contextObject));
 	}
 
 	/**
@@ -70,16 +73,17 @@ public class ScriptEvaluator {
 	}
 
 
-	public static class Lookup implements PropertyAccessor {
+	public static class MapAccessor implements PropertyAccessor {
 
 		private final Map<String,Object> vars;
 
-		Lookup(Map<String,Object> vars){
+		MapAccessor(Map<String,Object> vars){
 			this.vars = vars;
 		}
 
 		@Override
 		public void write(EvaluationContext context, Object target, String name, Object newValue) throws AccessException {
+			vars.put(name, newValue);
 		}
 
 		@Override
@@ -94,12 +98,12 @@ public class ScriptEvaluator {
 
 		@Override
 		public boolean canWrite(EvaluationContext context, Object target, String name) throws AccessException {
-			return false;
+			return true;
 		}
 
 		@Override
 		public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
-			return true;
+			return vars.containsKey(name);
 		}
 	}
 
