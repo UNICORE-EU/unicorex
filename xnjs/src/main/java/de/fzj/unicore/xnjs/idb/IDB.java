@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.resources.ValueListResource;
+import de.fzj.unicore.xnjs.resources.Resource;
 import eu.unicore.security.Client;
 
 /**
@@ -137,6 +137,6 @@ public interface IDB {
 	/**
 	 * get the available partition names (queue names) for the current client
 	 */
-	public  ValueListResource getAllowedPartitions(Client c) throws ExecutionException;
+	public  Resource getAllowedPartitions(Client c) throws ExecutionException;
 
 }

@@ -64,4 +64,5 @@ public abstract class Resource {
 		this.description = description;
 	}
 
+	public abstract void setSelectedValue(String value);
 }

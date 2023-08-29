@@ -17,6 +17,11 @@ public class StringResource extends Resource{
 	public String getValue() {
 		return value;
 	}
+
+	@Override
+	public void setSelectedValue(String val) {
+		value = val;
+	}
 	
 	@Override
 	public boolean isInRange(Object otherValue){

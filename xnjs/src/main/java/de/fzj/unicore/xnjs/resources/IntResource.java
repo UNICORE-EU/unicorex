@@ -19,12 +19,14 @@ public class IntResource extends Resource implements RangeResource {
 		this(name,value,null,null,null);
 	}
 
+	@Override
 	public Long getValue() {
 		return value;
 	}
 
-	public void setStringValue(String v){
-		value = v==null? null : Long.parseLong(v);
+	@Override
+	public void setSelectedValue(String val) {
+		value = Double.valueOf(val).longValue();
 	}
 
 	public boolean isInRange(Object otherValue){

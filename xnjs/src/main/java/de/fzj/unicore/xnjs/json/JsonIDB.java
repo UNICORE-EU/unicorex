@@ -33,10 +33,10 @@ public class JsonIDB implements IDBParser {
 		this.data = data;
 	}
 	
-	public void handleFile(File file) throws Exception {
+	public void handleFile(File file, boolean singleFile) throws Exception {
 		try(FileInputStream fis = new FileInputStream(file)){
 			JSONObject jsonidb = new JSONObject(IOUtils.toString(fis, "UTF-8"));
-			boolean isIDB = jsonidb.optJSONObject("Partitions")!=null;
+			boolean isIDB = singleFile || jsonidb.optJSONObject("Partitions")!=null;
 			boolean readAllInfo = idb.getMainFile()==null || file.getAbsolutePath().equals(idb.getMainFile().getAbsolutePath());
 			if(readAllInfo && isIDB){
 				logger.info("Reading main IDB <"+file+">");
@@ -61,21 +61,29 @@ public class JsonIDB implements IDBParser {
 	}
 	
 	protected void readPartitions(JSONObject source) throws Exception {
-		if(source==null)return;
-		boolean haveDefault = false;
-		for(String name: source.keySet()) {
-			Partition p = JSONParser.parsePartition(name, source.getJSONObject(name));
-			idb.getPartitionsInternal().add(p);
-			logger.info("Read: <"+p+">");
-			if(p.isDefaultPartition()) {
-				if(haveDefault) {
-					logger.warn("Multiple 'default' partitions defined - this may lead to unintended behaviour.");
-				}
-				else {
-					logger.info("Default partition: <"+name+">");
-					haveDefault = true;
+		if(source!=null) {
+			boolean haveDefault = false;
+			for(String name: source.keySet()) {
+				Partition p = JSONParser.parsePartition(name, source.getJSONObject(name));
+				idb.getPartitionsInternal().add(p);
+				logger.info("Read: <"+p+">");
+				if(p.isDefaultPartition()) {
+					if(haveDefault) {
+						logger.warn("Multiple 'default' partitions defined - this may lead to unintended behaviour.");
+					}
+					else {
+						logger.info("Default partition: <"+name+">");
+						haveDefault = true;
+					}
 				}
 			}
+		}
+		if(idb.getPartitionsInternal().size()==0) {
+			logger.info("No partitions defined - adding generic definition allowing any requests.");
+			Partition p = new Partition();
+			p.setName("*");
+			p.setDescription("Accepts any Queue / partition request");
+			idb.getPartitionsInternal().add(p);
 		}
 	}
 

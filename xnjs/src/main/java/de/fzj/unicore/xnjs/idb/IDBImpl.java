@@ -24,14 +24,18 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import com.google.common.primitives.Longs;
+
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.FileFilter;
 import de.fzj.unicore.xnjs.io.SimpleFindOptions;
 import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.json.JsonIDB;
+import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.Resource.Category;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
+import de.fzj.unicore.xnjs.resources.StringResource;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
@@ -355,20 +359,29 @@ public class IDBImpl implements IDB {
 				return getFirstPartition();
 			}
 		}
-		
 		for(Partition p : partitions){
-			if(p.getName().equalsIgnoreCase(partition))return p;
+			if(p.getName().equalsIgnoreCase(partition) || "*".equals(p.getName()))
+			{
+				return p;
+			}
 		}
-		
 		return null;
 	}
 	
 	protected Partition getFirstPartition() {
 		return partitions.size()>0 ? partitions.get(0) : null;
 	}
-	
 	@Override
-	public ValueListResource getAllowedPartitions(Client c) throws ExecutionException {
+	public Resource getAllowedPartitions(Client c) throws ExecutionException {
+		if(getPartitions().size()==1 && getPartitions().get(0).getName()=="*"){
+			return new StringResource(ResourceSet.QUEUE, "*");
+		}
+		else{
+			return getDefinedPartitions(c);
+		}
+	}
+
+	protected ValueListResource getDefinedPartitions(Client c) throws ExecutionException {
 		Set<String> allowed = new HashSet<>();
 		String defaultQueue = null;
 		try{
@@ -414,9 +427,8 @@ public class IDBImpl implements IDB {
 		if(mainFile!=null && mainFile.lastModified() > lastUpdate) {
 			return true;
 		}
-
 		if(isDirectory && lastUpdate>0){
-			if(lastDirectoryHash+30000>System.currentTimeMillis()){
+			if(lastDirectoryHash+10000>System.currentTimeMillis()){
 				return false;
 			}
 		}
@@ -425,15 +437,20 @@ public class IDBImpl implements IDB {
 			byte[]hash = getDirectoryHash();
 			if(directoryHash==null || !Arrays.equals(hash, directoryHash)){
 				changed = true;
-				directoryHash  = hash;
-				lastDirectoryHash = System.currentTimeMillis();
 			}
 		}
 		else{
 			changed = idbFile.lastModified() > lastUpdate;
 		}
-
 		return changed;
+	}
+
+	private void markUpdated() {
+		lastUpdate = System.currentTimeMillis();
+		if(isDirectory){
+			directoryHash  = getDirectoryHash();
+			lastDirectoryHash = System.currentTimeMillis();
+		}
 	}
 
 	public long getLastUpdateTime(){
@@ -442,11 +459,12 @@ public class IDBImpl implements IDB {
 	
 	protected void updateIDB() throws Exception {
 		synchronized(idb){
-			lastUpdate = System.currentTimeMillis();
+			markUpdated();
 			clear();
 			Collection<File>fileList = getFilesForReading();
+			boolean singleFile = fileList.size()==1;
 			for(File f: fileList) {
-				handleFile(f);
+				handleFile(f, singleFile);
 			}
 		}
 	}
@@ -478,11 +496,12 @@ public class IDBImpl implements IDB {
 	 * read stuff from IDB file (main file or apps)
 	 * 
 	 * @param file
+	 * @param singleFile - true if this is the only file we have
 	 * @throws Exception
 	 */
-	protected void handleFile(File file)throws Exception{
+	protected void handleFile(File file, boolean singleFile)throws Exception{
 		IDBParser parser = getParser(file);
-		parser.handleFile(file);
+		parser.handleFile(file, singleFile);
 	}
 	
 	public IDBParser getParser(File file) throws Exception {
@@ -533,9 +552,10 @@ public class IDBImpl implements IDB {
 			}
 		}
 		else{
-			md.update(String.valueOf(file.lastModified()).getBytes());
+			md.update(Longs.toByteArray(file.lastModified()));
 		}
 	}
+
 	/**
 	 * holds user-specific extension path plus some meta info
 	 */

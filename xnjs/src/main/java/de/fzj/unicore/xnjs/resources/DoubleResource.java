@@ -64,6 +64,10 @@ public class DoubleResource extends Resource implements RangeResource {
 		return lower;
 	}
 
+	public void setSelectedValue(String val) {
+		value = Double.parseDouble(val);
+	}
+	
 	public String toString(){
 		StringBuilder sb=new StringBuilder();
 		sb.append(name).append("[double, category=").append(category).append("] ").append(value);

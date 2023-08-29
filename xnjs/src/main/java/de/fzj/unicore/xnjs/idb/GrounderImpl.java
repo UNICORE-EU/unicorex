@@ -23,7 +23,6 @@ import de.fzj.unicore.xnjs.resources.Resource.Category;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.StringResource;
-import de.fzj.unicore.xnjs.resources.ValueListResource;
 import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.TSIFactory;
 import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
@@ -245,7 +244,7 @@ public class GrounderImpl implements Incarnation {
 	/**
 	 * determine the partition name
 	 */
-	private String getRequestedPartition(Collection<ResourceRequest> requested, ValueListResource partitions) {
+	private String getRequestedPartition(Collection<ResourceRequest> requested, Resource partitions) {
 		ResourceRequest requestedByUser = ResourceRequest.find(requested, ResourceSet.QUEUE);
 		String partitionName = requestedByUser!=null? requestedByUser.getRequestedValue() : null;
 		if(partitionName==null){
@@ -258,7 +257,7 @@ public class GrounderImpl implements Incarnation {
 	public List<ResourceRequest> incarnateResources(List<ResourceRequest>userRequest, Client c) throws ExecutionException{
 		List<ResourceRequest> incarnatedRequest = new ArrayList<>();
 
-		ValueListResource availablePartitions = idb.getAllowedPartitions(c);
+		Resource availablePartitions = idb.getAllowedPartitions(c);
 		String requestedPartitionName = getRequestedPartition(userRequest, availablePartitions);
 		availablePartitions.setSelectedValue(requestedPartitionName);
 		if(requestedPartitionName!=null) {
@@ -279,13 +278,15 @@ public class GrounderImpl implements Incarnation {
 		if(!IDBImpl.DEFAULT_PARTITION.equals(selectedPartition.getName())){
 			availablePartitions.setSelectedValue(selectedPartition.getName());
 		}
-
-		incarnatedRequest.add(new ResourceRequest(ResourceSet.QUEUE, availablePartitions.getStringValue()));
+		String partition = "*".equals(selectedPartition.getName()) ?
+				requestedPartitionName :
+				availablePartitions.getStringValue();
+		incarnatedRequest.add(new ResourceRequest(ResourceSet.QUEUE, partition));
 
 		// verify requested resources
 		ResourceSet resources = selectedPartition.getResources();
 		for(ResourceRequest rr: userRequest){
-			boolean doVerify = true;
+			boolean doVerify = "*".equals(selectedPartition.getName())? false : true;
 			String name = rr.getName();
 			String value = rr.getRequestedValue();
 			if(value==null)continue;

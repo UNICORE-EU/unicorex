@@ -39,4 +39,10 @@ public class BooleanResource extends Resource {
 			return Boolean.FALSE;
 		else throw new IllegalArgumentException("Resource request out of range: '"+value+"'");
 	}
+	
+	public void setSelectedValue(String val) {
+		if("true".equalsIgnoreCase(val))value = Boolean.TRUE;
+		if("false".equalsIgnoreCase(val))value = Boolean.FALSE;
+		throw new IllegalArgumentException("Out of range: '"+val+"'");
+	}
 }
