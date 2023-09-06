@@ -286,8 +286,4 @@ public class TestVarious {
 		assertEquals("MY_WORK", asd.getPathSpec());
 	}
 
-	@Test
-	public void testMetricTimestamp() throws Exception {
-		
-	}
 }

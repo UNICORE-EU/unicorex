@@ -58,6 +58,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.Logger;
 
+import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.ems.InternalManager;
@@ -96,6 +97,8 @@ public class LocalTS implements TSI {
 
 	private final LocalTSIProperties tsiProperties;
 	
+	private final XNJSProperties xnjsProperties;
+	
 	/**
 	 * inverted umask for rwx perms of the owner (1st 3) and others.
 	 */
@@ -109,9 +112,10 @@ public class LocalTS implements TSI {
 	private static final boolean[] DEFAULT_DIR_PERMS = {true, true, true, true, true, true};
 
 	@Inject
-	public LocalTS(InternalManager manager, LocalTSIProperties properties) {
+	public LocalTS(InternalManager manager, LocalTSIProperties properties, XNJSProperties xnjsProperties) {
 		this.manager = manager;
 		this.tsiProperties = properties;
+		this.xnjsProperties = xnjsProperties;
 		updatePosixPermissions();
 		posixSupport = FileSystems.getDefault().supportedFileAttributeViews().contains("posix");
 	}
@@ -588,13 +592,10 @@ public class LocalTS implements TSI {
 
 	@Override
 	public void setUmask(String umaskStr) {
-		int mask;
 		if (umaskStr == null) {
-			mask = DEFAULT_UMASK;
+			umaskStr = xnjsProperties.getValue(XNJSProperties.DEFAULT_UMASK);
 		}
-		else {
-			mask = Integer.parseInt(umaskStr, 8);
-		}
+		int mask = Integer.parseInt(umaskStr, 8);
 		for (int i=0; i<6; i++) {
 			invertedUmask[i] = (mask & (1<<(8-i))) == 0;
 		}

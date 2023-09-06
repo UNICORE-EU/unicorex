@@ -47,6 +47,7 @@ import javax.inject.Inject;
 
 import org.apache.logging.log4j.Logger;
 
+import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
@@ -97,6 +98,9 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Inject
 	private ACLSupportCache aclSupportCache;
 
+	@Inject
+	private XNJSProperties xnjsProperties;
+
 	private String user = "nobody";
 	private String group = "NONE";
 	private ExecutionContext ec;
@@ -112,7 +116,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private String lastUsedTSIHost=null;
 
-	private int umask = DEFAULT_UMASK;
+	// umask - "-1" will use the default from configuration
+	private int umask = -1;
 
 	// timeout waiting for a TSI connection (before creating a new one)
 	static final int timeout = 5000;
@@ -1041,14 +1046,16 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Override
 	public void setUmask(String umask) {
 		if (umask == null)
-			this.umask = DEFAULT_UMASK;
+			this.umask = Integer.parseInt(xnjsProperties.getValue(XNJSProperties.DEFAULT_UMASK), 8);
 		else
 			this.umask = Integer.parseInt(umask, 8);
 	}
 
 	@Override
 	public String getUmask() {
-		return Integer.toOctalString(this.umask);
+		return(this.umask>=0 ? 
+				Integer.toOctalString(this.umask) : 
+				xnjsProperties.getValue(XNJSProperties.DEFAULT_UMASK));
 	}
 
 	public void assertIsDirectory(String dir, String format, Object... args)throws ExecutionException{

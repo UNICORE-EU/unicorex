@@ -16,7 +16,6 @@ import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.StorageInfoProvider;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.PropertiesHelper;
@@ -91,8 +90,8 @@ public class SMSProperties extends PropertiesHelper {
 				setDescription("Whether the existence of the base directory should be checked when creating the storage."));
 		META.put(ALLOW_USER_DEFINED_PATH, new PropertyMD("true").
 				setDescription("Whether the allow the user to set the storage base directory when creating the storage via the StorageFactory."));
-		META.put(UMASK_KEY, new PropertyMD(Integer.toOctalString(IStorageAdapter.DEFAULT_UMASK)).
-				setDescription("Default (initial) umask for files in the storage. Must be an octal number. Note that this property is not updateable at runtime for normal storages as it wouldn't have sense (it is the initial umask by definition). However in case of storage factory it is, i.e. after the property change, the SMSes created by the factory will use the new umask as the initial one. At runtime the SMS umask can be changed by the clients (if are authorized to do so)."));
+		META.put(UMASK_KEY, new PropertyMD("077").
+				setDescription("Default (initial) umask for files in the storage. Must be an octal number."));
 		META.put(DESCRIPTION, new PropertyMD("Filesystem").setUpdateable().
 				setDescription("Description of the storage. It will be presented to the users."));
 		META.put(INFO_PROVIDER, new PropertyMD(DefaultStorageInfoProvider.class, StorageInfoProvider.class).

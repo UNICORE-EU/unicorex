@@ -119,6 +119,9 @@ public class LocalECManager implements IExecutionContextManager {
 
 	private void initContext(ExecutionContext ec, String wd, boolean isChild, String childUID, String umask){
 		ec.setWorkingDirectory(wd);
+		if(umask==null) {
+			umask = properties.getValue(XNJSProperties.DEFAULT_UMASK);
+		}
 		ec.setUmask(umask);
 		//set some default names for the out/err files
 		if(isChild){
@@ -138,14 +141,14 @@ public class LocalECManager implements IExecutionContextManager {
 			//copy environment
 			childEc.getEnvironment().putAll(parentAction.getApplicationInfo().getEnvironment());
 		}
-		initContext(childEc, cwd, true, childAction.getUUID(), pc.getUmask());
+		initContext(childEc, cwd, true, childAction.getUUID(), parentAction.getUmask());
 		childAction.setExecutionContext(childEc);
 		return childEc;
 	}
 	
 	@Override
 	public void destroyUSpace(Action action) throws ExecutionException{
-		logger.info("Destroying "+uspaceInfo(action));
+		logger.info("Destroying {}", uspaceInfo(action));
 		TSI targetSystem = tsiFactory.createTSI(action.getClient());
 		try{
 			String wd=action.getExecutionContext().getWorkingDirectory();

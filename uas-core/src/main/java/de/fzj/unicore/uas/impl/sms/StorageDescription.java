@@ -11,7 +11,6 @@ import java.util.Map;
 
 import de.fzj.unicore.uas.SMSProperties;
 import de.fzj.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.util.configuration.ConfigurationException;
 
 /**
@@ -41,7 +40,7 @@ public class StorageDescription implements Serializable, Cloneable {
 	private boolean enableTrigger;
 	private String sharedTriggerUser;
 	private boolean cleanup;
-	private String defaultUmask = Integer.toOctalString(IStorageAdapter.DEFAULT_UMASK);
+	private String defaultUmask = "077";
 
 	// only used when created
 	private transient boolean checkExistence = true;
@@ -100,7 +99,7 @@ public class StorageDescription implements Serializable, Cloneable {
 			additionalProperties = Collections.emptyMap();
 		this.additionalProperties = additionalProperties;
 		this.filterListing = filterListing == null ? false : filterListing;
-		this.defaultUmask = defaultUmask == null ? Integer.toOctalString(IStorageAdapter.DEFAULT_UMASK) : 
+		this.defaultUmask = defaultUmask == null ? "077" : 
 			defaultUmask;
 		this.cleanup = cleanup == null ? true : cleanup;
 		if (!SMSProperties.umaskPattern.matcher(this.defaultUmask).matches())

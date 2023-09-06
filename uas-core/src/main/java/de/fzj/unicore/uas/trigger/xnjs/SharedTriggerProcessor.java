@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
@@ -52,7 +53,7 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 	protected void handleCreated(){
 		ScanSettings sad=getJob();
 		int update=sad.updateInterval;
-		if(update>0)sleep(update*1000);
+		if(update>0)sleep(update, TimeUnit.SECONDS);
 		action.addLogTrace("Created with update interval <"+update+">.");
 		action.setStatus(ActionStatus.RUNNING);
 		action.addLogTrace("Status set to RUNNING.");
@@ -92,7 +93,7 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 				}
 			}
 			if(sad.updateInterval>0){
-				sleep(sad.updateInterval*1000);
+				sleep(sad.updateInterval, TimeUnit.SECONDS);
 			}
 			else{
 				action.setStatus(ActionStatus.DONE);

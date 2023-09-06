@@ -4,7 +4,6 @@ import java.util.List;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.PersistingPrefsModel;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 
 public class SMSModel extends PersistingPrefsModel {
 
@@ -24,7 +23,7 @@ public class SMSModel extends PersistingPrefsModel {
 	/**
 	 * the umask of this storage
 	 */
-	String umask=Integer.toOctalString(IStorageAdapter.DEFAULT_UMASK);
+	String umask = "077";
 
 	String fsname;
 

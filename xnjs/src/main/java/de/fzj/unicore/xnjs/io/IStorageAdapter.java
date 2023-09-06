@@ -48,11 +48,6 @@ import de.fzj.unicore.xnjs.ems.ExecutionException;
  * @author schuller
  */
 public interface IStorageAdapter {
-
-	/**
-	 * The default umask used if non is set. 
-	 */
-	public static final int DEFAULT_UMASK = 0077;
 	
 	/**
 	 * Initial regular file permissions, are and-ed with a umask. 
@@ -271,7 +266,7 @@ public interface IStorageAdapter {
 	/**
 	 * Set a umask which shall be used for new files and directories creation.
 	 * @param umask A new umask as a (maximally) 3 digit octal number, passed as a string. 
-	 * If the value is null then TSI sets umask to DEFAULT_UMASK  
+	 * If the value is null then TSI sets umask to the DEFAULT_UMASK parameter from configuration
 	 */
 	public void setUmask(String umask);
 

@@ -139,11 +139,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected String getUmask() {
-		String n = JSONParser.parseUmask(getJobDescriptionDocument());
-		if(n==null) {
-			n = action.getUmask();
-		}
-		return n;
+		return JSONParser.parseUmask(getJobDescriptionDocument());
 	}
 	
 	@Override

@@ -52,6 +52,7 @@ import de.fzj.unicore.uas.trigger.xnjs.TriggerProcessor;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionStateChangeListener;
 import de.fzj.unicore.xnjs.ems.BasicManager;
@@ -466,6 +467,10 @@ public class XNJSFacade {
 	 */
 	public List<String>listJobIDs(Client client)throws Exception{
 		return Arrays.asList(ems.list(client));
+	}
+	
+	public String getDefaultUmask() {
+		return xnjs.getXNJSProperties().getValue(XNJSProperties.DEFAULT_UMASK);
 	}
 
 	public static class XNJSInstancesMap extends HashMap<String, XNJSFacade>{

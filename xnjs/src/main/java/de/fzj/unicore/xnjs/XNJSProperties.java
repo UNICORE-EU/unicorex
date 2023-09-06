@@ -32,6 +32,7 @@ public class XNJSProperties extends PropertiesHelper {
 	public static final String SERVICES="services";
 	public static final String FILESPACE="filespace";
 	public static final String FILESPACE_UMASK="filespaceUmask";
+	public static final String DEFAULT_UMASK="defaultUmask";
 	
 	public static final String STATEDIR="statedir";
 	public static final String IDBFILE="idbfile";
@@ -62,6 +63,8 @@ public class XNJSProperties extends PropertiesHelper {
 				setDescription("Directory on the TSI for the job directories. Must be world read/write/executable."));
 		META.put(FILESPACE_UMASK, new PropertyMD("0002").
 				setDescription("Umask to be used for creating the base directory for job directories."));
+		META.put(DEFAULT_UMASK, new PropertyMD("0027").
+				setDescription("Default umask to be used for jobs."));
 		META.put(STATEDIR, new PropertyMD().setDeprecated().
 				setDescription("Directory on the UNICORE/X machine for storing XNJS state."));
 		META.put(IDBFILE, new PropertyMD().

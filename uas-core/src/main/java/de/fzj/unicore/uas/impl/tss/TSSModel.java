@@ -4,7 +4,6 @@ import java.util.List;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.UASBaseModel;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 
 public class TSSModel extends UASBaseModel {
 
@@ -12,7 +11,7 @@ public class TSSModel extends UASBaseModel {
 
 	Boolean supportsReservation;
 
-	String umask=Integer.toOctalString(IStorageAdapter.DEFAULT_UMASK);
+	String umask = "027";
 
 	public List<String> getReservationIDs() {
 		return getChildren(UAS.RESERVATIONS);

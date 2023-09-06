@@ -186,7 +186,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		model.setParentUID(initobjs.parentUUID);
 		model.setParentServiceName(UAS.TSF);
 		model.supportsReservation=XNJSFacade.get(xnjsReference, kernel).supportsReservation();
-
+		model.umask = XNJSFacade.get(xnjsReference, kernel).getDefaultUmask();
 		createAdditionalStorages();
 
 		setStatusMessage("OK");
