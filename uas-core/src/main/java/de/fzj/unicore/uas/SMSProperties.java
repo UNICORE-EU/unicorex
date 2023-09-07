@@ -90,7 +90,7 @@ public class SMSProperties extends PropertiesHelper {
 				setDescription("Whether the existence of the base directory should be checked when creating the storage."));
 		META.put(ALLOW_USER_DEFINED_PATH, new PropertyMD("true").
 				setDescription("Whether the allow the user to set the storage base directory when creating the storage via the StorageFactory."));
-		META.put(UMASK_KEY, new PropertyMD("077").
+		META.put(UMASK_KEY, new PropertyMD("027").
 				setDescription("Default (initial) umask for files in the storage. Must be an octal number."));
 		META.put(DESCRIPTION, new PropertyMD("Filesystem").setUpdateable().
 				setDescription("Description of the storage. It will be presented to the users."));

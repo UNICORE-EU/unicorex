@@ -77,13 +77,11 @@ def run_command(cmd, discard=False, children=None):
             # remember child to be able to clean up processes later
             if children is not None: 
                 children.append(child)
-
         success = True
     except subprocess.CalledProcessError as cpe:
         output = "Command '%s' failed with code %s: %s" % (
             cmd, cpe.returncode, cpe.output)
         success = False
-
     return success, output
 
 
