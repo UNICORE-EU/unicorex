@@ -98,8 +98,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Inject
 	private ACLSupportCache aclSupportCache;
 
-	@Inject
-	private XNJSProperties xnjsProperties;
+	private final XNJSProperties xnjsProperties;
 
 	private String user = "nobody";
 	private String group = "NONE";
@@ -116,12 +115,17 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private String lastUsedTSIHost=null;
 
-	// umask - "-1" will use the default from configuration
 	private int umask = -1;
 
 	// timeout waiting for a TSI connection (before creating a new one)
 	static final int timeout = 5000;
 
+	@Inject
+	public RemoteTSI(XNJSProperties xnjsProperties) {
+		this.xnjsProperties = xnjsProperties;
+		getUmask();
+	}
+	
 	@Override
 	public void setPreferredTSIHost(String host){
 		this.preferredHost=host;
@@ -1053,9 +1057,10 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	@Override
 	public String getUmask() {
-		return(this.umask>=0 ? 
-				Integer.toOctalString(this.umask) : 
-				xnjsProperties.getValue(XNJSProperties.DEFAULT_UMASK));
+		if (umask<0) {
+			umask = Integer.parseInt(xnjsProperties.getValue(XNJSProperties.DEFAULT_UMASK),8);
+		}
+		return Integer.toOctalString(umask);
 	}
 
 	public void assertIsDirectory(String dir, String format, Object... args)throws ExecutionException{
