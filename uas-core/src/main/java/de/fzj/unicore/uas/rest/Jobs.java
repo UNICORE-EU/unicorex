@@ -193,7 +193,7 @@ public class Jobs extends ServicesBase {
 				Action action = getResource().getXNJSAction();
 				String bssID = action.getBSID();
 				if(bssID==null){
-					throw new Exception("Job BSSID cannot be null.");
+					throw new Exception("Job BSSID is null - application is not (yet?) running.");
 				}
 				if(portS==null) {
 					// TODO we might already have the host/port via the job
