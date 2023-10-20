@@ -39,7 +39,6 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	protected static final Logger logger = LogUtil.getLogger(LogUtil.DATA, RESTFileTransferBase.class);
 
-	//metrics/usage logger
 	protected static final Logger usageLogger = Log.getLogger(Log.SERVICES+".datatransfer.USAGE", RESTFileTransferBase.class);
 
 	protected OverwritePolicy overwrite = OverwritePolicy.OVERWRITE;

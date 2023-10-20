@@ -50,8 +50,6 @@ import de.fzj.unicore.xnjs.io.DataStagingCredentials;
 import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import de.fzj.unicore.xnjs.io.http.IConnectionFactory;
-import de.fzj.unicore.xnjs.tsi.TSI;
-import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.security.Client;
 
 /**
@@ -103,28 +101,15 @@ public class HTTPFileDownload extends AsyncFilemover{
 		return sb.toString();
 	}
 
-	//use the inputstream from the TSI to write the data 
+	// write data via TSI
 	public void runLocally() {
-		InputStream is=null;
-		OutputStream os=null;
-		try{
-			is=getInputStream(info.getSource());
-			if(storageAdapter==null){
-				TSI tsi=configuration.getTargetSystemInterface(client);
-				tsi.setStorageRoot(workingDirectory);
-				os=tsi.getOutputStream(info.getTarget());
-			}
-			else{
-				os=storageAdapter.getOutputStream(info.getTarget(), false);
-			}
+		try(InputStream is = getInputStream(info.getSource());
+			OutputStream os=storageAdapter.getOutputStream(info.getTarget(), false))
+		{
 			copyTrackingTransferedBytes(is, os);
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){
 			reportFailure("Download failed.", ex);
-		}
-		finally{
-			IOUtils.closeQuietly(is);
-			IOUtils.closeQuietly(os);
 		}
 	}
 

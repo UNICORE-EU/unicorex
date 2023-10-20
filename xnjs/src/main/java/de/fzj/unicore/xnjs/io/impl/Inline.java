@@ -37,9 +37,11 @@ import java.io.OutputStreamWriter;
 import java.util.UUID;
 
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.TransferInfo;
+import de.fzj.unicore.xnjs.io.XnjsFile;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
@@ -93,7 +95,7 @@ public class Inline implements IFileTransfer {
 		}
 		tsi.setStorageRoot(workingDirectory);
 		boolean append = OverwritePolicy.APPEND.equals(overwrite);
-		try(OutputStreamWriter os = new OutputStreamWriter(tsi.getOutputStream(info.getTarget(),append),"UTF-8")){
+		try(OutputStreamWriter os = getTarget(info.getTarget(),append)){
 			os.write(inlineData);
 			os.flush(); // flush here to avoid possible race condition
 			info.setTransferredBytes(inlineData.length());
@@ -122,6 +124,26 @@ public class Inline implements IFileTransfer {
 	@Override
 	public void setStorageAdapter(IStorageAdapter adapter) {
 		this.tsi = adapter;
+	}
+
+	private OutputStreamWriter getTarget(String target, boolean append)throws Exception{
+		String s = getParentOfLocalFilePath(target);
+		XnjsFile parent=tsi.getProperties(s);
+		if(parent==null){
+			tsi.mkdir(s);
+		}
+		else if(!parent.isDirectory()){
+			throw new ExecutionException("Parent <"+s+"> is not a directory");
+		}
+		return new OutputStreamWriter(tsi.getOutputStream(info.getTarget(),append),"UTF-8");
+	}
+
+	private String getParentOfLocalFilePath(String file){
+		String result = file.replaceAll("/+","/").
+				replace("\\/","/").
+				replace("/", tsi.getFileSeparator());
+		int i=result.lastIndexOf(tsi.getFileSeparator());
+		return i>0 ? result.substring(0,i) : "/" ;
 	}
 
 }

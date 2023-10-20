@@ -35,6 +35,7 @@ package de.fzj.unicore.xnjs.io.impl;
 
 import static de.fzj.unicore.xnjs.util.IOUtils.quote;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
@@ -45,7 +46,6 @@ import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
 import de.fzj.unicore.xnjs.io.IOProperties;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
-import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.security.Client;
 
@@ -102,29 +102,21 @@ public class FTPDownload extends AsyncFilemover{
 	 * performs FTP download using java.net.URL directly
 	 */
 	public void runLocally() {
-		OutputStream os=null;
-		InputStream is=null;
-		try{
-			URL url=IOUtils.addFTPCredentials(new URL(info.getSource()), credentials);
-			is=url.openStream();
-			if(storageAdapter==null){
-				TSI tsi=configuration.getTargetSystemInterface(client);
-				tsi.setStorageRoot(workingDirectory);
-				os=tsi.getOutputStream(info.getTarget());
-			}else{
-				os=storageAdapter.getOutputStream(info.getTarget(), false);
-			}
+		try(InputStream is=openURL();
+			OutputStream os=storageAdapter.getOutputStream(info.getTarget(), false))
+		{
 			copyTrackingTransferedBytes(is, os);
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){
 			reportFailure("Could not do FTP download", ex);
 		}
-		finally{
-			IOUtils.closeQuietly(is);
-			IOUtils.closeQuietly(os);
-		}
 	}
 	
+	private InputStream openURL() throws IOException {
+		URL u = IOUtils.addFTPCredentials(new URL(info.getSource()), credentials); 
+		return u.openStream();
+	}
+
 	public void setImportPolicy(ImportPolicy policy){
 		// NOP
 	}

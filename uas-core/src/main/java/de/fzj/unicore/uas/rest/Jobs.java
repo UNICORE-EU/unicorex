@@ -253,6 +253,9 @@ public class Jobs extends ServicesBase {
 		else if("restart".equals(action)){
 			job.restart();
 		}
+		else {
+			throw new IllegalArgumentException("No such action: <"+action+">");
+		}
 		return reply;
 	}
 
