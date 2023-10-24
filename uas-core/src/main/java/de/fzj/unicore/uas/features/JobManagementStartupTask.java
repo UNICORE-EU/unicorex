@@ -43,7 +43,6 @@ import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.impl.BaseInitParameters;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryHomeImpl;
 import de.fzj.unicore.uas.impl.tss.TargetSystemFactoryImpl;
-import de.fzj.unicore.uas.rest.CoreServices;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.persist.PersistenceException;
 import eu.unicore.persist.impl.LockSupport;
@@ -76,7 +75,6 @@ public class JobManagementStartupTask implements Runnable{
 		}catch(Exception re){
 			throw new RuntimeException("Could not create default TSF instance.",re);
 		}
-		CoreServices.publish(kernel);
 	}
 
 	/**

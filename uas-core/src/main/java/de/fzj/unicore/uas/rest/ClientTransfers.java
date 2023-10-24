@@ -2,8 +2,6 @@ package de.fzj.unicore.uas.rest;
 
 import java.util.Map;
 
-import javax.ws.rs.Path;
-
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.fts.FileTransferModel;
@@ -12,6 +10,7 @@ import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import jakarta.ws.rs.Path;
 
 /**
  * REST interface to client-server data transfers

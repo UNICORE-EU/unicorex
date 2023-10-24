@@ -6,17 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -29,6 +18,7 @@ import de.fzj.unicore.uas.json.Builder;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDB;
+import eu.unicore.persist.PersistenceException;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
@@ -40,6 +30,16 @@ import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
  * REST interface to sites (TSS instances)

@@ -8,8 +8,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.ws.rs.core.MediaType;
-
 import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +25,7 @@ import de.fzj.unicore.xnjs.io.XnjsStorageInfo;
 import de.fzj.unicore.xnjs.util.BackedInputStream;
 import de.fzj.unicore.xnjs.util.BackedOutputStream;
 import de.fzj.unicore.xnjs.util.IOUtils;
+import jakarta.ws.rs.core.MediaType;
 
 /**
  * Access CDMI backend

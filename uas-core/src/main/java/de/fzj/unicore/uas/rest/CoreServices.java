@@ -6,8 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.core.Application;
-
 import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 
 import eu.emi.security.authn.x509.X509Credential;
@@ -17,6 +15,7 @@ import eu.unicore.services.registry.RegistryHandler;
 import eu.unicore.services.registry.RegistryImpl;
 import eu.unicore.services.rest.USERestApplication;
 import eu.unicore.util.Log;
+import jakarta.ws.rs.core.Application;
 
 /**
  * REST app dealing with core services

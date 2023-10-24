@@ -7,10 +7,6 @@ import java.net.HttpURLConnection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -20,6 +16,9 @@ import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.security.util.AuthZAttributeStore;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * this servlet exposes files under a "hard to guess" URL 

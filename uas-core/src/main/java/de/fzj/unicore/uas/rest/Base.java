@@ -4,13 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.UAS;
@@ -26,6 +19,12 @@ import eu.unicore.services.rest.security.AuthNHandler;
 import eu.unicore.services.rest.security.jwt.JWTUtils;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.Log;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 /**
  * Parent resource for the core services, has links to the actual resources 

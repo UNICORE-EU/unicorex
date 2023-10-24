@@ -3,8 +3,6 @@ package de.fzj.unicore.uas.rest;
 import java.util.Date;
 import java.util.Map;
 
-import javax.ws.rs.Path;
-
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.UAS;
@@ -16,6 +14,7 @@ import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import jakarta.ws.rs.Path;
 
 /**
  * REST interface to server-to-server transfers
