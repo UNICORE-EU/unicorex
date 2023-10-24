@@ -50,7 +50,7 @@
     <module>uas-core</module>
     <module>uas-client</module>
     <module>uas-metadata</module>    
-    <module>uas-jclouds</module>
+    <!--module>uas-jclouds</module-->
     <module>unicorex-dist</module>
     <module>registry-dist</module>
   </modules>
