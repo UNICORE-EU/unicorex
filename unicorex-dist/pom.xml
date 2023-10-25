@@ -41,17 +41,11 @@
       <artifactId>uas-metadata</artifactId>
       <version>${ux.version}</version>
     </dependency>
-    <!--dependency>
-      <groupId>eu.unicore</groupId>
-      <artifactId>uas-jclouds</artifactId>
-      <version>${ux.version}</version>
-    </dependency-->
     <dependency>
       <groupId>eu.unicore.workflow</groupId>
       <artifactId>workflowservice</artifactId>
       <version>${wfe.version}</version>
     </dependency> 
-
   </dependencies>
 
   <profiles>

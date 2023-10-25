@@ -39,7 +39,6 @@
     <uftp.version>2.15.0</uftp.version>
     <guice.version>6.0.0</guice.version>
     <guava.version>32.1.3-jre</guava.version>
-    <jclouds.version>2.5.0</jclouds.version>
     <lucene.version>9.7.0</lucene.version>
     <tika.version>2.8.0</tika.version>
     <spring.version>5.3.29</spring.version>
@@ -50,7 +49,6 @@
     <module>uas-core</module>
     <module>uas-client</module>
     <module>uas-metadata</module>    
-    <!--module>uas-jclouds</module-->
     <module>unicorex-dist</module>
     <module>registry-dist</module>
   </modules>
