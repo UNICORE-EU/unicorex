@@ -11,12 +11,15 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.hc.core5.http.HttpStatus;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.Base;
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.CoreClient;
+import eu.unicore.client.core.EnumerationClient;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
@@ -24,6 +27,7 @@ import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.client.data.TransferControllerClient.Status;
 import eu.unicore.services.rest.client.BaseClient;
+import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.RESTException;
 import eu.unicore.services.rest.client.UsernamePassword;
 
@@ -162,6 +166,36 @@ public class TestStorages extends Base {
 		client.chmod("nonexistentpath", "rw-");
 		FileListEntry e = client.stat("nonexistentpath");
 		System.out.println(e);
+	}
+
+	@Test
+	public void testListStorages()throws Exception {
+		String baseUrl = kernel.getContainerProperties().getContainerURL()+
+				"/rest/core/";
+		CoreClient base = new CoreClient(new Endpoint(baseUrl), kernel.getClientConfiguration(), null);
+		base.getSiteClient(); // make sure all per-user storages are created
+		EnumerationClient ec = base.getStoragesList();
+		ec.setUpdateInterval(-1);
+		JSONArray p = ec.getProperties().getJSONArray("storages");
+		int l1 = p.length();
+		runJob();
+		p = ec.getProperties().getJSONArray("storages");
+		assertEquals("working dir should not be listed", l1, p.length());
+		ec.setFilter("all");
+		p = ec.getProperties().getJSONArray("storages");
+		System.out.println(p);
+		assertTrue("working dirs should be listed", p.length()>l1);
+	}
+
+	// runs empty job to create a working directory
+	private void runJob() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
+		System.out.println("Accessing "+url);
+		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), auth);
+		JSONObject task = new JSONObject();
+		String jobUrl = client.create(task);
+		System.out.println("created: "+jobUrl);
 	}
 
 	/**

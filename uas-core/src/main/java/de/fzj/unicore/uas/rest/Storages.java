@@ -3,6 +3,7 @@ package de.fzj.unicore.uas.rest;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Logger;
@@ -53,6 +54,18 @@ public class Storages extends ServicesBase {
 
 	protected String getResourcesName(){
 		return "storages";
+	}
+
+	@Override
+	protected Predicate<String>createFilter(String filterSpec){
+		if("all".equalsIgnoreCase(filterSpec)) {
+			// return everything
+			return null;
+		}
+		else {
+			// filter out job directories (storages named "-uspace")
+			return t -> t.endsWith("-uspace");
+		}
 	}
 
 	@Override

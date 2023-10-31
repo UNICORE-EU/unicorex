@@ -3,12 +3,15 @@ package eu.unicore.client.core;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
@@ -25,7 +28,9 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 	protected String resourcesName;
 	
 	protected String[] tags;
-	
+
+	protected String filterSpec;
+
 	public EnumerationClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 		try{
@@ -33,8 +38,23 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 		}catch(Exception ex){};
 	}
 
+	public JSONObject getProperties() throws Exception {
+		Map<String,String>queryParams = new HashMap<>();
+		if(tags!=null && tags.length>0){
+			queryParams.put("tags",JSONUtil.toCommaSeparated(tags));
+		}
+		if(filterSpec!=null) {
+			queryParams.put("filter", filterSpec);
+		}
+		return getProperties(queryParams);
+	}
+
 	public void setResourcesName(String resourcesName){
 		this.resourcesName = resourcesName;
+	}
+
+	public void setFilter(String filterSpec) {
+		this.filterSpec = filterSpec;
 	}
 
 	/**
@@ -43,7 +63,7 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 	public void setDefaultTags(String[] tags) {
 		this.tags = tags;
 	}
-	
+
 	public List<String>getUrls(int offset, int num) throws Exception {
 		return getUrls(offset, num, tags);
 	}
@@ -58,6 +78,9 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 		}
 		if(tags!=null && tags.length>0){
 			ub.addParameter("tags",JSONUtil.toCommaSeparated(tags));
+		}
+		if(filterSpec!=null) {
+			ub.addParameter("filter", filterSpec);
 		}
 		bc.setURL(ub.build().toString());
 		JSONArray arr = bc.getJSON().getJSONArray(resourcesName);

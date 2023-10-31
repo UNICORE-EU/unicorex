@@ -1,6 +1,8 @@
 package eu.unicore.client.core;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -44,11 +46,11 @@ public class BaseServiceClient {
 	protected BaseClient createTransport(String url, IClientConfiguration security, IAuthCallback auth){
 		return new BaseClient(url, security, auth);
 	}
-	
+
 	public IClientConfiguration getSecurityConfiguration() {
 		return security;
 	}
-	
+
 	public IAuthCallback getAuth() {
 		return auth;
 	}
@@ -56,13 +58,13 @@ public class BaseServiceClient {
 	public UserPreferences getUserPreferences(){
 		return bc.getUserPreferences();
 	}
-	
+
 	public String getLinkUrl(String relation) throws Exception {
 		return getProperties().getJSONObject("_links").getJSONObject(relation).getString("href");
 	}
-	
+
 	JSONObject cachedProperties = null;
-	
+
 	public JSONObject getProperties() throws Exception {
 		if(cachedProperties==null || System.currentTimeMillis()>lastAccessed+updateInterval){
 			cachedProperties = bc.getJSON();
@@ -70,29 +72,42 @@ public class BaseServiceClient {
 		}	
 		return cachedProperties;
 	}
-	
+
 	/**
 	 * get only the named properties
 	 */
 	public JSONObject getProperties(String... fields) throws Exception {
 		if(fields!=null && fields.length>0) {
-			URIBuilder ub = new URIBuilder(bc.getURL());
-			ub.removeQuery();
-			ub.addParameter("fields",JSONUtil.toCommaSeparated(fields));
-			bc.pushURL(ub.build().toString());
-			JSONObject props = bc.getJSON();
-			bc.popURL();
-			return props;
+			Map<String,String>queryParams = new HashMap<>();
+			queryParams.put("fields", JSONUtil.toCommaSeparated(fields));
+			return getProperties(queryParams);
 		}
 		else {
 			return getProperties();
 		}
 	}
-	
+
+	/**
+	 * generic GET with query params
+	 *
+	 * @param queryParams
+	 */
+	public JSONObject getProperties(Map<String,String> queryParams) throws Exception {
+		URIBuilder ub = new URIBuilder(bc.getURL());
+		ub.removeQuery();
+		for(Map.Entry<String,String>e: queryParams.entrySet()) {
+			ub.addParameter(e.getKey(), e.getValue());
+		}
+		bc.pushURL(ub.build().toString());
+		JSONObject props = bc.getJSON();
+		bc.popURL();
+		return props;
+	}
+
 	public List<String> getTags() throws Exception {
 		return JSONUtil.toList(getProperties().getJSONArray("tags"));
 	}
-	
+
 	public long getUpdateInterval() {
 		return updateInterval;
 	}
@@ -105,11 +120,11 @@ public class BaseServiceClient {
 	public void setUpdateInterval(long updateInterval) {
 		this.updateInterval = updateInterval;
 	}
-	
+
 	public Endpoint getEndpoint() {
 		return endpoint;
 	}
-	
+
 	public JSONObject executeAction(String name, JSONObject params) throws Exception {
 		String url;
 		try {
@@ -131,14 +146,14 @@ public class BaseServiceClient {
 			bc.popURL();
 		}
 	}
-	
+
 	/**
 	 * deletes the resources
 	 */
 	public void delete() throws Exception {
 		bc.delete();
 	}
-	
+
 	/**
 	 * set/update properties
 	 * @param set - JSON doc containing key/value properties to set/update
