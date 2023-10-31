@@ -33,7 +33,7 @@
 
     <compiler.fork>false</compiler.fork>
     <use.version>5.0.0</use.version>
-    <secutils.version>4.0.0</secutils.version>
+    <secutils.version>4.0.1</secutils.version>
     <persistence.version>0.600</persistence.version>
     <metrics.version>4.2.19</metrics.version>
     <uftp.version>2.15.0</uftp.version>
