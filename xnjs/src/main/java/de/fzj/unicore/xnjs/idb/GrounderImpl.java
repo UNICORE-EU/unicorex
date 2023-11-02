@@ -120,11 +120,10 @@ public class GrounderImpl implements Incarnation {
 	 * @param fromUser - the user's request
 	 */
 	protected void mergeInfo(ApplicationInfo result, ApplicationInfo fromUser) throws Exception {
+		boolean allowUserExec = properties.getBooleanValue(XNJSProperties.ALLOW_USER_EXECUTABLE);
 
-		//executable. It might be forbidden to directly pass in an executable
 		if(fromUser.getExecutable()!=null){
-			boolean allow = properties.getBooleanValue(XNJSProperties.ALLOW_USER_EXECUTABLE);
-			if(!allow){
+			if(!allowUserExec){
 				String msg="Cannot execute <"+fromUser.getExecutable()+">. Only Applications may be executed on this site.";
 				ErrorCode ec=new ErrorCode(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
 				throw new ExecutionException(ec);
@@ -143,8 +142,8 @@ public class GrounderImpl implements Incarnation {
 		 *     been supplied
 		 *   - if no, the argument is removed from the list
 		 */
-		List<String> argsFromIDB=result.getArguments();
-		List<String>incarnatedArgs=new ArrayList<String>();
+		List<String> argsFromIDB = result.getArguments();
+		List<String> incarnatedArgs = new ArrayList<>();
 		for(String argName: argsFromIDB){
 			if(!argName.endsWith("?")){
 				incarnatedArgs.add(argName);
@@ -182,11 +181,21 @@ public class GrounderImpl implements Incarnation {
 		boolean allowedToRunOnLogin = !Boolean.parseBoolean(
 				properties.getRawProperty(TSIProperties.PREFIX+TSIProperties.BSS_NO_USER_INTERACTIVE_APPS));
 		if(fromUser.getUserPreCommand()!=null){
+			if(!allowUserExec){
+				String msg="Cannot execute user pre-command - user executables are forbidden on this site.";
+				ErrorCode ec=new ErrorCode(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
+				throw new ExecutionException(ec);
+			}
 			result.setUserPreCommand(fromUser.getUserPreCommand());
 			result.setUserPreCommandOnLoginNode(allowedToRunOnLogin && fromUser.isUserPreCommandOnLoginNode());
 			result.setUserPreCommandIgnoreExitCode(fromUser.isUserPreCommandIgnoreExitCode());
 		}
 		if(fromUser.getUserPostCommand()!=null) {
+			if(!allowUserExec){
+				String msg="Cannot execute user post-command - user executables are forbidden on this site.";
+				ErrorCode ec=new ErrorCode(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
+				throw new ExecutionException(ec);
+			}
 			result.setUserPostCommand(fromUser.getUserPostCommand());
 			result.setUserPostCommandOnLoginNode(allowedToRunOnLogin && fromUser.isUserPostCommandOnLoginNode());
 			result.setUserPostCommandIgnoreExitCode(fromUser.isUserPostCommandIgnoreExitCode());

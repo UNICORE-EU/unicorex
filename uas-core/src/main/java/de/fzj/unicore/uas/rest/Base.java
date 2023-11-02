@@ -1,6 +1,5 @@
 package de.fzj.unicore.uas.rest;
 
-import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,16 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.tss.TargetSystemHomeImpl;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
-import eu.unicore.security.AuthenticationException;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.impl.ApplicationBaseResource;
-import eu.unicore.services.rest.jwt.JWTServerProperties;
-import eu.unicore.services.rest.security.AuthNHandler;
-import eu.unicore.services.rest.security.jwt.JWTUtils;
-import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.Log;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -46,62 +37,6 @@ public class Base extends ApplicationBaseResource {
 			return Response.ok().entity(getJSON().toString()).build();
 		}catch(Exception ex) {
 			return handleError("", ex, logger);
-		}
-	}
-	
-	@GET
-	@Path("/certificate")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response getCert() throws Exception {
-		try {
-			String pem = "n/a";
-			if(kernel.getContainerSecurityConfiguration().getCredential()!=null) {
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				CertificateUtils.saveCertificate(os, 
-						kernel.getContainerSecurityConfiguration().getCredential().getCertificate(), 
-						Encoding.PEM);
-				pem = os.toString("UTF-8");
-			}
-			return Response.ok().entity(pem).build();
-		}
-		catch(Exception ex) {
-			return handleError("", ex, logger);
-		}
-	}
-	
-	@GET
-	@Path("/token")
-	@Produces(MediaType.TEXT_PLAIN)
-	public Response getToken(@QueryParam("lifetime")String lifetimeParam,
-			@QueryParam("renewable")String renewable,
-			@QueryParam("limited")String limited)
-			throws Exception {
-		try {
-			String method = (String)AuthZAttributeStore.getTokens().getContext().get(AuthNHandler.USER_AUTHN_METHOD);
-			if("ETD".equals(method)) {
-				if(!(Boolean)AuthZAttributeStore.getTokens().getContext().get(AuthNHandler.ETD_RENEWABLE)) {
-					throw new AuthenticationException("Cannot create token when authenticating with a non-renewable token!");
-				}
-			}
-			JWTServerProperties jwtProps = new JWTServerProperties(kernel.getContainerProperties().getRawProperties());
-			String user = AuthZAttributeStore.getClient().getDistinguishedName();
-			X509Credential issuerCred =  kernel.getContainerSecurityConfiguration().getCredential();
-			long lifetime = lifetimeParam!=null? Long.valueOf(lifetimeParam): jwtProps.getTokenValidity();
-			Map<String,String> claims = new HashMap<>();
-			claims.put("etd", "true");
-			if(Boolean.parseBoolean(renewable)) {
-				claims.put("renewable", "true");
-			}
-			if(Boolean.parseBoolean(limited)) {
-				claims.put("aud", issuerCred.getSubjectName());
-			}
-			String token = JWTUtils.createJWTToken(user, lifetime,
-					issuerCred.getSubjectName(), issuerCred.getKey(),
-					claims);
-			return Response.ok().entity(token).build();
-		}
-		catch(Exception ex) {
-			return handleError("Error creating token", ex, logger);
 		}
 	}
 
