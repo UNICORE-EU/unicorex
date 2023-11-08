@@ -3,6 +3,7 @@ package eu.unicore.client.core;
 import java.util.List;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
@@ -85,6 +86,26 @@ public class JobClient extends BaseServiceClient {
 	
 	public void abort() throws Exception {
 		executeAction("abort", null);
+	}
+
+	public JSONObject getBSSDetails() throws Exception {
+		String url = getLinkUrl("details");
+		bc.pushURL(url);
+		try{
+			return bc.getJSON();
+		}finally {
+			bc.popURL();
+		}
+	}
+
+	public JSONObject getSubmittedJobDescription() throws Exception {
+		String url = getLinkUrl("submitted");
+		bc.pushURL(url);
+		try{
+			return bc.getJSON();
+		}finally {
+			bc.popURL();
+		}
 	}
 
 }

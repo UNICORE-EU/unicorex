@@ -93,7 +93,30 @@ public class Jobs extends ServicesBase {
 			return handleError("Could not get job details", ex, logger);
 		}
 	}
-	
+
+	/**
+	 * get the submitted job description
+	 */
+	@GET
+	@Path("/{uniqueID}/submitted")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response submittedJob() {
+		try{
+			JobManagementImpl resource = getResource();
+			Action action = resource.getXNJSAction();
+			String jobDesc = String.valueOf(action.getAjd());
+			JSONObject job;
+			try {
+				job = new JSONObject(jobDesc);
+			}catch(JSONException ex) {
+				job = new JSONObject();
+				job.put("submittedJob", job);
+			}
+			return Response.ok(job.toString()).build();
+		}catch(Exception ex){
+			return handleError("Could not get job details", ex, logger);
+		}
+	}
 	/**
 	 * submit a job to any of our accessible target system instances
 	 * 
@@ -318,6 +341,7 @@ public class Jobs extends ServicesBase {
 		JobModel model = getModel();
 		String base =  baseURL+"/jobs/"+resource.getUniqueID();
 		links.add(new Link("details", base+"/details", "BSS job details"));
+		links.add(new Link("submitted", base+"/submitted", "Submitted job description"));
 		links.add(new Link("action:start", base+"/actions/start", "Start"));
 		links.add(new Link("action:abort", base+"/actions/abort", "Abort"));
 		links.add(new Link("action:restart", base+"/actions/restart", "Restart"));

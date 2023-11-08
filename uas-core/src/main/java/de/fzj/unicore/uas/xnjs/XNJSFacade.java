@@ -327,6 +327,22 @@ public class XNJSFacade {
 		}
 	}
 
+	/**
+	 * Retrieve the progress of an action
+	 */
+	public final String getJobDescription(String id){
+		try{
+			Action a = mgr.getAction(id);
+			if(a!=null)return String.valueOf(a.getAjd());
+			else {
+				logger.info("Can't get job description for action "+id+", not found on XNJS.");
+				return "n/a";
+			}
+		}catch(Exception e){
+			LogUtil.logException("Error retrieving job description for <"+id+">", e);
+			return "n/a";
+		}
+	}
 
 	/**
 	 * Destroy an action on the XNJS, removing its Uspace

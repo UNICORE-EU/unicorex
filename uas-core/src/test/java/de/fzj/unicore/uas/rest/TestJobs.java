@@ -9,6 +9,8 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import de.fzj.unicore.uas.SecuredBase;
+import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.JobClient;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
@@ -25,15 +27,14 @@ public class TestJobs extends SecuredBase {
 		task.put("ApplicationName", "Date");
 		String jobUrl = client.create(task);
 		System.out.println("created: "+jobUrl);
-		
+		JobClient job = new JobClient(new Endpoint(jobUrl), kernel.getClientConfiguration(), auth);
 		// get job properties
-		client.setURL(jobUrl);
-		JSONObject jobProps = client.getJSON();
+		JSONObject jobProps = job.getProperties();
 		System.out.println("*** new job: ");
 		System.out.println(jobProps.toString(2));
 		
 		// access parent TSS
-		String tssUrl = client.getLink("parentTSS");
+		String tssUrl = job.getLinkUrl("parentTSS");
 		client.setURL(tssUrl);
 		JSONObject tssProps = client.getJSON();
 		System.out.println("*** parent TSS: ");
@@ -44,6 +45,13 @@ public class TestJobs extends SecuredBase {
 		// check that the job URL is listed
 		System.out.println(client.getJSON().toString(2));
 		assertTrue(contains(client.getJSON().getJSONArray("jobs"),jobUrl));
+		
+		// job desc
+		JSONObject submitted = job.getSubmittedJobDescription();
+		System.out.println("*** retrieving submitted job: ");
+		System.out.println(submitted.toString(2));
+		assertEquals("Date",submitted.getString("ApplicationName"));
+		
 	}
 	
 	
