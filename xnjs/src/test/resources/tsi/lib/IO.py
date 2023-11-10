@@ -11,6 +11,7 @@ import os.path
 import stat
 from Utils import expand_variables, extract_parameter, run_command
 
+import Testing
 
 def get_file_chunk(message, connector, config, LOG):
     """Return part of a file to UNICORE/X via the data_out stream.
@@ -86,6 +87,7 @@ def put_file_chunk(message, connector, config, LOG):
         connector.ok("ENDOFMESSAGE")
         remaining = length
 
+        Testing.fail_io(config, LOG)
         while remaining > 0:
             buf = connector.read_data(remaining)
             bytes_read = len(buf)

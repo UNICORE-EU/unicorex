@@ -217,7 +217,7 @@ public class TSIConnection implements AutoCloseable {
 
 	private void done() {
 		setIdLine("");
-		if(shutDown ){
+		if(shutDown){
 			return;
 		}
 		factory.done(this);
@@ -433,6 +433,7 @@ public class TSIConnection implements AutoCloseable {
 			if(checkAlive){
 				try {
 					command.socket.setSoTimeout(pingTimeout);
+					drainCommand();
 					_send("#TSI_PING", false);
 					drainCommand();
 				} catch (Exception ex) {

@@ -476,4 +476,14 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		}
 	}
 
+	public void changeSetting(String tsiHost, String key, String value) throws IOException, TSIUnavailableException {
+		if(tsiHost!=null) {
+			getConnector(tsiHost).set(server, key, value);
+		}else {
+			for(TSIConnector connector: connectors) {
+				connector.set(server, key, value);
+			}
+		}
+	}
+
 }

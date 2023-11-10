@@ -33,19 +33,24 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.junit.Assert.assertFalse;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
+import eu.unicore.util.Log;
 
 public class TestTSIConnectionPool extends RemoteTSITestCase {
 	
@@ -105,6 +110,21 @@ public class TestTSIConnectionPool extends RemoteTSITestCase {
 			assertFalse(DefaultTSIConnectionFactory.matches(want, actual));
 		}
 		assertTrue(DefaultTSIConnectionFactory.matches(null, actual));
+	}
+	
+	@Test
+	public void testIOError() throws Exception {
+		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
+		f.changeSetting(null, "fail_io", "1");
+		RemoteTSI t  = makeTSI();
+		File p = new File("./target/x.dat");
+		try(OutputStream os = t.getOutputStream(p.getAbsolutePath())){
+			IOUtils.write("test", os, "UTF-8");
+		}
+		catch(IOException ioe) {
+			System.out.println("Expected ERROR: "+Log.createFaultMessage("", ioe));
+		}
+		f.changeSetting(null, "fail_io", "0");
 	}
 	
 	@Override

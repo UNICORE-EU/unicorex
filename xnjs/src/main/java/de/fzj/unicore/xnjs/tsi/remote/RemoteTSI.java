@@ -761,9 +761,16 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			protected void fillBuffer() throws IOException {
 				//compute bytes to be read: either buffer size, or remainder of file
 				long numBytes=Math.min(length-bytesRead,buffer.length);
-				avail=readChunk(target,buffer,bytesRead,numBytes);
-				pos=0;
-				tsiLogger.debug("Read <{}> bytes into buffer.", avail);
+				try {
+					avail = readChunk(target,buffer,bytesRead,numBytes);
+					pos = 0;
+					tsiLogger.debug("Read <{}> bytes into buffer.", avail);
+				} catch (TSIUnavailableException e) {
+					throw new IOException("TSI unavailable.", e);
+				}
+				catch (ExecutionException e) {
+					throw new IOException("TSI error", e);
+				}
 			}
 		};
 	}
@@ -795,15 +802,14 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * read a chunk from the TSI
 	 * @param file - absolute path 
 	 */
-	private int readChunk(String file,byte[] buf,long offset, long length)throws IOException{
+	private int readChunk(String file,byte[] buf,long offset, long length)
+			throws IOException, TSIUnavailableException, ExecutionException{
 		tsiLogger.debug("read from <{}> numbytes={}", file, length);
 		String tsicmd = tsiMessages.makeGetFileChunkCommand(file,offset,length);
-		try(TSIConnection conn = getConnection()){
+		try (TSIConnection conn = getConnection()){
 			String res=conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
-				String msg="Command execution failed. TSI reply:"+res;
-				ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
-				throw new ExecutionException(ec);
+				throw new IOException("Command execution failed. TSI reply:"+res);
 			}
 			else {
 				tsiLogger.debug("TSI response: '{}'", res);
@@ -819,12 +825,12 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 				}
 			}
 			conn.getData(buf,0,av);
-			conn.getLine(); //U4 NJS/TSI protocol: extra 'ENDOFMESSAGE' line
+			String line = conn.getLine(); // extra 'ENDOFMESSAGE' line
+			if(!"ENDOFMESSAGE".equals(line)) {
+				conn.shutdown();
+				throw new IOException(line);
+			}
 			return av;
-		}catch(Exception e){
-			IOException io = new IOException("Error reading from TSI");
-			io.initCause(e);
-			throw io;
 		}
 	}
 
@@ -839,14 +845,10 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 				try {
 					writeChunk(target, buffer, pos, doAppend);
 				} catch (TSIUnavailableException e) {
-					IOException ioe=new IOException("TSI unavailable.");
-					ioe.initCause(e);
-					throw ioe;
+					throw new IOException("TSI unavailable.", e);
 				}
 				catch (ExecutionException e) {
-					IOException ioe=new IOException("TSI error");
-					ioe.initCause(e);
-					throw ioe;
+					throw new IOException("TSI error", e);
 				}
 			}
 		};
@@ -864,21 +866,26 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	/**
 	 * write a blob of data to the named file <br/>
-	 * see XNJS 4 NJS BatchTargetSystem and TSI PutFiles.pm
+	 * see TSI IO.py
 	 * @param file - absolute file path
 	 */
-	private void writeChunk(String file, byte[] buf, int numBytes, boolean append)throws IOException,TSIUnavailableException, ExecutionException{
+	private void writeChunk(String file, byte[] buf, int numBytes, boolean append)
+			throws IOException,TSIUnavailableException, ExecutionException {
 		tsiLogger.debug("Write to {}, append={}, numBytes={}", file, append, numBytes);
-		try(TSIConnection conn = getConnection()){
+		try (TSIConnection conn = getConnection()){
 			String permissions = TSIMessages.getFilePerm(umask) ;
-
 			String tsicmd = tsiMessages.makePutFileChunkCommand(file, permissions, numBytes, append);
 			String res=conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
 				throw new IOException("Execution on TSI <"+lastUsedTSIHost+"> failed. Reply was "+res);
 			}
 			conn.sendData(buf,0,numBytes);
-			conn.getLine(); // extra ENDOFMESSAGE
+			String line = conn.getLine(); // extra ENDOFMESSAGE
+			if(!"ENDOFMESSAGE".equals(line)){
+				// can't reuse the connection in this case!
+				conn.shutdown();
+				throw new IOException(line);
+			}
 		}
 	}
 

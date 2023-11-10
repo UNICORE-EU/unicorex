@@ -14,7 +14,7 @@ import ACL, BecomeUser, BSS, Connector, Log, PAM, Reservation, Server, SSL, IO, 
 MY_VERSION = "9.1.1"
 
 # supported Python versions
-REQUIRED_VERSION = (3, 6, 0)
+REQUIRED_VERSION = (3, 7, 0)
 
 
 def assert_version():
@@ -171,7 +171,7 @@ def finish_setup(config, LOG):
     setup_portrange(config, LOG)
 
 
-def ping(message, connector, config, LOG):
+def ping(connector, config, LOG):
     """ Returns TSI version."""
     connector.write_message(MY_VERSION)
 
@@ -341,7 +341,7 @@ def process(connector, config, LOG):
         if function is None:
             connector.failed("Unknown command %s" % command)
         elif "TSI_PING" == command:
-            connector.write_message(MY_VERSION)
+            ping(connector, config, LOG)
         else:
             handle_function(function, command, message, connector, config, LOG)
         # terminate the current "transaction" with UNICORE/X
