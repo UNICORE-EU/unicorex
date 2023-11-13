@@ -150,6 +150,14 @@ def connect(configuration, LOG):
         elif cmd == "newtsiprocess":
             num_conns = 2
             pass
+        elif cmd == "set":
+            settings = configuration.get("settings", {})
+            key, value = params.split(" ",1)
+            settings[key] = value
+            configuration['settings'] = settings
+            close_quietly(unicorex)
+            LOG.info("SET: %s=%s"%(key,value))
+            continue
         else:
             LOG.info("Command from UNICORE/X not understood: %s " % msg)
             close_quietly(unicorex)

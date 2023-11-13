@@ -42,10 +42,13 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 	static final int wait_time=1000;
 
 	private FakeFtpServer ftpServer;
+	private File testDir;
 
 	@Before
 	public void startHelperServers()throws Exception{
 		setupFTPServer();
+		testDir=new File("target","xnjs_test"+System.currentTimeMillis());
+		testDir.mkdirs();
 	}
 
 	private void setupFTPServer(){
@@ -245,21 +248,21 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	@Test
 	public void testInline() throws Exception {
-
-		File localFile=File.createTempFile("xnjs", "inline-test");
+		
+		File localFile = new File(testDir, "xnjs/inline-test");
 		localFile.deleteOnExit();
 
 		URI source=new URI("inline://foo");
 
 		DataStageInInfo info = new DataStageInInfo();
 		info.setSources(new URI[]{source});
-		info.setFileName(localFile.getAbsolutePath());
+		info.setFileName("xnjs/inline-test");
 		info.setOverwritePolicy(OverwritePolicy.OVERWRITE);
 		String testdata = "this is some test data";
 		info.setInlineData(testdata);
 
 		IFileTransfer ft=new FileTransferEngine(xnjs).
-				createFileImport(null, "/", info);
+				createFileImport(null, testDir.getAbsolutePath(), info);
 		assertNotNull(ft);
 		ft.run();
 		TransferInfo fti = ft.getInfo();
@@ -267,9 +270,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		assertTrue(transferred>0);
 		assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
 		assertEquals(testdata,FileUtils.readFileToString(localFile, "UTF-8"));
-
 	}
-
 
 	private String createDummyParent()throws Exception{
 		JSONObject jD = new JSONObject("{'ApplicationName': 'Date'}");

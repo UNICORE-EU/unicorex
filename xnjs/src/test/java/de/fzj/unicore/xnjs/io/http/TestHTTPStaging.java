@@ -47,8 +47,8 @@ public class TestHTTPStaging extends EMSTestBase {
 	@Test
 	public void testHTTPDownload()throws Exception{
 		String source=server.getURI();
-		File tFile=new File("target","xnjs_test"+System.currentTimeMillis());
-		String target=tFile.getName();
+		String target="xnjs_test"+System.currentTimeMillis()+"/test-http";
+		File tFile=new File("target", target);
 		server.setRequireAuth(true);
 		UsernamePassword up = new UsernamePassword("user", "test123");
 		HTTPFileDownload hfd=new HTTPFileDownload(null,"target",source,target,xnjs,up);

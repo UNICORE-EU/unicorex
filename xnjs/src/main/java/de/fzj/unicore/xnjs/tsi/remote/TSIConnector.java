@@ -71,7 +71,21 @@ public class TSIConnector {
 			throw ex;
 		}
 	}
-	
+
+	public void set(TSISocketFactory server, String key, String value) throws IOException {
+		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
+		synchronized(server) {
+			try {
+				server.setSoTimeout(connectTimeout);
+				signalShepherd(server, "set "+key+" "+value+"\n");
+			}catch(IOException ex) {
+				String msg = Log.createFaultMessage("Can't set parameter on TSI"+this, ex);
+				notOK(msg);
+				throw ex;
+			}
+		}
+	}
+
 	/**
 	 * try to create a connection
 	 * @param server

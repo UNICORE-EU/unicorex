@@ -106,7 +106,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	@Test
 	public void testRunMulti() throws Exception {
 		var es = new ThreadPoolExecutor(4, 4, 
-				60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
+				60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>());
 
 		var t1 = new Callable<String>() {
 			public String call() {

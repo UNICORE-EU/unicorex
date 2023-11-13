@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.xnjs.XNJS;
+import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
@@ -87,15 +88,24 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		//update to compensate for potential waiting in executor
 		startTime=System.currentTimeMillis();
 
+		if(storageAdapter==null){
+			TSI tsi=configuration.getTargetSystemInterface(client);
+			tsi.setStorageRoot(workingDirectory);
+			storageAdapter = tsi;
+		}
+
 		if(abort){
 			info.setStatus(Status.ABORTED, "Aborted");
 			return;
 		}
 		info.setStatus(Status.RUNNING, "Running");
-
 		logger.info("Submitting "+this);
 
 		try{
+			if(isImport()) {
+				createParentDirectories();
+			}
+			
 			//register a listener on the target file
 			if(isImport()){
 				monitor=new FileMonitor(workingDirectory,info.getTarget(),client,configuration,3,TimeUnit.SECONDS);
@@ -215,6 +225,24 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		}
 	}
 
+	protected void createParentDirectories()throws ExecutionException{
+		String s = getParentOfLocalFilePath(info.getTarget());
+		XnjsFile parent = storageAdapter.getProperties(s);
+		if(parent==null){
+			storageAdapter.mkdir(s);
+		}
+		else if(!parent.isDirectory()){
+			throw new ExecutionException("Parent <"+s+"> is not a directory");
+		}
+	}
+
+	private String getParentOfLocalFilePath(String file){
+		String result = file.replaceAll("/+","/").
+				replace("\\/","/").
+				replace("/", storageAdapter.getFileSeparator());
+		int i=result.lastIndexOf(storageAdapter.getFileSeparator());
+		return i>0 ? result.substring(0,i) : "/" ;
+	}
 	public String toString(){
 		return getDescription();
 	}
