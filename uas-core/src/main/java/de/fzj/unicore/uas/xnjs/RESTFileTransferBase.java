@@ -283,12 +283,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		}
 		return filePath;
 	}
-	
-	public void setExtraParameters(Map<String,String>params){
-		// can be overriden in sub-classes for configuring any 
-		// protocol-dependent stuff
-	}
-	
+
 	/**
 	 * setup a map containing protocol dependent extra parameters
 	 * @return {@link Map} or <code>null</code>
@@ -296,7 +291,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	protected Map<String,String>getExtraParameters(){
 		return null;
 	}
-	
+
 	public boolean isExport() {
 		return export;
 	}

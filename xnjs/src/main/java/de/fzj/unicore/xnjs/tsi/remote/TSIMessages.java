@@ -124,19 +124,14 @@ public class TSIMessages {
 
 		commands = new StringBuilder();
 		f = new Formatter(commands, null);
-		// last bit to introduce script (extends to end of incarnation)
 		commands.append("#TSI_SCRIPT\n");
 
-		// add environment settings from context
 		appendEnvironment(commands, ec, true);
-		// Set User DN as env variable
-		// useful e.g. if mapping multiple certs to single ulogin
+
 		if (client!=null) {
-			//just to be safe, make sure there are no quotes
 			String dn=client.getDistinguishedName().replaceAll("\"", "_");
 			f.format("UC_USERDN=\"%s\"; export UC_USERDN\n", dn);
 		}
-		
 		// add "." to PATH to make sure user executable can be specified without
 		// having to prefix "./"
 		commands.append("PATH=$PATH:. ; export PATH\n");

@@ -44,6 +44,7 @@ import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
 import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IFileTransferCreator;
+import de.fzj.unicore.xnjs.io.git.GitStageIn;
 import eu.unicore.security.Client;
 
 /**
@@ -63,12 +64,12 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 
 	@Override
 	public String getProtocol() {
-		return "ftp, gsiftp, scp, http, https, file, link, inline";
+		return "ftp, gsiftp, scp, http, https, file, link, inline, git";
 	}
 	
 	@Override
 	public String getStageInProtocol() {
-		return "ftp, gsiftp, scp, http, https, file, link, inline";
+		return "ftp, gsiftp, scp, http, https, file, link, inline, git";
 	}
 
 	@Override
@@ -129,6 +130,10 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 			Inline ft = new Inline(configuration, client, workingDirectory,target);
 			ft.setInlineData(info.getInlineData());
 			return ft;
+		}
+		if("git".equalsIgnoreCase(scheme)) {
+			return new GitStageIn(configuration, client,workingDirectory, source.getSchemeSpecificPart(),
+					target, credentials);
 		}
 		return null;
 	}

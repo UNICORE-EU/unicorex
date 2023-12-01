@@ -34,11 +34,13 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.StringReader;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
@@ -742,7 +744,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * 
 	 * @param file - file path relative to storage root
 	 */
-	public InputStream getInputStream(final String file) throws ExecutionException {
+	public InputStream getInputStream(final String file)
+			throws FileNotFoundException, IOException {
 		//figure out length of file
 		final String target=makeTarget(file, false);
 
@@ -833,9 +836,15 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			return av;
 		}
 	}
+	
+	@Override
+	public ReadableByteChannel getReadChannel(String file) {
+		throw new RuntimeException("not yet implemented");
+	}
 
 	@Override
-	public OutputStream getOutputStream(final String file,final boolean append,long numbytes) throws ExecutionException {
+	public OutputStream getOutputStream(final String file,final boolean append,long numbytes)
+			throws IOException {
 		final String target=makeTarget(file,false);
 		return new BackedOutputStream (append, tsiProperties.getIntValue(TSIProperties.TSI_BUFFERSIZE)){
 
@@ -855,12 +864,14 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	}
 
 	@Override
-	public OutputStream getOutputStream(final String file,final boolean append) throws ExecutionException {
+	public OutputStream getOutputStream(final String file,final boolean append)
+			throws FileNotFoundException, IOException{
 		return getOutputStream(file, append, -1);
 	}
 
 	@Override
-	public OutputStream getOutputStream(String file) throws ExecutionException {
+	public OutputStream getOutputStream(String file)
+			throws FileNotFoundException, IOException {
 		return getOutputStream(file,false,-1);
 	}
 

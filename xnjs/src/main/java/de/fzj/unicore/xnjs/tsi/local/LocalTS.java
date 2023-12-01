@@ -43,9 +43,11 @@ import java.io.RandomAccessFile;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -144,7 +146,7 @@ public class LocalTS implements TSI {
 		try{
 			File tFile=makeTarget(target);
 			File sFile=makeTarget(source);
-			logger.debug("cp: "+sFile+"->"+tFile);
+			logger.debug("cp: {}->{}", sFile, tFile);
 			if(tFile.isDirectory()){
 				tFile=new File(tFile,sFile.getName());
 			}
@@ -409,7 +411,7 @@ public class LocalTS implements TSI {
 	 * @param target
 	 * @return a normalised, full filename
 	 */
-	private File makeTarget(String target) throws ExecutionException{
+	private File makeTarget(String target) {
 		if (IOUtils.isNonUnix()){
 			target = target.replace('/',File.separatorChar);
 			File f=new File(target);
@@ -422,33 +424,31 @@ public class LocalTS implements TSI {
 	/**
 	 * get an input stream for reading from the specified file 
 	 */
-	public InputStream getInputStream(String file) throws ExecutionException {
-		try{
-			return new FileInputStream(makeTarget(file));
-		}catch(Exception e){
-			throw new ExecutionException(e);
-		}
+	public InputStream getInputStream(String file) throws IOException {
+		return new FileInputStream(makeTarget(file));
+	}
+	
+	public ReadableByteChannel getReadChannel(String file) throws IOException {
+		return FileChannel.open(Path.of(file));
 	}
 
-	public OutputStream getOutputStream(String file,boolean append,long numbytes) throws ExecutionException {
-		try{
-			File f = makeTarget(file);
-			if (!f.exists()) {
-				f.createNewFile();
-				setPermissions(f);
-			}
-			return new FileOutputStream(f,append);
-		}catch(Exception e){
-			throw new ExecutionException(e);
+	public OutputStream getOutputStream(String file, boolean append, long numbytes)
+			throws IOException {
+		File f = makeTarget(file);
+		if (!f.exists()) {
+			f.createNewFile();
+			setPermissions(f);
 		}
+		return new FileOutputStream(f,append);
 	}
 
 
-	public OutputStream getOutputStream(String file,boolean append) throws ExecutionException {
+	public OutputStream getOutputStream(String file, boolean append)
+			throws IOException {
 		return getOutputStream(file,append,-1);
 	}
 	
-	public OutputStream getOutputStream(String file) throws ExecutionException {
+	public OutputStream getOutputStream(String file) throws IOException {
 		return getOutputStream(file,false);
 	}
 

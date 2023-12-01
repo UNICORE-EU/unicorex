@@ -397,8 +397,6 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		}catch(NumberFormatException nfe){
 			//progress file exists but weird value
 			jobExecLogger.warn("Application wrote faulty progress file for action {}", job.getUUID());
-		}catch(ExecutionException ee){
-			//no progress file written
 		}catch(IOException e){
 			//no progress file written	
 		}

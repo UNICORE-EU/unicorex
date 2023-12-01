@@ -33,6 +33,8 @@
 
 package de.fzj.unicore.xnjs.io;
 
+import java.util.Map;
+
 /**
  * interface to manage a running file transfer 
  * 
@@ -113,4 +115,12 @@ public interface IFileTransfer extends Runnable {
 	 */
 	public default void setUmask(String umask) {}
 	
+	/**
+	 * Allows to configure any extra, protocol dependent things.
+	 * The default implementation does nothing
+	 *
+	 * @param params
+	 */
+	public default void setExtraParameters(Map<String,String>params){}
+
 }

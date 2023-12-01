@@ -33,8 +33,10 @@
 
 package de.fzj.unicore.xnjs.io;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.ReadableByteChannel;
 
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 
@@ -78,8 +80,9 @@ public interface IStorageAdapter {
 	 * @param resource - the resource to read from
 	 * @return {@link InputStream}
 	 */
-	public InputStream getInputStream(String resource)throws ExecutionException;
+	public InputStream getInputStream(String resource)throws IOException;
 	
+	public ReadableByteChannel getReadChannel(String file) throws IOException ;
 
 	/**
 	 * create an OutputStream for writing the given number of bytes to the given resource.
@@ -88,20 +91,20 @@ public interface IStorageAdapter {
 	 * @param append - <code>true</code> if file should be appended to
 	 * @param numBytes - the number of bytes to write, which can be negative if not known
 	 */
-	public OutputStream getOutputStream(String resource, boolean append, long numBytes)throws ExecutionException;
+	public OutputStream getOutputStream(String resource, boolean append, long numBytes) throws IOException;
 	
 	/**
 	 * create an OutputStream for writing to the given resource
 	 * @param resource - the resource to write to
 	 * @param append - <code>true</code> if file should be appended to
 	 */
-	public OutputStream getOutputStream(String resource, boolean append)throws ExecutionException;
+	public OutputStream getOutputStream(String resource, boolean append) throws IOException;
 	
 	/**
 	 * create an OutputStream for writing to the given resource, overwriting if it exists
 	 * @param resource - the resource to write to
 	 */
-	public OutputStream getOutputStream(String resource)throws ExecutionException;
+	public OutputStream getOutputStream(String resource)throws IOException;
 	
 	/**
 	 * create a directory (including any necessary parent directories)<br/>
@@ -256,13 +259,13 @@ public interface IStorageAdapter {
 	 * or <code>-1</code> if not known
 	 */
 	public XnjsStorageInfo getAvailableDiskSpace(String path);
-	
+
 	/**
 	 * for the given path, return whether ACL are supported
 	 * @throws ExecutionException 
 	 */
 	public boolean isACLSupported(String path) throws ExecutionException;
-	
+
 	/**
 	 * Set a umask which shall be used for new files and directories creation.
 	 * @param umask A new umask as a (maximally) 3 digit octal number, passed as a string. 
