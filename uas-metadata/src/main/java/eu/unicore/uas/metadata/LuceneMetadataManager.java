@@ -328,8 +328,6 @@ public class LuceneMetadataManager implements StorageMetadataManager {
 
         try(OutputStream os = storage.getOutputStream(fileName, false)){
             os.write(metadata.getBytes("UTF-8"));
-        } catch (ExecutionException ex) {
-            throw new IOException("Unable to write metadata", ex);
         }
     }
 
@@ -350,8 +348,6 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         }
         try (InputStream is = storage.getInputStream(fileName)){
             return IOUtils.toString(is, "UTF-8");
-        } catch (ExecutionException ex) {
-            throw new IOException(String.format("Unable to open file %s to read metadata", fileName), ex);
         }
     }
 

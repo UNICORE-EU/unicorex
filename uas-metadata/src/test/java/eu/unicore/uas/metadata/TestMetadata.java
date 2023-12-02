@@ -1,9 +1,9 @@
 package eu.unicore.uas.metadata;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -162,7 +162,7 @@ public class TestMetadata {
 
         manager.renameResource(source, target);
         verify(storage, times(1)).rename(anyString(), anyString());
-        verify(stream).write((byte[]) anyObject());
+        verify(stream).write((byte[]) any());
         verify(storage).getOutputStream(anyString(), anyBoolean());
     }
 
