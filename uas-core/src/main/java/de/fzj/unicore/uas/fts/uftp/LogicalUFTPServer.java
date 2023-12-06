@@ -2,12 +2,15 @@ package de.fzj.unicore.uas.fts.uftp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.ExternalSystemConnector;
+import eu.unicore.services.ExternalSystemConnector.Status;
+import eu.unicore.services.ISubSystem;
 import eu.unicore.services.Kernel;
 import eu.unicore.util.Log;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -19,7 +22,7 @@ import eu.unicore.util.configuration.ConfigurationException;
  *
  * @author schuller
  */
-public class LogicalUFTPServer implements ExternalSystemConnector {
+public class LogicalUFTPServer implements ISubSystem {
 
 	public static final Logger log = Log.getLogger(Log.SERVICES, LogicalUFTPServer.class);
     
@@ -67,7 +70,6 @@ public class LogicalUFTPServer implements ExternalSystemConnector {
 		UFTPProperties props = new UFTPProperties(prefix, properties);
 		server.configure(props);
 		if(server.getHost()==null)throw new ConfigurationException("Property 'host' not set!");
-		kernel.getExternalSystemConnectors().add(server);
 		log.info("Configured "+server);
 		return server;
 	}
@@ -80,21 +82,17 @@ public class LogicalUFTPServer implements ExternalSystemConnector {
 		this.description = description;
 	}
 	
-	public Status getConnectionStatus(){
-		checkConnection();
-		return status;
-	}
-	
-	public String getConnectionStatusMessage(){
+	@Override
+	public String getStatusDescription(){
 		checkConnection();
 		return statusMessage;
 	}
 
 	public String toString(){
-		return "[UFTPD Server "+getConnectionStatusMessage()+"]";
+		return "[UFTPD Server "+getStatusDescription()+"]";
 	}
 
-	public String getExternalSystemName(){
+	public String getName(){
 		return "UFTPD Server";
 	}
 
@@ -146,4 +144,12 @@ public class LogicalUFTPServer implements ExternalSystemConnector {
 		}
 		throw new IOException("None of the configured UFTPD servers is available!");
 	}
+	
+	@Override
+	public Collection<ExternalSystemConnector>getExternalConnections(){
+		Collection<ExternalSystemConnector>l = new ArrayList<>();
+		l.addAll(instances);
+		return l;
+	}
+
 }

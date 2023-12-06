@@ -108,8 +108,8 @@ public class TestUtils {
     public void resourceMustExist() throws Exception {
     	Kernel k=new Kernel(TestConfigUtil.getInsecureProperties());
     	MetadataProperties mp=new MetadataProperties(k.getContainerProperties().getRawProperties());
-    	k.addConfigurationHandler(MetadataProperties.class, mp);
-        LuceneMetadataManager manager = new LuceneMetadataManager(k);
+    	k.setAttribute(MetadataProperties.class, mp);
+    	LuceneMetadataManager manager = new LuceneMetadataManager(k);
         IStorageAdapter mockAdapter = mock(IStorageAdapter.class);
         String resourceName = "NonExistingResource";
         when(mockAdapter.getProperties(resourceName)).thenThrow(new ExecutionException());
@@ -121,8 +121,8 @@ public class TestUtils {
     public void testProperName() throws Exception {
     	Kernel k=new Kernel(TestConfigUtil.getInsecureProperties());
     	MetadataProperties mp=new MetadataProperties(k.getContainerProperties().getRawProperties());
-    	k.addConfigurationHandler(MetadataProperties.class, mp);
-        LuceneMetadataManager manager = new LuceneMetadataManager(k);
+    	k.setAttribute(MetadataProperties.class, mp);
+    	LuceneMetadataManager manager = new LuceneMetadataManager(k);
         IStorageAdapter mockAdapter = mock(IStorageAdapter.class);
         String resourceName = "NonExistingResource";
         XnjsFileWithACL mockedFile = mock(XnjsFileWithACL.class);
@@ -143,7 +143,7 @@ public class TestUtils {
         IStorageAdapter adapter = mock(IStorageAdapter.class);
         Kernel k=new Kernel(TestConfigUtil.getInsecureProperties());
     	MetadataProperties mp=new MetadataProperties(k.getContainerProperties().getRawProperties());
-    	k.addConfigurationHandler(MetadataProperties.class, mp);
+    	k.setAttribute(MetadataProperties.class, mp);
         LuceneMetadataManager manager = new LuceneMetadataManager(k);
         manager.setStorageAdapter(adapter, getID());
         manager.readFully(null);
@@ -154,7 +154,7 @@ public class TestUtils {
         IStorageAdapter adapter = mock(IStorageAdapter.class);
         Kernel k=new Kernel(TestConfigUtil.getInsecureProperties());
     	MetadataProperties mp=new MetadataProperties(k.getContainerProperties().getRawProperties());
-    	k.addConfigurationHandler(MetadataProperties.class, mp);
+    	k.setAttribute(MetadataProperties.class, mp);
         LuceneMetadataManager manager = new LuceneMetadataManager(k);
         manager.setStorageAdapter(adapter, getID());
         manager.readFully("");
@@ -166,7 +166,7 @@ public class TestUtils {
         when(adapter.getInputStream(anyString())).thenThrow(new IOException());
         Kernel k=new Kernel(TestConfigUtil.getInsecureProperties());
     	MetadataProperties mp=new MetadataProperties(k.getContainerProperties().getRawProperties());
-    	k.addConfigurationHandler(MetadataProperties.class, mp);
+    	k.setAttribute(MetadataProperties.class, mp);
         LuceneMetadataManager manager = new LuceneMetadataManager(k);
         manager.setStorageAdapter(adapter, getID());
         manager.readFully("someString");

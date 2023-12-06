@@ -15,7 +15,8 @@ public class MetadataStartupTask extends AbstractStartupTask {
 	public void run() {
 		MetadataProperties props = new MetadataProperties(
 				getKernel().getContainerProperties().getRawProperties());
-		getKernel().addConfigurationHandler(MetadataProperties.class, props);
+		getKernel().addConfigurationHandler(props);
+		getKernel().setAttribute(MetadataProperties.class, props);
 	}
 
 }

@@ -34,6 +34,7 @@ package de.fzj.unicore.uas.xnjs;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
@@ -72,6 +74,8 @@ import de.fzj.unicore.xnjs.tsi.TSI;
 import de.fzj.unicore.xnjs.tsi.local.LocalTSIModule;
 import de.fzj.unicore.xnjs.tsi.remote.RemoteTSIModule;
 import eu.unicore.security.Client;
+import eu.unicore.services.ExternalSystemConnector;
+import eu.unicore.services.ISubSystem;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.security.UserPublicKeyCache;
 import eu.unicore.services.rest.security.UserPublicKeyCache.UserInfoSource;
@@ -85,11 +89,11 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  * 
  * @author schuller
  */
-public class XNJSFacade {
+public class XNJSFacade implements ISubSystem {
 
 	private static final Logger logger=LogUtil.getLogger(LogUtil.UNICORE,XNJSFacade.class);
 
-	private static final String DEFAULT_INSTANCE=XNJSFacade.class.getName()+"_DEFAULT_XNJS";
+	private static final String DEFAULT_INSTANCE = "DEFAULT";
 
 	private XNJS xnjs;
 
@@ -128,10 +132,11 @@ public class XNJSFacade {
 				r.doDefaultInit(kernel);
 			}
 			else{
-
+				//TODO
 			}
 			getXNJSInstanceMap(kernel).put(ref, r);
 			r.setID(ref);
+			kernel.register(r);
 		}
 		return r;
 	}
@@ -214,9 +219,24 @@ public class XNJSFacade {
 
 	private void setupSystemConnector(TSI_MODE mode){
 		tsiConnector = new TSIConnector(xnjs, mode);
-		kernel.getExternalSystemConnectors().add(tsiConnector);
 	}
 	
+	@Override
+	public Collection<ExternalSystemConnector>getExternalConnections(){
+		return tsiConnector!=null ?
+				Lists.newArrayList(tsiConnector) : Collections.emptyList();
+	}
+	
+	@Override
+	public String getName() {
+		return "Target system access [XNJS "+id+"]";
+	}
+
+	@Override
+	public String getStatusDescription() {
+		return "OK";
+	}
+
 	private void doDefaultInit(Kernel kernel){
 		UASProperties uasConfig = kernel.getAttribute(UASProperties.class);
 		TSI_MODE mode = uasConfig.getEnumValue(UASProperties.TSF_TSI_MODE, TSI_MODE.class);

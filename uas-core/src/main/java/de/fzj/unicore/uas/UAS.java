@@ -86,7 +86,8 @@ public class UAS extends USEContainer {
 	
 	private void initCommon() throws Exception {
 		this.uasProperties = new UASProperties(kernel.getContainerProperties().getRawProperties());
-		kernel.addConfigurationHandler(UASProperties.class, uasProperties);
+		kernel.addConfigurationHandler(uasProperties);
+		kernel.setAttribute(UASProperties.class, uasProperties);
 	}
 
 	public static void main(String[] args) throws Exception {
