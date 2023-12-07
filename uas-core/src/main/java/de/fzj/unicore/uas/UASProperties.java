@@ -47,9 +47,7 @@ public class UASProperties extends PropertiesHelper {
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "coreServices."; 
 
-	/**
-	 * @deprecated
-	 */
+	@Deprecated
 	public static final String TSF_XNJS_CONFIGFILE = "targetsystemfactory.xnjs.configfile";
 
 	/**
@@ -82,9 +80,7 @@ public class UASProperties extends PropertiesHelper {
 	 */
 	public static final String TSS_FORCE_UNIQUE_STORAGE_IDS = "targetsystem.uniqueStorageIds";
 
-	/**
-	 * @deprecated
-	 */
+	@Deprecated
 	public static final String SMS_PROTOCOLS = "sms.protocols";
 
 	public static final String SMS_LS_LIMIT = "sms.lsLimit";
@@ -106,12 +102,8 @@ public class UASProperties extends PropertiesHelper {
 	 */
 	public final static String SMS_TRANSFER_FORCEREMOTE = "filetransfer.forceremote";
 
-	/**
-	 * @deprecated
-	 * publish filetransfer URLs that "bypass" the gateway
-	 */
+	@Deprecated
 	public static final String SMS_DIRECT_FILETRANSFER = "filetransfer.direct";
-
 	
 	@Deprecated
 	public static final String SMS_STAGING_MAXTHREADS = "filetransfer.maxthreads";
@@ -123,9 +115,7 @@ public class UASProperties extends PropertiesHelper {
 	 */
 	public static final String SMS_SHARE_PREFIX = "sms.storage.";
 
-	/**
-	 * @deprecated (U7) 
-	 */
+	@Deprecated
 	public static final String SMS_SHARE_PREFIX_old = "sms.share.";
 
 	/**
@@ -133,9 +123,7 @@ public class UASProperties extends PropertiesHelper {
 	 */
 	public static final String SMS_ENABLED_SHARES = "sms.enabledStorages";
 
-	/**
-	 * @deprecated (U7)
-	 */
+	@Deprecated
 	public static final String SMS_ENABLED_SHARES_old = "sms.enabledShares";
 
 	/**
@@ -152,7 +140,7 @@ public class UASProperties extends PropertiesHelper {
 	private Map<String, StorageDescription> factories;
 
 	@DocumentationReferenceMeta
-	public static final Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public static final Map<String, PropertyMD> META = new HashMap<>();
 	static {
 
 		META.put(TSS_FORCE_UNIQUE_STORAGE_IDS, new PropertyMD("false").setDeprecated().
