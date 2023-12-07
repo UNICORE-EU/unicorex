@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Reporter;
+import com.codahale.metrics.Metric;
 import com.google.inject.AbstractModule;
 
 /**
@@ -22,10 +21,8 @@ public class ConfigurationSource {
 	protected final Map<String,ProcessorChain> processingChains = new HashMap<>();
 	protected final Properties properties = new Properties();
 	protected final List<AbstractModule> modules = new ArrayList<>();
-	
-	private MetricRegistry metricRegistry;
-	private Reporter metricReporter;
-	
+	protected final Map<String, Metric> metrics = new HashMap<>();
+
 	/**
 	 * get the processor chains keyed with the action type
 	 */
@@ -57,33 +54,21 @@ public class ConfigurationSource {
 		}
 		return null;
 	}
-	
-	public synchronized MetricRegistry getMetricRegistry(){
-		if(metricRegistry==null){
-			metricRegistry = new MetricRegistry();
-		}
-		return metricRegistry;
-	}
-	
-	public void setMetricRegistry(MetricRegistry metricRegistry){
-		this.metricRegistry = metricRegistry;
-	}
-	
-	public Reporter getMetricReporter(){
-		return metricReporter;
-	}
-	
-	public void setMetricReporter(Reporter metricReporter){
-		this.metricReporter = metricReporter;
-	}
-	
+
 	public void addModule(AbstractModule m){
 		modules.add(m);
+		if(m instanceof MetricProvider) {
+			getMetrics().putAll(((MetricProvider)m).getMetrics());
+		}
 	}
 	
 	/** read-only, use addModule() to add modules **/
 	public List<AbstractModule> getModules(){
 		return Collections.unmodifiableList(modules);
+	}
+	
+	public Map<String, Metric> getMetrics(){
+		return metrics;
 	}
 	
 	public static class ProcessorChain {
@@ -119,5 +104,9 @@ public class ConfigurationSource {
 		public String toString(){
 			return "ProcessorChain: "+actionType+"<"+jobDescriptionType+"> "+processorClasses;
 		}
+	}
+	
+	public static interface MetricProvider {
+		public Map<String, Metric> getMetrics();
 	}
 }

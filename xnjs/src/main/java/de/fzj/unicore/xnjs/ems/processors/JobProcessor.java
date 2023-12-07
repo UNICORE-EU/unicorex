@@ -894,7 +894,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	public void updateQueuedStats(ProcessingContext context){
 		Long timeQueued = getTimeQueued(context);
 		if(timeQueued!=null){
-			Histogram h = xnjs.getMetricRegistry().getHistograms().get(XNJSConstants.MEAN_TIME_QUEUED);
+			Histogram h = (Histogram)xnjs.getMetrics().get(XNJSConstants.MEAN_TIME_QUEUED+"-");
 			if (h!=null)h.update(timeQueued.intValue());
 		}
 	}

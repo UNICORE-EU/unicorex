@@ -47,10 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.SlidingWindowReservoir;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -110,7 +107,7 @@ public class XNJS {
 
 	private final String uniqueID;
 
-	private final MetricRegistry metricRegistry;
+	private final Map<String, Metric> metrics = new HashMap<>();
 
 	private final TSIFactory tsiFactory;
 
@@ -132,8 +129,6 @@ public class XNJS {
 		assert configSource!=null;
 		this.config = configSource;
 		uniqueID = identifier!=null? identifier : String.valueOf(id.incrementAndGet());
-
-		metricRegistry = configSource.getMetricRegistry();
 		tsiFactory = new TSIFactory(this);
 		properties = configSource.getProperties();
 		baseProperties = new XNJSProperties(properties);
@@ -183,11 +178,6 @@ public class XNJS {
 			}
 
 			@Provides
-			public MetricRegistry getMetricRegistry(){
-				return metricRegistry;
-			}
-
-			@Provides
 			public TSIFactory getTSIFactory(){
 				return tsiFactory;
 			}
@@ -205,6 +195,8 @@ public class XNJS {
 		configSource.addModule(common);
 		List<AbstractModule> configuredModules = configSource.getModules();
 		injector = Guice.createInjector(configuredModules.toArray(new AbstractModule[configuredModules.size()]));
+		configSource.getMetrics().entrySet().forEach(entry ->
+				metrics.put(entry.getKey()+"-"+uniqueID, entry.getValue()));
 	}
 
 	public static final String getVersion(){
@@ -260,18 +252,10 @@ public class XNJS {
 		}
 	}
 
-	private void registerDefaultMetrics(){
-		if(!metricRegistry.getNames().contains(XNJSConstants.MEAN_TIME_QUEUED)){
-			Metric mtq = new Histogram(new SlidingWindowReservoir(512));
-			metricRegistry.register(XNJSConstants.MEAN_TIME_QUEUED, mtq);
-		}
-	}
-
 	public synchronized void start() throws Exception {
 		if(stopped==true){
 			logger.info("STARTING "+writeShortHeader());
 			assureDefaultProcessingAvailable();
-			registerDefaultMetrics();
 			get(Manager.class).start();
 			stopped=false;
 		}else logger.info("Already started.");
@@ -410,8 +394,8 @@ public class XNJS {
 		return es;
 	}
 
-	public MetricRegistry getMetricRegistry(){
-		return metricRegistry;
+	public Map<String, Metric> getMetrics(){
+		return metrics;
 	}
 
 	public String getID(){

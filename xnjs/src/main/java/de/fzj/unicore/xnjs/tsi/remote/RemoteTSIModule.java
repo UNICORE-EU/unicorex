@@ -1,10 +1,17 @@
 package de.fzj.unicore.xnjs.tsi.remote;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.SlidingWindowReservoir;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
+import de.fzj.unicore.xnjs.ConfigurationSource;
+import de.fzj.unicore.xnjs.XNJSConstants;
 import de.fzj.unicore.xnjs.ems.IExecutionContextManager;
 import de.fzj.unicore.xnjs.ems.LocalECManager;
 import de.fzj.unicore.xnjs.idb.GrounderImpl;
@@ -18,9 +25,12 @@ import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.TSI;
 
-public class RemoteTSIModule extends AbstractModule {
+public class RemoteTSIModule extends AbstractModule
+implements ConfigurationSource.MetricProvider {
 	
 	protected final Properties properties;
+
+	protected final Histogram mtq = new Histogram(new SlidingWindowReservoir(512));
 
 	public RemoteTSIModule(Properties properties) {
 		this.properties = properties;
@@ -44,6 +54,18 @@ public class RemoteTSIModule extends AbstractModule {
 		return new TSIProperties(properties);
 	}
 	
+	@Provides
+	public Histogram getMeanTimeQueued(){
+		return mtq;
+	}
+
+	@Override
+	public Map<String, Metric> getMetrics(){
+		Map<String, Metric> m = new HashMap<>();
+		m.put(XNJSConstants.MEAN_TIME_QUEUED, mtq);
+		return m;
+	}
+
 	protected void bindExecution(){
 		bind(IExecution.class).to(Execution.class);
 		bind(IExecutionSystemInformation.class).to(Execution.class);

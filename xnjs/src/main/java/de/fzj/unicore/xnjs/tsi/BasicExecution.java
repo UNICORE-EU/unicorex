@@ -52,9 +52,7 @@ import javax.inject.Singleton;
 import org.apache.logging.log4j.Logger;
 
 import com.codahale.metrics.Histogram;
-import com.codahale.metrics.MetricRegistry;
 
-import de.fzj.unicore.xnjs.XNJSConstants;
 import de.fzj.unicore.xnjs.XNJSProperties;
 import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.ActionResult;
@@ -106,10 +104,10 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	
 	@Inject
 	protected InternalManager manager;
-	
+
 	@Inject
-	protected MetricRegistry metricRegistry;
-	
+	protected Histogram mtq;
+
 	/**
 	 * A custom grace period, defined in milliseconds. 
 	 * Using this key, the usual grace period can be overridden 
@@ -423,8 +421,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 	public long getMeanTimeQueued(){
 		try{
-			Histogram stats = metricRegistry.getHistograms().get(XNJSConstants.MEAN_TIME_QUEUED);
-			return (long)stats.getSnapshot().getMean();
+			return (long)mtq.getSnapshot().getMean();
 		}catch(Exception ex){}
 		return -1l;
 	}

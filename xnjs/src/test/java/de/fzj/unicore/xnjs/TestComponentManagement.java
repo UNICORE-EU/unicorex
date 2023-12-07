@@ -95,7 +95,9 @@ public class TestComponentManagement extends XNJSTestBase {
 	
 	@Test
 	public void testMetricsRegistry() throws Exception {
-		MetricRegistry m = xnjs.getMetricRegistry();
+		MetricRegistry m = new MetricRegistry();
+		xnjs.getMetrics().entrySet().forEach(entry->
+			m.register(entry.getKey(), entry.getValue()));
 		ConsoleReporter r = ConsoleReporter.forRegistry(m).build();
 		r.report();
 	}

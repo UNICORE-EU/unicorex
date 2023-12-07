@@ -43,6 +43,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import com.codahale.metrics.Metric;
 import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -154,7 +155,6 @@ public class XNJSFacade implements ISubSystem {
 	private void configure(TSI_MODE mode, Properties properties, UASProperties uasProps)throws Exception{
 		ConfigurationSource cs = new ConfigurationSource();
 		cs.getProperties().putAll(properties);
-		cs.setMetricRegistry(kernel.getMetricRegistry());
 		cs.addModule(new UASBaseModule(properties, kernel));
 		if(TSI_MODE.embedded.equals(mode)){
 			cs.addModule(new LocalTSIModule(properties));
@@ -235,6 +235,11 @@ public class XNJSFacade implements ISubSystem {
 	@Override
 	public String getStatusDescription() {
 		return "OK";
+	}
+	
+	@Override
+	public Map<String, Metric> getMetrics(){
+		return xnjs.getMetrics();
 	}
 
 	private void doDefaultInit(Kernel kernel){
