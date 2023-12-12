@@ -104,10 +104,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		try{
 			if(isImport()) {
 				createParentDirectories();
-			}
-			
-			//register a listener on the target file
-			if(isImport()){
+				//register a listener on the target file
 				monitor=new FileMonitor(workingDirectory,info.getTarget(),client,configuration,3,TimeUnit.SECONDS);
 				monitor.registerObserver(this);
 			}

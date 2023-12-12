@@ -214,7 +214,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 			String p=creator.getProtocol();
 			if(!protocols.contains(p)){
 				protocols.add(p);
-				logger.debug("Added <"+creator+"> for protocol "+creator.getProtocol());
+				logger.debug("Added <{}> for protocol {}", creator, creator.getProtocol());
 			}
 		}
 		order();

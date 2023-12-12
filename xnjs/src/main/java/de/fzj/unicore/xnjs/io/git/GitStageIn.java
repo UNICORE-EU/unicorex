@@ -1,5 +1,6 @@
 package de.fzj.unicore.xnjs.io.git;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
@@ -11,8 +12,10 @@ import org.eclipse.jgit.lib.RefUpdate;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import de.fzj.unicore.xnjs.XNJS;
 import de.fzj.unicore.xnjs.io.DataStagingCredentials;
@@ -20,6 +23,7 @@ import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import de.fzj.unicore.xnjs.io.TransferInfo;
 import de.fzj.unicore.xnjs.io.TransferInfo.Status;
+import de.fzj.unicore.xnjs.io.impl.UsernamePassword;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 
@@ -29,6 +33,7 @@ import eu.unicore.util.Log;
  * @author schuller
  */
 public class GitStageIn implements IFileTransfer {
+
 	private final String workingDirectory;
 	private final Client client;
 	private final XNJS xnjs;
@@ -39,7 +44,8 @@ public class GitStageIn implements IFileTransfer {
 	private final TransferInfo info;
 	private String branch = null;
 	private String revisionID = null;
-	
+	private boolean cloneSubmodules = true;
+
 	public GitStageIn(XNJS xnjs, Client client, String workingDirectory,
 			String gitURI, String targetDirectory,	DataStagingCredentials credentials ) {
 		this.xnjs = xnjs;
@@ -73,47 +79,61 @@ public class GitStageIn implements IFileTransfer {
 			tsi.mkdir(targetDirectory);
 			tsi.setStorageRoot(FilenameUtils.normalize(
 					workingDirectory+"/"+targetDirectory, true));
-			String storageDirectory = ".unicore_git_repodata";
-			TSIRepository repo = new TSIRepository(tsi, storageDirectory);
-			try(Git git = new Git(repo)){
-				RefSpec refSpec = branch==null?
-						new RefSpec("+refs/heads/*:refs/heads/*"):
-							new RefSpec("+refs/heads/"+branch+":refs/heads/"+branch);
-				FetchResult fr = git.fetch()
-						.setRemote(gitURI)
-						.setRefSpecs(refSpec)
-						.call();
-				checkout(git, repo, fr, branch, revisionID);
-			}
-			info.setTransferredBytes(repo.getTransferredBytes());
+			long transferredBytes = clone(tsi, gitURI, branch, revisionID);
+			info.setTransferredBytes(transferredBytes);
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){
 			info.setStatus(Status.FAILED, Log.createFaultMessage("Writing to '"
 					+ targetDirectory + "' failed", ex));
 		}
 	}
-	
+
 	@Override
 	public void abort(){}
-	
+
 	@Override
 	public void setOverwritePolicy(OverwritePolicy overwrite) {
 		//NOP
 	}
-	
+
 	@Override
 	public void setImportPolicy(ImportPolicy policy){
 		// NOP
 	}
 
 	private IStorageAdapter tsi;
-	
+
 	@Override
 	public void setStorageAdapter(IStorageAdapter adapter) {
 		this.tsi = adapter;
 	}
 
-	private void checkout(Git git, Repository clonedRepo, FetchResult result, String branch, String commitId)
+	private long clone(IStorageAdapter tsi, String url, String branch, String revisionID) throws Exception {
+		TSIRepository repo = new TSIRepository(tsi, ".unicore_git_repodata");
+		try(Git git = new Git(repo)){
+			RefSpec refSpec = branch==null?
+					new RefSpec("+refs/heads/*:refs/heads/*") :
+						new RefSpec("+refs/heads/"+branch+":refs/heads/"+branch);
+			FetchResult fr = git.fetch()
+					.setCredentialsProvider(makeGitCredentials())
+					.setRemote(url)
+					.setRefSpecs(refSpec)
+					.call();
+			checkout(git, repo, url, fr, branch, revisionID);
+		}
+		return repo.getTransferredBytes();
+	}
+	
+	private CredentialsProvider makeGitCredentials() {
+		if(credentials instanceof UsernamePassword) {
+			UsernamePassword up = (UsernamePassword)credentials;
+			return new UsernamePasswordCredentialsProvider(up.getUser(),
+					up.getPassword().toCharArray());
+		}
+		return null;
+	}
+	
+	private void checkout(Git git, TSIRepository clonedRepo, String remoteURL, FetchResult result, String branch, String commitId)
 			throws Exception {
 		Ref toCheckout = findBranchToCheckout(result, branch);
 		RevCommit commit = getCommit(clonedRepo, toCheckout);
@@ -124,10 +144,14 @@ public class GitStageIn implements IFileTransfer {
 		if(commitId!=null) {
 			commit = getCommit(git, clonedRepo, commitId);
 		}
+		u = clonedRepo.updateRef(Constants.HEAD, detached);
+		u.setNewObjectId(commit.getId());
+		u.forceUpdate();
 		TSIDirCacheCheckout co = new TSIDirCacheCheckout(clonedRepo, commit.getTree(), tsi);
 		co.checkout();
-		//if (cloneSubmodules)
-		//	cloneSubmodules(clonedRepo);
+		if (cloneSubmodules && tsi.getProperties(".gitmodules")!=null) {
+			cloneSubmodules(clonedRepo, co, remoteURL);
+		}
 	}
 
 	private Ref findBranchToCheckout(FetchResult result, String branch) {
@@ -177,15 +201,59 @@ public class GitStageIn implements IFileTransfer {
 		}
 		return commit;
 	}
-	
+
 	private RevCommit getCommit(Git git, Repository clonedRepo, String commitId)
 			throws Exception {
 		RevCommit commit = null;
 		for(RevCommit rc: git.log().call()) {
-			System.out.println("CCC "+rc.getName());
 			if(commitId.equals(rc.getName()))
 				return rc;
 		}
 		return commit;
 	}
+
+	private void cloneSubmodules(TSIRepository repo, TSIDirCacheCheckout co, String parentURL) throws Exception {
+		Map<String, String> submodules = repo.getSubmodules();
+		for(String path: submodules.keySet()) {
+			String url = getSubmoduleURL(submodules.get(path), parentURL);
+			String revision = co.getSubmoduleRevision(path);
+			System.out.println("+++ checkout sub <"+path+"> from "+
+					url+" @ "+revision);
+			String oldWorkDir = tsi.getStorageRoot();
+			String newWorkDir = FilenameUtils.normalize(
+					oldWorkDir+"/"+path, true);
+			tsi.setStorageRoot(newWorkDir);
+			clone(tsi, url, null, revision);
+			tsi.setStorageRoot(oldWorkDir);
+		}
+	}
+	
+	private String getSubmoduleURL(String url, String parentUrl) {
+		if (!url.startsWith("./") && !url.startsWith("../"))
+			return url;
+		// Remove trailing '/'
+		if (parentUrl.charAt(parentUrl.length() - 1) == '/')
+			parentUrl = parentUrl.substring(0, parentUrl.length() - 1);
+
+		char separator = '/';
+		String submoduleUrl = url;
+		while (submoduleUrl.length() > 0) {
+			if (submoduleUrl.startsWith("./"))
+				submoduleUrl = submoduleUrl.substring(2);
+			else if (submoduleUrl.startsWith("../")) {
+				int lastSeparator = parentUrl.lastIndexOf('/');
+				if (lastSeparator < 1) {
+					lastSeparator = parentUrl.lastIndexOf(':');
+					separator = ':';
+				}
+				if (lastSeparator < 1)
+					throw new IllegalArgumentException("Illegal URL");
+				parentUrl = parentUrl.substring(0, lastSeparator);
+				submoduleUrl = submoduleUrl.substring(3);
+			} else
+				break;
+		}
+		return parentUrl + separator + submoduleUrl;
+	}
+	
 }

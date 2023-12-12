@@ -8,12 +8,16 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.commons.io.IOUtils;
 import org.eclipse.jgit.annotations.Nullable;
+import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
 import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
 import org.eclipse.jgit.internal.storage.dfs.DfsPackDescription;
@@ -26,8 +30,11 @@ import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 import org.eclipse.jgit.internal.storage.reftable.ReftableConfig;
+import org.eclipse.jgit.lib.Config;
+import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.RefDatabase;
+import org.eclipse.jgit.lib.StoredConfig;
 
 import de.fzj.unicore.xnjs.ems.ExecutionException;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
@@ -68,6 +75,8 @@ public class TSIRepository extends DfsRepository {
 
 	private final TSIObjDatabase objdb;
 	private final MemRefDatabase refdb;
+	private final IStorageAdapter tsi;
+	
 	private String gitwebDescription;
 
 	private static final AtomicLong transferredBytesCounter = new AtomicLong(); 
@@ -82,6 +91,7 @@ public class TSIRepository extends DfsRepository {
 
 	TSIRepository(Builder builder, IStorageAdapter tsi, String storageDirName) {
 		super(builder);
+		this.tsi = tsi;
 		try{
 			objdb = new TSIObjDatabase(this, tsi, storageDirName, transferredBytesCounter);
 		}catch(ExecutionException ee) {
@@ -117,6 +127,26 @@ public class TSIRepository extends DfsRepository {
 	
 	public long getTransferredBytes() {
 		return transferredBytesCounter.get();
+	}
+	
+	public Map<String, String> getSubmodules() throws Exception {
+		StoredConfig conf = new TSIFileConfig(tsi, ".gitmodules");
+		conf.load();
+		return loadPathNames(conf);
+	}
+
+	private Map<String, String> loadPathNames(Config conf) {
+		Map<String, String> pathNames = new HashMap<>();
+		for (String name : conf.getSubsections(ConfigConstants.CONFIG_SUBMODULE_SECTION)) {
+			String path = conf.getString(
+					ConfigConstants.CONFIG_SUBMODULE_SECTION, name,
+					ConfigConstants.CONFIG_KEY_PATH);
+			String url = conf.getString(
+					ConfigConstants.CONFIG_SUBMODULE_SECTION, name,
+					ConfigConstants.CONFIG_KEY_URL);
+			pathNames.put(path, url);
+		}
+		return pathNames;
 	}
 
 	/** DfsObjDatabase used by TSIRepository. */
@@ -323,6 +353,31 @@ public class TSIRepository extends DfsRepository {
 		public boolean performsAtomicTransactions() {
 			return true;
 		}
+	}
+
+	public static class TSIFileConfig extends StoredConfig {
+		
+		private final IStorageAdapter tsi;
+		private final String path;
+
+		public TSIFileConfig(IStorageAdapter tsi, String path) {
+			this.tsi = tsi;
+			this.path = path;
+		}
+
+		@Override
+		public void load() throws IOException, ConfigInvalidException {
+			try(InputStream in = tsi.getInputStream(path)){
+				String content = IOUtils.toString(in, "UTF-8");
+				super.fromText(content);
+			}
+		}
+
+		@Override
+		public void save() throws IOException {
+			// NOP
+		}
+
 	}
 }
 

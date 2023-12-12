@@ -63,19 +63,14 @@ public class FileMonitor implements Runnable {
 	
 	private XnjsFile info;
 	private volatile boolean interrupt;
-	private final Set<Observer<XnjsFile>>observers=new HashSet<Observer<XnjsFile>>();
+	private final Set<Observer<XnjsFile>>observers = new HashSet<>();
 	
 	private final XNJS configuration;
 	
 	public FileMonitor(String workingDirectory, String target, Client client, XNJS config){
 		this(workingDirectory, target,client,config,5,TimeUnit.SECONDS);
 	}
-	
-	private void init(){
-		run();
-		configuration.getScheduledExecutor().scheduleWithFixedDelay(this, updateInterval, updateInterval, timeUnit);
-	}
-	
+
 	/**
 	 * @param workingDirectory
 	 * @param target  - file relative to working directory
@@ -91,12 +86,17 @@ public class FileMonitor implements Runnable {
 		this.updateInterval=updateInterval;
 		this.timeUnit=timeUnit;
 		this.configuration=config;
-		init();
+		run();
+		reschedule();
+	}
+
+	private void reschedule(){
+		configuration.getScheduledExecutor().schedule(this, updateInterval, timeUnit);
 	}
 	
 	public synchronized void run(){
 		try {
-			if(interrupt)throw new RuntimeException();
+			if(interrupt)return;
 			TSI tsi=configuration.getTargetSystemInterface(client);
 			tsi.setStorageRoot(workingDirectory);
 			XnjsFile newInfo=tsi.getProperties(target);
@@ -108,9 +108,10 @@ public class FileMonitor implements Runnable {
 				}				
 			}
 			else{
-				log.debug("File not found: "+target+ " in working directory "+workingDirectory);
+				log.debug("File <{}> not found in working directory <{}>", target, workingDirectory);
 				info=null;	
 			}
+			reschedule();
 		} catch (ExecutionException e) {
 			log.error(e);
 		}

@@ -54,6 +54,7 @@ public class TSIDirCacheCheckout {
 	private ProgressMonitor monitor = NullProgressMonitor.INSTANCE;
 
 	private final Map<String, DirCacheEntry> builder = new HashMap<>();
+	private final Map<String, String> submoduleRevisions = new HashMap<>();
 
 	private final IStorageAdapter tsi;
 
@@ -150,7 +151,14 @@ public class TSIDirCacheCheckout {
 			entry.setObjectId(mId);
 			entry.setFileMode(mode);
 			builder.put(path, entry);
+			if(FileMode.GITLINK.equals(mode)) {
+				submoduleRevisions.put(path, mId.getName());
+			}
 		}
+	}
+	
+	public String getSubmoduleRevision(String path) {
+		return submoduleRevisions.get(path);
 	}
 
 	public static void getContent(Repository repo, String path,

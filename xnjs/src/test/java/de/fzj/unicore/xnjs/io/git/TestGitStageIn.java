@@ -42,4 +42,28 @@ public class TestGitStageIn extends EMSTestBase {
 			e.printStackTrace();
 		}
 	}
+	
+	@Test
+	public void testStageInSubrepos(){
+		try{
+			File wd = new File("target/git-test");
+			FileUtils.deleteQuietly(wd);
+			wd.mkdir();
+			URI source=new URI("git:https://github.com/BerndSchuller/testrepo2.git");
+			DataStageInInfo info = new DataStageInInfo();
+			info.setSources(new URI[]{source});
+			info.setFileName("testrepo2");
+			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(null, wd.getAbsolutePath(), info);
+			assertNotNull(ft);
+			assertTrue(ft instanceof GitStageIn);
+			ft.run();
+			TransferInfo fti = ft.getInfo();
+			assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
+			long transferred=fti.getTransferredBytes();
+			System.out.println("Downloaded "+transferred);
+			assertTrue(transferred>0);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 }
