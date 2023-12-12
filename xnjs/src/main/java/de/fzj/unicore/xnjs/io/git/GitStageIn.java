@@ -217,8 +217,6 @@ public class GitStageIn implements IFileTransfer {
 		for(String path: submodules.keySet()) {
 			String url = getSubmoduleURL(submodules.get(path), parentURL);
 			String revision = co.getSubmoduleRevision(path);
-			System.out.println("+++ checkout sub <"+path+"> from "+
-					url+" @ "+revision);
 			String oldWorkDir = tsi.getStorageRoot();
 			String newWorkDir = FilenameUtils.normalize(
 					oldWorkDir+"/"+path, true);
@@ -231,10 +229,9 @@ public class GitStageIn implements IFileTransfer {
 	private String getSubmoduleURL(String url, String parentUrl) {
 		if (!url.startsWith("./") && !url.startsWith("../"))
 			return url;
-		// Remove trailing '/'
+
 		if (parentUrl.charAt(parentUrl.length() - 1) == '/')
 			parentUrl = parentUrl.substring(0, parentUrl.length() - 1);
-
 		char separator = '/';
 		String submoduleUrl = url;
 		while (submoduleUrl.length() > 0) {
