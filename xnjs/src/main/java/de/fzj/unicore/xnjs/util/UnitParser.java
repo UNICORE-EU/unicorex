@@ -169,10 +169,10 @@ public class UnitParser {
 	static int[] capacityFactors=new int[]{1024,1024,1024,1024};
 
 	static String[][] timeUnits={
-		{"sec","seconds",},
-		{"min","minutes",}, 
-		{"h","hours",}, 
-		{"d","days",}, 
+		{"s", "sec", "seconds"},
+		{"m", "min", "minutes"},
+		{"h", "hours"},
+		{"d", "days"},
 	};
 
 	static int[] timeFactors=new int[]{60,60,24};
@@ -201,7 +201,7 @@ public class UnitParser {
 	 * @param spec - the date specification
 	 */
 	@SuppressWarnings("deprecation")
-	public static synchronized Date extractDateTime(String spec){
+	public static Date extractDateTime(String spec){
 		Date result=null;
 		try{
 			Date d1=getHHMMDate().parse(spec);
@@ -233,44 +233,26 @@ public class UnitParser {
 	public static String convertDateToISO8601(String dateSpec){
 		return getISO8601().format(extractDateTime(dateSpec));
 	}
-	
-	private static DateFormat hhmmDate;
-	
+
 	/**
-	 * get the static DateFormat instance for the "HH:mm" format<br/>
-	 * Not threadsafe!
+	 * get a DateFormat instance for the "HH:mm" format<br/>
 	 */
 	public static DateFormat getHHMMDate(){
-		if(hhmmDate==null){
-			hhmmDate=new SimpleDateFormat("HH:mm");
-		}
-		return hhmmDate;
-	}
-	
-	private static DateFormat iso8601;
-	
-	/**
-	 * gets the static DateFormat instance for the ISO8601 "yyyy-MM-dd'T'HH:mm:ssZ" format<br/>
-	 * Not threadsafe!
-	 */
-	public static DateFormat getISO8601(){
-		if(iso8601==null){
-			iso8601=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-		}
-		return iso8601;
+		return new SimpleDateFormat("HH:mm");
 	}
 
-	private static DateFormat simple;
+	/**
+	 * gets a DateFormat instance for the ISO8601 "yyyy-MM-dd'T'HH:mm:ssZ" format<br/>
+	 */
+	public static DateFormat getISO8601(){
+		return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	}
 	
 	/**
-	 * get the static DateFormat instance for the "yyyy-MM-dd HH:mm" format<br/>
-	 * Not threadsafe!
+	 * get a DateFormat instance for the "yyyy-MM-dd HH:mm" format<br/>
 	 */
 	public static DateFormat getSimpleDateFormat(){
-		if(simple==null){
-			simple=new SimpleDateFormat("yyyy-MM-dd HH:mm");
-		}
-		return simple;
+		return new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	}
 
 }
