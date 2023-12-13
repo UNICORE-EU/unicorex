@@ -2,6 +2,7 @@ package de.fzj.unicore.xnjs.io;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Map;
 
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import eu.unicore.persist.util.Wrapper;
@@ -33,6 +34,8 @@ public class DataStageOutInfo implements Serializable, DataStagingInfo {
 	
 	private Wrapper<DataStagingCredentials> credentials=null;
 	
+	private Map<String,String> extraParameters = null;
+
 	public DataStageOutInfo(){}
 	
 	/**
@@ -136,6 +139,14 @@ public class DataStageOutInfo implements Serializable, DataStagingInfo {
 
 	public void setFileSystemName(String fileSystemName) {
 		this.fileSystemName = fileSystemName;
+	}
+
+	public Map<String, String> getExtraParameters() {
+		return extraParameters;
+	}
+
+	public void setExtraParameters(Map<String, String> extraParameters) {
+		this.extraParameters = extraParameters;
 	}
 
 	@Override

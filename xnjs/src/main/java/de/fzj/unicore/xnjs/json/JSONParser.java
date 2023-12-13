@@ -160,6 +160,11 @@ public class JSONParser {
 		if(credentials!=null) {
 			dsi.setCredentials(extractCredentials(credentials));
 		}
+		
+		JSONObject extraParameters = spec.optJSONObject("ExtraParameters");
+		if(extraParameters!=null) {
+			dsi.setExtraParameters(JSONUtils.asStringMap(extraParameters));
+		}
 	}
 
 	public static DataStagingCredentials extractCredentials(JSONObject jCredentials) throws Exception {

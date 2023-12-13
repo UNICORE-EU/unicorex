@@ -548,7 +548,7 @@ public class TSIMessages {
 	 * @return a string for sending to the UNICORE TSI
 	 */
 	public String makePutFileChunkCommand(String file, String mode, long length, boolean append) {
-		StringBuffer commands = new StringBuffer();
+		StringBuilder commands = new StringBuilder();
 		commands.append("#TSI_PUTFILECHUNK\n");
 		String action = append ? "3" : "0";
 		commands.append("#TSI_FILESACTION " + action + "\n");
@@ -559,12 +559,33 @@ public class TSIMessages {
 
 	public static String makeUFTPGetFileCommand(
 			String host, int port, String secret,
-			String remoteFile, 
-			String localFile, 
-			String workingDir, 
-			long offset, long length, boolean partial, ExecutionContext ec) {
-		StringBuffer commands = new StringBuffer();
+			String remoteFile, String localFile, String workingDir,
+			long offset, long length, boolean partial,
+			ExecutionContext ec) {
+		return makeUFTPCommand(true, host, port, secret,
+				remoteFile, localFile, workingDir,
+				offset, length, partial, ec);
+	}
+
+	public static String makeUFTPPutFileCommand(
+			String host, int port, String secret,
+			String remoteFile, String localFile, String workingDir,
+			long offset, long length, boolean partial,
+			ExecutionContext ec) {
+		return makeUFTPCommand(false, host, port, secret,
+				remoteFile, localFile, workingDir,
+				offset, length, partial, ec);
+	}
+
+	private static String makeUFTPCommand(boolean isGET,
+			String host, int port, String secret,
+			String remoteFile, String localFile, String workingDir,
+			long offset, long length, boolean partial,
+			ExecutionContext ec) {
+		StringBuilder commands = new StringBuilder();
 		commands.append("#TSI_UFTP");
+		commands.append("\n#TSI_UFTP_OPERATION ");
+		commands.append( isGET? "GET" : "PUT");
 		commands.append("\n#TSI_UFTP_HOST ").append(host);
 		commands.append("\n#TSI_UFTP_PORT ").append(port);
 		commands.append("\n#TSI_UFTP_SECRET ").append(secret);
@@ -584,31 +605,7 @@ public class TSIMessages {
 		return commands.toString();
 	}
 
-	public static String makeUFTPPutFileCommand(
-			String host, int port, String secret,
-			String remoteFile, 
-			String localFile, 
-			String workingDir, 
-			long offset, long length, boolean partial, ExecutionContext ec) {
-		StringBuffer commands = new StringBuffer();
-		commands.append("#TSI_UFTP");
-		commands.append("\n#TSI_UFTP_HOST ").append(host);
-		commands.append("\n#TSI_UFTP_PORT ").append(port);
-		commands.append("\n#TSI_UFTP_SECRET ").append(secret);
-		commands.append("\n#TSI_UFTP_OPERATION PUT");
-		commands.append("\n#TSI_UFTP_REMOTE_FILE ").append(remoteFile);
-		commands.append("\n#TSI_UFTP_LOCAL_FILE ").append(localFile);
-		commands.append("\n#TSI_UFTP_WRITE_MODE ").append(partial ? "PARTIAL" : "FULL");
-		commands.append("\n#TSI_UFTP_OFFSET ").append(offset);
-		commands.append("\n#TSI_UFTP_LENGTH ").append(length);
-		commands.append("\n#TSI_USPACE_DIR ").append(workingDir);
-		commands.append("\n#TSI_OUTCOME_DIR ").append(ec.getOutputDirectory());
-		commands.append("\n#TSI_STDOUT ").append(ec.getStdout());
-		commands.append("\n#TSI_PID_FILE ").append(ec.getPIDFileName());
-		commands.append("\n#TSI_EXIT_CODE_FILE ").append(ec.getExitCodeFileName());
-		commands.append("\n");
-		return commands.toString();
-	}
+
 
 
 	/**

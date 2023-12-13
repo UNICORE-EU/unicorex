@@ -282,9 +282,14 @@ public class TestJSONParser {
 		JSONObject spec = new JSONObject();
 		spec.put("From", "http://some-url");
 		spec.put("To", "file.txt");
+		JSONObject p = new JSONObject();
+		p.put("test", "123");
+		spec.put("ExtraParameters", p);
 		DataStageInInfo dsi = JSONParser.parseStageIn(spec);
 		assertEquals("file.txt", dsi.getFileName());
 		assertEquals(1, dsi.getSources().length);
+		assertEquals(1, dsi.getExtraParameters().size());
+		assertEquals("123", dsi.getExtraParameters().get("test"));
 	}
 	
 	@Test
@@ -330,9 +335,14 @@ public class TestJSONParser {
 		JSONObject spec = new JSONObject();
 		spec.put("To", "http://some-url");
 		spec.put("From", "file.txt");
+		JSONObject p = new JSONObject();
+		p.put("test", "123");
+		spec.put("ExtraParameters", p);
 		DataStageOutInfo dso = JSONParser.parseStageOut(spec);
 		assertEquals("file.txt", dso.getFileName());
 		assertEquals(new URI("http://some-url"), dso.getTarget());
+		assertEquals(1, dso.getExtraParameters().size());
+		assertEquals("123", dso.getExtraParameters().get("test"));
 	}
 
 	@Test

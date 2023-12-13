@@ -3,6 +3,7 @@ package de.fzj.unicore.xnjs.io;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Map;
 
 import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
@@ -44,7 +45,9 @@ public class DataStageInInfo implements Serializable, DataStagingInfo {
 	private Wrapper<DataStagingCredentials> credentials=null;
 
 	private String inlineData;
-	
+
+	private Map<String,String> extraParameters = null;
+
 	public DataStageInInfo(){}
 
 	/**
@@ -168,6 +171,14 @@ public class DataStageInInfo implements Serializable, DataStagingInfo {
 		this.inlineData = inlineData;
 	}
 	
+	public Map<String, String> getExtraParameters() {
+		return extraParameters;
+	}
+
+	public void setExtraParameters(Map<String, String> extraParameters) {
+		this.extraParameters = extraParameters;
+	}
+
 	public String toString(){
 		return Arrays.asList(sources)+" -> "+fileName;
 	}

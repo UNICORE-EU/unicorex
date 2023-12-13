@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -29,6 +31,9 @@ public class TestGitStageIn extends EMSTestBase {
 			DataStageInInfo info = new DataStageInInfo();
 			info.setSources(new URI[]{source});
 			info.setFileName("testrepo");
+			Map<String,String>params = new HashMap<>();
+			params.put("commit", "26fc7091");
+			info.setExtraParameters(params);
 			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(null, wd.getAbsolutePath(), info);
 			assertNotNull(ft);
 			assertTrue(ft instanceof GitStageIn);

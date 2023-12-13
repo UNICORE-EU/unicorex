@@ -6,20 +6,18 @@ import java.util.Map;
 
 import org.eclipse.jgit.annotations.NonNull;
 import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.FileModeCache;
-import org.eclipse.jgit.lib.FileModeCache.CacheItem;
 import org.eclipse.jgit.lib.Repository;
 
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 
 /**
- * An adaptation of {@link FileModeCache} using the TSI for file system operations
+ * Cache git tree entries using the TSI for file system operations
  *
  * @author schuller
  */
 public class TSIFileModeCache {
 
-	private final XCacheItem root = new XCacheItem(FileMode.TREE);
+	private final CacheItem root = new CacheItem(FileMode.TREE);
 
 	private final Repository repo;
 
@@ -40,21 +38,21 @@ public class TSIFileModeCache {
 	 */
 	public void safeCreateParentDirectory(String gitPath, File parentDir)
 			throws Exception {
-		XCacheItem cachedParent = safeCreateDirectory(gitPath, parentDir);
+		CacheItem cachedParent = safeCreateDirectory(gitPath, parentDir);
 		cachedParent.remove(gitPath.substring(gitPath.lastIndexOf('/') + 1));
 	}
 
 	/**
 	 * Ensures the given directory {@code dir} with the given git path exists.
 	 */
-	public XCacheItem safeCreateDirectory(String gitPath, File dir) throws Exception {
+	public CacheItem safeCreateDirectory(String gitPath, File dir) throws Exception {
 		int i = gitPath.lastIndexOf('/');
 		String parentPath = null;
 		if (i >= 0) {
 			parentPath = gitPath.substring(0, i);
 		}
 		tsi.mkdir(dir.getPath());
-		XCacheItem cachedParent = root;
+		CacheItem cachedParent = root;
 		if (parentPath != null) {
 			cachedParent = add(parentPath, FileMode.TREE);
 		}
@@ -65,24 +63,17 @@ public class TSIFileModeCache {
 	 * Records the given {@link FileMode} for the given git path in the cache.
 	 * If an entry already exists for the given path, the previously cached file
 	 * mode is overwritten.
-	 *
-	 * @param gitPath
-	 *            to cache the {@link FileMode} for
-	 * @param finalMode
-	 *            {@link FileMode} to cache
-	 * @return the {@link CacheItem} for the path
-	 */
-	@NonNull
-	private XCacheItem add(String gitPath, FileMode finalMode) {
+	*/
+	private CacheItem add(String gitPath, FileMode finalMode) {
 		if (gitPath.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
-		String[] parts = gitPath.split("/"); //$NON-NLS-1$
+		String[] parts = gitPath.split("/");
 		int n = parts.length;
 		int i = 0;
-		XCacheItem curr = root;
+		CacheItem curr = root;
 		while (i < n) {
-			XCacheItem next = curr.child(parts[i]);
+			CacheItem next = curr.child(parts[i]);
 			if (next == null) {
 				break;
 			}
@@ -101,82 +92,40 @@ public class TSIFileModeCache {
 		return curr;
 	}
 
-	/**
-	 * needed only because we cannot directly use {@link CacheItem}
-	 */
-	public static class XCacheItem {
+	public static class CacheItem {
 
-		@NonNull
 		private FileMode mode;
 
-		private Map<String, XCacheItem> children;
+		private Map<String, CacheItem> children;
 
-		/**
-		 * Creates a new {@link CacheItem}.
-		 *
-		 * @param mode
-		 *            {@link FileMode} to cache
-		 */
-		public XCacheItem(@NonNull FileMode mode) {
+		public CacheItem(FileMode mode) {
 			this.mode = mode;
 		}
 
-		/**
-		 * Retrieves the cached {@link FileMode}.
-		 *
-		 * @return the {@link FileMode}
-		 */
-		@NonNull
 		public FileMode getMode() {
 			return mode;
 		}
 
-		/**
-		 * Retrieves an immediate child of this {@link CacheItem} by name.
-		 *
-		 * @param childName
-		 *            name of the child to get
-		 * @return the {@link CacheItem}, or {@code null} if no such child is
-		 *         known
-		 */
-		public XCacheItem child(String childName) {
+		public CacheItem child(String childName) {
 			if (children == null) {
 				return null;
 			}
 			return children.get(childName);
 		}
 
-		/**
-		 * Inserts a new cached {@link FileMode} as an immediate child of this
-		 * {@link CacheItem}. If there is already a child with the same name, it
-		 * is overwritten.
-		 *
-		 * @param childName
-		 *            name of the child to create
-		 * @param childMode
-		 *            {@link FileMode} to cache
-		 * @return the new {@link CacheItem} created for the child
-		 */
-		public XCacheItem insert(String childName, @NonNull FileMode childMode) {
+		public CacheItem insert(String childName, @NonNull FileMode childMode) {
 			if (!FileMode.TREE.equals(mode)) {
 				throw new IllegalArgumentException();
 			}
 			if (children == null) {
 				children = new HashMap<>();
 			}
-			XCacheItem newItem = new XCacheItem(childMode);
+			CacheItem newItem = new CacheItem(childMode);
 			children.put(childName, newItem);
 			return newItem;
 		}
 
-		/**
-		 * Removes the immediate child with the given name.
-		 *
-		 * @param childName
-		 *            name of the child to remove
-		 * @return the previously cached {@link CacheItem}, if any
-		 */
-		public XCacheItem remove(String childName) {
+		public CacheItem remove(String childName) {
 			if (children == null) {
 				return null;
 			}

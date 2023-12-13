@@ -1,5 +1,7 @@
 package de.fzj.unicore.xnjs.io;
 
+import java.util.Map;
+
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 
 /**
@@ -44,5 +46,12 @@ public interface DataStagingInfo extends Cloneable {
 	public String getFileSystemName();
 
 	public void setFileSystemName(String fileSystemName);
+
+	/**
+	 * extra, protocol-dependent parameters
+	 */
+	public void setExtraParameters(Map<String,String> parameters);
+
+	public Map<String,String> getExtraParameters();
 
 }

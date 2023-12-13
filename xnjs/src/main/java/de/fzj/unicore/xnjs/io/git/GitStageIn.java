@@ -29,7 +29,7 @@ import eu.unicore.util.Log;
 
 /**
  * stage in a repo from a Git URL
- *  
+ *
  * @author schuller
  */
 public class GitStageIn implements IFileTransfer {
@@ -106,6 +106,14 @@ public class GitStageIn implements IFileTransfer {
 	@Override
 	public void setStorageAdapter(IStorageAdapter adapter) {
 		this.tsi = adapter;
+	}
+
+	@Override
+	public void setExtraParameters(Map<String,String> options) {
+		if(options!=null) {
+			branch = options.get("branch");
+			revisionID = options.get("commit");
+		}
 	}
 
 	private long clone(IStorageAdapter tsi, String url, String branch, String revisionID) throws Exception {
@@ -206,7 +214,7 @@ public class GitStageIn implements IFileTransfer {
 			throws Exception {
 		RevCommit commit = null;
 		for(RevCommit rc: git.log().call()) {
-			if(commitId.equals(rc.getName()))
+			if(rc.getName().startsWith(commitId))
 				return rc;
 		}
 		return commit;

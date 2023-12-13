@@ -3,28 +3,22 @@ package de.fzj.unicore.xnjs.io.git;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.eclipse.jgit.api.errors.CanceledException;
-import org.eclipse.jgit.dircache.DirCacheCheckout;
 import org.eclipse.jgit.dircache.DirCacheCheckout.CheckoutMetadata;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.IncorrectObjectTypeException;
 import org.eclipse.jgit.errors.MissingObjectException;
-import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.CoreConfig.AutoCRLF;
 import org.eclipse.jgit.lib.CoreConfig.EolStreamType;
 import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.NullProgressMonitor;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.ProgressMonitor;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.EmptyTreeIterator;
@@ -36,8 +30,9 @@ import org.eclipse.jgit.util.io.EolStreamTypeUtil;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
 
 /**
- * An adaptation of @link {@link DirCacheCheckout} using the TSI to
- * handle file system operations
+ * Checkout helper using the TSI to handle file system operations
+ *
+ * (based on {@link org.eclipse.jgit.dircache.DirCacheCheckout})
  */
 public class TSIDirCacheCheckout {
 
@@ -50,8 +45,6 @@ public class TSIDirCacheCheckout {
 	private NameConflictTreeWalk walk;
 
 	private TSICheckout checkout;
-
-	private ProgressMonitor monitor = NullProgressMonitor.INSTANCE;
 
 	private final Map<String, DirCacheEntry> builder = new HashMap<>();
 	private final Map<String, String> submoduleRevisions = new HashMap<>();
@@ -96,8 +89,6 @@ public class TSIDirCacheCheckout {
 		try (ObjectReader objectReader = repo.getObjectDatabase().newReader()) {
 			checkout = new TSICheckout(repo, tsi);
 			prescanOneTree();
-			int numTotal =  updated.size() ;
-			monitor.beginTask(JGitText.get().checkingOutFiles, numTotal);
 			Iterator<Map.Entry<String, CheckoutMetadata>> toUpdate = updated
 					.entrySet().iterator();
 			Map.Entry<String, CheckoutMetadata> e = null;
@@ -113,12 +104,6 @@ public class TSIDirCacheCheckout {
 						checkout.checkout(entry, meta, objectReader, path);
 					}
 					e = null;
-					monitor.update(1);
-					if (monitor.isCancelled()) {
-						throw new CanceledException(MessageFormat.format(
-								JGitText.get().operationCanceled,
-								JGitText.get().checkingOutFiles));
-					}
 				}
 			} catch (Exception ex) {
 				if (e != null) {
@@ -130,7 +115,6 @@ public class TSIDirCacheCheckout {
 				}
 				throw ex;
 			}
-			monitor.endTask();
 		}
 		return true;
 	}

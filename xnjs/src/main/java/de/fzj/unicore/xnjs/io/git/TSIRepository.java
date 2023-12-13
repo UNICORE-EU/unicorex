@@ -16,7 +16,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jgit.annotations.Nullable;
 import org.eclipse.jgit.errors.ConfigInvalidException;
 import org.eclipse.jgit.internal.storage.dfs.DfsObjDatabase;
 import org.eclipse.jgit.internal.storage.dfs.DfsOutputStream;
@@ -26,7 +25,6 @@ import org.eclipse.jgit.internal.storage.dfs.DfsReftableDatabase;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepository;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryBuilder;
 import org.eclipse.jgit.internal.storage.dfs.DfsRepositoryDescription;
-import org.eclipse.jgit.internal.storage.dfs.InMemoryRepository;
 import org.eclipse.jgit.internal.storage.dfs.ReadableChannel;
 import org.eclipse.jgit.internal.storage.pack.PackExt;
 import org.eclipse.jgit.internal.storage.reftable.ReftableConfig;
@@ -42,7 +40,7 @@ import de.fzj.unicore.xnjs.io.IStorageAdapter;
 /**
  * Git repository using the TSI. References are stored in-memory,
  * object data is stored in a directory on the TSI.
- * Based on {@link InMemoryRepository}
+ * Based on InMemoryRepository
  *
  * @author schuller
  */
@@ -115,13 +113,12 @@ public class TSIRepository extends DfsRepository {
 	}
 
 	@Override
-	@Nullable
 	public String getGitwebDescription() {
 		return gitwebDescription;
 	}
 
 	@Override
-	public void setGitwebDescription(@Nullable String d) {
+	public void setGitwebDescription(String d) {
 		gitwebDescription = d;
 	}
 	

@@ -143,6 +143,9 @@ public class FileTransferEngine implements IFileTransferEngine{
 			if(f!=null){
 				f.setOverwritePolicy(info.getOverwritePolicy());
 				f.setImportPolicy(info.getImportPolicy());
+				if(info.getExtraParameters()!=null){
+					f.setExtraParameters(info.getExtraParameters());
+				}
 				registerFileTransfer(f);
 				return f;
 			}
@@ -163,6 +166,9 @@ public class FileTransferEngine implements IFileTransferEngine{
 			IFileTransfer f=c.createFileExport(client,workingDirectory,info);
 			if(f!=null){
 				f.setOverwritePolicy(info.getOverwritePolicy());
+				if(info.getExtraParameters()!=null){
+					f.setExtraParameters(info.getExtraParameters());
+				}
 				registerFileTransfer(f);
 				return f;
 			}

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.OutputStream;
 import java.time.Instant;
 
-import org.eclipse.jgit.dircache.Checkout;
 import org.eclipse.jgit.dircache.DirCacheCheckout.CheckoutMetadata;
 import org.eclipse.jgit.dircache.DirCacheEntry;
 import org.eclipse.jgit.lib.CoreConfig.EolStreamType;
@@ -20,11 +19,10 @@ import de.fzj.unicore.xnjs.io.ChangePermissions;
 import de.fzj.unicore.xnjs.io.ChangePermissions.Mode;
 import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.git.TSIFileModeCache.XCacheItem;
+import de.fzj.unicore.xnjs.io.git.TSIFileModeCache.CacheItem;
 
 /**
- * An adaptation of {@link Checkout} using the TSI to access
- * the target filesystem
+ * Checkout helper using the TSI to access the target filesystem
  *
  * @author schuller
  */
@@ -65,7 +63,7 @@ public class TSICheckout {
 		String path = gitPath != null ? gitPath : entry.getPathString();
 		File gitlinkDir = new File("/", path);
 		File parentDir = gitlinkDir.getParentFile();
-		XCacheItem cachedParent = cache.safeCreateDirectory(path, parentDir);
+		CacheItem cachedParent = cache.safeCreateDirectory(path, parentDir);
 		tsi.mkdir(gitlinkDir.getPath());
 		cachedParent.insert(path.substring(path.lastIndexOf('/') + 1),
 				FileMode.GITLINK);
@@ -84,7 +82,7 @@ public class TSICheckout {
 		String path = gitPath != null ? gitPath : entry.getPathString();
 		File f = new File("/", path);
 		File parentDir = f.getParentFile();
-		XCacheItem cachedParent = cache.safeCreateDirectory(path, parentDir);
+		CacheItem cachedParent = cache.safeCreateDirectory(path, parentDir);
 		if (entry.getFileMode() == FileMode.SYMLINK
 				&& options.getSymLinks() == SymLinks.TRUE) {
 			byte[] bytes = ol.getBytes();
