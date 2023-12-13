@@ -145,6 +145,12 @@ public class TSIRepository extends DfsRepository {
 		}
 		return pathNames;
 	}
+	
+	@Override
+	public void close() {
+		super.close();
+		objdb.close();
+	}
 
 	/** DfsObjDatabase used by TSIRepository. */
 	public static class TSIObjDatabase extends DfsObjDatabase {
@@ -229,6 +235,14 @@ public class TSIRepository extends DfsRepository {
 				count += p.getObjectCount();
 			}
 			return count;
+		}
+		
+		@Override
+		public void close() {
+			super.close();
+			try {
+				tsi.rmdir(storageDir);
+			}catch(Exception ex) {}
 		}
 	}
 

@@ -2,6 +2,7 @@ package de.fzj.unicore.xnjs.io.git;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.jgit.api.Git;
@@ -117,8 +118,8 @@ public class GitStageIn implements IFileTransfer {
 	}
 
 	private long clone(IStorageAdapter tsi, String url, String branch, String revisionID) throws Exception {
-		TSIRepository repo = new TSIRepository(tsi, ".unicore_git_repodata");
-		try(Git git = new Git(repo)){
+		try(TSIRepository repo = new TSIRepository(tsi, ".unicore_git_repodata")){
+			Git git = new Git(repo);
 			RefSpec refSpec = branch==null?
 					new RefSpec("+refs/heads/*:refs/heads/*") :
 						new RefSpec("+refs/heads/"+branch+":refs/heads/"+branch);
@@ -128,8 +129,8 @@ public class GitStageIn implements IFileTransfer {
 					.setRefSpecs(refSpec)
 					.call();
 			checkout(git, repo, url, fr, branch, revisionID);
+			return repo.getTransferredBytes();
 		}
-		return repo.getTransferredBytes();
 	}
 	
 	private CredentialsProvider makeGitCredentials() {
@@ -220,7 +221,13 @@ public class GitStageIn implements IFileTransfer {
 		return commit;
 	}
 
+	private AtomicInteger recursionDepth = new AtomicInteger(0);
+
 	private void cloneSubmodules(TSIRepository repo, TSIDirCacheCheckout co, String parentURL) throws Exception {
+		if(recursionDepth.incrementAndGet()>10) {
+			throw new Exception("Submodules are too deeply nested for my taste. "
+					+ "Rethink your life choices.");
+		}
 		Map<String, String> submodules = repo.getSubmodules();
 		for(String path: submodules.keySet()) {
 			String url = getSubmoduleURL(submodules.get(path), parentURL);
