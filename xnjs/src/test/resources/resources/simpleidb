@@ -11,12 +11,9 @@
   
 ],
 
-"ExecuteScriptTemplate": [
+"ScriptHeader": [
   "#!/bin/sh",
-  "export TEST='this is a test for the template mechanism'",
-  "#COMMAND",
-  "#RESOURCES",
-  "#SCRIPT"
+  "export TEST='this is a test for the template mechanism'"
 ],
 
    "Partitions": {

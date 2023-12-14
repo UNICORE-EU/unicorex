@@ -141,7 +141,7 @@ public class TransferInfo implements Serializable {
 	}
 	
 	public String toString(){
-		return "["+String.valueOf(status)+"("+statusMessage+") "+source+" -> "+target+"]";
+		return "["+source+" -> "+target+"]";
 	}
 
 	public void setFileTransferEngine(IFileTransferEngine engine){

@@ -82,22 +82,14 @@ public interface IDB {
 	public default Partition getDefaultPartition() throws ExecutionException {
 		return getPartition(null);
 	}
-	
-	/**
-	 * get the template that is used for building shell scripts for
-	 * batch submission to the (classic) TSI
-	 * 
-	 * @return the template (or the default one if not defined)
-	 */
-	public String getSubmitTemplate();
 
 	/**
-	 * get the template that is used for building shell scripts for
-	 * direct execution by the (classic) TSI
+	 * get the header that is used for building shell scripts for
+	 * execution by the (classic) TSI
 	 * 
 	 * @return the template (or the default one if not defined)
 	 */
-	public String getExecuteTemplate();
+	public String getScriptHeader();
 
 	/**
 	 * Get a TextInfo property</br>

@@ -62,8 +62,6 @@ import de.fzj.unicore.xnjs.ems.Action;
 import de.fzj.unicore.xnjs.ems.BudgetInfo;
 import de.fzj.unicore.xnjs.ems.ExecutionContext;
 import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.idb.IDB;
-import de.fzj.unicore.xnjs.idb.IDBImpl;
 import de.fzj.unicore.xnjs.io.ChangePermissions;
 import de.fzj.unicore.xnjs.io.ChangePermissions.Mode;
 import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
@@ -221,7 +219,7 @@ public class TestTSI extends RemoteTSITestCase{
 		tsi.mkdir(tmpdir+File.separator+tmp);
 		ExecutionContext ec = new ExecutionContext();
 		ec.setWorkingDirectory(tmpdir+File.separator+tmp);
-		//echo the TEST variable defined in the IDB execute template
+		// the TEST variable is defined in the IDB script header
 		ec.setStdout("out");
 		tsi.exec("echo $TEST",ec);
 		File f=new File(tmpdir+"/"+tmp+"/out");
@@ -243,25 +241,6 @@ public class TestTSI extends RemoteTSITestCase{
 		startTime.add(Calendar.DAY_OF_MONTH,2);
 		String id = r.makeReservation(resources, startTime, c);
 		r.cancelReservation(id, new Client());
-	}
-
-	@Test
-	public void testWrongTSICommand()throws Exception{
-		String tmpdir=mkTmpDir();
-		RemoteTSI tsi=makeTSI();
-		ExecutionContext ec = new ExecutionContext();
-		ec.setWorkingDirectory(tmpdir);
-		IDB idb = xnjs.get(IDB.class);
-		String template = idb.getExecuteTemplate();
-		((IDBImpl)idb).setExecuteTemplate("XXXX");
-		try{
-			tsi.execAndWait("echo tsi",ec);
-			fail("Expected exception.");
-		}catch(ExecutionException ee){
-			//OK
-		}
-		((IDBImpl)idb).setExecuteTemplate(template);
-		FileUtils.deleteQuietly(new File(tmpdir));
 	}
 
 	@Test

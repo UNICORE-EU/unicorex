@@ -244,7 +244,6 @@ public class GrounderImpl implements Incarnation {
 		}
 		List<ResourceRequest> incarnatedResources=incarnateResources(requested, job.getClient());
 		if(incarnatedResources!=null){
-			// TODO check format
 			job.addLogTrace("Requesting resources: "+incarnatedResources);
 		}
 		return incarnatedResources;

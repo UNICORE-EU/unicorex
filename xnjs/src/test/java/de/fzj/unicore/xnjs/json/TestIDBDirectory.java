@@ -110,12 +110,9 @@ public class TestIDBDirectory {
 	}
 	
 	@Test
-	public void testScriptTemplates() throws Exception {
-		System.out.println(idb.getExecuteTemplate());
-		assertTrue(idb.getExecuteTemplate().startsWith("#!/bin/bash"));
-		System.out.println(idb.getSubmitTemplate());
-		assertTrue(idb.getExecuteTemplate().contains("FOO=bar\n#SCRIPT"));
-		assertTrue(idb.getSubmitTemplate().contains("FOO=bar\n#SCRIPT"));
-		
+	public void testScriptHeader() throws Exception {
+		System.out.println(idb.getScriptHeader());
+		assertTrue(idb.getScriptHeader().startsWith("#!/bin/bash"));
+		assertTrue(idb.getScriptHeader().contains("FOO=bar\n"));
 	}
 }

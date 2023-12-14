@@ -76,7 +76,7 @@ public class Action implements Serializable {
 	private Date terminationTime;
 
 	//the EMS status of the action
-	private int status;
+	private int status = ActionStatus.CREATED;
 
 	//the EMS transition status of the action
 	private int transitionalStatus;
@@ -89,12 +89,12 @@ public class Action implements Serializable {
 	//the description of the action as submitted
 	private Wrapper<Serializable> ajd;
 
-	private ActionResult result;
+	private ActionResult result = new ActionResult();
 
-	private final List<String> log;
+	private final List<String> log = new ArrayList<>();
 
 	//for storing state information used during processing
-	private ProcessingContext processingContext;
+	private ProcessingContext processingContext = new ProcessingContext();
 
 	//the context during execution
 	private ExecutionContext executionContext;
@@ -140,14 +140,9 @@ public class Action implements Serializable {
 	 * @param uuid - the UUID of the new Action. 
 	 */
 	public Action(String uuid){
+		if(uuid==null)throw new IllegalArgumentException("UUID must be non-null.");
 		UUID=uuid;
-		if(UUID==null)throw new IllegalArgumentException("UUID must be non-null.");
-		log=new ArrayList<>();
-		processingContext=new ProcessingContext();
-		setResult(new ActionResult());
-		setStatus(ActionStatus.CREATED);
-		addLogTrace("Created with ID "+getUUID());
-		setDirty();
+		dirty = true;
 	}
 	
 	/**
@@ -502,7 +497,7 @@ public class Action implements Serializable {
 		if(rootActionID!=null){
 			sb.append("Root action ID       : ").append(rootActionID).append("\n");
 		}
-		sb.append("Job Definition: ").append(getAjd()).append("\n");
+		sb.append("Job definition: ").append(getAjd()).append("\n");
 		return sb.toString();
 	}
 }

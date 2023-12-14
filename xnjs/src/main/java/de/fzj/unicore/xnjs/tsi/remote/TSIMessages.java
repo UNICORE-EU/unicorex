@@ -66,11 +66,10 @@ public class TSIMessages {
 		ExecutionContext ec = job.getExecutionContext();
 		IDB idb = xnjs.get(IDB.class);
 		Incarnation grounder = xnjs.get(Incarnation.class);
-
-		String template = idb.getSubmitTemplate()
-				.replace("#COMMAND", "#TSI_SUBMIT\n");
-
 		StringBuilder commands = new StringBuilder();
+		commands.append(idb.getScriptHeader());
+		commands.append("#TSI_SUBMIT\n");
+		
 		Formatter f = new Formatter(commands, null);
 
 		commands.append("\n"); // start on a fresh line independent of the script template
@@ -119,11 +118,6 @@ public class TSIMessages {
 			f.format("#TSI_JOB_FILE %s\n", jobFile);
 		}
 
-		template = template.replace("#RESOURCES", commands.toString());
-		f.close();
-
-		commands = new StringBuilder();
-		f = new Formatter(commands, null);
 		commands.append("#TSI_SCRIPT\n");
 
 		appendEnvironment(commands, ec, true);
@@ -151,7 +145,7 @@ public class TSIMessages {
 		// executable (user-pre, prologue, main, epilogue, user-post)
 		insertExecutable(commands, applicationInfo, ec, false);
 		f.close();
-		return template.replace("#SCRIPT", commands.toString());
+		return commands.toString();
 	}
 
 	/**
@@ -297,12 +291,11 @@ public class TSIMessages {
 	 */
 	public String makeExecuteScript(String script, ExecutionContext ec, String credentials) {
 		IDB idb = xnjs.get(IDB.class);
-		String template = idb.getExecuteTemplate()
-				.replace("#COMMAND", "#TSI_EXECUTESCRIPT\n");
-
 		StringBuilder commands = new StringBuilder();
+		commands.append(idb.getScriptHeader());
+		commands.append("#TSI_EXECUTESCRIPT\n");
+		
 		Formatter f = new Formatter(commands, null);
-
 		if(credentials!=null){
 			f.format("#TSI_CREDENTIALS %s\n", credentials);
 		}
@@ -330,7 +323,7 @@ public class TSIMessages {
 			f.format("echo $? > %s/%s\n", ec.getWorkingDirectory(), ec.getExitCodeFileName());
 		}
 		f.close();
-		return template.replace("#SCRIPT", commands.toString());
+		return commands.toString();
 	}
 
 	/**
@@ -338,12 +331,12 @@ public class TSIMessages {
 	 */
 	public String makeExecuteAsyncScript(Action job, String credentials) {
 		IDB idb = xnjs.get(IDB.class);
-		String template = idb.getExecuteTemplate()
-				.replace("#COMMAND", "#TSI_EXECUTESCRIPT\n");
 		ExecutionContext ec=job.getExecutionContext();
 		ApplicationInfo ai=job.getApplicationInfo();
 		ec.getEnvironment().putAll(ai.getEnvironment());
 		StringBuilder commands = new StringBuilder();
+		commands.append(idb.getScriptHeader());
+		commands.append("#TSI_EXECUTESCRIPT\\n");
 		Formatter f = new Formatter(commands, null);
 
 		if(credentials!=null){
@@ -371,7 +364,7 @@ public class TSIMessages {
 
 		f.format("} & echo $! > ${UC_OUTPUT_DIRECTORY}/%s", ec.getPIDFileName());
 		f.close();
-		return template.replace("#SCRIPT", commands.toString());
+		return commands.toString();
 	}
 
 	private String [] ls_ignored = new String[] {"TSI_OK", "END_LISTING", "START_LISTING", "<", "-"};

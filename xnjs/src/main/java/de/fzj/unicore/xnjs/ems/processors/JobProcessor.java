@@ -170,8 +170,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			storeTimeStamp(TIME_START);
 			setupNotifications();
 			if(isEmptyJob()){
-				String msg="Empty job description. Setting to DONE.";
-				action.addLogTrace(msg);
+				action.addLogTrace("Empty job description, nothing to do.");
 				setToDoneSuccessfully();
 				return;
 			}
@@ -189,11 +188,10 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				action.setWaiting(true);
 			}
 			else{
-				action.addLogTrace("No staging in needed.");
 				setToReady();
 			}
 		}catch(Exception ex){
-			String msg="Error processing action "+ex.getMessage();
+			String msg="ERROR: "+ex.getMessage();
 			action.addLogTrace(msg);
 			throw new ProcessingException(msg,ex);
 		}
@@ -204,7 +202,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 */
 	protected void handlePreProcessing() throws ProcessingException {
 		try{
-			//get id of stage in sub action
 			String stageInActionID=(String)action.getProcessingContext().get(subactionkey_in);
 			if(stageInActionID!=null){
 				handleStagingIn(stageInActionID);
@@ -906,7 +903,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		String subId=manager.addSubAction(stageInfo,
 				XNJSConstants.jobStageInActionType, action, true);
 		action.getProcessingContext().put(subactionkey_in,subId);
-		action.addLogTrace("Adding stage in subaction with id="+subId);
+		logger.trace("Adding stage in subaction with id {}", subId);
 		action.setWaiting(true);
 	}
 
@@ -917,12 +914,11 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			StagingInfo stageOut = new StagingInfo(toStage);
 			String subId=manager.addSubAction((Serializable)stageOut,
 					XNJSConstants.jobStageOutActionType, action, true);
-			action.addLogTrace("Adding stage out subaction with id="+subId);
+			logger.trace("Adding stage out subaction with id {}", subId);
 			action.getProcessingContext().put(subactionkey_out, subId);
 			action.setWaiting(true);
 		}
 		else  {
-			action.addLogTrace("Nothing to stage out.");
 			setToDoneSuccessfully();
 		}
 	}
@@ -966,21 +962,21 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		storeTimeStamp(TIME_END);
 		action.setStatus(ActionStatus.DONE);
 		action.getProcessingContext().set(ApplicationExecutionStatus.done());
-		action.addLogTrace("Status set to DONE.");
+		action.addLogTrace("Status set to DONE - successful.");
 		int exitcode=getExitCode();
 		action.setResult(new ActionResult(ActionResult.SUCCESSFUL,"Success.",exitcode));
-		action.addLogTrace("Result: Success.");
 		deleteFiles();
 		action.addLogTrace(getTimeProfile(action.getProcessingContext()));
 		updateQueuedStats(action.getProcessingContext());
-		logger.info("Action "+action.getUUID()+ " SUCCESSFUL.");
+		logger.info("Action {} SUCCESSFUL.", action.getUUID());
 	}
 
 	@Override
 	protected void setToDoneAndFailed(String reason){
 		super.setToDoneAndFailed(reason);
+		action.addLogTrace("Status set to DONE - failure.");
 		updateQueuedStats(action.getProcessingContext());
-		logger.info("Action "+action.getUUID()+ " FAILED"+(reason!=null?": "+reason:"."));
+		logger.info("Action {} FAILED{}", action.getUUID(),(reason!=null?": "+reason:"."));
 	}
 
 	/**
@@ -988,8 +984,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 */
 	protected int getExitCode(){
 		Integer i=action.getExecutionContext().getExitCode();
-		if(i==null)return 0;
-		return i.intValue();
+		return i==null? 0 : i.intValue();
 	}
 
 	@Override
@@ -997,14 +992,12 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			exec.abort(action);
 		}catch(Exception ex){
-			String msg=LogUtil.createFaultMessage("Could not abort action on BSS", ex);
-			action.addLogTrace(msg);
+			action.addLogTrace(LogUtil.createFaultMessage("Could not abort action on BSS", ex));
 		}
 		try{
 			abortFileTransfers();
 		}catch(Exception ex){
-			String msg=LogUtil.createFaultMessage("Could not abort file transfers", ex);
-			action.addLogTrace(msg);
+			action.addLogTrace(LogUtil.createFaultMessage("Could not abort file transfers", ex));
 		}	
 		super.handleAborting();
 	}
@@ -1028,7 +1021,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			if(ActionStatus.canAbort(action.getStatus()))exec.abort(action);
 		}
 		catch(ExecutionException ex){
-			logger.warn("Could not abort action",ex);
+			logger.debug("Could not abort action",ex);
 		}
 		try{
 			ecm.destroyUSpace(action);

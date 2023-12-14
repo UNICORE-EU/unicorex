@@ -45,7 +45,6 @@ public class GitStageIn implements IFileTransfer {
 	private final TransferInfo info;
 	private String branch = null;
 	private String revisionID = null;
-	private boolean cloneSubmodules = true;
 
 	public GitStageIn(XNJS xnjs, Client client, String workingDirectory,
 			String gitURI, String targetDirectory,	DataStagingCredentials credentials ) {
@@ -152,13 +151,16 @@ public class GitStageIn implements IFileTransfer {
 		u.forceUpdate();
 		if(commitId!=null) {
 			commit = getCommit(git, clonedRepo, commitId);
+			if(commit==null) {
+				throw new Exception("Requested commit <"+commitId+"> not found");
+			}
 		}
 		u = clonedRepo.updateRef(Constants.HEAD, detached);
 		u.setNewObjectId(commit.getId());
 		u.forceUpdate();
 		TSIDirCacheCheckout co = new TSIDirCacheCheckout(clonedRepo, commit.getTree(), tsi);
 		co.checkout();
-		if (cloneSubmodules && tsi.getProperties(".gitmodules")!=null) {
+		if (tsi.getProperties(".gitmodules")!=null) {
 			cloneSubmodules(clonedRepo, co, remoteURL);
 		}
 	}

@@ -215,10 +215,6 @@ public class JSONParser {
 		}
 		return meta;
 	}
-	
-	public static String parseScriptTemplate(String key, JSONObject idb) {
-		return JSONUtils.readMultiLine(key, null, idb);
-	}
 
 	public static List<ResourceRequest> parseResourceRequest(JSONObject source) throws Exception {
 		List<ResourceRequest> req = new ArrayList<>();

@@ -105,7 +105,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 				setToDoneAndFailed("Internal server error: Data staging expected but not found. File transfers failed.");
 			}
 			else{
-				List<String>filesToDelete=new ArrayList<String>();
+				List<String>filesToDelete = new ArrayList<>();
 				for(DataStagingInfo dst:dstInfo){
 					try{
 						IFileTransfer ft=null;
@@ -131,9 +131,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 						fti.setParentActionID(action.getRootActionID());
 						fti.setIgnoreFailure(dst.isIgnoreFailure());
 						ftInstances.add(ft);
-						//handle delete on termination
-						boolean deleteOnTermination=dst.isDeleteOnTermination();
-						if(deleteOnTermination){
+						if(dst.isDeleteOnTermination()){
 							filesToDelete.add(dst.getFileName());
 						}
 					}catch(Exception e){
@@ -156,11 +154,10 @@ public class DataStagingProcessor extends DefaultProcessor {
 					TransferInfo fti = ft.getInfo();
 					try{
 						getExecutor().execute(ft);
-						action.addLogTrace("Started filetransfer "+fti.getSource()+" -> "+fti.getTarget());
+						action.addLogTrace("Started filetransfer "+fti);
 						ftList.add(fti.getUniqueId());
 					}catch(RejectedExecutionException e){
-						LogUtil.logException("Error starting filetransfer: "
-								+fti.getSource()+"->"+fti.getTarget(), e, logger);
+						LogUtil.logException("Error starting filetransfer "+fti, e, logger);
 						setToDoneAndFailed("Error starting filetransfer (internal work queue too full)");
 						return;
 					}
@@ -218,7 +215,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 			}
 			
 			if(ft.getStatus()==Status.DONE){
-				logger.debug("File transfer {} SUCCESSFUL.", ft.getUniqueId());
+				logger.debug("File transfer {} SUCCESSFUL.", ft);
 				xnjs.get(IFileTransferEngine.class).cleanup(ftId);
 				iter.remove();
 				action.setDirty();
@@ -226,16 +223,14 @@ public class DataStagingProcessor extends DefaultProcessor {
 			else if(ft.getStatus()==Status.FAILED){
 				logger.debug("File transfer {} FAILED.", ft.getUniqueId());
 				if(!ft.isIgnoreFailure()){
-					String message="Filetransfer FAILED: "+ft.getSource()+" -> "+ft.getTarget()+
-					", error message: "+ft.getStatusMessage();
+					String message="Filetransfer FAILED: "+ft+" error message: "+ft.getStatusMessage();
 					action.addLogTrace(message);
 					setToDoneAndFailed(message);
 					cleanup();
 					return;
 				}
 				else{
-					String message="Ignoring FAILED filetransfer: "+ft.getSource()+" -> "+ft.getTarget();
-					action.addLogTrace(message);
+					action.addLogTrace("Ignoring FAILED filetransfer "+ft);
 					iter.remove();
 				}
 			}

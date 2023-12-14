@@ -49,7 +49,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 /**
  * An abstract IDB implementation supporting multiple IDB files (with a single main file) and
  * per-user extensions. 
- * Concrete subclasses have to deal with the representation of the IDB content (XML or JSON)
+ * Concrete subclasses have to deal with the representation of the IDB content
  * 
  * @author schuller
  */
@@ -62,10 +62,8 @@ public class IDBImpl implements IDB {
 	private static final String VAR = UNIX_VAR+"|"+WIN_VAR;
 	public static final Pattern ARG_PATTERN=Pattern.compile("\\s?(.*?)"+"("+VAR+")(.*?)\\s*", Pattern.DOTALL);
 	public static final String DEFAULT_PARTITION = "DEFAULT_PARTITION";
-	
-	public static final String DEFAULT_EXECUTE_TEMPLATE = "#!/bin/bash -l\n#COMMAND\n#SCRIPT\n";
 
-	public static final String DEFAULT_SUBMIT_TEMPLATE = "#!/bin/bash -l\n#COMMAND\n#RESOURCES\n#SCRIPT\n";
+	public static final String DEFAULT_SCRIPT_HEADER = "#!/bin/bash -l\n";
 
 	protected static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,IDBImpl.class);
 
@@ -78,6 +76,8 @@ public class IDBImpl implements IDB {
 	protected String submitTemplate;
 
 	protected String executeTemplate;
+
+	protected String scriptHeader;
 
 	protected final List<Partition> partitions = new ArrayList<>();
 
@@ -135,12 +135,12 @@ public class IDBImpl implements IDB {
 		}
 		
 		if(isDirectory){
-			logger.info("Using IDB directory <"+idbFile.getAbsolutePath()+">");
+			logger.info("Using IDB directory <{}>", idbFile.getAbsolutePath());
 			String main = xnjsProperties.getValue("idbfile.main");
 			if(main!=null){
 				mainFile = new File(main);
 				if(mainFile.exists()) {
-					logger.info("Main IDB file <"+mainFile.getAbsolutePath()+">");
+					logger.info("Main IDB file <{}>", mainFile.getAbsolutePath());
 				}
 				else {
 					throw new ConfigurationException("IDB main file location <XNJS.idbfile.main> must point to a valid file.");
@@ -156,7 +156,7 @@ public class IDBImpl implements IDB {
 		while(true){
 			String ext = xnjsProperties.getValue("idbfile.ext."+i);
 			if(ext == null || ext.equals(idbSpec))break;
-			logger.info("Will read user-specific applications from <"+ext+">");
+			logger.info("Will read user-specific applications from <{}>", ext);
 			extensionInfo.add(new ExtensionInfo(ext));
 			i++;
 		}
@@ -234,7 +234,7 @@ public class IDBImpl implements IDB {
 						extension.resolvedPath = tsi.resolve(extension.path);
 					}
 					String realPath = extension.resolvedPath;
-					logger.info("Reading user-specific apps from <"+realPath+">");
+					logger.info("Reading user-specific apps from <{}>", realPath);
 					Collection<String>files = getFiles(realPath, client);
 					for(String file : files){
 						try(InputStream is = tsi.getInputStream(file)){
@@ -290,25 +290,18 @@ public class IDBImpl implements IDB {
 	public Map<String, String> getFilespaces() {
 		return filespaces;
 	}
-	
-	@Override
-	public String getSubmitTemplate() {
-		doCheckAndUpdateIDB();
-		return submitTemplate!=null ? submitTemplate : DEFAULT_SUBMIT_TEMPLATE;
-	}
 
 	@Override
-	public String getExecuteTemplate() {
+	public String getScriptHeader() {
 		doCheckAndUpdateIDB();
-		return executeTemplate!=null ? executeTemplate : DEFAULT_EXECUTE_TEMPLATE;
+		return scriptHeader!=null ? scriptHeader : DEFAULT_SCRIPT_HEADER;
 	}
 
-	public void setExecuteTemplate(String template) {
-		executeTemplate=template;
-	}
-	
-	public void setSubmitTemplate(String template) {
-		submitTemplate=template;
+	public void setScriptHeader(String header) {
+		if(!header.endsWith("\n")) {
+			header=header+"\n";
+		}
+		this.scriptHeader = header;
 	}
 
 	@Override

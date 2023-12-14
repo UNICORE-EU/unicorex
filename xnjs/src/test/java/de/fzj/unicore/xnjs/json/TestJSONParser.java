@@ -30,6 +30,7 @@ import de.fzj.unicore.xnjs.resources.Resource;
 import de.fzj.unicore.xnjs.resources.ResourceRequest;
 import de.fzj.unicore.xnjs.resources.ResourceSet;
 import de.fzj.unicore.xnjs.resources.ValueListResource;
+import de.fzj.unicore.xnjs.util.JSONUtils;
 
 public class TestJSONParser {
 
@@ -252,8 +253,11 @@ public class TestJSONParser {
 		array.put("bar");
 		idb.put("multiLine", array);
 		
-		String t1 = JSONParser.parseScriptTemplate("singleLine", idb);
+		String t1 = JSONUtils.readMultiLine("singleLine", null, idb);
 		assertEquals("test123", t1);
+		String t2 = JSONUtils.readMultiLine("multiLine", null, idb);
+		assertEquals("foo\nbar\n", t2);
+				
 	}
 
 	@Test

@@ -14,6 +14,7 @@ import de.fzj.unicore.xnjs.idb.ApplicationInfo;
 import de.fzj.unicore.xnjs.idb.IDBImpl;
 import de.fzj.unicore.xnjs.idb.IDBParser;
 import de.fzj.unicore.xnjs.idb.Partition;
+import de.fzj.unicore.xnjs.util.JSONUtils;
 import de.fzj.unicore.xnjs.util.LogUtil;
 
 public class JsonIDB implements IDBParser {
@@ -56,8 +57,20 @@ public class JsonIDB implements IDBParser {
 		readPartitions(jsonidb.optJSONObject("Partitions"));
 		readApplications(jsonidb, idb.getIdb());
 		readInfo(jsonidb.optJSONObject("Info"));
-		idb.setExecuteTemplate(JSONParser.parseScriptTemplate("ExecuteScriptTemplate", jsonidb));
-		idb.setSubmitTemplate(JSONParser.parseScriptTemplate("SubmitScriptTemplate", jsonidb));
+		String scriptHeader = JSONUtils.readMultiLine("ScriptHeader", null, jsonidb);
+		String execTemplate = JSONUtils.readMultiLine("SubmitScriptTemplate", null, jsonidb);
+		if(execTemplate==null) {
+			execTemplate  = JSONUtils.readMultiLine("ExecuteScriptTemplate", null, jsonidb);
+		}
+		if(execTemplate!=null) {
+			logger.warn("DEPRECATION: IDB uses deprecated settings "
+					+ "ExecuteScriptTemplate / SubmitScriptTemplate. "
+					+ "These are superseded by the 'ScriptHeader' element.");
+			if(scriptHeader==null) {
+				scriptHeader = execTemplate;
+			}
+		}
+		idb.setScriptHeader(scriptHeader);
 	}
 	
 	protected void readPartitions(JSONObject source) throws Exception {
