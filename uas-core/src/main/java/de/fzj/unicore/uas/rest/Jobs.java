@@ -118,7 +118,8 @@ public class Jobs extends ServicesBase {
 		}
 	}
 	/**
-	 * submit a job to any of our accessible target system instances
+	 * submit a job to the first accessible target system instance
+	 * (if necessary, create one)
 	 * 
 	 * @param json - JSON job
 	 * @return address of new resource

@@ -298,7 +298,7 @@ public class IDBImpl implements IDB {
 	}
 
 	public void setScriptHeader(String header) {
-		if(!header.endsWith("\n")) {
+		if(header!=null && !header.endsWith("\n")) {
 			header=header+"\n";
 		}
 		this.scriptHeader = header;

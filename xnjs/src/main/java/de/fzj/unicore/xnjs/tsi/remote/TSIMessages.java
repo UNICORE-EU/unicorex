@@ -336,7 +336,7 @@ public class TSIMessages {
 		ec.getEnvironment().putAll(ai.getEnvironment());
 		StringBuilder commands = new StringBuilder();
 		commands.append(idb.getScriptHeader());
-		commands.append("#TSI_EXECUTESCRIPT\\n");
+		commands.append("#TSI_EXECUTESCRIPT\n");
 		Formatter f = new Formatter(commands, null);
 
 		if(credentials!=null){
