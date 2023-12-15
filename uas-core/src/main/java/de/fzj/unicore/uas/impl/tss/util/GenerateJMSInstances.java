@@ -1,7 +1,6 @@
 package de.fzj.unicore.uas.impl.tss.util;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
@@ -37,7 +36,7 @@ public class GenerateJMSInstances implements Runnable{
 
 	private final Collection<String>existingJobs;
 
-	private final List<String>jobIDs;
+	private final Collection<String>jobIDs;
 
 	private final Kernel kernel;
 	
@@ -52,7 +51,7 @@ public class GenerateJMSInstances implements Runnable{
 		this.jobIDs=getXNJSJobs();
 	}
 
-	List<String>getXNJSJobs()throws Exception{
+	Collection<String>getXNJSJobs()throws Exception{
 		XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
 		return xnjs.listJobIDs(client);
 	}

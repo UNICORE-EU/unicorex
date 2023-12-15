@@ -3,6 +3,7 @@ package de.fzj.unicore.uas.fts.uftp;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -172,8 +173,15 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 					clientHost = getLocalHost();
 				}
 				else{
-					String[] tsis = tcf.getTSIHosts();
-					clientHost = tsis[new Random().nextInt(tsis.length)];
+					Collection<String> tsis = tcf.getTSIHosts();
+					int r = new Random().nextInt(tsis.size());
+					for(String h: tsis) {
+						if(r==0) {
+							clientHost = h;
+							break;
+						}
+						r = r-1;
+					}
 				}
 			}
 		}

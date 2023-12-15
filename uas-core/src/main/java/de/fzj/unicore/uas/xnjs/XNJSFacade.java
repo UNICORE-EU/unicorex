@@ -1,6 +1,5 @@
 package de.fzj.unicore.uas.xnjs;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -479,8 +478,8 @@ public class XNJSFacade implements ISubSystem {
 	 * a second, more detailed filtering step should be made...)
 	 * @param client
 	 */
-	public List<String>listJobIDs(Client client)throws Exception{
-		return Arrays.asList(ems.list(client));
+	public Collection<String>listJobIDs(Client client)throws Exception{
+		return ems.list(client);
 	}
 	
 	public String getDefaultUmask() {
