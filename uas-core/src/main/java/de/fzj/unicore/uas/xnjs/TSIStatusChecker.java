@@ -6,7 +6,7 @@ import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.services.ExternalSystemConnector;
 import eu.unicore.util.Log;
 
-public class TSIConnector implements ExternalSystemConnector {
+public class TSIStatusChecker implements ExternalSystemConnector {
 
 	private final XNJS xnjs;
 	private final TSI_MODE mode;
@@ -19,7 +19,7 @@ public class TSIConnector implements ExternalSystemConnector {
 	
 	private long lastChecked;
 
-	public TSIConnector(XNJS xnjs, TSI_MODE mode) {
+	public TSIStatusChecker(XNJS xnjs, TSI_MODE mode) {
 		this.xnjs = xnjs;
 		this.mode = mode;
 	}

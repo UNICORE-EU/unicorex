@@ -7,7 +7,7 @@ import java.util.Map;
 import eu.unicore.persist.util.Wrapper;
 
 /**
- * Processing context for an {@link Action}<br/>
+ * Processing context for an {@link Action}
  *
  * @author schuller
  */

@@ -6,6 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Collection;
+
 import org.junit.Test;
 
 import de.fzj.unicore.xnjs.ConfigurationSource;
@@ -38,8 +40,8 @@ public class TestJobControl extends EMSTestBase {
 		// notifications
 		MockChangeListener m = (MockChangeListener)xnjs.get(ActionStateChangeListener.class);
 		assertTrue(m.getOrCreate(id).get()>0);
-		String[] ids = mgr.list(client);
-		assertTrue(ids.length>0);
+		Collection<String> ids = mgr.list(client);
+		assertTrue(ids.size()>0);
 	}
 
 	@Test

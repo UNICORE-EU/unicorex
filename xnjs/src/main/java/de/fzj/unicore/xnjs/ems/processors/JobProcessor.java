@@ -1,36 +1,3 @@
-/*********************************************************************************
- * Copyright (c) 2011 Forschungszentrum Juelich GmbH 
- * All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- * 
- * (1) Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaimer at the end. Redistributions in
- * binary form must reproduce the above copyright notice, this list of
- * conditions and the following disclaimer in the documentation and/or other
- * materials provided with the distribution.
- * 
- * (2) Neither the name of Forschungszentrum Juelich GmbH nor the names of its 
- * contributors may be used to endorse or promote products derived from this 
- * software without specific prior written permission.
- * 
- * DISCLAIMER
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- *********************************************************************************/
-
-
 package de.fzj.unicore.xnjs.ems.processors;
 
 import java.io.Serializable;
@@ -891,12 +858,11 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	public void updateQueuedStats(ProcessingContext context){
 		Long timeQueued = getTimeQueued(context);
 		if(timeQueued!=null){
-			Histogram h = (Histogram)xnjs.getMetrics().get(XNJSConstants.MEAN_TIME_QUEUED+"-");
+			Histogram h = (Histogram)xnjs.getMetrics().get(XNJSConstants.MEAN_TIME_QUEUED);
 			if (h!=null)h.update(timeQueued.intValue());
 		}
 	}
 
-	//deal with adding new stage-in action
 	protected void addStageIn() throws Exception{
 		List<DataStageInInfo>toStage = action.getStageIns();
 		StagingInfo stageInfo = new StagingInfo(toStage);
@@ -907,7 +873,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		action.setWaiting(true);
 	}
 
-	//deal with adding new stage-out action
 	protected void addStageOut() throws Exception{
 		List<DataStageOutInfo>toStage = action.getStageOuts();
 		if(toStage!=null && toStage.size()>0){

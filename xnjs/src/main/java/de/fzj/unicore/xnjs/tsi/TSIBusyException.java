@@ -3,7 +3,7 @@ package de.fzj.unicore.xnjs.tsi;
 
 /**
  * Thrown when the TSI is busy, and application code should 
- * retry the action after some time<br/>
+ * retry the action after some time
  */
 public class TSIBusyException extends Exception {
 

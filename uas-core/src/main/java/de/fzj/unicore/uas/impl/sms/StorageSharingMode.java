@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2012 ICM Uniwersytet Warszawski All rights reserved.
- * See LICENCE file for licensing information.
- */
 package de.fzj.unicore.uas.impl.sms;
 
 /**

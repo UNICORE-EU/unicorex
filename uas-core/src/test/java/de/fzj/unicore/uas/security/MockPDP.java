@@ -1,10 +1,3 @@
-/*
- * Copyright (c) 2010 ICM Uniwersytet Warszawski All rights reserved.
- * See LICENCE file for licencing information.
- *
- * Created on 2010-11-14
- * Author: K. Benedyczak <golbi@mat.umk.pl>
- */
 package de.fzj.unicore.uas.security;
 
 import eu.unicore.services.ContainerProperties;
