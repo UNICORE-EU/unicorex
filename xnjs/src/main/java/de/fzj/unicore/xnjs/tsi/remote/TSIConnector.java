@@ -141,7 +141,9 @@ public class TSIConnector {
 			try {
 				// just in case the connect/accept mechanism is messed up 
 				// for some reason (like tsi restarts)
-				server.reInit();
+				synchronized(server) {
+					server.reInit();
+				}
 			}catch(Exception ex) {}
 			throw new IOException(msg);
 		}
