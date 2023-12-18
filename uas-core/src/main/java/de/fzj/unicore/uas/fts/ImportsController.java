@@ -20,7 +20,6 @@ import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.IFileTransferEngine;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.OptionNotSupportedException;
 import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
@@ -79,7 +78,7 @@ public class ImportsController implements IFTSController {
 	}
 
 	@Override
-	public void setOverwritePolicy(OverwritePolicy overwrite) throws OptionNotSupportedException {
+	public void setOverwritePolicy(OverwritePolicy overwrite) {
 		this.overwritePolicy = overwrite;
 	}
 

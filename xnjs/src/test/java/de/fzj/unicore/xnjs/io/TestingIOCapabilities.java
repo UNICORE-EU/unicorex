@@ -106,8 +106,7 @@ public class TestingIOCapabilities implements IOCapabilities {
 		}
 
 		@Override
-		public void setOverwritePolicy(OverwritePolicy overwrite)
-				throws OptionNotSupportedException {
+		public void setOverwritePolicy(OverwritePolicy overwrite) {
 		}
 
 		@Override

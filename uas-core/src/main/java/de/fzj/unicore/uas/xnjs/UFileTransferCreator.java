@@ -54,16 +54,19 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		String source = info.getFileName();
 		URI target = info.getTarget();
 		DataStagingCredentials creds = info.getCredentials();
-
 		if(isREST(target)) {
 			Pair<String,String>urlInfo = extractUrlInfo(target);
 			String protocol = urlInfo.getM1();
-			
 			FileTransferCapability fc=FileTransferCapabilities.getCapability(protocol, kernel);
 			if(fc!=null){
 				if(fc.isAvailable()){
 					Endpoint ep = new Endpoint(urlInfo.getM2());
-					return createExportREST(ep, fc.getExporter(),client,workdir,source,target,creds);
+					IFileTransfer f = createExportREST(ep, fc.getExporter(),client,workdir,source,target,creds);
+					f.setOverwritePolicy(info.getOverwritePolicy());
+					if(info.getExtraParameters()!=null){
+						f.setExtraParameters(info.getExtraParameters());
+					}
+					return f;
 				}
 				else{
 					throw new RuntimeException("File transfer for protocol <"+protocol+"> is not available!");
@@ -78,7 +81,6 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		URI source = in.getSources()[0];
 		String target = in.getFileName();
 		DataStagingCredentials creds = in.getCredentials();
-		
 		if(isREST(source)) {
 			Pair<String,String>urlInfo = extractUrlInfo(source);
 			String protocol = urlInfo.getM1();
@@ -86,7 +88,12 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			if(fc!=null){
 				if(fc.isAvailable()){
 					Endpoint ep = new Endpoint(urlInfo.getM2());
-					return createImportREST(ep, fc.getImporter(),client,workdir,source,target,creds);
+					IFileTransfer f = createImportREST(ep, fc.getImporter(),client,workdir,source,target,creds);
+					f.setOverwritePolicy(in.getOverwritePolicy());
+					if(in.getExtraParameters()!=null){
+						f.setExtraParameters(in.getExtraParameters());
+					}
+					return f;
 				}
 				else{
 					throw new RuntimeException("File transfer for protocol <"+protocol+"> is not available!");
@@ -236,6 +243,11 @@ public class UFileTransferCreator implements IFileTransferCreator{
 					XNJS.class, Client.class, Endpoint.class, DataStageInInfo.class, String.class).
 					newInstance(xnjs, client, ep, info, workingDirectory);
 			fts.setProtocol(protocol);
+			fts.setOverwritePolicy(info.getOverwritePolicy());
+			fts.setImportPolicy(info.getImportPolicy());
+			if(info.getExtraParameters()!=null) {
+				fts.setExtraParameters(info.getExtraParameters());
+			}
 			return fts;
 		}catch(Exception e) {
 			throw new IOException(e);

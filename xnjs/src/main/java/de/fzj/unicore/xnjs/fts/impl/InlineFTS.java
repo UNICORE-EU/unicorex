@@ -24,19 +24,16 @@ public class InlineFTS implements IFTSController {
 	private final Client client;
 	private final XNJS xnjs;
 	private final String target;
-	private String inlineData;
+	private final String inlineData;
 	private OverwritePolicy overwrite;
 	
 	private IStorageAdapter tsi;
 		
-	public InlineFTS(XNJS xnjs, Client client, String workingDirectory, String target) {
+	public InlineFTS(XNJS xnjs, Client client, String workingDirectory, String target, String data) {
 		this.xnjs = xnjs;
 		this.client = client;
 		this.workingDirectory = workingDirectory;
 		this.target = target;
-	}
-	
-	public void setInlineData(String data){
 		this.inlineData = data;
 	}
 
@@ -71,8 +68,7 @@ public class InlineFTS implements IFTSController {
 
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
-		Inline inline = new Inline(xnjs,client, workingDirectory, target);
-		inline.setInlineData(inlineData);
+		Inline inline = new Inline(xnjs,client, workingDirectory, target, inlineData);
 		inline.setOverwritePolicy(overwrite);
 		inline.setStorageAdapter(tsi);
 		return inline;

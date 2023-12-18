@@ -51,23 +51,29 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		String scheme = target.getScheme();
 		String source = info.getFileName();
 		DataStagingCredentials credentials = info.getCredentials();
-		
+		IFileTransfer f = null;
 		if("ftp".equalsIgnoreCase(scheme)){
-			return new FTPUpload(client,workingDirectory,source,target,configuration,credentials);
+			f = new FTPUpload(client,workingDirectory,source,target,configuration,credentials);
 		}
 		if("gsiftp".equalsIgnoreCase(scheme)){
-			return new GSIFTPUpload(client,workingDirectory,source,target,configuration);
+			f = new GSIFTPUpload(client,workingDirectory,source,target,configuration);
 		}
 		if("scp".equalsIgnoreCase(scheme)){
-			return new ScpUpload(client,workingDirectory,source,target,configuration,credentials);
+			f = new ScpUpload(client,workingDirectory,source,target,configuration,credentials);
 		}
 		if("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)){
-			return new HTTPFileUpload(client, workingDirectory, source, target.toString(), configuration,credentials);
+			f = new HTTPFileUpload(client, workingDirectory, source, target.toString(), configuration,credentials);
 		}
 		if("file".equalsIgnoreCase(scheme)){
-			return new FileCopy(configuration, client, workingDirectory, source,target.getRawPath(), false);
+			f = new FileCopy(configuration, client, workingDirectory, source,target.getRawPath(), false);
 		}
-		return null;
+		if(f!=null){
+			f.setOverwritePolicy(info.getOverwritePolicy());
+			if(info.getExtraParameters()!=null){
+				f.setExtraParameters(info.getExtraParameters());
+			}
+		}
+		return f;
 	}
 	
 	@Override
@@ -76,34 +82,40 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		String scheme = source.getScheme();
 		String target = info.getFileName();
 		DataStagingCredentials credentials = info.getCredentials();
+		IFileTransfer f = null;
 		if("ftp".equalsIgnoreCase(scheme)){
-			return new FTPDownload(client,workingDirectory,source,target,configuration,credentials);
+			f = new FTPDownload(client,workingDirectory,source,target,configuration,credentials);
 		}
 		if("gsiftp".equalsIgnoreCase(scheme)){
-			return new GSIFTPDownload(client,workingDirectory,source,target,configuration);
+			f = new GSIFTPDownload(client,workingDirectory,source,target,configuration);
 		}
 		if("scp".equalsIgnoreCase(scheme)){
-			return new ScpDownload(client,workingDirectory,source,target,configuration,credentials);
+			f = new ScpDownload(client,workingDirectory,source,target,configuration,credentials);
 		}
 		if("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme)){
-			return new HTTPFileDownload(client, workingDirectory, source.toString(), target, configuration,credentials);
+			f = new HTTPFileDownload(client, workingDirectory, source.toString(), target, configuration,credentials);
 		}
 		if("file".equalsIgnoreCase(scheme)){
 			return new FileCopy(configuration, client, workingDirectory, source.getRawPath(),target, true);
 		}
 		if("link".equalsIgnoreCase(scheme)){
-			return new Link(configuration, client, workingDirectory, source.getSchemeSpecificPart(),target);
+			f = new Link(configuration, client, workingDirectory, source.getSchemeSpecificPart(),target);
 		}
 		if("inline".equalsIgnoreCase(scheme)){
-			Inline ft = new Inline(configuration, client, workingDirectory,target);
-			ft.setInlineData(info.getInlineData());
-			return ft;
+			f= new Inline(configuration, client, workingDirectory, target, info.getInlineData());
 		}
 		if("git".equalsIgnoreCase(scheme)) {
-			return new GitStageIn(configuration, client,workingDirectory, source.getSchemeSpecificPart(),
+			f = new GitStageIn(configuration, client,workingDirectory, source.getSchemeSpecificPart(),
 					target, credentials);
 		}
-		return null;
+		if(f!=null) {
+			f.setOverwritePolicy(info.getOverwritePolicy());
+			f.setImportPolicy(info.getImportPolicy());
+			if(info.getExtraParameters()!=null){
+				f.setExtraParameters(info.getExtraParameters());
+			}
+		}
+		return f;
 	}
 	
 	@Override
@@ -111,24 +123,37 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 		URI source = info.getSources()[0]; // TODO
 		String scheme = source.getScheme();
 		String target = info.getFileName();
+		IFTSController f = null;
 		if("inline".equalsIgnoreCase(scheme)){
-			InlineFTS ft = new InlineFTS(configuration, client, workingDirectory,target);
-			ft.setInlineData(info.getInlineData());
-			return ft;
+			f = new InlineFTS(configuration, client, workingDirectory, target, info.getInlineData());
 		}
 		else if(scheme.toLowerCase().startsWith("http")) {
-			return new HttpImportsController(configuration, client, info, workingDirectory);
+			f = new HttpImportsController(configuration, client, info, workingDirectory);
 		}
-		return null;
+		if(f!=null){
+			f.setOverwritePolicy(info.getOverwritePolicy());
+			f.setImportPolicy(info.getImportPolicy());
+			if(info.getExtraParameters()!=null) {
+				f.setExtraParameters(info.getExtraParameters());
+			}
+		}
+		return f;
 	}
 	
 	@Override
 	public IFTSController createFTSExport(Client client, String workingDirectory,  DataStageOutInfo info) {
 		URI target = info.getTarget();
 		String scheme = target.getScheme();
+		IFTSController f = null;
 		if(scheme.toLowerCase().startsWith("http")) {
-			return new HttpExportsController(configuration, client, info, workingDirectory);
+			f = new HttpExportsController(configuration, client, info, workingDirectory);
 		}
-		return null;
+		if(f!=null){
+			f.setOverwritePolicy(info.getOverwritePolicy());
+			if(info.getExtraParameters()!=null) {
+				f.setExtraParameters(info.getExtraParameters());
+			}
+		}
+		return f;
 	}
 }

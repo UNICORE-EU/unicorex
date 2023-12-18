@@ -7,7 +7,6 @@ import de.fzj.unicore.xnjs.io.IFileTransfer;
 import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
 import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.OptionNotSupportedException;
 
 /**
  * interface to manage the processing of file transfers 
@@ -27,7 +26,7 @@ public interface IFTSController {
 	 * @see OverwritePolicy
 	 * @param overwrite
 	 */
-	public void setOverwritePolicy(OverwritePolicy overwrite) throws OptionNotSupportedException;
+	public void setOverwritePolicy(OverwritePolicy overwrite);
 	
 	/**
 	 * set the import behaviour (import, try-copy, try-link).

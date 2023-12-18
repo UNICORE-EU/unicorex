@@ -24,26 +24,23 @@ public class Inline implements IFileTransfer {
 	private final Client client;
 	private final XNJS configuration;
 	private OverwritePolicy overwrite;
-	private String inlineData;
+	private final String inlineData;
 	private String umask = null;
 	private final TransferInfo info;
 
-	public Inline(XNJS configuration, Client client, String workingDirectory, String target) {
+	public Inline(XNJS configuration, Client client, String workingDirectory, String target, String data) {
 		this.configuration=configuration;
 		this.client=client;
 		this.workingDirectory=workingDirectory;
 		this.info = new TransferInfo(UUID.randomUUID().toString(), "inline://", target);
 		info.setProtocol("inline");
+		this.inlineData = data;
+		if(data!=null)info.setDataSize(inlineData.length());
 	}
 
 	@Override
 	public TransferInfo getInfo(){
 		return info;
-	}
-	
-	public void setInlineData(String data){
-		this.inlineData = data;
-		if(data!=null)info.setDataSize(inlineData.length());
 	}
 
 	@Override

@@ -99,43 +99,28 @@ public class FileTransferEngine implements IFileTransferEngine{
 	}
 
 	/**
-	 * Creates a new file import into the action's working directory.<br/>
-	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
-	 * non-null result is returned.
+	 * Creates a new file import into the action's working directory
 	 */
 	public IFileTransfer createFileImport(Client client, String workingDirectory, DataStageInInfo info) 
 	throws IOException{
 		for(IFileTransferCreator c: creators){
 			IFileTransfer f=c.createFileImport(client,workingDirectory,info);
 			if(f!=null){
-				f.setOverwritePolicy(info.getOverwritePolicy());
-				f.setImportPolicy(info.getImportPolicy());
-				if(info.getExtraParameters()!=null){
-					f.setExtraParameters(info.getExtraParameters());
-				}
 				registerFileTransfer(f);
 				return f;
 			}
 		}
-		throw new UnsupportedProtocolException("Transfer "+info+
-		" uses unsupported protocol(s)");
+		throw new UnsupportedProtocolException("Transfer "+info+" uses unsupported protocol(s)");
 	}
 
 	/**
-	 * Creates a new file export from the actions working directory.<br/>
-	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
-	 * non-null result is returned.
-	 * 
+	 * Creates a new file export from the actions working directory
 	 */
 	public IFileTransfer createFileExport(Client client, String workingDirectory, DataStageOutInfo info) 
 	throws IOException{
 		for(IFileTransferCreator c: creators){
 			IFileTransfer f=c.createFileExport(client,workingDirectory,info);
 			if(f!=null){
-				f.setOverwritePolicy(info.getOverwritePolicy());
-				if(info.getExtraParameters()!=null){
-					f.setExtraParameters(info.getExtraParameters());
-				}
 				registerFileTransfer(f);
 				return f;
 			}
@@ -149,13 +134,10 @@ public class FileTransferEngine implements IFileTransferEngine{
 		for(IFileTransferCreator c: creators){
 			IFTSController f = c.createFTSImport(client,workingDirectory,info);
 			if(f!=null){
-				f.setOverwritePolicy(info.getOverwritePolicy());
-				f.setImportPolicy(info.getImportPolicy());
 				return f;
 			}
 		}
-		throw new UnsupportedProtocolException("Transfer "+info+
-				" uses unsupported protocol(s)");
+		throw new UnsupportedProtocolException("Transfer "+info+" uses unsupported protocol(s)");
 	}
 
 	@Override
@@ -164,7 +146,6 @@ public class FileTransferEngine implements IFileTransferEngine{
 		for(IFileTransferCreator c: creators){
 			IFTSController f = c.createFTSExport(client,workingDirectory,info);
 			if(f!=null){
-				f.setOverwritePolicy(info.getOverwritePolicy());
 				return f;
 			}
 		}

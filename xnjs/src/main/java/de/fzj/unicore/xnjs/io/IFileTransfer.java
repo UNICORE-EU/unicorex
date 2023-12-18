@@ -53,7 +53,7 @@ public interface IFileTransfer extends Runnable {
 	 * @see OverwritePolicy
 	 * @param overwrite
 	 */
-	public void setOverwritePolicy(OverwritePolicy overwrite)throws OptionNotSupportedException;
+	public void setOverwritePolicy(OverwritePolicy overwrite);
 	
 	/**
 	 * set the import behaviour (import, try-copy, try-link).
