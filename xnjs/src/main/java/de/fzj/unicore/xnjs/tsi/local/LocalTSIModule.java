@@ -24,11 +24,13 @@ import de.fzj.unicore.xnjs.tsi.BasicExecution;
 import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
 import de.fzj.unicore.xnjs.tsi.TSI;
+import eu.unicore.util.configuration.UpdateableConfiguration;
 
 public class LocalTSIModule extends AbstractModule 
-implements ConfigurationSource.MetricProvider {
+implements ConfigurationSource.MetricProvider, UpdateableConfiguration {
 	
-	protected final Properties properties;
+	protected Properties properties;
+	private LocalTSIProperties tsiProps;
 
 	protected final Histogram mtq = new Histogram(new SlidingWindowReservoir(512));
 
@@ -38,7 +40,10 @@ implements ConfigurationSource.MetricProvider {
 
 	@Provides
 	public LocalTSIProperties getLocalTSIProperties(){
-		return new LocalTSIProperties(properties);
+		if(tsiProps==null) {
+			tsiProps = new LocalTSIProperties(properties);
+		}
+		return tsiProps;
 	}
 	
 	@Provides
@@ -53,6 +58,12 @@ implements ConfigurationSource.MetricProvider {
 		return m;
 	}
 	
+	@Override
+	public void setProperties(Properties newProperties) {
+		this.properties = newProperties;
+		tsiProps.setProperties(newProperties);
+	}
+
 	@Override
 	protected void configure(){
 

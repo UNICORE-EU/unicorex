@@ -61,7 +61,7 @@ public class XNJS implements UpdateableConfiguration {
 
 	private Injector injector;
 
-	private final Properties properties;
+	private Properties properties;
 
 	private final XNJSProperties baseProperties;
 
@@ -80,8 +80,6 @@ public class XNJS implements UpdateableConfiguration {
 	private final TSIFactory tsiFactory;
 
 	private final TSIMessages tsiMessages;
-
-	private final Map<Class<?>,Object>attributes = new HashMap<>();
 
 	public XNJS(ConfigurationSource configSource) throws Exception{
 		this(configSource, null);
@@ -261,25 +259,6 @@ public class XNJS implements UpdateableConfiguration {
 		}
 	}
 
-	/**
-	 * returns a typed attribute 
-	 * @param key - the attribute class used as key
-	 * @return the attribute
-	 */
-	public <T> T getAttribute(Class<T>key){
-		Object o=attributes.get(key);
-		return  key.cast(o);
-	}
-
-	/**
-	 * store a typed kernel attribute
-	 * @param key - the value's class as key
-	 * @param value - the value
-	 */
-	public <T> void setAttribute(Class<T>key, T value){
-		attributes.put(key, value);
-	}
-
 	public Processor createProcessor(String actionType){
 		try{
 			return getProcessor(actionType);
@@ -382,14 +361,6 @@ public class XNJS implements UpdateableConfiguration {
 		return persistenceProperties;
 	}
 
-	public String getProperty(String key){
-		return properties.getProperty(key);
-	}
-
-	public String getProperty(String key, String defaultValue){
-		return properties.getProperty(key,defaultValue);
-	}
-
 	public void setProperty(String key, String value){
 		if(value==null){
 			properties.remove(key);
@@ -401,7 +372,10 @@ public class XNJS implements UpdateableConfiguration {
 	
 	@Override
 	public void setProperties(Properties newProperties) {
-		
+		this.properties = newProperties;
+		config.setProperties(newProperties);
+		baseProperties.setProperties(newProperties);
+		ioProperties.setProperties(newProperties);
 	}
 
 	public Properties getRawProperties() {

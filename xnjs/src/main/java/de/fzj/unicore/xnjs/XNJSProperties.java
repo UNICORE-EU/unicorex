@@ -104,7 +104,11 @@ public class XNJSProperties extends PropertiesHelper {
 	public int getResubmitDelay(){
 		return getIntValue(XNJSProperties.RESUBMIT_DELAY);
 	}
-	
+
+	public int getWorkerCount(){
+		return getIntValue(XNJSProperties.XNJSWORKERS);
+	}
+
 	// old config keys
 	private static final String[]oldNames = {"XNJS.staging.filesystem.grace", 
 		"xnjs.jobExecution.allowUserExecutable",

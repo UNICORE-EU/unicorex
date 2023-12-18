@@ -21,7 +21,7 @@ import de.fzj.unicore.xnjs.ConfigurationSource;
 import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.util.Log;
 
-public class TestTSIConnectionPool extends RemoteTSITestCase {
+public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	
 	@Test
 	public void testConnectionFactory()throws Exception{
@@ -97,7 +97,7 @@ public class TestTSIConnectionPool extends RemoteTSITestCase {
 	}
 
 	@Test
-	public void testRefreshConfig() throws Exception {
+	public void testRefreshConfigDirect() throws Exception {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		System.out.println("Original TSI hosts:");
@@ -116,6 +116,31 @@ public class TestTSIConnectionPool extends RemoteTSITestCase {
 		System.out.println(f.getConnectionStatus());
 		originals.put(TSIProperties.PREFIX+TSIProperties.TSI_MACHINE, "127.0.0.1");
 		tsiProps.setProperties(originals);
+		f.configure();
+		System.out.println("Reset TSI hosts:");
+		assertEquals(1, f.getTSIHosts().size());
+		Arrays.asList(f.getTSIHosts()).forEach( h ->System.out.println(h) );
+		System.out.println(f.getConnectionStatus());
+	}
+
+	@Test
+	public void testRefreshConfigViaXNJS() throws Exception {
+		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
+		assertNotNull(f);
+		System.out.println("Original TSI hosts:");
+		assertEquals(1, f.getTSIHosts().size());
+		Arrays.asList(f.getTSIHosts()).forEach( h ->System.out.println(h) );
+		System.out.println(f.getConnectionStatus());
+		Properties originals = new Properties();
+		originals.putAll(xnjs.getRawProperties());
+		originals.put(TSIProperties.PREFIX+TSIProperties.TSI_MACHINE, "127.0.0.1, localhost");
+		xnjs.setProperties(originals);
+		System.out.println("NEW TSI hosts:");
+		assertEquals(2, f.getTSIHosts().size());
+		Arrays.asList(f.getTSIHosts()).forEach( h ->System.out.println(h) );
+		System.out.println(f.getConnectionStatus());
+		originals.put(TSIProperties.PREFIX+TSIProperties.TSI_MACHINE, "127.0.0.1");
+		xnjs.setProperties(originals);
 		f.configure();
 		System.out.println("Reset TSI hosts:");
 		assertEquals(1, f.getTSIHosts().size());

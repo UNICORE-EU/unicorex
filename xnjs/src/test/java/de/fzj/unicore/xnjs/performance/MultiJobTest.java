@@ -58,8 +58,7 @@ public class MultiJobTest extends EMSTestBase {
 		float time=(0.0f+(end-start)/1000);
 		System.out.println("All "+n+" jobs submitted in "+time+" secs.");
 		System.out.println("Submission rate: "+(n/time+0.0f)+" per sec.");
-		System.out.println("Using "+xnjs.getProperty("XNJS.numberofworkers")+" worker threads.");
-
+		System.out.println("Using "+xnjs.getXNJSProperties().getWorkerCount()+" worker threads.");
 		int p=0;
 		int q=0;
 		int c=0;

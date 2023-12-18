@@ -1,14 +1,11 @@
 package de.fzj.unicore.uas.security;
 
-import eu.unicore.services.ContainerProperties;
-import eu.unicore.services.security.IContainerSecurityConfiguration;
+import eu.unicore.security.Client;
 import eu.unicore.services.security.pdp.ActionDescriptor;
 import eu.unicore.services.security.pdp.PDPResult;
 import eu.unicore.services.security.pdp.PDPResult.Decision;
 import eu.unicore.services.security.pdp.UnicoreXPDP;
 import eu.unicore.services.security.util.ResourceDescriptor;
-import eu.unicore.security.Client;
-import eu.unicore.util.httpclient.IClientConfiguration;
 
 public class MockPDP implements UnicoreXPDP
 {
@@ -35,10 +32,4 @@ public class MockPDP implements UnicoreXPDP
 		return new PDPResult(Decision.DENY, "");
 	}
 
-	@Override
-	public void initialize(String configuration, ContainerProperties baseSettings,
-			IContainerSecurityConfiguration securityConfiguration,
-			IClientConfiguration clientConfiguration) throws Exception
-	{
-	}
 }

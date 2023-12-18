@@ -54,7 +54,6 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 		return new RemoteTSIModule(cs.getProperties());
 	}
 
-
 	protected String getFileSpace(){
 		File f=new File("target/xnjs_test_"+System.currentTimeMillis());
 		return f.getAbsolutePath();

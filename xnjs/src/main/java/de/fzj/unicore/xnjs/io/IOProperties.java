@@ -40,13 +40,7 @@ public class IOProperties extends PropertiesHelper {
 	public static final String SCP_WRAPPER = "scpWrapper";
 	public static final String GLOBUS_URL_COPY = "gridftp";
 	public static final String GLOBUS_URL_COPY_PARAMS = "gridftpParameters";
-	public static final String MAIL_HOST = "mailHost";
-	public static final String MAIL_PORT = "mailPort";
-	public static final String MAIL_USER = "mailUser";
-	public static final String MAIL_PWD = "mailPassword";
-	public static final String MAIL_SSL ="mailEnableSSL";
-	public static final String MAIL_WRAPPER="mailSendScript";
-	
+
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
 
@@ -74,19 +68,7 @@ public class IOProperties extends PropertiesHelper {
 						"If null, Java code will be used for FTP."));
 		META.put(SCP_WRAPPER, new PropertyMD("scp-wrapper.sh").
 				setDescription("Location of the wrapper script used for scp staging."));
-		META.put(MAIL_HOST, new PropertyMD("localhost").
-				setDescription("Outgoing mail host (SMTP) used for staging-out via email."));
-		META.put(MAIL_PORT, new PropertyMD("25").
-				setDescription("Outgoing mail (SMTP) port number."));
-		META.put(MAIL_USER, new PropertyMD().
-				setDescription("Outgoing mail (SMTP) user name."));
-		META.put(MAIL_PWD, new PropertyMD().
-				setDescription("Outgoing mail (SMTP) password."));
-		META.put(MAIL_SSL, new PropertyMD("false").
-				setDescription("Outgoing mail (SMTP): enable SSL connection."));
-		META.put(MAIL_WRAPPER, new PropertyMD().
-				setDescription("Script to be used for sending outgoing mail (instead of using SMTP)."));
-	}
+		}
 
 	public IOProperties()
 			throws ConfigurationException {
@@ -104,19 +86,14 @@ public class IOProperties extends PropertiesHelper {
 		"scp-wrapper.sh",
 		"globus-url-copy",
 		"globus-url-copy.parameters",
-		"mail.smtp.host","mail.smtp.port","mail.smtp.user","mail.smtp.password","mail.smtp.ssl",
-		"mail-wrapper.sh",
 		};
 	// new config keys (without the prefix)
 	private static final String[]newNames = {STAGING_FS_GRACE, 
 		WGET,WGET_PARAMS,CURL,
 		SCP_WRAPPER,
 		GLOBUS_URL_COPY,GLOBUS_URL_COPY_PARAMS,
-		MAIL_HOST,MAIL_PORT,MAIL_USER,MAIL_PWD,MAIL_SSL,
-		MAIL_WRAPPER,
 		};
-	
-	
+
 	@Override
 	protected void findUnknown(Properties properties)
 			throws ConfigurationException {

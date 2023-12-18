@@ -25,6 +25,8 @@ import de.fzj.unicore.xnjs.tsi.TSIUnavailableException;
 import de.fzj.unicore.xnjs.util.LogUtil;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.PropertyChangeListener;
 
 /**
  * Creates and pools connections to a UNICORE TSI server. Multiple TSI nodes are supported.
@@ -32,7 +34,7 @@ import eu.unicore.util.Log;
  * @author schuller
  */
 @Singleton
-public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
+public class DefaultTSIConnectionFactory implements TSIConnectionFactory, PropertyChangeListener {
 
 	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,DefaultTSIConnectionFactory.class);
 
@@ -275,35 +277,14 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		if(isRunning)return;
 		try {
 			tsiProperties = configuration.get(TSIProperties.class);
-			assert(tsiProperties!=null);
-			
-			machine = tsiProperties.getTSIMachine();
-			int port = tsiProperties.getTSIPort();
-			int replyport = tsiProperties.getTSIMyPort();
-			server = new TSISocketFactory(configuration);
-
-			// parse machine to extract TSI addresses
-			// if machine does not include the port, use the 
-			// port given by the separate TSI_PORT property
-			StringBuilder machineSpec=new StringBuilder();
-			Collection<TSIConnector> newConnectors = createConnectors(machine, port, machineSpec);
-			for(TSIConnector tc: newConnectors) {
-				connectors.put(tc.getHostname(), tc);
-				AtomicInteger oldCount = connectionCounter.get(tc.getHostname());
-				if(oldCount==null) {
-					connectionCounter.put(tc.getHostname(), new AtomicInteger(0));
-				}
-			}
-			machine=machineSpec.toString(); // to also include port
-
-			tsiDescription=machine+", XNJS listens on port "+replyport;
-			keepConnections = tsiProperties.getIntValue(TSIProperties.TSI_POOL_SIZE);
+			configure();
 			log.info("TSI connection factory:\n" +
-					"  ** Talking to TSI at "+machineSpec+"\n"+
+					"  ** Talking to TSI at "+machine+"\n"+
 					"  ** SSL is "+(server.useSSL()?"enabled":"disabled")+"\n"+
-					"  ** Listening on port "+replyport+"\n"+
+					"  ** Listening on port "+tsiProperties.getTSIMyPort()+"\n"+
 					"  ** User id for querying list of jobs on BSS: '"+tsiProperties.getBSSUser()+"'");
 			log.info("TSI connection: {}", getConnectionStatus());
+			tsiProperties.addPropertyChangeListener(this);
 			isRunning = true;
 		}
 		catch(Exception ex){
@@ -314,41 +295,45 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 		}catch(Exception ex) {}
 	}
 	
-	protected void configure() throws Exception {
-		machine = tsiProperties.getTSIMachine();
-		int port = tsiProperties.getTSIPort();
-		if(server==null) {
-			server = new TSISocketFactory(configuration);
-		}else {
-			synchronized (server) {
-				server.reInit();
+	protected void configure() throws ConfigurationException {
+		try {
+			String newMachine = tsiProperties.getTSIMachine();
+			int port = tsiProperties.getTSIPort();
+			if(server==null) {
+				server = new TSISocketFactory(configuration);
+			}else {
+				synchronized (server) {
+					server.reInit();
+				}
 			}
-		}
-		StringBuilder machineSpec = new StringBuilder();
-		Collection<TSIConnector> newConnectors = createConnectors(machine, port, machineSpec);
-		Collection<String>names = new ArrayList<>();
-		for(TSIConnector tc: newConnectors) {
-			names.add(tc.getHostname());
-		}
-		// handle removed TSI addresses
-		Iterator<String>hosts = connectors.keySet().iterator();
-		while(hosts.hasNext()) {
-			String host = hosts.next();
-			if(!names.contains(host)) {
-				hosts.remove();
+			StringBuilder machineSpec = new StringBuilder();
+			Collection<TSIConnector> newConnectors = createConnectors(newMachine, port, machineSpec);
+			Collection<String>names = new ArrayList<>();
+			for(TSIConnector tc: newConnectors) {
+				names.add(tc.getHostname());
 			}
-		}
-		// add new ones
-		for(TSIConnector tc: newConnectors) {
-			connectors.put(tc.getHostname(), tc);
-			AtomicInteger oldCount = connectionCounter.get(tc.getHostname());
-			if(oldCount==null) {
-				connectionCounter.put(tc.getHostname(), new AtomicInteger(0));
+			// handle removed TSI addresses
+			Iterator<String>hosts = connectors.keySet().iterator();
+			while(hosts.hasNext()) {
+				String host = hosts.next();
+				if(!names.contains(host)) {
+					hosts.remove();
+				}
 			}
+			// add new ones
+			for(TSIConnector tc: newConnectors) {
+				connectors.put(tc.getHostname(), tc);
+				AtomicInteger oldCount = connectionCounter.get(tc.getHostname());
+				if(oldCount==null) {
+					connectionCounter.put(tc.getHostname(), new AtomicInteger(0));
+				}
+			}
+			machine = machineSpec.toString(); // to also include port
+			tsiDescription = machine+", XNJS listens on port "+tsiProperties.getTSIMyPort();
+			keepConnections = tsiProperties.getIntValue(TSIProperties.TSI_POOL_SIZE);
+		}catch(Exception ex) {
+			throw new ConfigurationException("Error (re-)configuring remote TSI connector.",ex);
 		}
-		machine = machineSpec.toString(); // to also include port
-		tsiDescription = machine+", XNJS listens on port "+tsiProperties.getTSIMyPort();
-		keepConnections = tsiProperties.getIntValue(TSIProperties.TSI_POOL_SIZE);
 	}
 
 	protected Collection<TSIConnector> createConnectors(String machine, int port, StringBuilder machineSpec)
@@ -501,6 +486,17 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory {
 				connector.set(server, key, value);
 			}
 		}
+	}
+
+	@Override
+	public String[] getInterestingProperties() {
+		return null;
+	}
+
+	@Override
+	public void propertyChanged(String propertyKey) {
+		log.info("Re-configuring");
+		configure();
 	}
 
 }

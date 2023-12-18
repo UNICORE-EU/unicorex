@@ -11,17 +11,20 @@ import java.util.Properties;
 import com.codahale.metrics.Metric;
 import com.google.inject.AbstractModule;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.UpdateableConfiguration;
+
 /**
  * Holds the XNJS base configuration
  * 
  * @author schuller
  */
-public class ConfigurationSource {
+public class ConfigurationSource implements UpdateableConfiguration {
 
 	protected final Map<String,ProcessorChain> processingChains = new HashMap<>();
-	protected final Properties properties = new Properties();
 	protected final List<AbstractModule> modules = new ArrayList<>();
 	protected final Map<String, Metric> metrics = new HashMap<>();
+	protected Properties properties = new Properties();
 
 	/**
 	 * get the processor chains keyed with the action type
@@ -71,6 +74,16 @@ public class ConfigurationSource {
 		return metrics;
 	}
 	
+	@Override
+	public void setProperties(Properties newProperties) throws ConfigurationException {
+		this.properties = new Properties();
+		for(AbstractModule m: modules) {
+			if(m instanceof UpdateableConfiguration) {
+				((UpdateableConfiguration)m).setProperties(newProperties);
+			}
+		}
+	}
+
 	public static class ProcessorChain {
 		
 		private final String jobDescriptionType;

@@ -122,7 +122,7 @@ public class XNJSFacade implements ISubSystem {
 	private void configure(TSI_MODE mode, Properties properties, UASProperties uasProps)throws Exception{
 		ConfigurationSource cs = new ConfigurationSource();
 		cs.getProperties().putAll(properties);
-		cs.addModule(new UASBaseModule(properties, kernel));
+		cs.addModule(new UASBaseModule(kernel));
 		if(TSI_MODE.embedded.equals(mode)){
 			cs.addModule(new LocalTSIModule(properties));
 		}
@@ -147,12 +147,9 @@ public class XNJSFacade implements ISubSystem {
 	
 	public static class UASBaseModule extends AbstractModule {
 		
-		protected final Properties properties;
-		
 		protected final Kernel kernel;
 		
-		public UASBaseModule(Properties properties, Kernel kernel){
-			this.properties = properties;
+		public UASBaseModule(Kernel kernel){
 			this.kernel = kernel;
 		}
 
@@ -211,7 +208,7 @@ public class XNJSFacade implements ISubSystem {
 
 	@Override
 	public void reloadConfig(Kernel kernel) {
-		// TDB
+		xnjs.setProperties(kernel.getContainerProperties().getRawProperties());
 	}
 
 	private void doDefaultInit(Kernel kernel){

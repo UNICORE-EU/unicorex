@@ -24,16 +24,25 @@ import de.fzj.unicore.xnjs.tsi.IExecution;
 import de.fzj.unicore.xnjs.tsi.IExecutionSystemInformation;
 import de.fzj.unicore.xnjs.tsi.IReservation;
 import de.fzj.unicore.xnjs.tsi.TSI;
+import eu.unicore.util.configuration.UpdateableConfiguration;
 
 public class RemoteTSIModule extends AbstractModule
-implements ConfigurationSource.MetricProvider {
+implements ConfigurationSource.MetricProvider, UpdateableConfiguration {
 	
-	protected final Properties properties;
+	protected Properties properties;
+
+	private TSIProperties tsiProps;
 
 	protected final Histogram mtq = new Histogram(new SlidingWindowReservoir(512));
 
 	public RemoteTSIModule(Properties properties) {
 		this.properties = properties;
+	}
+
+	@Override
+	public void setProperties(Properties newProperties) {
+		this.properties = newProperties;
+		tsiProps.setProperties(newProperties);
 	}
 
 	@Override
@@ -51,7 +60,10 @@ implements ConfigurationSource.MetricProvider {
 	
 	@Provides
 	public TSIProperties getTSIProperties(){
-		return new TSIProperties(properties);
+		if(tsiProps==null) {
+			tsiProps = new TSIProperties(properties);
+		}
+		return tsiProps;
 	}
 	
 	@Provides
