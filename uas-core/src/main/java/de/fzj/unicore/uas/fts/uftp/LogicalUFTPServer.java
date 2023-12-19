@@ -9,7 +9,6 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.ExternalSystemConnector;
-import eu.unicore.services.ExternalSystemConnector.Status;
 import eu.unicore.services.ISubSystem;
 import eu.unicore.services.Kernel;
 import eu.unicore.util.Log;
@@ -30,11 +29,11 @@ public class LogicalUFTPServer implements ISubSystem {
 	
 	private String description = "n/a";
 
-	private Status status = Status.NOT_APPLICABLE;
+	private boolean isUp = false;
 		
 	private final Kernel kernel;
 
-	private final List<UFTPDInstance> instances = new ArrayList<>();
+	private List<UFTPDInstance> instances = new ArrayList<>();
 	
 	public LogicalUFTPServer(Kernel kernel){
 		this.kernel = kernel;
@@ -45,22 +44,28 @@ public class LogicalUFTPServer implements ISubSystem {
 		Properties properties = kernel.getContainerProperties().getRawProperties();
 		String prefix = "coreServices.uftp.server.";
 		String desc = properties.getProperty(prefix+"description", "n/a");
-		setDescription(desc);
-		if(properties.getProperty(prefix+"host")!=null) {
-			UFTPDInstance server = createUFTPD("coreServices.uftp.", properties);
-			instances.add(server);
-		}
-		else {
-			int num = 1;
-			while(true) {
-				prefix = "coreServices.uftp."+num+".";
-				if(properties.getProperty(prefix+"server.host")==null) {
-					break;
-				}
-				UFTPDInstance server = createUFTPD(prefix, properties);
-				instances.add(server);
-				num++;
+		try {
+			List<UFTPDInstance> servers = new ArrayList<>();
+			if(properties.getProperty(prefix+"host")!=null) {
+				UFTPDInstance server = createUFTPD("coreServices.uftp.", properties);
+				servers.add(server);
 			}
+			else {
+				int num = 1;
+				while(true) {
+					prefix = "coreServices.uftp."+num+".";
+					if(properties.getProperty(prefix+"server.host")==null) {
+						break;
+					}
+					UFTPDInstance server = createUFTPD(prefix, properties);
+					servers.add(server);
+					num++;
+				}
+			}
+			setDescription(desc);
+			this.instances = servers;
+		}catch(Exception ex) {
+			throw new ConfigurationException("Error configuring UFTPD servers", ex);
 		}
 		log.info("Configured <"+instances.size()+"> UFTPD server(s)");
 	}
@@ -103,15 +108,15 @@ public class LogicalUFTPServer implements ISubSystem {
 	public boolean isUFTPAvailable(){
 		if(instances.size()==0)return false;
 		checkConnection();
-		return Status.OK.equals(status);
+		return isUp;
 	}
 	
 	private synchronized void checkConnection(){
-		status = Status.DOWN;
+		isUp = false;
 		int avail = 0;
 		for(UFTPDInstance i: instances){
 			if(i.isUFTPAvailable()) {
-				status = Status.OK;
+				isUp = true;
 				avail++;
 				log.debug("UFTPD server {}:{} is UP: {}",i.getCommandHost(),i.getCommandPort(),i.getConnectionStatusMessage());
 			}
@@ -150,6 +155,11 @@ public class LogicalUFTPServer implements ISubSystem {
 		Collection<ExternalSystemConnector>l = new ArrayList<>();
 		l.addAll(instances);
 		return l;
+	}
+
+	@Override
+	public void reloadConfig(Kernel kernel) throws Exception {
+		configure();
 	}
 
 }

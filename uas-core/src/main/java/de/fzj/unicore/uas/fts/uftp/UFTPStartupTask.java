@@ -36,5 +36,6 @@ public class UFTPStartupTask implements Runnable {
 		}
 		LogicalUFTPServer connector = new LogicalUFTPServer(kernel);
 		kernel.setAttribute(LogicalUFTPServer.class, connector);
+		kernel.register(connector);
 	}
 }
