@@ -14,10 +14,16 @@ public class ValueListResource extends Resource {
 
 	protected String selectedValue;
 
+	protected boolean allowWildcards = true;
+
 	public ValueListResource(String name, String val, List<String>allowed, Category category){
 		super(name,category);
 		validValues.addAll(allowed);
 		this.selectedValue=val;
+	}
+
+	public void setAllowWildcards(boolean allowWildcards){
+		this.allowWildcards = allowWildcards;
 	}
 
 	public void setSelectedValue(String val){
@@ -48,7 +54,11 @@ public class ValueListResource extends Resource {
 			ValueListResource otherList=(ValueListResource)otherValue;
 			otherSelected=otherList.selectedValue;
 		}
-		return otherSelected==null || validValues.contains(otherSelected);
+		return otherSelected==null || checkIfValid(otherSelected);
+	}
+
+	private boolean checkIfValid(String valueToCheck) {
+		return validValues.contains(allowWildcards ? "*": valueToCheck);
 	}
 
 	public String toString(){

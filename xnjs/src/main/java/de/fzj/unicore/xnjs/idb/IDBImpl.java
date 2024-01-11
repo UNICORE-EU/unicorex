@@ -53,7 +53,6 @@ import eu.unicore.util.configuration.ConfigurationException;
  * 
  * @author schuller
  */
-
 @Singleton
 public class IDBImpl implements IDB {
 	
@@ -364,6 +363,7 @@ public class IDBImpl implements IDB {
 	protected Partition getFirstPartition() {
 		return partitions.size()>0 ? partitions.get(0) : null;
 	}
+
 	@Override
 	public Resource getAllowedPartitions(Client c) throws ExecutionException {
 		if(getPartitions().size()==1 && getPartitions().get(0).getName()=="*"){

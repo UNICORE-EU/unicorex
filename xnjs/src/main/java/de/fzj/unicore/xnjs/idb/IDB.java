@@ -97,6 +97,6 @@ public interface IDB {
 	/**
 	 * get the available partition names (queue names) for the current client
 	 */
-	public  Resource getAllowedPartitions(Client c) throws ExecutionException;
+	public Resource getAllowedPartitions(Client c) throws ExecutionException;
 
 }
