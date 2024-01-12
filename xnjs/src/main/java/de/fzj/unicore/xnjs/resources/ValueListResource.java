@@ -58,7 +58,12 @@ public class ValueListResource extends Resource {
 	}
 
 	private boolean checkIfValid(String valueToCheck) {
-		return validValues.contains(allowWildcards ? "*": valueToCheck);
+		if(allowWildcards) {
+			return validValues.contains(valueToCheck) || validValues.contains("*");
+		}
+		else {
+			return validValues.contains(valueToCheck);
+		}
 	}
 
 	public String toString(){
