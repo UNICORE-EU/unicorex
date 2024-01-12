@@ -16,6 +16,7 @@ import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
 import eu.unicore.uftp.dpc.Utils;
+import eu.unicore.uftp.dpc.Utils.EncryptionAlgorithm;
 import eu.unicore.uftp.server.requests.UFTPSessionRequest;
 
 /**
@@ -72,7 +73,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		String secret=extraParameters.get(PARAM_SECRET);
 		String keySpec=extraParameters.get(PARAM_ENABLE_ENCRYPTION);
 		if(keySpec!=null && Boolean.parseBoolean(keySpec)){
-			m.key=Utils.createKey();
+			m.key = Utils.createKey(EncryptionAlgorithm.BLOWFISH);
 		}
 		String compress=extraParameters.get(PARAM_ENABLE_COMPRESSION);
 		if(compress!=null && Boolean.parseBoolean(compress)){
