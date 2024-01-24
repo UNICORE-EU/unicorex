@@ -1,9 +1,10 @@
 package eu.unicore.uas.rest;
 
+import static org.junit.Assert.assertTrue;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.uas.Base;

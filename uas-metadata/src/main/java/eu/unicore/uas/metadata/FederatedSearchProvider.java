@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
-import de.fzj.unicore.uas.metadata.FederatedSearchResult;
-import de.fzj.unicore.uas.metadata.FederatedSearchResultCollection;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.EnumerationClient;
 import eu.unicore.client.core.SiteClient;

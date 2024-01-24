@@ -6,7 +6,6 @@ import java.net.URI;
 
 import org.junit.Test;
 
-import eu.unicore.uas.xnjs.UFileTransferCreator;
 import eu.unicore.util.Pair;
 
 public class TestVarious {

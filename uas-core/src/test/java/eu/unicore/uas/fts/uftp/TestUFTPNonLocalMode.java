@@ -29,9 +29,6 @@ import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.client.UsernamePassword;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
-import eu.unicore.uas.fts.uftp.LogicalUFTPServer;
-import eu.unicore.uas.fts.uftp.UFTPFileTransferImpl;
-import eu.unicore.uas.fts.uftp.UFTPProperties;
 
 /**
  * Tests the UFTP 2.0 multi-file transfers in "non-local mode", i.e. 

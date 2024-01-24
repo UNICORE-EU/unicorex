@@ -36,8 +36,6 @@ import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
-import eu.unicore.uas.fts.uftp.LogicalUFTPServer;
-import eu.unicore.uas.fts.uftp.UFTPProperties;
 import eu.unicore.uftp.dpc.Utils;
 
 /**

@@ -20,8 +20,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import de.fzj.unicore.uas.UAS;
 import eu.unicore.services.Kernel;
+import eu.unicore.uas.UAS;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFileImpl;

@@ -16,16 +16,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.metadata.ExtractionStatistics;
-import de.fzj.unicore.uas.metadata.FederatedSearchResultCollection;
-import de.fzj.unicore.uas.metadata.SearchResult;
-import de.fzj.unicore.uas.metadata.StorageMetadataManager;
-import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.security.Client;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.ThreadingServices;
 import eu.unicore.uas.json.JSONUtil;
+import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Pair;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;

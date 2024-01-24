@@ -4,13 +4,12 @@ import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Assert;
 
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.UAS;
-import eu.unicore.uas.fts.uftp.LogicalUFTPServer;
 
 /**
  * Tests the UFTP integration into UNICORE/X

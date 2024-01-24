@@ -7,7 +7,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import eu.unicore.services.Kernel;
-import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.sms.InitSharedStorages;
 
 /**

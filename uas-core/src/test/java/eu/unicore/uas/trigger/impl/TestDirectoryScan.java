@@ -14,8 +14,6 @@ import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
 import eu.unicore.uas.Base;
-import eu.unicore.uas.trigger.impl.RuleFactory;
-import eu.unicore.uas.trigger.impl.SetupDirectoryScan;
 import eu.unicore.uas.trigger.xnjs.TriggerProcessor;
 import eu.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.xnjs.XNJS;

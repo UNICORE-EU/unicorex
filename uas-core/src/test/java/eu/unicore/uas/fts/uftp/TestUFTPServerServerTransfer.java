@@ -19,8 +19,6 @@ import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
-import eu.unicore.uas.fts.uftp.LogicalUFTPServer;
-import eu.unicore.uas.fts.uftp.UFTPProperties;
 
 /**
  * Tests the RESTFul implementation of UFTP server-to-server file transfer

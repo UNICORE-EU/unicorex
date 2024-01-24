@@ -30,8 +30,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.tika.metadata.TikaCoreProperties;
 
-import de.fzj.unicore.uas.metadata.SearchResult;
-import de.fzj.unicore.uas.util.LogUtil;
+import eu.unicore.uas.util.LogUtil;
 
 /**
  * Indexes the metadata and provides a search interface.

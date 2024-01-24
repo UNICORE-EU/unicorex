@@ -18,9 +18,6 @@ import org.junit.Test;
 import eu.unicore.security.Client;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;
-import eu.unicore.uas.trigger.impl.BaseAction;
-import eu.unicore.uas.trigger.impl.RuleFactory;
-import eu.unicore.uas.trigger.impl.SimpleRule;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.IStorageAdapter;
 

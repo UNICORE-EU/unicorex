@@ -7,10 +7,9 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.parser.Parser;
 
-import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.metadata.MetadataManager;
-import de.fzj.unicore.uas.util.LogUtil;
+import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.metadata.utils.ExtensionParser;
+import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
