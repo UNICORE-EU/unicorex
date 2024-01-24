@@ -2,10 +2,10 @@ package de.fzj.unicore.uas.impl.sms;
 
 import java.io.File;
 
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
-import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.services.InitParameters;
+import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.XnjsFileWithACL;
+import eu.unicore.xnjs.tsi.TSI;
 
 /**
  * A storage serving files from a fixed path, such as "/work" 

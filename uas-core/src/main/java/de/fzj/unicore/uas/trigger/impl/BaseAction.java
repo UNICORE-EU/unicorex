@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import de.fzj.unicore.uas.trigger.Action;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
  * builds a JSDL and submits a job to the XNJS, resulting in a batch job  

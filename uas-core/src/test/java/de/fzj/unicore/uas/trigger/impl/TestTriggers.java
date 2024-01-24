@@ -17,9 +17,9 @@ import org.junit.Test;
 
 import de.fzj.unicore.uas.trigger.Rule;
 import de.fzj.unicore.uas.trigger.RuleSet;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 public class TestTriggers {
 

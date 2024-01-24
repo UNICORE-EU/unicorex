@@ -20,22 +20,22 @@ import de.fzj.unicore.uas.trigger.xnjs.ScanSettings;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
 import de.fzj.unicore.uas.xnjs.TSIStorageAdapterFactory;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.ACLEntry.Type;
-import de.fzj.unicore.xnjs.io.ChangeACL;
-import de.fzj.unicore.xnjs.io.ChangeACL.ACLChangeMode;
-import de.fzj.unicore.xnjs.io.FileSet;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.XnjsFile;
-import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
-import de.fzj.unicore.xnjs.tsi.BatchMode;
-import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.ACLEntry.Type;
+import eu.unicore.xnjs.io.ChangeACL;
+import eu.unicore.xnjs.io.ChangeACL.ACLChangeMode;
+import eu.unicore.xnjs.io.FileSet;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
+import eu.unicore.xnjs.io.XnjsFileWithACL;
+import eu.unicore.xnjs.tsi.BatchMode;
+import eu.unicore.xnjs.tsi.TSI;
 
 /**
  * Basic storage resource implementation

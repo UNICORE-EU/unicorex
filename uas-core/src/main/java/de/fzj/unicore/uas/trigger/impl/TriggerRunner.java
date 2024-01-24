@@ -13,11 +13,11 @@ import de.fzj.unicore.uas.trigger.MultiFileAction;
 import de.fzj.unicore.uas.trigger.Rule;
 import de.fzj.unicore.uas.trigger.RuleSet;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
 
 public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContext {
 

@@ -16,18 +16,18 @@ import de.fzj.unicore.uas.trigger.RuleSet;
 import de.fzj.unicore.uas.trigger.impl.RuleFactory;
 import de.fzj.unicore.uas.trigger.impl.TriggerRunner;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.ActionStatus;
-import de.fzj.unicore.xnjs.ems.ProcessingException;
-import de.fzj.unicore.xnjs.ems.processors.DefaultProcessor;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.ActionStatus;
+import eu.unicore.xnjs.ems.ProcessingException;
+import eu.unicore.xnjs.ems.processors.DefaultProcessor;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
 
 /**
  * handles periodic directory scans on a shared storage, and invokes 

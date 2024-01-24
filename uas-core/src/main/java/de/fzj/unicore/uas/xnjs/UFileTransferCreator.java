@@ -13,16 +13,16 @@ import de.fzj.unicore.uas.fts.FileTransferCapabilities;
 import de.fzj.unicore.uas.fts.FileTransferCapability;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.fts.IFTSController;
-import de.fzj.unicore.xnjs.io.DataStageInInfo;
-import de.fzj.unicore.xnjs.io.DataStageOutInfo;
-import de.fzj.unicore.xnjs.io.DataStagingCredentials;
-import de.fzj.unicore.xnjs.io.IFileTransfer;
-import de.fzj.unicore.xnjs.io.IFileTransferCreator;
 import eu.unicore.client.Endpoint;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.fts.IFTSController;
+import eu.unicore.xnjs.io.DataStageInInfo;
+import eu.unicore.xnjs.io.DataStageOutInfo;
+import eu.unicore.xnjs.io.DataStagingCredentials;
+import eu.unicore.xnjs.io.IFileTransfer;
+import eu.unicore.xnjs.io.IFileTransferCreator;
 
 /**
  * creates {@link IFileTransfer} instances that use a UNICORE protocol such as BFT 

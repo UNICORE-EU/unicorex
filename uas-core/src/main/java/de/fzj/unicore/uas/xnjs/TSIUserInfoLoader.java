@@ -3,13 +3,13 @@ package de.fzj.unicore.uas.xnjs;
 import java.util.Collections;
 import java.util.List;
 
-import de.fzj.unicore.xnjs.tsi.TSI;
-import de.fzj.unicore.xnjs.tsi.remote.RemoteTSI;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.KernelInjectable;
 import eu.unicore.services.rest.security.UserPublicKeyCache.UserInfoSource;
+import eu.unicore.xnjs.tsi.TSI;
+import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 
 public class TSIUserInfoLoader implements UserInfoSource, KernelInjectable {
 

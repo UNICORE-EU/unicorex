@@ -3,7 +3,7 @@ package de.fzj.unicore.uas.xnjs;
 import java.io.IOException;
 
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
  * Used to create the correct IStorageAdapter for a given

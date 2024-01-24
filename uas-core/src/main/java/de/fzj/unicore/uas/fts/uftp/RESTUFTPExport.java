@@ -14,16 +14,16 @@ import org.apache.commons.io.IOUtils;
 
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
-import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
-import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
-import de.fzj.unicore.xnjs.util.ResultHolder;
-import de.fzj.unicore.xnjs.util.UFTPUtils;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.uftp.client.UFTPSessionClient;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
+import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
+import eu.unicore.xnjs.util.AsyncCommandHelper;
+import eu.unicore.xnjs.util.ResultHolder;
+import eu.unicore.xnjs.util.UFTPUtils;
 
 /**
  * @author schuller
@@ -155,7 +155,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	}
 
 	protected Map<String,String>getExtraParameters(){
-		Map<String,String>result=new HashMap<String, String>();
+		Map<String,String>result = new HashMap<>();
 		result.put(PARAM_CLIENT_HOST, clientIPAddresses);
 		result.put(PARAM_STREAMS,String.valueOf(getNumberOfStreams()));
 		secret=UUID.randomUUID().toString();

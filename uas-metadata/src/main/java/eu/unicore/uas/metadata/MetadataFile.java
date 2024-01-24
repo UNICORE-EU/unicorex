@@ -1,7 +1,8 @@
 package eu.unicore.uas.metadata;
 
-import de.fzj.unicore.xnjs.io.XnjsFile;
 import org.apache.commons.io.FilenameUtils;
+
+import eu.unicore.xnjs.io.XnjsFile;
 
 public class MetadataFile {
 	

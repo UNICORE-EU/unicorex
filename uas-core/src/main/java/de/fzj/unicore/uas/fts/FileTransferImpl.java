@@ -14,11 +14,11 @@ import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.StorageAdapterFactory;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
+import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
 
 /**
  * a WS-Resource representing a File transfer<br/>
@@ -136,18 +136,16 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	 * create an input stream for reading from the backend storage
 	 * @throws ExecutionException
 	 */
-	protected InputStream createNewInputStream()throws IOException,ExecutionException{
-		InputStream is=getStorageAdapter().getInputStream(getModel().getSource());
-		return is;
+	protected InputStream createNewInputStream()throws IOException, ExecutionException{
+		return getStorageAdapter().getInputStream(getModel().getSource());
 	}
 
 	/**
 	 * create an output stream for writing to the backend storage
 	 * @throws IOException, ExecutionException
 	 */
-	protected OutputStream createNewOutputStream(boolean append)throws IOException,ExecutionException{
-		OutputStream os=getStorageAdapter().getOutputStream(getModel().getTarget(),append);
-		return os;
+	protected OutputStream createNewOutputStream(boolean append)throws IOException, ExecutionException{
+		return getStorageAdapter().getOutputStream(getModel().getTarget(),append);
 	}
 
 	/**

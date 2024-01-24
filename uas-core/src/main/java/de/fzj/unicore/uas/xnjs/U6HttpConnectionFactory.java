@@ -2,12 +2,12 @@ package de.fzj.unicore.uas.xnjs;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 
-import de.fzj.unicore.xnjs.io.http.IConnectionFactory;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
+import eu.unicore.xnjs.io.http.IConnectionFactory;
 
 /**
  * creates HTTP(s) connections for plain http(s) data staging

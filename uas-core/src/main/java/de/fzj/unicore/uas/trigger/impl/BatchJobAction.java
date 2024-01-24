@@ -7,10 +7,10 @@ import org.json.JSONObject;
 
 import de.fzj.unicore.uas.json.Builder;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.Manager;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.Manager;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
  * builds a JSDL and submits a job to the XNJS, resulting in a batch job  
@@ -35,9 +35,9 @@ public class BatchJobAction extends BaseAction {
 		String json=expandVariables(job.toString(), context);
 		Builder b=new Builder(json);
 		JSONObject job = b.getJSON();
-		de.fzj.unicore.xnjs.ems.Action action = xnjs.makeAction(job);
+		eu.unicore.xnjs.ems.Action action = xnjs.makeAction(job);
 		action.setUmask(storage.getUmask());
-		action.getProcessingContext().put(de.fzj.unicore.xnjs.ems.Action.AUTO_SUBMIT, Boolean.TRUE);
+		action.getProcessingContext().put(eu.unicore.xnjs.ems.Action.AUTO_SUBMIT, Boolean.TRUE);
 		xnjs.get(Manager.class).add(action, client);
 	}
 

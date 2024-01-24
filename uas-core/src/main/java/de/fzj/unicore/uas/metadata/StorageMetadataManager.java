@@ -1,6 +1,6 @@
 package de.fzj.unicore.uas.metadata;
 
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
  * a {@link MetadataManager} extension which uses a {@link IStorageAdapter} to

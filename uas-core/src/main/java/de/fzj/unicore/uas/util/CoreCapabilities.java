@@ -2,10 +2,10 @@ package de.fzj.unicore.uas.util;
 
 import de.fzj.unicore.uas.fts.FileTransferCapabilities;
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
-import de.fzj.unicore.xnjs.io.IFileTransferCreator;
-import de.fzj.unicore.xnjs.io.IOCapabilities;
 import eu.unicore.services.Capabilities;
 import eu.unicore.services.Capability;
+import eu.unicore.xnjs.io.IFileTransferCreator;
+import eu.unicore.xnjs.io.IOCapabilities;
 
 /**
  * lists the capabilities provided by UAS core

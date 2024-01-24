@@ -26,9 +26,6 @@ import de.fzj.unicore.uas.impl.tss.util.RecreateXNJSJobs;
 import de.fzj.unicore.uas.impl.tss.util.TSSAsynchInitialisation;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.json.JSONParser;
-import de.fzj.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
@@ -43,6 +40,9 @@ import eu.unicore.services.messaging.ResourceAddedMessage;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.utils.Utilities;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.json.JSONParser;
+import eu.unicore.xnjs.tsi.remote.TSIMessages;
 
 /**
  * TargetSystem business logic code<br/>

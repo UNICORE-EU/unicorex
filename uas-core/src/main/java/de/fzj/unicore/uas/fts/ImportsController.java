@@ -9,18 +9,6 @@ import org.apache.commons.io.FilenameUtils;
 
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
-import de.fzj.unicore.xnjs.fts.IFTSController;
-import de.fzj.unicore.xnjs.fts.SourceFileInfo;
-import de.fzj.unicore.xnjs.io.DataStageInInfo;
-import de.fzj.unicore.xnjs.io.FileSet;
-import de.fzj.unicore.xnjs.io.IFileTransfer;
-import de.fzj.unicore.xnjs.io.IFileTransfer.ImportPolicy;
-import de.fzj.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
-import de.fzj.unicore.xnjs.io.IFileTransferEngine;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
@@ -29,6 +17,18 @@ import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.fts.FTSTransferInfo;
+import eu.unicore.xnjs.fts.IFTSController;
+import eu.unicore.xnjs.fts.SourceFileInfo;
+import eu.unicore.xnjs.io.DataStageInInfo;
+import eu.unicore.xnjs.io.FileSet;
+import eu.unicore.xnjs.io.IFileTransfer;
+import eu.unicore.xnjs.io.IFileTransfer.ImportPolicy;
+import eu.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
+import eu.unicore.xnjs.io.IFileTransferEngine;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.util.IOUtils;
 
 public class ImportsController implements IFTSController {
 

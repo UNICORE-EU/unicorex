@@ -2,12 +2,12 @@ package de.fzj.unicore.uas.fts;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.xnjs.io.TransferInfo;
-import de.fzj.unicore.xnjs.io.TransferInfo.Status;
-import de.fzj.unicore.xnjs.util.Observer;
 import eu.unicore.services.Home;
 import eu.unicore.services.Resource;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.io.TransferInfo;
+import eu.unicore.xnjs.io.TransferInfo.Status;
+import eu.unicore.xnjs.util.Observer;
 
 /**
  * track status changes of server-server file transfers

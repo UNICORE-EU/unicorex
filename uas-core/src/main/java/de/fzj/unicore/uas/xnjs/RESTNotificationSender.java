@@ -8,13 +8,13 @@ import javax.inject.Singleton;
 import org.json.JSONObject;
 
 import de.fzj.unicore.uas.rest.Jobs;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.ems.ActionResult;
-import de.fzj.unicore.xnjs.ems.ActionStateChangeListener;
-import de.fzj.unicore.xnjs.ems.ActionStatus;
-import de.fzj.unicore.xnjs.ems.event.INotificationSender;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.ActionResult;
+import eu.unicore.xnjs.ems.ActionStateChangeListener;
+import eu.unicore.xnjs.ems.ActionStatus;
+import eu.unicore.xnjs.ems.event.INotificationSender;
 
 @Singleton
 public class RESTNotificationSender implements ActionStateChangeListener {

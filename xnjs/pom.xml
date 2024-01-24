@@ -83,7 +83,7 @@
         <groupId>org.apache.maven.plugins</groupId>
      	<artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
-          <excludePackageNames>de.fzj.unicore.xnjs.beans.*</excludePackageNames>
+          <excludePackageNames>eu.unicore.xnjs.beans.*</excludePackageNames>
         </configuration>
       </plugin>
     </plugins>

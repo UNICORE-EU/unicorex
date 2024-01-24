@@ -10,10 +10,10 @@ import de.fzj.unicore.uas.fts.uftp.RESTUFTPImport;
 import de.fzj.unicore.uas.fts.uftp.UFTPFileTransferImpl;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
 import de.fzj.unicore.uas.xnjs.RESTFileImportBase;
-import de.fzj.unicore.xnjs.fts.IFTSController;
-import de.fzj.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.KernelInjectable;
+import eu.unicore.xnjs.fts.IFTSController;
+import eu.unicore.xnjs.io.IFileTransfer;
 
 /**
  * Describes the available filetransfers in UAS Core<br/>

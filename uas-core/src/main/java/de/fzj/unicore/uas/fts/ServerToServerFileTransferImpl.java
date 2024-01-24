@@ -13,16 +13,16 @@ import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
-import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.ems.ActionResult;
-import de.fzj.unicore.xnjs.ems.ActionStatus;
-import de.fzj.unicore.xnjs.fts.FTSInfo;
-import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
-import de.fzj.unicore.xnjs.io.IFileTransferEngine;
-import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.ActionResult;
+import eu.unicore.xnjs.ems.ActionStatus;
+import eu.unicore.xnjs.fts.FTSInfo;
+import eu.unicore.xnjs.fts.FTSTransferInfo;
+import eu.unicore.xnjs.io.IFileTransferEngine;
+import eu.unicore.xnjs.io.TransferInfo.Status;
 
 
 /**

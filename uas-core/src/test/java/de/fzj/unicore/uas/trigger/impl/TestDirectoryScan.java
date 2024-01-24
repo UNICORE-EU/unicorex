@@ -12,13 +12,13 @@ import org.junit.Test;
 import de.fzj.unicore.uas.Base;
 import de.fzj.unicore.uas.trigger.xnjs.TriggerProcessor;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.ems.InternalManager;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.InternalManager;
 
 public class TestDirectoryScan extends Base {
 	

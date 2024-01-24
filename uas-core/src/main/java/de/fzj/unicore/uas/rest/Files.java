@@ -26,10 +26,6 @@ import de.fzj.unicore.uas.metadata.ExtractionStatistics;
 import de.fzj.unicore.uas.metadata.ExtractionWatcher;
 import de.fzj.unicore.uas.metadata.MetadataManager;
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.XnjsFile;
-import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.security.OperationType;
 import eu.unicore.security.SEIOperationType;
 import eu.unicore.services.Home;
@@ -41,6 +37,10 @@ import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.impl.RESTRendererBase;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
+import eu.unicore.xnjs.io.XnjsFileWithACL;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
@@ -323,7 +323,7 @@ public class Files extends RESTRendererBase {
 					is = makeRangedStream(range, is, size);
 				}
 				catch(Exception ex){
-					de.fzj.unicore.xnjs.util.IOUtils.closeQuietly(is);
+					eu.unicore.xnjs.util.IOUtils.closeQuietly(is);
 					return handleError(416,"Range header '"+range+"' cannot be parsed", ex, logger);
 				}
 				return Response.status(Status.PARTIAL_CONTENT).entity(is).type(mt).build();
@@ -333,7 +333,7 @@ public class Files extends RESTRendererBase {
 			}
 
 		}catch(Exception ex){
-			de.fzj.unicore.xnjs.util.IOUtils.closeQuietly(is);
+			eu.unicore.xnjs.util.IOUtils.closeQuietly(is);
 			return handleError("Error downloading from '"+path+"'", ex, logger);
 		}
 	}

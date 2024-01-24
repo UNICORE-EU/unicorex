@@ -1,9 +1,9 @@
 package de.fzj.unicore.uas.fts;
 
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
-import de.fzj.unicore.xnjs.fts.IFTSController;
-import de.fzj.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.services.Capability;
+import eu.unicore.xnjs.fts.IFTSController;
+import eu.unicore.xnjs.io.IFileTransfer;
 
 public interface FileTransferCapability extends Capability{
 

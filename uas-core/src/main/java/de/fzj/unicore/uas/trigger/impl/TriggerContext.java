@@ -1,8 +1,8 @@
 package de.fzj.unicore.uas.trigger.impl;
 
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 public interface TriggerContext {
 

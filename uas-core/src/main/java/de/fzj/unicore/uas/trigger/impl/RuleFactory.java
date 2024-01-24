@@ -13,11 +13,11 @@ import de.fzj.unicore.uas.trigger.Action;
 import de.fzj.unicore.uas.trigger.Rule;
 import de.fzj.unicore.uas.trigger.RuleSet;
 import de.fzj.unicore.uas.trigger.xnjs.ScanSettings;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
 
 /**
  * finds rules applicable to a certain directory

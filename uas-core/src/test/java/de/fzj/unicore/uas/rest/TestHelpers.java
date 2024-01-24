@@ -12,8 +12,6 @@ import org.junit.Test;
 import de.fzj.unicore.uas.Base;
 import de.fzj.unicore.uas.impl.task.TaskImpl;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.xnjs.ems.BasicManager;
-import de.fzj.unicore.xnjs.ems.InternalManager;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
@@ -26,6 +24,8 @@ import eu.unicore.services.InitParameters;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
 import eu.unicore.util.httpclient.ClientProperties;
+import eu.unicore.xnjs.ems.BasicManager;
+import eu.unicore.xnjs.ems.InternalManager;
 
 public class TestHelpers extends Base {
 	String url;

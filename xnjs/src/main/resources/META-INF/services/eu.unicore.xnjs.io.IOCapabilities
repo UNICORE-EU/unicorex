@@ -1,0 +1,5 @@
+#
+# IO capabilities of XNJS core
+#
+
+eu.unicore.xnjs.io.impl.DefaultIOCapabilities

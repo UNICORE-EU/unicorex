@@ -6,17 +6,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import de.fzj.unicore.xnjs.ems.BudgetInfo;
-import de.fzj.unicore.xnjs.idb.ApplicationMetadata;
-import de.fzj.unicore.xnjs.idb.OptionDescription;
-import de.fzj.unicore.xnjs.idb.Partition;
-import de.fzj.unicore.xnjs.resources.BooleanResource;
-import de.fzj.unicore.xnjs.resources.RangeResource;
-import de.fzj.unicore.xnjs.resources.Resource;
-import de.fzj.unicore.xnjs.resources.ResourceSet;
-import de.fzj.unicore.xnjs.resources.ValueListResource;
 import eu.unicore.security.Client;
 import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.xnjs.ems.BudgetInfo;
+import eu.unicore.xnjs.idb.ApplicationMetadata;
+import eu.unicore.xnjs.idb.OptionDescription;
+import eu.unicore.xnjs.idb.Partition;
+import eu.unicore.xnjs.resources.BooleanResource;
+import eu.unicore.xnjs.resources.RangeResource;
+import eu.unicore.xnjs.resources.Resource;
+import eu.unicore.xnjs.resources.ResourceSet;
+import eu.unicore.xnjs.resources.ValueListResource;
 
 /**
  * for generating/parsing the JSON representation of a resource set,

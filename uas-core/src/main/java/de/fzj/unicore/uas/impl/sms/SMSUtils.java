@@ -9,9 +9,9 @@ import java.util.regex.Pattern;
 import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.io.ChangePermissions.Mode;
-import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
-import de.fzj.unicore.xnjs.util.URIUtils;
+import eu.unicore.xnjs.io.ChangePermissions.Mode;
+import eu.unicore.xnjs.io.ChangePermissions.PermissionsClass;
+import eu.unicore.xnjs.util.URIUtils;
 
 /**
  * utility methods for the SMS
@@ -62,18 +62,18 @@ public class SMSUtils {
 	 * convert the UNIX style permissions to XNJS chmod2 request
 	 * @param unixPermissions - UNIX style permissions string like "rwx------"
 	 */
-	public static de.fzj.unicore.xnjs.io.ChangePermissions[] getChangePermissions(String unixPermissions) {
+	public static eu.unicore.xnjs.io.ChangePermissions[] getChangePermissions(String unixPermissions) {
 		if(!unixPermissions.matches("([rwx-][rwx-][rwx-]){1,3}")) {
 			throw new IllegalArgumentException("Illegal permissions string <"+unixPermissions+">");
 		}
 		Matcher m = unixPermPattern.matcher(unixPermissions);
-		List<de.fzj.unicore.xnjs.io.ChangePermissions>res = new ArrayList<>();
+		List<eu.unicore.xnjs.io.ChangePermissions>res = new ArrayList<>();
 		int i=0;
 		while(m.find() && i<3) {
 			String kind = jsonPermKinds[i];
 			String perm = m.group();
 			if(perm!=null){
-				de.fzj.unicore.xnjs.io.ChangePermissions cp = new de.fzj.unicore.xnjs.io.ChangePermissions();
+				eu.unicore.xnjs.io.ChangePermissions cp = new eu.unicore.xnjs.io.ChangePermissions();
 				cp.setClazz(PermissionsClass.valueOf(kind));
 				cp.setMode(Mode.SET);
 				cp.setPermissions(perm);
@@ -81,7 +81,7 @@ public class SMSUtils {
 			}
 			i++;
 		}
-		return res.toArray(new de.fzj.unicore.xnjs.io.ChangePermissions[res.size()]);
+		return res.toArray(new eu.unicore.xnjs.io.ChangePermissions[res.size()]);
 	}
 	
 	

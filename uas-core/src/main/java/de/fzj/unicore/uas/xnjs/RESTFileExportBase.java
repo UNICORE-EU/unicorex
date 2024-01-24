@@ -13,16 +13,16 @@ import de.fzj.unicore.uas.fts.FiletransferOptions.IMonitorable;
 import de.fzj.unicore.uas.fts.ProgressListener;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.FileSet;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.TransferInfo.Status;
-import de.fzj.unicore.xnjs.io.XnjsFile;
-import de.fzj.unicore.xnjs.tsi.TSI;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.FileSet;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
+import eu.unicore.xnjs.io.TransferInfo.Status;
+import eu.unicore.xnjs.tsi.TSI;
 
 /**
  * Base class for UNICORE RESTful file exports with support for BFT transfer

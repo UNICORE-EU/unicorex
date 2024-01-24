@@ -15,15 +15,15 @@ import java.util.Map;
 import org.apache.lucene.document.Document;
 import org.junit.Test;
 
-import de.fzj.unicore.xnjs.ems.ExecutionException;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.security.TestConfigUtil;
+import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFileWithACL;
 
 public class TestUtils {
 
-    private static final Map<String, String> standardMetadata = new HashMap<String, String>();
+    private static final Map<String, String> standardMetadata = new HashMap<>();
 
     static {
         standardMetadata.put("StandardKey", "StandardValue");

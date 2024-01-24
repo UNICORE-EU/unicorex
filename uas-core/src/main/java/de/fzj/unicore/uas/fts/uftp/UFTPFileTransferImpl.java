@@ -11,13 +11,13 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.io.XnjsFile;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.security.Client;
 import eu.unicore.services.InitParameters;
 import eu.unicore.uftp.dpc.Utils;
 import eu.unicore.uftp.dpc.Utils.EncryptionAlgorithm;
 import eu.unicore.uftp.server.requests.UFTPSessionRequest;
+import eu.unicore.xnjs.io.XnjsFile;
 
 /**
  * server-side filetransfer ws-resource using the UFTP library
@@ -28,7 +28,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, UFTPFileTransferImpl.class);
 
-	static AtomicInteger instancesCreated=new AtomicInteger();
+	static final AtomicInteger instancesCreated=new AtomicInteger();
 	
 	public UFTPFileTransferImpl(){
 		super();
@@ -142,25 +142,17 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	}
 	
 	protected void checkReadAccess()throws IOException{
-		InputStream is=null;
-		try{
-			is=createNewInputStream();
+		try(InputStream is = createNewInputStream()){
 			is.read();
 		}
 		catch(Exception e){
 			throw new IOException("Can't read source file.",e);
 		}
-		finally{
-			if(is!=null)is.close();
-		}
 	}
 	
 	protected void checkWriteAccess()throws IOException{
-		OutputStream os=null;
-		try{
-			os=createNewOutputStream(true);
+		try(OutputStream os = createNewOutputStream(true)){
 			os.write(new byte[0]);
-			os.close();
 		}
 		catch(Exception e){
 			throw new IOException("Can't write to target file.",e);

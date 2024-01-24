@@ -16,17 +16,17 @@ import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.util.LogUtil;
 import de.fzj.unicore.uas.util.Pair;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.io.FileSet;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.io.TransferInfo.Status;
-import de.fzj.unicore.xnjs.io.XnjsFile;
-import de.fzj.unicore.xnjs.io.XnjsFileWithACL;
-import de.fzj.unicore.xnjs.tsi.BatchMode;
-import de.fzj.unicore.xnjs.util.IOUtils;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.io.FileSet;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.TransferInfo.Status;
+import eu.unicore.xnjs.io.XnjsFile;
+import eu.unicore.xnjs.io.XnjsFileWithACL;
+import eu.unicore.xnjs.tsi.BatchMode;
+import eu.unicore.xnjs.util.IOUtils;
 
 /**
  * Base class for UNICORE RESTful file imports with support for BFT transfer

@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.xmlbeans.XmlObject;
+
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.services.InitParameters;

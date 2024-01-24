@@ -20,9 +20,9 @@ import de.fzj.unicore.uas.metadata.FederatedSearchResult;
 import de.fzj.unicore.uas.metadata.FederatedSearchResultCollection;
 import de.fzj.unicore.uas.metadata.SearchResult;
 import de.fzj.unicore.uas.metadata.StorageMetadataManager;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.client.data.Metadata;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 public class MockMetadataManager implements StorageMetadataManager{
 

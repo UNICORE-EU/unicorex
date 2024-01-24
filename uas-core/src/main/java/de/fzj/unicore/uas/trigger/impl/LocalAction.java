@@ -6,10 +6,10 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.trigger.Action;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
-import de.fzj.unicore.xnjs.util.AsyncCommandHelper;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.util.AsyncCommandHelper;
 
 /**
  * executes a script "locally" i.e. on the login node 

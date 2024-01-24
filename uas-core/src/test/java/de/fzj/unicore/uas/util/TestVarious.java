@@ -20,13 +20,13 @@ import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.impl.sms.SMSBaseImpl;
 import de.fzj.unicore.uas.impl.sms.SMSUtils;
 import de.fzj.unicore.uas.impl.sms.StorageDescription;
-import de.fzj.unicore.xnjs.io.ChangePermissions;
-import de.fzj.unicore.xnjs.io.ChangePermissions.PermissionsClass;
-import de.fzj.unicore.xnjs.io.IFileTransferCreator;
-import de.fzj.unicore.xnjs.io.IOCapabilities;
 import eu.unicore.services.Capabilities;
 import eu.unicore.services.Capability;
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.xnjs.io.ChangePermissions;
+import eu.unicore.xnjs.io.ChangePermissions.PermissionsClass;
+import eu.unicore.xnjs.io.IFileTransferCreator;
+import eu.unicore.xnjs.io.IOCapabilities;
 
 public class TestVarious {
 	

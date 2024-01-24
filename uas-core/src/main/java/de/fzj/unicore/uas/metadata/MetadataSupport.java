@@ -4,9 +4,9 @@ import org.apache.logging.log4j.Logger;
 
 import de.fzj.unicore.uas.UASProperties;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.services.Kernel;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
  * factory and configuration class for the metadata support

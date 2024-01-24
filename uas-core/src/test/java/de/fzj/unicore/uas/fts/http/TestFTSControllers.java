@@ -14,16 +14,16 @@ import de.fzj.unicore.uas.fts.ExportsController;
 import de.fzj.unicore.uas.fts.ImportsController;
 import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
-import de.fzj.unicore.xnjs.io.DataStageInInfo;
-import de.fzj.unicore.xnjs.io.DataStageOutInfo;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
 import eu.unicore.security.SecurityTokens;
 import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.fts.FTSTransferInfo;
+import eu.unicore.xnjs.io.DataStageInInfo;
+import eu.unicore.xnjs.io.DataStageOutInfo;
 /**
  * tests sendFile() and receiveFile()
  * 

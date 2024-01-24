@@ -8,11 +8,11 @@ import de.fzj.unicore.uas.trigger.xnjs.ScanSettings;
 import de.fzj.unicore.uas.trigger.xnjs.SharedTriggerProcessor;
 import de.fzj.unicore.uas.trigger.xnjs.TriggerProcessor;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.ems.InternalManager;
-import de.fzj.unicore.xnjs.ems.Manager;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.InternalManager;
+import eu.unicore.xnjs.ems.Manager;
 
 /**
  * initiates a periodic scan of a directory
@@ -62,11 +62,11 @@ public class SetupDirectoryScan implements Callable<String>{
 	
 	public String call() throws Exception{
 		if(actionExists()){
-			logger.info("Scan of <"+scanSettings.storageUID+"/"+scanSettings.baseDirectory
-					+"> is already running for for <"+client.getDistinguishedName()+">");
+			logger.info("Scan of <{}/{}> is already running for for <{}>",
+					scanSettings.storageUID, scanSettings.baseDirectory, client.getDistinguishedName());
 			return getActionUUID();
 		}
-		logger.info("Setting up directory scan for <"+client.getDistinguishedName()+">");
+		logger.info("Setting up directory scan for <{}>", client.getDistinguishedName());
 		Action a=new Action();
 		a.setUUID(getActionUUID());
 		String type = scanSettings.sharedStorageMode? SharedTriggerProcessor.actionType : TriggerProcessor.actionType;

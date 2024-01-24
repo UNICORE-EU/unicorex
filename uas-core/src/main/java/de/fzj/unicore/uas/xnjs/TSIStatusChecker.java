@@ -1,10 +1,10 @@
 package de.fzj.unicore.uas.xnjs;
 
 import de.fzj.unicore.uas.UASProperties.TSI_MODE;
-import de.fzj.unicore.xnjs.XNJS;
-import de.fzj.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.services.ExternalSystemConnector;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 
 public class TSIStatusChecker implements ExternalSystemConnector {
 

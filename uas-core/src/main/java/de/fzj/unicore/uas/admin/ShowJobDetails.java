@@ -3,11 +3,11 @@ package de.fzj.unicore.uas.admin;
 import java.util.Map;
 
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
-import de.fzj.unicore.xnjs.ems.Action;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.admin.AdminAction;
 import eu.unicore.services.admin.AdminActionResult;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.ems.Action;
 
 /**
  * {@link AdminAction} which prints details about an XNJS action 

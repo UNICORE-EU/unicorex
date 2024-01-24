@@ -8,12 +8,12 @@ import org.json.JSONObject;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.ServerToServerFileTransferImpl;
 import de.fzj.unicore.uas.fts.ServerToServerTransferModel;
-import de.fzj.unicore.xnjs.fts.FTSTransferInfo;
-import de.fzj.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import eu.unicore.xnjs.fts.FTSTransferInfo;
+import eu.unicore.xnjs.io.TransferInfo.Status;
 import jakarta.ws.rs.Path;
 
 /**

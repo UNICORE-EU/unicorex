@@ -10,8 +10,6 @@ import javax.inject.Singleton;
 
 import org.json.JSONObject;
 
-import de.fzj.unicore.xnjs.ems.Action;
-import de.fzj.unicore.xnjs.ems.event.INotificationSender;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.client.BaseClient;
@@ -21,6 +19,8 @@ import eu.unicore.services.rest.jwt.JWTServerProperties;
 import eu.unicore.services.utils.TimeoutRunner;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.event.INotificationSender;
 
 @Singleton
 public class NotificationSender implements INotificationSender {
