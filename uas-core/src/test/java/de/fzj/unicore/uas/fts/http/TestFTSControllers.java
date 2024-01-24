@@ -12,7 +12,6 @@ import org.junit.Test;
 import de.fzj.unicore.uas.Base;
 import de.fzj.unicore.uas.fts.ExportsController;
 import de.fzj.unicore.uas.fts.ImportsController;
-import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageClient;
@@ -20,6 +19,7 @@ import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
 import eu.unicore.security.SecurityTokens;
 import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.fts.FTSTransferInfo;
 import eu.unicore.xnjs.io.DataStageInInfo;
@@ -35,7 +35,7 @@ public class TestFTSControllers extends Base {
 	StorageClient source, target;
 	String sourceURL,targetURL;
 
-	@Test
+	@Test	
 	public void testCollectImportFileList()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");

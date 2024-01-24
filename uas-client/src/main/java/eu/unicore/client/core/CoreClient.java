@@ -2,10 +2,10 @@ package eu.unicore.client.core;
 
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.security.AuthenticationException;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

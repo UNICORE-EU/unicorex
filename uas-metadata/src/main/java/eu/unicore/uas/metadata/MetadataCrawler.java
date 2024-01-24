@@ -21,11 +21,11 @@ import org.xml.sax.ContentHandler;
 
 import de.fzj.unicore.uas.metadata.ExtractionStatistics;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.uas.util.Pair;
 import eu.unicore.client.data.Metadata.CrawlerControl;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.metadata.MetadataFile.MD_State;
 import eu.unicore.util.Log;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;

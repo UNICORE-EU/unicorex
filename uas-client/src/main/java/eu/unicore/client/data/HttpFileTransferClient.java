@@ -18,10 +18,10 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.fts.FiletransferOptions;
-import de.fzj.unicore.uas.fts.ProgressListener;
 import eu.unicore.client.Endpoint;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.uas.fts.FiletransferOptions;
+import eu.unicore.uas.fts.ProgressListener;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.HttpUtils;
 import eu.unicore.util.httpclient.IClientConfiguration;

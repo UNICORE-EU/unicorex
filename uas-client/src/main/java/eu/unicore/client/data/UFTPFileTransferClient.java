@@ -11,12 +11,12 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.fts.FiletransferOptions;
-import de.fzj.unicore.uas.fts.ProgressListener;
-import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.utils.Configurable;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.uas.fts.FiletransferOptions;
+import eu.unicore.uas.fts.ProgressListener;
+import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uftp.client.AbstractUFTPClient;
 import eu.unicore.uftp.client.UFTPProgressListener;
 import eu.unicore.uftp.client.UFTPSessionClient;

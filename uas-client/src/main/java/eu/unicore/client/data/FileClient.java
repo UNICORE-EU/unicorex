@@ -5,11 +5,11 @@ import java.util.Map;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.client.utils.TaskClient;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 public class FileClient extends BaseServiceClient {

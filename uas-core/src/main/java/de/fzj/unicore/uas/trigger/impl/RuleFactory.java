@@ -8,12 +8,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.trigger.Action;
 import de.fzj.unicore.uas.trigger.Rule;
 import de.fzj.unicore.uas.trigger.RuleSet;
 import de.fzj.unicore.uas.trigger.xnjs.ScanSettings;
 import eu.unicore.security.Client;
+import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;

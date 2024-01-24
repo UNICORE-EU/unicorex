@@ -7,7 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
@@ -16,6 +15,7 @@ import eu.unicore.services.rest.impl.RESTRendererBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;

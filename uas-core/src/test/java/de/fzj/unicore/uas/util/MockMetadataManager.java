@@ -22,6 +22,7 @@ import de.fzj.unicore.uas.metadata.SearchResult;
 import de.fzj.unicore.uas.metadata.StorageMetadataManager;
 import eu.unicore.client.data.Metadata;
 import eu.unicore.security.Client;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
 public class MockMetadataManager implements StorageMetadataManager{

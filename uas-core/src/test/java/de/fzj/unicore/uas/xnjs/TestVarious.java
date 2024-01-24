@@ -6,7 +6,7 @@ import java.net.URI;
 
 import org.junit.Test;
 
-import de.fzj.unicore.uas.util.Pair;
+import eu.unicore.util.Pair;
 
 public class TestVarious {
 

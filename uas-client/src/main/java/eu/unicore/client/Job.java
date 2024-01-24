@@ -4,7 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.json.JSONUtil;
+import eu.unicore.uas.json.JSONUtil;
 
 /**
  * A helper for creating UNICORE jobs

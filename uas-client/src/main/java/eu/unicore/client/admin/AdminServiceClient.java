@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 public class AdminServiceClient extends BaseServiceClient {

@@ -13,9 +13,6 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.CoreClientCapabilities.RESTFTClientCapability;
-import de.fzj.unicore.uas.fts.FiletransferOptions;
-import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.data.FileClient;
@@ -27,6 +24,9 @@ import eu.unicore.services.ClientCapabilities;
 import eu.unicore.services.ClientCapability;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.uas.CoreClientCapabilities.RESTFTClientCapability;
+import eu.unicore.uas.fts.FiletransferOptions;
+import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

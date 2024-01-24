@@ -5,11 +5,11 @@ import java.util.Map;
 import de.fzj.unicore.uas.UAS;
 import de.fzj.unicore.uas.fts.FileTransferImpl;
 import de.fzj.unicore.uas.fts.FileTransferModel;
-import de.fzj.unicore.uas.json.JSONUtil;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import eu.unicore.uas.json.JSONUtil;
 import jakarta.ws.rs.Path;
 
 /**

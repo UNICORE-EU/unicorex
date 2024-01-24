@@ -9,13 +9,13 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.json.JSONUtil;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.UFileTransferCreator;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.uas.json.JSONUtil;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStatus;

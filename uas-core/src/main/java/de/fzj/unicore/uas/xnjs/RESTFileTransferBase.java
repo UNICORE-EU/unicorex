@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import de.fzj.unicore.uas.fts.ProgressListener;
 import de.fzj.unicore.uas.fts.StatusTracker;
 import de.fzj.unicore.uas.util.LogUtil;
 import eu.unicore.client.Endpoint;
@@ -16,6 +15,7 @@ import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
 import eu.unicore.services.utils.Utilities;
+import eu.unicore.uas.fts.ProgressListener;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.xnjs.XNJS;

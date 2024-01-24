@@ -12,12 +12,12 @@ import java.util.UUID;
 
 import org.apache.commons.io.IOUtils;
 
-import de.fzj.unicore.uas.util.Pair;
 import de.fzj.unicore.uas.xnjs.RESTFileExportBase;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.uftp.client.UFTPSessionClient;
 import eu.unicore.util.Log;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;

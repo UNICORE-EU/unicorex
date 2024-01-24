@@ -8,14 +8,14 @@ import java.util.List;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import de.fzj.unicore.uas.json.Builder;
-import de.fzj.unicore.uas.json.Requirement;
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.registry.IRegistryClient;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProvider;
 import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.uas.json.Builder;
+import eu.unicore.uas.json.Requirement;
 import eu.unicore.util.Log;
 
 /**

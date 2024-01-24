@@ -8,20 +8,20 @@ import java.util.List;
 import java.util.Map;
 
 import de.fzj.unicore.uas.UASProperties;
-import de.fzj.unicore.uas.fts.FiletransferOptions;
-import de.fzj.unicore.uas.fts.FiletransferOptions.IMonitorable;
-import de.fzj.unicore.uas.fts.ProgressListener;
 import de.fzj.unicore.uas.util.LogUtil;
-import de.fzj.unicore.uas.util.Pair;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
+import eu.unicore.uas.fts.FiletransferOptions;
+import eu.unicore.uas.fts.FiletransferOptions.IMonitorable;
+import eu.unicore.uas.fts.ProgressListener;
 import eu.unicore.util.Log;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.FileSet;
 import eu.unicore.xnjs.io.IStorageAdapter;
-import eu.unicore.xnjs.io.XnjsFile;
 import eu.unicore.xnjs.io.TransferInfo.Status;
+import eu.unicore.xnjs.io.XnjsFile;
 import eu.unicore.xnjs.tsi.TSI;
 
 /**
