@@ -1,3 +1,3 @@
-de.fzj.unicore.uas.features.BaseFeature
-de.fzj.unicore.uas.features.StorageAccessFeature
-de.fzj.unicore.uas.features.JobManagementFeature
+eu.unicore.uas.features.BaseFeature
+eu.unicore.uas.features.StorageAccessFeature
+eu.unicore.uas.features.JobManagementFeature

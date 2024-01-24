@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
-import de.fzj.unicore.uas.Base;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.EnumerationClient;
 import eu.unicore.client.core.FileList;
@@ -21,6 +20,7 @@ import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.registry.RegistryClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.uas.Base;
 
 public class TestCoreClients extends Base {
 
