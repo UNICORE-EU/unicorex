@@ -8,8 +8,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
@@ -22,6 +20,7 @@ import eu.unicore.xnjs.tsi.ReservationStatus.Status;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
 
 /**
  * Implementation of the {@link IReservation} interface using TSI functions

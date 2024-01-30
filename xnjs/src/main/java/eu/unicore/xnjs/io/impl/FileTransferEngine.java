@@ -12,9 +12,6 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.persist.Persist;
@@ -35,6 +32,8 @@ import eu.unicore.xnjs.io.IOCapabilities;
 import eu.unicore.xnjs.io.TransferInfo;
 import eu.unicore.xnjs.io.UnsupportedProtocolException;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Implementation of the {@link IFileTransferEngine} interface.<br/> 

@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
@@ -14,6 +12,7 @@ import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
+import jakarta.inject.Singleton;
 
 /**
  * config properties for connecting to a UNICORE TSI server

@@ -7,9 +7,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
@@ -25,6 +22,8 @@ import eu.unicore.xnjs.persistence.IActionStore;
 import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * Default implementation of the ems manager interfaces<br>

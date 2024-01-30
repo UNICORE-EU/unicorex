@@ -2,9 +2,6 @@ package eu.unicore.xnjs.ems;
 
 import java.io.File;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.xnjs.XNJSProperties;
@@ -13,6 +10,8 @@ import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.TSIFactory;
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * default IExecutionContextManager implementation

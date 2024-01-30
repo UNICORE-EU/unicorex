@@ -3,9 +3,8 @@ package eu.unicore.xnjs.persistence;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Singleton;
-
 import eu.unicore.xnjs.XNJS;
+import jakarta.inject.Singleton;
 
 /**
  * Generic persistence engine creation. <br/>

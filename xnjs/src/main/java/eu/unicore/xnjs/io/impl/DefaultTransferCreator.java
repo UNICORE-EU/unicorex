@@ -2,8 +2,6 @@ package eu.unicore.xnjs.io.impl;
 
 import java.net.URI;
 
-import javax.inject.Inject;
-
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.fts.IFTSController;
@@ -14,6 +12,7 @@ import eu.unicore.xnjs.io.DataStagingCredentials;
 import eu.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.xnjs.io.IFileTransferCreator;
 import eu.unicore.xnjs.io.git.GitStageIn;
+import jakarta.inject.Inject;
 
 /**
  * Creates transfers for the following mechanisms

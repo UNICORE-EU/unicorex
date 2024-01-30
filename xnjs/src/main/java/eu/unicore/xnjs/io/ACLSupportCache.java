@@ -2,10 +2,10 @@ package eu.unicore.xnjs.io;
 
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Singleton;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
+import jakarta.inject.Singleton;
 
 @Singleton
 public class ACLSupportCache {

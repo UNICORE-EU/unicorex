@@ -13,9 +13,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -37,6 +34,8 @@ import eu.unicore.xnjs.tsi.TSIBusyException;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import eu.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
 import eu.unicore.xnjs.util.IOUtils;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 
 public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements EventHandler {

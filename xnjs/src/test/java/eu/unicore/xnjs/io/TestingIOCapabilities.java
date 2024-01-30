@@ -8,10 +8,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Ignore;
 
+import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.TransferInfo.Status;
-import eu.unicore.persist.util.UUID;
 
 @Ignore
 public class TestingIOCapabilities implements IOCapabilities {

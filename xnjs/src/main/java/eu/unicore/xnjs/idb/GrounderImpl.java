@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
@@ -32,6 +29,8 @@ import eu.unicore.xnjs.tsi.remote.TSIProperties;
 import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.LogUtil;
 import eu.unicore.xnjs.util.ScriptEvaluator;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  *  

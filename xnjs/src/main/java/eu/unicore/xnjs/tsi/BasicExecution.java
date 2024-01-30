@@ -13,9 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 
 import com.codahale.metrics.Histogram;
@@ -39,6 +36,8 @@ import eu.unicore.xnjs.tsi.local.LocalTSIProperties;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * @author schuller

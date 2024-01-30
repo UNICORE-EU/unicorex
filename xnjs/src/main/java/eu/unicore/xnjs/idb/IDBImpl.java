@@ -17,9 +17,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -45,6 +42,8 @@ import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.TSIFactory;
 import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * An abstract IDB implementation supporting multiple IDB files (with a single main file) and

@@ -12,8 +12,6 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
@@ -42,6 +40,7 @@ import eu.unicore.xnjs.util.BackedOutputStream;
 import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
 
 /**
  * a TSI that talks to the UNICORE TSI daemon

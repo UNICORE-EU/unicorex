@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.inject.Inject;
-
 import eu.unicore.persist.DataVersionException;
 import eu.unicore.persist.Persist;
 import eu.unicore.persist.PersistenceException;
@@ -17,6 +15,7 @@ import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
+import jakarta.inject.Inject;
 
 /**
  * Persistence for actions based on JDBC

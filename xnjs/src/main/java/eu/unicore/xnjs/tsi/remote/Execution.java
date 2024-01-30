@@ -9,9 +9,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,6 +36,8 @@ import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
 import eu.unicore.xnjs.util.UFTPUtils;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 /**
  * IExecution interface implemented against a UNICORE TSI daemon<br>

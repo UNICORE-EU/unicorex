@@ -18,9 +18,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
@@ -34,6 +31,8 @@ import eu.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSSummary;
 import eu.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
 import eu.unicore.xnjs.util.LogUtil;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class BSSState implements IBSSState {
