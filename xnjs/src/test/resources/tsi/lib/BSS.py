@@ -35,7 +35,7 @@ class BSS(BSSBase):
         """
         self.cleanup(config)
 
-        children = config.get('tsi.NOBATCH.children')
+        children = config.get('tsi.child_pids')
 
         LOG.debug("Submitting a script.")
         message = Utils.expand_variables(message)
@@ -58,7 +58,7 @@ class BSS(BSSBase):
             cmds_file_name = "UNICORE_Job_1234"
             with open(cmds_file_name, "w") as job:
                 job.write(u"" + cmd)
-            children = config.get('tsi.NOBATCH.children', None)
+            children = config.get('tsi.child_pids', None)
             (success, reply) = Utils.run_command(cmd, True, children)
             if success:
                 connector.ok("")

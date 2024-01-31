@@ -3,6 +3,7 @@ package eu.unicore.xnjs.tsi.remote;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -26,8 +27,11 @@ import eu.unicore.xnjs.ems.ExecutionContext;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import eu.unicore.xnjs.idb.ApplicationInfo;
+import eu.unicore.xnjs.idb.Partition;
 import eu.unicore.xnjs.io.IOProperties;
 import eu.unicore.xnjs.persistence.IActionStore;
+import eu.unicore.xnjs.resources.IntResource;
+import eu.unicore.xnjs.resources.Resource.Category;
 import eu.unicore.xnjs.tsi.BasicExecution;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.TSIBusyException;
@@ -591,17 +595,20 @@ public class Execution extends BasicExecution {
 	 * send a command to the TSI
 	 * 
 	 * @param command - the command to send
-	 * @param client
+	 * @param client - if null, the "generic" {@link TSIProperties#getBSSUser()} is used
 	 * @param preferredTSIHost - the preferred TSI node or <code>null</code> if you don't care
 	 * @param check - whether to check the reply for the TSI_OK signal
 	 * @return the TSI reply
 	 * @throws Exception if the TSI reply is not "TSI_OK"
 	 */
 	protected String runTSICommand(String command, Client client, String preferredTSIHost, boolean check) throws Exception {
-		try(TSIConnection conn = connectionFactory.getTSIConnection(client,preferredTSIHost,-1)){
+		try(TSIConnection conn = client!=null ?
+				connectionFactory.getTSIConnection(client, preferredTSIHost, -1) :
+				connectionFactory.getTSIConnection(tsiProperties.getBSSUser(), "NONE", preferredTSIHost, -1))
+		{
 			String res = conn.send(command);
 			if(check && !res.contains("TSI_OK")){
-				throw new Exception("Getting job details on TSI failed: reply was "+res);
+				throw new Exception("TSI call failed: reply was "+res);
 			}
 			return res;
 		}
@@ -680,6 +687,26 @@ public class Execution extends BasicExecution {
 
 	public boolean isBeingTracked(Action job) throws ExecutionException{
 		return job!=null && job.getBSID()!=null && bss.getBSSInfo(job.getBSID())!=null;
+	}
+
+	public Collection<Partition> getPartitionInfo() throws Exception {
+		Collection<Partition> result = new HashSet<>();
+		String infoS = runTSICommand(tsiMessages.makeGetPartitionsCommand(), null, null, true);
+		infoS = infoS.replace("TSI_OK", "").trim();
+		System.out.println(infoS);
+		JSONObject jo = new JSONObject(infoS);
+		for(String partitionName: jo.keySet()) {
+			JSONObject partitionInfo = jo.getJSONObject(partitionName);
+			Partition p = new Partition();
+			p.setName(partitionName);
+			p.setDefaultPartition(partitionInfo.getBoolean("isDefault"));
+			// minimum info is number of nodes
+			long n = partitionInfo.getInt("Nodes");
+			IntResource nodes = new IntResource("Nodes", null, n, 1l, Category.PROCESSING);
+			p.getResources().putResource(nodes);
+			result.add(p);
+		}
+		return result;
 	}
 
 }

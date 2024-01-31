@@ -12,7 +12,7 @@ public class Partition {
 
 	private String name;
 	
-	private String description;
+	private String description = "";
 
 	private final ResourceSet resources = new ResourceSet();
 	
@@ -73,7 +73,15 @@ public class Partition {
 	}
 
 	public String toString(){
-		return "Partition["+name+":"+description+":"+resources+"]";
+		StringBuilder sb = new StringBuilder();
+		sb.append("Partition[").append(name);
+		if(isDefault) {
+			sb.append("(default)");
+		}
+		sb.append(":").append(description).append(":");
+		sb.append(resources).append("]");
+		return sb.toString();
+		
 	}
 	
 	public boolean isDefaultPartition() {

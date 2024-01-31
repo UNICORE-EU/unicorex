@@ -476,6 +476,7 @@ public class TSIMessages {
 	 * make a "get job info" command
 	 * 
 	 * @param bssid
+	 * @param credentials
 	 * @return command string to send to the TSI
 	 */
 	public String makeGetJobInfoCommand(String bssid, String credentials) {
@@ -486,6 +487,15 @@ public class TSIMessages {
 		}
 		commands.append("#TSI_BSSID ").append(bssid).append("\n");
 		return commands.toString();
+	}
+
+	/**
+	 * make a "get partitions info" command
+	 *
+	 * @return command string to send to the TSI
+	 */
+	public String makeGetPartitionsCommand() {
+		return "#TSI_GET_PARTITIONS\n";
 	}
 
 	/**

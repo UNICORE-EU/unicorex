@@ -1,11 +1,14 @@
 package eu.unicore.xnjs.tsi;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.ems.BudgetInfo;
 import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.idb.Partition;
 import eu.unicore.xnjs.persistence.IActionStore;
 
 /**
@@ -66,4 +69,11 @@ public interface IExecutionSystemInformation {
 	 * @param jobStore
 	 */
 	public default void initialise(IActionStore jobStore) throws Exception {}
+	
+	/**
+	 * get available partitions from the BSS
+	 */
+	public default Collection<Partition> getPartitionInfo() throws Exception {
+		return Collections.emptyList();
+	}
 }

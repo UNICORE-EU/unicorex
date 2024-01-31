@@ -11,7 +11,7 @@ import ACL, BecomeUser, BSS, Connector, Log, PAM, Reservation, Server, SSL, IO, 
 #
 # the TSI version
 #
-MY_VERSION = "9.1.1"
+MY_VERSION = "10.0.0"
 
 # supported Python versions
 REQUIRED_VERSION = (3, 7, 0)
@@ -218,7 +218,7 @@ def execute_script(message, connector, config, LOG):
     the output is discarded, otherwise it is returned to UNICORE/X.
     """
     discard = "#TSI_DISCARD_OUTPUT true\n" in message
-    children = config.get('tsi.NOBATCH.children', None)
+    children = config.get('tsi.child_pids', None)
     (success, output) = Utils.run_command(message, discard, children)
     if success:
         connector.ok(output)
@@ -253,6 +253,7 @@ def init_functions(bss):
         "TSI_HOLDJOB": bss.hold_job,
         "TSI_RESUMEJOB": bss.resume_job,
         "TSI_GET_COMPUTE_BUDGET": bss.get_budget,
+        "TSI_GET_PARTITIONS": bss.get_partitions,
         "TSI_MAKE_RESERVATION": Reservation.make_reservation,
         "TSI_QUERY_RESERVATION": Reservation.query_reservation,
         "TSI_CANCEL_RESERVATION": Reservation.cancel_reservation,

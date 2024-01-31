@@ -40,6 +40,7 @@ import eu.unicore.xnjs.io.XnjsFile;
 import eu.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.xnjs.io.XnjsStorageInfo;
 import eu.unicore.xnjs.io.impl.Link;
+import eu.unicore.xnjs.resources.IntResource;
 import eu.unicore.xnjs.tsi.AbstractTSITest;
 import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.IReservation;
@@ -323,6 +324,17 @@ public class TestTSI extends RemoteTSITestCase{
 		c.setXlogin(new Xlogin(new String[]{"tst2"}));
 		List<BudgetInfo> details3 = e.getComputeTimeBudget(c);
 		assertTrue( details != details3 );
+	}
+
+	@Test
+	public void testGetPartitions()throws Exception{
+		Execution e=(Execution)xnjs.get(IExecution.class);
+		var partitions = e.getPartitionInfo();
+		assertNotNull(partitions);
+		System.out.println(partitions);
+		assertEquals(1, partitions.size());
+		IntResource i = (IntResource)partitions.iterator().next().getResources().getResource("Nodes");
+		assertEquals(Long.valueOf(4), i.getUpper());
 	}
 
 	@Test

@@ -24,7 +24,7 @@ class BSSBase(object):
 
     def cleanup(self, config):
         """ cleanup child processes """
-        children = config.get('tsi.NOBATCH.children')
+        children = config.get('tsi.child_pids')
         for child in children:
             return_code = child.poll()
             if return_code is not None:
@@ -33,7 +33,8 @@ class BSSBase(object):
     defaults = {
         'tsi.qstat_cmd': 'ps -e -os,args',
         'tsi.abort_cmd': 'SID=$(ps -e -osid,args | grep "nice .* ./UNICORE_Job_%s" | grep -v "grep " | egrep -o "^\s*([0-9]+)" ); pkill -SIGTERM -s $SID',
-        'tsi.get_processes_cmd': 'ps -e'
+        'tsi.get_processes_cmd': 'ps -e',
+        'tsi.get_partitions_cmd': 'echo'
     }
 
     def init(self, config, LOG):
@@ -55,9 +56,9 @@ class BSSBase(object):
                 LOG.error(msg)
                 raise RuntimeError(msg)
         # for storing child process PIDs
-        children = config.get('tsi.NOBATCH.children')
+        children = config.get('tsi.child_pids')
         if children is None:
-            config['tsi.NOBATCH.children'] = []
+            config['tsi.child_pids'] = []
 
     def create_submit_script(self, message, config, LOG):
         """ For batch systems, this method is responsible for 
@@ -133,7 +134,7 @@ class BSSBase(object):
             cmd += u"} & echo $! > %s \n" % pid_file_name
             with open(userjob_file_name, "w") as job:
                 job.write(u"" + cmd)
-            children = config.get('tsi.NOBATCH.children', None)
+            children = config.get('tsi.child_pids', None)
             (success, reply) = Utils.run_command(cmd, True, children)
         else:
             with open(userjob_file_name, "w") as job:
@@ -274,3 +275,22 @@ class BSSBase(object):
         """
         quota = Quota.get_quota(config, LOG)
         connector.ok("%s\n" % quota)
+
+    def parse_partitions(self, raw_info):
+        """ Converts the raw partition info into a dictionary """
+        return {"batch": {"Nodes": 4, "isDefault": "true"}}
+
+    def get_partitions(self, message, connector, config, LOG):
+        cmd = config["tsi.get_partitions_cmd"]
+        (success, output) = Utils.run_command(cmd)
+        if not success:
+            connector.failed(output)
+            return
+        result = self.parse_partitions(output)
+        try:
+            import json
+            out = json.dumps(result)
+        except:
+            out = str(result)
+        connector.ok("%s\n" % out)
+
