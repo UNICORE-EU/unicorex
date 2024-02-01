@@ -43,6 +43,7 @@ import eu.unicore.xnjs.io.impl.Link;
 import eu.unicore.xnjs.resources.IntResource;
 import eu.unicore.xnjs.tsi.AbstractTSITest;
 import eu.unicore.xnjs.tsi.IExecution;
+import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 import eu.unicore.xnjs.tsi.IReservation;
 import eu.unicore.xnjs.tsi.ReservationStatus;
 import eu.unicore.xnjs.tsi.ReservationStatus.Status;
@@ -328,8 +329,7 @@ public class TestTSI extends RemoteTSITestCase{
 
 	@Test
 	public void testGetPartitions()throws Exception{
-		Execution e=(Execution)xnjs.get(IExecution.class);
-		var partitions = e.getPartitionInfo();
+		var partitions = xnjs.get(IExecutionSystemInformation.class).getPartitionInfo();
 		assertNotNull(partitions);
 		System.out.println(partitions);
 		assertEquals(1, partitions.size());

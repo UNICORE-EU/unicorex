@@ -45,10 +45,9 @@ public class ListPartitions implements AdminAction {
 
 	}
 
-	private Collection<Partition> getPartitions(String xnjsReference,  Kernel kernel) throws Exception {
-		IExecutionSystemInformation esi = XNJSFacade.get(xnjsReference, kernel).
-				getXNJS().get(IExecutionSystemInformation.class, true);
-		return esi!=null? esi.getPartitionInfo() : null;
+	private Collection<Partition> getPartitions(String xnjsReference, Kernel kernel) throws Exception {
+		return XNJSFacade.get(xnjsReference, kernel).getXNJS().
+				get(IExecutionSystemInformation.class).getPartitionInfo();
 	}
 
 	@Override
