@@ -4,3 +4,4 @@ eu.unicore.uas.admin.ToggleJobSubmission
 eu.unicore.uas.admin.ShowServerUsageOverview
 eu.unicore.uas.admin.ShowJobDetails
 eu.unicore.uas.admin.AbortJob
+eu.unicore.uas.admin.ListPartitions
