@@ -63,7 +63,15 @@ public class JobClient extends BaseServiceClient {
 		JSONArray l = getProperties().getJSONArray("log");
 		return JSONUtil.toList(l);
 	}
-	
+
+	public String getJobName() throws Exception{
+		return getProperties().optString("name", "n/a");
+	}
+
+	public String getSubmissionTime() throws Exception{
+		return getProperties().optString("submissionTime", "n/a");
+	}
+
 	public StorageClient getWorkingDirectory() throws Exception {
 		String url = getLinkUrl("workingDirectory");
 		Endpoint ep = endpoint.cloneTo(url);

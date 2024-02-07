@@ -124,7 +124,7 @@ public class Applications extends RESTRendererBase {
 		Pair<String,String>nv = getAppNameAndVersion(resourceID);
 		ApplicationInfo appInfo = xnjs.getIDB().getApplication(nv.getM1(),nv.getM2(),client);
 		if(appInfo == null)throw new WebApplicationException(404);
-		Map<String,Object> o = new HashMap<String, Object>();
+		Map<String,Object> o = new HashMap<>();
 		o.put("ApplicationName", appInfo.getName());
 		o.put("ApplicationVersion", appInfo.getVersion());
 		o.put("ApplicationDescription", appInfo.getDescription());
@@ -134,6 +134,6 @@ public class Applications extends RESTRendererBase {
 	
 	private Pair<String,String>getAppNameAndVersion(String appID){
 		String[]t=appID.split(IDBContentRendering.appSeparator);
-		return new Pair<String, String>(t[0],t[1]);
+		return new Pair<>(t[0],t[1]);
 	}
 }
