@@ -13,7 +13,7 @@ import eu.unicore.xnjs.ems.Manager;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
- * builds a JSDL and submits a job to the XNJS, resulting in a batch job  
+ * builds a job and submits it to the XNJS
  * 
  * @author schuller
  */
@@ -29,7 +29,7 @@ public class BatchJobAction extends BaseAction {
 	
 	@Override
 	public void fire(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
-		logger.info("Executing local script as <"+client.getSelectedXloginName()
+		logger.info("Running job as <"+client.getSelectedXloginName()
 			+"> for <"+client.getDistinguishedName()+">");
 		Map<String,String>context = getContext(storage, filePath, client, xnjs);
 		String json=expandVariables(job.toString(), context);

@@ -264,11 +264,11 @@ public class Execution extends BasicExecution {
 		try{		
 			final String bssID=job.getBSID();
 			if(bssID==null){
-				throw new Exception("Status check can't be done: action "+job.getUUID()+" does not have a batch system ID.");
+				throw new Exception("Status check can't be done: action <"+job.getUUID()+"> does not have a batch system ID.");
 			}
 			BSSInfo info = bss.getBSSInfo(bssID);
 			if(info==null) {
-				jobExecLogger.debug("No status info for action {} bssid={}", job.getUUID(), bssID);
+				jobExecLogger.debug("No status info for action <{}> bssid={}", job.getUUID(), bssID);
 				return;
 			}
 			if (hasJobCompleted(job, info)){
@@ -284,7 +284,7 @@ public class Execution extends BasicExecution {
 		final String bssID = job.getBSID();
 		final String jobID = job.getUUID();
 
-		jobExecLogger.debug("Action {} bssid={} is {}", jobID, bssID, info.bssState);
+		jobExecLogger.debug("Action <{}> bssid={} is <{}>", jobID, bssID, info.bssState);
 		if(info.queue!=null){
 			job.getExecutionContext().setBatchQueue(info.queue);
 			job.setDirty();
@@ -562,7 +562,8 @@ public class Execution extends BasicExecution {
 			}
 			bss.putBSSInfo(new BSSInfo(a.getBSID(), a.getUUID(), state));
 		}
-		tsiLog.info("Have <"+ids.size()+"> active jobs, with <"+interactive+"> running on login node(s)");
+		tsiLog.info("Have <{}> active jobs, with <{}> running on login node(s)",
+				ids.size(), interactive);
 		bss.toggleStatusUpdates(true);
 	}
 

@@ -135,7 +135,7 @@ public class LocalTS implements TSI {
 		try{
 			File tFile=makeTarget(target);
 			File sFile=makeTarget(source);
-			logger.debug("rename: "+sFile+"->"+tFile);
+			logger.debug("rename: {}->{}", sFile, tFile);
 			success=sFile.renameTo(tFile);
 		}catch(Exception e) {
 			throw ExecutionException.wrapped(e);
@@ -149,7 +149,7 @@ public class LocalTS implements TSI {
 
 	public void rmdir(String target) throws ExecutionException {
 		File f=makeTarget(target);
-		logger.debug("rmdir: "+f);
+		logger.debug("rmdir: {}", f);
 		_rmdir(f);
 	}
 
@@ -237,7 +237,7 @@ public class LocalTS implements TSI {
 	public void rm(String target) throws ExecutionException {
 		File f=makeTarget(target);
 		try{
-			logger.debug("Delete: "+f);
+			logger.debug("Delete: {}", f);
 			boolean OK=f.delete();
 			if(!OK)throw new IOException("Did not delete file.");
 		}catch(Exception e) {
@@ -256,7 +256,7 @@ public class LocalTS implements TSI {
 	 */
 	public XnjsFile[] ls(String base, int offset, int limit, boolean filter)throws ExecutionException{
 		try{
-			logger.trace("listing "+base);
+			logger.debug("listing {}", base);
 			File dir=makeTarget(base);
 			if(!dir.isDirectory())throw new IOException("Not a directory.");
 			File fs[]=dir.listFiles();

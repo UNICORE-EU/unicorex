@@ -188,6 +188,7 @@ public class RuleFactory {
 		else if("LOCAL".equals(type))return makeLocalAction(json);
 		else if("BATCH".equals(type))return makeBatchAction(json);
 		else if("EXTRACT".equals(type))return makeExtractAction(json);
+		else if("NOTIFY".equals(type))return makeNotifyAction(json);
 		return null;
 	}
 	
@@ -200,21 +201,22 @@ public class RuleFactory {
 		if(stdout!=null)la.setStdout(stdout);
 		String stderr=json.optString("Stderr", null);
 		if(stderr!=null)la.setStderr(stderr);
-		
 		return la;
 	}
 	
 	
 	protected Action makeBatchAction(JSONObject json)throws JSONException{
 		JSONObject job=json.getJSONObject("Job");
-		BatchJobAction ba=new BatchJobAction(job);
-		return ba;
+		return new BatchJobAction(job);
 	}
-	
+
 	protected Action makeExtractAction(JSONObject json)throws JSONException{
 		JSONObject settings=json.optJSONObject("Settings");
-		ExtractMetadataAction ema=new ExtractMetadataAction(settings, uniqueStorageID);
-		return ema;
+		return new ExtractMetadataAction(settings, uniqueStorageID);
+	}
+
+	protected Action makeNotifyAction(JSONObject json)throws JSONException{
+		return new NotificationAction(json.getString("URL"));
 	}
 	
 	private static final NOOP noop=new NOOP();

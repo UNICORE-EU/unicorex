@@ -162,7 +162,7 @@ public class FTSProcessor extends DefaultProcessor {
 			if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
 			Iterator<FTSTransferInfo>iter = ftList.iterator();
 			int running = info.getRunningTransfers();
-			logger.trace("RUNNING {} have {}", action.getUUID(), ftList.size());
+			logger.trace("RUNNING <{}> have <{}>", action.getUUID(), ftList.size());
 			while(iter.hasNext()){
 				try {
 					FTSTransferInfo ftInfo = iter.next();

@@ -41,7 +41,7 @@ public class ExtractMetadataAction extends BaseAction implements MultiFileAction
 
 	@Override
 	public void fire(IStorageAdapter storage, List<String> files, Client client, XNJS xnjs) throws Exception{
-		logger.info("Executing local script for <"+client.getDistinguishedName()+">");
+		logger.info("Executing local script for <{}>", client.getDistinguishedName());
 		Kernel kernel = xnjs.get(Kernel.class);
 		MetadataManager mm = MetadataSupport.getManager(kernel, storage, storageID);
 		mm.startAutoMetadataExtraction(files, null);

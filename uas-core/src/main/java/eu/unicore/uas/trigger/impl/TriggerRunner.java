@@ -57,7 +57,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 			r.begin();
 		}
 
-		Map<MultiFileAction, List<String>>multifile=new HashMap<MultiFileAction, List<String>>();
+		Map<MultiFileAction, List<String>>multifile = new HashMap<>();
 
 		for(XnjsFile file: files){
 			String path=file.getPath();
@@ -71,7 +71,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 						if(a instanceof MultiFileAction){
 							MultiFileAction ma=(MultiFileAction)a;
 							List<String>files=multifile.get(ma);
-							if(files==null)files=new ArrayList<String>();
+							if(files==null)files = new ArrayList<>();
 							files.add(path);
 							multifile.put(ma, files);
 						}

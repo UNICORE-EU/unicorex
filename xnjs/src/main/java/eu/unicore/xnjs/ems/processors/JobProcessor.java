@@ -933,7 +933,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		deleteFiles();
 		action.addLogTrace(getTimeProfile(action.getProcessingContext()));
 		updateQueuedStats(action.getProcessingContext());
-		logger.info("Action {} SUCCESSFUL.", action.getUUID());
+		logger.info("Action <{}> SUCCESSFUL.", action.getUUID());
 	}
 
 	@Override
@@ -941,7 +941,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		super.setToDoneAndFailed(reason);
 		action.addLogTrace("Status set to DONE - failure.");
 		updateQueuedStats(action.getProcessingContext());
-		logger.info("Action {} FAILED{}", action.getUUID(),(reason!=null?": "+reason:"."));
+		logger.info("Action <{}> FAILED{}", action.getUUID(),(reason!=null?": "+reason:"."));
 	}
 
 	/**

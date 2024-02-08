@@ -64,7 +64,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		JobInitParameters initParams = (JobInitParameters) init;
 		Action action=(Action)initParams.action;
 		Client client = AuthZAttributeStore.getClient();
-		logger.info("New job with id {} for client {}", action.getUUID(), client);
+		logger.info("New job with id <{}> for <{}>", action.getUUID(), client.getDistinguishedName());
 		m.setParentUID(initParams.parentUUID);
 		m.setParentServiceName(UAS.TSS);
 		if(initParams.autostart){

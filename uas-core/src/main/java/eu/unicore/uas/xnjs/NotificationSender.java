@@ -1,12 +1,8 @@
 package eu.unicore.uas.xnjs;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
 
 import org.json.JSONObject;
 
@@ -21,6 +17,8 @@ import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.event.INotificationSender;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class NotificationSender implements INotificationSender {
@@ -39,7 +37,7 @@ public class NotificationSender implements INotificationSender {
 		List<String>urls = action.getNotificationURLs();
 		for(String url: urls) {
 			try{
-				doSend(url, msg, action.getClient(), action);
+				doSend(url, msg, action.getClient());
 				action.addLogTrace("Notified <"+url+">");
 			}catch(Exception ex) {
 				action.addLogTrace(Log.createFaultMessage("Could not notify <"+url+">", ex));
@@ -47,20 +45,17 @@ public class NotificationSender implements INotificationSender {
 		}
 	}
 
-	protected void doSend(final String url, final JSONObject message, final Client client, final Action action)
+	protected void doSend(final String url, final JSONObject message, final Client client)
 			throws Exception {
 		final IClientConfiguration security = kernel.getClientConfiguration();
 		final IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(),
 				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()),
 					client.getDistinguishedName());
-		Callable<String> task = new Callable<>() {
-			@Override
-			public String call() throws Exception {
-				new BaseClient(url, security, auth).postQuietly(message);
-				return "OK";
-			}
-		};
-		String res = new TimeoutRunner<String>(task, kernel.getContainerProperties().getThreadingServices(), 10, TimeUnit.SECONDS).call();
+		String res = new TimeoutRunner<String>( ()->{
+						new BaseClient(url, security, auth).postQuietly(message);
+						return "OK";
+					},
+				kernel.getContainerProperties().getThreadingServices(), 10, TimeUnit.SECONDS).call();
 		if(res==null)throw new TimeoutException();
 	}
 	

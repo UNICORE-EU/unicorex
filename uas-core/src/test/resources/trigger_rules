@@ -44,6 +44,17 @@
          "Stdout": "${UC_FILE_NAME}.md5"
        }
     }
+  },
+  
+    {
+    "Name": "sendNotification",
+    "Match": ".*\\.txt",
+    "Action": 
+    {
+       "Type": "NOTIFY",
+       "URL": "http://localhost:65321/rest/notification",
+       "Settings": { "ref": "test123" }
+    }
   }
    
  ]

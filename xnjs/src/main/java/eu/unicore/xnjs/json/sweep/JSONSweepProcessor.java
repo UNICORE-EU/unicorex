@@ -187,7 +187,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 				String id=it.next();
 				Action a=manager.getAction(id);
 				if(a==null || ActionStatus.DONE==a.getStatus()){
-					if(a!=null)action.addLogTrace("Sweep instance "+a.getUUID()+" is DONE.");
+					if(a!=null)action.addLogTrace("Sweep instance <"+a.getUUID()+"> is DONE.");
 					it.remove();
 				}
 			}
@@ -199,7 +199,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 			action.addLogTrace("All sweep jobs done");
 			action.setStatus(ActionStatus.DONE);
 			action.setResult(new ActionResult(ActionResult.SUCCESSFUL,"Success.", 0));
-			logger.info("Action {} SUCCESSFUL.", action.getUUID());
+			logger.info("Action <{}> SUCCESSFUL.", action.getUUID());
 		}
 		else{
 			//if we still have some running sweep instances, reduce CPU load

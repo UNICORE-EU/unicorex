@@ -1,11 +1,14 @@
 package eu.unicore.uas.trigger.impl;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URI;
 
+import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,6 +17,7 @@ import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
 import eu.unicore.uas.Base;
+import eu.unicore.uas.notification.Notifications;
 import eu.unicore.uas.trigger.xnjs.TriggerProcessor;
 import eu.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.xnjs.XNJS;
@@ -60,6 +64,13 @@ public class TestDirectoryScan extends Base {
 		// check the expected outfile is there
 		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
 		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
+		
+		
+		assertTrue(Notifications.notifications.size()>0);
+		System.out.println("Notifications:");
+		for(JSONObject n: Notifications.notifications) {
+			System.out.println(n.toString(2));
+		}
 	}
 	
 	

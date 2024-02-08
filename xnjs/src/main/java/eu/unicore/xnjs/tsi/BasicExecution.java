@@ -345,7 +345,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			String s=br.readLine();
 			if(s!=null){
 				Float f=Float.parseFloat(s);
-				jobExecLogger.info("Found progress value <{}> for job {}", f, job.getUUID());
+				jobExecLogger.info("Found progress value <{}> for job <{}>", f, job.getUUID());
 				job.getExecutionContext().setProgress(f);
 				job.setDirty();
 			}
@@ -360,7 +360,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 		}catch(NumberFormatException nfe){
 			//progress file exists but weird value
-			jobExecLogger.warn("Application wrote faulty progress file for action {}", job.getUUID());
+			jobExecLogger.warn("Application wrote faulty progress file for action <{}>", job.getUUID());
 		}catch(IOException e){
 			//no progress file written	
 		}

@@ -13,8 +13,8 @@ import eu.unicore.client.core.SiteClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
 import eu.unicore.uas.SecuredBase;
+import eu.unicore.uas.notification.Notifications;
 
-// TODO needs improvement
 public class TestNotifications extends SecuredBase {
 
 	@Test
@@ -26,7 +26,7 @@ public class TestNotifications extends SecuredBase {
 		
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
-		String notificationURL = kernel.getContainerProperties().getContainerURL()+"/rest/foo";
+		String notificationURL = kernel.getContainerProperties().getContainerURL()+"/rest/notification";
 		task.put("Notification", notificationURL);
 		JobClient job = site.submitJob(task);
 		
@@ -53,6 +53,12 @@ public class TestNotifications extends SecuredBase {
 		}
 		System.out.println(job.getProperties().toString(2));
 		assertTrue(job.getProperties().toString().contains(notificationURL));
+		
+		assertTrue(Notifications.notifications.size()>0);
+		System.out.println("Notifications:");
+		for(JSONObject n: Notifications.notifications) {
+			System.out.println(n.toString(2));
+		}
 	}
 
 }
