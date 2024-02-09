@@ -12,7 +12,7 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  *
  * @author schuller
  */
-public interface MultiFileAction extends Action {
+public interface MultiFileTriggeredAction extends TriggeredAction {
 
 	/**
 	 * 

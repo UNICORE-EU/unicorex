@@ -25,7 +25,6 @@ import eu.unicore.uas.util.LogUtil;
  * 
  * @author schuller
  * @author daivandy
- * @since 6.3
  */
 public class StorageFactoryImpl extends BaseResourceImpl {
 
@@ -88,7 +87,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		//choose default backend type. If there is only one, or if there is one
 		//named "DEFAULT", it is used. Otherwise, an exception is thrown.
 		if(storageBackendType == null){
-			List<String>types=new ArrayList<String>();
+			List<String>types = new ArrayList<>();
 			types.addAll(factories.keySet());
 			if(types.contains("DEFAULT")){
 				storageBackendType="DEFAULT";

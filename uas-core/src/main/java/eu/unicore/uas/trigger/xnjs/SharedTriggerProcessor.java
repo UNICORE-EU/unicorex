@@ -121,7 +121,7 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 			RuleSet rules=rf.getRules(dir);
 			XnjsFile[]files=findFiles(settings, dir,client);
 			if(files.length>0){
-				TriggerRunner tr=new TriggerRunner(files, rules, storage, client, xnjs);
+				TriggerRunner tr=new TriggerRunner(files, rules, storage, client, xnjs, TriggerProcessor.logDirectory);
 				logger.debug("Executing trigger run on <{}> files.", files.length);	
 				getKernel().getContainerProperties().getThreadingServices().getExecutorService().submit(tr);
 			}

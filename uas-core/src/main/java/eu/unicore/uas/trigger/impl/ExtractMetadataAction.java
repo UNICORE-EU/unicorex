@@ -10,7 +10,7 @@ import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.metadata.MetadataManager;
 import eu.unicore.uas.metadata.MetadataSupport;
-import eu.unicore.uas.trigger.MultiFileAction;
+import eu.unicore.uas.trigger.MultiFileTriggeredAction;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.IStorageAdapter;
@@ -20,7 +20,7 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * 
  * @author schuller
  */
-public class ExtractMetadataAction extends BaseAction implements MultiFileAction {
+public class ExtractMetadataAction extends BaseAction implements MultiFileTriggeredAction {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, ExtractMetadataAction.class);
 
@@ -35,7 +35,7 @@ public class ExtractMetadataAction extends BaseAction implements MultiFileAction
 	}
 	
 	@Override
-	public void fire(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
+	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
 		fire(storage,Collections.singletonList(filePath), client, xnjs);
 	}
 

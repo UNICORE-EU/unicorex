@@ -28,7 +28,7 @@ public class BatchJobAction extends BaseAction {
 	}
 	
 	@Override
-	public void fire(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
+	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
 		logger.info("Running job as <"+client.getSelectedXloginName()
 			+"> for <"+client.getDistinguishedName()+">");
 		Map<String,String>context = getContext(storage, filePath, client, xnjs);

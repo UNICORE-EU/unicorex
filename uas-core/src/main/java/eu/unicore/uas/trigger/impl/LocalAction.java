@@ -5,7 +5,7 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
-import eu.unicore.uas.trigger.Action;
+import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.IStorageAdapter;
@@ -31,12 +31,12 @@ public class LocalAction extends BaseAction {
 	}
 	
 	@Override
-	public void fire(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
+	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
 		logger.info("Executing local script as <"+client.getSelectedXloginName()
 				+"> for <"+client.getDistinguishedName()+">");
 		
 		Map<String,String>context=getContext(storage, filePath, client, xnjs);
-		String workDir=context.get(Action.CURRENT_DIR);
+		String workDir=context.get(TriggeredAction.CURRENT_DIR);
 		
 		AsyncCommandHelper ach=new AsyncCommandHelper(xnjs, 
 				expandVariables(script,context), 

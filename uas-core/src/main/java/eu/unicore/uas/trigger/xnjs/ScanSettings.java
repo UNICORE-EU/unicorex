@@ -39,6 +39,8 @@ public class ScanSettings implements Serializable {
 	
 	public boolean sharedStorageMode = false;
 	
+	public boolean enableLogging = true;
+
 	public String toString(){
 		return "Scan for storage " + storageUID + " (shared="+sharedStorageMode+")"+
 				" enabled=" + enabled +

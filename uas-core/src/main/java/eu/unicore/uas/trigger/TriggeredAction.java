@@ -6,11 +6,11 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
  * 
- * An Action is executed by the triggering framework on a matching file
+ * A TriggeredAction is executed by the triggering framework on a matching file
  *
  * @author schuller
  */
-public interface Action {
+public interface TriggeredAction {
 
 	public static final String FILE_NAME="UC_FILE_NAME";
 	
@@ -21,12 +21,13 @@ public interface Action {
 	public static final String BASE_DIR="UC_BASE_DIR";
 	
 	/**
-	 * 
+	 * run the action
+	 *
 	 * @param storage - the parent storage
 	 * @param filePath - the file path
 	 * @param client - the user
 	 * @param xnjsConfig - the XNJS for executing things
 	 */
-	public void fire(IStorageAdapter storage, String filePath, Client client, XNJS xnjsConfig) throws Exception;
+	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjsConfig) throws Exception;
 	
 }

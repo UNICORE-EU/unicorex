@@ -3,16 +3,20 @@ package eu.unicore.uas.trigger.impl;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.FileList;
+import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
@@ -65,11 +69,19 @@ public class TestDirectoryScan extends Base {
 		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
 		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
 		
-		
+		// check notifications were sent
 		assertTrue(Notifications.notifications.size()>0);
 		System.out.println("Notifications:");
 		for(JSONObject n: Notifications.notifications) {
 			System.out.println(n.toString(2));
+		}
+		
+		// check logfile(s)
+		FileList logfiles = sms.ls(TriggerProcessor.logDirectory);
+		List<FileListEntry> fList = logfiles.list();
+		assertTrue(fList.size()>0);
+		for(FileListEntry e: logfiles.list()) {
+			System.out.println(e);
 		}
 	}
 	
@@ -117,6 +129,24 @@ public class TestDirectoryScan extends Base {
 		// check the expected outfile is there
 		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
 		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
+
+		// check notifications were sent
+		assertTrue(Notifications.notifications.size()>0);
+		System.out.println("Notifications:");
+		for(JSONObject n: Notifications.notifications) {
+			System.out.println(n.toString(2));
+		}
+
+		// check logfile(s)
+		FileList logfiles = sms.ls(TriggerProcessor.logDirectory);
+		for(FileListEntry e: logfiles.list()) {
+			System.out.println(e);
+			if(e.size>0) {
+				ByteArrayOutputStream os = new ByteArrayOutputStream();
+				sms.download(e.path).readAllData(os);
+				System.out.println("Trigger run log\n***************\n\n"+os.toString("UTF-8"));
+			}
+		}
 	}
 	
 	private boolean hasRun(XNJS xnjs, String actionID)throws Exception{

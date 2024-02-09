@@ -1,6 +1,9 @@
 package eu.unicore.uas.trigger.impl;
 
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +12,8 @@ import java.util.concurrent.Callable;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
-import eu.unicore.uas.trigger.Action;
-import eu.unicore.uas.trigger.MultiFileAction;
+import eu.unicore.uas.trigger.TriggeredAction;
+import eu.unicore.uas.trigger.MultiFileTriggeredAction;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.util.LogUtil;
@@ -34,68 +37,80 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 
 	private final XNJS xnjs;
 
+	private final String logDirectory;
 
-	public TriggerRunner(XnjsFile[] files, RuleSet rules, IStorageAdapter storage, Client client, XNJS xnjs){
+	public TriggerRunner(XnjsFile[] files, RuleSet rules, IStorageAdapter storage, Client client, XNJS xnjs, String logDirectory){
 		this.files=files;
 		this.rules=rules;
 		this.storage=storage;
 		this.client=client;
 		this.xnjs=xnjs;
+		this.logDirectory = logDirectory;
 	}
 
 	/**
 	 * checks all files and (sequentially) invoke all the matching rules
-	 * TODO bunching/chunking?!
 	 */
 	@Override
 	public TriggerStatistics call() {
-		TriggerStatistics ts=new TriggerStatistics();
-
+		TriggerStatistics ts = new TriggerStatistics();
+		boolean logging = logDirectory!=null;
+		
+		List<String>log = new ArrayList<>();
+		
 		long time=System.currentTimeMillis();
 
 		for(Rule r: rules){
 			r.begin();
 		}
 
-		Map<MultiFileAction, List<String>>multifile = new HashMap<>();
+		Map<MultiFileTriggeredAction, List<String>>multifile = new HashMap<>();
 
 		for(XnjsFile file: files){
 			String path=file.getPath();
+			if(logging && path.startsWith(logDirectory)){
+				// be paranoid and skip it
+				continue;
+			}
 			boolean match=false;
 			for(Rule r: rules){
 				try{
 					if(r.matches(path, this)){
 						match=true;
 						ts.ruleInvoked(r.getName());
-						Action a=r.getAction();
-						if(a instanceof MultiFileAction){
-							MultiFileAction ma=(MultiFileAction)a;
+						TriggeredAction a=r.getAction();
+						if(a instanceof MultiFileTriggeredAction){
+							MultiFileTriggeredAction ma=(MultiFileTriggeredAction)a;
 							List<String>files=multifile.get(ma);
 							if(files==null)files = new ArrayList<>();
 							files.add(path);
 							multifile.put(ma, files);
 						}
 						else{
-							a.fire(storage, path, client, xnjs);	
+							a.run(storage, path, client, xnjs);	
 						}
 						if(logger.isDebugEnabled()){
-							logger.debug("Firing <"+r+"> on <"+path+"> for "+client.getDistinguishedName());
+							logger.debug("Running <"+r+"> on <"+path+"> for "+client.getDistinguishedName());
 						}
+						if(logging)log.add("Running <"+r+"> on <"+path+">");
 					}
 				}catch(Exception ex){
-					Log.logException("Error firing <"+r+"> on <"+path+"> for "+client.getDistinguishedName(), ex, logger);
+					Log.logException("Error running <"+r+"> on <"+path+"> for "+client.getDistinguishedName(), ex, logger);
+					if(logging)log.add(Log.createFaultMessage("ERROR running <"+r+"> on <"+path+">", ex));
 				}
 			}
 			if(match)ts.incrementNumberOfFiles();
 		}
 		// run multifile actions
-		for(Map.Entry<MultiFileAction, List<String>> e: multifile.entrySet()){
-			MultiFileAction ma = e.getKey();
+		for(Map.Entry<MultiFileTriggeredAction, List<String>> e: multifile.entrySet()){
+			MultiFileTriggeredAction ma = e.getKey();
 			List<String> files = e.getValue();
 			try{
+				if(logging)log.add("Running <"+ma+"> on <"+files+">");
 				ma.fire(storage, files, client, xnjs);
 			}catch(Exception ex){
-				Log.logException("Error firing <"+ma+"> for "+client.getDistinguishedName() , ex, logger);
+				Log.logException("Error running <"+ma+"> for "+client.getDistinguishedName() , ex, logger);
+				if(logging)log.add(Log.createFaultMessage("ERROR running <"+ma+"> on <"+files+">", ex));
 			}
 		}
 
@@ -105,9 +120,16 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 		time=System.currentTimeMillis()-time;
 		ts.setDuration(time);
 
-		logger.debug("Finished trigger run for client <"+client.getDistinguishedName()+"> "+ts.toString());
-		if(usage.isInfoEnabled() && ts.getNumberOfFiles()>0){
-			usage.info("Finished trigger run for client <"+client.getDistinguishedName()+"> "+ts.toString());
+		logger.debug("Finished trigger run for client <"+client.getDistinguishedName()+">. "+ts.toString());
+		if(ts.getNumberOfFiles()>0){
+			usage.info("Finished trigger run for client <{}>. {}", client.getDistinguishedName(), ts);
+			log.add("Finished trigger run. "+ts);
+		}
+		try{
+			if(logging)
+				storeLog(log);
+		}catch(Exception e) {
+			Log.logException("Error storing trigger run log for "+client.getDistinguishedName(), e, logger);
 		}
 		return ts;
 	}
@@ -124,6 +146,17 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 		return xnjs;
 	}
 
-
+	private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+	
+	private void storeLog(List<String>log) throws Exception {
+		if(log.size()==0)return;
+		storage.mkdir(logDirectory);
+		String fName = logDirectory+"/"+"run-"+df.format(new Date())+".log";
+		try(OutputStreamWriter os = new OutputStreamWriter(storage.getOutputStream(fName))) {
+			for(String l: log) {
+				os.write(l+"\n");
+			}
+		}
+	}
 
 }

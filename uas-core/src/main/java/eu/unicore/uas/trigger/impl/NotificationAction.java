@@ -16,7 +16,7 @@ import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
 import eu.unicore.services.utils.TimeoutRunner;
-import eu.unicore.uas.trigger.MultiFileAction;
+import eu.unicore.uas.trigger.MultiFileTriggeredAction;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.xnjs.XNJS;
@@ -27,7 +27,7 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * 
  * @author schuller
  */
-public class NotificationAction extends BaseAction implements MultiFileAction {
+public class NotificationAction extends BaseAction implements MultiFileTriggeredAction {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, NotificationAction.class);
 
@@ -38,7 +38,7 @@ public class NotificationAction extends BaseAction implements MultiFileAction {
 	}
 	
 	@Override
-	public void fire(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
+	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
 		fire(storage,Collections.singletonList(filePath), client, xnjs);
 	}
 

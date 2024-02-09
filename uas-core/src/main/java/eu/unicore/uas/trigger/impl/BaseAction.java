@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.unicore.security.Client;
-import eu.unicore.uas.trigger.Action;
+import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
@@ -14,16 +14,16 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * 
  * @author schuller
  */
-public abstract class BaseAction implements Action {
+public abstract class BaseAction implements TriggeredAction {
 
 	protected Map<String,String> getContext(IStorageAdapter storage, String filePath, Client client, XNJS xnjs){
 		Map<String,String>context=new HashMap<String, String>();
 		File f=new File(filePath);
-		context.put(Action.FILE_NAME, f.getName());
+		context.put(TriggeredAction.FILE_NAME, f.getName());
 		String parent=storage.getStorageRoot()+"/"+(f.getParent()!=null?f.getParent():".")+"/";
-		context.put(Action.CURRENT_DIR, parent);
-		context.put(Action.FILE_PATH, parent+f.getName());
-		context.put(Action.BASE_DIR, storage.getStorageRoot());
+		context.put(TriggeredAction.CURRENT_DIR, parent);
+		context.put(TriggeredAction.FILE_PATH, parent+f.getName());
+		context.put(TriggeredAction.BASE_DIR, storage.getStorageRoot());
 		return context;
 	}
 	

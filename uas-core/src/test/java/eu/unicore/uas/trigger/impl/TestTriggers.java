@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -72,7 +74,7 @@ public class TestTriggers {
 		ctx.put("UC_FILE_NAME","replaced.txt");
 		json = new BaseAction() {
 			@Override
-			public void fire(IStorageAdapter storage, String filePath, Client client,
+			public void run(IStorageAdapter storage, String filePath, Client client,
 					XNJS xnjs) throws Exception {
 			}
 		}.expandVariables(json, ctx);
@@ -82,4 +84,8 @@ public class TestTriggers {
 		assertTrue(json.contains("replaced.txt"));
 	}
 
+	@Test
+	public void testLog() throws Exception {
+		System.out.println(new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss").format(new Date()));
+	}
 }

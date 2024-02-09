@@ -86,7 +86,7 @@ public class TriggerProcessor extends DefaultProcessor {
 					RuleSet rules=rf.getRules(sad.baseDirectory);
 					XnjsFile[]files=findFiles(sad.baseDirectory);
 					if(files.length>0){
-						TriggerRunner tr=new TriggerRunner(files, rules, getStorageAdapter(), action.getClient(), xnjs);
+						TriggerRunner tr = new TriggerRunner(files, rules, getStorageAdapter(), action.getClient(), xnjs, logDirectory);
 						getKernel().getContainerProperties().getThreadingServices().getExecutorService().submit(tr);
 						logger.debug("Executing trigger run on <{}> files.", files.length);	
 					}
@@ -241,7 +241,7 @@ public class TriggerProcessor extends DefaultProcessor {
 		return res;
 	}
 
-	private Map<String, Pattern>patterns=new HashMap<String, Pattern>();
+	private Map<String, Pattern>patterns=new HashMap<>();
 
 	private Pattern getPattern(String expr){
 		Pattern p=patterns.get(expr);
@@ -251,5 +251,7 @@ public class TriggerProcessor extends DefaultProcessor {
 		}
 		return p;
 	}
+	
+	public static final String logDirectory = ".UNICORE_data_processing";
 
 }

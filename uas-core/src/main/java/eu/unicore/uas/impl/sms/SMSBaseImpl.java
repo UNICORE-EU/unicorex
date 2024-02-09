@@ -47,7 +47,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, SMSBaseImpl.class);
 
 	/**
-	 * the maximum number of results to return in a single ListDirectory() opeSMSBaseImplration
+	 * the maximum number of results to return in a single getListing() operation
 	 */
 	public static final int MAX_LS_RESULTS = 10000;
 
@@ -79,7 +79,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		
 		model.umask = init.storageDescription.getDefaultUmask();
 		
-		//factory ID
+		// we get a factory ID if this instance was created
+		// via a StorageFactory
 		String storageFactoryID=init.factoryID;
 		if(storageFactoryID != null){
 			model.setParentUID(storageFactoryID);
@@ -93,9 +94,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	
 	public void copy(String source, String target) throws Exception {
 		source = makeSMSLocal(source);
-		target=makeSMSLocal(target);
-		IStorageAdapter tsi=getStorageAdapter();
-		tsi.cp(source, target);
+		target = makeSMSLocal(target);
+		getStorageAdapter().cp(source, target);
 		MetadataManager mm = getMetadataManager();
 		if(mm != null){
 			mm.copyResourceMetadata(source, target);
@@ -111,8 +111,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	
 	public void mkdir(String path) throws Exception {
 		path = makeSMSLocal(path);
-		IStorageAdapter tsi=getStorageAdapter();
-		tsi.mkdir(path);
+		getStorageAdapter().mkdir(path);
 	}
 
 	public void doDelete(String... paths) throws Exception {
@@ -164,7 +163,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		init.target = target;
 		init.source = source;
 		init.isExport = isExport;
-		
 		if(extraParameters!=null){
 			init.extraParameters.putAll(extraParameters);
 		}
@@ -172,9 +170,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	}
 	
 	/**
-	 * creates server-server transfer. Common things (like security info) will be added to 
-	 * the initParameter map.<br/>
-	 * Side effect: the EPR is added to the relevant resource property
+	 * creates server-server transfer instance
+	 *
 	 * @param init - basic parameters 
 	 * @return UUID of the new transfer resource
 	 * @throws Exception
@@ -190,13 +187,12 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	
 	public void rename(String source, String target) throws Exception {
 		source = makeSMSLocal(source);
-		target=makeSMSLocal(target);
+		target = makeSMSLocal(target);
 		MetadataManager mm = getMetadataManager();
 		if(mm != null){
 			mm.renameResource(source, target);
 		}
-		IStorageAdapter tsi=getStorageAdapter();
-		tsi.rename(source, target);
+		getStorageAdapter().rename(source, target);
 	}
 
 	/**
@@ -209,8 +205,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @throws ExecutionException
 	 */
 	public XnjsFile[] getListing(String path, int offset, int limit, boolean filter)throws Exception{
-		IStorageAdapter tsi=getStorageAdapter();
-		return tsi.ls(path,offset,limit,filter);
+		return getStorageAdapter().ls(path,offset,limit,filter);
 	}
 
 	/**
@@ -221,8 +216,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @throws Exception in case of problems performing the request
 	 */
 	public XnjsFileWithACL getProperties(String path)throws Exception{
-		IStorageAdapter tsi=getStorageAdapter();
-		return tsi.getProperties(path);
+		return getStorageAdapter().getProperties(path);
 	}
 
 	/**
@@ -241,13 +235,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		return res;
 	}
 
-	/**
-	 * resource-specific destruction: cleanup instances of metadata and enumeration instances  
-	 */
 	@Override
 	public void destroy() {
 		SMSModel model = getModel();
-		
 		String storageFactoryID = model.getParentUID();
 		if(storageFactoryID!=null){
 			try{
@@ -258,20 +248,17 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			}
 			catch(Exception e){}
 		}
-		
 		String scanUID = model.getDirectoryScanUID();
 		if(scanUID != null){
 			try{
 				getXNJSFacade().destroyAction(scanUID, getClient());
 			}catch(Exception ex){}
 		}
-		
 		if (model.storageDescription.isCleanupOnDestroy()) {
 			try{
 				getStorageAdapter().rmdir("/");
 			}catch(Exception ex){}
 		}
-
 		super.destroy();
 	}
 
@@ -312,7 +299,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @return UID of the new filetransfer resource
 	 * @throws Exception
 	 */
-	public String createFileExport(String file, String protocol,Map<String,String>extraParameters)
+	public String createFileExport(String file, String protocol, Map<String,String>extraParameters)
 			throws Exception {
 		FiletransferInitParameters init = new FiletransferInitParameters();
 		String source=makeSMSLocal(file);
@@ -334,11 +321,11 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 
 
 	/**
-	 * create new client-server FileTransfer resource and return its EPR
+	 * create new client-server FileTransfer resource and return its UUID
 	 * 
 	 * @param initParam - the initialisation parameters
 	 * @param protocol - the protocol to use
-	 * @return EPR
+	 * @return UUID
 	 */
 	private String createFileTransfer(FiletransferInitParameters initParam, String protocol)
 			throws Exception{
@@ -455,7 +442,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			if(!"user".equals(scanClient.getRole().getName())){
 				String userID = getModel().storageDescription.getSharedTriggerUser();
 				if(userID == null){
-					logger.warn("No user ID configured for data triggering on shared storage <"+getUniqueID()+">");
+					logger.warn("No user ID configured for data triggering on shared storage <{}>", getUniqueID());
 					return;
 				}
 				scanClient = new Client();
@@ -465,9 +452,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			}
 			SetupDirectoryScan sds=new SetupDirectoryScan(scanSettings, 
 					scanClient, getXNJSFacade().getXNJS());
-			
 			String uid = sds.call();
-			logger.info("Have directory scan "+uid+" for <"+getClient().getDistinguishedName()+">");
+			logger.info("Have directory scan <{}> for <{}>", uid, getClient().getDistinguishedName());
 			getModel().setDirectoryScanUID(uid);
 		}
 	}
@@ -492,12 +478,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 
 
 	protected void setNormalAndDefACL(String gid, String aclSpec) throws Exception {
-		IStorageAdapter storage = getStorageAdapter();
-
 		ChangeACL change = new ChangeACL(Type.GROUP, gid, aclSpec, false, ACLChangeMode.MODIFY);
 		ChangeACL change2 = new ChangeACL(Type.GROUP, gid, aclSpec, true, ACLChangeMode.MODIFY);
-
-		storage.setfacl(getStorageRoot(), false, new ChangeACL[] {change, change2}, true);
+		getStorageAdapter().setfacl(getStorageRoot(), false, new ChangeACL[] {change, change2}, true);
 	}
 
 	/**

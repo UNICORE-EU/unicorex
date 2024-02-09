@@ -11,11 +11,7 @@ public class TriggerStatistics {
 	
 	private final AtomicInteger numberOfFiles = new AtomicInteger();
 	
-	private final Set<String> rulesInvoked = new HashSet<String>();
-	
-	public TriggerStatistics(){
-		
-	}
+	private final Set<String> rulesInvoked = new HashSet<>();
 
 	public long getDuration() {
 		return duration;

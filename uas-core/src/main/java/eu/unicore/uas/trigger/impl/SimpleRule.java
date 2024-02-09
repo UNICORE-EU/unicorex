@@ -1,6 +1,6 @@
 package eu.unicore.uas.trigger.impl;
 
-import eu.unicore.uas.trigger.Action;
+import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.trigger.Rule;
 
 /**
@@ -11,9 +11,9 @@ public class SimpleRule implements Rule {
 
 	private final String name; 
 	private final String match;
-	private final Action action;
+	private final TriggeredAction action;
 	
-	public SimpleRule(String name, String match, Action action){
+	public SimpleRule(String name, String match, TriggeredAction action){
 		this.match=match;
 		this.name=name;
 		this.action=action;
@@ -25,7 +25,7 @@ public class SimpleRule implements Rule {
 	}
 
 	@Override
-	public Action getAction() {
+	public TriggeredAction getAction() {
 		return action;
 	}
 

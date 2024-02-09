@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 import eu.unicore.security.Client;
 import eu.unicore.uas.json.JSONUtil;
-import eu.unicore.uas.trigger.Action;
+import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.trigger.xnjs.ScanSettings;
@@ -43,6 +43,8 @@ public class RuleFactory {
 	public static final String MAXDEPTH="MaxDepth";
 	
 	public static final String ENABLED="Enabled";
+	
+	public static final String LOGGING="Logging";
 	
 	private final IStorageAdapter storage;
 	
@@ -161,6 +163,9 @@ public class RuleFactory {
 		String enabled=json.optString(ENABLED, "true");
 		settings.enabled=Boolean.parseBoolean(enabled);
 		
+		String logging=json.optString(LOGGING, "true");
+		settings.enableLogging=Boolean.parseBoolean(logging);
+		
 		return settings;
 	}
 	
@@ -177,12 +182,12 @@ public class RuleFactory {
 	protected Rule makeRule(JSONObject json)throws JSONException{
 		String name=json.optString("Name", "<unnamed>");
 		String match=json.getString("Match");
-		Action action=makeAction(json.getJSONObject("Action"));
+		TriggeredAction action=makeAction(json.getJSONObject("Action"));
 		SimpleRule r=new SimpleRule(name, match, action);
 		return r;
 	}
 	
-	protected Action makeAction(JSONObject json)throws JSONException{
+	protected TriggeredAction makeAction(JSONObject json)throws JSONException{
 		String type=json.getString("Type");
 		if("NOOP".equals(type))return noop;
 		else if("LOCAL".equals(type))return makeLocalAction(json);
@@ -192,7 +197,7 @@ public class RuleFactory {
 		return null;
 	}
 	
-	protected Action makeLocalAction(JSONObject json)throws JSONException{
+	protected TriggeredAction makeLocalAction(JSONObject json)throws JSONException{
 		String script=json.getString("Command");
 		LocalAction la=new LocalAction(script);
 		String outDir=json.optString("Outcome", null);
@@ -205,26 +210,26 @@ public class RuleFactory {
 	}
 	
 	
-	protected Action makeBatchAction(JSONObject json)throws JSONException{
+	protected TriggeredAction makeBatchAction(JSONObject json)throws JSONException{
 		JSONObject job=json.getJSONObject("Job");
 		return new BatchJobAction(job);
 	}
 
-	protected Action makeExtractAction(JSONObject json)throws JSONException{
+	protected TriggeredAction makeExtractAction(JSONObject json)throws JSONException{
 		JSONObject settings=json.optJSONObject("Settings");
 		return new ExtractMetadataAction(settings, uniqueStorageID);
 	}
 
-	protected Action makeNotifyAction(JSONObject json)throws JSONException{
+	protected TriggeredAction makeNotifyAction(JSONObject json)throws JSONException{
 		return new NotificationAction(json.getString("URL"));
 	}
 	
 	private static final NOOP noop=new NOOP();
 	
-	public static class NOOP implements Action{
+	public static class NOOP implements TriggeredAction{
 
 		@Override
-		public void fire(IStorageAdapter s, String path, Client c, XNJS xnjs) {
+		public void run(IStorageAdapter s, String path, Client c, XNJS xnjs) {
 		}
 		
 		public String toString(){
