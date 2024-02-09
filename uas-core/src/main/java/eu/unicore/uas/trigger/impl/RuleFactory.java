@@ -77,8 +77,8 @@ public class RuleFactory {
 	
 
 	protected RuleSet readRules(InputStream input)throws ExecutionException, IOException{
-		RuleSet result = new RuleSet(null);
 		try{
+			RuleSet result = new RuleSet(null);
 			String source=IOUtils.toString(input, "UTF-8");
 			JSONObject json=JSONUtil.read(source);
 			JSONArray rules=json.getJSONArray("Rules");
@@ -86,25 +86,18 @@ public class RuleFactory {
 				JSONObject rule = rules.getJSONObject(i);
 				result.add(makeRule(rule));	
 			}
+			return result;
 		}
 		catch(JSONException je){
 			throw new IOException(je);
 		}
-		finally{
-			input.close();
-		}
-		return result;
 	}
 	
 	
 	public RuleSet readRuleFile(String ruleFile)throws ExecutionException, IOException{
-		InputStream is=storage.getInputStream(ruleFile);
-		try{
+		try(InputStream is=storage.getInputStream(ruleFile)){
 			return readRules(is);
-		}finally{
-			if(is!=null)is.close();
 		}
-		
 	}
 	
 	/**
