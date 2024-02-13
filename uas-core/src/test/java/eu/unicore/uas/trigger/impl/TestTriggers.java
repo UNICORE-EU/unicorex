@@ -1,5 +1,6 @@
 package eu.unicore.uas.trigger.impl;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -20,6 +21,7 @@ import org.junit.Test;
 import eu.unicore.security.Client;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;
+import eu.unicore.uas.trigger.xnjs.ScanSettings;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
@@ -55,7 +57,14 @@ public class TestTriggers {
 		assertNotNull(local1);
 		assertFalse(local1.matches("/documents/foo1.pdf", null));
 		assertTrue(local1.matches("/documents/bar.jpg", null));
-
+		ScanSettings  sc = new ScanSettings();
+		try(InputStream is=new FileInputStream("src/test/resources/testing_rules"))
+		{
+			rf.updateSettings(sc, is);
+		}
+		assertEquals(5, sc.maxDepth);
+		assertEquals(20, sc.gracePeriod);
+		assertEquals(3600, sc.updateInterval);
 	}
 	
 	

@@ -21,6 +21,13 @@
     }
   }
 
-]
+],
+
+ "DirectoryScan": {
+ 	"MaxDepth": 5,
+ 	"Interval": "1h",
+ 	"Grace": "20",
+ 	"Logging": "false"
+ }
 
 }

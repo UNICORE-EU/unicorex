@@ -9,6 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import eu.unicore.security.Client;
+import eu.unicore.services.utils.UnitParser;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.trigger.Rule;
@@ -66,12 +67,6 @@ public class RuleFactory {
 		if(f!=null){
 			result.addAll(readRuleFile(f.getPath()));
 		}
-//		if(result.isCheckParents()){
-//			File path=new File(directory);
-//			if(path.getParent()!=null){
-//				result.addAll(getRules(path.getParent()));
-//			}
-//		}
 		return result;
 	}
 	
@@ -107,69 +102,44 @@ public class RuleFactory {
 	 * @return {@link ScanSettings} or null if none found
 	 */
 	public ScanSettings parseSettings(String baseDirectory)throws ExecutionException, IOException {
-		ScanSettings settings=new ScanSettings();
-		settings.baseDirectory=baseDirectory;
-		XnjsFile ruleFile=storage.getProperties(baseDirectory+"/"+RULE_FILE_NAME);
+		XnjsFile ruleFile = storage.getProperties(baseDirectory+"/"+RULE_FILE_NAME);
 		if(ruleFile==null){
 			return null;
 		}
-		String filePath=ruleFile.getPath();
-		
-		JSONObject json=null;
-		InputStream is=null;
-		try{
-			is=storage.getInputStream(filePath);
-			String source=IOUtils.toString(is, "UTF-8");
-			json=new JSONObject(source).optJSONObject(SCAN_SETTINGS);
+		ScanSettings settings = new ScanSettings();
+		settings.baseDirectory = baseDirectory;
+		String filePath = ruleFile.getPath();
+		try(InputStream is = storage.getInputStream(filePath)){
+			updateSettings(settings, is);
 		}catch(JSONException e){
 			throw new IOException(e);
 		}
-		finally{
-			if(is!=null)is.close();
-		}
-		if(json == null){
-			return null;
-		}
-		String interval=json.optString(UPD_INTERVAL, null);
-		if(interval!=null){
-			//do not allow intervals below 30 secs
-			settings.updateInterval=Math.max(30, Integer.parseInt(interval));
-		}
-		
-		String grace=json.optString(GRACE_PERIOD, null);
-		if(grace!=null){
-			//do not allow grace periods below 10 secs
-			settings.gracePeriod=Math.max(10, Integer.parseInt(grace));
-		}
-		
-		JSONArray inc=json.optJSONArray(INCLUDE);
-		if(inc!=null){
-			settings.includes=asArray(inc);
-		}
-		JSONArray excl=json.optJSONArray(EXCLUDE);
-		if(excl!=null){
-			settings.excludes=asArray(inc);
-		}
-		String depth=json.optString(MAXDEPTH, "10");
-		settings.maxDepth=Integer.parseInt(depth);
-		
-		String enabled=json.optString(ENABLED, "true");
-		settings.enabled=Boolean.parseBoolean(enabled);
-		
-		String logging=json.optString(LOGGING, "true");
-		settings.enableLogging=Boolean.parseBoolean(logging);
-		
 		return settings;
 	}
 	
-	private String[] asArray(JSONArray json){
-		String[] res=new String[json.length()];
-		for(int i=0; i<json.length(); i++){
-			try{
-				res[i]=json.getString(i);
-			}catch(JSONException e){}
+	public void updateSettings(ScanSettings settings, InputStream source) throws IOException, JSONException {
+		JSONObject json= new JSONObject(IOUtils.toString(source, "UTF-8")).optJSONObject(SCAN_SETTINGS);
+		if(json==null)return;
+
+		String interval = JSONUtil.getString(json, UPD_INTERVAL, "60");
+		int request = (int)UnitParser.getTimeParser(0).getDoubleValue(interval);
+		// do not allow intervals below 30 secs
+		settings.updateInterval = Math.max(30, request);
+		
+		String gP = JSONUtil.getString(json, GRACE_PERIOD, "10");
+		settings.gracePeriod = Math.max(10, Integer.parseInt(gP));
+
+		JSONArray inc=json.optJSONArray(INCLUDE);
+		if(inc!=null){
+			settings.includes = JSONUtil.toArray(inc);
 		}
-		return res;
+		JSONArray excl=json.optJSONArray(EXCLUDE);
+		if(excl!=null){
+			settings.excludes = JSONUtil.toArray(inc);
+		}
+		settings.maxDepth = Integer.parseInt(JSONUtil.getString(json, MAXDEPTH, "10"));
+		settings.enabled = json.optBoolean(ENABLED, true);
+		settings.enableLogging = json.optBoolean(LOGGING, true);
 	}
 	
 	protected Rule makeRule(JSONObject json)throws JSONException{

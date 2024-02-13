@@ -20,7 +20,7 @@ public class ScanSettings implements Serializable {
 	public String storageUID;
 	
 	// (approximate) directory scan interval in seconds;
-	public int updateInterval = 30;
+	public int updateInterval =  60;
 	
 	// to prevent processing a file that is still being written
 	public int gracePeriod = 10;
