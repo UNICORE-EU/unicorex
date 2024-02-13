@@ -80,6 +80,7 @@ public class Storages extends ServicesBase {
 		props.put("description", model.getStorageDescription().getDescription());
 		props.put("filesystemDescription", sip.getFileSystemIdentifier());
 		props.put("metadataSupported", !model.getStorageDescription().isDisableMetadata());
+		props.put("dataTriggeredProcessing", model.getStorageDescription().isEnableTrigger());
 		try {
 			XnjsStorageInfo info = sip.getAvailableDiskSpace(model.getWorkdir());
 			props.put("freeSpace", info.getFreeSpace());

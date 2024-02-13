@@ -22,6 +22,7 @@ import eu.unicore.uas.fts.FileTransferImpl;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.SMSUtils;
 import eu.unicore.uas.impl.sms.StorageDescription;
+import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.xnjs.io.ChangePermissions;
 import eu.unicore.xnjs.io.ChangePermissions.PermissionsClass;
@@ -215,7 +216,7 @@ public class TestVarious {
 			assertTrue(desc.getName(), desc.getName().equals("NNN") || desc.getName().equals("NNN2"));
 			assertEquals("path", desc.getPathSpec());
 			assertEquals(SMSBaseImpl.class, desc.getStorageClass());
-			assertEquals("CUSTOM", desc.getStorageTypeAsString());
+			assertEquals(StorageTypes.CUSTOM, desc.getStorageType());
 			assertEquals(2, desc.getAdditionalProperties().size());
 		}
 	}
@@ -249,7 +250,7 @@ public class TestVarious {
 		assertNotNull(asd);
 		System.out.println(asd);
 		assertEquals("WORK", asd.getName());
-		assertEquals("VARIABLE", asd.getStorageTypeAsString());
+		assertEquals(StorageTypes.VARIABLE, asd.getStorageType());
 		assertEquals("MY_WORK", asd.getPathSpec());
 	}
 

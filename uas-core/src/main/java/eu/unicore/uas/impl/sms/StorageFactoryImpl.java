@@ -18,6 +18,7 @@ import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.BaseInitParameters;
 import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.impl.sms.ConsolidateStorageFactoryInstance.UpdateSMSLists;
+import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.uas.util.LogUtil;
 
 /**
@@ -104,36 +105,33 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		if (factoryDesc == null)
 			throw new IllegalArgumentException("Unknown type of storage factory: " + storageBackendType);
 
-		//we don't want to mess the global configuration of SMSFies
 		factoryDesc = factoryDesc.clone();
-
-		// we allow clients to overwrite the name 
 		if (name != null) {
 			factoryDesc.setName(name);
 		}
-
+		// handle user-specified 'path'
 		boolean appendUniqueID = true;
-		if (factoryDesc.isAllowUserdefinedPath()) {
-			// we allow clients to overwrite the path
-			String pathSpec = parameters.get("path");
-			if(pathSpec!=null){
+		String pathSpec = parameters.get("path");
+		if (pathSpec!=null) {
+			if(factoryDesc.isAllowUserdefinedPath()) {
 				factoryDesc.setPathSpec(pathSpec);
 				appendUniqueID = false;
 				// and do *not* delete this dir on destroy
 				factoryDesc.setCleanup(false);
+				if(pathSpec.contains("$")) {
+					factoryDesc.setStorageType(StorageTypes.VARIABLE);
+				}
+				else {
+					factoryDesc.setStorageType(StorageTypes.FIXEDPATH);
+				}
 			}
 			else {
-				// might even be mandatory...
-				if(factoryDesc.getPathSpec() == null){
-					throw new IllegalArgumentException("No 'path' parameter was given!");
-				}
+				throw new IllegalArgumentException("Setting the 'path' is not allowed!");
 			}
 		}
 
 		StorageInitParameters initMap = tt!=null? 
 				new StorageInitParameters(null,tt) : new StorageInitParameters(null,TerminationMode.DEFAULT);
-				
-		// use configured base and append the unique ID
 		initMap.appendUniqueID = appendUniqueID;	
 		initMap.storageDescription = factoryDesc;
 		initMap.factoryID = getUniqueID();
@@ -152,11 +150,8 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 			factoryDesc.setDefaultUmask(parameters.get(SMSProperties.UMASK_KEY));
 		}
 
-		// put user parameters into init map, let implementation decide which one to use
-		// and which default ones can be overwritten
 		initMap.userParameters.putAll(parameters);
 		String smsID=createStorageResource(initMap);
-
 		initStorage(smsID);
 		logger.info("Created new StorageManagement resource <{}> for <{}>", smsID, clientName);
 		getModel().smsOwners.put(smsID, clientName);

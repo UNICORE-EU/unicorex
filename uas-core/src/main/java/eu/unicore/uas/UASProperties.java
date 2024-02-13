@@ -291,7 +291,7 @@ public class UASProperties extends PropertiesHelper {
 		String enabledV = getValue(enabledKey); 
 		Set<String> storageIds = getStorageIds(enabledV, prefixComponent, properties);
 
-		Map<String, StorageDescription> ret = new HashMap<String, StorageDescription>();
+		Map<String, StorageDescription> ret = new HashMap<>();
 		for(String id: storageIds) {
 			try {
 				String pfx = PREFIX+prefixComponent + id + ".";
@@ -388,10 +388,8 @@ public class UASProperties extends PropertiesHelper {
 			enabledTypes = new HashSet<String>(enabledTypesA.length);
 			Collections.addAll(enabledTypes, enabledTypesA);
 		}
-
-
 		String pfx = PREFIX+prefixComponent;
-		Set<String> ret = new HashSet<String>();
+		Set<String> ret = new HashSet<>();
 		for(Object k: properties.keySet()){
 			String key=((String)k).trim();
 			if (!key.startsWith(pfx) || key.length() < pfx.length())
@@ -405,7 +403,7 @@ public class UASProperties extends PropertiesHelper {
 				continue;
 
 			if (!useAll && !enabledTypes.contains(id)) {
-				log.debug("Skipping storage definition " + id + " as it is not enabled.");
+				log.debug("Skipping storage definition <{}> as it is not enabled.", id);
 				continue;
 			}
 			ret.add(id);

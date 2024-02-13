@@ -21,19 +21,20 @@ public class StorageDescription implements Serializable, Cloneable {
 	
 	private final String id;
 	private String clazz;
-	private final StorageTypes type;
+	private StorageTypes type;
 	
 	private String name;
 	private String infoProviderClass = DefaultStorageInfoProvider.class.getName();
 	private String pathSpec;
 	private boolean allowUserDefinedPath;
 	private boolean disableMetadata;
-	
+
 	//updateable
 	private String description;
 	private Map<String, String> additionalProperties;
 	private boolean filterListing;
 	private boolean enableTrigger;
+	
 	private String sharedTriggerUser;
 	private boolean cleanup;
 	private String defaultUmask = "077";
@@ -128,14 +129,14 @@ public class StorageDescription implements Serializable, Cloneable {
 		return type;
 	}
 
-	public String getStorageTypeAsString() {
-		return type.toString();
+	public void setStorageType(StorageTypes type) {
+		this.type = type;
 	}
 
 	public Map<String, String> getAdditionalProperties() {
 		return additionalProperties;
 	}
-	
+
 	public String getPathSpec() {
 		return pathSpec;
 	}

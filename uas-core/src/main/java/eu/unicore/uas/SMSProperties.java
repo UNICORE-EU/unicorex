@@ -19,7 +19,7 @@ import eu.unicore.util.configuration.PropertyGroupHelper;
 import eu.unicore.util.configuration.PropertyMD;
 
 /**
- * This class is used to handle configuration of a particular SMS (typically target system SMS).
+ * This class is used to handle configuration of a particular SMS
  * <p>
  * Note for documentation generation: an artificial prefix must be manually set, as this class is used
  * many times with different prefixed, determined at runtime.
@@ -60,7 +60,7 @@ public class SMSProperties extends PropertiesHelper {
 	public static final Pattern umaskPattern = Pattern.compile("[0]?[0-7]?[0-7]?[0-7]");
 	
 	@DocumentationReferenceMeta
-	public static final Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public static final Map<String, PropertyMD> META = new HashMap<>();
 	static {
 		META.put(NAME, new PropertyMD().
 				setDescription("Storage name. If not set then the internal unique identifier is used."));
@@ -93,9 +93,10 @@ public class SMSProperties extends PropertiesHelper {
 		META.put(INFO_PROVIDER, new PropertyMD(DefaultStorageInfoProvider.class, StorageInfoProvider.class).
 				setDescription("(Very) advanced setting, providing information about storages produced by the SMS factory."));
 		META.put(EXTRA_PREFIX, new PropertyMD().setCanHaveSubkeys().setUpdateable().
-				setDescription("Useful for CUSTOM storage types: allows to set additional settings (if needed) by such storages. Please refer to documentation of a particular custom storage type for details. Note that while in general updates of the properties at runtime are propagated to the chosen implementation, it is up to it to use the updated values or ignore changes."));
-	
-		
+				setDescription("Useful for CUSTOM storage types: allows to set additional settings (if needed) by such storages. "
+						+ "Please refer to documentation of a particular custom storage type for details. "
+						+ "Note that while in general updates of the properties at runtime are propagated "
+						+ "to the chosen implementation, it is up to it to use the updated values or ignore changes."));
 		META.put(WORKDIR, new PropertyMD().
 				setDescription("(DEPRECATED, use 'path' instead)"));
 		META.put(PROTOCOLS, new PropertyMD().setUpdateable().

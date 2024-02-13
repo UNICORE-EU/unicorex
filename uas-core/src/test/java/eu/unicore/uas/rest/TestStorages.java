@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -58,7 +59,7 @@ public class TestStorages extends Base {
 	}
 
 	@Test
-	public void testFactoryError() throws Exception {
+	public void testFactoryErrorType() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/default_storage_factory";
 		Endpoint resource  = new Endpoint(url);
@@ -72,6 +73,23 @@ public class TestStorages extends Base {
 		}
 	}
 	
+	@Test
+	public void testFactoryErrorPath() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+
+				"/rest/core/storagefactories/default_storage_factory";
+		Endpoint resource  = new Endpoint(url);
+		System.out.println("Accessing "+url);
+		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		try{
+			var params = new HashMap<String,String>();
+			params.put("path", "some/path/");
+			smf.createStorage(null,"my new SMS", params, null);
+		}catch(RESTException e) {
+			assertTrue(500 == e.getStatus());
+			assertTrue(e.getErrorMessage().contains("not allowed"));
+		}
+	}
+
 	@Test
 	public void testStorageAccess() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";

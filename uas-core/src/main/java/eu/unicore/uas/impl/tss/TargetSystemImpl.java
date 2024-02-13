@@ -32,6 +32,7 @@ import eu.unicore.uas.impl.reservation.ReservationInitParameters;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.StorageDescription;
 import eu.unicore.uas.impl.sms.StorageInitParameters;
+import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.uas.impl.tss.util.GenerateJMSInstances;
 import eu.unicore.uas.impl.tss.util.RecreateJMSReferenceList;
 import eu.unicore.uas.impl.tss.util.RecreateReservationReferenceList;
@@ -210,7 +211,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		init.storageDescription = desc;
 		init.acl.addAll(getModel().getAcl());
 		init.xnjsReference = getModel().getXnjsReference();
-		String id=createStorageManagement(desc.getStorageTypeAsString(), init);
+		String id=createStorageManagement(desc.getStorageType(), init);
 		if (id != null){
 			getModel().getStorageIDs().add(id);
 		}
@@ -244,7 +245,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 	 * @param init
 	 * @return UUID or null if SMS could not be created
 	 */
-	protected String createStorageManagement(String type, StorageInitParameters init){
+	protected String createStorageManagement(StorageTypes type, StorageInitParameters init){
 		try {
 			Home home=kernel.getHome(UAS.SMS);
 			if(home==null){
