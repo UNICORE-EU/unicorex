@@ -38,6 +38,6 @@ public class SimpleRule implements Rule {
 	public void commit(){}
 	
 	public String toString(){
-		return "Rule <"+name+"> matches <"+match+"> Action "+action.toString();
+		return "Rule <"+name+"> matches <"+match+"> Action "+String.valueOf(action);
 	}
 }

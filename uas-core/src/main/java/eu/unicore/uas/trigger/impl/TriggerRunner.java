@@ -87,15 +87,14 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 							multifile.put(ma, files);
 						}
 						else{
-							a.run(storage, path, client, xnjs);	
+							String id = a.run(storage, path, client, xnjs);	
+							ts.addAction(id);
 						}
-						if(logger.isDebugEnabled()){
-							logger.debug("Running <"+r+"> on <"+path+"> for "+client.getDistinguishedName());
-						}
+						logger.debug("Running <{}> on <{}> for <{]>",r, path, client.getDistinguishedName());
 						if(logging)log.add("Running <"+r+"> on <"+path+">");
 					}
 				}catch(Exception ex){
-					Log.logException("Error running <"+r+"> on <"+path+"> for "+client.getDistinguishedName(), ex, logger);
+					Log.logException("Error running <"+r+"> on <"+path+"> for <"+client.getDistinguishedName()+">", ex, logger);
 					if(logging)log.add(Log.createFaultMessage("ERROR running <"+r+"> on <"+path+">", ex));
 				}
 			}
@@ -107,7 +106,8 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 			List<String> files = e.getValue();
 			try{
 				if(logging)log.add("Running <"+ma+"> on <"+files+">");
-				ma.fire(storage, files, client, xnjs);
+				String id = ma.fire(storage, files, client, xnjs);
+				ts.addAction(id);
 			}catch(Exception ex){
 				Log.logException("Error running <"+ma+"> for "+client.getDistinguishedName() , ex, logger);
 				if(logging)log.add(Log.createFaultMessage("ERROR running <"+ma+"> on <"+files+">", ex));
@@ -120,9 +120,9 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 		time=System.currentTimeMillis()-time;
 		ts.setDuration(time);
 
-		logger.debug("Finished trigger run for client <"+client.getDistinguishedName()+">. "+ts.toString());
+		logger.debug("Finished trigger run for <{}>. {}",client.getDistinguishedName(), ts.toString());
 		if(ts.getNumberOfFiles()>0){
-			usage.info("Finished trigger run for client <{}>. {}", client.getDistinguishedName(), ts);
+			usage.info("Finished trigger run for <{}>. {}", client.getDistinguishedName(), ts);
 			log.add("Finished trigger run. "+ts);
 		}
 		try{

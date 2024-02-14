@@ -38,12 +38,12 @@ public class NotificationAction extends BaseAction implements MultiFileTriggered
 	}
 	
 	@Override
-	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
-		fire(storage,Collections.singletonList(filePath), client, xnjs);
+	public String run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
+		return fire(storage,Collections.singletonList(filePath), client, xnjs);
 	}
 
 	@Override
-	public void fire(IStorageAdapter storage, List<String> files, Client client, XNJS xnjs) throws Exception{
+	public String fire(IStorageAdapter storage, List<String> files, Client client, XNJS xnjs) throws Exception{
 		logger.info("Sending notification for <{}> to <{}>", url, client.getDistinguishedName());
 		JSONArray fList = new JSONArray();
 		for(String f: files)fList.put(f);
@@ -53,6 +53,7 @@ public class NotificationAction extends BaseAction implements MultiFileTriggered
 		msg.put("directory", storage.getStorageRoot());
 		msg.put("files", fList);
 		doSend(kernel, url, msg, client);
+		return null;
 	}
 
 	protected void doSend(Kernel kernel, String url, JSONObject message, Client client)

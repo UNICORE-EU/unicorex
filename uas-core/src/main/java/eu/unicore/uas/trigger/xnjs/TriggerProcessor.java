@@ -3,8 +3,11 @@ package eu.unicore.uas.trigger.xnjs;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -20,6 +23,7 @@ import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.trigger.impl.RuleFactory;
 import eu.unicore.uas.trigger.impl.TriggerRunner;
+import eu.unicore.uas.trigger.impl.TriggerStatistics;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
@@ -39,9 +43,10 @@ public class TriggerProcessor extends DefaultProcessor {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, TriggerProcessor.class);
 
-	public static final String actionType="DIRECTORY_SCAN";
+	public static final String actionType = "DIRECTORY_SCAN";
 
-	public static final String LAST_RUN_TIME="LAST_RUN_TIME";
+	public static final String LAST_RUN_TIME = "LAST_RUN_TIME";
+	public static final String ACTION_IDS = "A";
 	
 	private IStorageAdapter storage;
 
@@ -85,12 +90,15 @@ public class TriggerProcessor extends DefaultProcessor {
 				try{
 					RuleSet rules=rf.getRules(sad.baseDirectory);
 					XnjsFile[]files=findFiles(sad.baseDirectory);
+					Set<String> ids = getSubmittedActionIDs();
 					if(files.length>0){
 						TriggerRunner tr = new TriggerRunner(files, rules, getStorageAdapter(), action.getClient(), xnjs, logDirectory);
-						getKernel().getContainerProperties().getThreadingServices().getExecutorService().submit(tr);
-						logger.debug("Executing trigger run on <{}> files.", files.length);	
+						logger.debug("Executing trigger run on <{}> files.", files.length);
+						TriggerStatistics ts = tr.call();
+						ids.addAll(ts.getActionsLaunched());
 					}
 					updateLastRunTime(thisRun-1000*sad.gracePeriod);
+					updateActionIDs(ids);
 				}catch(Exception ex){
 					Log.logException("Error setting up trigger run", ex, logger);
 				}
@@ -126,12 +134,10 @@ public class TriggerProcessor extends DefaultProcessor {
 		ScanSettings settings=getJob();
 		if(settings.maxDepth<=depth)return new XnjsFile[0];
 
-		long lastRun = getLastRun();
-		long graceMillis = 500*settings.gracePeriod;
+		final long lastRun = getLastRun();
+		long graceMillis = 1000 * settings.gracePeriod;
+		logger.debug("Last run {}", lastRun);
 		
-		if(logger.isDebugEnabled()){
-			logger.debug("Last run "+lastRun);
-		}
 		List<XnjsFile>files = new ArrayList<>();
 		
 		boolean includeCurrentDir=matches(baseDir,settings);
@@ -152,17 +158,16 @@ public class TriggerProcessor extends DefaultProcessor {
 						&& lastMod >= lastRun 
 						&& lastMod+graceMillis < System.currentTimeMillis())
 				{
-					logger.debug("Adding: {}", xf.getPath());
+					logger.debug("Adding: <{}> lastModified: {}", xf.getPath(), lastMod);
 					files.add(xf);
 				}
 				else{
 					if(includeCurrentDir){
-						logger.debug("Skipping : {} lastModified {}", xf.getPath(), lastMod);
+						logger.debug("Skipping: <{}> lastModified: {}", xf.getPath(), lastMod);
 					}
 				}
 			}
 		}
-
 		return files.toArray(new XnjsFile[files.size()]);
 	}
 
@@ -171,9 +176,25 @@ public class TriggerProcessor extends DefaultProcessor {
 		return l!=null? l.longValue() : 0;
 	}
 
+	@SuppressWarnings("unchecked")
+	protected Set<String> getSubmittedActionIDs(){
+		Set<String> ids = (Set<String>)action.getProcessingContext().getAs(ACTION_IDS, Set.class);
+		return ids!=null? ids : new HashSet<>();
+	}
 
 	protected void updateLastRunTime(long time){
 		action.getProcessingContext().put(LAST_RUN_TIME, time);
+	}
+
+	protected void updateActionIDs(Set<String> ids){
+		for(Iterator<String> i= ids.iterator(); i.hasNext(); ) {
+			try{ 
+				if(manager.isActionDone(i.next()))i.remove();
+			}catch(Exception ex) {
+				i.remove();
+			}
+		}
+		action.getProcessingContext().put(ACTION_IDS, ids);
 	}
 
 	protected IStorageAdapter getStorageAdapter() throws Exception{

@@ -35,16 +35,17 @@ public class ExtractMetadataAction extends BaseAction implements MultiFileTrigge
 	}
 	
 	@Override
-	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
-		fire(storage,Collections.singletonList(filePath), client, xnjs);
+	public String run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
+		return fire(storage,Collections.singletonList(filePath), client, xnjs);
 	}
 
 	@Override
-	public void fire(IStorageAdapter storage, List<String> files, Client client, XNJS xnjs) throws Exception{
-		logger.info("Executing local script for <{}>", client.getDistinguishedName());
+	public String fire(IStorageAdapter storage, List<String> files, Client client, XNJS xnjs) throws Exception{
+		logger.info("Launching extract metadata for <{}>", client.getDistinguishedName());
 		Kernel kernel = xnjs.get(Kernel.class);
 		MetadataManager mm = MetadataSupport.getManager(kernel, storage, storageID);
 		mm.startAutoMetadataExtraction(files, null);
+		return null;
 	}
 	
 	public String toString(){

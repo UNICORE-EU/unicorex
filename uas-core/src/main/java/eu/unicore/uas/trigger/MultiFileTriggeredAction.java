@@ -20,7 +20,8 @@ public interface MultiFileTriggeredAction extends TriggeredAction {
 	 * @param files - the files
 	 * @param client - the user
 	 * @param xnjsConfig - the XNJS for executing things
+	 * @return submitted action (may be null)
 	 */
-	public void fire(IStorageAdapter storage, List<String> files, Client client, XNJS xnjsConfig) throws Exception;
+	public String fire(IStorageAdapter storage, List<String> files, Client client, XNJS xnjsConfig) throws Exception;
 	
 }

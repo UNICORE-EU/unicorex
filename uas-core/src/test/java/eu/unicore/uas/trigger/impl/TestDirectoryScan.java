@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -46,7 +47,7 @@ public class TestDirectoryScan extends Base {
 		sms.upload("/dir/test2.txt").write("test2\n".getBytes());
 		
 		// triggering won't touch files that are not yet old enough
-		Thread.sleep(8000);
+		Thread.sleep(10500);
 		
 		// setup the scan
 		String sID =  new File(new URI(sms.getEndpoint().getUrl()).getPath()).getName();
@@ -56,15 +57,20 @@ public class TestDirectoryScan extends Base {
 		SetupDirectoryScan sds=new SetupDirectoryScan(sID, "/", client, xnjs, -1, 
 				new String[]{"/dir/.*txt"}, null, 10, false);
 		String actionID=sds.call();
-		
 		int i=0;
 		do{
 			Thread.sleep(1000);
 			i++;
 		}while(!hasRun(xnjs,actionID)&& i<30);
-		
-		// allow some grace time - processing is async
-		Thread.sleep(10000);
+
+		Set<String> ids = getActionIDs(xnjs, actionID);
+		for(String id: ids) {
+			i=0;
+			do{
+				Thread.sleep(1000);
+				i++;
+			}while(!hasRun(xnjs,id)&& i<30);
+		}
 		// check the expected outfile is there
 		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
 		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
@@ -94,7 +100,7 @@ public class TestDirectoryScan extends Base {
 				kernel.getClientConfiguration(), null);
 		StorageClient sms = smf.createStorage();
 		// write toplevel rule file
-		String tlRule = "{'DirectoryScan':{'IncludeDirs':['scan'],'Interval':10}}";
+		String tlRule = "{'DirectoryScan':{'IncludeDirs':['scan']}}";
 		try(InputStream is = new ByteArrayInputStream(tlRule.getBytes("UTF-8"))){
 			sms.upload(RuleFactory.RULE_FILE_NAME).writeAllData(is);
 		}
@@ -124,8 +130,14 @@ public class TestDirectoryScan extends Base {
 			i++;
 		}while(!hasRun(xnjs,actionID)&& i<30);
 		
-		// allow some grace time - processing is async
-		Thread.sleep(10000);
+		Set<String> ids = getActionIDs(xnjs, actionID);
+		for(String id: ids) {
+			i=0;
+			do{
+				Thread.sleep(1000);
+				i++;
+			}while(!hasRun(xnjs,id)&& i<30);
+		}
 		// check the expected outfile is there
 		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
 		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
@@ -153,6 +165,13 @@ public class TestDirectoryScan extends Base {
 		Action a=xnjs.get(InternalManager.class).getAction(actionID);
 		Long l = a.getProcessingContext().getAs(TriggerProcessor.LAST_RUN_TIME, Long.class);
 		return l!=null && l>0 && l<System.currentTimeMillis();
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	private Set<String> getActionIDs(XNJS xnjs, String actionID)throws Exception{
+		Action a=xnjs.get(InternalManager.class).getAction(actionID);
+		return a.getProcessingContext().getAs(TriggerProcessor.ACTION_IDS, Set.class);
 	}
 
 }

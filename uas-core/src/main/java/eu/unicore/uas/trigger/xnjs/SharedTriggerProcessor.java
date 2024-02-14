@@ -3,8 +3,11 @@ package eu.unicore.uas.trigger.xnjs;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -20,6 +23,7 @@ import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.trigger.impl.RuleFactory;
 import eu.unicore.uas.trigger.impl.TriggerRunner;
+import eu.unicore.uas.trigger.impl.TriggerStatistics;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
@@ -41,8 +45,6 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 
 	public static final String actionType="SHARED_DIRECTORY_SCAN";
 
-	public static final String LAST_RUN_TIME="LAST_RUN_TIME";
-	
 	private IStorageAdapter storage;
 
 	public SharedTriggerProcessor(XNJS xnjs) {
@@ -87,7 +89,7 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 					for(XnjsFile dir: directories){
 						processDirectory(dir, sad.storageUID);
 					}
-					updateLastRunTime(thisRun-1000*sad.gracePeriod);
+					updateLastRunTime(thisRun-1000*sad.gracePeriod);		
 				}catch(Exception ex){
 					Log.logException("Error setting up trigger run", ex, logger);
 				}
@@ -120,11 +122,14 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 			}
 			RuleSet rules=rf.getRules(dir);
 			XnjsFile[]files=findFiles(settings, dir,client);
+			Set<String> ids = getSubmittedActionIDs();
 			if(files.length>0){
 				TriggerRunner tr=new TriggerRunner(files, rules, storage, client, xnjs, TriggerProcessor.logDirectory);
 				logger.debug("Executing trigger run on <{}> files.", files.length);	
-				getKernel().getContainerProperties().getThreadingServices().getExecutorService().submit(tr);
+				TriggerStatistics ts = tr.call();
+				ids.addAll(ts.getActionsLaunched());
 			}
+			updateActionIDs(ids);
 		}catch(Exception ex){
 			Log.logException("Error running trigger on <"+directory.getPath()+">", ex, logger);
 		}
@@ -205,13 +210,30 @@ public class SharedTriggerProcessor extends DefaultProcessor {
 	}
 
 	protected long getLastRun(){
-		Long l=(Long)action.getProcessingContext().get(LAST_RUN_TIME);
+		Long l=(Long)action.getProcessingContext().get(TriggerProcessor.LAST_RUN_TIME);
 		return l!=null? l.longValue() : 0;
 	}
 
 
 	protected void updateLastRunTime(long time){
-		action.getProcessingContext().put(LAST_RUN_TIME, time);
+		action.getProcessingContext().put(TriggerProcessor.LAST_RUN_TIME, time);
+	}
+
+	protected void updateActionIDs(Set<String> ids){
+		for(Iterator<String> i= ids.iterator(); i.hasNext(); ) {
+			try{ 
+				if(manager.isActionDone(i.next()))i.remove();
+			}catch(Exception ex) {
+				i.remove();
+			}
+		}
+		action.getProcessingContext().put(TriggerProcessor.ACTION_IDS, ids);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected Set<String> getSubmittedActionIDs(){
+		Set<String> ids = (Set<String>)action.getProcessingContext().getAs(TriggerProcessor.ACTION_IDS, Set.class);
+		return ids!=null? ids : new HashSet<>();
 	}
 
 	protected IStorageAdapter getStorageAdapter(Client client) throws Exception{

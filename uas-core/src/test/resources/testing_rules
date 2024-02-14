@@ -16,14 +16,16 @@
     "Match": ".*jpg",
     "Action": 
     {
-       "Type": "LOCAL",
-       "Command": "ls -l ${UC_FILE_NAME}"
+       "Type": "JOB",
+       "Job": { "Executable": "ls -l ${UC_FILE_NAME}" } 
     }
   }
 
 ],
 
  "DirectoryScan": {
+    "IncludeDirs": [ "i1", "i2" ],
+    "ExcludeDirs": [ "e1" ],
  	"MaxDepth": 5,
  	"Interval": "1h",
  	"Grace": "20",

@@ -28,6 +28,6 @@ public interface TriggeredAction {
 	 * @param client - the user
 	 * @param xnjsConfig - the XNJS for executing things
 	 */
-	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjsConfig) throws Exception;
+	public String run(IStorageAdapter storage, String filePath, Client client, XNJS xnjsConfig) throws Exception;
 	
 }

@@ -125,9 +125,6 @@ public class RuleFactory {
 		int request = (int)UnitParser.getTimeParser(0).getDoubleValue(interval);
 		// do not allow intervals below 30 secs
 		settings.updateInterval = Math.max(30, request);
-		
-		String gP = JSONUtil.getString(json, GRACE_PERIOD, "10");
-		settings.gracePeriod = Math.max(10, Integer.parseInt(gP));
 
 		JSONArray inc=json.optJSONArray(INCLUDE);
 		if(inc!=null){
@@ -135,7 +132,7 @@ public class RuleFactory {
 		}
 		JSONArray excl=json.optJSONArray(EXCLUDE);
 		if(excl!=null){
-			settings.excludes = JSONUtil.toArray(inc);
+			settings.excludes = JSONUtil.toArray(excl);
 		}
 		settings.maxDepth = Integer.parseInt(JSONUtil.getString(json, MAXDEPTH, "10"));
 		settings.enabled = json.optBoolean(ENABLED, true);
@@ -151,36 +148,28 @@ public class RuleFactory {
 	}
 	
 	protected TriggeredAction makeAction(JSONObject json)throws JSONException{
-		String type=json.getString("Type");
-		if("NOOP".equals(type))return noop;
-		else if("LOCAL".equals(type))return makeLocalAction(json);
-		else if("BATCH".equals(type))return makeBatchAction(json);
-		else if("EXTRACT".equals(type))return makeExtractAction(json);
-		else if("NOTIFY".equals(type))return makeNotifyAction(json);
+		String type=json.optString("Type", null);
+		if("NOOP".equals(type) || json.keySet().size()==0) {
+			return noop;
+		}
+		else if("JOB".equals(type)|| json.optJSONObject("Job")!=null) {
+			return makeJobAction(json);
+		}
+		else if("EXTRACT".equals(type)|| json.optJSONObject("Extract")!=null) {
+			return makeExtractAction(json);
+		}
+		else if("NOTIFY".equals(type)|| json.optString("Notification", null)!=null) {
+			return makeNotifyAction(json);
+		}
 		return null;
 	}
 	
-	protected TriggeredAction makeLocalAction(JSONObject json)throws JSONException{
-		String script=json.getString("Command");
-		LocalAction la=new LocalAction(script);
-		String outDir=json.optString("Outcome", null);
-		if(outDir!=null)la.setOutcomeDir(outDir);
-		String stdout=json.optString("Stdout", null);
-		if(stdout!=null)la.setStdout(stdout);
-		String stderr=json.optString("Stderr", null);
-		if(stderr!=null)la.setStderr(stderr);
-		return la;
-	}
-	
-	
-	protected TriggeredAction makeBatchAction(JSONObject json)throws JSONException{
-		JSONObject job=json.getJSONObject("Job");
-		return new BatchJobAction(job);
+	protected TriggeredAction makeJobAction(JSONObject json)throws JSONException{
+		return new JobAction(json.getJSONObject("Job"));
 	}
 
 	protected TriggeredAction makeExtractAction(JSONObject json)throws JSONException{
-		JSONObject settings=json.optJSONObject("Settings");
-		return new ExtractMetadataAction(settings, uniqueStorageID);
+		return new ExtractMetadataAction(json.optJSONObject("Extract"), uniqueStorageID);
 	}
 
 	protected TriggeredAction makeNotifyAction(JSONObject json)throws JSONException{
@@ -192,7 +181,8 @@ public class RuleFactory {
 	public static class NOOP implements TriggeredAction{
 
 		@Override
-		public void run(IStorageAdapter s, String path, Client c, XNJS xnjs) {
+		public String run(IStorageAdapter s, String path, Client c, XNJS xnjs) {
+			return null;
 		}
 		
 		public String toString(){

@@ -17,18 +17,18 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * 
  * @author schuller
  */
-public class BatchJobAction extends BaseAction {
+public class JobAction extends BaseAction {
 
-	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, BatchJobAction.class);
+	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, JobAction.class);
 
 	private final JSONObject job;
 	
-	public BatchJobAction(JSONObject job){
+	public JobAction(JSONObject job){
 		this.job=job;
 	}
 	
 	@Override
-	public void run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
+	public String run(IStorageAdapter storage, String filePath, Client client, XNJS xnjs) throws Exception{
 		logger.info("Running job as <"+client.getSelectedXloginName()
 			+"> for <"+client.getDistinguishedName()+">");
 		Map<String,String>context = getContext(storage, filePath, client, xnjs);
@@ -39,9 +39,10 @@ public class BatchJobAction extends BaseAction {
 		action.setUmask(storage.getUmask());
 		action.getProcessingContext().put(eu.unicore.xnjs.ems.Action.AUTO_SUBMIT, Boolean.TRUE);
 		xnjs.get(Manager.class).add(action, client);
+		return action.getUUID();
 	}
 
 	public String toString(){
-		return "BATCH";
+		return "JOB";
 	}
 }

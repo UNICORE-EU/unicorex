@@ -63,8 +63,11 @@ public class TestTriggers {
 			rf.updateSettings(sc, is);
 		}
 		assertEquals(5, sc.maxDepth);
-		assertEquals(20, sc.gracePeriod);
+		assertEquals(10, sc.gracePeriod);
 		assertEquals(3600, sc.updateInterval);
+		assertEquals(2, sc.includes.length);
+		assertEquals(1, sc.excludes.length);
+		
 	}
 	
 	
@@ -83,8 +86,9 @@ public class TestTriggers {
 		ctx.put("UC_FILE_NAME","replaced.txt");
 		json = new BaseAction() {
 			@Override
-			public void run(IStorageAdapter storage, String filePath, Client client,
+			public String run(IStorageAdapter storage, String filePath, Client client,
 					XNJS xnjs) throws Exception {
+				return null;
 			}
 		}.expandVariables(json, ctx);
 		System.out.println(json);
