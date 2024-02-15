@@ -24,21 +24,21 @@ public class JobAction extends BaseAction implements SingleFileAction {
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, JobAction.class);
 
 	private final JSONObject job;
-	
+
+	private String filePath;
+
 	public JobAction(JSONObject job){
 		this.job=job;
 	}
-	
-	private String filePath;
-	
+
 	@Override
 	public void setTarget(String filePath) {
 		this.filePath = filePath;
 	}
-	
+
 	@Override
 	public String run(IStorageAdapter storage, Client client, XNJS xnjs) throws Exception{
-		logger.info("Running job as <{}> for <{]>",
+		logger.info("Running job as <{}> for <{}>",
 				client.getSelectedXloginName(), client.getDistinguishedName());
 		Map<String,String>context = getContext(storage, filePath, client, xnjs);
 		String json = expandVariables(job.toString(), context);

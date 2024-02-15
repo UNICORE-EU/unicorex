@@ -1,7 +1,9 @@
 package eu.unicore.uas.trigger.xnjs;
 
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -44,11 +46,8 @@ public class TriggerProcessor extends DefaultProcessor {
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, TriggerProcessor.class);
 
 	public static final String actionType = "DIRECTORY_SCAN";
-
 	public static final String LAST_RUN_TIME = "LAST_RUN_TIME";
 	public static final String ACTION_IDS = "ACTION_IDS";
-	
-	private IStorageAdapter storage;
 
 	public TriggerProcessor(XNJS xnjs) {
 		super(xnjs);
@@ -69,30 +68,20 @@ public class TriggerProcessor extends DefaultProcessor {
 	@Override
 	protected void handleRunning() throws ProcessingException {
 		long thisRun = System.currentTimeMillis();
-		ScanSettings sad=getJob();
+		IStorageAdapter storage = getStorageAdapter(action.getClient());
+		List<String>log = new ArrayList<>();
 		try{
-			RuleFactory rf=new RuleFactory(getStorageAdapter(), sad.storageUID);
-			// check if we must update our settings
-			ScanSettings newSettings=rf.parseSettings(sad.baseDirectory);
-			if(newSettings!=null){
-				sad.includes=newSettings.includes;
-				sad.excludes=newSettings.excludes;
-				sad.enabled=newSettings.enabled;
-				if(sad.updateInterval!=newSettings.updateInterval){
-					sad.updateInterval=newSettings.updateInterval;
-					logger.debug("Update interval for directory scan <{}> changed to {}",
-							action.getUUID(), sad.updateInterval);
-				}
-				action.setDirty();
-			}
+			ScanSettings sad = updateSettings();
 			if(sad.enabled){
 				try{
-					RuleSet rules=rf.getRules(sad.baseDirectory);
-					XnjsFile[]files=findFiles(sad.baseDirectory);
+					RuleFactory rf = new RuleFactory(storage, sad.storageUID);
+					RuleSet rules = rf.getRules(sad.baseDirectory);
+					List<XnjsFile> files = findFiles(sad, sad.baseDirectory, action.getClient());
 					Set<String> ids = getSubmittedActionIDs();
-					if(files.length>0){
-						TriggerRunner tr = new TriggerRunner(files, rules, getStorageAdapter(), action.getClient(), xnjs, logDirectory);
-						logger.debug("Executing trigger run on <{}> files.", files.length);
+					if(files.size()>0){
+						TriggerRunner tr = new TriggerRunner(files, rules, storage,
+								action.getClient(), xnjs, logDirectory);
+						logger.debug("Executing trigger run on <{}> files.", files.size());
 						TriggerStatistics ts = tr.call();
 						ids.addAll(ts.getActionsLaunched());
 					}
@@ -100,6 +89,7 @@ public class TriggerProcessor extends DefaultProcessor {
 					updateActionIDs(ids);
 				}catch(Exception ex){
 					Log.logException("Error setting up trigger run", ex, logger);
+					log.add(Log.createFaultMessage("Error setting up trigger run", ex));
 				}
 			}
 			if(sad.updateInterval>0){
@@ -113,39 +103,65 @@ public class TriggerProcessor extends DefaultProcessor {
 			setToDoneAndFailed(Log.createFaultMessage("", rue));
 		}catch(Exception ex){
 			// do not quit processing, it might be a transient error
-			Log.logException("Error during trigger processing on storage "+sad.storageUID,ex,logger);
+			Log.logException("Error during trigger processing on storage "+
+					getJob().storageUID,ex,logger);
+			log.add(Log.createFaultMessage("Error", ex));
 			sleep(120, TimeUnit.SECONDS);
+		}
+		try {
+			storeLog(log, logDirectory, storage);
+		}catch(Exception ex) {
+			Log.logException("Cannot write error log for trigger run on storage "+
+					getJob().storageUID,ex,logger);
 		}
 	}
 
-	protected XnjsFile[] findFiles(String baseDir)throws Exception{
-		return findFiles(baseDir, 0);
+	protected ScanSettings updateSettings() throws Exception {
+		ScanSettings sad = getJob();
+		RuleFactory rf = new RuleFactory(getStorageAdapter(action.getClient()), sad.storageUID);
+		ScanSettings newSettings = rf.parseSettings(sad.baseDirectory);
+		if(newSettings!=null){
+			sad.includes = newSettings.includes;
+			sad.excludes = newSettings.excludes;
+			sad.enabled = newSettings.enabled;
+			if(sad.updateInterval!=newSettings.updateInterval){
+				sad.updateInterval=newSettings.updateInterval;
+				logger.debug("Update interval for directory scan <{}> changed to {}",
+						action.getUUID(), sad.updateInterval);
+			}
+			action.setDirty();
+		}
+		return sad;
+	}
+
+	protected List<XnjsFile> findFiles(ScanSettings settings, String baseDir, Client client)throws Exception{
+		return findFiles(settings, baseDir, 0, client);
 	}
 
 	// TODO limit on files
 	/**
+	 * @param settings
 	 * @param baseDir - current base relative to the storage root
 	 * @param depth - current depth relative to the start of the scan
+	 * @param client
 	 * @return array of files to process
 	 * @throws Exception
 	 */
-	protected XnjsFile[] findFiles(String baseDir, int depth)throws Exception{
-		ScanSettings settings=getJob();
-		if(settings.maxDepth<=depth)return new XnjsFile[0];
+	protected List<XnjsFile> findFiles(ScanSettings settings, String baseDir, int depth, Client client)throws Exception{
+		List<XnjsFile>files = new ArrayList<>();
+		if(settings.maxDepth<=depth)return files;
 
 		final long lastRun = getLastRun();
 		long graceMillis = 1000 * settings.gracePeriod;
 		logger.debug("Last run {}", lastRun);
-		
-		List<XnjsFile>files = new ArrayList<>();
-		
+
 		boolean includeCurrentDir=matches(baseDir,settings);
 		logger.debug("Include files in {}: {}", baseDir, includeCurrentDir);
-		IStorageAdapter storage=getStorageAdapter();
-		XnjsFile[]xFiles=storage.ls(baseDir);
+		IStorageAdapter storage = getStorageAdapter(client);
+		XnjsFile[]xFiles = storage.ls(baseDir);
 		for(XnjsFile xf: xFiles){
 			if(xf.isDirectory() && matches(xf.getPath(),settings)){
-				files.addAll(Arrays.asList(findFiles(xf.getPath(),depth+1)));
+				files.addAll(findFiles(settings, xf.getPath(), depth+1, client));
 			}
 			else{
 				// files in the directory are included if
@@ -167,7 +183,7 @@ public class TriggerProcessor extends DefaultProcessor {
 				}
 			}
 		}
-		return files.toArray(new XnjsFile[files.size()]);
+		return files;
 	}
 
 	protected long getLastRun(){
@@ -196,23 +212,23 @@ public class TriggerProcessor extends DefaultProcessor {
 		action.getProcessingContext().put(ACTION_IDS, ids);
 	}
 
-	protected IStorageAdapter getStorageAdapter() throws Exception{
-		if(storage==null){
-			String smsID = getJob().storageUID;
-			// this seems to be a nasty way to set the correct client,
-			// but as XNJS worker threads do not rely on thread-local Client
-			// it is no problem. To be sure, we store the client and reset it
-			Client oldClient = AuthZAttributeStore.getClient();
-			try{
-				AuthZAttributeStore.setClient(action.getClient());
-				Home h=getKernel().getHome(UAS.SMS);
-				SMSBaseImpl sms = (SMSBaseImpl)h.get(smsID);
-				storage = sms.getStorageAdapter();
-			}finally{
-				AuthZAttributeStore.setClient(oldClient);
-			}
+	protected IStorageAdapter getStorageAdapter(Client client) throws ProcessingException {
+		String smsID = getJob().storageUID;
+		// this seems to be a nasty way to set the correct client,
+		// but as XNJS worker threads do not rely on thread-local Client
+		// it is no problem. To be sure, we store the client and reset it
+		Client oldClient = AuthZAttributeStore.getClient();
+		try {
+			AuthZAttributeStore.setClient(client);
+			Home h=getKernel().getHome(UAS.SMS);
+			SMSBaseImpl sms = (SMSBaseImpl)h.get(smsID);
+			return sms.getStorageAdapter();
+		} catch(Exception e) {
+			throw new ProcessingException(e);
 		}
-		return storage;
+		finally{
+			AuthZAttributeStore.setClient(oldClient);
+		}
 	}
 
 	protected Kernel getKernel(){
@@ -273,5 +289,18 @@ public class TriggerProcessor extends DefaultProcessor {
 	}
 	
 	public static final String logDirectory = ".UNICORE_data_processing";
+
+	private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+	
+	protected void storeLog(List<String>log, String directory, IStorageAdapter storage) throws Exception {
+		if(log.size()==0)return;
+		storage.mkdir(directory);
+		String fName = directory+"/"+"error-"+df.format(new Date())+".log";
+		try(OutputStreamWriter os = new OutputStreamWriter(storage.getOutputStream(fName))) {
+			for(String l: log) {
+				os.write(l+"\n");
+			}
+		}
+	}
 
 }

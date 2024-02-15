@@ -28,7 +28,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, TriggerRunner.class);
 	private static final Logger usage = LogUtil.getLogger(LogUtil.TRIGGER+".USAGE", TriggerRunner.class);
 
-	private final XnjsFile[] files;
+	private final List<XnjsFile> files;
 
 	private final RuleSet rules;
 
@@ -40,7 +40,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 
 	private final String logDirectory;
 
-	public TriggerRunner(XnjsFile[] files, RuleSet rules, IStorageAdapter storage, Client client, XNJS xnjs, String logDirectory){
+	public TriggerRunner(List<XnjsFile> files, RuleSet rules, IStorageAdapter storage, Client client, XNJS xnjs, String logDirectory){
 		this.files=files;
 		this.rules=rules;
 		this.storage=storage;
@@ -94,7 +94,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 							ts.addAction(id);
 						}
 						else throw new IllegalStateException("not implementeed: "+a.getClass());
-						logger.debug("Running <{}> on <{}> for <{]>",r, path, client.getDistinguishedName());
+						logger.debug("Running <{}> on <{}> for <{}>",r, path, client.getDistinguishedName());
 						if(logging)log.add("Running <"+r+"> on <"+path+">");
 					}
 				}catch(Exception ex){

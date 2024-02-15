@@ -39,7 +39,7 @@ public class BatchedJobAction extends BaseAction implements MultiFileAction {
 
 	@Override
 	public String run(IStorageAdapter storage, Client client, XNJS xnjs) throws Exception{
-		logger.info("Running job as <{}> for <{]>",
+		logger.info("Running job as <{}> for <{}>",
 				client.getSelectedXloginName(), client.getDistinguishedName());
 		Map<String,String>context = getContext(storage, files, client, xnjs);
 		String json = expandVariables(job.toString(), context);
