@@ -16,7 +16,6 @@
     "Match": ".*jpg",
     "Action": 
     {
-       "Type": "JOB",
        "Job": { "Executable": "ls -l ${UC_FILE_NAME}" } 
     }
   }

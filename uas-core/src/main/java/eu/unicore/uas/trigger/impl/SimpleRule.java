@@ -11,9 +11,9 @@ public class SimpleRule implements Rule {
 
 	private final String name; 
 	private final String match;
-	private final TriggeredAction action;
+	private final TriggeredAction<?> action;
 	
-	public SimpleRule(String name, String match, TriggeredAction action){
+	public SimpleRule(String name, String match, TriggeredAction<?> action){
 		this.match=match;
 		this.name=name;
 		this.action=action;
@@ -25,7 +25,7 @@ public class SimpleRule implements Rule {
 	}
 
 	@Override
-	public TriggeredAction getAction() {
+	public TriggeredAction<?> getAction() {
 		return action;
 	}
 

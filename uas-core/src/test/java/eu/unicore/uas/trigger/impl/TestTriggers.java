@@ -18,12 +18,9 @@ import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import eu.unicore.security.Client;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.trigger.xnjs.ScanSettings;
-import eu.unicore.xnjs.XNJS;
-import eu.unicore.xnjs.io.IStorageAdapter;
 
 public class TestTriggers {
 
@@ -84,13 +81,7 @@ public class TestTriggers {
 		JSONObject j = new JSONObject(json);
 		Map<String,String>ctx = new HashMap<>();
 		ctx.put("UC_FILE_NAME","replaced.txt");
-		json = new BaseAction() {
-			@Override
-			public String run(IStorageAdapter storage, String filePath, Client client,
-					XNJS xnjs) throws Exception {
-				return null;
-			}
-		}.expandVariables(json, ctx);
+		json = new BaseAction(){}.expandVariables(json, ctx);
 		System.out.println(json);
 		j = new JSONObject(json);
 		System.out.println(j.toString(2));

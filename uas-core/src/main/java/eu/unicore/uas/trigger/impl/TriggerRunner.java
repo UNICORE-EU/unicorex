@@ -12,10 +12,11 @@ import java.util.concurrent.Callable;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
-import eu.unicore.uas.trigger.TriggeredAction;
-import eu.unicore.uas.trigger.MultiFileTriggeredAction;
+import eu.unicore.uas.trigger.MultiFileAction;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;
+import eu.unicore.uas.trigger.SingleFileAction;
+import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
@@ -64,7 +65,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 			r.begin();
 		}
 
-		Map<MultiFileTriggeredAction, List<String>>multifile = new HashMap<>();
+		Map<MultiFileAction, List<String>>multifile = new HashMap<>();
 
 		for(XnjsFile file: files){
 			String path=file.getPath();
@@ -78,18 +79,21 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 					if(r.matches(path, this)){
 						match=true;
 						ts.ruleInvoked(r.getName());
-						TriggeredAction a=r.getAction();
-						if(a instanceof MultiFileTriggeredAction){
-							MultiFileTriggeredAction ma=(MultiFileTriggeredAction)a;
+						TriggeredAction<?> a = r.getAction();
+						if(a instanceof MultiFileAction){
+							MultiFileAction ma=(MultiFileAction)a;
 							List<String>files=multifile.get(ma);
 							if(files==null)files = new ArrayList<>();
 							files.add(path);
 							multifile.put(ma, files);
 						}
-						else{
-							String id = a.run(storage, path, client, xnjs);	
+						else if(a instanceof SingleFileAction){
+							SingleFileAction sfa=(SingleFileAction)a;
+							sfa.setTarget(path);
+							String id = a.run(storage, client, xnjs);	
 							ts.addAction(id);
 						}
+						else throw new IllegalStateException("not implementeed: "+a.getClass());
 						logger.debug("Running <{}> on <{}> for <{]>",r, path, client.getDistinguishedName());
 						if(logging)log.add("Running <"+r+"> on <"+path+">");
 					}
@@ -101,12 +105,13 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 			if(match)ts.incrementNumberOfFiles();
 		}
 		// run multifile actions
-		for(Map.Entry<MultiFileTriggeredAction, List<String>> e: multifile.entrySet()){
-			MultiFileTriggeredAction ma = e.getKey();
+		for(Map.Entry<MultiFileAction, List<String>> e: multifile.entrySet()){
+			MultiFileAction ma = e.getKey();
 			List<String> files = e.getValue();
 			try{
 				if(logging)log.add("Running <"+ma+"> on <"+files+">");
-				String id = ma.fire(storage, files, client, xnjs);
+				ma.setTarget(files);
+				String id = ma.run(storage, client, xnjs);
 				ts.addAction(id);
 			}catch(Exception ex){
 				Log.logException("Error running <"+ma+"> for "+client.getDistinguishedName() , ex, logger);

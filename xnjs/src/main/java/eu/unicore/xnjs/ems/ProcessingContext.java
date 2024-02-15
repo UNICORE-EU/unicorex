@@ -72,4 +72,11 @@ public class ProcessingContext implements Serializable {
 		contents.put(key.getName(), new Wrapper<>(content));
 	}
 
+	public String toString() {
+		Map<String,String>out = new HashMap<>();
+		for(String k: contents.keySet()) {
+			out.put(k, String.valueOf(contents.get(k).get()));
+		}
+		return out.toString();
+	}
 }

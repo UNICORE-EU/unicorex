@@ -1,5 +1,6 @@
 package eu.unicore.uas.trigger.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -7,7 +8,7 @@ import org.json.JSONObject;
 
 import eu.unicore.security.Client;
 import eu.unicore.uas.json.Builder;
-import eu.unicore.uas.trigger.SingleFileAction;
+import eu.unicore.uas.trigger.MultiFileAction;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.Action;
@@ -15,32 +16,32 @@ import eu.unicore.xnjs.ems.Manager;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
- * builds a job and submits it to the XNJS
+ * for a list of new files, builds a job and submits it to the XNJS
  * 
  * @author schuller
  */
-public class JobAction extends BaseAction implements SingleFileAction {
+public class BatchedJobAction extends BaseAction implements MultiFileAction {
 
-	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, JobAction.class);
+	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, BatchedJobAction.class);
 
 	private final JSONObject job;
-	
-	public JobAction(JSONObject job){
+		
+	private List<String>files;
+
+	public BatchedJobAction(JSONObject job){
 		this.job=job;
 	}
 	
-	private String filePath;
-	
 	@Override
-	public void setTarget(String filePath) {
-		this.filePath = filePath;
+	public void setTarget(List<String>target) {
+		this.files = target;
 	}
-	
+
 	@Override
 	public String run(IStorageAdapter storage, Client client, XNJS xnjs) throws Exception{
 		logger.info("Running job as <{}> for <{]>",
 				client.getSelectedXloginName(), client.getDistinguishedName());
-		Map<String,String>context = getContext(storage, filePath, client, xnjs);
+		Map<String,String>context = getContext(storage, files, client, xnjs);
 		String json = expandVariables(job.toString(), context);
 		Builder b = new Builder(json);
 		JSONObject job = b.getJSON();
@@ -52,6 +53,7 @@ public class JobAction extends BaseAction implements SingleFileAction {
 	}
 
 	public String toString(){
-		return "JOB";
+		return "BATCHED-JOB";
 	}
+
 }

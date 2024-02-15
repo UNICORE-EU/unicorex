@@ -46,7 +46,7 @@ public class TriggerProcessor extends DefaultProcessor {
 	public static final String actionType = "DIRECTORY_SCAN";
 
 	public static final String LAST_RUN_TIME = "LAST_RUN_TIME";
-	public static final String ACTION_IDS = "A";
+	public static final String ACTION_IDS = "ACTION_IDS";
 	
 	private IStorageAdapter storage;
 
@@ -59,9 +59,8 @@ public class TriggerProcessor extends DefaultProcessor {
 		ScanSettings sad=getJob();
 		int update=sad.updateInterval;
 		if(update>0)sleep(update, TimeUnit.SECONDS);
-		action.addLogTrace("Created with update interval <"+update+">.");
 		action.setStatus(ActionStatus.RUNNING);
-		action.addLogTrace("Status set to RUNNING.");
+		action.addLogTrace("Created, status set to RUNNING.");
 	}
 
 	/**

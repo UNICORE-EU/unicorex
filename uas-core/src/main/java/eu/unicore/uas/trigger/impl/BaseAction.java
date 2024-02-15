@@ -2,27 +2,39 @@ package eu.unicore.uas.trigger.impl;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.io.FilenameUtils;
 
 import eu.unicore.security.Client;
 import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
-/**
- * builds a JSDL and submits a job to the XNJS, resulting in a batch job  
- * 
- * @author schuller
- */
-public abstract class BaseAction implements TriggeredAction {
+public abstract class BaseAction {
 
 	protected Map<String,String> getContext(IStorageAdapter storage, String filePath, Client client, XNJS xnjs){
-		Map<String,String>context=new HashMap<String, String>();
+		Map<String,String>context = new HashMap<>();
 		File f=new File(filePath);
 		context.put(TriggeredAction.FILE_NAME, f.getName());
-		String parent=storage.getStorageRoot()+"/"+(f.getParent()!=null?f.getParent():".")+"/";
+		String parentS = storage.getStorageRoot()+"/"+(f.getParent()!=null?f.getParent():".")+"/";
+		String parent = FilenameUtils.normalize(parentS, true);
 		context.put(TriggeredAction.CURRENT_DIR, parent);
-		context.put(TriggeredAction.FILE_PATH, parent+f.getName());
+		context.put(TriggeredAction.FILE_PATH, new File(parent, f.getName()).getPath());
+		context.put(TriggeredAction.BASE_DIR, storage.getStorageRoot());
+		return context;
+	}
+	
+	protected Map<String,String> getContext(IStorageAdapter storage, List<String> files, Client client, XNJS xnjs){
+		Map<String,String>context = new HashMap<>();
+		StringBuilder sb = new StringBuilder();
+		for(String f: files) {
+			if(sb.length()>0)sb.append(" ");
+			while(f.startsWith("/")) f = f.substring(1);
+			sb.append("'").append(f).append("'");
+		}
+		context.put(TriggeredAction.FILES, sb.toString());
 		context.put(TriggeredAction.BASE_DIR, storage.getStorageRoot());
 		return context;
 	}

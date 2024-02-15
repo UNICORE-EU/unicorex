@@ -218,7 +218,7 @@ public class TSIMessages {
 					}
 				}
 			}catch(Exception ex){}
-			f.format("chmod u+x %s 2> /dev/null \n", executableGuess);
+			f.format("chmod u+x \"%s\" 2> /dev/null \n", executableGuess);
 
 		}
 		// remove any pre-existing exit code file (e.g. job restart case)

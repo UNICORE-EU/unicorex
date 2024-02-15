@@ -33,7 +33,7 @@ public interface Rule {
 	/**
 	 * get the action to be executed if the rule matches
 	 */
-	public TriggeredAction getAction();
+	public TriggeredAction<?> getAction();
 	
 	/**
 	 * invoked at the very end of processing

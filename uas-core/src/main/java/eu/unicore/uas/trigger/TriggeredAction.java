@@ -10,7 +10,7 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  *
  * @author schuller
  */
-public interface TriggeredAction {
+public interface TriggeredAction<T> {
 
 	public static final String FILE_NAME="UC_FILE_NAME";
 	
@@ -20,14 +20,22 @@ public interface TriggeredAction {
 	
 	public static final String BASE_DIR="UC_BASE_DIR";
 	
+	public static final String FILES = "UC_FILES";
+	
 	/**
 	 * run the action
 	 *
 	 * @param storage - the parent storage
-	 * @param filePath - the file path
+	 * @param target - the file(s) that trigger the action
 	 * @param client - the user
 	 * @param xnjsConfig - the XNJS for executing things
 	 */
-	public String run(IStorageAdapter storage, String filePath, Client client, XNJS xnjsConfig) throws Exception;
-	
+	public String run(IStorageAdapter storage, Client client, XNJS xnjsConfig) throws Exception;
+
+	/**
+	 * the target that triggered the action
+	 * @param target
+	 */
+	public void setTarget(T target);
+
 }

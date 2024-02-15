@@ -13,7 +13,6 @@
     "Match": ".*\\.txt",
     "Action": 
     {
-       "Type": "JOB",
        "Job":  {
          "Executable": "/usr/bin/md5sum",
          "Arguments": [ "${UC_FILE_PATH}" ],
@@ -29,8 +28,7 @@
     "Match": ".*\\.txt",
     "Action": 
     {
-       "Type": "NOTIFY",
-       "URL": "http://localhost:65321/rest/notification",
+       "Notification": "http://localhost:65321/rest/notification",
        "Settings": { "ref": "test123" }
     }
   }

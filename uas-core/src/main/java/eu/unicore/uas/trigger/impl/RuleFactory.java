@@ -11,9 +11,9 @@ import org.json.JSONObject;
 import eu.unicore.security.Client;
 import eu.unicore.services.utils.UnitParser;
 import eu.unicore.uas.json.JSONUtil;
-import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;
+import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.trigger.xnjs.ScanSettings;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
@@ -142,18 +142,20 @@ public class RuleFactory {
 	protected Rule makeRule(JSONObject json)throws JSONException{
 		String name=json.optString("Name", "<unnamed>");
 		String match=json.getString("Match");
-		TriggeredAction action=makeAction(json.getJSONObject("Action"));
-		SimpleRule r=new SimpleRule(name, match, action);
-		return r;
+		TriggeredAction<?> action = makeAction(json.getJSONObject("Action"));
+		return new SimpleRule(name, match, action);
 	}
 	
-	protected TriggeredAction makeAction(JSONObject json)throws JSONException{
+	protected TriggeredAction<?> makeAction(JSONObject json)throws JSONException{
 		String type=json.optString("Type", null);
 		if("NOOP".equals(type) || json.keySet().size()==0) {
 			return noop;
 		}
 		else if("JOB".equals(type)|| json.optJSONObject("Job")!=null) {
 			return makeJobAction(json);
+		}
+		else if("MULTIJOB".equals(type)|| json.optJSONObject("BatchedJob")!=null) {
+			return makeBatchedJobAction(json);
 		}
 		else if("EXTRACT".equals(type)|| json.optJSONObject("Extract")!=null) {
 			return makeExtractAction(json);
@@ -164,24 +166,31 @@ public class RuleFactory {
 		return null;
 	}
 	
-	protected TriggeredAction makeJobAction(JSONObject json)throws JSONException{
+	protected TriggeredAction<?> makeJobAction(JSONObject json)throws JSONException{
 		return new JobAction(json.getJSONObject("Job"));
 	}
+	
+	protected TriggeredAction<?> makeBatchedJobAction(JSONObject json)throws JSONException{
+		return new BatchedJobAction(json.getJSONObject("BatchedJob"));
+	}
 
-	protected TriggeredAction makeExtractAction(JSONObject json)throws JSONException{
+	protected TriggeredAction<?> makeExtractAction(JSONObject json)throws JSONException{
 		return new ExtractMetadataAction(json.optJSONObject("Extract"), uniqueStorageID);
 	}
 
-	protected TriggeredAction makeNotifyAction(JSONObject json)throws JSONException{
-		return new NotificationAction(json.getString("URL"));
+	protected TriggeredAction<?> makeNotifyAction(JSONObject json)throws JSONException{
+		return new NotificationAction(json.getString("Notification"));
 	}
 	
 	private static final NOOP noop=new NOOP();
 	
-	public static class NOOP implements TriggeredAction{
+	public static class NOOP implements TriggeredAction<String>{
 
 		@Override
-		public String run(IStorageAdapter s, String path, Client c, XNJS xnjs) {
+		public void setTarget(String t) {}
+
+		@Override
+		public String run(IStorageAdapter s, Client c, XNJS xnjs) {
 			return null;
 		}
 		
