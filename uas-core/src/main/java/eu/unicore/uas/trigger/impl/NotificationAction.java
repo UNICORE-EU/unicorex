@@ -1,8 +1,6 @@
 package eu.unicore.uas.trigger.impl;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -10,14 +8,9 @@ import org.json.JSONObject;
 
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.rest.client.BaseClient;
-import eu.unicore.services.rest.client.IAuthCallback;
-import eu.unicore.services.rest.jwt.JWTDelegation;
-import eu.unicore.services.rest.jwt.JWTServerProperties;
-import eu.unicore.services.utils.TimeoutRunner;
 import eu.unicore.uas.trigger.MultiFileAction;
 import eu.unicore.uas.util.LogUtil;
-import eu.unicore.util.httpclient.IClientConfiguration;
+import eu.unicore.uas.xnjs.NotificationSender;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
@@ -53,22 +46,8 @@ public class NotificationAction extends BaseAction implements MultiFileAction {
 		msg.put("href", kernel.getContainerProperties().getContainerURL()+"/rest/core");
 		msg.put("directory", storage.getStorageRoot());
 		msg.put("files", fList);
-		doSend(kernel, url, msg, client);
+		NotificationSender.doSend(kernel, url, msg, client.getDistinguishedName());
 		return null;
-	}
-
-	protected void doSend(Kernel kernel, String url, JSONObject message, Client client)
-			throws Exception {
-		final IClientConfiguration security = kernel.getClientConfiguration();
-		final IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(),
-				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()),
-					client.getDistinguishedName());
-		String res = new TimeoutRunner<String>( ()-> {
-						new BaseClient(url, security, auth).postQuietly(message);
-						return "OK";
-					},
-					kernel.getContainerProperties().getThreadingServices(), 10, TimeUnit.SECONDS).call();
-		if(res==null)throw new TimeoutException();
 	}
 
 	public String toString(){

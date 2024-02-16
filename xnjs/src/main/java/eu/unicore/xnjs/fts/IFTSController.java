@@ -44,7 +44,13 @@ public interface IFTSController {
 	 * set protocol-dependent extra information
 	 */
 	public default void setExtraParameters(Map<String,String> extraParameters) {}
-	
+
+	/**
+	 * Set the desired permissions (e.g. "rwx") on the target file.
+	 * Might not be supported by every implementation.
+	 */
+	public default void setPermissions(String permissions) {}
+
 	/**
 	 * collect all the files that should be transferred and put them into the
 	 * given list

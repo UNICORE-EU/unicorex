@@ -48,6 +48,8 @@ public class DataStageInInfo implements Serializable, DataStagingInfo {
 
 	private Map<String,String> extraParameters = null;
 
+	private String permissions;
+
 	public DataStageInInfo(){}
 
 	/**
@@ -177,6 +179,14 @@ public class DataStageInInfo implements Serializable, DataStagingInfo {
 
 	public void setExtraParameters(Map<String, String> extraParameters) {
 		this.extraParameters = extraParameters;
+	}
+
+	public String getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
 	}
 
 	public String toString(){

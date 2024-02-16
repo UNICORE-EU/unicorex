@@ -6,7 +6,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 
-import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
@@ -37,7 +36,7 @@ public class NotificationSender implements INotificationSender {
 		List<String>urls = action.getNotificationURLs();
 		for(String url: urls) {
 			try{
-				doSend(url, msg, action.getClient());
+				doSend(kernel, url, msg, action.getClient().getDistinguishedName());
 				action.addLogTrace("Notified <"+url+">");
 			}catch(Exception ex) {
 				action.addLogTrace(Log.createFaultMessage("Could not notify <"+url+">", ex));
@@ -45,12 +44,11 @@ public class NotificationSender implements INotificationSender {
 		}
 	}
 
-	protected void doSend(final String url, final JSONObject message, final Client client)
+	public static void doSend(final Kernel kernel, final String url, final JSONObject message, final String userDN)
 			throws Exception {
 		final IClientConfiguration security = kernel.getClientConfiguration();
 		final IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(),
-				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()),
-					client.getDistinguishedName());
+				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), userDN);
 		String res = new TimeoutRunner<String>( ()->{
 						new BaseClient(url, security, auth).postQuietly(message);
 						return "OK";

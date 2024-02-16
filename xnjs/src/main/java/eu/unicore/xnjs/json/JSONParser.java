@@ -124,6 +124,11 @@ public class JSONParser {
 			dsi.setInlineData(JSONUtils.readMultiLine("Data", "", spec));
 			spec.put("Data","n/a"); // avoid storing inline data in the DB forever
 		}
+		String perm = spec.optString("Permissions", null);
+		if(perm!=null) {
+			dsi.setPermissions(perm);
+		}
+		
 		extractDataStagingOptions(spec, dsi);
 		return dsi;
 	}

@@ -56,6 +56,11 @@ public class RuleFactory {
 		this.uniqueStorageID=uniqueStorageID;
 	}
 	
+	public boolean haveSettingsUpdate(String directory, long lastUpdateInstant) throws ExecutionException {
+		XnjsFile f = storage.getProperties(directory+"/"+RULE_FILE_NAME);
+		return f!=null ? f.getLastModified().getTimeInMillis()>lastUpdateInstant : false;
+	}
+	
 	/**
 	 * Get the set of rules applicable to the given directory.
 	 * 
@@ -114,6 +119,11 @@ public class RuleFactory {
 		}catch(JSONException e){
 			throw new IOException(e);
 		}
+		try(InputStream is = storage.getInputStream(filePath)){
+			 readRules(is);
+		}catch(JSONException e){
+			throw new IOException(e);
+		}
 		return settings;
 	}
 	
@@ -163,7 +173,7 @@ public class RuleFactory {
 		else if("NOTIFY".equals(type)|| json.optString("Notification", null)!=null) {
 			return makeNotifyAction(json);
 		}
-		return null;
+		throw new JSONException("Cannot build action from: "+json.toString());
 	}
 	
 	protected TriggeredAction<?> makeJobAction(JSONObject json)throws JSONException{

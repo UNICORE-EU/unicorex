@@ -100,7 +100,7 @@ public class TriggerProcessor extends DefaultProcessor {
 			}
 		}catch(ResourceUnknownException rue){
 			// storage is gone for some reason, quit
-			setToDoneAndFailed(Log.createFaultMessage("", rue));
+			setToDoneAndFailed(Log.createFaultMessage("Parent storage does not exist.", rue));
 		}catch(Exception ex){
 			// do not quit processing, it might be a transient error
 			Log.logException("Error during trigger processing on storage "+

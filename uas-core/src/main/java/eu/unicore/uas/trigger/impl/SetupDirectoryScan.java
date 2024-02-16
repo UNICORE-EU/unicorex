@@ -92,7 +92,8 @@ public class SetupDirectoryScan implements Callable<String>{
 	
 	public String getActionUUID(){
 		int hash=(scanSettings.baseDirectory+client.getDistinguishedName()).hashCode();
-		return scanSettings.storageUID+"-scan"+hash;
+		return scanSettings.storageUID+"-scan"
+				+ (scanSettings.sharedStorageMode ? "-"+hash : "");
 	}
 	
 	private boolean actionExists() throws Exception {

@@ -13,10 +13,10 @@ import eu.unicore.client.core.StorageClient;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.fts.FiletransferOptions;
 import eu.unicore.uas.fts.FiletransferOptions.IMonitorable;
+import eu.unicore.uas.fts.ProgressListener;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.SMSUtils;
 import eu.unicore.uas.util.LogUtil;
-import eu.unicore.uas.fts.ProgressListener;
 import eu.unicore.util.Log;
 import eu.unicore.util.Pair;
 import eu.unicore.xnjs.XNJS;
@@ -44,6 +44,8 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 	 */
 	protected StorageClient storage;
 
+	private String permissions = null;
+
 	/**
 	 * files to transfer: pairs of remote source and local target
 	 */
@@ -61,7 +63,7 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 			info.setStatus(Status.RUNNING);
 			preTransferSanityChecks();
 			runTransfers();
-			setPermissions();
+			setFilePermissions();
 			info.setStatus(Status.DONE);
 			computeMetrics();
 		}
@@ -141,10 +143,12 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 		}
 	}
 
-	/**
-	 * transfer all previously collected files
-	 */
-	protected void setPermissions() {
+	@Override
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
+	}
+
+	protected void setFilePermissions() {
 		try{
 			IStorageAdapter tsi=getStorageAdapter();
 			boolean supportsBatch=tsi instanceof BatchMode;
@@ -382,7 +386,8 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 
 	protected void copyPermissions(FileListEntry remote, String localFile) {
 		try{
-			getStorageAdapter().chmod2(localFile, SMSUtils.getChangePermissions(remote.permissions), false);
+			String perm = permissions!=null? remote.permissions : permissions;
+			getStorageAdapter().chmod2(localFile, SMSUtils.getChangePermissions(perm), false);
 		}catch(Exception ex) {
 			Log.logException("Can't copy permissions", ex, logger);
 		}

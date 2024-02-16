@@ -117,17 +117,17 @@ public class ActionStatus {
 	public static String transitionalStatus(int s){
 		switch (s) {
 		case TRANSITION_NONE:
-			return "(trans.: none)";
+			return "";
 		case TRANSITION_ABORTING:
-			return "(trans.: aborting)";
+			return "(aborting)";
 		case TRANSITION_REMOVING:
-			return "(trans.: removing)";
+			return "(removing)";
 		case TRANSITION_PAUSING:
-			return "(trans.: pausing)";
+			return "(pausing)";
 		case TRANSITION_RESUMING:
-			return "(trans.: resuming)";
+			return "(resuming)";
 		case TRANSITION_RESTARTING:
-			return "(trans.: restarting)";
+			return "(restarting)";
 			
 		default:
 			break;

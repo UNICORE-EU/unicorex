@@ -8,6 +8,7 @@ import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.io.ChangePermissions;
 import eu.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.TransferInfo;
@@ -26,7 +27,8 @@ public class FileCopy implements IFileTransfer {
 	private final XNJS configuration;
 	private final boolean isImport;
 	private ImportPolicy policy = ImportPolicy.PREFER_COPY;
-	
+	private String permissions = null;
+
 	private final TransferInfo transferInfo;
 	
 	public FileCopy(XNJS configuration, Client client, String workingDirectory, String source, String target, boolean isImport) {
@@ -56,6 +58,9 @@ public class FileCopy implements IFileTransfer {
 			}
 			else{
 				tsi.cp(s,t);
+				if(permissions!=null){
+					tsi.chmod2(t, ChangePermissions.getChangePermissions(permissions), false);
+				}
 			}
 			transferInfo.setStatus(Status.DONE);
 		}catch(Exception ex){
@@ -95,6 +100,11 @@ public class FileCopy implements IFileTransfer {
 	
 	public TransferInfo getInfo() {
 		return transferInfo;
+	}
+
+	@Override
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
 	}
 
 }

@@ -113,6 +113,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 			if(info.getExtraParameters()!=null){
 				f.setExtraParameters(info.getExtraParameters());
 			}
+			f.setPermissions(info.getPermissions());
 		}
 		return f;
 	}
@@ -135,6 +136,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 			if(info.getExtraParameters()!=null) {
 				f.setExtraParameters(info.getExtraParameters());
 			}
+			f.setPermissions(info.getPermissions());
 		}
 		return f;
 	}

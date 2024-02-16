@@ -12,6 +12,7 @@ import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.ChangePermissions;
 import eu.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.xnjs.io.IFileTransferEngine;
 import eu.unicore.xnjs.io.IStorageAdapter;
@@ -51,6 +52,8 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 	protected IStorageAdapter storageAdapter;
 
 	protected OverwritePolicy overwrite;
+
+	private String permissions = null;
 
 	protected volatile boolean abort=false;
 
@@ -109,6 +112,11 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 				monitor.registerObserver(this);
 			}
 			doRun();
+			try {
+				if(permissions!=null && isImport()) {
+					storageAdapter.chmod2(info.getTarget(), ChangePermissions.getChangePermissions(permissions), false);
+				}
+			}catch(Exception ex) {}
 			//force a last update on the file info
 			if(monitor!=null)monitor.run();
 			reportUsage();
@@ -182,6 +190,11 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 	@Override
 	public void setOverwritePolicy(OverwritePolicy overwrite) {
 		this.overwrite=overwrite;
+	}
+
+	@Override
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
 	}
 
 	@Override

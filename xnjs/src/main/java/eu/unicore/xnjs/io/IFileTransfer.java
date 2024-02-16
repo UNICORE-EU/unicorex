@@ -90,4 +90,10 @@ public interface IFileTransfer extends Runnable {
 	 */
 	public default void setExtraParameters(Map<String,String>params){}
 
+	/**
+	 * Set the desired permissions (e.g. "rwx") on the target file.
+	 * Might not be supported by every implementation.
+	 */
+	public default void setPermissions(String permissions) {}
+
 }

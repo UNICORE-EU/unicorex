@@ -239,14 +239,14 @@ public class Files extends RESTRendererBase {
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response handleAction(@PathParam("path")String path, @PathParam("action")String action, String jsonString) throws Exception {
 		if("extract".equals(action)) {
-			return handleMetadataExtraction(path, jsonString);
+			return startMetadataExtraction(path, jsonString);
 		}
 		else {
 			throw new WebApplicationException("Action '"+action+"' not available.", 404);
 		}
 	}
 	
-	protected Response handleMetadataExtraction(String path, String jsonString) throws Exception {
+	protected Response startMetadataExtraction(String path, String jsonString) throws Exception {
 		try{
 			if(path== null || path.isEmpty())path="/";
 			if(!path.startsWith("/"))path="/"+path;
@@ -265,7 +265,7 @@ public class Files extends RESTRendererBase {
 			List<Pair<String, Integer>> dirs = new ArrayList<>();
 			if(props.isDirectory()){
 				int depth = json.optInt("depth", 10);
-				dirs.add(new Pair<String,Integer>(path,depth));
+				dirs.add(new Pair<>(path,depth));
 				// TODO might have a list of files/directories to extract!
 			}
 			else{
@@ -519,10 +519,10 @@ public class Files extends RESTRendererBase {
 		init.parentUUID = resourceID;
 		String base = RESTUtils.makeHref(kernel, "core/storages", sms.getUniqueID());
 		init.parentServiceName = base+"/files"+path;
-		try {String uid = taskHome.createResource(init);
-		new ExtractionWatcher(f, uid, kernel).run();
-		return kernel.getContainerProperties().getContainerURL()+
-				"/rest/core/tasks/"+uid;
+		try {
+			String uid = taskHome.createResource(init);
+			new ExtractionWatcher(f, uid, kernel).run();
+			return kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uid;
 		}catch(Exception ex) {
 			Log.logException("Cannot create task instance", ex);
 		}

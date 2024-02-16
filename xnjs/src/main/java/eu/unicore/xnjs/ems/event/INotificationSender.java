@@ -13,8 +13,8 @@ import eu.unicore.xnjs.ems.Action;
 public interface INotificationSender {
 
 	/**
-	 * @param msg - base message already containing the new "bssStatus"
-	 * @param action - NOTE this is already locked with getForUpdate()
+	 * @param msg - message to send
+	 * @param action
 	 * @throws Exception
 	 */
 	public void send(JSONObject msg, final Action action) throws Exception;

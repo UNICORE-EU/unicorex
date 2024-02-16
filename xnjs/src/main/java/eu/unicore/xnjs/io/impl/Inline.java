@@ -7,6 +7,7 @@ import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.io.ChangePermissions;
 import eu.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.TransferInfo;
@@ -26,6 +27,8 @@ public class Inline implements IFileTransfer {
 	private OverwritePolicy overwrite;
 	private final String inlineData;
 	private String umask = null;
+	private String permissions = null;
+
 	private final TransferInfo info;
 
 	public Inline(XNJS configuration, Client client, String workingDirectory, String target, String data) {
@@ -65,8 +68,16 @@ public class Inline implements IFileTransfer {
 			info.setTransferredBytes(inlineData.length());
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){
-			info.setStatus(Status.FAILED, Log.createFaultMessage("Writing to '"
+			info.setStatus(Status.FAILED, Log.createFaultMessage("Inline import to '"
 					+ workingDirectory+"/"+info.getTarget() + "' failed", ex));
+		}
+		if(permissions!=null) {
+			try{
+				tsi.chmod2(info.getTarget(), ChangePermissions.getChangePermissions(permissions), false);
+			}catch(Exception ex) {
+				info.setStatus(Status.FAILED, Log.createFaultMessage("Setting permissions of '"
+						+ workingDirectory+"/"+info.getTarget() + "' to '"+permissions+"' failed", ex));
+			}
 		}
 	}
 	
@@ -88,6 +99,11 @@ public class Inline implements IFileTransfer {
 	@Override
 	public void setStorageAdapter(IStorageAdapter adapter) {
 		this.tsi = adapter;
+	}
+
+	@Override
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
 	}
 
 	private OutputStreamWriter getTarget(String target, boolean append)throws Exception{
