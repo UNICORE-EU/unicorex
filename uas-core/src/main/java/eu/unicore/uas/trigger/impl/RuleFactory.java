@@ -81,10 +81,12 @@ public class RuleFactory {
 			RuleSet result = new RuleSet(null);
 			String source=IOUtils.toString(input, "UTF-8");
 			JSONObject json=JSONUtil.read(source);
-			JSONArray rules=json.getJSONArray("Rules");
-			for(int i=0; i<rules.length(); i++){
-				JSONObject rule = rules.getJSONObject(i);
-				result.add(makeRule(rule));	
+			JSONArray rules=json.optJSONArray("Rules");
+			if(rules!=null) {
+				for(int i=0; i<rules.length(); i++){
+					JSONObject rule = rules.getJSONObject(i);
+					result.add(makeRule(rule));	
+				}
 			}
 			return result;
 		}

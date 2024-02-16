@@ -59,6 +59,7 @@ public class TriggerProcessor extends DefaultProcessor {
 		int update=sad.updateInterval;
 		if(update>0)sleep(update, TimeUnit.SECONDS);
 		action.setStatus(ActionStatus.RUNNING);
+		updateActionIDs(new HashSet<>());
 		action.addLogTrace("Created, status set to RUNNING.");
 	}
 
@@ -193,8 +194,7 @@ public class TriggerProcessor extends DefaultProcessor {
 
 	@SuppressWarnings("unchecked")
 	protected Set<String> getSubmittedActionIDs(){
-		Set<String> ids = (Set<String>)action.getProcessingContext().getAs(ACTION_IDS, Set.class);
-		return ids!=null? ids : new HashSet<>();
+		return (Set<String>)action.getProcessingContext().getAs(ACTION_IDS, Set.class);
 	}
 
 	protected void updateLastRunTime(long time){
