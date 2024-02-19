@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <description>UNICORE/X web services layer</description>
   <inceptionYear>2006</inceptionYear>
-  <version>2.6.0</version>
+  <version>2.6.1</version>
   <name>UNICORE/X Parent</name>
   
   <parent>
