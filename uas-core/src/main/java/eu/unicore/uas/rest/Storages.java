@@ -331,6 +331,11 @@ public class Storages extends ServicesBase {
 			}
 			getResource().copy(source, target);
 		}
+		else if("stop-processing".equals(name)){
+			String id = resourceID+"-scan";
+			XNJSFacade.get(null, kernel).getManager().abort(id, AuthZAttributeStore.getClient());
+			getModel().getStorageDescription().setEnableTrigger(false);
+		}
 		else{
 			throw new WebApplicationException("Action '"+name+"' not available.", 404);
 		}
@@ -364,8 +369,11 @@ public class Storages extends ServicesBase {
 		String base = getBaseURL()+"/storages/"+resource.getUniqueID();
 		links.add(new Link("files", base+"/files", "Files"));
 		if(!getModel().getStorageDescription().isDisableMetadata()){
-			links.add(new Link("metadata-search", base+"/search", "Search in metadata"));
-			links.add(new Link("metadata-extract", base+"/files/actions/extract", "Extract metadata"));
+			links.add(new Link("action:metadata-search", base+"/search", "Search in metadata"));
+			links.add(new Link("action:metadata-extract", base+"/files/actions/extract", "Extract metadata"));
+		}
+		if(getModel().getStorageDescription().isEnableTrigger()) {
+			links.add(new Link("action:stop-processing", base+"/actions/stop-processing", "Stop the data-triggered processing"));
 		}
 		links.add(new Link("action:copy", base+"/actions/copy", "Copy file 'from' to file 'to'."));
 		links.add(new Link("action:rename", base+"/actions/rename","Rename file 'from' to file 'to'."));

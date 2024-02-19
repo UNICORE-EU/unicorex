@@ -103,11 +103,6 @@ public class StorageFactories extends ServicesBase {
 		}
 	}
 
-	@Override
-	protected void updateLinks() {
-		super.updateLinks();
-	}
-	
 	public static String createSMS(StorageFactoryImpl smf, String jsonString) throws Exception {
 		JSONObject json = new JSONObject(jsonString);
 		Calendar tt = null;
