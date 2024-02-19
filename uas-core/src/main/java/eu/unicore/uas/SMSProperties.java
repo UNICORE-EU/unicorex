@@ -47,6 +47,7 @@ public class SMSProperties extends PropertiesHelper {
 	
 	// triggering stuff
 	public static final String ENABLE_TRIGGER="enableTrigger";
+	public static final String ALLOW_TRIGGER="allowTrigger";
 	public static final String SHARED_TRIGGER_USER="triggerUserID";
 	
 	public static final String UMASK_KEY = "defaultUmask";
@@ -80,12 +81,14 @@ public class SMSProperties extends PropertiesHelper {
 				setDescription("Whether the metadata service should be disabled for this storage."));
 		META.put(ENABLE_TRIGGER, new PropertyMD("false").
 				setDescription("Whether the triggering feature should be enabled for this storage."));
+		META.put(ALLOW_TRIGGER, new PropertyMD("true").
+				setDescription("(if creating via factory) If user is allowed to enable the triggering feature."));
 		META.put(SHARED_TRIGGER_USER, new PropertyMD().
 				setDescription("For data triggering on shared storages, use this user ID for the controlling process."));
 		META.put(CHECK_EXISTENCE, new PropertyMD("true").
 				setDescription("Whether the existence of the base directory should be checked when creating the storage."));
 		META.put(ALLOW_USER_DEFINED_PATH, new PropertyMD("true").
-				setDescription("Whether the allow the user to set the storage base directory when creating the storage via the StorageFactory."));
+				setDescription("(if creating via factory) Whether the allow the user to set the storage base directory."));
 		META.put(UMASK_KEY, new PropertyMD("027").
 				setDescription("Default (initial) umask for files in the storage. Must be an octal number."));
 		META.put(DESCRIPTION, new PropertyMD("Filesystem").setUpdateable().

@@ -46,7 +46,6 @@ public class ScanSettings implements Serializable {
 				" enabled=" + enabled +
 				" baseDir=" + baseDirectory +
 				" updateInterval=" + updateInterval +
-				" gracePeriod=" + gracePeriod+
 				" includes=" + Arrays.asList(includes) +
 				" excludes=" + Arrays.asList(excludes);
 	}

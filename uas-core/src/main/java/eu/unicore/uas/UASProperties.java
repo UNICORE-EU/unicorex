@@ -362,6 +362,7 @@ public class UASProperties extends PropertiesHelper {
 		asd.setAllowUserDefinedPath(smsProps.getBooleanValue(SMSProperties.ALLOW_USER_DEFINED_PATH));
 		asd.setDisableMetadata(smsProps.getBooleanValue(SMSProperties.DISABLE_METADATA));
 		asd.setEnableTrigger(smsProps.getBooleanValue(SMSProperties.ENABLE_TRIGGER));
+		asd.setAllowTrigger(smsProps.getBooleanValue(SMSProperties.ALLOW_TRIGGER));
 		asd.setSharedTriggerUser(smsProps.getValue(SMSProperties.SHARED_TRIGGER_USER));
 		asd.setDefaultUmask(smsProps.getValue(SMSProperties.UMASK_KEY));
 		asd.setDescription(smsProps.getValue(SMSProperties.DESCRIPTION));

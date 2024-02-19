@@ -29,6 +29,7 @@ import eu.unicore.uas.trigger.impl.TriggerStatistics;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.ProcessingException;
 import eu.unicore.xnjs.ems.processors.DefaultProcessor;
@@ -47,6 +48,7 @@ public class TriggerProcessor extends DefaultProcessor {
 
 	public static final String actionType = "DIRECTORY_SCAN";
 	public static final String LAST_RUN_TIME = "LAST_RUN_TIME";
+	public static final String LAST_RUN_INFO = "LAST_RUN_INFO";
 	public static final String ACTION_IDS = "ACTION_IDS";
 
 	public TriggerProcessor(XNJS xnjs) {
@@ -85,6 +87,7 @@ public class TriggerProcessor extends DefaultProcessor {
 						logger.debug("Executing trigger run on <{}> files.", files.size());
 						TriggerStatistics ts = tr.call();
 						ids.addAll(ts.getActionsLaunched());
+						storeLastRunInfo(ts.toString());
 					}
 					updateLastRunTime(thisRun-1000*sad.gracePeriod);
 					updateActionIDs(ids);
@@ -104,16 +107,18 @@ public class TriggerProcessor extends DefaultProcessor {
 			setToDoneAndFailed(Log.createFaultMessage("Parent storage does not exist.", rue));
 		}catch(Exception ex){
 			// do not quit processing, it might be a transient error
-			Log.logException("Error during trigger processing on storage "+
-					getJob().storageUID,ex,logger);
-			log.add(Log.createFaultMessage("Error", ex));
+			logger.debug("Error during trigger processing on storage {}: {}",
+					getJob().storageUID, ex);
+			String msg = Log.createFaultMessage("Error", ex);
+			log.add(msg);
+			storeLastRunInfo(msg);
 			sleep(120, TimeUnit.SECONDS);
 		}
 		try {
 			storeLog(log, logDirectory, storage);
 		}catch(Exception ex) {
-			Log.logException("Cannot write error log for trigger run on storage "+
-					getJob().storageUID,ex,logger);
+			logger.debug("Cannot write error log for trigger run on storage {}: {}",
+					getJob().storageUID, ex);
 		}
 	}
 
@@ -187,9 +192,23 @@ public class TriggerProcessor extends DefaultProcessor {
 		return files;
 	}
 
-	protected long getLastRun(){
+	public static long getLastRun(Action action){
 		Long l = action.getProcessingContext().getAs(LAST_RUN_TIME, Long.class);
 		return l!=null? l.longValue() : 0;
+	}
+
+	protected long getLastRun(){
+		return getLastRun(action);
+	}
+
+	public static String getLastRunInfo(Action action){
+		String i = action.getProcessingContext().getAs(LAST_RUN_INFO, String.class);
+		return i!=null? i : "n/a";
+	}
+
+	protected void storeLastRunInfo(String info) {
+		if(info.length()>128)info=info.substring(0, 128)+"...";
+		action.getProcessingContext().put(LAST_RUN_INFO, info);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -272,9 +291,7 @@ public class TriggerProcessor extends DefaultProcessor {
 	}
 
 	private boolean match(String path, String expr){
-		Pattern p = getPattern(expr);
-		boolean res=p.matcher(path).find();
-		return res;
+		return getPattern(expr).matcher(path).find();
 	}
 
 	private Map<String, Pattern>patterns=new HashMap<>();

@@ -269,7 +269,8 @@ public class GrounderImpl implements Incarnation {
 		availablePartitions.setSelectedValue(requestedPartitionName);
 		if(requestedPartitionName!=null) {
 			if(!availablePartitions.isInRange(requestedPartitionName)){
-				throw new ExecutionException(new ErrorCode(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,"Resource request <Queue = "+requestedPartitionName+"> is out of range."));
+				throw new ExecutionException(new ErrorCode(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,
+						"Resource request <Queue = "+requestedPartitionName+"> is out of range."));
 			}
 		}
 

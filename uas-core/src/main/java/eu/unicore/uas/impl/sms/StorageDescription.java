@@ -34,6 +34,7 @@ public class StorageDescription implements Serializable, Cloneable {
 	private Map<String, String> additionalProperties;
 	private boolean filterListing;
 	private boolean enableTrigger;
+	private boolean allowTrigger = true;
 	
 	private String sharedTriggerUser;
 	private boolean cleanup;
@@ -70,6 +71,14 @@ public class StorageDescription implements Serializable, Cloneable {
 	
 	public boolean isEnableTrigger(){
 		return enableTrigger;
+	}
+	
+	public void setAllowTrigger(boolean allow){
+		this.allowTrigger = allow;
+	}
+	
+	public boolean isAllowTrigger(){
+		return allowTrigger;
 	}
 	
 	public boolean isAllowUserdefinedPath(){
@@ -246,6 +255,7 @@ public class StorageDescription implements Serializable, Cloneable {
 		ret.setCleanup(cleanup);
 		ret.setDisableMetadata(disableMetadata);
 		ret.setEnableTrigger(enableTrigger);
+		ret.setAllowTrigger(allowTrigger);
 		ret.setSharedTriggerUser(sharedTriggerUser);
 		ret.setDefaultUmask(defaultUmask);
 		ret.setDescription(description);

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
@@ -17,7 +16,6 @@ import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.BaseInitParameters;
 import eu.unicore.uas.impl.BaseResourceImpl;
-import eu.unicore.uas.impl.sms.ConsolidateStorageFactoryInstance.UpdateSMSLists;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.uas.util.LogUtil;
 
@@ -53,22 +51,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		model.setXnjsReference(((BaseInitParameters)initParams).xnjsReference);
 		logger.info("Storage factory <{}> created", getUniqueID());
 		setStatusMessage("OK");
-
-		UpdateSMSLists task = new UpdateSMSLists(kernel, getUniqueID());
-		kernel.getContainerProperties().getThreadingServices().getScheduledExecutorService().schedule(
-				new ConsolidateStorageFactoryInstance(task, kernel, getUniqueID()), 
-				5000, TimeUnit.MILLISECONDS);
 	}
-
-	/**
-	 * get the owner for a given sms
-	 * @param smsID
-	 * @return owner DN
-	 */
-	public String getOwnerForSMS(String smsID){
-		return getModel().smsOwners.get(smsID);
-	}
-
 
 	/**
 	 * create a new SMS resource
@@ -136,9 +119,11 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		initMap.storageDescription = factoryDesc;
 		initMap.factoryID = getUniqueID();
 		
-		// allow users to set/override some of the parameters
 		if(parameters.get(SMSProperties.ENABLE_TRIGGER)!=null){
 			factoryDesc.setEnableTrigger(Boolean.parseBoolean(parameters.get(SMSProperties.ENABLE_TRIGGER)));
+			if(factoryDesc.isEnableTrigger() && !factoryDesc.isAllowTrigger()) {
+				throw new IllegalArgumentException("Enabling the triggering feature is not allowed!");
+			}
 		}
 		if(parameters.get(SMSProperties.DISABLE_METADATA)!=null){
 			factoryDesc.setDisableMetadata(Boolean.parseBoolean(parameters.get(SMSProperties.DISABLE_METADATA)));
@@ -154,8 +139,6 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		String smsID=createStorageResource(initMap);
 		initStorage(smsID);
 		logger.info("Created new StorageManagement resource <{}> for <{}>", smsID, clientName);
-		getModel().smsOwners.put(smsID, clientName);
-		getModel().getSmsIDs().add(smsID);
 		return smsID;
 	}
 

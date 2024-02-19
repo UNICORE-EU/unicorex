@@ -1,6 +1,7 @@
 package eu.unicore.uas.rest;
 
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -16,6 +17,7 @@ import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
+import eu.unicore.services.utils.UnitParser;
 import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.fts.FileTransferImpl;
@@ -26,9 +28,13 @@ import eu.unicore.uas.impl.sms.StorageFactoryImpl;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.metadata.MetadataManager;
 import eu.unicore.uas.metadata.SearchResult;
+import eu.unicore.uas.trigger.xnjs.TriggerProcessor;
 import eu.unicore.uas.util.LogUtil;
+import eu.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsStorageInfo;
 import jakarta.ws.rs.Consumes;
@@ -80,7 +86,9 @@ public class Storages extends ServicesBase {
 		props.put("description", model.getStorageDescription().getDescription());
 		props.put("filesystemDescription", sip.getFileSystemIdentifier());
 		props.put("metadataSupported", !model.getStorageDescription().isDisableMetadata());
-		props.put("dataTriggeredProcessing", model.getStorageDescription().isEnableTrigger());
+		if(model.getStorageDescription().isEnableTrigger()) {
+			props.put("dataTriggeredProcessing", getTriggeredProcessingInfo());
+		}
 		try {
 			XnjsStorageInfo info = sip.getAvailableDiskSpace(model.getWorkdir());
 			props.put("freeSpace", info.getFreeSpace());
@@ -223,6 +231,22 @@ public class Storages extends ServicesBase {
 		return o;
 	}
 
+	public JSONObject getTriggeredProcessingInfo() throws Exception {
+		JSONObject o = new JSONObject();
+		String id = resourceID+"-scan";
+		Action action = XNJSFacade.get(null, kernel).getAction(id);
+		if(action!=null) {
+			o.put("status", ActionStatus.toString(action.getStatus()));
+			long lastRun = TriggerProcessor.getLastRun(action);
+			o.put("lastScan", lastRun>0? UnitParser.getISO8601().format(new Date(lastRun)): "n/a");
+			o.put("settings", String.valueOf(action.getAjd()));
+			o.put("lastRunInfo", TriggerProcessor.getLastRunInfo(action));
+		}
+		else {
+			o.put("status", "Error: action cannot be found");
+		}
+		return o;
+	}
 	/**
 	 * search 
 	 * 

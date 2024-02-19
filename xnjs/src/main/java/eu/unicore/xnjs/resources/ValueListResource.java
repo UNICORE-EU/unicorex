@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * a {@link Resource} whose valid values form a (finite) list
+ * a {@link Resource} with a list of valid values
  * 
  * @author schuller
  */
@@ -59,7 +59,8 @@ public class ValueListResource extends Resource {
 
 	private boolean checkIfValid(String valueToCheck) {
 		if(allowWildcards) {
-			return validValues.contains(valueToCheck) || validValues.contains("*");
+			return (validValues.contains(valueToCheck) || validValues.contains("*")) 
+					&& !valueToCheck.contains("*");
 		}
 		else {
 			return validValues.contains(valueToCheck);

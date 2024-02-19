@@ -168,11 +168,11 @@ public class Action implements Serializable {
 		setDirty();
 	}
 
-	public java.util.Date getTerminationTime() {
+	public Date getTerminationTime() {
 		return terminationTime!=null?(Date)terminationTime.clone():null;
 	}
 
-	public void setTerminationTime(java.util.Date terminationTime) {
+	public void setTerminationTime(Date terminationTime) {
 		this.terminationTime = terminationTime!=null?(Date)terminationTime.clone():null;
 		setDirty();
 	}
@@ -365,8 +365,8 @@ public class Action implements Serializable {
 	}
 
 	public void setDirty(){dirty=true;}
+
 	public boolean isDirty(){return dirty;}
-	public void clearDirty(){dirty=false;}
 
 	public boolean isWaiting(){return waiting;}
 

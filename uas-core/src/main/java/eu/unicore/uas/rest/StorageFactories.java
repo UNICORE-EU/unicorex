@@ -59,7 +59,7 @@ public class StorageFactories extends ServicesBase {
 	}
 
 	protected Map<String,Object> getStorageDescriptions(){
-		Map<String,Object> props = new HashMap<String, Object>();
+		Map<String,Object> props = new HashMap<>();
 		Map<String, StorageDescription> factoriesDesc = 
 				kernel.getAttribute(UASProperties.class).getStorageFactories();
 		for(Map.Entry<String, StorageDescription>e: factoriesDesc.entrySet()){
@@ -69,7 +69,7 @@ public class StorageFactories extends ServicesBase {
 	}
 	
 	protected Map<String,Object> convert(StorageDescription sd){
-		Map<String,Object> props = new HashMap<String, Object>();
+		Map<String,Object> props = new HashMap<>();
 		props.put("description", sd.getDescription());
 		try{
 			props.put("parameters", getParameterInfo(sd));
