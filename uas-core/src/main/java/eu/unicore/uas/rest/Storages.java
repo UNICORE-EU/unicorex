@@ -1,9 +1,11 @@
 package eu.unicore.uas.rest;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 import java.util.function.Predicate;
 
 import org.apache.commons.io.FilenameUtils;
@@ -12,8 +14,10 @@ import org.json.JSONObject;
 
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
+import eu.unicore.services.InitParameters;
 import eu.unicore.services.exceptions.InvalidModificationException;
 import eu.unicore.services.rest.Link;
+import eu.unicore.services.rest.RESTUtils;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
@@ -26,6 +30,8 @@ import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.SMSModel;
 import eu.unicore.uas.impl.sms.StorageFactoryImpl;
 import eu.unicore.uas.json.JSONUtil;
+import eu.unicore.uas.metadata.ExtractionStatistics;
+import eu.unicore.uas.metadata.ExtractionWatcher;
 import eu.unicore.uas.metadata.MetadataManager;
 import eu.unicore.uas.metadata.SearchResult;
 import eu.unicore.uas.trigger.xnjs.TriggerProcessor;
@@ -33,9 +39,11 @@ import eu.unicore.uas.util.LogUtil;
 import eu.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.xnjs.io.XnjsStorageInfo;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -79,7 +87,7 @@ public class Storages extends ServicesBase {
 		Map<String,Object> props = super.getProperties();
 		SMSModel model = getModel();
 		IStorageAdapter sip = getResource().getStorageAdapter();
-		
+
 		props.put("protocols", getJSONObject(getResource().getAvailableProtocols()));
 		props.put("umask", model.getUmask());
 		props.put("mountPoint", sip.getStorageRoot());
@@ -336,6 +344,10 @@ public class Storages extends ServicesBase {
 			XNJSFacade.get(null, kernel).getManager().abort(id, AuthZAttributeStore.getClient());
 			getModel().getStorageDescription().setEnableTrigger(false);
 		}
+		else if("extract".equals(name)){
+			return startMetadataExtraction(o);
+		}
+
 		else{
 			throw new WebApplicationException("Action '"+name+"' not available.", 404);
 		}
@@ -369,8 +381,8 @@ public class Storages extends ServicesBase {
 		String base = getBaseURL()+"/storages/"+resource.getUniqueID();
 		links.add(new Link("files", base+"/files", "Files"));
 		if(!getModel().getStorageDescription().isDisableMetadata()){
-			links.add(new Link("action:metadata-search", base+"/search", "Search in metadata"));
-			links.add(new Link("action:metadata-extract", base+"/files/actions/extract", "Extract metadata"));
+			links.add(new Link("metadata-search", base+"/search", "Search in metadata"));
+			links.add(new Link("action:extract", base+"/actions/extract", "Start metadata extraction"));
 		}
 		if(getModel().getStorageDescription().isEnableTrigger()) {
 			links.add(new Link("action:stop-processing", base+"/actions/stop-processing", "Stop the data-triggered processing"));
@@ -381,6 +393,59 @@ public class Storages extends ServicesBase {
 		if(smfID != null){
 			links.add(new Link("factory",getBaseURL()+"/storagefactories/"+smfID, "Storage Factory"));
 		}
+	}
+
+	protected JSONObject startMetadataExtraction(JSONObject spec) throws Exception {
+		String path = spec.optString("path", null);
+		if(path==null || path.isEmpty())path="/";
+		if(!path.startsWith("/"))path="/"+path;
+		XnjsFileWithACL props = getResource().getProperties(path);
+		if(props == null){
+			throw new WebApplicationException(404);
+		}
+
+		MetadataManager mm = getResource().getMetadataManager();
+		if(mm == null)throw new WebApplicationException(404);
+
+		JSONObject reply = new JSONObject();
+
+		List<String>files = new ArrayList<>(); 
+		List<Pair<String, Integer>> dirs = new ArrayList<>();
+		if(props.isDirectory()){
+			int depth = spec.optInt("depth", 10);
+			dirs.add(new Pair<>(path,depth));
+			// TODO might have a list of files/directories to extract!
+		}
+		else{
+			// single file
+			files.add(path);
+		}
+		Future<ExtractionStatistics> futureResult = mm.startAutoMetadataExtraction(files, dirs);
+		reply.put("status", "OK");
+		reply.put("asyncExtraction", futureResult!=null);
+		String taskHref = makeMonitoringTask(futureResult, path);
+		if(taskHref!=null)reply.put("taskHref", taskHref);
+
+		return reply;
+	}
+
+	protected String makeMonitoringTask(Future<ExtractionStatistics> f, String path) {
+		Home taskHome = kernel.getHome(UAS.TASK);
+		if (taskHome == null) {
+			return null;
+		}
+		InitParameters init = new InitParameters();
+		init.parentUUID = resourceID;
+		String base = RESTUtils.makeHref(kernel, "core/storages", getResource().getUniqueID());
+		init.parentServiceName = base+"/files"+path;
+		try {
+			String uid = taskHome.createResource(init);
+			new ExtractionWatcher(f, uid, kernel).run();
+			return kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uid;
+		}catch(Exception ex) {
+			Log.logException("Cannot create task instance", ex);
+		}
+		return null;
 	}
 
 }

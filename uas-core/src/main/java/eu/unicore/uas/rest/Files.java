@@ -487,8 +487,9 @@ public class Files extends RESTRendererBase {
 				"Parent Storage"));
 		if(!sms.getModel().getStorageDescription().isDisableMetadata()){
 			String base = RESTUtils.makeHref(kernel, "core/storages", sms.getUniqueID());
+			String path = "/".equals(resourceID)? "/actions/extract" : "/files/actions/extract/"+resourceID;
 			links.add(new Link("action:extract",
-					base+FilenameUtils.normalize("/files/actions/extract/"+resourceID),
+					base+FilenameUtils.normalize(path),
 					"Extract metadata for this file"));
 		}
 	}
