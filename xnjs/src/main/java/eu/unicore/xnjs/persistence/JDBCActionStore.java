@@ -11,6 +11,7 @@ import eu.unicore.persist.PersistenceFactory;
 import eu.unicore.persist.PersistenceProperties;
 import eu.unicore.persist.impl.PersistImpl;
 import eu.unicore.persist.impl.PersistenceDescriptor;
+import eu.unicore.persist.util.Wrapper;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.Action;
@@ -76,6 +77,7 @@ public class JDBCActionStore extends AbstractActionStore {
 	}
 	
 	protected void start()throws Exception {
+		Wrapper.updates.put("de.fzj.unicore.xnjs", "eu.unicore.xnjs");
 		PersistenceFactory pf = PersistenceFactory.get(properties);
 		PersistenceDescriptor pd1 = PersistenceDescriptor.get(Action.class);
 		if(!"1".equals(xnjs.getID())) {
