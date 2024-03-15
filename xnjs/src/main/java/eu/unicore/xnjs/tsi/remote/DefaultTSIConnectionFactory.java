@@ -8,9 +8,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FilenameUtils;
@@ -180,8 +182,12 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private List<String> getTSIHostNames(String preferredHost) {
 		List<String>candidates = new ArrayList<>();
-		for(String name: connectors.keySet()){
+		for(TSIConnector conn: connectors.values()){
+			String name = conn.getHostname();
+			String category = conn.getCategory();
 			if(matches(preferredHost, name)){
+				candidates.add(name);
+			}else if(category!=null && matches(preferredHost, category)) {
 				candidates.add(name);
 			}
 		}
@@ -306,7 +312,12 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 				}
 			}
 			StringBuilder machineSpec = new StringBuilder();
-			Collection<TSIConnector> newConnectors = createConnectors(newMachine, port, machineSpec);
+			Collection<TSIConnector> newConnectors = createConnectors(newMachine, port, machineSpec, null);
+			// categories
+			for(String category: getTSIHostCategories()){
+				newMachine = tsiProperties.getValue(TSIProperties.TSI_MACHINE+"."+category);
+				newConnectors.addAll(createConnectors(newMachine, port, machineSpec, category));
+			}
 			Collection<String>names = new ArrayList<>();
 			for(TSIConnector tc: newConnectors) {
 				names.add(tc.getHostname());
@@ -335,7 +346,8 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}
 	}
 
-	protected Collection<TSIConnector> createConnectors(String machine, int port, StringBuilder machineSpec)
+	protected Collection<TSIConnector> createConnectors(String machine, int port,
+			StringBuilder machineSpec, String category)
 			throws Exception {
 		Collection<TSIConnector> newConnectors = new ArrayList<>();
 		// parse 'machine' to extract TSI addresses.
@@ -347,7 +359,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			String host=split[0];
 			int p = split.length>1 ? Integer.parseInt(split[1]) : port;
 			if(p==-1)throw new IllegalArgumentException("Missing port for TSI machine: "+host);
-			TSIConnector tsiConnector = createTSIConnector(host, p);
+			TSIConnector tsiConnector = createTSIConnector(host, p, category);
 			newConnectors.add(tsiConnector);
 			if(i>0)machineSpec.append(", ");
 			machineSpec.append(host).append(":").append(p);
@@ -355,8 +367,21 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return newConnectors;
 	}
 	
-	protected TSIConnector createTSIConnector(String hostname, int port) throws UnknownHostException {
-		return new TSIConnector(this, tsiProperties, InetAddress.getByName(hostname), port, hostname);
+	protected TSIConnector createTSIConnector(String hostname, int port, String category) throws UnknownHostException {
+		return new TSIConnector(this, tsiProperties, InetAddress.getByName(hostname), port, hostname, category);
+	}
+
+	private Collection<String>getTSIHostCategories(){
+		String pfx = TSIProperties.PREFIX+TSIProperties.TSI_MACHINE+".";
+		Set<String> ret = new HashSet<>();
+		for(Object k: tsiProperties.getRawProperties().keySet()){
+			String key=((String)k).trim();
+			System.out.println(key);
+			if (!key.startsWith(pfx) || key.equals(pfx))
+				continue;
+			ret.add(key.substring(pfx.length()));
+		}
+		return ret;
 	}
 
 	/**

@@ -83,7 +83,7 @@ public class TSIProperties extends PropertiesHelper {
 	{
 		// connection settings
 		
-		META.put(TSI_MACHINE, new PropertyMD("localhost").
+		META.put(TSI_MACHINE, new PropertyMD("localhost").setCanHaveSubkeys().
 				setDescription("TSI host(s) or IP address(es). Specify multiple hosts in the format 'machine1[:port1],machine2[:port2],...'"));
 		META.put(TSI_PORT, new PropertyMD("4433").setInt().setPositive().
 				setDescription("TSI port to connect to."));
@@ -166,6 +166,10 @@ public class TSIProperties extends PropertiesHelper {
 	public TSIProperties(Properties properties)
 			throws ConfigurationException {
 		super(PREFIX, properties, META, logger);
+	}
+
+	public Properties getRawProperties() {
+		return this.properties;
 	}
 
 	public String getTSIMachine(){

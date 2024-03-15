@@ -28,6 +28,7 @@ public class TSIConnector {
 	private final String hostname;
 	private final InetAddress address;
 	private final int port;
+	private final String category;
 	private final TSIProperties properties;
 	private final TSIConnectionFactory factory;
 	private final AtomicInteger counter = new AtomicInteger(0);
@@ -38,12 +39,14 @@ public class TSIConnector {
 	 * @param tsiPort
 	 * @param hostname - the hostname used to lookup the address 
 	 */
-	public TSIConnector(TSIConnectionFactory factory, TSIProperties properties, InetAddress tsiAddress, int tsiPort, String hostname){
+	public TSIConnector(TSIConnectionFactory factory, TSIProperties properties,
+			InetAddress tsiAddress, int tsiPort, String hostname, String category){
 		this.factory = factory;
 		this.properties = properties;
 		this.address = tsiAddress;
 		this.port = tsiPort;
 		this.hostname = hostname;
+		this.category = category;
 	}
 	
 	public String getHostname() {
@@ -54,6 +57,10 @@ public class TSIConnector {
 		return address;
 	}
 	
+	public String getCategory() {
+		return category;
+	}
+
 	public TSIConnection createNewTSIConnection(TSISocketFactory server)throws IOException{
 		if(!isOK()){
 			throw new IOException(statusMessage);
