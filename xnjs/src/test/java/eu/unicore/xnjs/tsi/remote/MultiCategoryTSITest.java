@@ -1,5 +1,6 @@
 package eu.unicore.xnjs.tsi.remote;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Properties;
@@ -21,15 +22,22 @@ public class MultiCategoryTSITest extends RemoteTSITestCase {
 		super.addProperties(cs);
 		String p = TSIProperties.PREFIX;
 		Properties props = cs.getProperties();
-		props.put(p+TSIProperties.TSI_MACHINE+".bignodes", "localhost");
+		props.put(p+TSIProperties.TSI_MACHINE+".bignodes", "127.0.0.1");
 	}
 	
 	
 	@Test
 	public void testConnectionFactory()throws Exception{
-		TSIConnectionFactory f=xnjs.get(TSIConnectionFactory.class);
+		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory
+				)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		try(TSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
+		assertEquals(2, f.getTSIConnectorStates().size());
+		try(TSIConnection c=f.getTSIConnection("nobody", null, "127.0.*", -1)){
+			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
+			System.out.println(c);
+			System.out.println(c.getConnectionID());
+		}
+		try(TSIConnection c=f.getTSIConnection("nobody", null, "category:bignodes", -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());

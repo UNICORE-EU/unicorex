@@ -27,7 +27,7 @@ import eu.unicore.xnjs.tsi.local.LocalTSIModule;
 /**
  * tests the IDBImpl class with json content
  */
-public class TestIDBDirectory {
+public class TestJSONIDB {
 
 	private IDB idb;
 
@@ -82,4 +82,5 @@ public class TestIDBDirectory {
 		assertTrue(idb.getScriptHeader().startsWith("#!/bin/bash"));
 		assertTrue(idb.getScriptHeader().contains("FOO=bar\n"));
 	}
+
 }

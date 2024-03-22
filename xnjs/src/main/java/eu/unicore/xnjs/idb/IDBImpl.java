@@ -62,6 +62,7 @@ public class IDBImpl implements IDB {
 	public static final String DEFAULT_PARTITION = "DEFAULT_PARTITION";
 
 	public static final String DEFAULT_SCRIPT_HEADER = "#!/bin/bash -l\n";
+	public static final String _NO_CATEGORY = "____no_category____";
 
 	protected static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,IDBImpl.class);
 
@@ -295,11 +296,8 @@ public class IDBImpl implements IDB {
 		return scriptHeader!=null ? scriptHeader : DEFAULT_SCRIPT_HEADER;
 	}
 
-	public void setScriptHeader(String header) {
-		if(header!=null && !header.endsWith("\n")) {
-			header=header+"\n";
-		}
-		this.scriptHeader = header;
+	public void setScriptHeader(String scriptHeader) {
+		this.scriptHeader = scriptHeader;
 	}
 
 	@Override

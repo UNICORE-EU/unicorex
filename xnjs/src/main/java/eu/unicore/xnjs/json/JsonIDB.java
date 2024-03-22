@@ -57,6 +57,10 @@ public class JsonIDB implements IDBParser {
 		readPartitions(jsonidb.optJSONObject("Partitions"));
 		readApplications(jsonidb, idb.getIdb());
 		readInfo(jsonidb.optJSONObject("Info"));
+		idb.setScriptHeader(getScriptHeader(jsonidb));	
+	}
+
+	private String getScriptHeader(JSONObject jsonidb) {
 		String scriptHeader = JSONUtils.readMultiLine("ScriptHeader", null, jsonidb);
 		String execTemplate = JSONUtils.readMultiLine("SubmitScriptTemplate", null, jsonidb);
 		if(execTemplate==null) {
@@ -70,7 +74,7 @@ public class JsonIDB implements IDBParser {
 				scriptHeader = execTemplate;
 			}
 		}
-		idb.setScriptHeader(scriptHeader);
+		return scriptHeader;
 	}
 	
 	protected void readPartitions(JSONObject source) throws Exception {

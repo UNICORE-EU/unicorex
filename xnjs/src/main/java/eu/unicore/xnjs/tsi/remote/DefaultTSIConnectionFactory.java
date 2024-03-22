@@ -123,6 +123,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	public static boolean matches(String preferredHost, String actualHost) {
 		if(preferredHost==null)return true;
+		if(actualHost==null)return false;
 		if(preferredHost.contains("*") || preferredHost.contains("?")) {
 			return FilenameUtils.wildcardMatch(actualHost, preferredHost);
 		}
@@ -182,12 +183,19 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private List<String> getTSIHostNames(String preferredHost) {
 		List<String>candidates = new ArrayList<>();
+		String categoryPattern = null;
+		String hostnamePattern = preferredHost;
+		if(preferredHost!=null && preferredHost.contains(":")) {
+			categoryPattern = preferredHost.split(":")[1];
+		}
 		for(TSIConnector conn: connectors.values()){
 			String name = conn.getHostname();
-			String category = conn.getCategory();
-			if(matches(preferredHost, name)){
-				candidates.add(name);
-			}else if(category!=null && matches(preferredHost, category)) {
+			if(categoryPattern!=null) {
+				if(matches(categoryPattern, conn.getCategory())) {
+					candidates.add(name);
+				}
+			}
+			else if(matches(hostnamePattern, name)) {
 				candidates.add(name);
 			}
 		}
@@ -361,7 +369,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			if(p==-1)throw new IllegalArgumentException("Missing port for TSI machine: "+host);
 			TSIConnector tsiConnector = createTSIConnector(host, p, category);
 			newConnectors.add(tsiConnector);
-			if(i>0)machineSpec.append(", ");
+			if(machineSpec.length()>0)machineSpec.append(", ");
 			machineSpec.append(host).append(":").append(p);
 		}
 		return newConnectors;
