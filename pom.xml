@@ -29,7 +29,7 @@
 
   <properties>
     <!-- goes into .jar manifests, dist poms and packaging versions -->
-    <specification.version>10.0.0</specification.version>
+    <specification.version>10.1.0</specification.version>
 
     <compiler.fork>false</compiler.fork>
     <use.version>5.0.2</use.version>
