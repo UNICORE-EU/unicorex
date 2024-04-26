@@ -83,7 +83,7 @@ public class JDBCActionStore extends AbstractActionStore {
 		if(!"1".equals(xnjs.getID())) {
 			pd1.setTableName(pd1.getTableName()+"_"+xnjs.getID());
 		}
-		activeJobs = (PersistImpl<Action>)pf.getPersist(Action.class, pd1);
+		activeJobs = pf.getPersist(Action.class, pd1);
 		checkVersion(activeJobs, "JOBS");
 		PersistenceDescriptor pd2 = PersistenceDescriptor.get(DoneAction.class);
 		if(!"1".equals(xnjs.getID())) {

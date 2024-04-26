@@ -192,7 +192,7 @@ public class LuceneIndexer {
 			TopDocs results = searcher.search(query, maximalHits);
 			for (ScoreDoc scoreDoc : results.scoreDocs) {
 				SearchResult result = new SearchResult();
-				result.setResourceName(searcher.doc(scoreDoc.doc).get(RESOURCE_NAME_KEY));
+				result.setResourceName(searcher.storedFields().document(scoreDoc.doc).get(RESOURCE_NAME_KEY));
 				ret.add(result);
 			}
 			return ret;
@@ -265,7 +265,7 @@ public class LuceneIndexer {
 			if (result.scoreDocs.length == 0) {
 				return null;
 			}
-			return searcher.doc(result.scoreDocs[0].doc);
+			return searcher.storedFields().document(result.scoreDocs[0].doc);
 		}finally {
 		
 		}

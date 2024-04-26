@@ -169,15 +169,30 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected List<DataStageInInfo> extractStageInInfo() throws Exception {
-		return doExtractStageIn(getJobDescriptionDocument().optJSONArray("Imports"));
+		List<DataStageInInfo>result = new ArrayList<>();
+		Object imp = getJobDescriptionDocument().opt("Imports");
+		if(imp!=null) {
+			if(imp instanceof JSONArray) {
+				JSONArray imports = (JSONArray)imp;
+				result.addAll(doExtractStageIn(imports));
+			}
+			else if(imp instanceof JSONObject){
+				JSONObject imports = (JSONObject)imp;
+				for(String to: imports.keySet()) {
+					JSONObject spec = imports.getJSONObject(to);
+					result.add(JSONParser.parseStageIn(to, spec));
+				}
+			}
+		}
+		return result;
 	}
-	
+
 	protected List<DataStageInInfo> doExtractStageIn(JSONArray imports) throws Exception {
 		List<DataStageInInfo>result = new ArrayList<>();
 		if(imports!=null) {
 			for(int i = 0; i<imports.length(); i++) {
 				JSONObject in = imports.getJSONObject(i);
-				result.add(JSONParser.parseStageIn(in));
+				result.add(JSONParser.parseStageIn(null, in));
 			}
 		}
 		return result;
@@ -186,11 +201,21 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 	@Override
 	protected List<DataStageOutInfo> extractStageOutInfo() throws Exception {
 		List<DataStageOutInfo>result = new ArrayList<>();
-		JSONArray exports = getJobDescriptionDocument().optJSONArray("Exports");
-		if(exports!=null) {
-			for(int i = 0; i<exports.length(); i++) {
-				JSONObject ex = exports.getJSONObject(i);
-				result.add(JSONParser.parseStageOut(ex));
+		Object exp = getJobDescriptionDocument().opt("Exports");
+		if(exp!=null) {
+			if(exp instanceof JSONArray) {
+				JSONArray exports = (JSONArray)exp;
+				for(int i = 0; i<exports.length(); i++) {
+					JSONObject spec = exports.getJSONObject(i);
+					result.add(JSONParser.parseStageOut(null, spec));
+				}
+			}
+			else if(exp instanceof JSONObject){
+				JSONObject exports = (JSONObject)exp;
+				for(String from: exports.keySet()) {
+					JSONObject out = exports.getJSONObject(from);
+					result.add(JSONParser.parseStageOut(from, out));
+				}
 			}
 		}
 		return result;

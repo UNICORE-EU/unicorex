@@ -1,0 +1,18 @@
+{
+  "ApplicationName": "Date",
+
+  "Imports": {
+     "input.txt": {
+       "Data": "this is some inline data"
+     },
+
+     "input_2.txt": {
+       "Data": ["this is some inline data",
+               "some more data"]
+     }
+  },
+
+  "Exports": {
+    "stdout" : {  "To": "file:///dev/null" }
+  }
+}

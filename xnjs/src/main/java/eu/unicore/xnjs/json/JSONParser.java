@@ -111,9 +111,11 @@ public class JSONParser {
 		}
 	}
 	
-	public static DataStageInInfo parseStageIn(JSONObject spec) throws Exception {
+	public static DataStageInInfo parseStageIn(String to, JSONObject spec) throws Exception {
 		DataStageInInfo dsi = new DataStageInInfo();
-		String to = JSONUtils.getStringAlt(spec, "To", "file");
+		if(to==null) {
+			to = JSONUtils.getStringAlt(spec, "To", "file");
+		}
 		String source = JSONUtils.getStringAlt(spec, "From", "source");
 		if(source==null && JSONUtils.hasKey(spec, "Data")) {
 			source = "inline:/dummy";
@@ -128,14 +130,15 @@ public class JSONParser {
 		if(perm!=null) {
 			dsi.setPermissions(perm);
 		}
-		
 		extractDataStagingOptions(spec, dsi);
 		return dsi;
 	}
 
-	public static DataStageOutInfo parseStageOut(JSONObject spec) throws Exception {
+	public static DataStageOutInfo parseStageOut(String from, JSONObject spec) throws Exception {
 		DataStageOutInfo dso = new DataStageOutInfo();
-		String from = JSONUtils.getStringAlt(spec, "From", "file");
+		if(from==null) {
+			from = JSONUtils.getStringAlt(spec, "From", "file");
+		}
 		String target = JSONUtils.getStringAlt(spec, "To", "target");
 		dso.setFileName(from);
 		dso.setTarget(new URI(target));

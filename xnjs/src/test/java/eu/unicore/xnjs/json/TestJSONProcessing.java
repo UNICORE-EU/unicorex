@@ -1,5 +1,6 @@
 package eu.unicore.xnjs.json;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -16,6 +17,7 @@ public class TestJSONProcessing extends EMSTestBase {
 			"src/test/resources/json/date_with_inline_data.json",
 			"src/test/resources/json/nonzero_exit_code.json",
 			"src/test/resources/json/unsupported_staging.json",
+			"src/test/resources/json/date_with_stagein.json",
 	};	
 
 	@Test
@@ -41,7 +43,22 @@ public class TestJSONProcessing extends EMSTestBase {
 		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		assertNull(a.getStageIns());
 	}
+
+	@Test
+	public void testSingleJSONJob2() throws Exception {
+		String j = "src/test/resources/json/date_with_stagein.json";
+		System.out.println("Running job: "+j);
+		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),null);
+		Action a = mgr.getAction(id);
+		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
+		doRun(id);
+		assertSuccessful(id);
+		a = mgr.getAction(id);
+		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
+		assertEquals(2, a.getStageIns().size());
+	}
 	
+
 	private static String[] pre_post_jobs = { 
 					"src/test/resources/json/precommand-fail.json",
 					"src/test/resources/json/prepost.json",

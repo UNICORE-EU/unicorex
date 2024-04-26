@@ -288,13 +288,28 @@ public class TestJSONParser {
 		JSONObject p = new JSONObject();
 		p.put("test", "123");
 		spec.put("ExtraParameters", p);
-		DataStageInInfo dsi = JSONParser.parseStageIn(spec);
+		DataStageInInfo dsi = JSONParser.parseStageIn(null, spec);
 		assertEquals("file.txt", dsi.getFileName());
 		assertEquals(1, dsi.getSources().length);
 		assertEquals(1, dsi.getExtraParameters().size());
 		assertEquals("123", dsi.getExtraParameters().get("test"));
 	}
-	
+
+	@Test
+	public void testParseStageIn2() throws Exception {
+		JSONObject spec = new JSONObject();
+		spec.put("From", "http://some-url");
+		String to = "file.txt";
+		JSONObject p = new JSONObject();
+		p.put("test", "123");
+		spec.put("ExtraParameters", p);
+		DataStageInInfo dsi = JSONParser.parseStageIn(to, spec);
+		assertEquals("file.txt", dsi.getFileName());
+		assertEquals(1, dsi.getSources().length);
+		assertEquals(1, dsi.getExtraParameters().size());
+		assertEquals("123", dsi.getExtraParameters().get("test"));
+	}
+
 	@Test
 	public void testParseStageInCredentials() throws Exception {
 		JSONObject spec = new JSONObject();
@@ -304,7 +319,7 @@ public class TestJSONParser {
 		cred.put("Username", "demo");
 		cred.put("Password", "foo");
 		spec.put("Credentials", cred);
-		DataStageInInfo dsi = JSONParser.parseStageIn(spec);
+		DataStageInInfo dsi = JSONParser.parseStageIn(null, spec);
 		assertEquals("file.txt", dsi.getFileName());
 		assertEquals(1, dsi.getSources().length);
 		assertTrue(dsi.getCredentials() instanceof UsernamePassword);
@@ -312,13 +327,13 @@ public class TestJSONParser {
 		cred = new JSONObject();
 		cred.put("Token", "foo");
 		spec.put("Credentials", cred);
-		dsi = JSONParser.parseStageIn(spec);
+		dsi = JSONParser.parseStageIn(null, spec);
 		assertTrue(dsi.getCredentials() instanceof AuthToken);
 
 		cred = new JSONObject();
 		cred.put("BearerToken", "foo");
 		spec.put("Credentials", cred);
-		dsi = JSONParser.parseStageIn(spec);
+		dsi = JSONParser.parseStageIn(null, spec);
 		assertTrue(dsi.getCredentials() instanceof BearerToken);
 	}
 
@@ -327,7 +342,7 @@ public class TestJSONParser {
 		JSONObject spec = new JSONObject();
 		spec.put("Data", "some inline data");
 		spec.put("To", "file.txt");
-		DataStageInInfo dsi = JSONParser.parseStageIn(spec);
+		DataStageInInfo dsi = JSONParser.parseStageIn(null, spec);
 		assertEquals("file.txt", dsi.getFileName());
 		assertEquals(1, dsi.getSources().length);
 		assertTrue(dsi.getSources()[0].toString().startsWith("inline:"));
@@ -341,7 +356,22 @@ public class TestJSONParser {
 		JSONObject p = new JSONObject();
 		p.put("test", "123");
 		spec.put("ExtraParameters", p);
-		DataStageOutInfo dso = JSONParser.parseStageOut(spec);
+		DataStageOutInfo dso = JSONParser.parseStageOut(null, spec);
+		assertEquals("file.txt", dso.getFileName());
+		assertEquals(new URI("http://some-url"), dso.getTarget());
+		assertEquals(1, dso.getExtraParameters().size());
+		assertEquals("123", dso.getExtraParameters().get("test"));
+	}
+
+	@Test
+	public void testParseStageOut2() throws Exception {
+		JSONObject spec = new JSONObject();
+		spec.put("To", "http://some-url");
+		String from = "file.txt";
+		JSONObject p = new JSONObject();
+		p.put("test", "123");
+		spec.put("ExtraParameters", p);
+		DataStageOutInfo dso = JSONParser.parseStageOut(from, spec);
 		assertEquals("file.txt", dso.getFileName());
 		assertEquals(new URI("http://some-url"), dso.getTarget());
 		assertEquals(1, dso.getExtraParameters().size());

@@ -19,7 +19,6 @@ import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.IDB;
 import eu.unicore.xnjs.idb.Incarnation;
 import eu.unicore.xnjs.io.DataStageInInfo;
-import eu.unicore.xnjs.io.DataStagingInfo;
 import eu.unicore.xnjs.io.IOProperties;
 import eu.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.xnjs.resources.ResourceSet;
@@ -158,7 +157,7 @@ public class TSIMessages {
 			if(stageIns==null || stageIns.size()==0)return;
 			int timeout = 20; //seconds
 			StringBuffer fileList = new StringBuffer();
-			for(DataStagingInfo dst:stageIns){
+			for(DataStageInInfo dst:stageIns){
 				try{
 					fileList.append(" '");
 					String fName=dst.getFileName();
