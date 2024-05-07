@@ -51,7 +51,7 @@ public class TestTSISSL extends RemoteTSISSLTestCase{
 
 		RemoteTSI tsi=makeTSI();
 		assertNotNull(tsi);
-		assertEquals("UNICORE TSI at 127.0.0.1:65431",tsi.getFileSystemIdentifier());
+		assertEquals("UNICORE TSI at 127.0.0.1",tsi.getFileSystemIdentifier());
 	}
 
 	@Test
