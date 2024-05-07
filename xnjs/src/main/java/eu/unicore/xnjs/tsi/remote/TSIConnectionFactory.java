@@ -60,7 +60,7 @@ public interface TSIConnectionFactory {
 	public String getTSIVersion();
 
 	/**
-	 * TSI machine as given in config file
+	 * TSI machine identifier
 	 */
 	public String getTSIMachine();
 

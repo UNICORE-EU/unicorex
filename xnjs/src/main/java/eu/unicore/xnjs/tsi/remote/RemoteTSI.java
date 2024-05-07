@@ -868,16 +868,12 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	@Override
 	public String getFileSystemIdentifier(){
-		try{
-			String fsID=tsiProperties.getValue(TSIProperties.TSI_FILESYSTEM_ID);
-			if(fsID!=null){
-				return fsID;
-			}
-			else{
-				return "UNICORE TSI at "+factory.getTSIMachine();
-			}
-		}catch(Exception ex){
-			return null;
+		String fsID=tsiProperties.getValue(TSIProperties.TSI_FILESYSTEM_ID);
+		if(fsID!=null){
+			return fsID;
+		}
+		else{
+			return "UNICORE TSI at "+factory.getTSIMachine();
 		}
 	}
 

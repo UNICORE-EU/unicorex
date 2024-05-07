@@ -17,8 +17,8 @@ import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
- * connects to a TSI daemon on a given host and port
- * 
+ * Connects to a TSI daemon on a given host and port
+ *
  * @author schuller
  */
 public class TSIConnector {
@@ -240,10 +240,9 @@ public class TSIConnector {
 		Socket s = server.createSocket(address, port);
 		s.getOutputStream().write(message.getBytes());
 		s.getOutputStream().flush();
-		final InetAddress actualTSIAddress=s.getInetAddress();
 		// Read from the TSI daemon, just an ack that all is OK
 		try {s.getInputStream().read(); s.close();} catch(IOException ex) {}
-		return actualTSIAddress;
+		return s.getInetAddress();
 	}
 
 	private boolean ok = true;
