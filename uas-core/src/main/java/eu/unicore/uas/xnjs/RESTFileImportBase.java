@@ -312,7 +312,7 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 			checkOverwriteAllowed(s, tgt);
 			boolean linked = false;
 			if(importPolicy == ImportPolicy.PREFER_LINK){
-				logger.info("Optimization enabled: importing file by symlinking <"+src+"> to <"+target+">");
+				logger.info("Optimization enabled: importing file by symlinking <{}> to <{}>", src, target);
 				try{
 					s.link(src, tgt);
 					linked = true;
@@ -322,7 +322,7 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 				}
 			}
 			if(!linked){
-				logger.info("Optimization enabled: importing file by local copy of <"+src+"> to <"+target+">");
+				logger.info("Optimization enabled: importing file by local copy of <{}> to <{}>", src, target);
 				s.cp(src, tgt);	
 			}
 			info.setTransferredBytes(info.getTransferredBytes()+source.size);

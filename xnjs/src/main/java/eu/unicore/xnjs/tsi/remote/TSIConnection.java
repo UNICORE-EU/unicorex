@@ -215,8 +215,8 @@ public class TSIConnection implements AutoCloseable {
 		if(shutDown)return;
 		logger.debug("Connection {} shutdown.", getConnectionID());
 		shutDown = true;
-		command.die();
-		data.die();
+		command.close();
+		data.close();
 		factory.notifyConnectionDied();
 	}
 
@@ -387,7 +387,7 @@ public class TSIConnection implements AutoCloseable {
 		/**
 		 * Command from somewhere to kill this channel
 		 */
-		public void die() {
+		public void close() {
 			IOUtils.closeQuietly(input);
 			IOUtils.closeQuietly(output);
 			IOUtils.closeQuietly(socket);
@@ -495,7 +495,7 @@ public class TSIConnection implements AutoCloseable {
 		/**
 		 * Command from somewhere to kill this channel
 		 */
-		public void die() {
+		public void close() {
 			IOUtils.closeQuietly(input);
 			IOUtils.closeQuietly(output);
 			IOUtils.closeQuietly(socket);;

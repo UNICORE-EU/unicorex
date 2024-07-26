@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
@@ -45,19 +46,9 @@ public class StorageClient extends BaseServiceClient {
 	}
 	
 	public FileList ls(String basedir) throws Exception {
-		if(basedir==null)basedir = "/";
-		if(!basedir.startsWith("/"))basedir="/"+basedir;
-		String url = getLinkUrl("files")+encode(basedir);
+		String url = getLinkUrl("files")+normalize(basedir);
 		Endpoint ep = endpoint.cloneTo(url);
 		return new FileList(this, basedir, ep, security, auth);
-	}
-	
-
-	/**
-	 * @deprecated use ls()
-	 */
-	public FileList getFiles(String basedir) throws Exception {
-		return ls(basedir);
 	}
 	
 	/**
@@ -67,18 +58,14 @@ public class StorageClient extends BaseServiceClient {
 	 * @throws Exception
 	 */
 	public FileListEntry stat(String path) throws Exception {
-		if(path==null)path = "/";
-		if(!path.startsWith("/"))path="/"+path;
-		String url = getLinkUrl("files")+encode(path);
+		String url = getLinkUrl("files")+normalize(path);
 		Endpoint ep = endpoint.cloneTo(url);
 		JSONObject props = new BaseServiceClient(ep, security, auth).getProperties();
 		return new FileListEntry(path, props);
 	}
 
 	public FileClient getFileClient(String path) throws Exception {
-		if(path==null)path = "/";
-		if(!path.startsWith("/"))path="/"+path;
-		String url = getLinkUrl("files")+encode(path);
+		String url = getLinkUrl("files")+normalize(path);
 		Endpoint ep = endpoint.cloneTo(url);
 		return new FileClient(ep, security, auth);
 	}
@@ -309,7 +296,20 @@ public class StorageClient extends BaseServiceClient {
 		}
 	}
 
-	public static String encode(String path) {
+	/**
+	 * <ul>
+	 *   <li>make sure path is not null and starts with a "/"
+	 *   <li>remove double "/"
+	 *   <li>replace windows slashes with "/"
+	 *   <li>encode spaces
+	 * </ul>
+	 * @param path
+	 * @return normalized path
+	 */
+	public static String normalize(String path) {
+		if(path==null)path = "/";
+		if(!path.startsWith("/"))path="/"+path;
+		path = FilenameUtils.normalize(path, true);
 		return path.replace(" ", "%20");
 	}
 

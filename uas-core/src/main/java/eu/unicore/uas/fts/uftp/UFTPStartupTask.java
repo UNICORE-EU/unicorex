@@ -1,5 +1,7 @@
 package eu.unicore.uas.fts.uftp;
 
+import java.util.Properties;
+
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.Kernel;
@@ -28,9 +30,9 @@ public class UFTPStartupTask implements Runnable {
 	}
 	
 	protected void setupUFTPConnector() {
-		UFTPProperties cfg = new UFTPProperties(kernel.getContainerProperties().getRawProperties());
-		kernel.setAttribute(UFTPProperties.class, cfg);
-		if(!cfg.getBooleanValue(UFTPProperties.PARAM_ENABLE_UFTP)) {
+		Properties cfg = kernel.getContainerProperties().getRawProperties();
+		if(!Boolean.parseBoolean(cfg.getProperty(UFTPProperties.PREFIX+UFTPProperties.PARAM_ENABLE_UFTP))) 
+		{
 			logger.info("UFTP is disabled.");
 			return;
 		}

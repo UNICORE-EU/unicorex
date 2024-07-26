@@ -2,15 +2,12 @@ package eu.unicore.uas.fts.uftp;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
-
-import org.apache.commons.io.IOUtils;
 
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
@@ -32,23 +29,23 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 
 	private String secret;
 
-	/** whether UNICORE/X should act as UFTP client, which requires getting the
+	/* whether UNICORE/X should act as UFTP client, which requires getting the
 	 * data from the TSI. If set to <code>false</code>, the UFTP client process
 	 * will be launched on the TSI (with much better performance)
 	 */
 	private final boolean localMode;
 
-	// host address of the host where the UFTP client code runs
-	// this is either (in local mode) the UNICORE/X host, or one of the TSI
-	// nodes
+	/* host address of the host where the UFTP client code runs
+	 * this is either (in local mode) the UNICORE/X host, or one of the TSI nodes
+	 */
 	private final String clientHost;
 
-	// client host address as sent to the UFTPD server
-	// in general this will be the same as "clientHost", but
-	// in some cases it can be required that they differ
+	/* client host address as sent to the UFTPD server
+	 * in general this will be the same as "clientHost", but
+	 * in some cases it can be required that they differ
+	 */
 	private final String clientIPAddresses;
 
-	// can be set by client
 	private boolean useEncryption = false;
 	private int streams = 1;
 
@@ -56,13 +53,10 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 
 	private UFTPSessionClient sessionClient;
 
-	private boolean haveJavaClient;
-
 	public RESTUFTPExport(XNJS config){
 		super(config);
 		uftpProperties = kernel.getAttribute(UFTPProperties.class);
 		localMode = uftpProperties.getBooleanValue(UFTPProperties.PARAM_CLIENT_LOCAL);
-		haveJavaClient = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_EXECUTABLE)!=null;
 		info.setProtocol("UFTP");
 		clientHost = setupClientHost();
 		String ip = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_IP);
@@ -88,18 +82,14 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	 */
 	@Override
 	protected void runTransfers() throws Exception {
-		setupSessionMode();
+		setupUFTPSession();
 		super.runTransfers();
-		finishSessionMode();
+		finalizeUFTPSession();
 		info.setTransferredBytes(info.getDataSize());
 	}
 
-	private StringBuilder fileList=new StringBuilder();
-
 	/**
-	 * in session mode, there are two ways to transfer a file
-	 * if local mode, the file is transferred immediately using the session client, 
-	 * else, the remote file name and local target are written to the command file
+	 * perform file transfer, with the client being either this JVM or the TSI
 	 */
 	@Override
 	protected void transferFileFromRemote(Pair<String,Long> sourceDesc, String currentTarget) throws Exception {
@@ -115,17 +105,13 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 			try(InputStream is = getStorageAdapter().getInputStream(currentSource)){
 				sessionClient.put(currentTarget, size, is);
 			}
-		} else if(haveJavaClient){
-			fileList.append("PUT ").append("\"").append(currentSource).append("\" ").append("\"").append(currentTarget)
-			.append("\"").append("\n");
 		}
 		else {
 			runTSIClient(currentSource, currentTarget);
 		}
-
 	}
 
-	protected void setupSessionMode()throws Exception{
+	protected void setupUFTPSession()throws Exception{
 		Map<String,String>ep=getExtraParameters();
 		ftc = storage.createExport(SESSION_TAG, "UFTP", ep);
 		if(localMode) {
@@ -137,20 +123,9 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 		}
 	}
 
-	protected void finishSessionMode() throws Exception{
+	protected void finalizeUFTPSession() throws Exception{
 		if(localMode){
 			sessionClient.close();
-		}
-		else if(haveJavaClient){
-			String root = getStorageAdapter().getStorageRoot();
-			String cmdFile=".uftp-"+info.getUniqueId();
-			OutputStream os=getStorageAdapter().getOutputStream(cmdFile);
-			try{
-				IOUtils.write(fileList.toString(), os, "UTF-8");
-			}finally{
-				os.close();
-			}
-			runJavaClientOnTSI(root+"/"+cmdFile);
 		}
 	}
 
@@ -168,9 +143,6 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	protected void doRun(String localFile) throws Exception {
 		if(localMode){
 			super.doRun(localFile);
-		}
-		else{
-			runJavaClientOnTSI(localFile);
 		}
 	}
 
@@ -260,31 +232,11 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 		runAsync(cmd, SubCommand.UFTP);
 	}
 
-
-	private void runJavaClientOnTSI(String commandFile)throws Exception{
-		String cmd=getJavaClientCommandLine(commandFile);
-		logger.info("Executing "+cmd);
-		runAsync(cmd, SubCommand.NORMAL);
-		info.setTransferredBytes(info.getDataSize());
-	}
-
 	@Override
 	protected void copyPermissions(String source, String target) {
 		if(localMode) {
 			super.copyPermissions(source, target);
 		}
 	};
-
-	private String getJavaClientCommandLine(String localFile)throws Exception{
-		String uftp = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_EXECUTABLE);
-		UFTPFileTransferClient client = (UFTPFileTransferClient)ftc;
-		String host=client.asString(client.getServerHosts());
-		int port=client.getServerPort();
-		int streams=client.getStreams();
-		String key=client.getEncryptionKey();
-		int buf = uftpProperties.getIntValue(UFTPProperties.PARAM_BUFFERSIZE);
-		boolean compress = client.isCompressionEnabled();
-		return uftp+" -S "+UFTPSessionClient.makeCommandline(host, port, workdir, secret, streams, key, buf, compress, localFile);
-	}
 
 }
