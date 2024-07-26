@@ -55,8 +55,8 @@ import eu.unicore.xnjs.io.XnjsFileWithACL;
  * @author schuller
  * @author Konstantine Muradov
  * 
- * @see de.fzj.unicore.uas.metadata.MetadataManager
- * @see de.fzj.unicore.uas.metadata.StorageMetadataManager
+ * @see eu.unicore.uas.metadata.MetadataManager
+ * @see eu.unicore.uas.metadata.StorageMetadataManager
  */
 public class LuceneMetadataManager implements StorageMetadataManager {
 

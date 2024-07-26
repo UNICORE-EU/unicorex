@@ -50,11 +50,9 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 
 	private final LuceneMetadataManager metadataManager;
 	private final IStorageAdapter storage;
-
 	private final List<String> files;
-	
 	private final List<Pair<String,Integer>>dirs;
-	
+
 	/**
 	 * Crawls through resources available in basepath (and subdirs to @code{dephLimit}) via storage
 	 *<p>
@@ -62,16 +60,14 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	 * via parser (e.g. Apache Tika) defined in the config file.
 	 * </p>
 	 * 
-	 * @param metadataManager reference to the metadata manager (for creating metadata)
-	 * @param storage reference to the storage that should be crawled
-	 * @param base directory to be crawled
-	 * @param depthLimit depth of the crawling process
-	 * 
-	 * @throws InstantiationException thrown when parser instantiation fails
-	 * @throws IllegalAccessException  thrown when parser instantiation fails
+	 * @param metadataManager
+	 * @param storage 
+	 * @oaram files - list of files to extract metadata from
+	 * @param dirs - list of directories to crawl with depth limit
+	 * @param kernel
 	 */
-	public MetadataCrawler(LuceneMetadataManager metadataManager, IStorageAdapter storage, List<String> files, List<Pair<String,Integer>>dirs, Kernel kernel) 
-	throws Exception {
+	public MetadataCrawler(LuceneMetadataManager metadataManager, IStorageAdapter storage,
+			List<String> files, List<Pair<String,Integer>>dirs, Kernel kernel) throws Exception {
 		this.files = files;
 		this.dirs = dirs;
 		this.metadataManager = metadataManager;
@@ -120,14 +116,14 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 			metadataManager.commit();
 			metadataManager.setAutoCommit(true);
 			if(LOG.isDebugEnabled()){
-				LOG.debug("Committing updated index took "+(System.currentTimeMillis()-startCommit)+" ms.");
+				LOG.debug("Committing updated index took {} ms.",(System.currentTimeMillis()-startCommit));
 			}
 		} catch (Exception ex) {
 			LogUtil.logException("Error committing the metadata index.", ex, LOG);
 		}
 		
 		long time = System.currentTimeMillis() - start;
-		LOG.info("EXITING crawler, time " + time + " ms.");
+		LOG.info("EXITING crawler, time {} ms.", time);
 		
 		stats.setDocumentsProcessed(docsProcessed.get());
 		stats.setDurationMillis(time);
@@ -144,7 +140,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	 */
 	public void extractDir(String base, int depthLimit, AtomicInteger docsProcessed) {
 		String fullBase = base;
-		LOG.info("Entering directory " + fullBase+" crawling depth "+depthLimit);
+		LOG.info("Entering directory {} crawling depth {}", fullBase, depthLimit);
 		
 		long start = System.currentTimeMillis();
 		List<String> fileList = new ArrayList<String>();
@@ -152,14 +148,10 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		try {
 			long startSingle=System.currentTimeMillis();
 			getFiles(fullBase, fileList, 0, depthLimit, createBaseFilter(fullBase));
-			if(LOG.isDebugEnabled()){
-				LOG.debug("Getting file list (size "+fileList.size()+") took "+(System.currentTimeMillis()-startSingle)+" ms.");
-			}
+			LOG.debug("Getting file list (size {}) took {} ms.", fileList.size(), System.currentTimeMillis()-startSingle);
 			startSingle=System.currentTimeMillis();
 			Map<String, MD_State> list = statusCheck(fileList);
-			if(LOG.isDebugEnabled()){
-				LOG.debug("Checking file stati took "+(System.currentTimeMillis()-startSingle)+" ms.");
-			}
+			LOG.debug("Checking file stati took {} ms.", System.currentTimeMillis()-startSingle);
 			process(list, docsProcessed);
 		} catch (Exception ex) {
 			LogUtil.logException("Error while crawling the metadata", ex, LOG);
