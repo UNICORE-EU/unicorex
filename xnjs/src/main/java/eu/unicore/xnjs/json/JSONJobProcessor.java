@@ -183,6 +183,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 					result.add(JSONParser.parseStageIn(to, spec));
 				}
 			}
+			else throw new IllegalArgumentException("'Imports' must be an array or a map");
 		}
 		return result;
 	}
@@ -217,6 +218,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 					result.add(JSONParser.parseStageOut(from, out));
 				}
 			}
+			else throw new IllegalArgumentException("'Exports' must be an array or a map");
 		}
 		return result;
 	}

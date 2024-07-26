@@ -362,7 +362,8 @@ public class Files extends RESTRendererBase {
 		while(offset>0){
 			offset -= source.skip(offset);
 		}
-		return length>=0? new BoundedInputStream(source, length) : source;
+		return length<0 ? source : 
+			BoundedInputStream.builder().setInputStream(source).setMaxCount(length).get();
 	}
 
 	/**

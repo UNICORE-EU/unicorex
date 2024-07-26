@@ -236,7 +236,6 @@ public class TestUFTPTransfers {
 		try(InputStream source = new FileInputStream(testFile)) {
 			ftc.writeAllData(source);
 		}
-		
 		Thread.sleep(1000);
 		// check that file has been written...
 		FileListEntry gft = sms.stat("test-import");
@@ -246,7 +245,7 @@ public class TestUFTPTransfers {
 	}
 	
     @Test
-   	public void testImportFileUsingStorageClientSessionMode() throws Exception {
+   	public void testImportFileUsingStorageClient() throws Exception {
    		Map<String,String>params=new HashMap<String,String>();
    		params.put(UFTPConstants.PARAM_SECRET, "test123");
    		params.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
@@ -260,13 +259,9 @@ public class TestUFTPTransfers {
    		int size = 1024;
    		int n = 100;
    		makeTestFile(testFile, size, n);
-   		InputStream source = new FileInputStream(testFile);
-   		try {
+   		try (InputStream source = new FileInputStream(testFile)){
    			((UFTPFileTransferClient)ftc).writeAllData(source);//testFile.length());
-   		} finally {
-   			source.close();
    		}
-   		
    		Thread.sleep(1000);
    		// check that file has been written...
    		FileListEntry gft = sms.stat("test-import");

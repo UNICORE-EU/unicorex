@@ -364,7 +364,7 @@ public class Jobs extends ServicesBase {
 		return id;
 	}
 
-
+	@SuppressWarnings("resource")
 	public static void checkSubmissionEnabled(Kernel kernel) throws WebApplicationException {		
 		TargetSystemHomeImpl tssHome = (TargetSystemHomeImpl)kernel.getHome(UAS.TSS);
 		if(!tssHome.isJobSubmissionEnabled()){

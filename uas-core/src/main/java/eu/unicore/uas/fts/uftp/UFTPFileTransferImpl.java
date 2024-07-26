@@ -20,25 +20,25 @@ import eu.unicore.uftp.server.requests.UFTPSessionRequest;
 import eu.unicore.xnjs.io.XnjsFile;
 
 /**
- * server-side filetransfer ws-resource using the UFTP library
- * 
+ * Server-side UFTP filetransfer resource
+ *
  * @author schuller
  */
 public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConstants {
-	
+
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, UFTPFileTransferImpl.class);
 
 	static final AtomicInteger instancesCreated=new AtomicInteger();
-	
+
 	public UFTPFileTransferImpl(){
 		super();
 	}
-	
+
 	@Override
 	public UFTPFiletransferModel getModel(){
 		return (UFTPFiletransferModel)model;
 	}
-	
+
 	@Override
 	public void initialise(InitParameters map) throws Exception{
 		if(model==null){
@@ -66,7 +66,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		}
 		String streamsP=extraParameters.get(PARAM_STREAMS);
 		m.streams=streamsP!=null?Integer.parseInt(streamsP) : 1;
-		int streams=checkNumConnectionsValid(m.streams);
+		int streams=checkNumberOfRequestedStreams(m.streams);
 		if(streamsP!=null && streams!=m.streams){
 			throw new IllegalArgumentException("Requested number of streams exceeds server limit of <"+streams+"> !");
 		}
@@ -124,7 +124,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	 * @param streamsRequested number of streams
 	 * @return number of streams, possibly smaller than the request
 	 */
-	protected int checkNumConnectionsValid(int streamsRequested){
+	protected int checkNumberOfRequestedStreams(int streamsRequested){
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		int maxStreams = cfg.getIntValue(UFTPProperties.PARAM_STREAMS_LIMIT);
 		return Math.min(maxStreams, streamsRequested);

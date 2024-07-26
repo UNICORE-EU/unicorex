@@ -94,12 +94,7 @@ public class UFTPProperties extends PropertiesHelper {
 	 * server port 
 	 */
 	public static final String PARAM_SERVER_PORT="server.port";
-	
-	/**
-	 * disable session mode (mostly intended for testing)
-	 */
-	public static final String PARAM_DISABLE_SESSION_MODE="disableSessionMode";
-	
+
 	/**
 	 * enable encryption by setting this to "true"
 	 */
@@ -111,16 +106,14 @@ public class UFTPProperties extends PropertiesHelper {
 	public static final String PARAM_RATE_LIMIT="rateLimit";
 
 	@DocumentationReferenceMeta
-	public static final Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public static final Map<String, PropertyMD> META = new HashMap<>();
 	static {
-		
 		META.put(PARAM_ENABLE_UFTP, new PropertyMD("true").setBoolean().
-			setDescription("Controls whether UFTP should be enabled for this server."));
-	
+				setDescription("Controls whether UFTP should be enabled for this server."));
 		META.put(PARAM_CLIENT_LOCAL, new PropertyMD("false").
 				setDescription("Controls whether, the Java UFTP client code should be run directly within the JVM, which will work only if the UNICORE/X has access to the target file system, or, if set to false, in the TSI."));
 		META.put(PARAM_CLIENT_EXECUTABLE, new PropertyMD().setDeprecated().
-				setDescription("Configures the path to the client executable (location of 'uftp.sh') on the TSI."));
+				setDescription("DEPRECATED, does not do anything."));
 		META.put(PARAM_COMMAND_SSL_DISABLE, new PropertyMD("false").
 				setDescription("Allows to disable SSL on the command port (useful for testing)."));
 		META.put(PARAM_COMMAND_HOST, new PropertyMD("localhost").
@@ -147,8 +140,6 @@ public class UFTPProperties extends PropertiesHelper {
 				setDescription("UFTPD listen port."));
 		META.put(PARAM_ENABLE_ENCRYPTION, new PropertyMD("false").
 				setDescription("Controls whether encryption should be enabled by default for server-server transfers."));
-		META.put(PARAM_DISABLE_SESSION_MODE, new PropertyMD("false").
-				setDescription("Controls multi-file transfers should be done one by one (NOT recommended)."));
 	}
 	
 	public UFTPProperties(String prefix, Properties properties) throws ConfigurationException {

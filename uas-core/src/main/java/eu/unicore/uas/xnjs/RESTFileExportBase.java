@@ -39,7 +39,7 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 	/**
 	 * files to transfer: stores pairs of (local_source + size) and remote filename
 	 */
-	protected final List<Pair<Pair<String,Long>,String>> filesToTransfer = new ArrayList<Pair<Pair<String,Long>,String>>();
+	protected final List<Pair<Pair<String,Long>,String>> filesToTransfer = new ArrayList<>();
 
 	private FileSet fileSet;
 
@@ -106,9 +106,9 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 		}
 		else
 		{
-			dataSize=computeFileSize(source);
-			Pair<String,Long>s=new Pair<String,Long>(source,dataSize);
-			filesToTransfer.add(new Pair<Pair<String,Long>,String>(s,target));
+			dataSize = computeFileSize(source);
+			Pair<String,Long> s = new Pair<>(source,dataSize);
+			filesToTransfer.add(new Pair<>(s,target));
 		}
 		info.setDataSize(dataSize);
 	}
@@ -117,7 +117,7 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 	 * transfer all files that have been previously collected
 	 */
 	protected void runTransfers() throws Exception {
-		for (Pair<Pair<String,Long>,String> pair : filesToTransfer) {
+		for (Pair<Pair<String,Long>,String> pair: filesToTransfer) {
 			checkCancelled();
 			Pair<String,Long>sourceDesc=pair.getM1();
 			String currentSource = sourceDesc.getM1();
@@ -182,7 +182,7 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 				s.setUmask(targetUmask);
 				checkOverwriteAllowed(s,tgt);
 				createParentDirectories(tgt);
-				logger.info("Optimization enabled: exporting file by local copy of <"+src+"> to <"+tgt+">");
+				logger.info("Optimization enabled: exporting file by local copy of <{}> to <{}>", src, tgt);
 				s.cp(src, tgt);
 				info.setTransferredBytes(info.getTransferredBytes()+s.getProperties(src).getSize());
 			}finally{
