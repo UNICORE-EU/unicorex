@@ -77,6 +77,7 @@ public class ConfigurationSource implements UpdateableConfiguration {
 	@Override
 	public void setProperties(Properties newProperties) throws ConfigurationException {
 		this.properties = new Properties();
+		this.properties.putAll(newProperties);
 		for(AbstractModule m: modules) {
 			if(m instanceof UpdateableConfiguration) {
 				((UpdateableConfiguration)m).setProperties(newProperties);

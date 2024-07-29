@@ -183,7 +183,7 @@ public class TSIConnection implements AutoCloseable {
 
 
 	private void done() {
-		setIdLine("");
+		idLine = "";
 		if(shutDown){
 			return;
 		}
@@ -493,7 +493,7 @@ public class TSIConnection implements AutoCloseable {
 		}
 
 		/**
-		 * Command from somewhere to kill this channel
+		 * closes this channel
 		 */
 		public void close() {
 			IOUtils.closeQuietly(input);
@@ -514,8 +514,8 @@ public class TSIConnection implements AutoCloseable {
 		return idLine;
 	}
 
-	public void setIdLine(String idLine) {
-		this.idLine = idLine;
+	public void setUser(String user, String group) {
+		this.idLine = user+" "+(group!=null ? group : "NONE");
 	}
 
 

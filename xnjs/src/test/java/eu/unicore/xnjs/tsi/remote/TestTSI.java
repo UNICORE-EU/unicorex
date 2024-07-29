@@ -69,12 +69,12 @@ public class TestTSI extends RemoteTSITestCase{
 			
 		}
 
-		try(TSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){
+		try(TSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1", -1)){
 			InetAddress localhost=InetAddress.getByName("127.0.0.1");
 			assertEquals(localhost,c.getTSIAddress());
 		}
 		int n = f.getNumberOfPooledConnections();
-		try(TSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){}
+		try(TSIConnection c=f.getTSIConnection("nobody", null, "127.0.0.1", -1)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
 
 		try{

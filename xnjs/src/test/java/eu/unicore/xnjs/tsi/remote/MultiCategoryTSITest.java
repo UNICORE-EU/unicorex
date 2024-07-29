@@ -42,6 +42,7 @@ public class MultiCategoryTSITest extends RemoteTSITestCase {
 			System.out.println(c);
 			System.out.println(c.getConnectionID());
 		}
+		System.out.println("Defined categories: "+f.getTSIHostCategories());
 	}
 
 }

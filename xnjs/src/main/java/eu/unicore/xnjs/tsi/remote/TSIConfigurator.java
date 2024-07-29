@@ -22,20 +22,24 @@ public class TSIConfigurator {
 	private final TSIProperties tsiProperties;
 
 	private final TSIConnectionFactory factory;
-	
+
+	private final Collection<String> tsiHostCategories = new HashSet<>();
+
 	public TSIConfigurator(TSIProperties tsiProperties, TSIConnectionFactory factory) {
 		this.tsiProperties = tsiProperties;
 		this.factory = factory;
 	}
 
-	public void configure(Map<String,TSIConnector> connectors) throws ConfigurationException {
+	public void configure(Map<String,TSIConnector> connectors, Set<String>categories) {
+		tsiHostCategories.clear();
 		try {
 			// standard machine
 			String machine = tsiProperties.getTSIMachine();
 			int port = tsiProperties.getTSIPort();
-			List<TSIConnector> newConnectors = createConnectors(machine, port, null);
+			List<TSIConnector> newConnectors =createConnectors(machine, port, null);
 			// machines in categories
-			for(String category: getTSIHostCategories()){
+			updateTSIHostCategories(categories);
+			for(String category: categories){
 				machine = tsiProperties.getValue(TSIProperties.TSI_MACHINE+"."+category);
 				newConnectors.addAll(createConnectors(machine, port, category));
 			}
@@ -82,15 +86,14 @@ public class TSIConfigurator {
 		return new TSIConnector(factory, tsiProperties, InetAddress.getByName(hostname), port, hostname, category);
 	}
 
-	private Collection<String>getTSIHostCategories(){
+	public void updateTSIHostCategories(Set<String>tsiHostCategories){
 		String pfx = TSIProperties.PREFIX+TSIProperties.TSI_MACHINE+".";
-		Set<String> ret = new HashSet<>();
+		tsiHostCategories.clear();
 		for(Object k: tsiProperties.getRawProperties().keySet()){
 			String key=((String)k).trim();
 			if (!key.startsWith(pfx) || key.equals(pfx))
 				continue;
-			ret.add(key.substring(pfx.length()));
+			tsiHostCategories.add(key.substring(pfx.length()));
 		}
-		return ret;
 	}
 }

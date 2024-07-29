@@ -6,9 +6,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FilenameUtils;
@@ -35,14 +37,21 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,DefaultTSIConnectionFactory.class);
 
-	protected TSIProperties tsiProperties;
+	private final XNJS xnjs;
 
 	private final Map<String, List<TSIConnection>> pool = new HashMap<>();
-	
+
+	//count how many connections are currently alive
+	private final AtomicInteger liveConnections=new AtomicInteger(0);
+
 	// count pool content by TSI host name
 	private final Map<String,AtomicInteger> connectionCounter = new HashMap<>(); 
 
 	private final Map<String,TSIConnector> connectors = new HashMap<>();
+
+	private final Set<String> tsiHostCategories = new HashSet<>();
+
+	private TSIProperties tsiProperties;
 
 	private TSISocketFactory server=null;
 
@@ -51,9 +60,6 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private String tsiDescription="";
 
-	//count how many connections are currently alive
-	private final AtomicInteger liveConnections=new AtomicInteger(0);
-	
 	// how many connections to "keep alive" in the pool
 	private int keepConnections = 4;
 
@@ -61,24 +67,22 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private String tsiVersion=null;
 
-	protected final XNJS configuration;
-
 	@Inject
-	public DefaultTSIConnectionFactory(XNJS config){
-		this.configuration=config;
+	public DefaultTSIConnectionFactory(XNJS xnjs){
+		this.xnjs = xnjs;
 		start();
 	}
 
 	@Override
-	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)throws TSIUnavailableException{
+	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
+			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
 		TSIConnection conn = getFromPool(preferredHost);
 		if(conn==null){
 			conn = createNewTSIConnection(preferredHost);
 		}
-		if(group==null)group="NONE";
-		conn.setIdLine(user+" "+group);
+		conn.setUser(user, group);
 		conn.startUse();
 		return conn;
 	}
@@ -125,11 +129,12 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	
 	
 	@Override
-	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeout)throws TSIUnavailableException{
+	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
+			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException("TSI server is shutting down.");
 		String user = client.getXlogin().getUserName();
 		String group = TSIMessages.prepareGroupsString(client);
-		return getTSIConnection(user,group,preferredHost,timeout);
+		return getTSIConnection(user, group, preferredHost, timeout);
 	}
 
 	protected synchronized TSIConnection createNewTSIConnection(String preferredHost) throws TSIUnavailableException {
@@ -287,7 +292,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	public synchronized void start() {
 		if(isRunning)return;
 		try {
-			tsiProperties = configuration.get(TSIProperties.class);
+			tsiProperties = xnjs.get(TSIProperties.class);
 			configure();
 			isRunning = true;
 			log.info("UNICORE TSI connector (SSL: {}, listening on port {}, BSS user: '{}')",
@@ -299,20 +304,22 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			throw new RuntimeException("Cannot setup UNICORE TSI connector" ,ex);
 		}
 		try {
-			 configuration.get(IExecution.class);
+			// somewhat hackish way to force initialisation
+			// of the Execution class
+			xnjs.get(IExecution.class);
 		}catch(Exception ex) {}
 	}
 	
 	protected void configure() throws ConfigurationException {
 		try {
 			if(server==null) {
-				server = new TSISocketFactory(configuration);
+				server = new TSISocketFactory(xnjs);
 			}else {
 				synchronized (server) {
 					server.reInit();
 				}
 			}
-			new TSIConfigurator(tsiProperties, this).configure(connectors);
+			new TSIConfigurator(tsiProperties, this).configure(connectors, tsiHostCategories);
 			StringBuilder machineSpec = new StringBuilder();
 			for(String name: connectors.keySet()) {
 				if(connectionCounter.get(name)==null) {
@@ -375,6 +382,10 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return liveConnections.intValue();
 	}
 
+	public TSIProperties getTSIProperties() {
+		return tsiProperties;
+	}
+
 	public String getConnectionStatus(){
 		if(!isRunning){
 			return "N/A [not started]";
@@ -405,6 +416,11 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	@Override
 	public Collection<String> getTSIHosts(){
 		return connectors.keySet();
+	}
+
+	@Override
+	public Collection<String> getTSIHostCategories(){
+		return Collections.unmodifiableSet(tsiHostCategories);
 	}
 
 	@Override

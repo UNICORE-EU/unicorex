@@ -29,7 +29,8 @@ public interface TSIConnectionFactory {
 	 * @throws TSIUnavailableException if TSI is down
 	 * @throws IllegalArgumentException - if user is <code>null</code>
 	 */
-	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeoutMillis)throws TSIUnavailableException;
+	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeoutMillis)
+			throws TSIUnavailableException;
 
 	/**
 	 * Return a connection that executes commands under the given user id. 
@@ -37,10 +38,11 @@ public interface TSIConnectionFactory {
 	 * become available before attempting to create a new one.
 	 * 
 	 * @param client - the {@link Client} for which to create the connection
-	 * @param preferredHost - the preferred TSI host (in case multiple hosts are available)
+	 * @param category - the TSI host category (if defined) or <code>null</code> if you don't care
 	 * @return a valid connection object or null in case of errors
 	 */
-	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeoutMillis) throws TSIUnavailableException;
+	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeoutMillis)
+			throws TSIUnavailableException;
 
 	/**
 	 * notify that a connection was removed / died
@@ -68,6 +70,11 @@ public interface TSIConnectionFactory {
 	 * TSI host names
 	 */
 	public Collection<String> getTSIHosts();
+
+	/**
+	 * TSI host categories (if defined)
+	 */
+	public Collection<String> getTSIHostCategories();
 
 	/**
 	 * Connection status overview message

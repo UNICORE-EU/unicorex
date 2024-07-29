@@ -107,7 +107,7 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		Properties originals = new Properties();
 		originals.putAll(xnjs.getRawProperties());
 		originals.put(TSIProperties.PREFIX+TSIProperties.TSI_MACHINE, "127.0.0.1, localhost");
-		TSIProperties tsiProps = f.tsiProperties;
+		TSIProperties tsiProps = f.getTSIProperties();
 		tsiProps.setProperties(originals);
 		f.configure();
 		System.out.println("NEW TSI hosts:");

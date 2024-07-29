@@ -121,14 +121,12 @@ public class Execution extends BasicExecution {
 		          (preferredTSIHost==null? "" : ", requested node: <"+preferredTSIHost+">");
 			job.addLogTrace(msg);
 		}
-
 		String tsiCmd = createTSIScript(job);
-
 		String tsiHost=null;
 		String msg;
 		String res;
 		String idLine="";
-		
+
 		Lock lock = null;
 		boolean locked = false;
 		try{
