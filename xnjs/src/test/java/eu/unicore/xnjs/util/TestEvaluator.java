@@ -17,27 +17,12 @@ public class TestEvaluator {
 		String script = "A";
 		Map<String,Object> vars = new HashMap<>();
 		vars.put("A", 1);
-		Assert.assertEquals(1, ScriptEvaluator.evaluate(script, vars, null));
+		Assert.assertEquals(1, ScriptEvaluator.evaluate(script, vars));
 		script = "A == 1";
-		Assert.assertEquals(Boolean.TRUE, ScriptEvaluator.evaluate(script, vars, null));
+		Assert.assertEquals(Boolean.TRUE, ScriptEvaluator.evaluate(script, vars));
 		script = "A = A + 1";
-		Assert.assertEquals(2, ScriptEvaluator.evaluate(script, vars, null));
+		Assert.assertEquals(2, ScriptEvaluator.evaluate(script, vars));
 		Assert.assertEquals(2, vars.get("A"));
-	}
-
-	@Test
-	public void testEvaluatorWithContext()throws Exception{
-		String script = "A = function1()";
-		Map<String,Object> vars = new HashMap<>();
-		ScriptEvaluator.evaluate(script, vars, new Context());
-		Assert.assertEquals(123, vars.get("A"));
-		script="check()";
-		Assert.assertEquals(Boolean.TRUE, ScriptEvaluator.evaluate(script, vars, new Context()));
-	}
-
-	public static class Context {
-		public int function1() { return 123; }
-		public boolean check() { return true; }
 	}
 
 	@Test
@@ -46,28 +31,28 @@ public class TestEvaluator {
 		Map<String,Object> vars = new HashMap<>();
 		vars.put("A", 1);
 		vars.put("B", 2);
-		Object i = ScriptEvaluator.evaluate(script, vars, null);
+		Object i = ScriptEvaluator.evaluate(script, vars);
 		assertEquals((Integer)3,i);
 	
 		script = "3";
 		vars.clear();
-		i = ScriptEvaluator.evaluate(script, vars, null);
+		i = ScriptEvaluator.evaluate(script, vars);
 		assertEquals((Integer)3,i);
 	
 		script = "3.0 + A";
 		vars.put("A", 1.5);
-		Object d = ScriptEvaluator.evaluate(script, vars, null);
+		Object d = ScriptEvaluator.evaluate(script, vars);
 		assertEquals((Double)4.5,d);
 		
 		script =  "A + B";
 		vars.put("A", "foo");
 		vars.put("B", "bar");
-		assertEquals("foobar", ScriptEvaluator.evaluate(script, vars, null));
+		assertEquals("foobar", ScriptEvaluator.evaluate(script, vars));
 		
 		script = "(A>B)? A : B";
 		vars.put("A", 11);
 		vars.put("B", 2);
-		assertEquals(11, ScriptEvaluator.evaluate(script, vars, null));
+		assertEquals(11, ScriptEvaluator.evaluate(script, vars));
 	}
 
 	@Test

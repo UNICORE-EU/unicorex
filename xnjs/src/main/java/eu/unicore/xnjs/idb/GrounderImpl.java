@@ -231,7 +231,7 @@ public class GrounderImpl implements Incarnation {
 				String script = ScriptEvaluator.extractScript(r.getRequestedValue());
 				try{
 					Map<String,String>env = job.getExecutionContext().getEnvironment();
-					String newValue = ScriptEvaluator.evaluateAsString(script, env, null);
+					String newValue = ScriptEvaluator.evaluateAsString(script, env);
 					job.addLogTrace("Evaluated resource "+r.getName()+" as "+newValue);
 					r.setRequestedValue(newValue);
 				}catch(Exception e){

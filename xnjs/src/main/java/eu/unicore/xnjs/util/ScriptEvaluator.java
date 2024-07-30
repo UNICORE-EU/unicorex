@@ -4,13 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.expression.AccessException;
-import org.springframework.expression.EvaluationContext;
-import org.springframework.expression.Expression;
-import org.springframework.expression.PropertyAccessor;
-import org.springframework.expression.TypedValue;
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.expression.spel.support.SimpleEvaluationContext;
+import org.mvel2.MVEL;
 
 import eu.unicore.util.Log;
 
@@ -31,24 +25,18 @@ public class ScriptEvaluator {
 	 * @return the value of the evaluated expression
 	 * @throws IllegalArgumentException
 	 */
-	public static Object evaluate(String script, final Map<String,Object> vars, Object contextObject)throws IllegalArgumentException{
+	public static Object evaluate(String script, final Map<String,Object> vars)throws IllegalArgumentException{
 		if(vars==null){
 			throw new IllegalArgumentException("Process variables can't be null.");
 		}
 		if(script==null){
 			throw new IllegalArgumentException("Expression can't be null.");
 		}
-		Object rootObject = contextObject!=null? contextObject : new DefaultRootObject();
-		SimpleEvaluationContext ctx = SimpleEvaluationContext.
-				forPropertyAccessors(new MapAccessor(vars)).
-				withInstanceMethods().
-				withRootObject(rootObject).build();
-		Expression expr = new SpelExpressionParser().parseExpression(script);
 		logger.debug("Evaluating expression: {} with context {}", script, vars);
-		return expr.getValue(ctx);
+		return MVEL.eval(script, vars);
 	}
 
-	public static String evaluateAsString(String script, Map<String, String> vars, Object contextObject)throws  IllegalArgumentException{
+	public static String evaluateAsString(String script, Map<String, String> vars)throws  IllegalArgumentException{
 		Map<String,Object> var2 = new HashMap<>();
 		for(Map.Entry<String, String> entry: vars.entrySet()) {
 			Object v = entry.getValue();
@@ -57,7 +45,7 @@ public class ScriptEvaluator {
 			}catch(Exception e) {}
 			var2.put(entry.getKey(), v);
 		}
-		return String.valueOf(evaluate(script, var2, contextObject));
+		return String.valueOf(evaluate(script, var2));
 	}
 
 	/**
@@ -70,45 +58,6 @@ public class ScriptEvaluator {
 
 	public static boolean isScript(String expr){
 		return expr!=null && expr.startsWith("${") && expr.endsWith("}");
-	}
-
-
-	public static class MapAccessor implements PropertyAccessor {
-
-		private final Map<String,Object> vars;
-
-		MapAccessor(Map<String,Object> vars){
-			this.vars = vars;
-		}
-
-		@Override
-		public void write(EvaluationContext context, Object target, String name, Object newValue) throws AccessException {
-			vars.put(name, newValue);
-		}
-
-		@Override
-		public TypedValue read(EvaluationContext context, Object target, String name) throws AccessException {
-			return new TypedValue(vars.get(name));
-		}
-
-		@Override
-		public Class<?>[] getSpecificTargetClasses() {
-			return null;
-		}
-
-		@Override
-		public boolean canWrite(EvaluationContext context, Object target, String name) throws AccessException {
-			return true;
-		}
-
-		@Override
-		public boolean canRead(EvaluationContext context, Object target, String name) throws AccessException {
-			return vars.containsKey(name);
-		}
-	}
-
-	public static class DefaultRootObject {
-		// TBD? - add some useful methods that can be used in the expressions
 	}
 
 }
