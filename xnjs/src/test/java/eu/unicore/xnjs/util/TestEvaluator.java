@@ -2,6 +2,7 @@ package eu.unicore.xnjs.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
@@ -62,4 +63,31 @@ public class TestEvaluator {
 		assertEquals("A+B",ScriptEvaluator.extractScript(expr));
 	}
 
+	@Test
+	public void testEvaluatorWithContext() throws Exception{
+		Object context = new Context();
+		String script = "A = getValue()";
+		assertEquals(1, ScriptEvaluator.evaluate(script, new HashMap<>(), context));
+	}
+
+	public static class Context {
+		public int getValue() {
+			return 1;
+		}
+	};
+
+	@Test
+	public void testEvaluatorWithNullContext() throws Exception{
+		String script = "A = 1";
+		assertEquals(1, ScriptEvaluator.evaluate(script, new HashMap<>(), null));
+	}
+
+	@Test
+	public void testEvaluatorSandbox1() throws Exception{
+		String script = "System.exit(1)";
+		assertThrows(IllegalArgumentException.class, ()->{
+			System.out.println(String.format("Script = %s Eval = %s",script,
+				ScriptEvaluator.evaluate(script, new HashMap<>(), null)));
+		});
+	}
 }
