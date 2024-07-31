@@ -1,6 +1,6 @@
 package eu.unicore.xnjs.json;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.BaseModule;
 import eu.unicore.xnjs.ConfigurationSource;
@@ -30,7 +30,7 @@ public class TestDefaultResources {
 
 	private IDB idb;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		XNJS config = new XNJS(getConfigSource()); 
 		idb = config.get(IDB.class);

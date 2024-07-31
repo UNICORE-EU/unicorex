@@ -3,7 +3,6 @@ package eu.unicore.xnjs.tsi;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Collections;
@@ -34,7 +33,6 @@ import eu.unicore.xnjs.io.XnjsFile;
 import eu.unicore.xnjs.tsi.local.LocalExecution;
 import eu.unicore.xnjs.tsi.local.LocalTSIProperties;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
-import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -334,15 +332,16 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	 * @param job - the action to update the progress value for
 	 */
 	protected void updateProgress(Action job){
-		BufferedReader br=null;
 		try{
 			//limit the number of unsuccessful attempts to get the progress
 			Integer j=(Integer)job.getProcessingContext().get(PROGRESS_NOT_FOUND_KEY);
 			if(j!=null && j>3)return;
 			TSI tsi = tsiFactory.createTSI(job.getClient());
-			InputStream is=tsi.getInputStream(job.getExecutionContext().getWorkingDirectory()+"/"+PROGRESS_FILENAME);
-			br=new BufferedReader(new InputStreamReader(is));
-			String s=br.readLine();
+			String progressFile = job.getExecutionContext().getWorkingDirectory()+"/"+PROGRESS_FILENAME;
+			String s = null;
+			try(BufferedReader br=new BufferedReader(new InputStreamReader(tsi.getInputStream(progressFile)))) {
+				s=br.readLine();
+			}
 			if(s!=null){
 				Float f=Float.parseFloat(s);
 				jobExecLogger.info("Found progress value <{}> for job <{}>", f, job.getUUID());
@@ -363,9 +362,6 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			jobExecLogger.warn("Application wrote faulty progress file for action <{}>", job.getUUID());
 		}catch(IOException e){
 			//no progress file written	
-		}
-		finally{
-			IOUtils.closeQuietly(br);
 		}
 	}
 

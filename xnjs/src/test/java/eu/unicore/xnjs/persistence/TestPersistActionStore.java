@@ -1,14 +1,14 @@
 package eu.unicore.xnjs.persistence;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.impl.PersistImpl;
 import eu.unicore.persist.util.Export;
@@ -20,7 +20,7 @@ import eu.unicore.xnjs.ems.ExecutionException;
 
 public class TestPersistActionStore extends EMSTestBase {
 
-	@Before
+	@BeforeEach
 	public void setUp3()throws Exception{
 		System.setProperty(IActionStore.CLEAR_ON_STARTUP,"true");
 	}
@@ -50,7 +50,7 @@ public class TestPersistActionStore extends EMSTestBase {
 		doTest(5, true, false, faultyJob, 2);
 	}
 
-	@Ignore
+	@Disabled
 	public void testExport()throws Exception{
 		JDBCActionStore as = (JDBCActionStore)xnjs.getActionStore("JOBS");
 		as.doCleanup();

@@ -41,7 +41,7 @@
 
     <compiler.fork>false</compiler.fork>
     <use.version>5.0.2</use.version>
-    <secutils.version>4.0.1</secutils.version>
+    <secutils.version>4.1.0</secutils.version>
     <persistence.version>1.1.0</persistence.version>
     <metrics.version>4.2.26</metrics.version>
     <uftp.version>2.20.0</uftp.version>
@@ -66,9 +66,9 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-	<groupId>junit</groupId>
-	<artifactId>junit</artifactId>
-	<version>4.13.2</version>
+	<groupId>org.junit.jupiter</groupId>
+	<artifactId>junit-jupiter</artifactId>
+	<version>5.10.3</version>
 	<scope>test</scope>
       </dependency>
       <dependency>
@@ -121,6 +121,12 @@
 	<groupId>io.dropwizard.metrics</groupId>
 	<artifactId>metrics-core</artifactId>
 	<version>${metrics.version}</version>
+	<exclusions>
+	  <exclusion>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>slf4j-api</artifactId>
+	  </exclusion>
+	</exclusions>
       </dependency>
       <dependency>
 	<groupId>org.apache.xmlbeans</groupId>

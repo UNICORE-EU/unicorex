@@ -1,8 +1,9 @@
 package eu.unicore.uas.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.util.Pair;
 
@@ -23,10 +24,12 @@ public class TestUtils {
 		assertEquals(p1,p2);
 	}
 
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void testLimitedBAOS() throws Exception {
 		LimitedByteArrayOutputStream lb = new LimitedByteArrayOutputStream(16);
-		lb.write(new byte[32]);
+		assertThrows(RuntimeException.class, ()->{
+			lb.write(new byte[32]);
+		});
 	}
 
 }

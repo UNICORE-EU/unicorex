@@ -26,11 +26,10 @@ public interface TriggeredAction<T> {
 	 * run the action
 	 *
 	 * @param storage - the parent storage
-	 * @param target - the file(s) that trigger the action
 	 * @param client - the user
-	 * @param xnjsConfig - the XNJS for executing things
+	 * @param xnjs - the XNJS for executing things
 	 */
-	public String run(IStorageAdapter storage, Client client, XNJS xnjsConfig) throws Exception;
+	public String run(IStorageAdapter storage, Client client, XNJS xnjs) throws Exception;
 
 	/**
 	 * the target that triggered the action

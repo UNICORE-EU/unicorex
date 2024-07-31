@@ -1,12 +1,12 @@
 package eu.unicore.uas.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestBuilder{
 	
@@ -35,7 +35,7 @@ public class TestBuilder{
 				"BFT:http://nosecurity/services/StorageManagement?res=default_storage#/a/b/c.txt",
 				};
 		for(int i=0; i<rest.length; i++){
-			assertEquals("REST-to-WSRF URL conversion", wsrf[i], Builder.convertRESTToWSRF(rest[i]));
+			assertEquals(wsrf[i], Builder.convertRESTToWSRF(rest[i]));
 		}
 	}
 

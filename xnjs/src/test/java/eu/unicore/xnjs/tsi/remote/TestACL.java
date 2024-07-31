@@ -1,15 +1,14 @@
 package eu.unicore.xnjs.tsi.remote;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.ACLEntry;
@@ -28,7 +27,6 @@ public class TestACL extends RemoteTSITestCase {
 	public void testACLSupport() throws ExecutionException {
 		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		assertNotNull(tsi);
-		
 		assertTrue(tsi.isACLSupported("/"));
 	}
 	
@@ -68,7 +66,7 @@ public class TestACL extends RemoteTSITestCase {
 		assertNotNull(acl);
 		// should get 6 = 2 standard, 2 standard defaults (out of which one was explicitly set),
 		// and 2 more which we have set. 
-		assertEquals(Arrays.toString(acl), 6, acl.length);
+		assertEquals(6, acl.length);
 		int all = 0;
 		for (int i=0; i<acl.length; i++)
 		{
@@ -115,7 +113,7 @@ public class TestACL extends RemoteTSITestCase {
 		
 		acl = xnjsFile.getACL();
 		assertNotNull(acl);
-		assertEquals(Arrays.toString(acl), 4, acl.length);
+		assertEquals(4, acl.length);
 
 		//4 - remove all
 		tsi.setfacl(tst.getAbsolutePath(), true, new ChangeACL[0], false);
@@ -131,7 +129,7 @@ public class TestACL extends RemoteTSITestCase {
 		tsi.getfacl(subfile.getAbsolutePath(), xnjsFile);
 		acl = xnjsFile.getACL();
 		assertNotNull(acl);
-		assertEquals(Arrays.toString(acl), 3, acl.length);
+		assertEquals(3, acl.length);
 		
 		all = 0;
 		for (int i=0; i<acl.length; i++)
@@ -151,9 +149,7 @@ public class TestACL extends RemoteTSITestCase {
 				all++;
 			}
 		}
-		assertEquals(3, all);
-		
+		assertEquals(3, all);	
 	}
-	
-	
+
 }

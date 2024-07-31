@@ -1,13 +1,17 @@
 package eu.unicore.uas.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.junit.jupiter.api.Test;
 
-public class TestPropertyHelper extends TestCase {
+public class TestPropertyHelper {
 
+	@Test
 	public void test1(){
 	
 		HashMap<String,String>props=new HashMap<String, String>();

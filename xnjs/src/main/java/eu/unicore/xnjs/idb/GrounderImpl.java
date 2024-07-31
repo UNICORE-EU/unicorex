@@ -33,7 +33,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 /**
- *  
  * @author schuller
  */
 @Singleton
@@ -370,8 +369,8 @@ public class GrounderImpl implements Incarnation {
 	private static final Pattern ARG_PATTERN=Pattern.compile("\\s?(.*?)"+"("+VAR+")(.*?)\\s*", Pattern.DOTALL);
 
 	/**
-	 * extracts the argument name from the value of a jsdl:Argument tag</br>
-	 * xxx$ARG, xxx${ARG}, %ARG% => ARG 
+	 * extracts the argument name from the value of an Argument tag</br>
+	 * xxx$ARG, xxx${ARG}, %ARG% --&gt; ARG 
 	 * @param argValue
 	 */
 	public static String extractArgumentName(String argValue){

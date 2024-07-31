@@ -24,7 +24,7 @@ public interface FiletransferOptions {
 		 * @param offset - where to start reading
 		 * @param length - number of bytes to read
 		 * @param os - output stream to write to
-		 * @return the number of bytes actually read (always >= 0)
+		 * @return the number of bytes actually read (always &gt;= 0)
 		 * @throws IOException
 		 */
 		public long readPartial(long offset, long length, OutputStream os)throws IOException;

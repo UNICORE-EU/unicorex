@@ -1,9 +1,10 @@
 package eu.unicore.xnjs.tsi.remote;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,8 +24,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
@@ -103,24 +103,23 @@ public class TestTSI extends RemoteTSITestCase{
 		writeFile(tmp.getAbsolutePath()+"/file1", "test");
 		tsi.setStorageRoot("/");
 		XnjsFile[] ls=tsi.ls(tmp.getAbsolutePath());
-		assertTrue("got "+ls.length, ls.length==1);
+		assertEquals(1, ls.length);
 
 		writeFile(tmp.getAbsolutePath()+"/file2", "test");
 		ls=tsi.ls(tmp.getAbsolutePath());
-		assertTrue(ls.length==2);
+		assertEquals(2, ls.length);
 
 		ls=tsi.ls(tmp.getAbsolutePath(),0,1,false);
 		assertTrue(ls.length==1);
 		String p1=ls[0].getPath();
 		ls=tsi.ls(tmp.getAbsolutePath(),1,1,false);
 		String p2=ls[0].getPath();
-		assertTrue(ls.length==1);
+		assertEquals(1, ls.length);
 		assertTrue(!p1.equals(p2));
 		FileUtils.deleteQuietly(tmp);
-		
 		String test=tsi.getEnvironment("TEST");
 		System.out.println(test);
-		assertEquals("this is a test for the template mechanism",test);
+		assertEquals("this is a test for the template mechanism", test);
 	}
 
 	@Test
@@ -393,9 +392,9 @@ public class TestTSI extends RemoteTSITestCase{
 		String desc="All is fine";
 		String rep="TSI_OK\nWAITING "+date+"\n"+desc;
 		ReservationStatus rs=new Reservation().parseTSIReply(rep);
-		Assert.assertEquals(Status.WAITING, rs.getStatus());
-		Assert.assertEquals(c.getTimeInMillis(), rs.getStartTime().getTimeInMillis());
-		Assert.assertEquals(desc, rs.getDescription());
+		assertEquals(Status.WAITING, rs.getStatus());
+		assertEquals(c.getTimeInMillis(), rs.getStartTime().getTimeInMillis());
+		assertEquals(desc, rs.getDescription());
 	
 		date="2012-09-26T22:00:00+0200";
 		sf=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -403,9 +402,9 @@ public class TestTSI extends RemoteTSITestCase{
 		c.setTime(sf.parse(date));
 		rep="TSI_OK\nWAITING "+date+"\n";
 		rs=new Reservation().parseTSIReply(rep);
-		Assert.assertEquals(Status.WAITING, rs.getStatus());
-		Assert.assertEquals(c.getTimeInMillis(), rs.getStartTime().getTimeInMillis());
-		Assert.assertNull(rs.getDescription());
+		assertEquals(Status.WAITING, rs.getStatus());
+		assertEquals(c.getTimeInMillis(), rs.getStartTime().getTimeInMillis());
+		assertNull(rs.getDescription());
 	}
 	
 	@Test
@@ -413,14 +412,14 @@ public class TestTSI extends RemoteTSITestCase{
 		TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
 		String r1 = "12345\n";
 		String[]parsed = tsiMessages.readAllocationID(r1);
-		Assert.assertEquals(2, parsed.length);
-		Assert.assertEquals("12345", parsed[0]);
+		assertEquals(2, parsed.length);
+		assertEquals("12345", parsed[0]);
 		String r2 = "67890\nSOME_VAR_NAME\n";
 		parsed = tsiMessages.readAllocationID(r2);
-		Assert.assertEquals(2, parsed.length);
-		Assert.assertEquals("67890", parsed[0]);
+		assertEquals(2, parsed.length);
+		assertEquals("67890", parsed[0]);
 		parsed = tsiMessages.readAllocationID(r2);
-		Assert.assertEquals("SOME_VAR_NAME", parsed[1]);
+		assertEquals("SOME_VAR_NAME", parsed[1]);
 	}
 
 	@Test
@@ -435,7 +434,7 @@ public class TestTSI extends RemoteTSITestCase{
 			c.setSocketTimeouts(3000, false);
 			c.sendNoUser(message);
 		}catch(IOException ex) {
-			assertTrue("Got TSI error: "+ex.getMessage(), ex.getMessage().contains("TSI <127.0.0.1>"));
+			assertTrue(ex.getMessage().contains("TSI <127.0.0.1>"), "Got TSI error: "+ex.getMessage());
 		}
 	}
 
@@ -447,13 +446,13 @@ public class TestTSI extends RemoteTSITestCase{
 			tsi.cp("/no_such_file__", testDir+"/test123");
 		}catch(ExecutionException ee1) {
 			System.out.println(ee1.getMessage());
-			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("ERROR"));
+			assertTrue(ee1.getMessage().contains("ERROR"), "Got: "+ee1.getMessage());
 		}
 		try{
 			tsi.link("/no_such_file__", testDir+"/test123");
 		}catch(ExecutionException ee1) {
 			System.out.println(ee1.getMessage());
-			assertTrue("Got: "+ee1.getMessage(), ee1.getMessage().contains("ERROR"));
+			assertTrue(ee1.getMessage().contains("ERROR"), "Got: "+ee1.getMessage());
 		}
 	}
 

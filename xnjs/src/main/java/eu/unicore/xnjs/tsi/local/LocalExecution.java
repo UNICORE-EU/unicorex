@@ -17,6 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.logging.log4j.Logger;
 
@@ -24,7 +25,6 @@ import eu.unicore.xnjs.ems.ExecutionContext;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.InternalManager;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
-import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
@@ -244,12 +244,7 @@ public class LocalExecution implements Runnable {
 			throw new RuntimeException(ex);
 		}
 		finally{
-			
-			IOUtils.closeQuietly(stdout);
-			IOUtils.closeQuietly(stderr);
-			IOUtils.closeQuietly(stdin);
-			IOUtils.closeQuietly(stdinDummy);
-			
+			IOUtils.closeQuietly(stdout, stderr, stdin, stdinDummy);
 			if(actionID!=null){
 				runningJobs.remove(actionID);
 				runningTasks.decrementAndGet();

@@ -1,9 +1,9 @@
 package eu.unicore.uas.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.Collections;
@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList;
@@ -36,12 +36,12 @@ public class TestMetadataFunctional {
 
 	static Kernel kernel;
 
-	@BeforeClass
+	@BeforeAll
 	public static void init() throws Exception {
 		kernel = TestMetadata.initK();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutDown() throws Exception{
 		TestMetadata.shutDown(kernel);
 	}
@@ -108,7 +108,7 @@ public class TestMetadataFunctional {
 		System.out.println("\nMetadata for the resource " + gridFile.path + " got via REST API");
 		Map<String, String> extractMetadataType = gridFile.metadata;
 		for (String key : meta.keySet()) {
-			assertTrue("Original metadata does contain this key " + key, extractMetadataType.containsKey(key));
+			assertTrue(extractMetadataType.containsKey(key), "Missing: "+key);
 			assertEquals(meta.get(key), extractMetadataType.get(key));
 			System.out.println(key + "-->" + extractMetadataType.get(key));
 		}
@@ -279,7 +279,7 @@ public class TestMetadataFunctional {
 		Thread.sleep(5000);
 				
 		found = sms.searchMetadata("MY_KEY");
-		assertEquals(String.valueOf(found), 1, found.size());
+		assertEquals(1, found.size());
 		fc = sms.getFileClient("/foo.a");
 		assertTrue(fc.getMetadata().containsValue("MY_VALUE"));
 

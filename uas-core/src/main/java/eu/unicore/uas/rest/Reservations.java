@@ -77,7 +77,7 @@ public class Reservations extends ServicesBase {
 	/**
 	 * create a new allocation / reservation on any of our accessible target system instances
 	 * 
-	 * @param json - JSON describing the requested allocation
+	 * @param json - incoming JSON describing the requested reservation
 	 * 
 	 * @throws JSONException
 	 * @throws PersistenceException
@@ -86,11 +86,10 @@ public class Reservations extends ServicesBase {
 	@Path("/")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@ConcurrentAccess(allow=true)
-	public Response create(String jsonS) {
+	public Response create(String json) {
 		try{
-			JSONObject json = new JSONObject(jsonS);
 			TargetSystemImpl tss = Sites.findTSS(kernel);
-			String id = doCreate(json, tss);
+			String id = doCreate(new JSONObject(json), tss);
 			return Response.created(new URI(baseURL+"/reservations/"+id)).build();
 		}catch(Exception ex){
 			int status = 500;

@@ -1,6 +1,6 @@
 package eu.unicore.uas.trigger.impl;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList;
@@ -72,8 +71,8 @@ public class TestDirectoryScan extends Base {
 			}while(!hasRun(xnjs,id)&& i<30);
 		}
 		// check the expected outfile is there
-		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
-		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
+		assertTrue(sms.stat("/out/test.txt.md5").size>0);
+		assertTrue(sms.stat("/out/test2.txt.md5").size>0);
 		
 		// check notifications were sent
 		assertTrue(Notifications.notifications.size()>0);
@@ -139,8 +138,8 @@ public class TestDirectoryScan extends Base {
 			}while(!hasRun(xnjs,id)&& i<30);
 		}
 		// check the expected outfile is there
-		Assert.assertTrue(sms.stat("/out/test.txt.md5").size>0);
-		Assert.assertTrue(sms.stat("/out/test2.txt.md5").size>0);
+		assertTrue(sms.stat("/out/test.txt.md5").size>0);
+		assertTrue(sms.stat("/out/test2.txt.md5").size>0);
 
 		// check notifications were sent
 		assertTrue(Notifications.notifications.size()>0);

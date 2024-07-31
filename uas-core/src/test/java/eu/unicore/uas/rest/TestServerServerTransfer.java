@@ -1,10 +1,10 @@
 package eu.unicore.uas.rest;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList;
@@ -100,10 +100,10 @@ public class TestServerServerTransfer extends Base {
 		FileList lsResult = target.ls(targetDir);
 		for(String f: files){
 			if(included){
-				assertTrue("File "+f+" is missing.",contains(f, lsResult));
+				assertTrue(contains(f, lsResult), "File "+f+" is missing.");
 			}
 			else{
-				assertTrue("File "+f+" was wrongly included.",!contains(f, lsResult));
+				assertTrue(!contains(f, lsResult), "File "+f+" was wrongly included.");
 			}
 		}
 	}

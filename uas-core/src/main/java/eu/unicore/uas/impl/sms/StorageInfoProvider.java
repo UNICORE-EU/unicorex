@@ -3,7 +3,7 @@ package eu.unicore.uas.impl.sms;
 import java.util.Map;
 
 /**
- * provides detailed information about a storage backend for use by the {@link StorageFactory}
+ * provides detailed information about a storage backend
  * 
  * @author schuller
  */

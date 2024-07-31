@@ -1,16 +1,16 @@
 package eu.unicore.uas.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestJSONUtil {
 
@@ -47,10 +47,10 @@ public class TestJSONUtil {
 		String json="{ foo : bar \n \n ";
 		try{
 			new JSONObject(json);
-			Assert.fail("Expected parse exception");
+			fail("Expected parse exception");
 		}catch(JSONException ex){
 			String msg=JSONUtil.makeParseErrorMessage(json, ex);
-			assertTrue("got: "+msg, msg.contains("line 3"));
+			assertTrue(msg.contains("line 3"));
 		}
 	}
 	
@@ -59,10 +59,10 @@ public class TestJSONUtil {
 		String json="#foocomment\n{ foo : bar \n \n }";
 		try{
 			new JSONObject(json);
-			Assert.fail("Expected parse exception");
+			fail("Expected parse exception");
 		}catch(JSONException ex){
 			String msg=JSONUtil.makeParseErrorMessage(json, ex);
-			assertTrue(msg,msg.contains("must begin with"));
+			assertTrue(msg.contains("must begin with"));
 		}
 	}
 	

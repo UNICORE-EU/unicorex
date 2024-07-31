@@ -1,12 +1,13 @@
 package eu.unicore.uas.fts.uftp;
+	
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.UAS;
@@ -26,14 +27,14 @@ public class TestUFTPSetup {
 		return "src/test/resources/uas-uftpcluster.config";
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdown() throws Exception {
 		uftpd1.stop();
 		uftpd2.stop();
 		if(kernel!=null)kernel.shutdown();
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void init() throws Exception {
 		uftpd1.start();
 		uftpd2.start();
@@ -58,6 +59,6 @@ public class TestUFTPSetup {
 	public void test1() {
 		LogicalUFTPServer connector = kernel.getAttribute(LogicalUFTPServer.class);
 		System.out.println(connector.getStatusDescription());
-		Assert.assertEquals(2, connector.getConfiguredServers());
+		assertEquals(2, connector.getConfiguredServers());
 	}
 }

@@ -1,7 +1,6 @@
 package eu.unicore.xnjs.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -330,14 +329,9 @@ public class IOUtils {
 		return format.format(number);
 	}
 
-	// TODO not needed since we have commons-io
-	public static void closeQuietly(Closeable ... streams){
-		org.apache.commons.io.IOUtils.closeQuietly(streams);
-	}
-
 	/**
 	 * Include the path in single quotes "'" so the shell will not process the 
-	 * content -> avoid user command injection.
+	 * content, in order to avoid user command injection.
 	 * Also, escapes quotes that are already present in the path!
 	 */
 	public static String quote(String input){

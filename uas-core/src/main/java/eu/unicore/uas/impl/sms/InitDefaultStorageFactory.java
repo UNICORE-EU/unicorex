@@ -24,10 +24,7 @@ import eu.unicore.util.Log;
 
 /**
  * Creates the "default" instance of the StorageFactory service
- * 
- * It is run from either the {@link DefaultOnStartup} class, or by adding the class name
- * to the container.onstartup.* property
- * 
+ *
  * @author schuller
  */
 public class InitDefaultStorageFactory implements Runnable{
@@ -35,11 +32,11 @@ public class InitDefaultStorageFactory implements Runnable{
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, InitDefaultStorageFactory.class);
 
 	private final Kernel kernel;
-	
+
 	public InitDefaultStorageFactory(Kernel kernel){
 		this.kernel=kernel;
 	}
-	
+
 	public void run(){
 		try{
 			createDefaultStorageFactoryIfNotExists();
@@ -71,7 +68,7 @@ public class InitDefaultStorageFactory implements Runnable{
 			}finally{
 				smfLock.unlock();
 			}
-			publishWS();
+			publishEndpoint();
 		}
 	}
 
@@ -85,7 +82,7 @@ public class InitDefaultStorageFactory implements Runnable{
 		logger.info("Added default StorageFactory resource '{}' of type <{}>.", defaultSmfName, clazz.getName());
 	}
 
-	private void publishWS(){
+	private void publishEndpoint(){
 		try{
 			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
 			Map<String,String> res = new HashMap<>();
@@ -100,8 +97,7 @@ public class InitDefaultStorageFactory implements Runnable{
 			lrc.addEntry(endpoint, res, null);
 		}catch(Exception ex){
 			Log.logException("Could not publish to local registry", ex, logger);
-		}
-		
+		}	
 	}
 
 }

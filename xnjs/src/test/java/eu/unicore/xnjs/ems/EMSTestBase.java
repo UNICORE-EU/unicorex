@@ -1,22 +1,21 @@
 package eu.unicore.xnjs.ems;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.google.inject.AbstractModule;
 
 import eu.unicore.xnjs.XNJSTestBase;
 import eu.unicore.xnjs.persistence.IActionStoreFactory;
 import eu.unicore.xnjs.persistence.JDBCActionStoreFactory;
-
 
 /**
  * setup tests of the core ems processing
@@ -27,7 +26,7 @@ public abstract class EMSTestBase extends XNJSTestBase {
 
 	protected InternalManager internalMgr;
 
-	@Before
+	@BeforeEach
 	public void setUp2() throws Exception {
 		internalMgr=xnjs.get(InternalManager.class);
 		mgr=xnjs.get(Manager.class);
@@ -119,14 +118,14 @@ public abstract class EMSTestBase extends XNJSTestBase {
 	
 	protected void assertDone(String actionID)throws Exception{
 		int s = mgr.getStatus(actionID,null).intValue();
-		assertEquals("Expected DONE, was: "+ActionStatus.toString(s), ActionStatus.DONE, s);
+		assertEquals(ActionStatus.DONE, s);
 	}
 
 	protected void assertSuccessful(String actionID)throws Exception{
 		Action a=xnjs.get(InternalManager.class).getAction(actionID);
 		assertNotNull(a);
 		int result = a.getResult().getStatusCode();
-		assertEquals("Action is "+a.getResult(), ActionResult.SUCCESSFUL, result);
+		assertEquals(ActionResult.SUCCESSFUL, result);
 	}
 	
 	protected void assertNotSuccessful(String actionID)throws Exception{

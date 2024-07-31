@@ -2,11 +2,11 @@ package eu.unicore.uas.fts.uftp;
 
 import java.net.InetAddress;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import eu.unicore.uftp.server.UFTPServer;
 
-@Ignore
+@Disabled
 public class UFTPDServerRunner {
 
 	public int jobPort = 62434;

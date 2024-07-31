@@ -1,8 +1,8 @@
 package eu.unicore.xnjs.tsi.remote;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,9 +11,9 @@ import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
@@ -31,7 +31,7 @@ public class TestUFTP extends RemoteTSITestCase {
 	private static UFTPDServerRunner uftpd = null;
 	private static InetAddress localhost;
 	
-	@BeforeClass
+	@BeforeAll
 	public static void startUFTPD() throws Exception {
 		localhost = InetAddress.getByName("127.0.0.1");
 		uftpd = new UFTPDServerRunner();
@@ -39,14 +39,13 @@ public class TestUFTP extends RemoteTSITestCase {
 		waitForUFTPD();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void stopUFTPD() {
 		if(uftpd!=null)try{
 			uftpd.stop();
 		}catch(Exception e) {}
 	}
 
-	// startup might be a bit slow - let's wait until uftpd answers to pings
 	private static void waitForUFTPD() throws InterruptedException {
 		int i=0;
 		while(i<30) {

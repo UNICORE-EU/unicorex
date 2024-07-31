@@ -1,15 +1,15 @@
 package eu.unicore.xnjs.tsi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
 import eu.unicore.xnjs.ems.EMSTestBase;
@@ -30,7 +30,7 @@ public class TestLocalTS extends EMSTestBase {
 
 	protected final String tmpDir=new File("target", "xnjs_test-"+System.currentTimeMillis()).getPath();
 
-	@Before
+	@BeforeEach
 	public void setUp3()throws Exception{
 		File t=new File(tmpDir);
 		if(!t.exists()){
@@ -85,10 +85,10 @@ public class TestLocalTS extends EMSTestBase {
 			tsi.mkdir(dir2);
 			final XnjsFile file1 = tsi.ls(baseDir)[0];
 			System.out.println(file1);
-			assertTrue(dir2 + " is not a directory.", file1.isDirectory());
-			assertTrue(dir2 + " is not readable.", file1.getPermissions().isReadable());
-			assertTrue(dir2 + " is not writable.", file1.getPermissions().isWritable());
-			assertTrue(dir2 + " is not executable.", file1.getPermissions().isExecutable());
+			assertTrue(file1.isDirectory());
+			assertTrue(file1.getPermissions().isReadable());
+			assertTrue(file1.getPermissions().isWritable());
+			assertTrue(file1.getPermissions().isExecutable());
 			
 			tsi.rmdir(dir2);
 			
@@ -96,10 +96,10 @@ public class TestLocalTS extends EMSTestBase {
 			tsi.mkdir(dir2);
 			XnjsFile file2 = tsi.ls(baseDir)[0];
 			System.out.println(file2);
-			assertTrue(dir2 + " is not a directory.", file2.isDirectory());
-			assertFalse(dir2 + " is readable.", file2.getPermissions().isReadable());
-			assertFalse(dir2 + " is writable.", file2.getPermissions().isWritable());
-			assertFalse(dir2 + " is executable.", file2.getPermissions().isExecutable());
+			assertTrue(file2.isDirectory());
+			assertFalse(file2.getPermissions().isReadable());
+			assertFalse(file2.getPermissions().isWritable());
+			assertFalse(file2.getPermissions().isExecutable());
 			
 			tsi.rmdir(dir2);
 			

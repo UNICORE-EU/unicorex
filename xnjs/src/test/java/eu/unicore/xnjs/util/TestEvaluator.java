@@ -1,14 +1,13 @@
 package eu.unicore.xnjs.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TestEvaluator {
 	
@@ -17,12 +16,12 @@ public class TestEvaluator {
 		String script = "A";
 		Map<String,Object> vars = new HashMap<>();
 		vars.put("A", 1);
-		Assert.assertEquals(1, ScriptEvaluator.evaluate(script, vars));
+		assertEquals(1, ScriptEvaluator.evaluate(script, vars));
 		script = "A == 1";
-		Assert.assertEquals(Boolean.TRUE, ScriptEvaluator.evaluate(script, vars));
+		assertEquals(Boolean.TRUE, ScriptEvaluator.evaluate(script, vars));
 		script = "A = A + 1";
-		Assert.assertEquals(2, ScriptEvaluator.evaluate(script, vars));
-		Assert.assertEquals(2, vars.get("A"));
+		assertEquals(2, ScriptEvaluator.evaluate(script, vars));
+		assertEquals(2, vars.get("A"));
 	}
 
 	@Test

@@ -1,7 +1,8 @@
 package eu.unicore.uas.rest;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.Job;
@@ -38,7 +39,7 @@ public class TestAllocations extends Base {
 			i++;
 			Thread.sleep(1000);
 		}
-		Assert.assertEquals("ALLOCATE", alloc.getProperties().get("jobType"));
+		assertEquals("ALLOCATE", alloc.getProperties().get("jobType"));
 		Job j2 = new Job();
 		j2.executable("date");
 		JobClient jobClient = alloc.submitJob(j2.getJSON());
@@ -47,7 +48,7 @@ public class TestAllocations extends Base {
 			i++;
 			Thread.sleep(1000);
 		}
-		Assert.assertEquals("ON_LOGIN_NODE", jobClient.getProperties().get("jobType"));
+		assertEquals("ON_LOGIN_NODE", jobClient.getProperties().get("jobType"));
 		System.out.println(jobClient.getProperties().toString(2));
 		
 	}

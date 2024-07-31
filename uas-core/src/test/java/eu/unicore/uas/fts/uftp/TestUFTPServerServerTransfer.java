@@ -1,15 +1,16 @@
 package eu.unicore.uas.fts.uftp;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
@@ -36,13 +37,13 @@ public class TestUFTPServerServerTransfer {
 		return "src/test/resources/uas.config";
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdown() throws Exception {
 		uftpd.stop();
 		kernel.shutdown();
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void init() throws Exception {
 		
 		uftpd.start();
@@ -89,10 +90,9 @@ public class TestUFTPServerServerTransfer {
 			Thread.sleep(3000);
 			c++;
 		}
-		Assert.assertTrue(tcc.getStatusMessage(), 
-				tcc.getStatus()==TransferControllerClient.Status.DONE);
+		assertEquals(TransferControllerClient.Status.DONE, tcc.getStatus());
 		FileListEntry result = sms2.stat("test-sent");
-		Assert.assertEquals(1024, result.size);
+		assertEquals(1024, result.size);
 	}
 	
 	@Test
@@ -104,10 +104,9 @@ public class TestUFTPServerServerTransfer {
 			Thread.sleep(3000);
 			c++;
 		}
-		Assert.assertTrue(tcc.getStatusMessage(), 
-				tcc.getStatus()==TransferControllerClient.Status.DONE);
+		assertEquals(TransferControllerClient.Status.DONE, tcc.getStatus());
 		FileListEntry result = sms2.stat("test-received");
-		Assert.assertEquals(1024, result.size);
+		assertEquals(1024, result.size);
 	}
 
 	private static void importTestFile(StorageClient sms, String filename,

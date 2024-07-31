@@ -323,7 +323,7 @@ public class Files extends RESTRendererBase {
 					is = makeRangedStream(range, is, size);
 				}
 				catch(Exception ex){
-					eu.unicore.xnjs.util.IOUtils.closeQuietly(is);
+					IOUtils.closeQuietly(is);
 					return handleError(416,"Range header '"+range+"' cannot be parsed", ex, logger);
 				}
 				return Response.status(Status.PARTIAL_CONTENT).entity(is).type(mt).build();
@@ -331,9 +331,8 @@ public class Files extends RESTRendererBase {
 			else{
 				return Response.ok().entity(is).type(mt).build();	
 			}
-
 		}catch(Exception ex){
-			eu.unicore.xnjs.util.IOUtils.closeQuietly(is);
+			IOUtils.closeQuietly(is);
 			return handleError("Error downloading from '"+path+"'", ex, logger);
 		}
 	}

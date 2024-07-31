@@ -1,8 +1,8 @@
 package eu.unicore.xnjs.io.http;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 
@@ -11,9 +11,9 @@ import org.apache.hc.client5.http.classic.HttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
 import eu.unicore.xnjs.ems.ActionResult;
@@ -29,7 +29,7 @@ public class TestHTTPStaging extends EMSTestBase {
 	String answer="hello world!";
 	FakeServer server;
 	
-	@Before
+	@BeforeEach
 	public void startFakeHttpServer()throws Exception{
 		server=new FakeServer();
 		server.setAnswer(answer);
@@ -37,7 +37,7 @@ public class TestHTTPStaging extends EMSTestBase {
 		Thread.sleep(1000);
 	}
 
-	@After
+	@AfterEach
 	public void stopServer()throws Exception{
 		try{
 			server.stop();

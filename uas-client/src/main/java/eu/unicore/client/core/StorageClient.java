@@ -266,9 +266,9 @@ public class StorageClient extends BaseServiceClient {
 	/**
 	 * register a client class supporting the given protocol. Note that clients are usually registered 
 	 * using the service loader mechanism 
-	 * @see FTClientCapability
+	 * @see RESTFTClientCapability
 	 * @param proto - the protocol
-	 * @param clazz - the {@link FileTransferClient} class
+	 * @param clazz - the {@link FiletransferClient} class
 	 */
 	public static synchronized void registerClient(String proto, Class<? extends FiletransferClient> clazz) {
 		initRegisteredClients();

@@ -2,7 +2,7 @@ package eu.unicore.uas.rest;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.admin.AdminServiceClient;

@@ -17,14 +17,8 @@ import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.util.LogUtil;
 
 /**
- * Implements the {@link TargetSystemFactory} interface.<br/>
- * 
- * <p>This is a fairly simplistic implementation that does not
- * use all the capabilities of the interface. For all the
- * TargetSystems created by this factory, the same XNJS instance
- * is used. The TargetSystemDescription supplied to CreateTSR() 
- * is ignored.</p>
- * 
+ * Implements the TargetSystemFactory for creating new TargetSystem instances
+ *
  * @author schuller
  */
 public class TargetSystemFactoryImpl extends BaseResourceImpl {

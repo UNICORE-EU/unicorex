@@ -1,6 +1,6 @@
 package eu.unicore.uas.rest;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Job;
 import eu.unicore.client.Job.Resources;

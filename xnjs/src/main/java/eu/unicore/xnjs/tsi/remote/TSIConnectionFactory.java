@@ -38,7 +38,8 @@ public interface TSIConnectionFactory {
 	 * become available before attempting to create a new one.
 	 * 
 	 * @param client - the {@link Client} for which to create the connection
-	 * @param category - the TSI host category (if defined) or <code>null</code> if you don't care
+	 * @param preferredHost - the preferred TSI host (in case multiple hosts are available)
+	 * @param timeoutMillis - timeout for waiting for a connection to become available.
 	 * @return a valid connection object or null in case of errors
 	 */
 	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeoutMillis)
@@ -100,7 +101,6 @@ public interface TSIConnectionFactory {
 	 * @param tsiHost - the TSI node to use (can be null, if that makes sense)
 	 * @param user
 	 * @param group
-	 * @param timeoutMillis
 	 * @return connected SocketChannel
 	 * @throws TSIUnavailableException
 	 * @throws IOException

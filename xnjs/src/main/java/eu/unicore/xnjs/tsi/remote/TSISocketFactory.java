@@ -14,12 +14,13 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.commons.io.IOUtils;
+
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import eu.unicore.xnjs.XNJS;
-import eu.unicore.xnjs.util.IOUtils;
 
 /**
  * Helper to create XNJS server and client sockets for communication with TSI. 

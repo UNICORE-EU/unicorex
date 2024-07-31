@@ -1,9 +1,9 @@
 package eu.unicore.uas.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.services.Capabilities;
 import eu.unicore.services.Capability;
@@ -213,7 +213,7 @@ public class TestVarious {
 		
 		assertEquals(2, props.getAddonStorages().size());
 		for (StorageDescription desc: props.getAddonStorages()) {
-			assertTrue(desc.getName(), desc.getName().equals("NNN") || desc.getName().equals("NNN2"));
+			assertTrue(desc.getName().equals("NNN") || desc.getName().equals("NNN2"));
 			assertEquals("path", desc.getPathSpec());
 			assertEquals(SMSBaseImpl.class, desc.getStorageClass());
 			assertEquals(StorageTypes.CUSTOM, desc.getStorageType());

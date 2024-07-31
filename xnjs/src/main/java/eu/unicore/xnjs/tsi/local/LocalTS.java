@@ -107,26 +107,20 @@ public class LocalTS implements TSI {
 	 *  TODO chunked, because this will go outofmemory on large files
 	 */
 	public void cp(String source, String target) throws ExecutionException {
-		FileOutputStream fos=null;
-		FileInputStream fis=null;
-		try{
-			File tFile=makeTarget(target);
-			File sFile=makeTarget(source);
-			logger.debug("cp: {}->{}", sFile, tFile);
-			if(tFile.isDirectory()){
-				tFile=new File(tFile,sFile.getName());
-			}
-			fos=new FileOutputStream(tFile);
+		File tFile=makeTarget(target);
+		File sFile=makeTarget(source);
+		logger.debug("cp: {}->{}", sFile, tFile);
+		if(tFile.isDirectory()){
+			tFile=new File(tFile,sFile.getName());
+		}
+		try(FileOutputStream fos = new FileOutputStream(tFile); 
+			FileInputStream fis = new FileInputStream(sFile))
+		{
 			FileChannel out=fos.getChannel();
-			fis=new FileInputStream(sFile);
 			FileChannel in=fis.getChannel();
 			out.write(in.map(FileChannel.MapMode.READ_ONLY,0,sFile.length()));
 		}catch(Exception e) {
 			throw ExecutionException.wrapped(e);
-		}
-		finally{
-			IOUtils.closeQuietly(fis);
-			IOUtils.closeQuietly(fos);
 		}
 	}
 

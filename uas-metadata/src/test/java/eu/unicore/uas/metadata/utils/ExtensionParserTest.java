@@ -1,15 +1,14 @@
 package eu.unicore.uas.metadata.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.sax.BodyContentHandler;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.xml.sax.ContentHandler;
 
 import eu.unicore.uas.metadata.LuceneIndexer;
@@ -28,20 +27,12 @@ public class ExtensionParserTest {
     public ExtensionParserTest() {
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void setUpClass() throws Exception {
     }
 
-    @AfterClass
+    @AfterAll
     public static void tearDownClass() throws Exception {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
     }
 
     @Test
@@ -109,9 +100,11 @@ public class ExtensionParserTest {
 
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testNotsupported() {
-        parser.getSupportedTypes(parseContext);
+    	assertThrows(UnsupportedOperationException.class, ()->{
+    		parser.getSupportedTypes(parseContext);
+    	});
     }
 
     @Test

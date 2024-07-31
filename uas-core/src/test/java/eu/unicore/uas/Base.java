@@ -3,8 +3,8 @@ package eu.unicore.uas;
 import java.io.File;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.impl.sms.InitSharedStorages;
@@ -30,7 +30,7 @@ public abstract class Base{
 	protected static UAS uas;
 	protected static Kernel kernel;
 	
-	@BeforeClass
+	@BeforeAll
 	public static void startUNICORE() throws Exception{
 		
 		long start=System.currentTimeMillis();
@@ -48,7 +48,7 @@ public abstract class Base{
 		new InitSharedStorages(kernel).run();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void stopUNICORE() throws Exception{
 		kernel.shutdown();
 	}

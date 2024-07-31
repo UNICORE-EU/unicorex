@@ -2,6 +2,7 @@ package eu.unicore.xnjs.io.impl;
 
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpPut;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
@@ -15,7 +16,6 @@ import eu.unicore.xnjs.io.DataStagingCredentials;
 import eu.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.xnjs.io.http.IConnectionFactory;
 import eu.unicore.xnjs.tsi.TSI;
-import eu.unicore.xnjs.util.IOUtils;
 
 /**
  * simple HTTP upload implementation of the FileTransfer

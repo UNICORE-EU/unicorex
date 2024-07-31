@@ -1,10 +1,10 @@
 package eu.unicore.uas.rest;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.uas.Base;
@@ -33,7 +33,7 @@ public class TestRegistries extends Base {
 				break;
 			}
 		}
-		assertTrue("CoreServices not in registry", found);
+		assertTrue(found);
 	}
 
 }

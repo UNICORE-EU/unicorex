@@ -1,5 +1,9 @@
 package eu.unicore.uas.fts.uftp;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,10 +21,9 @@ import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
@@ -54,13 +57,13 @@ public class TestUFTPTransfers {
 		return "src/test/resources/uas.config";
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void shutdown() throws Exception {
 		uftpd.stop();
 		kernel.shutdown();
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void init() throws Exception {
 		
 		uftpd.start();
@@ -124,7 +127,7 @@ public class TestUFTPTransfers {
 		}
 		FileListEntry result = jc.getWorkingDirectory().stat(
 				"test-staged-in");
-		Assert.assertEquals(1024, result.size);
+		assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 	}
 	
@@ -143,7 +146,7 @@ public class TestUFTPTransfers {
 		}
 		FileListEntry result = jc.getWorkingDirectory().stat(
 				"dir/test1");
-		Assert.assertEquals(1024, result.size);
+		assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 	}
 	
@@ -171,11 +174,11 @@ public class TestUFTPTransfers {
 		}
 		System.out.println(jc.getProperties().toString(2));
 		FileListEntry result = sms.stat("test-staged-out");
-		Assert.assertEquals(1024, result.size);
+		assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 		String orig = Utils.md5(new File(uspace.getMountPoint(),"stage-out-file"));
 		String exported = Utils.md5(new File(sms.getMountPoint(),"test-staged-out"));
-		Assert.assertEquals(orig, exported);
+		assertEquals(orig, exported);
 	}
 	
 	@Test
@@ -200,11 +203,11 @@ public class TestUFTPTransfers {
 		}
 		System.out.println(jc.getProperties().toString(2));
 		FileListEntry result = sms.stat("out/test1");
-		Assert.assertEquals(1024, result.size);
+		assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 		String orig = Utils.md5(new File(uspace.getMountPoint(),"out/test2"));
 		String exported = Utils.md5(new File(sms.getMountPoint(),"out/test2"));
-		Assert.assertEquals(orig, exported);
+		assertEquals(orig, exported);
 	}
 	
 	@Test
@@ -226,7 +229,7 @@ public class TestUFTPTransfers {
 		ep.put(UFTPConstants.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
 		
 		UFTPFileTransferClient ftc = (UFTPFileTransferClient)sms.createImport("test-import",false, -1, "UFTP", ep);
-		Assert.assertNotNull(ftc);
+		assertNotNull(ftc);
 		System.out.println(ftc.getProperties());
 		
 		File testFile = new File("target/testfiles/data-"+System.currentTimeMillis());
@@ -239,9 +242,9 @@ public class TestUFTPTransfers {
 		Thread.sleep(1000);
 		// check that file has been written...
 		FileListEntry gft = sms.stat("test-import");
-		Assert.assertNotNull(gft);
-		Assert.assertEquals(size * n, gft.size);
-		Assert.assertEquals(Utils.md5(testFile), Utils.md5(new File(sms.getMountPoint(),"test-import")));
+		assertNotNull(gft);
+		assertEquals(size * n, gft.size);
+		assertEquals(Utils.md5(testFile), Utils.md5(new File(sms.getMountPoint(),"test-import")));
 	}
 	
     @Test
@@ -251,8 +254,8 @@ public class TestUFTPTransfers {
    		params.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
    		
    		FiletransferClient ftc = sms.createImport("test-import", false, -1, "UFTP", params);
-   		Assert.assertNotNull(ftc);
-   		Assert.assertTrue(ftc instanceof UFTPFileTransferClient);
+   		assertNotNull(ftc);
+   		assertTrue(ftc instanceof UFTPFileTransferClient);
    		System.out.println(ftc.getProperties());
    		
    		File testFile = new File("target/testfiles/data-"+System.currentTimeMillis());
@@ -265,8 +268,8 @@ public class TestUFTPTransfers {
    		Thread.sleep(1000);
    		// check that file has been written...
    		FileListEntry gft = sms.stat("test-import");
-   		Assert.assertNotNull(gft);
-   		Assert.assertEquals(size * n, gft.size);
+   		assertNotNull(gft);
+   		assertEquals(size * n, gft.size);
    	}
 	
 	@Test
@@ -304,9 +307,9 @@ public class TestUFTPTransfers {
 		try (OutputStream target = new FileOutputStream(testTarget)){
 			c2.readAllData(target);
 		}
-		Assert.assertTrue(testTarget.exists());
-		Assert.assertEquals(size * n, testTarget.length());
-		Assert.assertEquals(Utils.md5(testTarget), Utils.md5(testFile));
+		assertTrue(testTarget.exists());
+		assertEquals(size * n, testTarget.length());
+		assertEquals(Utils.md5(testTarget), Utils.md5(testFile));
 	}
 	
 	private JSONObject getStageInJob() throws JSONException {

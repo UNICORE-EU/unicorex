@@ -59,16 +59,16 @@ public class FTPUpload extends AsyncFilemover {
 			super.doRun();
 		}
 	}
-	
-	
+
 	/**
 	 * performs FTP upload
 	 */
 	public void runLocally() {
+		InputStream is = null;
+		OutputStream os = null;
 		try{
 			URL url=IOUtils.addFTPCredentials(new URL(info.getTarget()), credentials);
-			OutputStream os=url.openConnection().getOutputStream();
-			InputStream is=null;
+			os=url.openConnection().getOutputStream();
 			if(storageAdapter==null){
 				TSI tsi=configuration.getTargetSystemInterface(client);
 				tsi.setStorageRoot(workingDirectory);
@@ -78,11 +78,12 @@ public class FTPUpload extends AsyncFilemover {
 				is=storageAdapter.getInputStream(info.getSource());
 			}
 			copyTrackingTransferedBytes(is, os);
-			IOUtils.closeQuietly(is);
-			IOUtils.closeQuietly(os);
 			info.setStatus(Status.DONE);
 		}catch(Exception ex){
 			reportFailure("Could not do FTP upload", ex);
+		}
+		finally {
+			org.apache.commons.io.IOUtils.closeQuietly(is, os);
 		}
 	}
 

@@ -1,7 +1,13 @@
 package eu.unicore.uas.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 public class TestAnnotationStateMachine {
 
@@ -10,10 +16,10 @@ public class TestAnnotationStateMachine {
 		Target t = new Target();
 		t.error=false;
 		State<Target> result = new StateMover<>(t).call();
-		Assert.assertNull(result);
-		Assert.assertTrue(t.invoked1);
-		Assert.assertTrue(t.invoked2);
-		Assert.assertFalse(t.invoked2Error);
+		assertNull(result);
+		assertTrue(t.invoked1);
+		assertTrue(t.invoked2);
+		assertFalse(t.invoked2Error);
 	}
 	
 	@Test
@@ -21,11 +27,11 @@ public class TestAnnotationStateMachine {
 		Target t = new Target();
 		t.error=false;
 		State<Target> result = new StateMover<>(t, true).call();
-		Assert.assertNotNull(result);
-		Assert.assertEquals("state2",result.getName());
-		Assert.assertTrue(t.invoked1);
-		Assert.assertFalse(t.invoked2);
-		Assert.assertFalse(t.invoked2Error);
+		assertNotNull(result);
+		assertEquals("state2",result.getName());
+		assertTrue(t.invoked1);
+		assertFalse(t.invoked2);
+		assertFalse(t.invoked2Error);
 	}
 	
 	@Test
@@ -33,10 +39,10 @@ public class TestAnnotationStateMachine {
 		Target t = new Target();
 		t.error=true;
 		State<Target> result = new StateMover<>(t).call();
-		Assert.assertNull(result);
-		Assert.assertTrue(t.invoked1);
-		Assert.assertTrue(t.invoked2);
-		Assert.assertTrue(t.invoked2Error);
+		assertNull(result);
+		assertTrue(t.invoked1);
+		assertTrue(t.invoked2);
+		assertTrue(t.invoked2Error);
 	}
 	
 	@Test
@@ -44,11 +50,11 @@ public class TestAnnotationStateMachine {
 		Target2 t = new Target2();
 		t.error=true;
 		State<Target2> result = new StateMover<>(t).call();
-		Assert.assertNull(result);
-		Assert.assertTrue(t.invoked1);
-		Assert.assertTrue(t.invoked2);
-		Assert.assertEquals(1,3, t.invoked2_count);
-		Assert.assertTrue(t.invoked2Error);
+		assertNull(result);
+		assertTrue(t.invoked1);
+		assertTrue(t.invoked2);
+		assertEquals(1,3, t.invoked2_count);
+		assertTrue(t.invoked2Error);
 	}
 	
 	public static class Target {

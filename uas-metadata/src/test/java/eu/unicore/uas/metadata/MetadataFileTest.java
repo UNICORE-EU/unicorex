@@ -1,8 +1,8 @@
 package eu.unicore.uas.metadata;
 
 import eu.unicore.uas.metadata.MetadataFile.MD_State;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import static org.mockito.Mockito.*;
 

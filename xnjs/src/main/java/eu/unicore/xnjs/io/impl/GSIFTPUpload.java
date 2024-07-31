@@ -12,20 +12,18 @@ import eu.unicore.xnjs.io.IOProperties;
 /**
  * gsiftp file export implementation
  * 
- * TODO file size & transferred bytes
- * 
  * @author schuller
  */
 public class GSIFTPUpload extends AsyncFilemover{
-	
+
 	private final IOProperties ioProperties;
-	
+
 	public GSIFTPUpload(Client client, String workingDirectory, String source,URI target, XNJS config) {
 		super(client,workingDirectory,source,target.toASCIIString(),config);
 		info.setProtocol("gsiftp");
 		ioProperties = config.getIOProperties();
 	}
-	
+
 	public String makeCommandline(){
 		String executable=ioProperties.getValue(IOProperties.GLOBUS_URL_COPY);
 		String params=ioProperties.getValue(IOProperties.GLOBUS_URL_COPY_PARAMS);
@@ -37,10 +35,10 @@ public class GSIFTPUpload extends AsyncFilemover{
 	public final boolean isImport(){
 		return false;
 	}
-	
+
 	protected void preSubmit()throws Exception{
 		GSIFTPDownload.writeProxyIfRequired(configuration,client,workingDirectory);
 		ach.setEnvironmentVariable("X509_USER_PROXY", ".proxy");
 	}
-	
+
 }

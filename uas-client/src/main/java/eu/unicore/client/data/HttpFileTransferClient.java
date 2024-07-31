@@ -111,7 +111,9 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 			writeAllData(source);
 		}
 		else{
-			writeAllData(new BoundedInputStream(source, numBytes));
+			BoundedInputStream bis = BoundedInputStream.builder().
+					setMaxCount(numBytes).setInputStream(source).get();
+			writeAllData(bis);
 		}
 	}
 	

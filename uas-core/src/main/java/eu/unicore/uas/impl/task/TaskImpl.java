@@ -4,18 +4,16 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.xmlbeans.XmlObject;
-
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.BaseResourceImpl;
 
 /**
- * implementation of the {@link Task} service.<br/>
+ * implementation of the Task service.<br/>
  * 
  * The actual process is running in the background and can
- * use the {@link #putResult(Kernel, String, XmlObject, String, int)} method to make the result
+ * use the putResult() method to make the result
  * available to the client once it is available.<br/>
  *  
  * @author schuller

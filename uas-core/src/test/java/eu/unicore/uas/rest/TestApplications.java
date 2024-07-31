@@ -1,12 +1,12 @@
 package eu.unicore.uas.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.uas.Base;
@@ -43,7 +43,7 @@ public class TestApplications extends Base {
 			client.getJSON();
 			fail("Expect a 404");
 		}catch(Exception ex){
-			assertEquals("Expect a 404",404,client.getLastHttpStatus());
+			assertEquals(404, client.getLastHttpStatus());
 		}	
 	}
 }

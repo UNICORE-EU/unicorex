@@ -1,8 +1,8 @@
 package eu.unicore.xnjs.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URI;
@@ -10,9 +10,9 @@ import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockftpserver.fake.FakeFtpServer;
 import org.mockftpserver.fake.UserAccount;
 import org.mockftpserver.fake.filesystem.DirectoryEntry;
@@ -44,7 +44,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 	private FakeFtpServer ftpServer;
 	private File testDir;
 
-	@Before
+	@BeforeEach
 	public void startHelperServers()throws Exception{
 		setupFTPServer();
 		testDir=new File("target","xnjs_test"+System.currentTimeMillis());
@@ -70,7 +70,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		ftpServer.start();
 	}
 
-	@After
+	@AfterEach
 	public void stopServers()throws Exception{
 		ftpServer.stop();
 	}
@@ -91,7 +91,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 		d.run();
 		assertEquals(Integer.valueOf(0), d.getResult().getExitCode());
-		assertEquals(d.getInfo().getStatusMessage(),Status.DONE,d.getInfo().getStatus());
+		assertEquals(Status.DONE,d.getInfo().getStatus());
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		assertEquals(Status.CREATED, d.getInfo().getStatus());
 		d.run();
 		assertEquals(Integer.valueOf(0), d.getResult().getExitCode());
-		assertEquals(d.getInfo().getStatusMessage(),Status.DONE,d.getInfo().getStatus());
+		assertEquals(Status.DONE,d.getInfo().getStatus());
 	}
 
 	@Test
@@ -140,7 +140,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 			assertNotNull(ft);
 			ft.run();
 			TransferInfo fti = ft.getInfo();
-			assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
+			assertEquals(Status.DONE,fti.getStatus());
 			long transferred=fti.getTransferredBytes();
 			System.out.println("Downloaded "+transferred);
 			assertTrue(transferred>0);
@@ -207,7 +207,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		assertNotNull(ft);
 		ft.run();
 		TransferInfo fti = ft.getInfo();
-		assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
+		assertEquals(Status.DONE,fti.getStatus());
 	}
 
 	@Test
@@ -227,7 +227,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 			info.setFileName("xx");
 
 			IFileTransfer tr=fc.createFileExport(client, ".",info);
-			assertNotNull("No transfer for protocol "+protocol,tr);
+			assertNotNull(tr);
 			assertEquals(protocol,tr.getInfo().getProtocol());
 		}
 
@@ -240,7 +240,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 			info.setSources(new URI[]{source});
 			info.setFileName("xx");
 			IFileTransfer tr=fc.createFileImport(client, ".",info);
-			assertNotNull("No transfer for protocol "+protocol,tr);
+			assertNotNull(tr);
 			assertEquals(protocol,tr.getInfo().getProtocol());
 		}
 
@@ -268,7 +268,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		TransferInfo fti = ft.getInfo();
 		long transferred=fti.getTransferredBytes();
 		assertTrue(transferred>0);
-		assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
+		assertEquals(Status.DONE,fti.getStatus());
 		assertEquals(testdata,FileUtils.readFileToString(localFile, "UTF-8"));
 	}
 

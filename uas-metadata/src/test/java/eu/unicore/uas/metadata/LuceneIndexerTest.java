@@ -1,11 +1,12 @@
 package eu.unicore.uas.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +17,10 @@ import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for indexer only (no metadata storage behind)
@@ -40,27 +41,28 @@ public class LuceneIndexerTest {
     
     static LuceneIndexer indexer; 
 
-    @BeforeClass
+    @BeforeAll
     public static void initIndexer(){
     	indexer=createNewIndexer();
     }
     
-    @AfterClass
+    @AfterAll
     public static void cleanUp() {
         FileUtils.deleteQuietly(new File(directory));
         FileUtils.deleteQuietly(new File(localDir));
         FileUtils.deleteQuietly(new File(fileName));
     }
 
-    @Before
+    @BeforeEach
     public void cleanIndexer()throws IOException{
     	indexer.deleteAll();
     }
     
-    @Test(expected = IllegalArgumentException.class)
-    public void testInit() {
-        LuceneIndexer luceneIndexer = new LuceneIndexer("/some/nonexisting/directory/");
-        System.out.println(luceneIndexer.hashCode());
+    @Test
+    public void testInitFail1() {
+    	assertThrows(IllegalArgumentException.class, ()->{
+            new LuceneIndexer("/some/nonexisting/directory/");
+    	});
     }
 
     @Test
@@ -75,13 +77,14 @@ public class LuceneIndexerTest {
         FileUtils.deleteQuietly(new File(localDir));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInit3() throws IOException {
+    @Test
+    public void testInitFail2() throws IOException {
         File file = new File(fileName);
         boolean createNewFile = file.createNewFile();
         assertTrue(createNewFile);
-        LuceneIndexer indexer = new LuceneIndexer(fileName);
-        assertNull("Indexer should be null as it fails to init", indexer);
+        assertThrows(IllegalArgumentException.class, ()->{
+        	new LuceneIndexer(fileName);
+        });
     }
 
     @Test
@@ -209,21 +212,15 @@ public class LuceneIndexerTest {
         }
 
         //case3: rename nonexisting to nonexisting:
-        try {
+        assertThrows(IllegalArgumentException.class, ()-> {
             indexer.moveMetadata("SomePhantasyName", "SomeOtherPhantasyName");
-            fail("Successfuly renamed nonexisting resource");
-        } catch (IllegalArgumentException ex) {
-            assertTrue("Unable to rename nonexisting resource", true);
-        }
+        });
 
         //case4: rename nonexisting to existing:
-        try {
+        assertThrows(IllegalArgumentException.class, ()-> {
             indexer.moveMetadata("SomePhantasyName", thirdResource);
             fail("Successfuly renamed nonexisting resource to an existing one");
-        } catch (IllegalArgumentException ex) {
-            assertTrue("Unable to rename nonexisting resource", true);
-        }
-
+        });
     }
 
     @Test

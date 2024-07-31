@@ -10,9 +10,8 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
-
-import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**

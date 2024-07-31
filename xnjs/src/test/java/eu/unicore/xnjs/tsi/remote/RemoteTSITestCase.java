@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 
 import com.google.inject.AbstractModule;
 
@@ -20,7 +20,7 @@ import eu.unicore.xnjs.tsi.local.LocalExecution.DataMover;
  */
 public abstract class RemoteTSITestCase extends EMSTestBase {
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if(xnjs!=null){
 			((DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class)).stop();
@@ -67,7 +67,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 		return "65431";
 	}
 
-	@BeforeClass
+	@BeforeAll
 	public static void startTSI() throws Exception {
 		ProcessBuilder pb=new ProcessBuilder();
 		File tsiExec=new File("src/test/resources/tsi/bin/start.sh");
@@ -81,7 +81,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 		if(exitCode!=0)throw new IOException("TSI start returned non-zero exit code <"+exitCode+">");
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void stopTSI() throws Exception {
 		ProcessBuilder pb=new ProcessBuilder();
 		File tsiExec=new File("src/test/resources/tsi/bin/stop.sh");

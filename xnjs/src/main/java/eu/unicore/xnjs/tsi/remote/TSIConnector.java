@@ -9,11 +9,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLEngine;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
 import eu.unicore.util.SSLSocketChannel;
-import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
@@ -126,8 +126,7 @@ public class TSIConnector {
 					+ "Data: "+data_socket.getInetAddress()
 					+ "Cmd:  " +commands_socket.getInetAddress()
 					+ ". Contact site administration!";
-			IOUtils.closeQuietly(data_socket);
-			IOUtils.closeQuietly(commands_socket);
+			IOUtils.closeQuietly(data_socket, commands_socket);
 			try {
 				// just in case the connect/accept mechanism is messed up 
 				// for some reason (like tsi restarts)

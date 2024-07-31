@@ -1,8 +1,8 @@
 package eu.unicore.xnjs.io.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.net.URI;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.io.DataStageInInfo;
@@ -39,7 +39,7 @@ public class TestGitStageIn extends EMSTestBase {
 			assertTrue(ft instanceof GitStageIn);
 			ft.run();
 			TransferInfo fti = ft.getInfo();
-			assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
+			assertEquals(Status.DONE,fti.getStatus());
 			long transferred=fti.getTransferredBytes();
 			System.out.println("Downloaded "+transferred);
 			assertTrue(transferred>0);
@@ -63,7 +63,7 @@ public class TestGitStageIn extends EMSTestBase {
 			assertTrue(ft instanceof GitStageIn);
 			ft.run();
 			TransferInfo fti = ft.getInfo();
-			assertEquals(fti.getStatusMessage(),Status.DONE,fti.getStatus());
+			assertEquals(Status.DONE,fti.getStatus());
 			long transferred=fti.getTransferredBytes();
 			System.out.println("Downloaded "+transferred);
 			assertTrue(transferred>0);

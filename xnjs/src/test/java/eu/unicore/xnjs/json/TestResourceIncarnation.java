@@ -1,10 +1,11 @@
 package eu.unicore.xnjs.json;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.security.Client;
 import eu.unicore.security.Queue;
@@ -40,7 +41,7 @@ public class TestResourceIncarnation {
 
 	private IDB idb;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		XNJS config = new XNJS(getConfigSource()); 
 		idb = config.get(IDB.class);
@@ -252,11 +253,13 @@ public class TestResourceIncarnation {
 	}
 
 
-	@Test(expected = ExecutionException.class)
+	@Test
 	public void testResourceRequestOutOfRange() throws Exception {
 		List<ResourceRequest>request = new ArrayList<>();
 		request.add(new ResourceRequest(ResourceSet.TOTAL_CPUS, "1024"));
-		g.incarnateResources(request,null);
+		assertThrows(ExecutionException.class, ()->{
+			g.incarnateResources(request,null);
+		});
 	}
 	
 	@Test

@@ -1,8 +1,9 @@
 package eu.unicore.uas.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,8 +15,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.hc.core5.http.HttpStatus;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
@@ -34,7 +35,7 @@ import eu.unicore.uas.Base;
 
 public class TestStorages extends Base {
 
-	@BeforeClass
+	@BeforeAll
 	public static void createTestFile() throws Exception{
 		try{
 			FileUtils.write(new File("target/unicorex-test/test.txt"), "test data", "UTF-8");
@@ -98,7 +99,7 @@ public class TestStorages extends Base {
 		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration());
 		JSONObject storageList = client.getJSON();
 		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_OK, status);
+		assertEquals(HttpStatus.SC_OK, status);
 		System.out.println("*** storages:");
 		System.out.println(storageList.toString(2));
 
@@ -139,7 +140,7 @@ public class TestStorages extends Base {
 		String content = "uploaded via RESTful interface and BFT";
 		fts.write(content.getBytes());
 		FileListEntry newFile = sms.stat("test123");
-		assertEquals("Wrong file length", content.length(), newFile.size);
+		assertEquals(content.length(), newFile.size);
 	}
 
 	@Test
@@ -164,7 +165,7 @@ public class TestStorages extends Base {
 			c++;
 		}
 		System.out.println(tcc.getProperties().toString(2));
-		assertEquals("Transfer failed", Status.DONE, tcc.getStatus());
+		assertEquals(Status.DONE, tcc.getStatus());
 	}
 	
 	@Test
@@ -175,15 +176,15 @@ public class TestStorages extends Base {
 		System.out.println(fileListing);
 	}
 
-	@Test(expected = RESTException.class)
+	@Test
 	public void testChmodNonExistentFile() throws Exception {
 		Endpoint ep = new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK");
 		StorageClient client = new StorageClient(ep,
 				kernel.getClientConfiguration(),
 				new UsernamePassword("demouser",  "test123"));
-		client.chmod("nonexistentpath", "rw-");
-		FileListEntry e = client.stat("nonexistentpath");
-		System.out.println(e);
+		assertThrows(RESTException.class, ()->{
+			client.chmod("nonexistentpath", "rw-");
+		});
 	}
 
 	@Test
@@ -198,11 +199,11 @@ public class TestStorages extends Base {
 		int l1 = p.length();
 		runJob();
 		p = ec.getProperties().getJSONArray("storages");
-		assertEquals("working dir should not be listed", l1, p.length());
+		assertEquals(l1, p.length(), "working dirs should not be listed");
 		ec.setFilter("all");
 		p = ec.getProperties().getJSONArray("storages");
 		System.out.println(p);
-		assertTrue("working dirs should be listed", p.length()>l1);
+		assertTrue(p.length()>l1, "working dirs should be listed");
 	}
 
 	// runs empty job to create a working directory

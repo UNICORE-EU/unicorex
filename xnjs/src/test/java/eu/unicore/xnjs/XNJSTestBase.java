@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.google.inject.AbstractModule;
 
@@ -23,7 +23,7 @@ public abstract class XNJSTestBase {
    
 	protected XNJS xnjs;
     
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		File fileSpace=new File("target","xnjs_filespace");
 		FileUtils.deleteQuietly(fileSpace);
@@ -35,7 +35,7 @@ public abstract class XNJSTestBase {
 	}
 	
     
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if(xnjs!=null)xnjs.stop();
 	}

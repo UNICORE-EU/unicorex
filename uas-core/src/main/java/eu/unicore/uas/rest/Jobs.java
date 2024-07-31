@@ -373,26 +373,14 @@ public class Jobs extends ServicesBase {
 	}
 
 	/**
-	 * converts from the XNJS action status to state from unigridsTypes.xsd
-	 * 
-	 * <xsd:simpleType name="StatusType">
-	 <xsd:restriction base="xsd:string">
-	 <xsd:enumeration value="UNDEFINED"/>
-	 <xsd:enumeration value="READY"/>
-	 <xsd:enumeration value="QUEUED"/>
-	 <xsd:enumeration value="RUNNING"/>
-	 <xsd:enumeration value="SUCCESSFUL"/>
-	 <xsd:enumeration value="FAILED"/>
-	 <xsd:enumeration value="STAGINGIN"/>
-	 <xsd:enumeration value="STAGINGOUT"/>
-	 </xsd:restriction>
-	 </xsd:simpleType>
+	 * converts from the internal (XNJS) action status and result to REST API job states 
 	 *
-	 * @param emsStatus
+	 * @param xnjsStatus - XNJS action status
+	 * @param successful - if the XNJS action was successful or not
 	 * @return UNICORE status
 	 */
-	public static String convertStatus(Integer emsStatus, boolean successful){
-		int i=emsStatus.intValue(); 
+	public static String convertStatus(Integer xnjsStatus, boolean successful){
+		int i=xnjsStatus.intValue(); 
 		switch (i){
 			case ActionStatus.PREPROCESSING: 
 				return "STAGINGIN";

@@ -3,7 +3,7 @@ package eu.unicore.xnjs.fts;
 import java.io.File;
 
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
 import eu.unicore.xnjs.ems.EMSTestBase;

@@ -16,16 +16,16 @@ import java.util.Map;
 
 import javax.net.ssl.SSLSocket;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
-import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
  * Provides command and data connections to a UNICORE TSI server.
- * 
- * Based on  Sven van den Berghe's ClassicTSIConnection (UNICORE v4)
- * 
+ *
+ * Based on  Sven van den Berghe's ClassicTSIConnection (from UNICORE 4)
+ *
  * @author schuller
  */
 public class TSIConnection implements AutoCloseable {
@@ -56,8 +56,7 @@ public class TSIConnection implements AutoCloseable {
 	 * @param commandSocket - command socket
 	 * @param dataSocket - data socket
 	 * @param factory - the parent factory
-	 * @param tsiHost - the TSI address
-	 * @param hostName - the host name (as used in the config file)
+	 * @param connector - the TSI connector
 	 * @throws IOException
 	 */
 	public TSIConnection(Socket commandSocket, Socket dataSocket, TSIConnectionFactory factory, TSIConnector connector) throws IOException {
@@ -239,9 +238,9 @@ public class TSIConnection implements AutoCloseable {
 	}
 	/**
 	 * compares versions
-	 * @param tsiVersion - the current TSI version
+	 * @param haveVersion - the current TSI version
 	 * @param minRequired - the mininum required version
-	 * @return <code>true</code> if tsiVersion >= minRequired, <code>false</code> otherwise
+	 * @return <code>true</code> if version is less than required, <code>false</code> otherwise
 	 */
 	public static boolean doCompareVersions(String haveVersion, String minRequired) {
 		String[] curS = haveVersion.split("\\.");

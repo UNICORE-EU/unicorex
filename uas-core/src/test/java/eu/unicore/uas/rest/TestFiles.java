@@ -1,7 +1,8 @@
 package eu.unicore.uas.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -14,7 +15,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.uas.Base;
@@ -72,18 +73,19 @@ public class TestFiles extends Base {
 		client.setURL(u);
 		client.postQuietly(settings);
 	}
-	
-	@Test(expected = Exception.class)
+
+	@Test
 	public void testDeleteFile() throws Exception {
 		String storage = createStorage();
-		String file = storage + "/deleteme.txt";
+		String file = storage + "/files/deleteme.txt";
 		BaseClient client = new BaseClient(file, kernel.getClientConfiguration());
 		putContent("test data", client, file);
 		client.delete();
-		client.getJSON();
+		assertThrows(Exception.class, ()->{
+			client.getJSON();
+		});
 	}
-	
-	
+
 	@Test
 	public void testCreateDirectory() throws Exception {
 		String storage = createStorage();
@@ -109,27 +111,26 @@ public class TestFiles extends Base {
 		client.setURL(renamed);
 		System.out.println(client.getJSON());
 	}
-	
+
 	@Test
 	public void testCopy() throws Exception {
 		String storage = createStorage();
 		String file = storage + "/files/test.txt";
 		BaseClient client = new BaseClient(file, kernel.getClientConfiguration());
 		putContent("test data", client, file);
-		
+
 		String copyURL = storage + "/actions/rename";
 		JSONObject copy = new JSONObject();
 		copy.put("from","test.txt");
 		copy.put("to","test_copy.txt");
 		client.setURL(copyURL);
 		client.post(copy);
-		
+
 		String renamed = storage + "/files/test_copy.txt";
 		client.setURL(renamed);
 		System.out.println(client.getJSON());
 	}
-	
-	
+
 	@Test
 	public void testGetFile() throws Exception {
 		String storage = createStorage();
@@ -139,18 +140,17 @@ public class TestFiles extends Base {
 		putContent("test data", client, file);
 		String content = getContent(client, file);
 		assertEquals("test data", content);
-		
+
 		String partial = getPartialContent(client, file, 5, 4);
 		assertEquals("data", partial);
 		partial = getPartialContent(client, file, 0, 4);
 		assertEquals("test", partial);
-		
+
 		partial = getPartialContent(client, file, 1, -1);
 		assertEquals("est data", partial);
-		
+	
 		partial = getTailOfContent(client, file, 4);
 		assertEquals("data", partial);
-		
 	}
 
 	@Test
@@ -168,10 +168,10 @@ public class TestFiles extends Base {
 		System.out.println("*** File properties:");
 		System.out.println(properties.toString(2));
 		int len = properties.getInt("size");
-		assertEquals("Wrong length: "+len,testData.length, len);
+		assertEquals(testData.length, len);
 
 		client.delete();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_NO_CONTENT, client.getLastHttpStatus());
+		assertEquals(HttpStatus.SC_NO_CONTENT, client.getLastHttpStatus());
 
 		// upload with size param set
 		file = storage + "/files/test_2.txt?size="+testData.length;
@@ -180,10 +180,10 @@ public class TestFiles extends Base {
 		// check properties
 		properties = client.getJSON();
 		len = properties.getInt("size");
-		assertEquals("Wrong length: "+len,testData.length, len);
+		assertEquals(testData.length, len);
 
 		client.delete();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_NO_CONTENT, client.getLastHttpStatus());
+		assertEquals(HttpStatus.SC_NO_CONTENT, client.getLastHttpStatus());
 	}
 
 	/**
@@ -201,25 +201,24 @@ public class TestFiles extends Base {
 		client.setURL(file);
 		try(ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM)){
 			int status = client.getLastHttpStatus();
-			assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_OK, status);
+			assertEquals(HttpStatus.SC_OK, status);
 			return EntityUtils.toString(response.getEntity());
 		}
 	}
-	
+
 	private String getPartialContent(BaseClient client, String file, long offset, long length) throws Exception {
 		String range = "bytes="+offset+"-";
 		if(length>-1)range+=String.valueOf(length+offset-1);
-		
 		Map<String,String>headers = new HashMap<>();
 		headers.put("Range", range);
 		client.setURL(file);
 		try(ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM, headers)){
 			int status = client.getLastHttpStatus();
-			assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_PARTIAL_CONTENT, status);
+			assertEquals(HttpStatus.SC_PARTIAL_CONTENT, status);
 			return EntityUtils.toString(response.getEntity());
 		}
 	}
-	
+
 	private String getTailOfContent(BaseClient client, String file, long tail) throws Exception {
 		String range = "bytes=-"+tail;
 		
@@ -228,28 +227,28 @@ public class TestFiles extends Base {
 		client.setURL(file);
 		try(ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM, headers)){
 			int status = client.getLastHttpStatus();
-			assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_PARTIAL_CONTENT, status);
+			assertEquals(HttpStatus.SC_PARTIAL_CONTENT, status);
 			return EntityUtils.toString(response.getEntity());
 		}
 	}
-	
+
 	private ClassicHttpResponse getFile(BaseClient client, String file) throws Exception {
 		client.setURL(file);
 		ClassicHttpResponse response = client.get(ContentType.APPLICATION_OCTET_STREAM);
 		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_OK, status);
+		assertEquals(HttpStatus.SC_OK, status);
 		return response;
 	}
 
 	private void putContent(String data, BaseClient client, String url) throws Exception {
 		putContent(new ByteArrayInputStream(data.getBytes()), client, url);
 	}
-	
+
 	private void putContent(InputStream is, BaseClient client, String url) throws Exception {
 		client.setURL(url);
 		client.put(is, ContentType.APPLICATION_OCTET_STREAM);
 		int status = client.getLastHttpStatus();
-		assertEquals("Got: "+client.getLastStatus(),HttpStatus.SC_NO_CONTENT, status);
+		assertEquals(HttpStatus.SC_NO_CONTENT, status);
 	}
 
 }

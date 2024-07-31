@@ -1,13 +1,13 @@
 package eu.unicore.client;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.EnumerationClient;
@@ -55,7 +55,7 @@ public class TestCoreClients extends Base {
 				break;
 			}
 		}
-		assertTrue("CoreServices not in registry", found);
+		assertTrue(found);
 		
 		Endpoint core = client.listEntries(
 				new RegistryClient.ServiceTypeFilter("CoreServices")).get(0);
@@ -99,11 +99,11 @@ public class TestCoreClients extends Base {
 		FileList fl = usp.ls("/");
 		List<FileListEntry> files = fl.list(0,50);
 		for(FileListEntry fle: files)System.out.println(fle);
-		Assert.assertEquals(4, files.size());
+		assertEquals(4, files.size());
 		files = fl.list(1,50);
-		Assert.assertEquals(3, files.size());
+		assertEquals(3, files.size());
 		files = fl.list(0,2);
-		Assert.assertEquals(2, files.size());
+		assertEquals(2, files.size());
 	}
 
 	@Test
@@ -129,9 +129,9 @@ public class TestCoreClients extends Base {
 		System.out.println(jobList.getProperties().toString(2));
 		
 		List<String> jL = jobList.getUrls(0, 100, (String[])null);
-		Assert.assertTrue(jL.size()>0);
+		assertTrue(jL.size()>0);
 		List<String> jL2 = jobList.getUrls(0, 100, "date");
-		Assert.assertEquals(1, jL2.size());
+		assertEquals(1, jL2.size());
 
 	}
 	

@@ -156,7 +156,7 @@ public class BaseServiceClient {
 
 	/**
 	 * set/update properties
-	 * @param set - JSON doc containing key/value properties to set/update
+	 * @param properties - JSON doc containing key/value properties to set/update
 	 * @return JSON doc containing success/failure info
 	 */
 	public JSONObject setProperties(JSONObject properties) throws Exception {

@@ -1,7 +1,7 @@
 package eu.unicore.xnjs.tsi.remote;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -10,9 +10,9 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.nio.channels.SocketChannel;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.util.ChannelUtils;
 
@@ -24,13 +24,13 @@ public class TestPortForwarding extends RemoteTSITestCase {
 
 	private static EchoServer echo = null;
 	
-	@BeforeClass
+	@BeforeAll
 	public static void startBackend() throws Exception {
 		echo = new EchoServer();
 		echo.start();
 	}
 
-	@AfterClass
+	@AfterAll
 	public static void stopBackend() {
 		if(echo!=null)try{
 			echo.shutdown();

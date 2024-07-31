@@ -1,7 +1,7 @@
 package eu.unicore.uas.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +9,8 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
@@ -22,7 +22,7 @@ import eu.unicore.uas.SecuredBase;
 
 public class TestRESTStaging extends SecuredBase {
 	
-	@BeforeClass
+	@BeforeAll
 	public static void createTestFile() throws Exception{
 		try{
 			FileUtils.write(new File("target/unicorex-test/test1.txt"), "test data", "UTF-8");

@@ -16,7 +16,7 @@ import eu.unicore.uas.util.LogUtil;
 /**
  * "Baseline" file transfer, which exposes a file using HTTP(s) via Jetty<br/>
  * 
- * The URI for download is exposed using a WSRF resource property.
+ * The URI for download is exposed using a resource property.
  * 
  * Based on an idea by Roger Menday. <br/>
  * 
@@ -58,13 +58,11 @@ public class HttpFileTransferImpl extends FileTransferImpl {
 
 	protected String makeAccessURL(String uniqueID){
 		ContainerProperties mainProps = getKernel().getContainerProperties(); 
-		String base=mainProps.getBaseUrl();
-		String add=base.replace("services", "files")+"/"+uniqueID;
-		if(logger.isDebugEnabled())logger.debug("Enabling HTTP access on URL: "+add);
+		String ep = mainProps.getContainerURL()+ "/files/" + uniqueID;
 		if(uasProperties.getBooleanValue(UASProperties.FTS_HTTP_PREFER_POST)){
-			add=add+"?method=POST";
+			ep = ep + "?method=POST";
 		}
-		return add;
+		return ep;
 	}
 	
 	@Override
@@ -84,7 +82,7 @@ public class HttpFileTransferImpl extends FileTransferImpl {
 			model.setTransferredBytes(t);
 		}
 		else{
-			logger.debug("Can't get transferred bytes for transfer <"+uid+">");
+			logger.debug("Can't get transferred bytes for transfer <{}>", uid);
 			return 0l;
 		}
 		return t;

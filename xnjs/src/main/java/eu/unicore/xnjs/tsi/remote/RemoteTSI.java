@@ -425,7 +425,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 #            This line is copied without change into the ListDirectory 
 #            outcome entry for the file.
 #
-#            If character 0 is '<', then all files in a sub-directory 
+#            If character 0 is '&lt;', then all files in a sub-directory 
 #            have been listed and the listing is continuing with the parent 
 #            directory. This is required even when the listing is non-recursive.
 #

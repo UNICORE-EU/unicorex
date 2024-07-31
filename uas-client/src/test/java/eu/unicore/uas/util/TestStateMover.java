@@ -1,7 +1,11 @@
 package eu.unicore.uas.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 public class TestStateMover {
 
@@ -9,10 +13,10 @@ public class TestStateMover {
 	public void testNoError()throws Exception {
 		Target t = new Target();
 		State<Target> result = new StateMover<Target>(new State1(), t).call();
-		Assert.assertNull(result);
-		Assert.assertTrue(t.invoked1);
-		Assert.assertTrue(t.invoked2);
-		Assert.assertFalse(t.invoked2Error);
+		assertNull(result);
+		assertTrue(t.invoked1);
+		assertTrue(t.invoked2);
+		assertFalse(t.invoked2Error);
 	}
 	
 	@Test
@@ -20,10 +24,10 @@ public class TestStateMover {
 		Target t = new Target();
 		t.error=true;
 		State<Target> result = new StateMover<Target>(new State1(), t).call();
-		Assert.assertNull(result);
-		Assert.assertTrue(t.invoked1);
-		Assert.assertTrue(t.invoked2);
-		Assert.assertTrue(t.invoked2Error);
+		assertNull(result);
+		assertTrue(t.invoked1);
+		assertTrue(t.invoked2);
+		assertTrue(t.invoked2Error);
 	}
 	
 	@Test
@@ -31,11 +35,11 @@ public class TestStateMover {
 		Target t = new Target();
 		t.error=false;
 		State<Target> result = new StateMover<Target>(new AsyncState1(), t, true).call();
-		Assert.assertNotNull(result);
-		Assert.assertTrue(result instanceof State2);
-		Assert.assertTrue(t.invoked1);
-		Assert.assertFalse(t.invoked2);
-		Assert.assertFalse(t.invoked2Error);
+		assertNotNull(result);
+		assertTrue(result instanceof State2);
+		assertTrue(t.invoked1);
+		assertFalse(t.invoked2);
+		assertFalse(t.invoked2Error);
 	}
 	
 	

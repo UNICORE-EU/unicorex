@@ -1,7 +1,7 @@
 package eu.unicore.xnjs.performance;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 import eu.unicore.xnjs.tsi.remote.RemoteTSITestCase;

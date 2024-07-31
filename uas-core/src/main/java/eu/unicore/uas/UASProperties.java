@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.inject.AbstractModule;
 
 import eu.unicore.services.Resource;
+import eu.unicore.uas.features.StorageAccessStartupTask;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.StorageDescription;
 import eu.unicore.uas.impl.sms.StorageFactoryImpl;
@@ -107,7 +108,7 @@ public class UASProperties extends PropertiesHelper {
 	public static final String FTS_HTTP_PREFER_POST = "filetransfer.httpPreferPost";
 
 	/**
-	 * prefix for configuring the set of "shared SMS" (see {@link CreateSMSOnStartup})
+	 * prefix for configuring the set of "shared SMS" (see {@link StorageAccessStartupTask})
 	 */
 	public static final String SMS_SHARE_PREFIX = "sms.storage.";
 
@@ -115,7 +116,7 @@ public class UASProperties extends PropertiesHelper {
 	public static final String SMS_SHARE_PREFIX_old = "sms.share.";
 
 	/**
-	 * property listing the enabled "shared SMS" (see {@link CreateSMSOnStartup})
+	 * property listing the enabled "shared SMS" (see {@link StorageAccessStartupTask})
 	 */
 	public static final String SMS_ENABLED_SHARES = "sms.enabledStorages";
 

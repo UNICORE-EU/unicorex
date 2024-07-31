@@ -1,9 +1,9 @@
 package eu.unicore.xnjs.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.BaseModule;
 import eu.unicore.xnjs.ConfigurationSource;
@@ -219,31 +219,27 @@ public class TestUtils {
 	
 	@Test
 	public void testSanitize(){
-		
 		String[]inputs = new String[]{
 				"peter's documents",
 		};
-		
 		String[]sanitized = new String[]{
 				"peter'\\''s documents",
 		};
 		int i=0;
 		for(String in: inputs){
 			String out = TSIMessages.sanitize(in);
-			assertEquals("Sanitize error", sanitized[i], out);
+			assertEquals(sanitized[i], out);
 			i++;
 		}
 	}
 	
 	@Test
 	public void testPathNormalize(){
-		
 		String[]inputs = new String[]{
 				"//foo",
 				"/foo/",
 				"//foo/bar/baz/../",
 		};
-		
 		String[]normalized = new String[]{
 				"/foo",
 				"/foo/",
@@ -252,20 +248,18 @@ public class TestUtils {
 		int i=0;
 		for(String in: inputs){
 			String out = IOUtils.getNormalizedPath(in);
-			assertEquals("Normalization error", normalized[i], out);
+			assertEquals(normalized[i], out);
 			i++;
 		}
 	}
 	
 	@Test
 	public void testFullPath(){
-		
 		String[]inputs = new String[]{
 				"//foo",
 				"/foo/",
 				"//foo/bar/baz/../",
 		};
-		
 		String[]normalized = new String[]{
 				"/base/foo",
 				"/base/foo/",
@@ -274,7 +268,7 @@ public class TestUtils {
 		int i=0;
 		for(String in: inputs){
 			String out = IOUtils.getFullPath("/base/", in, false);
-			assertEquals("Normalization error", normalized[i], out);
+			assertEquals(normalized[i], out);
 			i++;
 		}
 	}
