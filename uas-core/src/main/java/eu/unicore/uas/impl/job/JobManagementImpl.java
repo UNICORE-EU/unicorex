@@ -18,6 +18,7 @@ import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.impl.PersistingPreferencesResource;
 import eu.unicore.uas.impl.sms.StorageDescription;
 import eu.unicore.uas.impl.sms.StorageInitParameters;
+import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.ems.Action;
 
@@ -27,28 +28,27 @@ import eu.unicore.xnjs.ems.Action;
  * @author schuller
  */
 public class JobManagementImpl extends PersistingPreferencesResource {
-	
+
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS,JobManagementImpl.class);
 
 	public JobManagementImpl(){
 		super();
 	}
-	
+
 	public void restart() throws Exception {
 		getXNJSFacade().getManager().restart(getUniqueID(), 
 				AuthZAttributeStore.getClient());
 	}
-	
+
 	public void start() throws Exception {
 		getXNJSFacade().getManager().run(getUniqueID(), AuthZAttributeStore.getClient());
 		logger.info("Started {}", getUniqueID());
 	}
-	
 
 	public void abort() throws Exception {
 		getXNJSFacade().getManager().abort(getUniqueID(), AuthZAttributeStore.getClient());
 	}
-	
+
 	@Override
 	public JobModel getModel(){
 		return (JobModel)model;
@@ -81,7 +81,6 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		}
 	}
 
-	
 	/**
 	 * clean up resources on the back-end, including job directory
 	 */
@@ -120,12 +119,13 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		StorageDescription description = kernel.getAttribute(UASProperties.class).parseStorage(UASProperties.USPACE_SMS_PREFIX, 
 				"UspaceOf-"+getUniqueID(), false);
 		description.setName("UspaceOf-"+getUniqueID());
-		description.setPathSpec(a.getExecutionContext().getWorkingDirectory());
+		description.setPathSpec(getUniqueID());
 		description.setFilterListing(false);
 		description.setCleanup(false);
 		description.setDisableMetadata(true);
 		description.setEnableTrigger(false);
 		description.setDescription("Job workspace");
+		description.setStorageType(StorageTypes.USPACE);
 		init.storageDescription = description;
 		init.xnjsReference = getXNJSReference();
 		init.acl = getModel().getAcl();

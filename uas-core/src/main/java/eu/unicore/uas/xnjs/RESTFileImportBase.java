@@ -386,10 +386,10 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 
 	protected void copyPermissions(FileListEntry remote, String localFile) {
 		try{
-			String perm = permissions!=null? remote.permissions : permissions;
+			String perm = permissions!=null ? permissions : remote.permissions;
 			getStorageAdapter().chmod2(localFile, SMSUtils.getChangePermissions(perm), false);
 		}catch(Exception ex) {
-			Log.logException("Can't copy permissions", ex, logger);
+			Log.logException("Can't set permissions on local file <"+localFile+">", ex, logger);
 		}
 	}
 

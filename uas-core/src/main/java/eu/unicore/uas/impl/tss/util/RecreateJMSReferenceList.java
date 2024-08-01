@@ -64,8 +64,8 @@ public class RecreateJMSReferenceList implements Runnable{
 					tssIdsOwnedByUser.add(id);
 				}
 			}
-			
-			List<String>oldJobs=new ArrayList<String>();
+
+			List<String>oldJobs=new ArrayList<>();
 			for(String jobID: getExistingJobs()){
 				try{
 					JobManagementImpl j=(JobManagementImpl)jms.get(jobID);

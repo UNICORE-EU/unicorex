@@ -17,7 +17,7 @@ public class ExecutionContext implements Serializable{
 	
 	private static final long serialVersionUID = 1l;
 	
-	private String workingDirectory = "./";
+	private String workingDirectory = null;
 	
 	//the outcome dir (by default equal to the working dir)
 	private String outputDirectory;

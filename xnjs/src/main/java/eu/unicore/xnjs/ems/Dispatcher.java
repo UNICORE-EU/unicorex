@@ -83,7 +83,6 @@ public class Dispatcher extends Thread {
 		try{
 			setup();
 		}catch(Exception ex){
-			logger.error("", ex);
 			throw new RuntimeException(ex);
 		}
 		try{
@@ -160,8 +159,5 @@ public class Dispatcher extends Thread {
 				return false;
 			return true;
 		}
-
 	}
-
 }
-

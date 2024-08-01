@@ -160,8 +160,7 @@ public class BasicManager implements Manager, InternalManager {
 	@Override
 	public void errorProcessing(Action a, Throwable t){
 		if(a!=null){
-			a.addLogTrace("Processing failed, aborting");
-			a.addLogTrace(t.getMessage());
+			a.addLogTrace("End of processing - not successful.");
 			a.setStatus(ActionStatus.DONE);
 			a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
 			a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", t));

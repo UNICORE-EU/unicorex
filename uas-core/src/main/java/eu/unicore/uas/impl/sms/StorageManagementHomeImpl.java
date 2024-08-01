@@ -25,7 +25,8 @@ public class StorageManagementHomeImpl extends DefaultHome {
 		HOME,
 		FIXEDPATH,
 		CUSTOM,
-		VARIABLE
+		VARIABLE,
+		USPACE
 	}
 
 	@Override
@@ -52,6 +53,9 @@ public class StorageManagementHomeImpl extends DefaultHome {
 		}
 		else if (st.equals(StorageTypes.VARIABLE)){
 			clazz=PathedStorageImpl.class.getName();
+		}
+		else if (st.equals(StorageTypes.USPACE)){
+			clazz=UspaceStorageImpl.class.getName();
 		}
 		else if (st.equals(StorageTypes.CUSTOM)){
 			clazz=storageDesc.getStorageClass().getName();

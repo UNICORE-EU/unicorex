@@ -91,7 +91,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	/**
-	 * get the job description document via cast: (T)action.getAjd();
+	 * get the job description document
 	 */
 	@SuppressWarnings("unchecked")
 	protected T getJobDescriptionDocument(){
@@ -136,6 +136,9 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			storeTimeStamp(TIME_START);
 			setupNotifications();
+			ecm.createUSpace(action);
+			action.addLogTrace("Created job directory <"+
+					action.getExecutionContext().getWorkingDirectory()+">");
 			if(isEmptyJob()){
 				action.addLogTrace("Empty job description, nothing to do.");
 				setToDoneSuccessfully();
@@ -925,7 +928,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		storeTimeStamp(TIME_END);
 		action.setStatus(ActionStatus.DONE);
 		action.getProcessingContext().set(ApplicationExecutionStatus.done());
-		action.addLogTrace("Status set to DONE - successful.");
+		action.addLogTrace("End of processing - successful.");
 		int exitcode=getExitCode();
 		action.setResult(new ActionResult(ActionResult.SUCCESSFUL,"Success.",exitcode));
 		deleteFiles();

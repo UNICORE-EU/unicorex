@@ -48,14 +48,11 @@ public abstract class PersistingPreferencesResource extends BaseResourceImpl {
 			return;
 		
 		Map<String, String[]> actualPreferences = secTokens.getUserPreferences();
-		Map<String, String[]> storedPreferences = new HashMap<String, String[]>();
+		Map<String, String[]> storedPreferences = new HashMap<>();
 		storedPreferences.putAll(actualPreferences);
 		m.setStoredPreferences(storedPreferences);
-		if (logger.isDebugEnabled())
-			logger.debug("Persisted user preferences, used to create the WS-Resource "
-					+ getServiceName() + " [" + getUniqueID() + "]: " +
-					storedPreferences.keySet());
-
+		logger.debug("Persisted user preferences, used to create {}[{}]: {}",
+					getServiceName(), getUniqueID(), storedPreferences.keySet());
 	}
 	
 	/**
@@ -70,14 +67,11 @@ public abstract class PersistingPreferencesResource extends BaseResourceImpl {
 			return;
 		
 		Map<String, String[]> actualPreferences = secTokens.getUserPreferences();
-			
 		for (Map.Entry<String, String[]> entry: storedPreferences.entrySet()) {
 			if (!actualPreferences.containsKey(entry.getKey())) {
 				actualPreferences.put(entry.getKey(), entry.getValue());
-				if (logger.isDebugEnabled())
-					logger.debug("Using saved user's preference as a default for "
-						+ getServiceName() + " [" + getUniqueID() + "]: "
-						+ entry.getKey() + ": " + Arrays.toString(entry.getValue()));
+				logger.debug("Using saved user's preference as a default for {}[{}] {}: {}",
+					getServiceName(), getUniqueID(), entry.getKey(), Arrays.toString(entry.getValue()));
 			}
 		}
 	}

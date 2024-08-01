@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 
+import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
@@ -131,6 +132,10 @@ public class JobRunner extends Thread {
 			if(event!=null)mgr.handleEvent(event);
 		}catch(ProcessingException pe){
 			try{
+				// set status here to make sure we trigger notifications
+				a.setStatus(ActionStatus.DONE);
+				a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
+				a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", pe));
 				event = checkNotify(a, status);
 				mgr.errorProcessing(a, pe);
 				if(event!=null)mgr.handleEvent(event);

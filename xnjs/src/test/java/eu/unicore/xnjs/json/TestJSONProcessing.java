@@ -42,6 +42,7 @@ public class TestJSONProcessing extends EMSTestBase {
 		a = mgr.getAction(id);
 		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		assertNull(a.getStageIns());
+		a.printLogTrace();
 	}
 
 	@Test

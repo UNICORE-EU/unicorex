@@ -29,6 +29,7 @@ import eu.unicore.uas.fts.FileTransferModel;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.SMSModel;
 import eu.unicore.uas.impl.sms.StorageFactoryImpl;
+import eu.unicore.uas.impl.sms.UspaceStorageImpl;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.metadata.ExtractionStatistics;
 import eu.unicore.uas.metadata.ExtractionWatcher;
@@ -86,25 +87,26 @@ public class Storages extends ServicesBase {
 	protected Map<String,Object>getProperties() throws Exception {
 		Map<String,Object> props = super.getProperties();
 		SMSModel model = getModel();
-		IStorageAdapter sip = getResource().getStorageAdapter();
-
 		props.put("protocols", getJSONObject(getResource().getAvailableProtocols()));
 		props.put("umask", model.getUmask());
-		props.put("mountPoint", sip.getStorageRoot());
 		props.put("description", model.getStorageDescription().getDescription());
-		props.put("filesystemDescription", sip.getFileSystemIdentifier());
 		props.put("metadataSupported", !model.getStorageDescription().isDisableMetadata());
 		if(model.getStorageDescription().isEnableTrigger()) {
 			props.put("dataTriggeredProcessing", getTriggeredProcessingInfo());
 		}
-		try {
-			XnjsStorageInfo info = sip.getAvailableDiskSpace(model.getWorkdir());
-			props.put("freeSpace", info.getFreeSpace());
-			props.put("usableSpace", info.getUsableSpace());
-		}catch(Exception ex) {
-			logger.error("Problem getting free space", ex);
-			props.put("freeSpace", "-1");
-			props.put("usableSpace", "-1");
+		if(getResource().isReady()) {
+			IStorageAdapter sip = getResource().getStorageAdapter();
+			props.put("mountPoint", sip.getStorageRoot());
+			props.put("filesystemDescription", sip.getFileSystemIdentifier());
+			try {
+				XnjsStorageInfo info = sip.getAvailableDiskSpace(model.getWorkdir());
+				props.put("freeSpace", info.getFreeSpace());
+				props.put("usableSpace", info.getUsableSpace());
+			}catch(Exception ex) {
+				logger.error("Problem getting free space", ex);
+				props.put("freeSpace", "-1");
+				props.put("usableSpace", "-1");
+			}
 		}
 		return props;
 	}
@@ -379,19 +381,24 @@ public class Storages extends ServicesBase {
 	protected void updateLinks() {
 		super.updateLinks();
 		String base = getBaseURL()+"/storages/"+resource.getUniqueID();
+		SMSModel model = getModel();
 		links.add(new Link("files", base+"/files", "Files"));
-		if(!getModel().getStorageDescription().isDisableMetadata()){
+		if(!model.getStorageDescription().isDisableMetadata()){
 			links.add(new Link("metadata-search", base+"/search", "Search in metadata"));
 			links.add(new Link("action:extract", base+"/actions/extract", "Start metadata extraction"));
 		}
-		if(getModel().getStorageDescription().isEnableTrigger()) {
+		if(model.getStorageDescription().isEnableTrigger()) {
 			links.add(new Link("action:stop-processing", base+"/actions/stop-processing", "Stop the data-triggered processing"));
 		}
 		links.add(new Link("action:copy", base+"/actions/copy", "Copy file 'from' to file 'to'."));
 		links.add(new Link("action:rename", base+"/actions/rename","Rename file 'from' to file 'to'."));
-		String smfID = getModel().getParentUID();
+		String smfID = model.getParentUID();
 		if(smfID != null){
 			links.add(new Link("factory",getBaseURL()+"/storagefactories/"+smfID, "Storage Factory"));
+		}
+		if(getResource() instanceof UspaceStorageImpl) {
+			String jobID = model.getStorageDescription().getPathSpec();
+			links.add(new Link("job",getBaseURL()+"/jobs/"+jobID, "Parent job"));
 		}
 	}
 

@@ -1,6 +1,5 @@
 package eu.unicore.xnjs.ems;
 
-
 /**
  * This interface allows to associate a context with an action
  * 
@@ -13,6 +12,19 @@ public interface IExecutionContextManager {
 	 */
 	public ExecutionContext getContext(Action action) throws ExecutionException;
 	
+	/**
+	 * create a working directory for the given action, if it does not yet exist. 
+	 * The working directory is created in the configured location
+	 * (XNJSProperties.FILESPACE)
+	 * 
+	 * @param action - the action
+	 * @param baseDirectory - the base directory
+	 * @return the new uspace directory
+	 * 
+	 * @throws ExecutionException
+	 */
+	public String createUSpace(Action action) throws ExecutionException;
+
 	/**
 	 * create a working directory for the given action, if it does not yet exist. 
 	 * The working directory is created in the given base directory, and is named

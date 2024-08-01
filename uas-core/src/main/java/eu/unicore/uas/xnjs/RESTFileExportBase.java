@@ -280,7 +280,6 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 		}
 	}
 
-
 	protected InputStream getInputStream(String localFile)throws ExecutionException, IOException{
 		return getStorageAdapter().getInputStream(localFile);
 	}
@@ -296,5 +295,4 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 			Log.logException("Could not set permissions of remote file <"+target+">", ex, logger);
 		}	
 	}
-
 }

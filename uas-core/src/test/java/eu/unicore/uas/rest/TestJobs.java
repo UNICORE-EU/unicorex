@@ -9,7 +9,9 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
+import eu.unicore.client.core.StorageClient;
 import eu.unicore.services.rest.client.BaseClient;
 import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.client.UsernamePassword;
@@ -86,6 +88,22 @@ public class TestJobs extends SecuredBase {
 		client.setURL(url+"?tags=nope");
 		taggedJobs = client.getJSON().getJSONArray("jobs");
 		assertEquals(0, taggedJobs.length());
+	}
+	
+	@Test
+	public void testJobDirectoryHandling() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
+		System.out.println("Accessing "+url);
+		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		CoreClient cc = new CoreClient(new Endpoint(url),kernel.getClientConfiguration(), auth);
+		JSONObject task = new JSONObject();
+		task.put("ApplicationName", "Date");
+		JobClient jc = cc.getSiteClient().submitJob(task);
+		StorageClient sc = jc.getWorkingDirectory();
+		System.out.println(sc.getProperties().toString(2));
+		while(!jc.isFinished())Thread.sleep(1000);
+		System.out.println(sc.getProperties().toString(2));
+		Thread.sleep(500);
 	}
 
 	private boolean contains(JSONArray array, Object o) throws JSONException {

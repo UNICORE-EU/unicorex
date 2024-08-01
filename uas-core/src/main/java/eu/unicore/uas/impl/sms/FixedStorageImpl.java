@@ -9,7 +9,7 @@ import eu.unicore.xnjs.tsi.TSI;
 
 /**
  * A storage serving files from a fixed path, such as "/work" 
- * 
+ *
  * @author schuller
  */
 public class FixedStorageImpl extends SMSBaseImpl {
