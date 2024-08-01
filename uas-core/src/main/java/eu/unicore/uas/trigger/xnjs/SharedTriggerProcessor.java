@@ -17,7 +17,7 @@ import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ProcessingException;
+import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;
 
@@ -41,7 +41,7 @@ public class SharedTriggerProcessor extends TriggerProcessor {
 	 * scans the base directory for applicable files and initiates a trigger run 
 	 */
 	@Override
-	protected void handleRunning() throws ProcessingException{
+	protected void handleRunning() throws ExecutionException {
 		try{
 			long thisRun = System.currentTimeMillis();
 			ScanSettings sad = updateSettings();
@@ -64,7 +64,7 @@ public class SharedTriggerProcessor extends TriggerProcessor {
 				action.addLogTrace("Status set to DONE.");
 			}
 		}catch(Exception ex){
-			throw new ProcessingException(ex);
+			throw ExecutionException.wrapped(ex);
 		}
 	}
 	

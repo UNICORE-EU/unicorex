@@ -26,7 +26,6 @@ import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.IExecutionContextManager;
 import eu.unicore.xnjs.ems.Manager;
 import eu.unicore.xnjs.ems.ProcessingContext;
-import eu.unicore.xnjs.ems.ProcessingException;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
 import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
@@ -41,6 +40,7 @@ import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.TSIBusyException;
 import eu.unicore.xnjs.tsi.remote.Execution;
+import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
@@ -132,7 +132,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	/**
 	 * handle state "CREATED"
 	 */
-	protected void handleCreated()throws ProcessingException{
+	protected void handleCreated()throws ExecutionException{
 		try{
 			storeTimeStamp(TIME_START);
 			setupNotifications();
@@ -144,13 +144,8 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				setToDoneSuccessfully();
 				return;
 			}
-			try{
-				extractFromJobDescription();
-				setEnvironmentVariables();
-			}
-			catch(Exception ee){
-				throw new ProcessingException(ee);
-			}
+			extractFromJobDescription();
+			setEnvironmentVariables();
 			if(hasStageIn()){
 				action.setStatus(ActionStatus.PREPROCESSING);
 				action.addLogTrace("Status set to PREPROCESSING (staging in).");
@@ -163,14 +158,14 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		}catch(Exception ex){
 			String msg="ERROR: "+ex.getMessage();
 			action.addLogTrace(msg);
-			throw new ProcessingException(msg,ex);
+			throw ExecutionException.wrapped(ex);
 		}
 	}
 
 	/**
 	 * handle state "PreProcessing" aka "Staging in"
 	 */
-	protected void handlePreProcessing() throws ProcessingException {
+	protected void handlePreProcessing() {
 		try{
 			String stageInActionID=(String)action.getProcessingContext().get(subactionkey_in);
 			if(stageInActionID!=null){
@@ -218,7 +213,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * - the job needs to be explicitly started by the client
 	 * - job starts automatically
 	 */
-	protected void handleReady() throws ProcessingException {
+	protected void handleReady() throws ExecutionException {
 		logger.trace("Handling READY state for Action {}",action.getUUID());
 
 		//handle scheduled processing
@@ -291,9 +286,8 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 	/**
 	 * initialise pre-command execution
-	 * @throws ProcessingException
 	 */
-	protected void setupPreCommand() throws ProcessingException{
+	protected void setupPreCommand() throws ExecutionException {
 		try{
 			boolean done = true;
 			int index=0;
@@ -338,7 +332,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			String msg="Could not setup pre-command: "+ex.getMessage();
 			action.addLogTrace(msg);
 			setToDoneAndFailed(msg);
-			throw new ProcessingException(msg,ex);
+			throw ExecutionException.wrapped(ex);
 		}	
 	}
 
@@ -372,11 +366,11 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			action.setDirty();
 		}
 		catch(ExecutionException ee){
-			throw new ProcessingException(ee);
+			throw ExecutionException.wrapped(ee);
 		}
 	}
 
-	protected boolean checkMainExecutionSuccess() throws ProcessingException {
+	protected boolean checkMainExecutionSuccess() throws ExecutionException {
 		if(action.getApplicationInfo().ignoreNonZeroExitCode())return true;
 		Integer exitCode = action.getExecutionContext().getExitCode();
 		if(exitCode!=null && exitCode!=0){
@@ -391,9 +385,8 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 
 	/**
 	 * initialise post-command execution
-	 * @throws ProcessingException
 	 */
-	protected void setupPostCommand() throws ProcessingException{
+	protected void setupPostCommand() throws ExecutionException{
 		try{
 			boolean done = true;
 			int index=0;
@@ -435,41 +428,35 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			String msg="Could not setup post-command: "+ex.getMessage();
 			action.addLogTrace(msg);
 			setToDoneAndFailed(msg);
-			throw new ProcessingException(msg,ex);
+			throw ExecutionException.wrapped(ex);
 		}	
 	}
 
 	@SuppressWarnings("unchecked")
 	protected void handlePostCommandRunning()throws Exception{
-		try{
-			List<String>ids=action.getProcessingContext().getAs(subactionkey_post,List.class);
-			Iterator<String>iter=ids.iterator();
-			StringBuilder errors=new StringBuilder();
-			while(iter.hasNext()){
-				String id=iter.next();	
-				ActionResult res=checkSubAction(id, "Post-commands", true);
-				if(res!=null){
-					if(!res.isSuccessful()){
-						errors.append("[").append(res.getErrorMessage()).append("]");
-					}
-					iter.remove();
+		List<String>ids=action.getProcessingContext().getAs(subactionkey_post,List.class);
+		Iterator<String>iter=ids.iterator();
+		StringBuilder errors=new StringBuilder();
+		while(iter.hasNext()){
+			String id=iter.next();	
+			ActionResult res=checkSubAction(id, "Post-commands", true);
+			if(res!=null){
+				if(!res.isSuccessful()){
+					errors.append("[").append(res.getErrorMessage()).append("]");
 				}
-			}
-			if(ids.size()==0){
-				action.getProcessingContext().set(ApplicationExecutionStatus.done());
-			}
-			if(errors.length()>0){
-				setToDoneAndFailed("Post-command(s) failed: "+errors.toString());
-				return;
-			}
-			if(ids.size()>0){
-				action.setWaiting(true);
+				iter.remove();
 			}
 		}
-		catch(ExecutionException ee){
-			throw new ProcessingException(ee);
+		if(ids.size()==0){
+			action.getProcessingContext().set(ApplicationExecutionStatus.done());
 		}
-
+		if(errors.length()>0){
+			setToDoneAndFailed("Post-command(s) failed: "+errors.toString());
+			return;
+		}
+		if(ids.size()>0){
+			action.setWaiting(true);
+		}
 	}
 
 	/**
@@ -482,7 +469,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	/**
 	 * submit the main application
 	 */
-	protected void submitMainExecutable() throws ProcessingException{
+	protected void submitMainExecutable() throws ExecutionException {
 		try{
 			ApplicationInfo appInfo=action.getApplicationInfo();
 			if(appInfo!=null && appInfo.isAllocateOnly()) {
@@ -511,7 +498,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			if(!isRecoverable(ex) || submitCount.intValue()>maxSubmitCount){
 				action.addLogTrace(msg);
 				setToDoneAndFailed(msg);
-				throw new ProcessingException(msg,ex);
+				throw new ExecutionException(msg,ex);
 			}
 
 			action.addLogTrace("Submit attempt "+submitCount+" (of "+maxSubmitCount+") failed: "+ex.getMessage());
@@ -531,15 +518,15 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	protected boolean isRecoverable(ExecutionException ex){
-		if(ex.getErrorCode().isWrongResourceSpec())return false;
-		if(ex.getErrorCode().isNonRecoverableSubmissionError())return false;
+		if(ErrorCode.isWrongResourceSpec(ex.getErrorCode()))return false;
+		if(ErrorCode.isNonRecoverableSubmissionError(ex.getErrorCode()))return false;
 		return true;
 	}
 
 	/**
 	 * handle "queued" state
 	 */
-	protected void handleQueued()throws ProcessingException{
+	protected void handleQueued()throws ExecutionException{
 		logger.trace("Handling QUEUED state for Action {}", action.getUUID());
 		try{
 			exec.updateStatus(action);
@@ -549,15 +536,14 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		}catch(ExecutionException ex){
 			String msg="Could not update status: "+ex.getMessage();
 			action.addLogTrace(msg);
-			throw new ProcessingException(msg,ex);
+			throw ExecutionException.wrapped(ex);
 		}
 	}
-
 
 	/**
 	 * handle "RUNNING" state
 	 */
-	protected void handleRunning()throws ProcessingException{
+	protected void handleRunning()throws ExecutionException{
 		logger.trace("Handling RUNNING state for Action {}", action.getUUID());
 		if(getTimeStamp(TIME_START_MAIN)==null){
 			storeTimeStamp(TIME_START_MAIN);
@@ -570,7 +556,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		}catch(ExecutionException ex){
 			String msg="Could not update status for action "+ex.getMessage();
 			action.addLogTrace(msg);
-			throw new ProcessingException(msg,ex);
+			throw ExecutionException.wrapped(ex);
 		}
 	}
 
@@ -783,7 +769,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	/**
 	 * extract the notBefore tag
 	 */
-	protected abstract void extractNotBefore() throws ProcessingException;
+	protected abstract void extractNotBefore() throws ExecutionException;
 
 	/**
 	 * Populate job environment with "interesting" stuff.
@@ -954,7 +940,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	@Override
-	protected void handleAborting() throws ProcessingException {
+	protected void handleAborting() throws ExecutionException {
 		try{
 			exec.abort(action);
 		}catch(Exception ex){
@@ -982,7 +968,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	@Override
-	protected void handleRemoving() throws ProcessingException {
+	protected void handleRemoving() throws ExecutionException {
 		try{
 			if(ActionStatus.canAbort(action.getStatus()))exec.abort(action);
 		}
@@ -995,10 +981,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				action.setStatus(ActionStatus.DESTROYED);
 				action.setResult(new ActionResult(ActionResult.USER_ABORTED));
 			}
-		}catch(Exception e){
-			throw new ProcessingException(e);
-		}
-		finally{
+		}finally {
 			action.setTransitionalStatus(ActionStatus.TRANSITION_NONE);
 		}
 	}

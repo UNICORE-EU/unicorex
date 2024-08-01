@@ -57,14 +57,12 @@ public class Reservation implements IReservation {
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
 					String msg="Resource reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
-					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
-					throw new ExecutionException(ec);
+					throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,msg);
 				}
 			}
 		}catch(Exception e){
-			throw new ExecutionException(e);
+			throw ExecutionException.wrapped(e);
 		}
-
 	}
 
 	/**
@@ -88,13 +86,12 @@ public class Reservation implements IReservation {
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
 					String msg="Resource reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
-					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
-					throw new ExecutionException(ec);
+					throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,msg);
 				}
 				return res.replace("TSI_OK","").trim();
 			}
 		}catch(Exception e){
-			throw new ExecutionException(e);
+			throw ExecutionException.wrapped(e);
 		}
 	}
 
@@ -130,13 +127,12 @@ public class Reservation implements IReservation {
 				res = conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
 					String msg="Query resource reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
-					ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION,msg);
-					throw new ExecutionException(ec);
+					throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,msg);
 				}
 			}
 			rs=parseTSIReply(res);
 		}catch(Exception e){
-			throw new ExecutionException(e);
+			throw ExecutionException.wrapped(e);
 		}
 		return rs;
 	}

@@ -33,6 +33,7 @@ import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 import eu.unicore.xnjs.tsi.TSIBusyException;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import eu.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
+import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.IOUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -354,7 +355,8 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 				ok=!ok;
 				if(ok){
 					System.out.println("Failing submit...");
-					throw new ExecutionException("Fake submit failure");
+					throw new ExecutionException(ErrorCode.ERR_TSI_COMMUNICATION,
+							"Fake submit failure");
 				}
 			}
 			return super.submit(job);

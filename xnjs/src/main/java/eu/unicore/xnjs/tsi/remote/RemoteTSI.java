@@ -34,6 +34,7 @@ import eu.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.xnjs.io.XnjsStorageInfo;
 import eu.unicore.xnjs.tsi.BatchMode;
 import eu.unicore.xnjs.tsi.MultiNodeTSI;
+import eu.unicore.xnjs.tsi.TSIProblem;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.util.BackedInputStream;
 import eu.unicore.xnjs.util.BackedOutputStream;
@@ -218,13 +219,11 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		try(TSIConnection c = getConnection()){
 			res = c.send(tsiCmd);
 			if(!res.contains("TSI_OK")){
-				throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "TSI <"+lastUsedTSIHost+"> ERROR: '"+res+"'");
+				throw new TSIProblem(lastUsedTSIHost, ErrorCode.ERR_TSI_COMMUNICATION, "Command failed: "+res, null);
 			}
 		}
 		catch(IOException ioe){
-			String msgShort = Log.createFaultMessage("Command execution on TSI <"+lastUsedTSIHost+"> failed.",ioe);
-			ErrorCode err = new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION, msgShort);
-			throw new ExecutionException(err);
+			throw new TSIProblem(lastUsedTSIHost, ErrorCode.ERR_TSI_COMMUNICATION, "ERROR", ioe);
 		}
 		finally{
 			begin();
@@ -551,13 +550,12 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 				String res = conn.send(tsicmd);
 				if(!res.contains("TSI_OK")){
 					String msg="Command execution on TSI <"+lastUsedTSIHost+"> failed. TSI reply:" + res;
-					ErrorCode err = new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, msg);
-					throw new ExecutionException(err);
+					throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, msg);
 				}
 				return res.replace("TSI_OK", "").trim();
 			}catch(IOException ioe) {
-				throw new ExecutionException(Log.createFaultMessage("Command execution on TSI <"
-						+lastUsedTSIHost+"> failed.", ioe));
+				throw new TSIProblem(lastUsedTSIHost, ErrorCode.ERR_TSI_COMMUNICATION,
+						"Command execution failed", ioe);
 			}
 		}
 	}
@@ -655,7 +653,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		}catch(Exception ex){
 			String msg = Log.createFaultMessage("Error executing TSI_GET_COMPUTE_BUDGET", ex)
 					+" TSI reply was "+res;
-			throw new ExecutionException(msg);
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, msg);
 		}
 	}
 
@@ -684,7 +682,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		}catch(Exception ex){
 			String msg = Log.createFaultMessage("Error executing TSI_GET_USER_INFO", ex)
 					+" TSI reply was "+res;
-			throw new ExecutionException(msg);
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, msg);
 		}
 	}
 	
@@ -924,7 +922,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			}
 		}
 		if(!res.contains("TSI_OK")) {
-			throw new ExecutionException(
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,
 					"ACL operation on TSI <"+lastUsedTSIHost+"> failed. Reply was " + res);
 		}
 		return res;
@@ -971,7 +969,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			throws ExecutionException
 	{
 		if (!isACLSupported("/")) 
-			throw new ExecutionException("Setting file ACLs is not supported on this storage.");
+			throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,
+					"Setting file ACLs is not supported on this storage.");
 
 		String cmdBase = "#TSI_FILE_ACL\n" +
 				"#TSI_ACL_OPERATION SETFACL\n";
@@ -1048,8 +1047,12 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			noPreferredHost = true;
 		}
 		XnjsFile f = getProperties(dir);
-		if(f == null)throw new ExecutionException(String.format(format, args));
-		if(!f.isDirectory())throw new ExecutionException(String.format(format+" File exists!", args));
+		if(f == null) {
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, String.format(format, args));
+		}
+		if(!f.isDirectory()) {
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, String.format(format+" File exists!", args));
+		}
 		if(noPreferredHost)preferredHost = null;
 	}
 
@@ -1061,7 +1064,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		try(TSIConnection conn = getConnection()){
 			String res=conn.send(command);
 			if(res.startsWith("TSI_FAILED")){
-				throw new ExecutionException("TSI ERROR: Error executing command on TSI <"+lastUsedTSIHost+">. TSI reply: "+res);
+				throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,
+						"TSI ERROR: Error executing command on TSI <"+lastUsedTSIHost+">. TSI reply: "+res);
 			}
 			return res;
 		}

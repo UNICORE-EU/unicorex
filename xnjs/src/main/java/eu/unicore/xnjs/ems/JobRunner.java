@@ -130,7 +130,7 @@ public class JobRunner extends Thread {
 			event = checkNotify(a, status);
 			mgr.doneProcessing(a);
 			if(event!=null)mgr.handleEvent(event);
-		}catch(ProcessingException pe){
+		}catch(Throwable pe){
 			try{
 				// set status here to make sure we trigger notifications
 				a.setStatus(ActionStatus.DONE);
@@ -141,14 +141,9 @@ public class JobRunner extends Thread {
 				if(event!=null)mgr.handleEvent(event);
 			}catch(Exception ex){
 				logger.error("Error during error reporting for action <"+a.getUUID()+">",ex);
-			}
-		}
-		catch(Throwable t){
-			logger.error("Severe error during processing action <"+a.getUUID()+">",t);
-			try{
-				mgr.errorProcessing(a, t);
-			}catch(Exception ex){
-				logger.error("Error during error reporting for action <"+a.getUUID()+">",ex);
+				try {
+					mgr.errorProcessing(a, ex);
+				}catch(Exception e2) {}
 			}
 		}
 		finally{

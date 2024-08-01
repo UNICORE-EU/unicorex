@@ -11,7 +11,6 @@ import org.json.JSONObject;
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
-import eu.unicore.xnjs.ems.ProcessingException;
 import eu.unicore.xnjs.ems.processors.JobProcessor;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.Incarnation;
@@ -23,6 +22,7 @@ import eu.unicore.xnjs.json.sweep.ParameterSweep;
 import eu.unicore.xnjs.json.sweep.StagingSweep;
 import eu.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.xnjs.resources.ResourceSet;
+import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.JSONUtils;
 
 public class JSONJobProcessor extends JobProcessor<JSONObject> {
@@ -54,7 +54,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 	 * so that the JSONSweepProcessor} can take over
 	 */
 	@Override
-	protected void handleCreated() throws ProcessingException {
+	protected void handleCreated() throws ExecutionException {
 		try{
 			if(!action.getType().equals(JSONSweepProcessor.sweepActionType) && checkForSweeps()){
 				action.setType(JSONSweepProcessor.sweepActionType);
@@ -65,7 +65,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 				super.handleCreated();
 			}	
 		}catch(Exception ex){
-			throw new ProcessingException(ex);
+			throw ExecutionException.wrapped(ex);
 		}
 	}
 
@@ -155,14 +155,15 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 	}
 
 	@Override
-	protected void extractNotBefore() throws ProcessingException {
+	protected void extractNotBefore() throws ExecutionException {
 		String notBefore = JSONUtils.getString(getJobDescriptionDocument(), "Not before");
 		if(notBefore!=null){
 			try{
 				Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(notBefore);
 				action.setNotBefore(date.getTime());
 			}catch(Exception ex) {
-				throw new ProcessingException("Could not parse start time from <"+notBefore+">", ex);
+				throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,
+						"Could not parse start time from <"+notBefore+">", ex);
 			}
 		}
 	}
@@ -183,7 +184,8 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 					result.add(JSONParser.parseStageIn(to, spec));
 				}
 			}
-			else throw new IllegalArgumentException("'Imports' must be an array or a map");
+			else throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,
+					"'Imports' must be an array or a map");
 		}
 		return result;
 	}
@@ -218,7 +220,8 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 					result.add(JSONParser.parseStageOut(from, out));
 				}
 			}
-			else throw new IllegalArgumentException("'Exports' must be an array or a map");
+			else throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,
+					"'Exports' must be an array or a map");
 		}
 		return result;
 	}

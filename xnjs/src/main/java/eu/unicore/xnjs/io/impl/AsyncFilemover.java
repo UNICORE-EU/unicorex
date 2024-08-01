@@ -11,7 +11,6 @@ import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
-import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.ChangePermissions;
 import eu.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.xnjs.io.IFileTransferEngine;
@@ -235,14 +234,14 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		}
 	}
 
-	protected void createParentDirectories()throws ExecutionException{
+	protected void createParentDirectories()throws Exception{
 		String s = getParentOfLocalFilePath(info.getTarget());
 		XnjsFile parent = storageAdapter.getProperties(s);
 		if(parent==null){
 			storageAdapter.mkdir(s);
 		}
 		else if(!parent.isDirectory()){
-			throw new ExecutionException("Parent <"+s+"> is not a directory");
+			throw new IOException("Parent <"+s+"> is not a directory");
 		}
 	}
 

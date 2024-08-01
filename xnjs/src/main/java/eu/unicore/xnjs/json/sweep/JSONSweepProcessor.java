@@ -19,7 +19,6 @@ import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.ExecutionContext;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.ProcessingContext;
-import eu.unicore.xnjs.ems.ProcessingException;
 import eu.unicore.xnjs.io.DataStageInInfo;
 import eu.unicore.xnjs.json.JSONJobProcessor;
 import eu.unicore.xnjs.util.LogUtil;
@@ -116,7 +115,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 	}
 
 	@Override
-	protected void handleCreated()throws ProcessingException{
+	protected void handleCreated()throws ExecutionException{
 		super.handleCreated();
 	}
 
@@ -142,12 +141,12 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 	 * context
 	 */
 	@Override
-	protected void handlePending() throws ProcessingException{
+	protected void handlePending() throws ExecutionException{
 		forkChildJobs();
 		action.setStatus(ActionStatus.RUNNING);
 	}
 
-	protected void forkChildJobs() throws ProcessingException{
+	protected void forkChildJobs() throws ExecutionException{
 		JSONObject job = getJobDescriptionDocument();
 		List<String>jobs=getOrCreateJobList();
 		try{
@@ -171,7 +170,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 			action.getProcessingContext().put(INITIAL_JOBLIST_KEY, initialList);
 			action.setStatus(ActionStatus.READY);
 		}catch(Exception e){
-			throw new ProcessingException("Error performing sweep",e);
+			throw ExecutionException.wrapped(e);
 		}
 	}
 
@@ -179,7 +178,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 	 * check if there are any remaining jobs that are still running
 	 */
 	@Override
-	protected void handleRunning()throws ProcessingException{
+	protected void handleRunning()throws ExecutionException{
 		List<String>jobs=getOrCreateJobList();
 		logger.debug("Checking status for {} sweep instances.", jobs.size());
 		for(Iterator<String> it=jobs.iterator();it.hasNext();){
@@ -192,7 +191,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 				}
 			}
 			catch(Exception e){
-				throw new ProcessingException(e);
+				throw ExecutionException.wrapped(e);
 			}
 		}
 		if(jobs.size()==0){

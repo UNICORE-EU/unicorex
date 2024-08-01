@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ProcessingException;
+import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.idb.IDB;
 import eu.unicore.xnjs.io.DataStageInInfo;
 import eu.unicore.xnjs.io.DataStageOutInfo;
@@ -51,16 +51,13 @@ public class DataStagingProcessor extends DefaultProcessor {
 	public DataStagingProcessor(XNJS xnjs){
 		super(xnjs);
 	}
-	
-	protected void begin() throws ProcessingException {
-	}
 
 	/**
 	 * Initiates a filetransfer for each staging element found.
 	 * In case of errors (such as wrong protocol), the status of the
 	 * whole staging action is set to "FAILED". 
 	 */
-	protected void handleCreated() throws ProcessingException {
+	protected void handleCreated() throws ExecutionException {
 		logger.debug("Adding file transfers for job {}", action.getParentActionID());
 		try{
 			StagingInfo dstInfo=(StagingInfo)action.getAjd();
@@ -132,7 +129,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 				action.setStatus(ActionStatus.RUNNING);
 			}
 		}catch(Exception ex){
-			throw new ProcessingException(ex);
+			throw ExecutionException.wrapped(ex);
 		}
 	}	
 	
@@ -151,7 +148,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void handleAborting()throws ProcessingException{
+	protected void handleAborting()throws ExecutionException {
 		ArrayList<String> ftList=(ArrayList<String>)action.getProcessingContext().get(fileTransferKey);
 		if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
 		Iterator<String>iter=ftList.iterator();
@@ -161,15 +158,10 @@ public class DataStagingProcessor extends DefaultProcessor {
 		}
 		super.handleAborting();
 	}
-	
-	@Override
-	protected void handleRemoving()throws ProcessingException{
-		//NOP
-	}
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
-	protected void handleRunning() throws ProcessingException {
+	protected void handleRunning() throws ExecutionException {
 		ArrayList<String> ftList=(ArrayList<String>)action.getProcessingContext().get(fileTransferKey);
 		if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
 		Iterator<String>iter=ftList.iterator();
@@ -210,7 +202,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void cleanup() throws ProcessingException{
+	protected void cleanup() throws ExecutionException {
 		ArrayList<String> ftList=(ArrayList<String>)action.getProcessingContext().get(fileTransferKey);
 		if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
 		IFileTransferEngine fte = xnjs.get(IFileTransferEngine.class);

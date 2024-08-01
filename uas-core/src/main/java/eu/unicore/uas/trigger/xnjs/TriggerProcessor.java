@@ -31,7 +31,7 @@ import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ProcessingException;
+import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.processors.DefaultProcessor;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;
@@ -69,7 +69,7 @@ public class TriggerProcessor extends DefaultProcessor {
 	 * scans the base directory for applicable files and initiates a trigger run 
 	 */
 	@Override
-	protected void handleRunning() throws ProcessingException {
+	protected void handleRunning() throws ExecutionException {
 		long thisRun = System.currentTimeMillis();
 		IStorageAdapter storage = getStorageAdapter(action.getClient());
 		List<String>log = new ArrayList<>();
@@ -231,7 +231,7 @@ public class TriggerProcessor extends DefaultProcessor {
 		action.getProcessingContext().put(ACTION_IDS, ids);
 	}
 
-	protected IStorageAdapter getStorageAdapter(Client client) throws ProcessingException {
+	protected IStorageAdapter getStorageAdapter(Client client) throws ExecutionException {
 		String smsID = getJob().storageUID;
 		// this seems to be a nasty way to set the correct client,
 		// but as XNJS worker threads do not rely on thread-local Client
@@ -243,7 +243,7 @@ public class TriggerProcessor extends DefaultProcessor {
 			SMSBaseImpl sms = (SMSBaseImpl)h.get(smsID);
 			return sms.getStorageAdapter();
 		} catch(Exception e) {
-			throw new ProcessingException(e);
+			throw ExecutionException.wrapped(e);
 		}
 		finally{
 			AuthZAttributeStore.setClient(oldClient);

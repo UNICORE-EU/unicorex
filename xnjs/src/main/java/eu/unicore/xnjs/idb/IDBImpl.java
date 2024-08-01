@@ -400,8 +400,8 @@ public class IDBImpl implements IDB {
 		}
 		if(defaultQueue!=null && !allowed.contains(defaultQueue))
 		{
-			throw new ExecutionException(new ErrorCode(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,"Requested queue <"+defaultQueue
-					+"> is out of range (not allowed for this user)"));
+			throw new ExecutionException(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,"Requested queue <"+defaultQueue
+					+"> is out of range (not allowed for this user)");
 		}
 		List<String> values = new ArrayList<>();
 		values.addAll(allowed);

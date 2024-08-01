@@ -2,7 +2,7 @@ package eu.unicore.xnjs.ems.processors;
 
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ProcessingException;
+import eu.unicore.xnjs.ems.ExecutionException;
 
 /**
  * a dummy processor for testing
@@ -16,13 +16,13 @@ public class DummyProcessor extends DefaultProcessor {
 		super(xnjs);
 	}
 
-	protected void handleCreated() throws ProcessingException {
+	protected void handleCreated() throws ExecutionException {
 		logger.info("Dummy processor, changing status to RUNNING.");
 		action.addLogTrace("Changing status to RUNNING.");
 		action.setStatus(ActionStatus.RUNNING);
 	}
 
-	protected void handleRunning() throws ProcessingException {
+	protected void handleRunning() throws ExecutionException {
 		action.addLogTrace("Changing status to DONE.");
 		action.setStatus(ActionStatus.DONE);
 	}

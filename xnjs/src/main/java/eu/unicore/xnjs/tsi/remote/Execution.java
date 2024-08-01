@@ -36,6 +36,7 @@ import eu.unicore.xnjs.tsi.BasicExecution;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.TSIBusyException;
 import eu.unicore.xnjs.tsi.TSIFactory;
+import eu.unicore.xnjs.tsi.TSIProblem;
 import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.IOUtils;
 import eu.unicore.xnjs.util.LogUtil;
@@ -135,8 +136,8 @@ public class Execution extends BasicExecution {
 				lock = runOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
 				locked = lock.tryLock(120, TimeUnit.SECONDS);
 				if(!locked) {
-					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_COMMUNICATION,
-							"Could not acquire TSI submit lock (timeout)"));
+					throw new TSIProblem(preferredTSIHost, ErrorCode.ERR_TSI_COMMUNICATION,
+							"Could not acquire TSI submit lock (timeout)", null);
 				}
 				res=conn.send(tsiCmd);
 				idLine=conn.getIdLine();
@@ -145,7 +146,7 @@ public class Execution extends BasicExecution {
 				}
 				if(res.contains("TSI_FAILED")){
 					job.addLogTrace("TSI reply: FAILED.");
-					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, res));
+					throw new TSIProblem(tsiHost, ErrorCode.ERR_TSI_EXECUTION, res, null);
 				}
 			}
 			job.addLogTrace("TSI reply: submission OK.");

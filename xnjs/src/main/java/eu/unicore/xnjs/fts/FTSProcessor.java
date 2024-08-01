@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ProcessingException;
+import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.processors.DefaultProcessor;
 import eu.unicore.xnjs.io.DataStageInInfo;
 import eu.unicore.xnjs.io.DataStageOutInfo;
@@ -67,8 +67,7 @@ public class FTSProcessor extends DefaultProcessor {
 	/**
 	 * Initiates the filetransfer
 	 */
-	protected void handleCreated() throws ProcessingException {
-		try{
+	protected void handleCreated() throws Exception {
 			IFTSController ft = getController();
 			List<FTSTransferInfo> fileList = new ArrayList<>();
 			long totalSize = ft.collectFilesForTransfer(fileList);
@@ -80,9 +79,6 @@ public class FTSProcessor extends DefaultProcessor {
 					+ UnitParser.getCapacitiesParser(2).getHumanReadable(totalSize));
 			action.setStatus(ActionStatus.RUNNING);
 			storeFTSInfo(info);
-		}catch(Exception ex){
-			throw new ProcessingException(ex);
-		}
 	}	
 
 	private IFTSController ftc;
@@ -124,38 +120,34 @@ public class FTSProcessor extends DefaultProcessor {
 		return ftc;
 	}
 
-	protected FTSInfo getFTSInfo() throws ProcessingException {
-		try{
-			return xnjs.get(IFileTransferEngine.class).getFTSStorage().read(action.getUUID());
-		}catch(Exception e) {
-			throw new ProcessingException(e);
-		}
+	protected FTSInfo getFTSInfo() throws Exception {
+		return xnjs.get(IFileTransferEngine.class).getFTSStorage().read(action.getUUID());
 	}
 
-	protected void storeFTSInfo(FTSInfo info) throws ProcessingException  {
-		try{
-			xnjs.get(IFileTransferEngine.class).getFTSStorage().write(info);
-		}catch(Exception e) {
-			throw new ProcessingException(e);
-		}
+	protected void storeFTSInfo(FTSInfo info) throws Exception  {
+		xnjs.get(IFileTransferEngine.class).getFTSStorage().write(info);
 	}
 
 	@Override
-	protected void handleAborting()throws ProcessingException{
-		List<FTSTransferInfo> ftList = getFTSInfo().getTransfers();
-		if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
-		Iterator<FTSTransferInfo>iter = ftList.iterator();
-		while(iter.hasNext()){
-			String ftId = iter.next().getTransferUID();
-			if(ftId!=null) {
-				xnjs.get(IFileTransferEngine.class).abort(ftId);	
+	protected void handleAborting()throws ExecutionException{
+		try {
+			List<FTSTransferInfo> ftList = getFTSInfo().getTransfers();
+			if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
+			Iterator<FTSTransferInfo>iter = ftList.iterator();
+			while(iter.hasNext()){
+				String ftId = iter.next().getTransferUID();
+				if(ftId!=null) {
+					xnjs.get(IFileTransferEngine.class).abort(ftId);	
+				}
 			}
+			super.handleAborting();
+		}catch(Exception e) {
+			throw ExecutionException.wrapped(e);
 		}
-		super.handleAborting();
 	}
 
 	@Override
-	protected void handleRunning() throws ProcessingException {
+	protected void handleRunning() throws Exception {
 		FTSInfo info = getFTSInfo();
 		try {
 			List<FTSTransferInfo> ftList = info.getTransfers();
@@ -164,29 +156,25 @@ public class FTSProcessor extends DefaultProcessor {
 			int running = info.getRunningTransfers();
 			logger.trace("RUNNING <{}> have <{}>", action.getUUID(), ftList.size());
 			while(iter.hasNext()){
-				try {
-					FTSTransferInfo ftInfo = iter.next();
-					logger.trace(ftInfo);
-					Status status = ftInfo.getStatus();
+				FTSTransferInfo ftInfo = iter.next();
+				logger.trace(ftInfo);
+				Status status = ftInfo.getStatus();
 
-					switch(status) {
-					case CREATED:
-						if(launchFiletransfer(ftInfo, running)==Status.RUNNING) {
-							running = running + 1;
-						}
-						continue;
-					case RUNNING:
-						if(checkRunning(ftInfo)!=Status.RUNNING) {
-							running = running - 1;
-						}
-						continue;
-					case FAILED:
-					case DONE:
-					case ABORTED:
-						continue;
+				switch(status) {
+				case CREATED:
+					if(launchFiletransfer(ftInfo, running)==Status.RUNNING) {
+						running = running + 1;
 					}
-				}catch(Exception ex){
-					throw new ProcessingException(ex);
+					continue;
+				case RUNNING:
+					if(checkRunning(ftInfo)!=Status.RUNNING) {
+						running = running - 1;
+					}
+					continue;
+				case FAILED:
+				case DONE:
+				case ABORTED:
+					continue;
 				}
 			}
 			info.setRunningTransfers(running);
@@ -234,7 +222,9 @@ public class FTSProcessor extends DefaultProcessor {
 	protected Status launchFiletransfer(FTSTransferInfo info, Integer running) throws Exception {
 		if(running > getNumberOfFiletransferThreads())return Status.CREATED;
 		IFileTransfer ft = getController().createTransfer(info.getSource(), info.getTarget());
-		if(ft==null)throw new ProcessingException("Cannot create file transfer instance!");
+		if(ft==null) {
+			throw new ExecutionException(0, "Cannot create file transfer instance for transfer <"+info+">");
+		}
 		xnjs.get(IFileTransferEngine.class).registerFileTransfer(ft);
 		getExecutor().execute(ft);
 		info.setStatus(Status.RUNNING);

@@ -21,7 +21,6 @@ import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.IExecutionContextManager;
 import eu.unicore.xnjs.ems.Manager;
-import eu.unicore.xnjs.ems.ProcessingException;
 import eu.unicore.xnjs.ems.processors.DefaultProcessor;
 import eu.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.xnjs.tsi.TSI;
@@ -132,7 +131,7 @@ public class RecreateXNJSJobs implements Runnable{
 		}
 		
 		@Override
-		protected void done() throws ProcessingException {
+		protected void done() {
 			if(!isRecreated())return;
 			
 			// at least check if exit code exists -> successful

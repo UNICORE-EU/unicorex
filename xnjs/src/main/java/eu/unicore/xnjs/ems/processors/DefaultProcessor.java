@@ -8,7 +8,7 @@ import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ProcessingException;
+import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.Processor;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import eu.unicore.xnjs.util.LogUtil;
@@ -38,22 +38,22 @@ public class DefaultProcessor extends Processor {
 		super(xnjs);
 	}
 
-	protected void handleAborting()throws ProcessingException{
+	protected void handleAborting()throws ExecutionException{
 		action.setStatus(ActionStatus.DONE);
 		action.setResult(new ActionResult(ActionResult.USER_ABORTED, "Job aborted."));
 	}
 	
-	protected void handlePausing()throws ProcessingException{
+	protected void handlePausing()throws ExecutionException{
 		Integer oldStatus = action.getStatus();
 		action.getProcessingContext().put(KEY_STATUS_ON_UNPAUSE, oldStatus);
 		action.setStatus(ActionStatus.PAUSED);
 	}
 	
-	protected void handlePaused()throws ProcessingException{
+	protected void handlePaused()throws ExecutionException{
 		sleep(5, TimeUnit.SECONDS);
 	}
 	
-	protected void handleResuming()throws ProcessingException{
+	protected void handleResuming()throws ExecutionException{
 		Integer oldStatus = action.getProcessingContext().getAs(KEY_STATUS_ON_UNPAUSE, Integer.class);
 		action.setStatus(oldStatus);
 	}

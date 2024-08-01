@@ -1,12 +1,12 @@
 package eu.unicore.xnjs.io.impl;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
-import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.ChangePermissions;
 import eu.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.xnjs.io.IStorageAdapter;
@@ -113,7 +113,7 @@ public class Inline implements IFileTransfer {
 			tsi.mkdir(s);
 		}
 		else if(!parent.isDirectory()){
-			throw new ExecutionException("Parent <"+s+"> is not a directory");
+			throw new IOException("Parent <"+s+"> is not a directory");
 		}
 		return new OutputStreamWriter(tsi.getOutputStream(info.getTarget(),append),"UTF-8");
 	}

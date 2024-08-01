@@ -65,7 +65,7 @@ public class GrounderImpl implements Incarnation {
 				result = idbApp.clone();
 			}
 			else{
-				throw new ExecutionException(new ErrorCode(ErrorCode.ERR_UNKNOWN_APPLICATION,"Application could not be mapped to an executable."));
+				throw new ExecutionException(ErrorCode.ERR_UNKNOWN_APPLICATION,"Application could not be mapped to an executable.");
 			}
 		}
 		else{
@@ -105,7 +105,7 @@ public class GrounderImpl implements Incarnation {
 			if(base==null){
 				base=tsi.getEnvironment(fileSystem);
 			}
-			if(base==null || base.length()==0)throw new ExecutionException(new ErrorCode(0,"Filesystem '"+fileSystem+"' not available."));
+			if(base==null || base.length()==0)throw new ExecutionException(0,"Filesystem '"+fileSystem+"' not available.");
 			return base+fileName;
 		}
 	}
@@ -123,8 +123,7 @@ public class GrounderImpl implements Incarnation {
 		if(fromUser.getExecutable()!=null){
 			if(!allowUserExec){
 				String msg="Cannot execute <"+fromUser.getExecutable()+">. Only Applications may be executed on this site.";
-				ErrorCode ec=new ErrorCode(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
-				throw new ExecutionException(ec);
+				throw new ExecutionException(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
 			}
 			result.setExecutable(fromUser.getExecutable());
 		}
@@ -181,8 +180,7 @@ public class GrounderImpl implements Incarnation {
 		if(fromUser.getUserPreCommand()!=null){
 			if(!allowUserExec){
 				String msg="Cannot execute user pre-command - user executables are forbidden on this site.";
-				ErrorCode ec=new ErrorCode(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
-				throw new ExecutionException(ec);
+				throw new ExecutionException(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
 			}
 			result.setUserPreCommand(fromUser.getUserPreCommand());
 			result.setUserPreCommandOnLoginNode(allowedToRunOnLogin && fromUser.isUserPreCommandOnLoginNode());
@@ -191,8 +189,7 @@ public class GrounderImpl implements Incarnation {
 		if(fromUser.getUserPostCommand()!=null) {
 			if(!allowUserExec){
 				String msg="Cannot execute user post-command - user executables are forbidden on this site.";
-				ErrorCode ec=new ErrorCode(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
-				throw new ExecutionException(ec);
+				throw new ExecutionException(ErrorCode.ERR_EXECUTABLE_FORBIDDEN,msg);
 			}
 			result.setUserPostCommand(fromUser.getUserPostCommand());
 			result.setUserPostCommandOnLoginNode(allowedToRunOnLogin && fromUser.isUserPostCommandOnLoginNode());
@@ -236,7 +233,7 @@ public class GrounderImpl implements Incarnation {
 				}catch(Exception e){
 					String msg = Log.createFaultMessage("Could not evaluate script <"+script+">"
 							+" for resource <"+r.getName()+">", e);
-					throw new ExecutionException(msg);
+					throw new ExecutionException(ErrorCode.ERR_RESOURCES_INCONSISTENT, msg);
 				}
 			}
 		}
@@ -268,8 +265,8 @@ public class GrounderImpl implements Incarnation {
 		availablePartitions.setSelectedValue(requestedPartitionName);
 		if(requestedPartitionName!=null) {
 			if(!availablePartitions.isInRange(requestedPartitionName)){
-				throw new ExecutionException(new ErrorCode(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,
-						"Resource request <Queue = "+requestedPartitionName+"> is out of range."));
+				throw new ExecutionException(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,
+						"Resource request <Queue = "+requestedPartitionName+"> is out of range.");
 			}
 		}
 
@@ -278,8 +275,8 @@ public class GrounderImpl implements Incarnation {
 			selectedPartition = idb.getDefaultPartition();
 			Resource queue = selectedPartition.getResources().getResource(ResourceSet.QUEUE);
 			if(queue==null || !queue.isInRange(requestedPartitionName)){
-				throw new ExecutionException(new ErrorCode(ErrorCode.ERR_UNKNOWN_RESOURCE, 
-						"Partition/Queue <"+requestedPartitionName+"> is not available at this site."));
+				throw new ExecutionException(ErrorCode.ERR_UNKNOWN_RESOURCE, 
+						"Partition/Queue <"+requestedPartitionName+"> is not available at this site.");
 			}
 		}
 		if(!IDBImpl.DEFAULT_PARTITION.equals(selectedPartition.getName())){
@@ -327,12 +324,12 @@ public class GrounderImpl implements Incarnation {
 
 			if(doVerify){
 				if(resource==null){
-					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_UNKNOWN_RESOURCE,"Resource <"
-							+name+"> is not available for partition <"+selectedPartition.getName()+">"));
+					throw new ExecutionException(ErrorCode.ERR_UNKNOWN_RESOURCE,"Resource <"
+							+name+"> is not available for partition <"+selectedPartition.getName()+">");
 				}
 				if(!resource.isInRange(value)){
-					throw new ExecutionException(new ErrorCode(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,"Resource request <"
-							+name+"="+value+"> is out of range."));
+					throw new ExecutionException(ErrorCode.ERR_RESOURCE_OUT_OF_RANGE,"Resource request <"
+							+name+"="+value+"> is out of range.");
 				}
 			}
 

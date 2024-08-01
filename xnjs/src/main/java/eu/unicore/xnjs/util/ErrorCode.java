@@ -1,38 +1,56 @@
 package eu.unicore.xnjs.util;
 
-import java.io.Serializable;
+public class ErrorCode {
 
-public class ErrorCode implements Serializable {
+	private ErrorCode() {}
 
-	private static final long serialVersionUID = 1L;
-
-	private final int code;
-	
-	private final String message;
-	
-	public ErrorCode(int code, String message){
-		this.code=code;
-		this.message=message;
+	/**
+	 * get a somewhat user friendly error message
+	 * @param code the error code
+	 */
+	public static String toString(int code){
+		String msg;
+		switch(code){
+		case ERR_XNJS_DISABLED:
+			msg = "XNJS does not accept new actions";
+			break;
+		case ERR_INTERACTIVE_SUBMIT_FAILURE:
+			msg = "Submission to login node failed";
+			break;
+		case ERR_TSI_COMMUNICATION:
+			msg = "Error communicating to the TSI";
+			break;
+		case ERR_TSI_EXECUTION:
+			msg = "Command execution on TSI reported an error";
+			break;
+		case ERR_EXECUTABLE_FORBIDDEN:
+			msg = "User executable is not allowed";
+			break;
+		case ERR_RESOURCE_OUT_OF_RANGE:
+		case ERR_UNKNOWN_RESOURCE:
+		case ERR_RESOURCES_INCONSISTENT:
+			msg = "Invalid resource request";
+			break;
+		case ERR_UNKNOWN_APPLICATION:
+			msg = "Requested application is not defined";
+			break;
+		case ERR_NONZERO_EXITCODE:
+			msg = "User executable exited with non-zero exit code";
+			break;
+		case ERR_JOB_DESCRIPTION:
+			msg = "Job description error";
+			break;
+		default:
+			msg = "XNJS error";
+		}
+		return msg + "["+code+"]";
 	}
-	
-	
-	public int getCode() {
-		return code;
-	}
 
-	public String getMessage() {
-		return message;
-	}
-	
-	public String toString(){
-		return message+" [XNJS error "+code+"]";
-	}
-
-	public boolean isWrongResourceSpec(){
+	public static boolean isWrongResourceSpec(int code){
 		return code>=30 && code<40;
 	}
 
-	public boolean isNonRecoverableSubmissionError(){
+	public static boolean isNonRecoverableSubmissionError(int code){
 		return code>=20 && code<30;
 	}
 
@@ -107,4 +125,9 @@ public class ErrorCode implements Serializable {
 	 * the user application exited with non-zero exit code
 	 */	
 	public static final int ERR_NONZERO_EXITCODE=40;
+	
+	/**
+	 * Error in the job description
+	 */	
+	public static final int ERR_JOB_DESCRIPTION=50;
 }

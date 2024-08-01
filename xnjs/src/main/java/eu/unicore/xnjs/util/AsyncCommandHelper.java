@@ -87,7 +87,8 @@ public class AsyncCommandHelper {
 		if(parentActionID!=null){
 			Action parent=manager.getAction(parentActionID);
 			if(parent==null){
-				throw new ExecutionException("Cannot create sub-action: parent action does not exist (any more).");
+				throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,
+						"Cannot create sub-action: parent action does not exist (any more).");
 			}
 			return manager.addSubAction(subCommand, XNJSConstants.asyncCommandType, parent, true);
 		}

@@ -135,9 +135,7 @@ public class LocalTS implements TSI {
 			throw ExecutionException.wrapped(e);
 		}
 		if(!success){
-			String msg="Could not rename file.";
-			ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, msg);
-			throw new ExecutionException(ec);
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "Could not rename file.");
 		}
 	}
 
@@ -153,9 +151,7 @@ public class LocalTS implements TSI {
 			if(children!=null)for(File child: children)_rmdir(child);
 		}
 		if(!f.delete()){
-			String msg="Could not delete.";
-			ErrorCode ec=new ErrorCode(ErrorCode.ERR_TSI_EXECUTION, msg);
-			throw new ExecutionException(ec);
+			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "Could not delete.");
 		}
 	}
 
@@ -180,7 +176,8 @@ public class LocalTS implements TSI {
 		try{
 			File f=makeTarget(dir);
 			if (IOUtils.isNonUnix())
-				throw new ExecutionException("FIFO can not be created on a non-UNIX operating system.");
+				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,
+						"FIFO can not be created on a non-UNIX operating system.");
 			execAndWait("mkfifo "+f.getAbsolutePath(), new ExecutionContext());
 			setPermissions(f);
 		}catch(Exception e) {
@@ -194,7 +191,8 @@ public class LocalTS implements TSI {
 			File targetFile=makeTarget(target);
 			logger.debug("linking: {} -> {}", newLink, targetFile);
 			if (IOUtils.isNonUnix()){
-				throw new ExecutionException("Link can not be created on a non-UNIX operating system.");
+				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,
+						"Link can not be created on a non-UNIX operating system.");
 			}
 			ExecutionContext ec = new ExecutionContext();
 			ec.setDiscardOutput(true);
