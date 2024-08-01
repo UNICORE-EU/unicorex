@@ -274,7 +274,9 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	private String createDummyParent()throws Exception{
 		JSONObject jD = new JSONObject("{'ApplicationName': 'Date'}");
-		return (String)mgr.add(xnjs.makeAction(jD), null);
+		String id = (String)mgr.add(xnjs.makeAction(jD), null);
+		waitUntilReady(id);
+		return id;
 	}
 
 	private String getWorkingDir(String actionID)throws Exception{

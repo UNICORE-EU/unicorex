@@ -60,7 +60,7 @@ public class ExecutionException extends Exception {
 		StringBuilder sb = new StringBuilder();
 		if(super.getMessage()!=null) {
 			sb.append(super.getMessage());
-			sb.append(" - ");
+			sb.append(" ");
 		}
 		if(errorCode>-1) {
 			sb.append(ErrorCode.toString(errorCode));

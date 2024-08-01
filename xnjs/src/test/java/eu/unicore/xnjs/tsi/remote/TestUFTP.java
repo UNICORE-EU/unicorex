@@ -227,6 +227,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		parent.getClient().setXlogin(new Xlogin(new String[] {"nobody"}));
 		String id = parent.getUUID();
 		mgr.add(parent, parent.getClient());
+		waitUntilDone(id);
 		JSONObject cmd = UFTPUtils.jsonBuilder().
 				host("127.0.0.1").
 				port(uftpd.srvPort).
@@ -261,6 +262,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		parent.getClient().setXlogin(new Xlogin(new String[] {"nobody"}));
 		String id = parent.getUUID();
 		mgr.add(parent, parent.getClient());
+		waitUntilDone(id);
 		JSONObject cmd = UFTPUtils.jsonBuilder().
 				host("127.0.0.1").
 				port(uftpd.srvPort).

@@ -195,6 +195,7 @@ public class LocalTS implements TSI {
 						"Link can not be created on a non-UNIX operating system.");
 			}
 			ExecutionContext ec = new ExecutionContext();
+			ec.setWorkingDirectory(".");
 			ec.setDiscardOutput(true);
 			execAndWait("ln -s "+targetFile.getAbsolutePath()+" "+newLink.getAbsolutePath(),
 					ec);

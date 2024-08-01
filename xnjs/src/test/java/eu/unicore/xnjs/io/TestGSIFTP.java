@@ -122,7 +122,9 @@ public class TestGSIFTP extends EMSTestBase {
 		JSONObject j = new JSONObject();
 		j.put("ApplicationName","Date");
 		Action job=xnjs.makeAction(j);
-		return(String)mgr.add(job, null);
+		String id = (String)mgr.add(job, null);
+		waitUntilReady(id);
+		return id;
 	}
 
 	private String getWorkingDir(String actionID)throws Exception{

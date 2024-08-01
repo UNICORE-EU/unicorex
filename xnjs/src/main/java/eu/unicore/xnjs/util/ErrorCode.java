@@ -9,41 +9,30 @@ public class ErrorCode {
 	 * @param code the error code
 	 */
 	public static String toString(int code){
-		String msg;
 		switch(code){
 		case ERR_XNJS_DISABLED:
-			msg = "XNJS does not accept new actions";
-			break;
+			return "XNJS does not accept new actions";
 		case ERR_INTERACTIVE_SUBMIT_FAILURE:
-			msg = "Submission to login node failed";
-			break;
+			return "Submission to login node failed";
 		case ERR_TSI_COMMUNICATION:
-			msg = "Error communicating to the TSI";
-			break;
+			return "Error communicating to the TSI";
 		case ERR_TSI_EXECUTION:
-			msg = "Command execution on TSI reported an error";
-			break;
+			return "Command execution on TSI reported an error";
 		case ERR_EXECUTABLE_FORBIDDEN:
-			msg = "User executable is not allowed";
-			break;
+			return "User executable is not allowed";
 		case ERR_RESOURCE_OUT_OF_RANGE:
 		case ERR_UNKNOWN_RESOURCE:
 		case ERR_RESOURCES_INCONSISTENT:
-			msg = "Invalid resource request";
-			break;
+			return"Invalid resource request";
 		case ERR_UNKNOWN_APPLICATION:
-			msg = "Requested application is not defined";
-			break;
+			return "Requested application is not defined";
 		case ERR_NONZERO_EXITCODE:
-			msg = "User executable exited with non-zero exit code";
-			break;
+			return "User executable exited with non-zero exit code";
 		case ERR_JOB_DESCRIPTION:
-			msg = "Job description error";
-			break;
+			return "Job description error";
 		default:
-			msg = "XNJS error";
+			return "XNJS error";
 		}
-		return msg + "["+code+"]";
 	}
 
 	public static boolean isWrongResourceSpec(int code){
