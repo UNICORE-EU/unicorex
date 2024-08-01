@@ -20,12 +20,12 @@ public class JobClient extends BaseServiceClient {
 	public static enum Status {
 	    UNDEFINED,
 	    READY,
-	    QUEUED,
-	    RUNNING,
-	    SUCCESSFUL,
-	    FAILED,
 	    STAGINGIN,
-	    STAGINGOUT
+		QUEUED,
+	    RUNNING,
+	    STAGINGOUT,
+	    SUCCESSFUL,
+	    FAILED
 	}
 
 	public JobClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
@@ -40,6 +40,17 @@ public class JobClient extends BaseServiceClient {
 		return getProperties().getString("statusMessage");
 	}
 	
+	/**
+	 * wait for the job to reach the given status (or a later one)
+	 *
+	 * @param status - the status to wait for
+	 */
+	public void poll(Status status) throws Exception {
+		while(getStatus().compareTo(status)<=0) {
+			Thread.sleep(1000);
+		}
+	}
+
 	public boolean isFinished() throws Exception {
 		Status s = getStatus();
 		return Status.FAILED==s || Status.SUCCESSFUL == s;

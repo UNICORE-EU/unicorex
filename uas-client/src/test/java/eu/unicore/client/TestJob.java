@@ -1,11 +1,15 @@
 package eu.unicore.client;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
+
+import eu.unicore.client.core.JobClient.Status;
 
 public class TestJob {
 
 	@Test
-	public void TestJobBuilder() throws Exception {
+	public void testJobBuilder() throws Exception {
 		Job j = new Job();
 		j.application("Date", "1.0");
 		j.arguments("-rfc","-v");
@@ -20,4 +24,9 @@ public class TestJob {
 		System.out.println(j.getJSON().toString(2));
 	}
 
+	@Test
+	public void testStatusOrder() throws Exception {
+		assertTrue(Status.RUNNING.compareTo(Status.READY)>0);
+		assertTrue(Status.STAGINGOUT.compareTo(Status.SUCCESSFUL)<0);
+	}
 }

@@ -119,7 +119,7 @@ public class StorageClient extends BaseServiceClient {
 	
 	
 	public String getMountPoint() throws Exception {
-		return getProperties().getString("mountPoint");
+		return getProperties().optString("mountPoint", null);
 	}
 	
 	public String getFileSystemDescription() throws Exception {
