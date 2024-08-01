@@ -164,9 +164,8 @@ public class TestUFTPTransfers {
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
 		JobClient jc = tss.submitJob(getStageOutJob());
-		
-		// import a file
 		StorageClient uspace=jc.getWorkingDirectory();
+		while(uspace.getMountPoint()==null)Thread.sleep(1000);
 		importTestFile(uspace, "stage-out-file", 1024);
 		jc.start();
 		while(!jc.isFinished()) {
@@ -190,9 +189,9 @@ public class TestUFTPTransfers {
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
 		JobClient jc = tss.submitJob(getMultiStageOutJob());
-		
 		// import a file
 		StorageClient uspace=jc.getWorkingDirectory();
+		while(uspace.getMountPoint()==null)Thread.sleep(1000);
 		for(int i=1;i<=3;i++)
 		{
 			importTestFile(uspace, "/out/test"+i, 1024);
