@@ -149,23 +149,23 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	private void submitInteractive() throws Exception {
 		System.out.println("*** submitInteractive");
 		JSONObject job = loadJSONObject(date);
-		String id="";
-		final Action a=xnjs.makeAction(job);
+		Action a=xnjs.makeAction(job);
 		Client c=new Client();
 		a.setClient(c);
 		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		id=a.getUUID();
+		final String id=a.getUUID();
 		xnjs.get(IExecutionContextManager.class).getContext(a);
 		a.getExecutionContext().setRunOnLoginNode(true);
-		final String wd=a.getExecutionContext().getWorkingDirectory();
-		System.out.println("Starting async script in "+wd);
 		mgr.add(a,c);
-
+		waitUntilReady(id);
 		Runnable check=new Runnable(){
 			public void run(){
-				File pidFile=new File(wd, a.getExecutionContext().getPIDFileName());
-				assertTrue(pidFile.exists());
 				try{
+					Action a1 = mgr.getAction(id);
+					final String wd=a1.getExecutionContext().getWorkingDirectory();
+					System.out.println("Sccript running in "+wd);
+					File pidFile=new File(wd, a1.getExecutionContext().getPIDFileName());
+					assertTrue(pidFile.exists());
 					pid=IOUtils.readFile(pidFile);
 					System.out.println("Have PID : "+pid);
 				}catch(Exception e){}
