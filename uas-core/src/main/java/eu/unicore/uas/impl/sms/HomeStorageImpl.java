@@ -1,7 +1,5 @@
 package eu.unicore.uas.impl.sms;
 
-import eu.unicore.services.InitParameters;
-
 /**
  * Represents a HOME storage. The storage root is the current user's 
  * home directory on the target system.
@@ -11,12 +9,8 @@ import eu.unicore.services.InitParameters;
 public class HomeStorageImpl extends PathedStorageImpl {
 
 	@Override
-	public void initialise(InitParameters initobjs)throws Exception{
-		super.initialise(initobjs);
-	}
-	
-	@Override
 	protected String getDefaultWorkdir() {
 		return "$HOME";
 	}
+
 }

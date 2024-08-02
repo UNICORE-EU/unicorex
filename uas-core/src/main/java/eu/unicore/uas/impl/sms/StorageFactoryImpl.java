@@ -14,7 +14,6 @@ import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.PullPoint;
 import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UAS;
-import eu.unicore.uas.impl.BaseInitParameters;
 import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.uas.util.LogUtil;
@@ -44,13 +43,8 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		if(model==null){
 			model=new SMFModel();
 		}
-		SMFModel model = getModel();
-		initParams.resourceState = ResourceStatus.INITIALIZING;
 		super.initialise(initParams);
-		
-		model.setXnjsReference(((BaseInitParameters)initParams).xnjsReference);
 		logger.info("Storage factory <{}> created", getUniqueID());
-		setStatusMessage("OK");
 	}
 
 	/**

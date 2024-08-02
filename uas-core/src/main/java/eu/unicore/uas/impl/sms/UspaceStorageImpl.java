@@ -19,12 +19,12 @@ public class UspaceStorageImpl extends SMSBaseImpl {
 
 	@Override
 	public void initialise(InitParameters initobjs)throws Exception{
+		initobjs.resourceState = ResourceStatus.INITIALIZING;
 		super.initialise(initobjs);
-		setResourceStatus(ResourceStatus.INITIALIZING);
 		updateWorkdir();
 	}
-	
-	// must update workdir creation since it is async
+
+	// must update workdir since it is created asynchronously
 	private void updateWorkdir()throws ExecutionException{
 		if(getModel().workdir==null){
 			SMSModel m = getModel();
@@ -37,7 +37,7 @@ public class UspaceStorageImpl extends SMSBaseImpl {
 			}
 		}
 	}
-	
+
 	@Override
 	public ResourceStatus getResourceStatus() {
 		try{
@@ -64,7 +64,6 @@ public class UspaceStorageImpl extends SMSBaseImpl {
 			}
 		}.submit();
 	}
-	
 
 	// TODO generic class from USE 5.1.0
 	public static abstract class AsynchCallback<T extends Resource> implements Runnable{
@@ -79,7 +78,7 @@ public class UspaceStorageImpl extends SMSBaseImpl {
 			this.resourceID=resourceID;
 			this.delay = 200;
 		}
-		
+
 		public AsynchCallback(Home home, String resourceID){
 			this(home, resourceID, 200);
 		}

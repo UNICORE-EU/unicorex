@@ -66,19 +66,14 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			model = new SMSModel();
 		}
 		SMSModel model = getModel();
-
 		super.initialise(initobjs);
 		StorageInitParameters init = (StorageInitParameters)initobjs;
-		
 		if (init.storageDescription == null)
 			throw new IllegalStateException("No storage configuration found");
 
 		model.storageDescription = init.storageDescription;
-
 		model.fsname = init.storageDescription.getName();
-		
 		model.umask = init.storageDescription.getDefaultUmask();
-		
 		// we get a factory ID if this instance was created
 		// via a StorageFactory
 		String storageFactoryID=init.factoryID;
@@ -86,10 +81,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			model.setParentUID(storageFactoryID);
 			model.setParentServiceName(UAS.SMF);
 		}
-
 		model.inheritSharing = init.inheritSharing;
-
-		setResourceStatus(ResourceStatus.READY);
 	}
 	
 	public void copy(String source, String target) throws Exception {
@@ -309,7 +301,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		init.source = source;
 		init.isExport = true;
 		init.extraParameters.putAll(extraParameters);
-		
 		if(!source.contains(UFTPConstants.SESSION_TAG) && getMetadataManager()!=null){
 			String ct = getMetadataManager().getMetadataByName(source).get("Content-Type");
 			if(ct!=null){

@@ -27,26 +27,13 @@ public abstract class BaseResourceImpl extends ResourceImpl implements XNJSResou
 	public UASBaseModel getModel(){
 		return (UASBaseModel)super.getModel(); 
 	}
-	
+
+	@Override
 	public void setKernel(Kernel kernel){
 		super.setKernel(kernel);
 		uasProperties = kernel.getAttribute(UASProperties.class);
 	}
 
-	@Override
-	public final void activate() {
-		super.activate();
-		customPostActivate();
-	}
-
-	/**
-	 * add special post-activation behaviour by overriding this method 
-	 */
-	protected void customPostActivate(){}
-
-	/**
-	 * sets XNJS reference, setups WSRF base profile RPs and the server's version RP
-	 */
 	@Override
 	public void initialise(InitParameters initParams)throws Exception{
 		UASBaseModel m = getModel();
@@ -55,30 +42,28 @@ public abstract class BaseResourceImpl extends ResourceImpl implements XNJSResou
 			setModel(m);
 		}
 		super.initialise(initParams);
-		uasProperties = kernel.getAttribute(UASProperties.class);
 		if(initParams instanceof BaseInitParameters){
 			m.setXnjsReference(((BaseInitParameters)initParams).xnjsReference);
 		}
 	}
 
 	private String xnjsReference;
-	
+
 	public synchronized String getXNJSReference(){
 		if(xnjsReference==null){
 			xnjsReference = getModel().getXnjsReference();
 		}
 		return xnjsReference;
 	}
-	
+
 	private XNJSFacade xnjs;
-	
+
 	public synchronized XNJSFacade getXNJSFacade(){
 		if(xnjs==null){
 			xnjs = XNJSFacade.get(getXNJSReference(),kernel);
 		}
 		return xnjs;
 	}
-
 	
 	public void refreshSystemInfo(){
 		if(getModel().getLastSystemInfoRefreshInstant()+30000 
@@ -92,7 +77,7 @@ public abstract class BaseResourceImpl extends ResourceImpl implements XNJSResou
 			Log.logException("Error getting info from TSI", ex, logger);
 		}
 	}
-	
+
 	/**
 	 * perform any updates of system-level info, invoked from
 	 * refreshSystemInfo() if necessary

@@ -24,8 +24,9 @@ public class PathedStorageImpl extends SMSBaseImpl {
 	protected String storageRoot;
 
 	@Override
-	protected void customPostActivate(){
-		//make sure the storageRoot is resolved once per request
+	public void activate(){
+		super.activate();
+		// make sure the storageRoot is resolved once per request
 		storageRoot=null;
 	}
 
@@ -71,7 +72,6 @@ public class PathedStorageImpl extends SMSBaseImpl {
 			workdir=workdir+getUniqueID()+getSeparator();
 		}
 		m.workdir = workdir;
-		
 		//try to resolve once to detect problems early
 		if(!init.skipResolve){
 			resolveRootDir();
@@ -81,20 +81,20 @@ public class PathedStorageImpl extends SMSBaseImpl {
 			}
 		}
 		if(storageRoot!=null){
-			logger.info("SMS init in <"+workdir+"> resolved as <"+storageRoot+">");
+			logger.info("Storage init in <{}>, resolved as <{}>", workdir, storageRoot);
 			if(m.storageDescription.isCheckExistence()){
 				checkDirExists();
 			}
 		}
 		else{
-			logger.info("SMS init in <"+workdir+">");
+			logger.info("Storage init in <{}>", workdir);
 		}
 	}
 
 	protected String getDefaultWorkdir() {
 		throw new IllegalArgumentException("Work directory cannot be null.");
 	}
-	
+
 	private void createParent(String dir) throws ExecutionException {
 		TSI tsi=getXNJSFacade().getTSI(getClient());
 		tsi.setUmask("0002");

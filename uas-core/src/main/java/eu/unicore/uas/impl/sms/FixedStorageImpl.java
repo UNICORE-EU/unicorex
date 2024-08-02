@@ -35,7 +35,7 @@ public class FixedStorageImpl extends SMSBaseImpl {
 			checkWorkdirExists();
 		}
 	}
-	
+
 	private void checkWorkdirExists()throws ExecutionException{
 		TSI tsi=getXNJSFacade().getTSI(getClient());
 		//some sanity checks
@@ -53,5 +53,4 @@ public class FixedStorageImpl extends SMSBaseImpl {
 	public String getStorageRoot() {
 		return getModel().workdir;
 	}
-	
 }

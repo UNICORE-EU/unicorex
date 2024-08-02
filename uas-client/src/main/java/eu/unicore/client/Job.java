@@ -172,10 +172,10 @@ public class Job {
 		return run_on_login_node(null);
 	}
 
-	public Job run_on_login_node(String node) {
+	public Job run_on_login_node(String nodeSpec) {
 		type(Type.ON_LOGIN_NODE);
-		if(node!=null){
-			JSONUtil.putQuietly(json, "Login node", node);
+		if(nodeSpec!=null){
+			JSONUtil.putQuietly(json, "Login node", nodeSpec);
 		}
 		// for legacy servers
 		environment("UC_PREFER_INTERACTIVE_EXECUTION", "true");
