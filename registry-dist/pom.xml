@@ -1,16 +1,13 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>registry</artifactId>
+  <artifactId>registry-distribution</artifactId>
   <packaging>pom</packaging>
-  <description>Build UNICORE Registry distribution</description>
+  <description>UNICORE Registry distribution</description>
   <inceptionYear>2011</inceptionYear>
   <url>https://www.unicore.eu</url>
 
   <name>Distribution of the UNICORE Registry server</name>
-
-  <!-- this is the "release" version -->
-  <version>${specification.version}</version>
 
   <parent>
     <groupId>eu.unicore</groupId>
@@ -20,7 +17,7 @@
   </parent>
 
   <properties>
-    <package.version>${project.version}</package.version>
+    <package.version>${specification.version}</package.version>
     <package.release>1</package.release>
   </properties>
 

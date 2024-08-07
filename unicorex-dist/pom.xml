@@ -4,14 +4,11 @@
   <groupId>eu.unicore</groupId>
   <artifactId>unicorex-distribution</artifactId>
   <packaging>pom</packaging>
-  <description>Build UNICORE/X distribution</description>
+  <description>UNICORE/X distribution</description>
   <inceptionYear>2011</inceptionYear>
   <url>https://www.unicore.eu</url>
 
   <name>Distribution of the UNICORE/X server</name>
-
-  <!-- this is the "release" version -->
-  <version>${specification.version}</version>
 
   <parent>
     <groupId>eu.unicore</groupId>
@@ -22,7 +19,7 @@
 
   <properties>
     <!-- package version and release index -->
-    <package.version>${project.version}</package.version>
+    <package.version>${specification.version}</package.version>
     <package.release>1</package.release>
     <!-- this is the UNICORE/X version we are packaging -->
     <ux.version>${project.parent.version}</ux.version>
