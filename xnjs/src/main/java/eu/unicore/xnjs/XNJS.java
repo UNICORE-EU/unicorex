@@ -100,12 +100,6 @@ public class XNJS implements UpdateableConfiguration {
 		properties = configSource.getProperties();
 		baseProperties = new XNJSProperties(properties);
 		persistenceProperties = new PersistenceProperties(properties);
-		String stateDir=baseProperties.getValue(XNJSProperties.STATEDIR);
-		if(stateDir!=null){
-			logger.warn("Deprecated property <XNJS.statedir> found, please use <persistence.directory> instead!");
-			persistenceProperties.setProperty(PersistenceProperties.DB_DIRECTORY+".JOBS", stateDir);
-			persistenceProperties.setProperty(PersistenceProperties.DB_DIRECTORY+".FINISHED_JOBS", stateDir);
-		}
 		ioProperties = new IOProperties(properties);
 		es=Executors.newScheduledThreadPool(1,
 				new ThreadFactory() {

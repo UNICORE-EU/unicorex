@@ -145,7 +145,7 @@ public class Execution extends BasicExecution {
 					job.addLogTrace("Command is: "+tsiCmd);
 				}
 				if(res.contains("TSI_FAILED")){
-					job.addLogTrace("TSI reply: FAILED.");
+					job.addLogTrace("Submission attempt failed: "+res);
 					throw new TSIProblem(tsiHost, ErrorCode.ERR_TSI_EXECUTION, res, null);
 				}
 			}
@@ -179,8 +179,8 @@ public class Execution extends BasicExecution {
 			jobExecLogger.debug(msg);
 			job.addLogTrace(msg);
 		}catch(Exception ex){
-			jobExecLogger.error("Error submitting job.",ex);
-			throw new ExecutionException(ex);
+			Log.logException("Error submitting job", ex, jobExecLogger);
+			throw ExecutionException.wrapped(ex);
 		}finally{
 			if(locked)lock.unlock();
 		}

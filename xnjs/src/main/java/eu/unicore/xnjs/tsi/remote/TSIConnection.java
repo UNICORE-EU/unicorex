@@ -19,6 +19,7 @@ import javax.net.ssl.SSLSocket;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
+import eu.unicore.util.Log;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
@@ -169,26 +170,18 @@ public class TSIConnection implements AutoCloseable {
 	}
 
 	/**
-	 * Test the TSIConnection<p/>
+	 * Check if TSIConnection is OK. will also check the general state
+	 * of the parent {@link TSIConnector}, and only if that is fine, it
+	 * will run a "ping" to check if this connection is alive <p/>
 	 * 
-	 * @return true if the connection is still alive, false otherwise.
-	 * 
+	 * @return <code>true</code> if the connection is OK, <code>false</code> otherwise.
 	 */
 	public boolean isAlive() {
-		return command != null && command.isAlive();
+		return connector.isOK() && command.isAlive();
 	}
 
 	private boolean shutDown = false;
 
-
-	private void done() {
-		idLine = "";
-		if(shutDown){
-			return;
-		}
-		factory.done(this);
-	}
-	
 	public void markTSINodeUnavailable(String message) {
 		connector.notOK(message);
 	}
@@ -204,7 +197,11 @@ public class TSIConnection implements AutoCloseable {
 	 */
 	@Override
 	public void close() {
-		done();
+		idLine = "";
+		if(shutDown){
+			return;
+		}
+		factory.done(this);
 	}
 	
 	/**
@@ -294,8 +291,9 @@ public class TSIConnection implements AutoCloseable {
 
 		private boolean checkAlive = true;
 
-		public Command(Socket s) throws IOException {
-			socket = s;
+		@SuppressWarnings("resource")
+		public Command(Socket socket) throws IOException {
+			this.socket = socket;
 			try {
 				// build formatted command IO streams on the socket
 				input = new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));
@@ -330,9 +328,10 @@ public class TSIConnection implements AutoCloseable {
 			// (e.g. in file names) 
 			String[] forbidden = new String[] {"ENDOFMESSAGE", "#TSI_IDENTITY"};
 			for(String s: forbidden) {
-				if (data.indexOf(s) > -1)
-					throw new IOException(
-							"TSI message or user data contains '"+s+"', this is not allowed");
+				if (data.indexOf(s) > -1) {
+					throw new IOException("TSI message or user data contains '"+s+
+							"', this is not allowed");
+				}
 			}
 			try {
 				logger.debug("--> [{}] {}", idLine, data);
@@ -342,28 +341,32 @@ public class TSIConnection implements AutoCloseable {
 				}
 				output.print("\nENDOFMESSAGE\n");
 				output.flush();
-			} catch (Exception ex) {
+			} catch (Exception e) {
 				shutdown();
-				connector.notOK("Error sending request: "+ex.getMessage());
-				IOException ioex = new IOException(
-						"Failure sending data to the TSI <"+connector.getHostname()+">");
-				ioex.initCause(ex);
-				throw ioex;
+				String msg = Log.getDetailMessage(e);
+				connector.notOK(msg);
+				throw new IOException("Failure sending request to TSI <" +
+						connector.getHostname()+">: "+msg);
 			}
 			try{
 				// and wait for the reply
 				String line = input.readLine();
+				if(line==null) {
+					throw new IOException("Unexpected end of stream");
+				}
 				while (!line.equals("ENDOFMESSAGE")) {
 					reply.append(line).append("\n");
 					line = input.readLine();
+					if(line==null) {
+						throw new IOException("Unexpected end of stream");
+					}
 				}
 			}catch(Exception e){
 				shutdown();
-				connector.notOK("Error reading reply data: "+e.getMessage());
-				IOException ioex = new IOException(
-						"Failure reading reply data from the TSI <"+connector.getHostname()+">");
-				ioex.initCause(e);
-				throw ioex;
+				String msg = Log.getDetailMessage(e);
+				connector.notOK(msg);
+				throw new IOException("Failure reading reply from TSI <" +
+						connector.getHostname()+">: "+msg);
 			}
 			logger.debug("<-- {}", reply);
 			return reply.toString();
@@ -383,13 +386,8 @@ public class TSIConnection implements AutoCloseable {
 			return reply;
 		}
 
-		/**
-		 * Command from somewhere to kill this channel
-		 */
 		public void close() {
-			IOUtils.closeQuietly(input);
-			IOUtils.closeQuietly(output);
-			IOUtils.closeQuietly(socket);
+			IOUtils.closeQuietly(input, output, socket);
 		}
 
 		/**
@@ -445,16 +443,14 @@ public class TSIConnection implements AutoCloseable {
 
 		private final InputStream input;
 
-		public Data(Socket s) throws IOException {
-
-			socket = s;
-
+		public Data(Socket socket) throws IOException {
+			this.socket = socket;
 			try {
 				// build unformatted data IO streams on the socket
-				input = new BufferedInputStream(s.getInputStream(), 65536);
-				output = new BufferedOutputStream(s.getOutputStream(), 65536);
+				input = new BufferedInputStream(socket.getInputStream(), 65536);
+				output = new BufferedOutputStream(socket.getOutputStream(), 65536);
 			} catch (IOException ex) {
-				IOUtils.closeQuietly(s);
+				IOUtils.closeQuietly(socket);
 				throw ex;
 			}
 		}
@@ -474,9 +470,7 @@ public class TSIConnection implements AutoCloseable {
 		}
 
 		// Get a number of bytes from the TSI
-		public void getData(byte[] buffer, int offset, int number)
-				throws IOException {
-
+		public void getData(byte[] buffer, int offset, int number) throws IOException {
 			try {
 				int read = 0;
 				while (read < number) {
@@ -491,13 +485,8 @@ public class TSIConnection implements AutoCloseable {
 			return;
 		}
 
-		/**
-		 * closes this channel
-		 */
 		public void close() {
-			IOUtils.closeQuietly(input);
-			IOUtils.closeQuietly(output);
-			IOUtils.closeQuietly(socket);;
+			IOUtils.closeQuietly(input, output, socket);;
 		}
 
 		public String toString(){

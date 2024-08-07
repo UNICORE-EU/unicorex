@@ -35,7 +35,7 @@ public class TSSAsynchInitialisation extends AsynchActionWithCallback<TargetSyst
 	public void taskFailed(TargetSystemImpl resource, RuntimeException ex) {
 		String msg = Log.createFaultMessage("Failed init/update of TSS "+resource.getUniqueID(), ex);
 		resource.setResourceStatus(ResourceStatus.ERROR);
-		resource.setStatusMessage(msg);
+		resource.setResourceStatusMessage(msg);
 		log.error("Failed init/update of TSS {}", resource.getUniqueID(),ex);
 	}
 }

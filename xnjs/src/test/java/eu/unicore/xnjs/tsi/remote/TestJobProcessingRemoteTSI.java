@@ -154,7 +154,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		a.setClient(c);
 		c.setXlogin(new Xlogin(new String[] {"nobody"}));
 		final String id=a.getUUID();
-		xnjs.get(IExecutionContextManager.class).getContext(a);
+		xnjs.get(IExecutionContextManager.class).initialiseContext(a);
 		a.getExecutionContext().setRunOnLoginNode(true);
 		mgr.add(a,c);
 		waitUntilReady(id);
@@ -163,7 +163,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 				try{
 					Action a1 = mgr.getAction(id);
 					final String wd=a1.getExecutionContext().getWorkingDirectory();
-					System.out.println("Sccript running in "+wd);
+					System.out.println("Script running in "+wd);
 					File pidFile=new File(wd, a1.getExecutionContext().getPIDFileName());
 					assertTrue(pidFile.exists());
 					pid=IOUtils.readFile(pidFile);

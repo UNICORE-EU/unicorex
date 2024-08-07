@@ -156,9 +156,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		model.supportsReservation=XNJSFacade.get(xnjsReference, kernel).supportsReservation();
 		model.umask = XNJSFacade.get(xnjsReference, kernel).getDefaultUmask();
 		createAdditionalStorages();
-
-		setStatusMessage("OK");
-		
+		setResourceStatusMessage("OK");
 		Map<String,String> desc = initobjs.extraParameters;
 		List<Runnable>initTasks = getInitTasks(desc);
 		kernel.getContainerProperties().getThreadingServices().getScheduledExecutorService().schedule(

@@ -21,24 +21,15 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;
 
 /**
- * a WS-Resource representing a File transfer<br/>
- * 
+ * A file transfer resource <br/>
+ *
  * this class must be extended to support a specific protocol
- *  
+ *
  * @author schuller
  */
 public abstract class FileTransferImpl extends BaseResourceImpl implements DataResource {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA,FileTransferImpl.class);
-
-	/**
-	 * Configuration key: maps protocol to implementation class.
-	 * For example, the config entry 
-	 * "uas.filetransfer.protocol.HTTP=my.class.for.http" 
-	 * will map the given class to the HTTP protocol.
-	 * The class must extend {@link FileTransferImpl}
-	 */
-	public static final String CONFIG_PROTOCOL_KEY="uas.filetransfer.protocol.";
 
 	public FileTransferImpl(){
 		super();
@@ -48,16 +39,14 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	public FileTransferModel getModel(){
 		return (FileTransferModel)model;
 	}
-	
+
 	@Override
 	public void initialise(InitParameters initP) throws Exception{
 		if(model==null){
 			setModel(new FileTransferModel());
 		}
 		FiletransferInitParameters map = (FiletransferInitParameters)initP;
-		
 		FileTransferModel m = getModel();
-		
 		super.initialise(map);
 		String rawsource=map.source;
 		String rawtarget=map.target;
@@ -148,20 +137,6 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 		return getStorageAdapter().getOutputStream(getModel().getTarget(),append);
 	}
 
-	/**
-	 * encode some characters that are illegal in URIs
-	 * @param orig
-	 * @return encoded string
-	 */
-	public static String urlEncode(String orig){
-		try{
-			return orig.replaceAll(" ", "%20");
-		}catch(Exception e){
-			logger.error(e);
-			return orig;
-		}
-	}
-
 	protected URI toURI(String path)throws URISyntaxException{
 		return new URI(path);
 	}
@@ -184,24 +159,21 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	public String toString(){
 		FileTransferModel m = getModel();
 		StringBuilder sb=new StringBuilder();
+		sb.append("<").append(getUniqueID()).append(">");
+		sb.append(m.isExport? " export" : " import");
 		if(m.getSource()!=null){
 			sb.append(" from '").append(m.source).append("'");
 		}
 		if(m.getTarget()!=null){
 			sb.append(" to '").append(m.target).append("'");
 		}
-
 		Client cl=getClient();
-		
 		if(cl!=null && cl.getDistinguishedName()!=null){
-			sb.append(" for ").append(cl.getDistinguishedName());
+			sb.append(" for <").append(cl.getDistinguishedName()).append(">");
 		}
 		sb.append(" protocol=").append(m.protocol);
-		sb.append(" isExport=").append(m.isExport);
 		sb.append(" overwrite=").append(m.overWrite);
-		sb.append(" workdir=").append(m.workdir);
-		sb.append(" myID=").append(getUniqueID());
-
+		sb.append(" workdir=<").append(m.workdir).append(">");
 		return sb.toString();
 	}
 

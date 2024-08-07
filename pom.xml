@@ -12,17 +12,8 @@
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicore-parent</artifactId>
-    <version>2.3</version>
+    <version>3.0.1</version>
   </parent>
-
-  <!-- TBD remove once everything is on Central-->
-  <repositories>
-    <repository>
-      <id>unicore.eu</id>
-      <name>UNICORE repository</name>
-      <url>https://unicore-dev.zam.kfa-juelich.de/maven</url>
-    </repository>
-  </repositories>
 
   <scm>
     <connection>scm:git:git://github.com/UNICORE-EU/unicorex.git</connection>
@@ -41,11 +32,11 @@
     <specification.version>10.1.0</specification.version>
 
     <compiler.fork>false</compiler.fork>
-    <use.version>5.0.2</use.version>
-    <secutils.version>4.1.0</secutils.version>
+    <use.version>5.1.0</use.version>
+    <secutils.version>4.1.1</secutils.version>
     <persistence.version>1.1.0</persistence.version>
     <metrics.version>4.2.26</metrics.version>
-    <uftp.version>2.20.0</uftp.version>
+    <uftp.version>2.20.1</uftp.version>
     <guice.version>7.0.0</guice.version>
     <guava.version>33.2.1-jre</guava.version>
     <json.version>20240303</json.version>
@@ -53,6 +44,7 @@
     <tika.version>2.9.2</tika.version>
     <commons-io.version>2.16.1</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
+    <bc.version>1.78.1</bc.version> 
   </properties>
 
   <modules>
@@ -92,6 +84,21 @@
 	<groupId>eu.unicore.security</groupId>
 	<artifactId>secutils-cxf</artifactId>
 	<version>${secutils.version}</version>
+      </dependency>
+      <dependency>
+	<groupId>org.bouncycastle</groupId>
+	<artifactId>bcprov-jdk18on</artifactId>
+	<version>${bc.version}</version>
+      </dependency>
+      <dependency>
+	<groupId>org.bouncycastle</groupId>
+	<artifactId>bcpkix-jdk18on</artifactId>
+	<version>${bc.version}</version>
+      </dependency>
+      <dependency>
+	<groupId>org.bouncycastle</groupId>
+	<artifactId>bcmail-jdk18on</artifactId>
+	<version>${bc.version}</version>
       </dependency>
       <dependency>
 	<groupId>eu.unicore.services</groupId>

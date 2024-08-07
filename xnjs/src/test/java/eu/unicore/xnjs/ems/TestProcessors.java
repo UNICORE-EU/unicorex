@@ -38,9 +38,8 @@ public class TestProcessors extends XNJSTestBase {
 		Client c=new Client();
 		c.setAnonymousClient();
 		a.setClient(c);
-		ExecutionContext ec = new ExecutionContext();
+		ExecutionContext ec = a.getExecutionContext();
 		ec.setExecutable("test.exe");
-		a.setExecutionContext(ec);
 		a.setResult(new ActionResult(ActionResult.SUCCESSFUL));
 		return a;
 	}

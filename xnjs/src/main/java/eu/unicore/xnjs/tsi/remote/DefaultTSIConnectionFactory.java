@@ -88,27 +88,19 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	// get a live connection to the preferred host, or null if none available
-	protected TSIConnection getFromPool(String preferredHost){
-		TSIConnection conn;
-		while(true) {
-			conn = doGetFromPool(preferredHost);
-			if(conn==null || conn.isAlive()) break;
-			log.debug("Removing connection {}", conn.getConnectionID());
-			conn.shutdown();
-		}
-		return conn;
-	}
-
-	// get a connection to the preferred host, or null if none available
-	private TSIConnection doGetFromPool(String preferredHost) {
+	private TSIConnection getFromPool(String preferredHost){
 		TSIConnection conn = null;
 		List<String>candidates = getTSIHostNames(preferredHost);
 		synchronized(pool){
 			for(String host: candidates) {
 				List<TSIConnection> connections = getOrCreateConnectionList(host);
-				if(connections.size()>0) {
+				while(connections.size()>0) {
 					conn = connections.remove(0);
-					break;
+					if(!conn.isAlive()) {
+						log.debug("Removing connection {}", conn.getConnectionID());
+						conn.shutdown();
+					}
+					else break;
 				}
 			}	
 		}
@@ -126,8 +118,8 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}
 		return actualHost.equals(preferredHost) || actualHost.startsWith(preferredHost+".");
 	}
-	
-	
+
+
 	@Override
 	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
 			throws TSIUnavailableException{
@@ -152,36 +144,22 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 
 	// index of last used TSI connector
-	private int pos=0;
+	private RollingIndex pos = null;
 
 	private TSIConnection doCreate() throws TSIUnavailableException {
-		Exception lastException=null;
-		//try all configured TSI hosts at least once
+		// try all configured TSI hosts at least once
 		TSIConnector[]conns = connectors.values().toArray(
 				new TSIConnector[connectors.size()]);
-		if(pos>conns.length)pos=0;
 		for(int i=0;i<conns.length;i++){
-			TSIConnector c = conns[pos];
-			pos++;
-			if(pos>=conns.length)pos=0;
-
-			//and try to make a connection
+			TSIConnector c = conns[pos.next()];
 			try{
 				return c.createNewTSIConnection(server);
 			}catch(Exception ex){
 				log.debug("{} is not available: {}", c, ex.getMessage());
-				lastException=ex;
 			}
 		}
-		//no luck, all TSIs are unavailable
-		String msg;
-		if(conns.length>1){
-			msg = Log.createFaultMessage("None of the configured TSIs is available.",lastException);
-		}
-		else{
-			msg = Log.createFaultMessage("TSI unavailable", lastException);
-		}
-		throw new TSIUnavailableException(msg);
+		// all TSIs are unavailable
+		throw new TSIUnavailableException();
 	}
 
 	private List<String> getTSIHostNames(String preferredHost) {
@@ -208,7 +186,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		if(candidates.size()>1)Collections.shuffle(candidates);
 		return candidates;
 	}
-	
+
 	private TSIConnector getConnector(String preferredHost) {
 		List<String>candidates = getTSIHostNames(preferredHost);
 		TSIConnector connector = null;
@@ -220,13 +198,13 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			throw new IllegalArgumentException("No TSI is configured at '"+preferredHost+"'");
 		}
 		return connector;
-		
+
 	}
-	
+
 	private TSIConnection doCreate(String preferredHost) throws TSIUnavailableException {
 		List<String>candidates = getTSIHostNames(preferredHost);
 		Exception lastException = null;
-		//try all matching TSI hosts at least once
+		// try all matching TSI hosts at least once
 		for(String name: candidates){
 			TSIConnector c = connectors.get(name);
 			try{
@@ -236,7 +214,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 				lastException=ex;
 			}
 		}
-		//no luck, all TSIs are unavailable
+		// all TSIs are unavailable
 		String msg;
 		if(connectors.size()>1){
 			msg = Log.createFaultMessage("None of the requested TSIs is available.",lastException);
@@ -249,23 +227,19 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	@Override
 	public void done(TSIConnection connection){
-		try{
-			if(connection!=null && !connection.isShutdown()){
-				connection.endUse();
-				String name = connection.getTSIHostName();
-				synchronized (pool){
-					AtomicInteger count = connectionCounter.get(name);
-					if(count.get()<keepConnections){
-						getOrCreateConnectionList(name).add(connection);
-						count.incrementAndGet();
-					}
-					else{
-						connection.shutdown();
-					}
+		if(connection!=null && !connection.isShutdown()){
+			connection.endUse();
+			String name = connection.getTSIHostName();
+			synchronized (pool){
+				AtomicInteger count = connectionCounter.get(name);
+				if(count.get()<keepConnections){
+					getOrCreateConnectionList(name).add(connection);
+					count.incrementAndGet();
+				}
+				else{
+					connection.shutdown();
 				}
 			}
-		}catch(Exception ex){
-			log.error(ex);
 		}
 	}
 
@@ -309,7 +283,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			xnjs.get(IExecution.class);
 		}catch(Exception ex) {}
 	}
-	
+
 	protected void configure() throws ConfigurationException {
 		try {
 			if(server==null) {
@@ -340,6 +314,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			machineSpec.append(", XNJS listens on port ").append(tsiProperties.getTSIMyPort());
 			tsiDescription = machineSpec.toString();
 			keepConnections = tsiProperties.getIntValue(TSIProperties.TSI_POOL_SIZE);
+			pos = new RollingIndex(connectors.size());
 		}catch(Exception ex) {
 			throw new ConfigurationException("Error (re-)configuring remote TSI connector.",ex);
 		}
@@ -393,7 +368,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		StringBuilder sb=new StringBuilder();
 		int numOK = 0;
 		int numTotal = connectors.size();
-		
+
 		for(String h: connectors.keySet()){
 			try(TSIConnection conn = getTSIConnection("nobody", null, h, -1)){
 				String version = conn.getTSIVersion();
@@ -457,7 +432,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	TSISocketFactory getTSISocketFactory() {
 		return server;
 	}
-	
+
 	@Override
 	public SocketChannel connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
 			throws TSIUnavailableException, IOException{
@@ -493,4 +468,17 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		configure();
 	}
 
+	public static class RollingIndex {
+		private final int max;
+		private int count = -1; // want to start at zero
+
+		public RollingIndex(int max) {
+			this.max = max;
+		}
+
+		public synchronized int next() {
+			count = (count + 1) % max;
+			return count;
+		}
+	}
 }

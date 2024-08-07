@@ -251,16 +251,11 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 		pc.put(JSONSweepInstanceProcessor.SWEEP_PARENT_JOB_USPACE_KEY,
 				action.getExecutionContext().getWorkingDirectory());
 
-		ExecutionContext ec=new ExecutionContext();
-		subAction.setExecutionContext(ec);
-
-		String base=action.getExecutionContext().getWorkingDirectory();
-		String uspace=ecm.createUSpace(subAction, base);
-
+		ExecutionContext ec = subAction.getExecutionContext();
+		String base = action.getExecutionContext().getWorkingDirectory();
+		String uspace = ecm.createUSpace(subAction, base);
 		ec.setWorkingDirectory(uspace);
-
-		String id=(String)manager.addInternalAction(subAction);
-		return id;
+		return (String)manager.addInternalAction(subAction);
 	}
 
 }

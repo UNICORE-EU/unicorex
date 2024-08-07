@@ -64,7 +64,7 @@ public class Action implements Serializable {
 	private ProcessingContext processingContext = new ProcessingContext();
 
 	//the context during execution
-	private ExecutionContext executionContext;
+	private ExecutionContext executionContext = new ExecutionContext();
 
 	//the application information
 	private ApplicationInfo applicationInfo;
@@ -280,10 +280,6 @@ public class Action implements Serializable {
 
 	public ExecutionContext getExecutionContext() {
 		return executionContext;
-	}
-
-	public void setExecutionContext(ExecutionContext executionContext) {
-		this.executionContext = executionContext;
 	}
 
 	public ApplicationInfo getApplicationInfo() {

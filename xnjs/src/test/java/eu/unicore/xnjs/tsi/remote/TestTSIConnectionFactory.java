@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
+import eu.unicore.xnjs.tsi.remote.DefaultTSIConnectionFactory.RollingIndex;
 
 public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	
@@ -148,6 +149,14 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		System.out.println(f.getConnectionStatus());
 	}
 
+	@Test
+	public void testRollingIndex() {
+		var index = new RollingIndex(3);
+		var exp = new int[] {0, 1, 2, 0};
+		for(int i = 0; i<4; i++) {
+			assertEquals(exp[i], index.next());
+		}
+	}
 	@Override
 	protected void addProperties(ConfigurationSource cs){
 		super.addProperties(cs);

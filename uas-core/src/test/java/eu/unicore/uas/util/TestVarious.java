@@ -18,7 +18,6 @@ import eu.unicore.services.Capabilities;
 import eu.unicore.services.Capability;
 import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UASProperties;
-import eu.unicore.uas.fts.FileTransferImpl;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.SMSUtils;
 import eu.unicore.uas.impl.sms.StorageDescription;
@@ -93,16 +92,8 @@ public class TestVarious {
 			assertEquals(names[i],filename);
 		}
 	}
-
-	@Test
-	public void testURLEncoding()throws Exception{
-		String file="/a test file";
-		String e=FileTransferImpl.urlEncode(file);
-		String d=SMSUtils.urlDecode(e);
-		assertEquals(file, d);
-	}
 	
-	public void testURLEncoding2()throws Exception{
+	public void testURLEncoding1()throws Exception{
 		String file="/a test file";
 		String e=SMSUtils.urlEncode(file);
 		String d=SMSUtils.urlDecode(e);
@@ -112,7 +103,7 @@ public class TestVarious {
 	}
 
 	@Test
-	public void testURLEncoding3()throws Exception{
+	public void testURLEncoding2()throws Exception{
 		String file="http://www.w3.org/People/Dürst/";
 		String e=SMSUtils.urlEncode(file);
 		System.out.println(e);
@@ -131,19 +122,7 @@ public class TestVarious {
 	}
 
 	@Test
-	public void testURLEncodingTrailingEscape()throws Exception{
-		String test="%";
-		System.out.println(URLEncoder.encode(test, "UTF-8"));
-		String file="/file%~";
-		String e=FileTransferImpl.urlEncode(file);
-		System.out.println(e);
-		String d=SMSUtils.urlDecode(e);
-		System.out.println(d);
-		assertEquals(file, d);
-	}
-
-	@Test
-	public void testURLEncodingTrailingEscape2()throws Exception{
+	public void testURLEncodingTrailingEscape1()throws Exception{
 		String test="%";
 		System.out.println(URLEncoder.encode(test, "UTF-8"));
 		String file="/file%~";

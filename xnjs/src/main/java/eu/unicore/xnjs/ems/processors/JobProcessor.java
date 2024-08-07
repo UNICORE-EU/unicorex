@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import com.codahale.metrics.Histogram;
 
 import eu.unicore.security.Client;
+import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.XNJSConstants;
 import eu.unicore.xnjs.ems.Action;
@@ -44,8 +45,9 @@ import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
- * abstract processor for JSDL-like actions, including pre-run, staging, post-run, etc
- * 
+ * Base processor for UNICORE jobs<br/>
+ * Handles just about everything, except parsing the job description.
+ *
  * @param T - the type containing the job description
  * 
  * @author schuller
@@ -70,6 +72,9 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	private static final String TIME_START_POST= "_TIME_START_POST";
 	private static final String TIME_START_STAGEOUT="_TIME_START_STAGEOUT";
 	private static final String TIME_END = "_TIME_END";
+
+	// for re-trying to create the job directory
+	private static final String USPACE_CREATE_ATTEMPTS = "_USPACE_CREATE_ATTEMPTS";
 
 	/**
 	 * the execution interface
@@ -134,9 +139,16 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 */
 	protected void handleCreated()throws ExecutionException{
 		try{
-			storeTimeStamp(TIME_START);
-			setupNotifications();
-			ecm.createUSpace(action);
+			if(getTimeStamp(TIME_START)==null) {
+				storeTimeStamp(TIME_START);
+				setupNotifications();
+			}
+			boolean ok = createJobDirectory();
+			if(!ok) {
+				// wait a bit and re-try
+				sleep(5, TimeUnit.SECONDS);
+				return;
+			}
 			action.addLogTrace("Created job directory <"+
 					action.getExecutionContext().getWorkingDirectory()+">");
 			if(isEmptyJob()){
@@ -160,6 +172,36 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			action.addLogTrace(msg);
 			throw ExecutionException.wrapped(ex);
 		}
+	}
+
+	/*
+	 * Create the job working directory. Handles repeated attempts to
+	 * do this in case of errors
+	 *
+	 * @return <code>true</code> if action should continue,
+	 *     <code>false</code> if action should re-try after a pause
+	 * @throws ExecutionException if giving up after too many attempts
+	 */
+	protected boolean createJobDirectory() throws ExecutionException {
+		try{
+			ecm.createUSpace(action);
+			return true;
+		}catch(ExecutionException e) {
+			// track number of attempts
+			Integer attempts =(Integer)action.getProcessingContext().get(USPACE_CREATE_ATTEMPTS);
+			if(attempts==null)attempts = Integer.valueOf(0);
+			attempts++;
+			action.getProcessingContext().put(USPACE_CREATE_ATTEMPTS, attempts);
+			String msg = Log.createFaultMessage("Problem creating working directory", e);
+			if(attempts<3) {
+				action.addLogTrace(msg+". Re-trying.");
+			}
+			else {
+				action.addLogTrace(msg+". Giving up.");
+				throw ExecutionException.wrapped(e);
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -504,7 +546,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			action.addLogTrace("Submit attempt "+submitCount+" (of "+maxSubmitCount+") failed: "+ex.getMessage());
 
 			pauseExecution(xnjs.getXNJSProperties().getResubmitDelay(), TimeUnit.SECONDS);
-
 		}	
 		catch(TSIBusyException tbe){
 			//no problem, will retry
@@ -803,7 +844,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		if(appDescription.getStderr()!=null)ec.setStderr(appDescription.getStderr());
 		if(appDescription.getStdin()!=null)ec.setStdin(appDescription.getStdin());
 
-		HashMap<String,String>map=ec.getEnvironment();
+		Map<String,String>map = ec.getEnvironment();
 		map.putAll(appDescription.getEnvironment());
 
 		IDB idb = xnjs.get(IDB.class);

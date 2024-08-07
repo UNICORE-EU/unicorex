@@ -58,11 +58,15 @@ public class ExecutionException extends Exception {
 	@Override
 	public String getMessage() {
 		StringBuilder sb = new StringBuilder();
+		boolean haveMessage = false;
 		if(super.getMessage()!=null) {
 			sb.append(super.getMessage());
-			sb.append(" ");
+			haveMessage = true;
 		}
 		if(errorCode>-1) {
+			if(!haveMessage) {
+				sb.append(" ");
+			}
 			sb.append(ErrorCode.toString(errorCode));
 		}
 		return sb.toString();

@@ -70,7 +70,7 @@ public class BasicManager implements Manager, InternalManager {
 			action.setClient(client);
 			action.addLogTrace("Client: "+client);
 		}
-		ecm.getContext(action);
+		ecm.initialiseContext(action);
 		jobs.put(action.getUUID(),action);
 		if(!action.isWaiting()){
 			dispatcher.process(action.getUUID());
@@ -296,7 +296,7 @@ public class BasicManager implements Manager, InternalManager {
 		soa.setClient(parentAction.getClient());
 		soa.setAjd(jobDescription);
 		soa.setProcessingContext(parentAction.getProcessingContext());
-		ecm.createChildContext(parentAction,soa);
+		ecm.initialiseChildContext(parentAction,soa);
 		ApplicationInfo childAppInfo=new ApplicationInfo();
 		soa.setApplicationInfo(childAppInfo);
 		addInternalAction(soa);

@@ -72,8 +72,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 	@Override
 	protected void extractFromJobDescription()throws ExecutionException{
 		Incarnation grounder = xnjs.get(Incarnation.class);
-		Client client=action.getClient();
-		ecm.getContext(action);
+		Client client = action.getClient();
 		try{
 			JSONObject jd = getJobDescriptionDocument();
 			ApplicationInfo fromUser = JSONParser.parseSubmittedApplication(jd);

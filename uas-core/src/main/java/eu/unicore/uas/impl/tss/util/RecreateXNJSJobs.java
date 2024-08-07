@@ -108,7 +108,7 @@ public class RecreateXNJSJobs implements Runnable{
 				"Job was lost and restored during server restart."));
 		a.setAjd((Serializable)"{}");
 		XNJS xnjs=XNJSFacade.get(xnjsReference, kernel).getXNJS();
-		xnjs.get(IExecutionContextManager.class).getContext(a);
+		xnjs.get(IExecutionContextManager.class).initialiseContext(a);
 		xnjs.get(Manager.class).add(a, client);
 	}
 

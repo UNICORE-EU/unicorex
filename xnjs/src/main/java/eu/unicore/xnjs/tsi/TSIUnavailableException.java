@@ -11,7 +11,7 @@ public class TSIUnavailableException extends ExecutionException {
 	private static final long serialVersionUID = 1L;
 
 	public TSIUnavailableException() {
-		super(ErrorCode.ERR_TSI_UNAVAILABLE, "TSI unavailable");
+		super(ErrorCode.ERR_TSI_UNAVAILABLE, null);
 	}
 
 	public TSIUnavailableException(String message) {

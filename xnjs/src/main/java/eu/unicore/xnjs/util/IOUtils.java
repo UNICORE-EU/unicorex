@@ -91,7 +91,6 @@ public class IOUtils {
 		if(isNonUnix()){
 			return getRelativePathListNonUnix(f,root);
 		}
-
 		//cut off a possible trailing "/"
 		if(root.length()!=1 && root.endsWith("/")){
 			root=root.substring(0, root.lastIndexOf('/'));
@@ -100,8 +99,7 @@ public class IOUtils {
 		while(root.contains("//")){
 			root=root.replace("//", "/");
 		} 
-
-		List<String> l = new ArrayList<String>();
+		List<String> l = new ArrayList<>();
 		File r=f;
 		int skip=0;
 		try{
@@ -202,14 +200,10 @@ public class IOUtils {
 	}
 
 	public static String readFile(File file)throws IOException{
-		FileInputStream fis=new FileInputStream(file);
 		ByteArrayOutputStream os=new ByteArrayOutputStream();
-		try{
+		try(FileInputStream fis=new FileInputStream(file);){
 			copy(fis,os,128*1024);
 			return os.toString();
-		}
-		finally{
-			fis.close();
 		}
 	}
 

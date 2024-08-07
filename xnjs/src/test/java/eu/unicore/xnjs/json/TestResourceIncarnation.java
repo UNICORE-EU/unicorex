@@ -268,12 +268,11 @@ public class TestResourceIncarnation {
 		request.add(new ResourceRequest(ResourceSet.NODES, "1"));
 		request.add(new ResourceRequest(ResourceSet.CPUS_PER_NODE, "${2*SCALE}"));
 		Action a = new Action();
-		ExecutionContext ec = new ExecutionContext();
+		ExecutionContext ec = a.getExecutionContext();
 		ec.getEnvironment().put("SCALE", "32");
 		ApplicationInfo app = new ApplicationInfo();
 		a.setApplicationInfo(app);
 		app.setResourceRequest(request);
-		a.setExecutionContext(ec);
 		List<ResourceRequest> testRes = g.incarnateResources(a);
 		//check correct values are available
 		int nodes = ResourceRequest.find(testRes,ResourceSet.NODES).toInt();

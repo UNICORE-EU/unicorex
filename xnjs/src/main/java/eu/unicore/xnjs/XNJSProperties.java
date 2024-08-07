@@ -32,10 +32,9 @@ public class XNJSProperties extends PropertiesHelper {
 	public static final String FILESPACE="filespace";
 	public static final String FILESPACE_UMASK="filespaceUmask";
 	public static final String DEFAULT_UMASK="defaultUmask";
-	
-	public static final String STATEDIR="statedir";
+
 	public static final String IDBFILE="idbfile";
-	
+
 	public static final String XNJSWORKERS="numberofworkers";
 
 	public static final String RESUBMIT_COUNT = "bssResubmitCount";
@@ -59,13 +58,11 @@ public class XNJSProperties extends PropertiesHelper {
 		META.put(AUTOSUBMIT_WHEN_READY, new PropertyMD("false").setBoolean().
 				setDescription("Automatically submit a job to the BSS without waiting for an explicit client start."));
 		META.put(FILESPACE, new PropertyMD().
-				setDescription("Directory on the TSI for the job directories. Must be world read/write/executable."));
+				setDescription("Base directory on the TSI for the job directories."));
 		META.put(FILESPACE_UMASK, new PropertyMD("0002").
 				setDescription("Umask to be used for creating the base directory for job directories."));
 		META.put(DEFAULT_UMASK, new PropertyMD("0027").
 				setDescription("Default umask to be used for jobs."));
-		META.put(STATEDIR, new PropertyMD().setDeprecated().
-				setDescription("Directory on the UNICORE/X machine for storing XNJS state."));
 		META.put(IDBFILE, new PropertyMD().
 				setDescription("IDB configuration.").setCanHaveSubkeys());
 		META.put(XNJSWORKERS, new PropertyMD("4").setInt().setNonNegative().

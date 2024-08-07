@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import eu.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
@@ -68,7 +69,7 @@ public class ExecutionContext implements Serializable{
 	//should non-zero exit code lead to failure?
 	private boolean ignoreExitCode;
 
-	public HashMap<String,String> getEnvironment() {
+	public Map<String,String> getEnvironment() {
 		return environment;
 	}
 	

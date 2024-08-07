@@ -20,13 +20,13 @@ import jakarta.inject.Singleton;
  */
 @Singleton
 public class LocalECManager implements IExecutionContextManager {
-	
+
 	private static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,LocalECManager.class);
-	
+
 	private final TSIFactory tsiFactory;
-	
+
 	private final XNJSProperties properties;
-	
+
 	@Inject
 	public LocalECManager(TSIFactory tsiFactory, XNJSProperties properties){
 		this.tsiFactory = tsiFactory;
@@ -34,31 +34,10 @@ public class LocalECManager implements IExecutionContextManager {
 	}
 
 	@Override
-	public ExecutionContext getContext(Action action) throws ExecutionException{
-		ExecutionContext ec = action.getExecutionContext();
-		if(ec==null){
-			ec = new ExecutionContext();
-			initContext(ec, null, false, null, action.getUmask());
-			action.setExecutionContext(ec);
-		}
-		return ec;
-	}
-	
-
-	private void initContext(ExecutionContext ec, String wd, boolean isChild, String childUID, String umask){
-		ec.setWorkingDirectory(wd);
-		if(umask==null) {
-			umask = properties.getValue(XNJSProperties.DEFAULT_UMASK);
-		}
-		ec.setUmask(umask);
-		//set some default names for the out/err files
-		if(isChild){
-			ec.setStdout("stdout-"+childUID); 
-			ec.setStderr("stderr-"+childUID);
-		}
+	public void initialiseContext(Action action) throws ExecutionException{
+		initContext(action.getExecutionContext(), null, false, null, action.getUmask());
 	}
 
-	
 	/**
 	 * Create a working directory for the given action, if it does not yet exist. 
 	 * The working directory is created in the configured location
@@ -73,8 +52,12 @@ public class LocalECManager implements IExecutionContextManager {
 		TSI targetSystem = tsiFactory.createTSI(action.getClient());
 		String uspaces = properties.getValue(XNJSProperties.FILESPACE);
 		String baseDirectory = targetSystem.resolve(uspaces);
+		String sep = targetSystem.getFileSeparator();
 		if(targetSystem.isLocal()){
 			baseDirectory = new File(baseDirectory).getAbsolutePath();
+		}
+		if(baseDirectory.endsWith(sep)) {
+			baseDirectory = baseDirectory.substring(0, baseDirectory.length()-1);
 		}
 		targetSystem.setStorageRoot(baseDirectory);
 		if(targetSystem instanceof BatchMode) {
@@ -84,9 +67,9 @@ public class LocalECManager implements IExecutionContextManager {
 		String baseUmask = properties.getValue(XNJSProperties.FILESPACE_UMASK);
 		targetSystem.setUmask(baseUmask);
 		targetSystem.mkdir("/");
-		
+
 		String wd = action.getUUID();
-		String uspace = baseDirectory+targetSystem.getFileSeparator()+wd+targetSystem.getFileSeparator();
+		String uspace = baseDirectory + sep + wd + sep;
 		if(targetSystem.getProperties(wd)==null){
 			logger.info("Creating {}", uspaceInfo(action));
 			targetSystem.setUmask(action.getUmask());
@@ -126,6 +109,9 @@ public class LocalECManager implements IExecutionContextManager {
 		if(targetSystem.isLocal()){
 			baseDirectory=new File(baseDirectory).getAbsolutePath();
 		}
+		if(baseDirectory.endsWith(targetSystem.getFileSeparator())) {
+			baseDirectory = baseDirectory.substring(0, baseDirectory.length()-1);
+		}
 		targetSystem.setStorageRoot(baseDirectory);
 		String wd=action.getUUID();
 		String uspace=baseDirectory+targetSystem.getFileSeparator()+wd+targetSystem.getFileSeparator();
@@ -141,10 +127,10 @@ public class LocalECManager implements IExecutionContextManager {
 	}
 
 	@Override
-	public ExecutionContext createChildContext(Action parentAction, Action childAction) throws ExecutionException {
-		ExecutionContext pc=getContext(parentAction);
+	public void initialiseChildContext(Action parentAction, Action childAction) throws ExecutionException {
+		ExecutionContext pc = parentAction.getExecutionContext();
 		if(pc==null) throw new IllegalStateException("Cannot create child context, parent context does not exist");
-		ExecutionContext childEc = new ExecutionContext();
+		ExecutionContext childEc = childAction.getExecutionContext();
 		String wd=pc.getWorkingDirectory();
 		String cwd=wd;
 		if(parentAction.getApplicationInfo()!=null){
@@ -152,8 +138,6 @@ public class LocalECManager implements IExecutionContextManager {
 			childEc.getEnvironment().putAll(parentAction.getApplicationInfo().getEnvironment());
 		}
 		initContext(childEc, cwd, true, childAction.getUUID(), parentAction.getUmask());
-		childAction.setExecutionContext(childEc);
-		return childEc;
 	}
 
 	@Override
@@ -165,6 +149,19 @@ public class LocalECManager implements IExecutionContextManager {
 			targetSystem.rmdir(wd);
 		}catch(Exception e){
 			throw new ExecutionException(e);
+		}
+	}
+
+	private void initContext(ExecutionContext ec, String wd, boolean isChild, String childUID, String umask){
+		ec.setWorkingDirectory(wd);
+		if(umask==null) {
+			umask = properties.getValue(XNJSProperties.DEFAULT_UMASK);
+		}
+		ec.setUmask(umask);
+		//set some default names for the out/err files
+		if(isChild){
+			ec.setStdout("stdout-"+childUID); 
+			ec.setStderr("stderr-"+childUID);
 		}
 	}
 

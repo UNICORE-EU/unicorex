@@ -14,6 +14,7 @@ public class ErrorCode {
 			return "XNJS does not accept new actions";
 		case ERR_INTERACTIVE_SUBMIT_FAILURE:
 			return "Submission to login node failed";
+		case ERR_TSI_UNAVAILABLE:
 		case ERR_TSI_COMMUNICATION:
 			return "Error communicating to the TSI";
 		case ERR_TSI_EXECUTION:

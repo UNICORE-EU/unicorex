@@ -645,19 +645,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	 * @throws ExecutionException
 	 */
 	public List<BudgetInfo> getComputeTimeBudget() throws ExecutionException {
-		String cmd = tsiMessages.makeGetBudgetCommand();
-		String res = null;
-		try{
-			res = runTSICommand(cmd);	
-			return parseGetComputeBudgetReply(res);
-		}catch(Exception ex){
-			String msg = Log.createFaultMessage("Error executing TSI_GET_COMPUTE_BUDGET", ex)
-					+" TSI reply was "+res;
-			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, msg);
-		}
-	}
-
-	private List<BudgetInfo> parseGetComputeBudgetReply(String reply)throws ExecutionException {
+		String reply = runTSICommand(tsiMessages.makeGetBudgetCommand());	
 		List<BudgetInfo> budget = new ArrayList<>();
 		BufferedReader br=new BufferedReader(new StringReader(reply+"\n"));
 
@@ -674,19 +662,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	}
 
 	public List<String> getUserPublicKeys() throws ExecutionException {
-		String cmd = tsiMessages.makeGetUserInfoCommand();
-		String res = null;
-		try{
-			res = runTSICommand(cmd);	
-			return parseGetUserInfoReply(res);
-		}catch(Exception ex){
-			String msg = Log.createFaultMessage("Error executing TSI_GET_USER_INFO", ex)
-					+" TSI reply was "+res;
-			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, msg);
-		}
-	}
-	
-	private List<String> parseGetUserInfoReply(String reply)throws ExecutionException {
+		String reply = runTSICommand(tsiMessages.makeGetUserInfoCommand());
 		List<String> result = new ArrayList<>();
 		BufferedReader br = new BufferedReader(new StringReader(reply+"\n"));
 		while(true){
