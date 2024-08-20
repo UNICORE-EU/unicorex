@@ -7,10 +7,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FilenameUtils;
@@ -39,13 +39,10 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private final XNJS xnjs;
 
-	private final Map<String, List<TSIConnection>> pool = new HashMap<>();
+	final Map<String, List<TSIConnection>> pool = new ConcurrentHashMap<>();
 
 	//count how many connections are currently alive
 	private final AtomicInteger liveConnections=new AtomicInteger(0);
-
-	// count pool content by TSI host name
-	private final Map<String,AtomicInteger> connectionCounter = new HashMap<>(); 
 
 	private final Map<String,TSIConnector> connectors = new HashMap<>();
 
@@ -87,27 +84,25 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return conn;
 	}
 
+
 	// get a live connection to the preferred host, or null if none available
 	private TSIConnection getFromPool(String preferredHost){
-		TSIConnection conn = null;
 		List<String>candidates = getTSIHostNames(preferredHost);
 		synchronized(pool){
 			for(String host: candidates) {
 				List<TSIConnection> connections = getOrCreateConnectionList(host);
 				while(connections.size()>0) {
-					conn = connections.remove(0);
+					TSIConnection conn = connections.remove(0);
 					if(!conn.isAlive()) {
-						log.debug("Removing connection {}", conn.getConnectionID());
 						conn.shutdown();
 					}
-					else break;
+					else{
+						return conn;
+					}
 				}
-			}	
+			}
 		}
-		if(conn!=null){
-			connectionCounter.get(conn.getTSIHostName()).decrementAndGet();
-		}
-		return conn;
+		return null;
 	}
 
 	public static boolean matches(String preferredHost, String actualHost) {
@@ -225,23 +220,6 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		throw new TSIUnavailableException(msg);
 	}
 
-	@Override
-	public void done(TSIConnection connection){
-		if(connection!=null && !connection.isShutdown()){
-			connection.endUse();
-			String name = connection.getTSIHostName();
-			synchronized (pool){
-				AtomicInteger count = connectionCounter.get(name);
-				if(count.get()<keepConnections){
-					getOrCreateConnectionList(name).add(connection);
-					count.incrementAndGet();
-				}
-				else{
-					connection.shutdown();
-				}
-			}
-		}
-	}
 
 	private List<TSIConnection> getOrCreateConnectionList(String hostname){
 		List<TSIConnection> connections = pool.get(hostname);
@@ -250,6 +228,23 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			pool.put(hostname, connections);
 		}
 		return connections;
+	}
+
+	@Override
+	public void done(TSIConnection connection){
+		if(connection!=null && !connection.isShutdown()){
+			connection.endUse();
+			String name = connection.getTSIHostName();
+			synchronized (pool){
+				List<TSIConnection> pooled = getOrCreateConnectionList(name);
+				if(pooled.size()<keepConnections){
+					pooled.add(connection);
+				}
+				else{
+					connection.shutdown();
+				}
+			}
+		}
 	}
 
 	//notify of connection death
@@ -296,21 +291,11 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			new TSIConfigurator(tsiProperties, this).configure(connectors, tsiHostCategories);
 			StringBuilder machineSpec = new StringBuilder();
 			for(String name: connectors.keySet()) {
-				if(connectionCounter.get(name)==null) {
-					connectionCounter.put(name, new AtomicInteger(0));
-				}
 				TSIConnector cc = connectors.get(name);
 				if(machineSpec.length()>0)machineSpec.append(",");
 				machineSpec.append(cc.getHostname());
 			}
-			machineID=machineSpec.toString();
-			Iterator<String> n = connectionCounter.keySet().iterator();
-			while(n.hasNext()) {
-				String h = n.next();
-				if(!connectors.keySet().contains(h)) {
-					n.remove();
-				}
-			}
+			machineID = machineSpec.toString();
 			machineSpec.append(", XNJS listens on port ").append(tsiProperties.getTSIMyPort());
 			tsiDescription = machineSpec.toString();
 			keepConnections = tsiProperties.getIntValue(TSIProperties.TSI_POOL_SIZE);

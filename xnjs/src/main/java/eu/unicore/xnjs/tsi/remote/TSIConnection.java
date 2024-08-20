@@ -222,7 +222,8 @@ public class TSIConnection implements AutoCloseable {
 	
 	public String toString(){
 		StringBuilder sb=new StringBuilder();
-		sb.append("TSIConnection[").append(getTSIAddress());
+		sb.append("TSIConnection[").append(getTSIHostName());
+		sb.append(" ip=").append(getTSIAddress());
 		sb.append(" ").append(command);
 		sb.append(" ").append(data);
 		sb.append("]");

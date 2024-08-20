@@ -3,8 +3,8 @@ package eu.unicore.xnjs.tsi.remote;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,19 +37,15 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		}
 		System.out.println("Connections : "+f.getLiveConnections());
 		assertEquals(8, f.getLiveConnections());
-		try{
-			// check limit is respected
-			f.getTSIConnection("nobody", null, null, -1);
-			fail("Should hit limit");
-		}catch(TSIUnavailableException te){}
-		
+		// check limit is respected
+		assertThrows(TSIUnavailableException.class, ()->
+			f.getTSIConnection("nobody", null, null, -1));
 		// put back into pool
 		for(TSIConnection c: connections){
 			c.close();
 		}
 		System.out.println("Pooled connections : "+f.getNumberOfPooledConnections());
 		assertEquals(4, f.getNumberOfPooledConnections());
-		
 	}
 	
 	@Test
