@@ -2,61 +2,20 @@ package eu.unicore.xnjs.io;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.Calendar;
 
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.xnjs.io.ACLEntry.Type;
-import eu.unicore.xnjs.io.ChangePermissions.Mode;
-import eu.unicore.xnjs.io.ChangePermissions.PermissionsClass;
 import eu.unicore.xnjs.tsi.TSI;
+import eu.unicore.xnjs.tsi.TSIProblem;
+import eu.unicore.xnjs.tsi.TSIUnavailableException;
+import eu.unicore.xnjs.util.ErrorCode;
 
 public class TestVarious {
-
-	@Test
-	public void testUnixPermissions(){
-		UNIXPermissionEntry p1=new UNIXPermissionEntry(true,"rw-");
-		UNIXPermissionEntry p2=new UNIXPermissionEntry(true,"rw-");
-		assertEquals(p1,p2);
-		assertTrue(p1.hashCode()==p2.hashCode());
-		assertFalse(p1.equals(new Object()));
-		assertFalse(p1.equals(null));
-		UNIXPermissionEntry p3=new UNIXPermissionEntry(true,"rwx");
-		assertNotSame(p1,p3);
-		assertTrue(p1.hashCode()!=p3.hashCode());
-	}
-
-	@Test
-	public void testACLEntry(){
-		ACLEntry p1=new ACLEntry(Type.USER,"foo","rwx",false);
-		ACLEntry p2=new ACLEntry(Type.USER,"foo","rwx",false);
-		assertEquals(p1,p2);
-		assertTrue(p1.hashCode()==p2.hashCode());
-		assertFalse(p1.equals(new Object()));
-		assertFalse(p1.equals(null));
-		ACLEntry p3=new ACLEntry(Type.GROUP,"bar","rwx",false);
-		assertNotSame(p1,p3);
-		assertTrue(p1.hashCode()!=p3.hashCode());
-	}
-
-	@Test
-	public void testChangePermissions(){
-		ChangePermissions p1=new ChangePermissions(Mode.ADD,PermissionsClass.GROUP,"rwx");
-		ChangePermissions p2=new ChangePermissions(Mode.ADD,PermissionsClass.GROUP,"rwx");
-		assertEquals(p1,p2);
-		assertTrue(p1.hashCode()==p2.hashCode());
-		assertFalse(p1.equals(new Object()));
-		assertFalse(p1.equals(null));
-		ChangePermissions p3=new ChangePermissions(Mode.ADD,PermissionsClass.GROUP,"rw-");
-		assertNotSame(p1,p3);
-		assertTrue(p1.hashCode()!=p3.hashCode());
-		ChangePermissions p4=new ChangePermissions(Mode.SET,PermissionsClass.OWNER,"r--");
-		assertNotSame(p1,p4);
-		assertTrue(p1.hashCode()!=p4.hashCode());
-	}
 
 	@Test
 	public void testSimpleWildcards(){
@@ -398,6 +357,26 @@ public class TestVarious {
 
 		public boolean recurse() {
 			return false;
+		}
+	}
+	
+	@Test
+	public void testTSIExceptions() {
+		try {
+			throw new TSIProblem("localhost", ErrorCode.ERR_TSI_COMMUNICATION, "Foo",
+					new IOException("No such thing"));
+		}catch(Exception e) {
+			System.out.println("TEST: "+e.toString());
+		}
+		try {
+			throw new TSIUnavailableException();
+		}catch(Exception e) {
+			System.out.println("TEST: "+e.toString());
+		}
+		try {
+			throw new TSIUnavailableException("localhost", new SocketTimeoutException());
+		}catch(Exception e) {
+			System.out.println("TEST: "+e.toString());
 		}
 	}
 }

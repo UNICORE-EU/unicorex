@@ -897,7 +897,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 						"Problem sending ACL operation to TSI server.", e);
 			}
 		}
-		if(!res.contains("TSI_OK")) {
+		if(!res.startsWith("TSI_OK")) {
 			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,
 					"ACL operation on TSI <"+lastUsedTSIHost+"> failed. Reply was " + res);
 		}
@@ -955,6 +955,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			StringBuilder cmd = new StringBuilder();
 			cmd.append(cmdBase);
 			cmd.append("#TSI_ACL_COMMAND RM_ALL").append(recStr).append("\n");
+			cmd.append("#TSI_ACL_COMMAND_SPEC NONE\n");
+
 			faclCommon(file, cmd.toString());
 		}
 

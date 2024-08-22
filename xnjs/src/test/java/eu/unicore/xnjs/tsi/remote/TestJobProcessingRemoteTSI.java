@@ -214,7 +214,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	}
 
 	@Test
-	public void testAbort() throws Exception {
+	public void testJobControl() throws Exception {
 		JSONObject job = loadJSONObject(sleep);
 		job.put("Job type", JobType.ON_LOGIN_NODE.toString());
 		Action a=xnjs.makeAction(job);
@@ -224,13 +224,19 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		String id=a.getUUID();
 		mgr.add(a,c);
 		mgr.run(id,	c);
-		Thread.sleep(2000);
+		Thread.sleep(1000);		
+		mgr.pause(id, c);
+		Thread.sleep(500);
+		mgr.resume(id, c);
+		Thread.sleep(500);
 		mgr.abort(id, c);
 		Thread.sleep(3000);
 		a = mgr.getAction(id);
 		assertDone(id);
 		assertNotSuccessful(id);
 		assertFalse(xnjs.get(IExecution.class).isBeingTracked(a));
+		assertTrue(a.getLog().toString().contains("Paused"));
+		assertTrue(a.getLog().toString().contains("Resumed"));
 	}
 
 	@Test

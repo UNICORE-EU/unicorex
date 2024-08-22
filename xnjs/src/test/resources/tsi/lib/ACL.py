@@ -53,10 +53,12 @@ import re
 from Utils import run_command, extract_parameter
 
 
-def check_support(path, acl):
+def check_support(path, acl, config):
     """ Checks if a directory is on a FS configured with ACL support.
         Returns: "POSIX" or "NFS", or "NONE" if no ACL support
     """
+    if not is_acl_active(config):
+        return "NONE"
     # FIXIT: something is wrong here
     abs_path = os.path.abspath(path)
     best_match = 0
@@ -152,18 +154,21 @@ def setfacl_posix(path, op, val, connector, config, LOG):
         connector.ok()
 
 
+def is_acl_active(config):
+    return config.get('tsi.posixacl_enabled') or config.get('tsi.nfsacl_enabled')
+
 def process_acl(message, connector, config, LOG):
     operation = extract_parameter(message, "ACL_OPERATION")
     path = extract_parameter(message, "ACL_PATH")
     acl = config.get('tsi.acl', {})
     if operation == "CHECK_SUPPORT":
-        support = check_support(path, acl)
+        support = check_support(path, acl, config)
         if support == "NONE":
             connector.ok("false")
         else:
             connector.ok("true")
     elif operation == "GETFACL":
-        support = check_support(path, acl)
+        support = check_support(path, acl, config)
         if support == "POSIX":
             getfacl_posix(path, connector, config, LOG)
         elif support == "NFS":
@@ -172,13 +177,15 @@ def process_acl(message, connector, config, LOG):
             connector.failed(
                 "ERROR: Getting ACL on this file system is unsupported.")
     elif operation == "SETFACL":
-        support = check_support(path, acl)
+        support = check_support(path, acl, config)
         command = extract_parameter(message, "ACL_COMMAND")
         command_spec = extract_parameter(message, "ACL_COMMAND_SPEC")
         if command_spec is None:
             connector.failed("Missing parameter TSI_ACL_COMMAND_SPEC")
+            return
         if command is None:
             connector.failed("Missing parameter TSI_ACL_COMMAND")
+            return
         if support == "POSIX":
             setfacl_posix(path, command, command_spec, connector, config, LOG)
         elif support == "NFS":

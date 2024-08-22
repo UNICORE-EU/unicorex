@@ -981,6 +981,28 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	@Override
+	protected void handlePausing() throws ExecutionException {
+		try{
+			exec.pause(action);
+			action.addLogTrace("Paused.");
+		}catch(Exception ex){
+			action.addLogTrace(LogUtil.createFaultMessage("Could not pause action on BSS", ex));
+		}
+		super.handlePausing();
+	}
+	
+	@Override
+	protected void handleResuming() throws ExecutionException {
+		try{
+			exec.resume(action);
+			action.addLogTrace("Resumed.");
+		}catch(Exception ex){
+			action.addLogTrace(LogUtil.createFaultMessage("Could not resume action on BSS", ex));
+		}
+		super.handleResuming();
+	}
+
+	@Override
 	protected void handleAborting() throws ExecutionException {
 		try{
 			exec.abort(action);

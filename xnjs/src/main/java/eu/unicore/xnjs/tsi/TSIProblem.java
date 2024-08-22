@@ -19,7 +19,7 @@ public class TSIProblem extends ExecutionException {
 		}
 		else {
 			StringBuilder sb = new StringBuilder();
-			sb.append("TSI <"+tsiHost+">");
+			sb.append("TSI on <"+tsiHost+">");
 			sb.append(": ").append(super.getMessage());
 			return sb.toString();
 		}

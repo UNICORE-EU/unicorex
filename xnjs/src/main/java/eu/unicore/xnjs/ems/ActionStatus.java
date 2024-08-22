@@ -47,7 +47,7 @@ public class ActionStatus {
 	//to be removed from XNJS storage
 	public static final int DESTROYED=8;
 	
-	//transition codes....
+	//transition status codes
 	public static final int TRANSITION_NONE=0;
 	public static final int TRANSITION_ABORTING=2;
 	public static final int TRANSITION_PAUSING=3;
@@ -66,52 +66,21 @@ public class ActionStatus {
 			default: return false;
 		}
 	}
-	
-	/**
-	 * can we abort?
-	 * @param as the status code
-	 * @return boolean
-	 */
+
 	public static boolean canAbort(int as){
-		switch(as){
-			case DONE:
-				return false;
-			default: return true;
-		}
+		return as!=DONE;
 	}
 	
-	/**
-	 * can we pause?
-	 * @param as the status code
-	 * @return boolean
-	 */
 	public static boolean canPause(int as){
-		switch(as){
-			case DONE:
-			case PAUSED:
-				return false;
-			default: return true;
-		}
+		return as==QUEUED || as==RUNNING;
 	}
-	/**
-	 * can we continue?
-	 * @param as the status code
-	 * @return boolean
-	 */
+
 	public static boolean canResume(int as){
-		switch(as){
-			case PAUSED:
-				return true;
-			default: return false;
-		}
+		return as == PAUSED;
 	}
 	
 	public static boolean canRestart(int as){
-		switch(as){
-			case DONE:
-				return true;
-			default: return false;
-		}
+		return as==DONE;
 	}
 	
 	public static String transitionalStatus(int s){
@@ -152,25 +121,5 @@ public class ActionStatus {
 		}
 		return null;
 	}
-	
-	public static int fromString(String s){
-		switch(s){
-			case "UNKNOWN": return UNKNOWN;
-			case "CREATED": return CREATED;
-			case "PREPROCESSING": return PREPROCESSING;
-			case "STAGINGIN": return PREPROCESSING;
-			case "READY": return READY;
-			case "PENDING": return PENDING;
-			case "QUEUED": return QUEUED;
-			case "PAUSED": return PAUSED;
-			case "FROZEN": return FROZEN;
-			case "RUNNING": return RUNNING;
-			case "POSTPROCESSING": return POSTPROCESSING;
-			case "STAGINGOUT": return POSTPROCESSING;
-			case "DONE": return DONE;
-			case "SUCCESSFUL": return DONE;
-			case "DESTROYED": return DESTROYED;
-		}
-		throw new IllegalArgumentException("Not a UNICORE status: "+s);
-	}
+
 }

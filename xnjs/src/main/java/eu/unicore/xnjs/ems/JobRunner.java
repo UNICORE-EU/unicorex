@@ -40,7 +40,7 @@ public class JobRunner extends Thread {
 	
 	private static AtomicInteger count = new AtomicInteger(0);
 
-	public JobRunner(XNJS xnjs, Dispatcher dispatcher) throws Exception {
+	public JobRunner(XNJS xnjs, Dispatcher dispatcher) {
 		super();
 		this.xnjs = xnjs;
 		this.dispatcher = dispatcher;

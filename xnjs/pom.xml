@@ -92,7 +92,6 @@
             <exclude>**/performance/**</exclude>
             <exclude>**/*Mock*</exclude>
             <exclude>**/*$*</exclude>
-            <exclude>**/TestACL*</exclude>
             <exclude>**/TestingIOCapabilities</exclude>
           </excludes>
         </configuration>

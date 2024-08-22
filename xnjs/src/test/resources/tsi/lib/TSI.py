@@ -88,15 +88,20 @@ def setup_acl(config, LOG):
     """
     Configures the ACL settings
     """
-    if config.get('tsi.getfacl_cmd') is not None and config.get(
-            'tsi.setfacl_cmd') is not None:
-        config['tsi.posixacl_enabled'] = True
+    if config.get('tsi.getfacl') is not None and config.get(
+            'tsi.setfacl') is not None:
+        success, res = Utils.run_command(config.get('tsi.getfacl')+" -v")
+        if success:
+            LOG.info("POSIX ACL support enabled, using: %s" % res)
+            config['tsi.posixacl_enabled'] = True
+        else:
+            LOG.info("POSIX ACL support disabled: %s" % res)
+            config['tsi.posixacl_enabled'] = False
     else:
         config['tsi.posixacl_enabled'] = False
         LOG.info("POSIX ACL support disabled (commands not configured)")
-
-    if config.get('tsi.nfs_getfacl_cmd') is not None and config.get(
-            'tsi.nfs_setfacl_cmd') is not None:
+    if config.get('tsi.nfs_getfacl') is not None and config.get(
+            'tsi.nfs_setfacl') is not None:
         config['tsi.nfsacl_enabled'] = True
     else:
         config['tsi.nfsacl_enabled'] = False

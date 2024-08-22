@@ -18,8 +18,8 @@ import com.codahale.metrics.MetricRegistry;
 
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
+import eu.unicore.xnjs.ems.DummyProcessor;
 import eu.unicore.xnjs.ems.ProcessingContext;
-import eu.unicore.xnjs.ems.processors.DummyProcessor;
 import eu.unicore.xnjs.tsi.TSI;
 
 public class TestComponentManagement extends XNJSTestBase {

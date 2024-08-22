@@ -122,12 +122,12 @@ public class JsonIDB implements IDBParser {
 			}
 		}
 	}
-	
+
 	public void readApplications(Collection<ApplicationInfo> idb) throws Exception {
 		if(data==null)throw new IllegalStateException("no data!");
 		readApplications(new JSONObject(data), idb);
 	}
-	
+
 	protected void readInfo(JSONObject source) throws Exception {
 		if(source==null)return;
 		for(String name: source.keySet()) {

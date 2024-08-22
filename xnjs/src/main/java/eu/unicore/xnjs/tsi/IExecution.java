@@ -67,7 +67,7 @@ public interface IExecution {
 	/**
 	 * enable/disable (periodic) back-end job status checking
 	 */
-	public default void toggleStatusUpdates(boolean enable) {}
+	public void toggleStatusUpdates(boolean enable);
 	
 	public boolean isBeingTracked(Action job) throws ExecutionException;
 

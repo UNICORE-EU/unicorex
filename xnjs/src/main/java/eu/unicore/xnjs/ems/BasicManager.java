@@ -15,7 +15,6 @@ import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.event.CallbackEvent;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import eu.unicore.xnjs.ems.event.StartJobEvent;
-import eu.unicore.xnjs.ems.event.SubActionDoneEvent;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.persistence.IActionStore;
@@ -172,7 +171,7 @@ public class BasicManager implements Manager, InternalManager {
 			if(a.getParentActionID()!=null){
 				String parent=a.getParentActionID();
 				try{
-					handleEvent(new SubActionDoneEvent(parent));
+					handleEvent(new ContinueProcessingEvent(parent));
 				}catch(Exception ex){
 					LogUtil.logException("Error sending notification", ex, logger);
 				}

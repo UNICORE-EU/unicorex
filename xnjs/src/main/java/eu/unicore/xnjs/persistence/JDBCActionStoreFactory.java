@@ -18,12 +18,16 @@ public class JDBCActionStoreFactory implements IActionStoreFactory{
 
 	private final Map<String,JDBCActionStore> map = new HashMap<>();
 
-	public synchronized IActionStore getInstance(String id, XNJS config) throws Exception {
+	public synchronized IActionStore getInstance(String id, XNJS config) {
 		JDBCActionStore m=map.get(id);
 		if(m==null){
 			m=config.get(JDBCActionStore.class);
 			m.setName(id);
-			m.start();
+			try{
+				m.start();
+			}catch(Exception e) {
+				throw new RuntimeException(e);
+			}
 			map.put(id,m);
 		}
 		return m;

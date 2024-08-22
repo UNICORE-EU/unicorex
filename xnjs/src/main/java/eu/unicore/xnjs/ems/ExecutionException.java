@@ -1,5 +1,6 @@
 package eu.unicore.xnjs.ems;
 
+import eu.unicore.util.Log;
 import eu.unicore.xnjs.util.ErrorCode;
 
 /**
@@ -63,11 +64,18 @@ public class ExecutionException extends Exception {
 			sb.append(super.getMessage());
 			haveMessage = true;
 		}
+		if(getCause()!=null) {
+			sb.append(Log.getDetailMessage(getCause()));
+			haveMessage = true;
+		}
 		if(errorCode>-1) {
-			if(!haveMessage) {
-				sb.append(" ");
+			if(haveMessage) {
+				sb.append(" (");
 			}
 			sb.append(ErrorCode.toString(errorCode));
+			if(haveMessage) {
+				sb.append(")");
+			}
 		}
 		return sb.toString();
 	}

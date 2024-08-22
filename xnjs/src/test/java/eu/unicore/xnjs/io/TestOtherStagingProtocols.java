@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.HashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -248,19 +249,18 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	@Test
 	public void testInline() throws Exception {
-		
 		File localFile = new File(testDir, "xnjs/inline-test");
 		localFile.deleteOnExit();
 
 		URI source=new URI("inline://foo");
-
 		DataStageInInfo info = new DataStageInInfo();
 		info.setSources(new URI[]{source});
 		info.setFileName("xnjs/inline-test");
 		info.setOverwritePolicy(OverwritePolicy.OVERWRITE);
+		info.setPermissions("rwx");
 		String testdata = "this is some test data";
 		info.setInlineData(testdata);
-
+		info.setExtraParameters(new HashMap<>());
 		IFileTransfer ft=new FileTransferEngine(xnjs).
 				createFileImport(null, testDir.getAbsolutePath(), info);
 		assertNotNull(ft);

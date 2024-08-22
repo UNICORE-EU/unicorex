@@ -26,10 +26,12 @@ import eu.unicore.xnjs.ems.InternalManager;
 import eu.unicore.xnjs.ems.event.BssStatusChangeEvent;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import eu.unicore.xnjs.ems.event.EventHandler;
+import eu.unicore.xnjs.tsi.TSIProblem;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSSummary;
 import eu.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
+import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.LogUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -379,7 +381,7 @@ public class BSSState implements IBSSState {
 	 * @throws IOException
 	 * @throws TSIUnavailableException
 	 */
-	public Set<String> getProcessList(String tsiNode)throws IOException, TSIUnavailableException {
+	public Set<String> getProcessList(String tsiNode)throws IOException, TSIProblem {
 		Set<String>result = new HashSet<>();
 		try(TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", tsiNode, timeout)){
 			String res = doGetProcessListing(conn);
@@ -389,7 +391,7 @@ public class BSSState implements IBSSState {
 				// if this does not work, something is wrong with the TSI node
 				conn.markTSINodeUnavailable(msg);
 				conn.shutdown();
-				throw new TSIUnavailableException("TSI on "+tsiNode+": "+ msg);
+				throw new TSIProblem(tsiNode, ErrorCode.ERR_TSI_EXECUTION, msg, null);
 			}
 			result.addAll(parseTSIProcessList(res, tsiNode));
 		}

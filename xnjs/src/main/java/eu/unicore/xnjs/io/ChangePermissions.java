@@ -59,34 +59,7 @@ public class ChangePermissions extends UNIXPermissionEntry {
 		this.clazz = clazz;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
-		result = prime * result + ((mode == null) ? 0 : mode.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ChangePermissions other = (ChangePermissions) obj;
-		if (clazz != other.clazz)
-			return false;
-		if (mode != other.mode)
-			return false;
-		return true;
-	}
-	
-	
 	private static final String[]jsonPermKinds = {"OWNER","GROUP","OTHER"};
-
 
 	private static final Pattern unixPermPattern = Pattern.compile("([rwx-][rwx-][rwx-])");
 

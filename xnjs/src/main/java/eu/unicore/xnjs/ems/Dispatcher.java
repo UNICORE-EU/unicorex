@@ -54,12 +54,12 @@ public class Dispatcher extends Thread {
 		}
 	}
 
-	private void setup() throws Exception {
+	private void setup() {
 		int nWorkers=xnjs.getXNJSProperties().getIntValue(XNJSProperties.XNJSWORKERS);
 		workers=new JobRunner[nWorkers];
 		availableRunners = new ArrayBlockingQueue<>(nWorkers);
 		for(int i=0;i<workers.length;i++){
-			workers[i]=new JobRunner(xnjs, this);
+			workers[i] = new JobRunner(xnjs, this);
 			workers[i].start();
 			notifyAvailable(workers[i]);
 		}
@@ -126,21 +126,13 @@ public class Dispatcher extends Thread {
 			return (int)(lastAccessed-((QueueEntry)o).lastAccessed);
 		}
 
-		public String toString(){
-			return actionID+"[remaining:"+getDelay(TimeUnit.MILLISECONDS)+"]";
-		}
-
 		public String getActionID(){
 			return actionID;
 		}
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result
-					+ ((actionID == null) ? 0 : actionID.hashCode());
-			return result;
+			return actionID.hashCode();
 		}
 
 		@Override
@@ -152,12 +144,7 @@ public class Dispatcher extends Thread {
 			if (getClass() != obj.getClass())
 				return false;
 			QueueEntry other = (QueueEntry) obj;
-			if (actionID == null) {
-				if (other.actionID != null)
-					return false;
-			} else if (!actionID.equals(other.actionID))
-				return false;
-			return true;
+			return this.actionID.equals(other.actionID);
 		}
 	}
 }

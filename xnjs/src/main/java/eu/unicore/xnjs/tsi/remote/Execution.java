@@ -179,7 +179,6 @@ public class Execution extends BasicExecution {
 			jobExecLogger.debug(msg);
 			job.addLogTrace(msg);
 		}catch(Exception ex){
-			Log.logException("Error submitting job", ex, jobExecLogger);
 			throw ExecutionException.wrapped(ex);
 		}finally{
 			if(locked)lock.unlock();
@@ -213,7 +212,7 @@ public class Execution extends BasicExecution {
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
 		ExecutionContext ec=job.getExecutionContext();
 		String pidFile=ec.getOutputDirectory()+"/"+ec.getPIDFileName();
-		jobExecLogger.debug("Reading PID from "+pidFile);
+		jobExecLogger.debug("Reading PID from <{}>",pidFile);
 		long pid=0;
 		for(int i=0; i<3; i++){
 			try{
@@ -226,14 +225,15 @@ public class Execution extends BasicExecution {
 				Thread.sleep(3000+i*1000);
 			}
 		}
-		throw new ExecutionException(ErrorCode.ERR_INTERACTIVE_SUBMIT_FAILURE, "Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
+		throw new ExecutionException(ErrorCode.ERR_INTERACTIVE_SUBMIT_FAILURE,
+				"Could not read PID file <"+pidFile+"> on <"+preferredTSINode+">");
 	}
 
 	private String readAllocationID(Action job, String preferredTSINode) throws IOException, ExecutionException, InterruptedException {
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
 		ExecutionContext ec = job.getExecutionContext();
 		String file = ec.getOutputDirectory()+"/"+TSIMessages.ALLOCATION_ID;
-		jobExecLogger.debug("Reading allocation ID from {}", file);
+		jobExecLogger.debug("Reading allocation ID from <{}>", file);
 		for(int i=0; i<3; i++){
 			try{
 				String[] allocationInfo = tsiMessages.readAllocationID(IOUtils.readTSIFile(tsi, file, 1024));
@@ -274,8 +274,7 @@ public class Execution extends BasicExecution {
 				handleCompleted(job);
 			}
 		}catch(Exception ex){
-			jobExecLogger.error("Error updating job status.",ex);
-			throw new ExecutionException(ex);
+			throw ExecutionException.wrapped(ex);
 		}
 	}
 
@@ -310,16 +309,16 @@ public class Execution extends BasicExecution {
 			boolean haveExitCode = readExitCode(job);
 			if(!haveExitCode){
 				if(!hasGracePeriodPassed(job)){
-					jobExecLogger.debug("Waiting for {} BSS id={} to finish and write exit code file.", jobID, bssID);
+					jobExecLogger.debug("Waiting for job <{}> BSS id={} to finish and write exit code file.", jobID, bssID);
 					info.bssState = BSS_STATE.CHECKING_FOR_EXIT_CODE;
 				}
 				else {
-					jobExecLogger.debug("Assuming job {} BSS id={} is completed.", jobID, bssID);
+					jobExecLogger.debug("Assuming job <{}> BSS id={} is completed.", jobID, bssID);
 					info.bssState = BSS_STATE.COMPLETED;
 				}
 			}
 			else{
-				jobExecLogger.debug("Have exit code for {}, assuming it is completed.", jobID);
+				jobExecLogger.debug("Have exit code for job <{}>, assuming it is completed.", jobID);
 				info.bssState = BSS_STATE.COMPLETED;
 			}
 			break;
@@ -425,7 +424,7 @@ public class Execution extends BasicExecution {
 				bss.removeBSSInfo(bssid);
 				BSS_STATE status  = info!=null ? info.bssState : null;
 				if(status!=null) { 
-					jobExecLogger.debug("Aborting job <"+bssid+"> on TSI server");
+					jobExecLogger.debug("Aborting job <{}> on TSI server", bssid);
 					if(job.getExecutionContext().isRunOnLoginNode()){
 						terminateInteractiveJob(job);
 					}
@@ -434,11 +433,7 @@ public class Execution extends BasicExecution {
 					}
 				}
 			}catch(Exception ex){
-				jobExecLogger.error("Error aborting.",ex);
-				if(ex instanceof ExecutionException) {
-					throw (ExecutionException)ex;
-				}
-				throw new ExecutionException(ex);
+				throw ExecutionException.wrapped(ex);
 			}
 		}
 	}
@@ -485,19 +480,18 @@ public class Execution extends BasicExecution {
 	public void pause(Action job) throws ExecutionException {
 		final String bssid = job.getBSID();
 		if(bssid == null) {
-			throw new IllegalArgumentException("Can't abort: no batch system ID.");
+			throw new IllegalArgumentException("Can't pause: no batch system ID.");
 		}
 		try {
 			BSSInfo info = bss.getBSSInfo(bssid);
 			BSS_STATE status = info!=null ? info.bssState : null;
 			if(status != null) {
-				jobExecLogger.debug("Pausing job <"+bssid+"> on TSI server.");
+				jobExecLogger.debug("Pausing job <{}> on TSI server.", bssid);
 				runTSICommand(tsiMessages.makePauseCommand(bssid), job.getClient(), null, true);
 			}
 		}
 		catch (Exception e) {
-			jobExecLogger.error("Error pausing.", e);
-			throw new ExecutionException(e);
+			throw ExecutionException.wrapped(e);
 		}
 	}
 
@@ -512,12 +506,11 @@ public class Execution extends BasicExecution {
 			BSSInfo info = bss.getBSSInfo(bssid);
 			BSS_STATE status = info!=null ? info.bssState : null;
 			if(status != null) {
-				jobExecLogger.debug("Resuming job <"+bssid+"> on TSI server.");
+				jobExecLogger.debug("Resuming job <{}> on TSI server.", bssid);
 				runTSICommand(tsiMessages.makeResumeCommand(bssid), job.getClient(), null, true);
 			}
 		} catch (Exception e) {
-			jobExecLogger.error("Error resuming.", e);
-			throw new ExecutionException(e);
+			throw ExecutionException.wrapped(e);
 		}
 	}
 
@@ -534,13 +527,12 @@ public class Execution extends BasicExecution {
 		if(bssid == null || (job.getExecutionContext()!=null && job.getExecutionContext().isRunOnLoginNode())) {
 			return "N/A";
 		}
-		try {
-			jobExecLogger.debug("Getting details for job <"+bssid+"> from TSI.");
+		try{
+			jobExecLogger.debug("Getting details for job <{}> from TSI.", bssid);
 			String det = runTSICommand(tsiMessages.makeGetJobInfoCommand(bssid, extractBSSCredentials(job)), job.getClient(), null, true);
 			return det.replace("TSI_OK", "").trim();
-		} catch (Exception e) {
-			jobExecLogger.error("Error getting job details.", e);
-			throw new ExecutionException(e);
+		}catch(Exception ex) {
+			throw ExecutionException.wrapped(ex);
 		}
 	}
 	
@@ -575,7 +567,7 @@ public class Execution extends BasicExecution {
 			String key = client.getXlogin().toString();
 			return computeBudgets.get(key, new Loader(client, tsiFactory));
 		}catch(Exception e){
-			throw new ExecutionException(e);
+			throw ExecutionException.wrapped(e);
 		}
 	}
 
@@ -586,8 +578,8 @@ public class Execution extends BasicExecution {
 			this.client = c;
 			this.tsiFactory = tsiFactory; 
 		}
-		public List<BudgetInfo> call() throws Exception {
-			tsiLog.info("Querying compute time for "+client.getXlogin());
+		public List<BudgetInfo> call() throws ExecutionException {
+			tsiLog.info("Querying compute time for xlogin <{}>", client.getXlogin());
 			return ((RemoteTSI)tsiFactory.createTSI(client)).getComputeTimeBudget();
 		}
 	}
@@ -608,7 +600,7 @@ public class Execution extends BasicExecution {
 		{
 			String res = conn.send(command);
 			if(check && !res.contains("TSI_OK")){
-				throw new Exception("TSI call failed: reply was "+res);
+				throw new ExecutionException("TSI call failed: reply was "+res);
 			}
 			return res;
 		}
@@ -625,16 +617,11 @@ public class Execution extends BasicExecution {
 		String queue;
 		String rawBSSState;
 		boolean wantsBSSStateChangeNotifications = false;
-		public BSSInfo(){}
 
 		public BSSInfo(String bssID,String jobID, BSS_STATE bssState){
 			this.bssID=bssID;
 			this.jobID=jobID;
 			this.bssState=bssState;
-		}
-
-		public String toString(){
-			return "BSSID="+bssID+" JOBID="+jobID+" STATUS="+bssState+(queue!=null?" QUEUE="+queue:"");
 		}
 
 	}

@@ -19,7 +19,9 @@ import eu.unicore.xnjs.util.LogUtil;
 public class TestJobControl extends EMSTestBase {
 
 	private static String 
-	d1="src/test/resources/json/date.json";
+	d1="src/test/resources/json/date.json",
+	d2="src/test/resources/json/sleep.json";
+	
 	private Client client=new Client();
 
 	@Override
@@ -115,14 +117,15 @@ public class TestJobControl extends EMSTestBase {
 
 	@Test
 	public void testPause() throws Exception {
-		Action action=xnjs.makeAction(loadJSONObject(d1));
+		Action action=xnjs.makeAction(loadJSONObject(d2));
 		String id=action.getUUID();
 		mgr.add(action,null);
+		mgr.run(id,null);
+		waitUntilRunning(id);
 		mgr.pause(id, client);
 		Thread.sleep(200);
 		mgr.getStatus(id, client);
 		mgr.resume(id, client);
-		doRun(id);
 		waitUntilDone(id);
 	}
 

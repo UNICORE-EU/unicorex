@@ -1,8 +1,7 @@
-package eu.unicore.xnjs.ems.processors;
+package eu.unicore.xnjs.ems;
 
 import eu.unicore.xnjs.XNJS;
-import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ExecutionException;
+import eu.unicore.xnjs.ems.processors.DefaultProcessor;
 
 /**
  * a dummy processor for testing

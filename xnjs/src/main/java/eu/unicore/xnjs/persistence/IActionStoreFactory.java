@@ -10,5 +10,5 @@ public interface IActionStoreFactory {
 	 * @param identifier
 	 * @return IActionStore
 	 */
-	public IActionStore getInstance(String identifier, XNJS config) throws Exception ;
+	public IActionStore getInstance(String identifier, XNJS config) ; //throws Exception ;
 }

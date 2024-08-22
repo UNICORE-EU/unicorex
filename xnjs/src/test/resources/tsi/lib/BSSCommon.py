@@ -34,7 +34,9 @@ class BSSBase(object):
         'tsi.qstat_cmd': 'ps -e -os,args',
         'tsi.abort_cmd': 'SID=$(ps -e -osid,args | grep "nice .* ./UNICORE_Job_%s" | grep -v "grep " | egrep -o "^\s*([0-9]+)" ); pkill -SIGTERM -s $SID',
         'tsi.get_processes_cmd': 'ps -e',
-        'tsi.get_partitions_cmd': 'echo'
+        'tsi.get_partitions_cmd': 'echo',
+        'tsi.hold_command': 'kill -STOP',
+        'tsi.resume_command': 'kill -CONT'
     }
 
     def init(self, config, LOG):

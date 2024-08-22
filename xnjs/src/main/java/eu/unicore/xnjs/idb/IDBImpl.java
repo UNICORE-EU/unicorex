@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,7 +20,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 
 import com.google.common.primitives.Longs;
 
@@ -499,18 +499,11 @@ public class IDBImpl implements IDB {
 			return getParser(fis);
 		}
 	}
-	
+
 	protected IDBParser getParser(InputStream source) throws Exception {
-		String data = IOUtils.toString(source, "UTF-8");
-		boolean json = false;
-		try {
-			new JSONObject(data);
-			json = true;
-		}catch(Exception ex) {}
-		if(!json)throw new IllegalArgumentException("IDB is not in JSON format");
-		return new JsonIDB(this, data);
+		return new JsonIDB(this, IOUtils.toString(source, "UTF-8"));
 	}
-	
+
 	/**
 	 * read and parse applications from the given source and add them to the collection
 	 * @param source
@@ -522,17 +515,17 @@ public class IDBImpl implements IDB {
 		parser.readApplications(idb);
 	}
 
-	private byte[] getDirectoryHash(){
+	private byte[] getDirectoryHash() {
+		MessageDigest md = null;
 		try{
-			MessageDigest md=MessageDigest.getInstance("MD5");
-			for(File f: idbFile.listFiles()){
-				computeDirHash(md, f);
-			}
-			return md.digest();
-		}catch(Exception ex){
-			logger.warn("Error checking for IDB modification",ex);
+			md = MessageDigest.getInstance("MD5");
+		}catch(NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
 		}
-		return new byte[0];
+		for(File f: idbFile.listFiles()){
+			computeDirHash(md, f);
+		}
+		return md.digest();
 	}
 
 	private void computeDirHash(MessageDigest md, File file){

@@ -297,21 +297,17 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		if(f==null)return false;
 		try(BufferedReader br = new BufferedReader(new InputStreamReader(
 				tsi.getInputStream(ctx.getExitCodeFileName())))){
-			try{
-				String s=br.readLine();
-				if(s!=null){
-					int i=Integer.parseInt(s);
-					ctx.setExitCode(i);
-					job.addLogTrace("Exit code "+i);
-					jobExecLogger.debug("Script exited with code <{}>",i);
-					return true;
-				}
-			}catch(Exception e){
-				jobExecLogger.debug("Could not retrieve exit code.",e);
+			String s=br.readLine();
+			if(s!=null){
+				int i=Integer.parseInt(s);
+				ctx.setExitCode(i);
+				job.addLogTrace("Exit code "+i);
+				jobExecLogger.debug("Script exited with code <{}>",i);
+				return true;
 			}
 			return false;
-		}catch(IOException ioe) {
-			throw new ExecutionException(ioe);
+		}catch(Exception ioe) {
+			throw ExecutionException.wrapped(ioe);
 		}
 	}
 
@@ -403,4 +399,8 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		return job!=null && runningJobUIDs.contains(job.getUUID());
 	}
 
+	@Override
+	public void toggleStatusUpdates(boolean set) {
+		// NOP
+	}
 }

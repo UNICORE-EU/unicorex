@@ -94,10 +94,7 @@ public interface IFileTransferEngine {
 	 * @param workingDirectory
 	 * @param info - details about the transfer
 	 */
-	public default IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) throws IOException{
-		return null;
-	}
-
+	public IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) throws IOException;
 	/**
 	 * Creates a new file import into the given working directory.<br/>
 	 * The list of registered {@link IFileTransferCreator}s is traversed and the first
@@ -107,14 +104,11 @@ public interface IFileTransferEngine {
 	 * @param workingDirectory
 	 * @param info - details about the transfer
 	 */
-	public default IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) throws IOException{
-		return null;
-	}
+	public IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) throws IOException;
 	
 	/**
 	 * get a DB connector for storing information about FTS instances
 	 */
-	public default Persist<FTSInfo> getFTSStorage() throws PersistenceException {
-		return null;
-	}
+	public Persist<FTSInfo> getFTSStorage() throws PersistenceException;
+
 }

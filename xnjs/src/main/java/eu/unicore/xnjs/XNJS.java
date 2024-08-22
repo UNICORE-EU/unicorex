@@ -328,7 +328,7 @@ public class XNJS implements UpdateableConfiguration {
 		return tsiFactory.createTSI(client, preferredTSINode);
 	}
 
-	public IActionStore getActionStore(String id) throws Exception {
+	public IActionStore getActionStore(String id) {
 		return get(IActionStoreFactory.class).getInstance(id,this);
 	}
 
