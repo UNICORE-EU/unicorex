@@ -64,6 +64,8 @@ public class LogicalUFTPServer implements ISubSystem {
 			}
 			setDescription(desc);
 			this.instances = servers;
+			UFTPProperties uProps = new UFTPProperties(properties);
+			kernel.setAttribute(UFTPProperties.class, uProps);
 		}catch(Exception ex) {
 			throw new ConfigurationException("Error configuring UFTPD servers", ex);
 		}
