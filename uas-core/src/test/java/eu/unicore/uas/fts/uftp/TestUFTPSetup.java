@@ -51,8 +51,7 @@ public class TestUFTPSetup {
 		System.out.println("Startup time: "
 				+ (System.currentTimeMillis() - start) + " ms.");
 		kernel = uas.getKernel();
-		LogicalUFTPServer connector = new LogicalUFTPServer(kernel);
-		kernel.setAttribute(LogicalUFTPServer.class, connector);
+		new UFTPStartupTask(kernel).run();
 	}
 
 	@Test
