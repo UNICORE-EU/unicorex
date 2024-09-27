@@ -1,10 +1,13 @@
 package eu.unicore.uas.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import eu.unicore.client.core.JobClient.Status;
 import eu.unicore.util.Pair;
 
 public class TestUtils {
@@ -32,4 +35,13 @@ public class TestUtils {
 		});
 	}
 
+	@Test
+	public void testStatusOrdering() {
+		Status s1 = Status.SUCCESSFUL;
+		Status s2 = Status.RUNNING;
+		Status s3 = Status.FAILED;
+		assertTrue(s2.compareTo(s1)<0);
+		assertFalse(s2.compareTo(s2)<0);
+		assertFalse(s3.compareTo(s2)<0);
+	}
 }

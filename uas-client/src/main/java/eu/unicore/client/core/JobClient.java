@@ -1,6 +1,8 @@
 package eu.unicore.client.core;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
 import org.json.JSONArray;
@@ -59,7 +61,7 @@ public class JobClient extends BaseServiceClient {
 	 */
 	public void poll(Status status, int timeout) throws Exception {
 		int i=0;
-		while(getStatus().compareTo(status)<=0) {
+		while(getStatus().compareTo(status)<0) {
 			Thread.sleep(1000);
 			i++;
 			if(timeout>0 && i>timeout) {
@@ -122,10 +124,17 @@ public class JobClient extends BaseServiceClient {
 		executeAction("abort", null);
 	}
 
-	public JSONObject getBSSDetails() throws Exception {
+	public JSONObject getBSSDetails(String...fields) throws Exception {
 		bc.pushURL(getLinkUrl("details"));
 		try{
-			return bc.getJSON();
+			if(fields!=null && fields.length>0) {
+				Map<String,String>queryParams = new HashMap<>();
+				queryParams.put("fields", JSONUtil.toCommaSeparated(fields));
+				return getProperties(queryParams);
+			}
+			else{
+				return bc.getJSON();
+			}
 		}finally {
 			bc.popURL();
 		}
