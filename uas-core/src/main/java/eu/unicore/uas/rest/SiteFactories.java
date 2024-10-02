@@ -50,29 +50,27 @@ public class SiteFactories extends ServicesBase {
 		TargetSystemFactoryImpl tsf = getResource();
 		Map<String,Object> props = super.getProperties();
 		TSFModel model = getModel();
-
 		props.put("supportsReservation", String.valueOf(model.getSupportsReservation()));
-
 		IDB idb = tsf.getXNJSFacade().getIDB();
 		Map<String,Object> resources = IDBContentRendering.asMap(idb.getPartitions());
 		props.put("resources", resources);
-
 		Client client = AuthZAttributeStore.getClient();
 		List<String> apps = new ArrayList<>();
 		for(ApplicationInfo app: tsf.getXNJSFacade().getDefinedApplications(client)){
 			apps.add(app.getName()+IDBContentRendering.appSeparator+app.getVersion());
 		}
 		props.put("applications", apps);
-
 		Map<String,String> textInfo = new HashMap<>();
 		textInfo.putAll(idb.getTextInfoProperties());
 		props.put("otherInfo", textInfo);
-		try {
-			List<BudgetInfo> budget = tsf.getXNJSFacade().getComputeTimeBudget(client);
-			props.put("remainingComputeTime", IDBContentRendering.budgetToMap(budget));
-		}catch(Exception ex) {
-			logger.debug(Log.createFaultMessage("Error getting compute budget for "+client.getDistinguishedName(), ex));
-			props.put("remainingComputeTime", new HashMap<>());
+		if(wantProperty("remainingComputeTime")) {
+			try {
+				List<BudgetInfo> budget = tsf.getXNJSFacade().getComputeTimeBudget(client);
+				props.put("remainingComputeTime", IDBContentRendering.budgetToMap(budget));
+			}catch(Exception ex) {
+				logger.debug(Log.createFaultMessage("Error getting compute budget for "+client.getDistinguishedName(), ex));
+				props.put("remainingComputeTime", new HashMap<>());
+			}
 		}
 		return props;
 	}

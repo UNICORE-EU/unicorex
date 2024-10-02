@@ -54,9 +54,15 @@ public class TestJobs extends SecuredBase {
 		System.out.println(submitted.toString(2));
 		assertEquals("Date",submitted.getString("ApplicationName"));
 		
+		// details
+		JSONObject details = job.getBSSDetails();
+		System.out.println("*** bss details: ");
+		System.out.println(details.toString(2));
+		// with query params
+		details = job.getBSSDetails("rawDetailsData");
+		assertEquals(1, details.length());
 	}
-	
-	
+
 	@Test
 	public void testTaggedJobs() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";

@@ -77,14 +77,13 @@ public class Sites extends ServicesBase {
 			apps.add(app.getName()+IDBContentRendering.appSeparator+app.getVersion());
 		}
 		props.put("applications", apps);
-		
 		Map<String,String> textInfo = new HashMap<>();
 		textInfo.putAll(idb.getTextInfoProperties());
 		props.put("otherInfo", textInfo);
-		
-		List<BudgetInfo> budget = tss.getXNJSFacade().getComputeTimeBudget(client);
-		props.put("remainingComputeTime", IDBContentRendering.budgetToMap(budget));
-		
+		if(wantProperty("remainingComputeTime")) {
+			List<BudgetInfo> budget = tss.getXNJSFacade().getComputeTimeBudget(client);
+			props.put("remainingComputeTime", IDBContentRendering.budgetToMap(budget));
+		}
 		return props;
 	}
 

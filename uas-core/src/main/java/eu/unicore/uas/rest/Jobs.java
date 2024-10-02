@@ -2,6 +2,7 @@ package eu.unicore.uas.rest;
 
 import java.net.URI;
 import java.nio.channels.SocketChannel;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.cxf.jaxrs.impl.ResponseBuilderImpl;
@@ -74,7 +75,7 @@ public class Jobs extends ServicesBase {
 	@GET
 	@Path("/{uniqueID}/details")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response details() {
+	public Response details(@QueryParam("fields") String fieldSpec) {
 		try{
 			JobManagementImpl resource = getResource();
 			String xnjsReference = resource.getXNJSReference();
@@ -87,6 +88,16 @@ public class Jobs extends ServicesBase {
 			}catch(JSONException ex) {
 				details = new JSONObject();
 				details.put("rawDetailsData", detailString);
+			}
+			parsePropertySpec(fieldSpec);
+			if(requestedProperties.size()>0) {
+				Iterator<String>i=details.keys();
+				while(i.hasNext()) {
+					String k = i.next();
+					if(!requestedProperties.contains(k)) {
+						i.remove();
+					}
+				}
 			}
 			return Response.ok(details.toString()).build();
 		}catch(Exception ex){
