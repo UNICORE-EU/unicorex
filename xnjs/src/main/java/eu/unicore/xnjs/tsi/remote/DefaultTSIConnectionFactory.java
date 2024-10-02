@@ -16,7 +16,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
-import eu.unicore.util.Log;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertyChangeListener;
 import eu.unicore.xnjs.XNJS;

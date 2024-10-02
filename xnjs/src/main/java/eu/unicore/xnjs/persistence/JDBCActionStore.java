@@ -9,8 +9,8 @@ import eu.unicore.persist.Persist;
 import eu.unicore.persist.PersistenceException;
 import eu.unicore.persist.PersistenceFactory;
 import eu.unicore.persist.PersistenceProperties;
+import eu.unicore.persist.impl.ClassScanner;
 import eu.unicore.persist.impl.PersistImpl;
-import eu.unicore.persist.impl.PersistenceDescriptor;
 import eu.unicore.persist.util.Wrapper;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
@@ -79,24 +79,21 @@ public class JDBCActionStore extends AbstractActionStore {
 	protected void start()throws Exception {
 		Wrapper.updates.put("de.fzj.unicore.xnjs", "eu.unicore.xnjs");
 		PersistenceFactory pf = PersistenceFactory.get(properties);
-		PersistenceDescriptor pd1 = PersistenceDescriptor.get(Action.class);
-		if(!"1".equals(xnjs.getID())) {
-			pd1.setTableName(pd1.getTableName()+"_"+xnjs.getID());
-		}
-		activeJobs = pf.getPersist(Action.class, pd1);
-		checkVersion(activeJobs, "JOBS");
-		PersistenceDescriptor pd2 = PersistenceDescriptor.get(DoneAction.class);
-		if(!"1".equals(xnjs.getID())) {
-			pd2.setTableName(pd2.getTableName()+"_"+xnjs.getID());
-		}
-		doneJobs = pf.getPersist(DoneAction.class, pd2);
+		String tableName = "1".equals(xnjs.getID()) ?
+				ClassScanner.getTableName(Action.class):
+				ClassScanner.getTableName(Action.class) + "_" + xnjs.getID();
+		activeJobs = pf.getPersist(Action.class, tableName);
+		checkVersion(activeJobs, tableName);
+		String tableName2 = "1".equals(xnjs.getID()) ?
+				ClassScanner.getTableName(DoneAction.class):
+				ClassScanner.getTableName(DoneAction.class) + "_" + xnjs.getID();
+		doneJobs = pf.getPersist(DoneAction.class, tableName2);
 		doneJobs.setLockSupport(((PersistImpl<Action>)activeJobs).getLockSupport());
 	}
 
 	/**
 	 * check that the data from the given Persist instance can be used.
 	 * If not, check system property and drop all data
-	 * @param p - the persist impl to check
 	 */
 	protected void checkVersion(Persist<?> p, String tableName)throws Exception{
 		Collection<String>ids=p.getIDs();
@@ -109,7 +106,7 @@ public class JDBCActionStore extends AbstractActionStore {
 			if(!Boolean.getBoolean("unicore.update.force")){
 				throw v;
 			}
-			logger.info("Removing unreadable data from table "+tableName);
+			logger.info("Removing unreadable data from table {}", tableName);
 			for(String id: ids){
 				try{
 					p.read(id);

@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <description>UNICORE/X web services layer</description>
   <inceptionYear>2006</inceptionYear>
-  <version>2.7.1-SNAPSHOT</version>
+  <version>2.7.1</version>
   <name>UNICORE/X Parent</name>
   
   <parent>
@@ -32,17 +32,17 @@
     <specification.version>10.1.1</specification.version>
 
     <compiler.fork>false</compiler.fork>
-    <use.version>5.1.0</use.version>
-    <secutils.version>4.1.1</secutils.version>
-    <persistence.version>1.1.0</persistence.version>
-    <metrics.version>4.2.26</metrics.version>
+    <use.version>5.1.1</use.version>
+    <secutils.version>4.1.2</secutils.version>
+    <persistence.version>1.2.3</persistence.version>
+    <metrics.version>4.2.27</metrics.version>
     <uftp.version>2.20.1</uftp.version>
     <guice.version>7.0.0</guice.version>
-    <guava.version>33.2.1-jre</guava.version>
+    <guava.version>33.3.1-jre</guava.version>
     <json.version>20240303</json.version>
     <lucene.version>9.11.1</lucene.version>
     <tika.version>2.9.2</tika.version>
-    <commons-io.version>2.16.1</commons-io.version>
+    <commons-io.version>2.17.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <bc.version>1.78.1</bc.version> 
   </properties>
@@ -61,7 +61,7 @@
       <dependency>
 	<groupId>org.junit.jupiter</groupId>
 	<artifactId>junit-jupiter</artifactId>
-	<version>5.10.3</version>
+	<version>5.11.1</version>
 	<scope>test</scope>
       </dependency>
       <dependency>

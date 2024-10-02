@@ -67,7 +67,7 @@ public class LogicalUFTPServer implements ISubSystem {
 		}catch(Exception ex) {
 			throw new ConfigurationException("Error configuring UFTPD servers", ex);
 		}
-		log.info("Configured <"+instances.size()+"> UFTPD server(s)");
+		log.info("Configured <{}> UFTPD server(s)", instances.size());
 	}
 	
 	private UFTPDInstance createUFTPD(String prefix, Properties properties) {
@@ -75,8 +75,8 @@ public class LogicalUFTPServer implements ISubSystem {
 		UFTPProperties props = new UFTPProperties(prefix, properties);
 		server.configure(props);
 		if(server.getHost()==null)throw new ConfigurationException("Property 'host' not set!");
-		log.info("Configured "+server);
-		// client code will want this
+		log.info("Configured {}", server);
+		// needed by staging / transfers
 		kernel.setAttribute(UFTPProperties.class, props);
 		return server;
 	}
