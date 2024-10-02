@@ -34,10 +34,6 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 
 	private final BlockingQueue<T> queue;
 
-	private long timeout = 300;
-
-	private TimeUnit unit = TimeUnit.MILLISECONDS;
-
 	private final List<Producer<T>>producers = new ArrayList<>();
 
 	private ExecutorService executor;
@@ -46,11 +42,14 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 
 	protected AddressFilter addressFilter = new AcceptAllFilter();
 
-	
+	private long timeout = 10;
+
+	private TimeUnit unit = TimeUnit.SECONDS;
+
 	public Lister(){
 		this(Integer.MAX_VALUE);
 	}
-	
+
 	/**
 	 * @param maxQueueSize - maximum number of results to keep in memory
 	 */
