@@ -8,6 +8,8 @@ import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.Resource;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.ExecutionException;
 
 /**
@@ -29,10 +31,15 @@ public class UspaceStorageImpl extends SMSBaseImpl {
 		if(getModel().workdir==null){
 			SMSModel m = getModel();
 			String actionId = m.storageDescription.getPathSpec();
-			String workdir = getXNJSFacade().getAction(actionId).getExecutionContext().getWorkingDirectory();
+			Action a = getXNJSFacade().getAction(actionId);
+			String workdir = a.getExecutionContext().getWorkingDirectory();
 			m.workdir = workdir;
 			if(workdir!=null) {
 				setResourceStatus(ResourceStatus.READY);
+				persistChanges(workdir);
+			}
+			else if (a.getStatus()==ActionStatus.DONE){
+				setResourceStatus(ResourceStatus.ERROR);
 				persistChanges(workdir);
 			}
 		}

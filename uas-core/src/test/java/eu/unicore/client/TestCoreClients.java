@@ -18,8 +18,8 @@ import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.SiteFactoryClient;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.registry.RegistryClient;
-import eu.unicore.services.rest.client.IAuthCallback;
-import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 
 public class TestCoreClients extends Base {

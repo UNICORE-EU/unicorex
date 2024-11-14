@@ -6,7 +6,7 @@ import java.util.Map;
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
-import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.util.UnitParser;
 import eu.unicore.util.httpclient.IClientConfiguration;

@@ -11,6 +11,7 @@ import java.util.Map;
 
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ExecutionContext;
@@ -24,7 +25,6 @@ import eu.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.xnjs.resources.ResourceSet;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.util.ErrorCode;
-import eu.unicore.xnjs.util.UnitParser;
 
 /**
  * Helper to

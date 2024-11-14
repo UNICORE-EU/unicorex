@@ -6,7 +6,7 @@ import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.registry.IRegistryClient;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProvider;
-import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.Builder;
 
 public interface Broker {

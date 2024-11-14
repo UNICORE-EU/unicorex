@@ -27,10 +27,10 @@ import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.client.data.TransferControllerClient.Status;
-import eu.unicore.services.rest.client.BaseClient;
-import eu.unicore.services.rest.client.IAuthCallback;
-import eu.unicore.services.rest.client.RESTException;
-import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.services.restclient.BaseClient;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.RESTException;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 
 public class TestStorages extends Base {

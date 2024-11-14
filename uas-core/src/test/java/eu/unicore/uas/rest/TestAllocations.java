@@ -12,7 +12,7 @@ import eu.unicore.client.core.AllocationClient;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
-import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 
 public class TestAllocations extends Base {

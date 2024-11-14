@@ -3,7 +3,7 @@ package eu.unicore.client.core;
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
-import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**

@@ -31,10 +31,10 @@ public abstract class Resource {
 	public abstract Object getValue();
 	
 	/**
-	 * check if the given value is within the validity range of this resource
+	 * check if the requested value is within the validity range of this resource
 	 * @param otherValue
 	 */
-	public abstract boolean isInRange(Object otherValue);
+	public abstract boolean isInRange(String requestedValue);
 	
 	public Category getCategory() {
 		return category;

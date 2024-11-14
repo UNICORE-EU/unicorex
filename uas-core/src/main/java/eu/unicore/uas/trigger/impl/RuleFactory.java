@@ -9,7 +9,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import eu.unicore.security.Client;
-import eu.unicore.services.utils.UnitParser;
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.RuleSet;

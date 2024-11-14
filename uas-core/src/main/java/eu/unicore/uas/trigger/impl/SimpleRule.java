@@ -1,7 +1,7 @@
 package eu.unicore.uas.trigger.impl;
 
-import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.trigger.Rule;
+import eu.unicore.uas.trigger.TriggeredAction;
 
 /**
  * 

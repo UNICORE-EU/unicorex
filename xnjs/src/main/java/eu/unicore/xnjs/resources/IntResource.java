@@ -29,37 +29,21 @@ public class IntResource extends Resource implements RangeResource {
 		value = Double.valueOf(val).longValue();
 	}
 
-	public boolean isInRange(Object otherValue){
-		if(otherValue == null)return true;
-		Long v;
-
-		if(otherValue instanceof String){
-			try{
-				Double d = Double.parseDouble(String.valueOf(otherValue));
-				v = Math.round(d);
-			}
-			catch(NumberFormatException ex){
+	public boolean isInRange(String requestedValue){
+		try{
+			Double d = Double.parseDouble(requestedValue);
+			long v = Math.round(d);
+			if(upper!=null && upper.compareTo(v)<0){
 				return false;
 			}
-		}
-		else if(otherValue instanceof Long){
-			v=(Long)otherValue;
-		}
-		else{
-			if(!(otherValue.getClass().isAssignableFrom(IntResource.class))){
-				throw new IllegalArgumentException("Can't check range, need Float value, found "+otherValue.getClass());
+			if(lower!=null && lower.compareTo(v)>0){
+				return false;
 			}
-			v=((IntResource)otherValue).getValue();
-			if(v==null)return true;
+			return true;
 		}
-
-		if(upper!=null && upper.compareTo(v)<0){
+		catch(NumberFormatException ex){
 			return false;
 		}
-		if(lower!=null && lower.compareTo(v)>0){
-			return false;
-		}
-		return true;
 	}
 
 	@Override

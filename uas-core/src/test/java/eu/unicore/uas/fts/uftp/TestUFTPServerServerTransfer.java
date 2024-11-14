@@ -1,6 +1,6 @@
 package eu.unicore.uas.fts.uftp;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

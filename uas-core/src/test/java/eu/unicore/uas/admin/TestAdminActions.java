@@ -1,6 +1,9 @@
 package eu.unicore.uas.admin;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +21,7 @@ import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.services.admin.AdminActionResult;
-import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.fts.FileTransferCapability;

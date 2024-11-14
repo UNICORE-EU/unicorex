@@ -4,7 +4,7 @@ import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
-import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 public abstract class FiletransferClient extends BaseServiceClient {

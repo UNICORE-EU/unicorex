@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStatus;
@@ -30,7 +31,6 @@ import eu.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.xnjs.json.JSONParser;
 import eu.unicore.xnjs.util.JSONUtils;
 import eu.unicore.xnjs.util.LogUtil;
-import eu.unicore.xnjs.util.UnitParser;
 
 /**
  * Processor for reliable, multi-file server-to-server file transfers<br/>

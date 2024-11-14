@@ -2,9 +2,6 @@ package eu.unicore.uas.xnjs;
 
 import java.util.List;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
-
 import org.json.JSONObject;
 
 import eu.unicore.uas.rest.Jobs;
@@ -15,6 +12,8 @@ import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStateChangeListener;
 import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.event.INotificationSender;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 
 @Singleton
 public class RESTNotificationSender implements ActionStateChangeListener {

@@ -16,8 +16,6 @@ import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.exceptions.ResourceUnknownException;
-import eu.unicore.services.exceptions.TerminationTimeChangeRejectedException;
-import eu.unicore.services.exceptions.UnableToSetTerminationTimeException;
 import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
 import eu.unicore.services.messaging.ResourceAddedMessage;
@@ -37,7 +35,7 @@ import eu.unicore.uas.impl.tss.util.GenerateJMSInstances;
 import eu.unicore.uas.impl.tss.util.RecreateJMSReferenceList;
 import eu.unicore.uas.impl.tss.util.RecreateReservationReferenceList;
 import eu.unicore.uas.impl.tss.util.RecreateXNJSJobs;
-import eu.unicore.uas.impl.tss.util.TSSAsynchInitialisation;
+import eu.unicore.uas.impl.tss.util.TSSAsyncInitialisation;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.util.Log;
@@ -124,18 +122,13 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 	 * if user submits a job with a tt longer than the TSS lifetime
 	 * automatically extend the TSS lifetime
 	 */
-	protected void checkAndExtendLT(Calendar newTT)throws UnableToSetTerminationTimeException, TerminationTimeChangeRejectedException{
-		try{
-			Calendar myTT = home.getTerminationTime(getUniqueID());
-			if(myTT!=null && myTT.compareTo(newTT)<0){
-				logger.debug("Job termination time exceeds TSS termination time, extending TSS lifetime...");
-				Calendar tt=(Calendar)newTT.clone();
-				tt.add(Calendar.DATE, 1);
-				home.setTerminationTime(getUniqueID(),tt);
-			}
-		}catch(Exception e){
-			Log.logException("Persistence error.", e, logger);
-			throw new UnableToSetTerminationTimeException("Persistence error.");
+	protected void checkAndExtendLT(Calendar newTT)throws Exception {
+		Calendar myTT = home.getTerminationTime(getUniqueID());
+		if(myTT!=null && myTT.compareTo(newTT)<0){
+			logger.debug("Job termination time exceeds TSS termination time, extending TSS lifetime...");
+			Calendar tt=(Calendar)newTT.clone();
+			tt.add(Calendar.DATE, 1);
+			home.setTerminationTime(getUniqueID(),tt);
 		}
 	}
 
@@ -160,7 +153,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 		Map<String,String> desc = initobjs.extraParameters;
 		List<Runnable>initTasks = getInitTasks(desc);
 		kernel.getContainerProperties().getThreadingServices().getScheduledExecutorService().schedule(
-				new TSSAsynchInitialisation(kernel, getUniqueID(),initTasks), 
+				new TSSAsyncInitialisation(kernel, getUniqueID(),initTasks), 
 				200, TimeUnit.MILLISECONDS);
 	}
 

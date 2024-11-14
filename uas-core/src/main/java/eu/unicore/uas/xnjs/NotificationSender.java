@@ -7,10 +7,10 @@ import java.util.concurrent.TimeoutException;
 import org.json.JSONObject;
 
 import eu.unicore.services.Kernel;
-import eu.unicore.services.rest.client.BaseClient;
-import eu.unicore.services.rest.client.IAuthCallback;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
+import eu.unicore.services.restclient.BaseClient;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.utils.TimeoutRunner;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -49,11 +49,11 @@ public class NotificationSender implements INotificationSender {
 		final IClientConfiguration security = kernel.getClientConfiguration();
 		final IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(),
 				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), userDN);
-		String res = new TimeoutRunner<String>( ()->{
+		String res = new TimeoutRunner<>( ()->{
 						new BaseClient(url, security, auth).postQuietly(message);
 						return "OK";
 					},
-				kernel.getContainerProperties().getThreadingServices(), 10, TimeUnit.SECONDS).call();
+				kernel.getContainerProperties().getThreadingServices(), 30, TimeUnit.SECONDS).call();
 		if(res==null)throw new TimeoutException();
 	}
 	

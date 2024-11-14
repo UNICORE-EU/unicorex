@@ -10,7 +10,7 @@ import org.json.JSONObject;
 
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
-import eu.unicore.services.utils.UnitParser;
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.impl.sms.SMFModel;

@@ -13,7 +13,7 @@ import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.utils.Configurable;
-import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.fts.FiletransferOptions;
 import eu.unicore.uas.fts.ProgressListener;
 import eu.unicore.uas.json.JSONUtil;

@@ -10,8 +10,8 @@ import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
-import eu.unicore.services.rest.client.IAuthCallback;
-import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.SecuredBase;
 import eu.unicore.uas.notification.Notifications;
 

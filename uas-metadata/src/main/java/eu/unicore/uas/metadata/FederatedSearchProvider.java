@@ -15,9 +15,9 @@ import eu.unicore.client.core.StorageClient;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.registry.IRegistry;
-import eu.unicore.services.registry.RegistryHandler;
-import eu.unicore.services.rest.client.IAuthCallback;
-import eu.unicore.services.rest.client.RegistryClient;
+import eu.unicore.services.rest.registry.RegistryHandler;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.RegistryClient;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
 
@@ -28,8 +28,7 @@ import eu.unicore.services.rest.jwt.JWTServerProperties;
  * @author Konstantine Muradov
  * @author schuller
  */
-public class FederatedSearchProvider implements
-		Callable<FederatedSearchResultCollection> {
+public class FederatedSearchProvider implements Callable<FederatedSearchResultCollection> {
 
 	private final Kernel kernel;
 	private final Client client;
@@ -42,9 +41,9 @@ public class FederatedSearchProvider implements
 		this.keyWord = keyWord;
 		this.acceptedStorageURLPatterns = createPatterns(patterns);
 	}
-	
+
 	private List<Pattern> createPatterns(List<String> patterns){
-		List<Pattern> res=new ArrayList<Pattern>();
+		List<Pattern> res=new ArrayList<>();
 		if(patterns!=null){
 			for(String p: patterns){
 				res.add(Pattern.compile(p));
@@ -86,9 +85,7 @@ public class FederatedSearchProvider implements
 			federatedSearchResult.addResourceURLs(searchResult);
 			result.addSearchResult(federatedSearchResult);
 		}
-		
 		result.setSearchEndTime(new Date());
-		
 		return result;
 	}
 	

@@ -10,7 +10,7 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
-import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

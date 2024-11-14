@@ -397,9 +397,9 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	@Override
-	public void handleEvent(final XnjsEvent event) throws ExecutionException {
+	public void handleEvent(final XnjsEvent event) {
 		final String actionID=event.getActionID();
-		Runnable r=new Runnable(){
+		Runnable r = new Runnable(){
 			public void run(){
 				if(xnjs.isStopped())return;
 				if(event instanceof CallbackEvent) {

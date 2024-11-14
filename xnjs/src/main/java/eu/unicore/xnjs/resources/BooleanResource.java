@@ -15,14 +15,8 @@ public class BooleanResource extends Resource {
 	}
 
 	@Override
-	public boolean isInRange(Object otherValue) {
-		if(otherValue instanceof String){
-			String v=(String)otherValue;
-			return "true".equalsIgnoreCase(v) || "false".equalsIgnoreCase(v);
-		}
-		else {
-			return otherValue instanceof BooleanResource || otherValue instanceof Boolean;
-		}
+	public boolean isInRange(String otherValue) {
+		return "true".equalsIgnoreCase(otherValue) || "false".equalsIgnoreCase(otherValue);
 	}
 
 	public String toString(){

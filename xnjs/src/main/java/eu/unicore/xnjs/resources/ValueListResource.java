@@ -40,30 +40,13 @@ public class ValueListResource extends Resource {
 	}
 
 	@Override
-	public boolean isInRange(Object otherValue) {
-		String otherSelected;
-
-		if(otherValue instanceof String){
-			otherSelected=(String)otherValue;
-		}
-		else if(otherValue instanceof StringResource){
-			otherSelected = ((StringResource)otherValue).getStringValue();
-		}
-		else{
-			if( !(otherValue instanceof ValueListResource) )return false;
-			ValueListResource otherList=(ValueListResource)otherValue;
-			otherSelected=otherList.selectedValue;
-		}
-		return otherSelected==null || checkIfValid(otherSelected);
-	}
-
-	private boolean checkIfValid(String valueToCheck) {
-		if(allowWildcards) {
-			return (validValues.contains(valueToCheck) || validValues.contains("*")) 
-					&& !valueToCheck.contains("*");
+	public boolean isInRange(String requestedValue) {
+			if(allowWildcards) {
+			return (validValues.contains(requestedValue) || validValues.contains("*")) 
+					&& !requestedValue.contains("*");
 		}
 		else {
-			return validValues.contains(valueToCheck);
+			return validValues.contains(requestedValue);
 		}
 	}
 

@@ -9,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import eu.unicore.services.restclient.utils.UnitParser;
+import eu.unicore.util.Log;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.ApplicationInfo.JobType;
 import eu.unicore.xnjs.idb.ApplicationMetadata;
@@ -34,7 +36,6 @@ import eu.unicore.xnjs.resources.ResourceSet;
 import eu.unicore.xnjs.resources.StringResource;
 import eu.unicore.xnjs.resources.ValueListResource;
 import eu.unicore.xnjs.util.JSONUtils;
-import eu.unicore.xnjs.util.UnitParser;
 
 public class JSONParser {
 	
@@ -228,9 +229,14 @@ public class JSONParser {
 		List<ResourceRequest> req = new ArrayList<>();
 		if(source!=null && source.length()>0) {
 			for(String name: source.keySet()) {
-				String value = parseResourceValue(name, String.valueOf(source.get(name)));
-				if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
-				req.add(new ResourceRequest(name, value));
+				try {
+					String value = parseResourceValue(name, String.valueOf(source.get(name)));
+					if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
+					req.add(new ResourceRequest(name, value));
+				}catch(Exception ex) {
+					String msg = Log.createFaultMessage("Could not parse requested resource <"+name+">", ex);
+					throw new IllegalArgumentException(msg);
+				}
 			}
 		}
 		return req;
@@ -239,11 +245,11 @@ public class JSONParser {
 	private static String parseResourceValue(String name, String value) {
 		if(ResourceSet.MEMORY_PER_NODE.equals(name)
 				|| "Memory".equals(name)) {
-			return String.valueOf(UnitParser.getCapacitiesParser(0).getLongValue(value));
+			return String.valueOf((long)UnitParser.getCapacitiesParser(0).getDoubleValue(value));
 		}
 		else if(ResourceSet.RUN_TIME.equals(name))
 		{
-			return String.valueOf(UnitParser.getTimeParser(0).getLongValue(value));
+			return String.valueOf((long)UnitParser.getTimeParser(0).getDoubleValue(value));
 		}
 		else if(ResourceSet.EXCLUSIVE.equals(name)) {
 			return String.valueOf(BooleanResource.parse(value));
@@ -319,8 +325,8 @@ public class JSONParser {
 		
 		if("INT".equals(type)){
 			Long value = defaultValue!=null ? Long.valueOf(defaultValue):null;
-			Long minI=min!=null ? up.getLongValue(min):null;
-			Long maxI=max!=null ? up.getLongValue(max):null;
+			Long minI=min!=null ? (long)up.getDoubleValue(min):null;
+			Long maxI=max!=null ? (long)up.getDoubleValue(max):null;
 			resource=new IntResource(name, value, maxI, minI, ResourceSet.getCategory(name));
 		}
 		else if("DOUBLE".equals(type)){
@@ -370,9 +376,9 @@ public class JSONParser {
 		
 		UnitParser up = getUnitParser(name);
 		
-		Long minI=min!=null ? up.getLongValue(min) :null;
-		Long maxI=max!=null ? up.getLongValue(max):null;
-		Long valI=defaultValue!=null ? up.getLongValue(defaultValue):null;
+		Long minI=min!=null ? (long)up.getDoubleValue(min) :null;
+		Long maxI=max!=null ? (long)up.getDoubleValue(max):null;
+		Long valI=defaultValue!=null ? (long)up.getDoubleValue(defaultValue):null;
 		
 		return new IntResource(name, valI,maxI,minI, ResourceSet.getCategory(name));
 	}

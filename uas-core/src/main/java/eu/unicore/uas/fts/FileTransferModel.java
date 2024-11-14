@@ -180,13 +180,4 @@ public class FileTransferModel extends UASBaseModel {
 		this.numberOfBytes = numberOfBytes;
 	}
 
-	private String frontend;
-	
-	public String getFrontend(String serviceType) {
-		return frontend;
-	}
-	
-	public void setFrontend(String frontend) {
-		this.frontend = frontend;
-	}
 }

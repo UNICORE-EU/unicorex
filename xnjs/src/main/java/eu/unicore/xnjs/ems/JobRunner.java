@@ -1,5 +1,7 @@
 package eu.unicore.xnjs.ems;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
+import eu.unicore.xnjs.ems.event.StateChangeEvent;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
 import eu.unicore.xnjs.persistence.IActionStore;
 import eu.unicore.xnjs.util.LogUtil;
@@ -120,52 +123,46 @@ public class JobRunner extends Thread {
 	//processes the action, and returns it to the manager
 	private void process(Action a){
 		int status=a.getStatus();
-		XnjsEvent event = null;
+		List<XnjsEvent> events = null;
 		try{
 			LogUtil.fillLogContext(a);
 			Processor p = xnjs.createProcessor(a.getType());
 			logger.trace("Processing Action <{}> in status {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
 			p.process(a);
 			logger.trace("New status for Action <{}>: {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
-			event = checkNotify(a, status);
+			events = checkNotify(a, status);
 			mgr.doneProcessing(a);
-			if(event!=null)mgr.handleEvent(event);
 		}catch(Throwable pe){
-			try{
-				// set status here to make sure we trigger notifications
-				a.setStatus(ActionStatus.DONE);
-				a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
-				a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", pe));
-				event = checkNotify(a, status);
+			// set status here to make sure we trigger notifications
+			a.setStatus(ActionStatus.DONE);
+			a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
+			a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", pe));
+			events = checkNotify(a, status);
+			try {
 				mgr.errorProcessing(a, pe);
-				if(event!=null)mgr.handleEvent(event);
-			}catch(Exception ex){
-				logger.error("Error during error reporting for action <"+a.getUUID()+">",ex);
-				try {
-					mgr.errorProcessing(a, ex);
-				}catch(Exception e2) {}
-			}
+			}catch(Exception e2) {}
 		}
 		finally{
+			if(events!=null && events.size()>0) {
+				for(XnjsEvent event: events) {
+					mgr.handleEvent(event);
+				}
+			}
 			LogUtil.clearLogContext();
 		}
 	}
 
-	private XnjsEvent checkNotify(Action a, int oldStatus) {
+	private List<XnjsEvent> checkNotify(Action a, int oldStatus) {
 		int newStatus = a.getStatus();
-		XnjsEvent event = null;
+		List<XnjsEvent> events = new ArrayList<>();
 		if(newStatus!=oldStatus){
-			try {
-				if(changeListener!=null) {
-					changeListener.stateChanged(a);
-				}
-			}catch(Exception ex){
-				logger.warn("Internal error during state change notification.", ex);
+			if(changeListener!=null) {
+				events.add(new StateChangeEvent(a.getUUID(), changeListener));
 			}
 			if(newStatus==ActionStatus.DONE){
 				if(a.getParentActionID()!=null){
 					try{
-						event = new ContinueProcessingEvent(a.getParentActionID());
+						events.add(new ContinueProcessingEvent(a.getParentActionID()));
 					}
 					catch(Exception ex){
 						logger.error("Error sending notification", ex);
@@ -173,7 +170,7 @@ public class JobRunner extends Thread {
 				}
 			}
 		}
-		return event;
+		return events;
 	}
 
 }

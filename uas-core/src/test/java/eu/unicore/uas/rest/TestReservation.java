@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Job;
 import eu.unicore.client.Job.Resources;
-import eu.unicore.services.rest.client.BaseClient;
-import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.services.restclient.BaseClient;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 
 public class TestReservation extends Base {

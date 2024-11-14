@@ -16,7 +16,7 @@ import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.FileClient;
-import eu.unicore.services.rest.client.UsernamePassword;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.util.MockMetadataManager;
 

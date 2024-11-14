@@ -24,12 +24,7 @@ public class StringResource extends Resource{
 	}
 	
 	@Override
-	public boolean isInRange(Object otherValue){
-		if( ! (otherValue.getClass().isAssignableFrom(StringResource.class)
-			|| otherValue instanceof String) )
-		{
-			throw new IllegalArgumentException("Need StringResource, found "+otherValue.getClass());
-		}
+	public boolean isInRange(String otherValue){
 		return true;
 	}
 

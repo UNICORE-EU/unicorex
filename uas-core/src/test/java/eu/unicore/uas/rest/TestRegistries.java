@@ -6,7 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.services.rest.client.BaseClient;
+import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.uas.Base;
 
 public class TestRegistries extends Base {

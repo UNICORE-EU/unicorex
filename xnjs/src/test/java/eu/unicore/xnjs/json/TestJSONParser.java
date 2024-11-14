@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
@@ -277,7 +278,14 @@ public class TestJSONParser {
 		assertEquals("project123", ResourceRequest.find(rr, ResourceSet.PROJECT).getRequestedValue());
 		assertEquals("123", ResourceRequest.find(rr, ResourceSet.RESERVATION_ID).getRequestedValue());	
 		assertEquals("2", ResourceRequest.find(rr, ResourceSet.GPUS_PER_NODE).getRequestedValue());	
-		assertEquals("true", ResourceRequest.find(rr, ResourceSet.EXCLUSIVE).getRequestedValue());	
+		assertEquals("true", ResourceRequest.find(rr, ResourceSet.EXCLUSIVE).getRequestedValue());
+		
+		JSONObject jrr2 = new JSONObject();
+		jrr2.put("Runtime", "20foo");
+		IllegalArgumentException e = assertThrows(IllegalArgumentException.class, ()->{
+			JSONParser.parseResourceRequest(jrr2);
+		});
+		assertTrue(e.getMessage().contains("Runtime"));
 	}
 	
 	@Test

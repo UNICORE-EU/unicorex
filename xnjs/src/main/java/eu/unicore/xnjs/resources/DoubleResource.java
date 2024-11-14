@@ -23,35 +23,20 @@ public class DoubleResource extends Resource implements RangeResource {
 		return value;
 	}
 	
-	public boolean isInRange(Object otherValue){
-		Double v;
-
-		if(otherValue instanceof String){
-			try{
-				v=Double.parseDouble((String)otherValue);
-			}
-			catch(NumberFormatException ex){
+	public boolean isInRange(String requestedValue){
+		try{
+			Double v = Double.parseDouble((String)requestedValue);
+			if(upper!=null && upper.compareTo(v)<0){
 				return false;
 			}
-		}
-		else if(otherValue instanceof Double){
-			v=(Double)otherValue;
-		}
-		else{
-			if(!(otherValue.getClass().isAssignableFrom(DoubleResource.class))){
-				throw new IllegalArgumentException("Can't check range, need Double value, found "+otherValue.getClass());
+			if(lower!=null && lower.compareTo(v)>0){
+				return false;
 			}
-			v=((DoubleResource)otherValue).getValue();
-			if(v==null)return true;
+			return true;
 		}
-
-		if(upper!=null && upper.compareTo(v)<0){
+		catch(NumberFormatException ex){
 			return false;
 		}
-		if(lower!=null && lower.compareTo(v)>0){
-			return false;
-		}
-		return true;
 	}
 
 	@Override

@@ -11,9 +11,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
-import eu.unicore.services.rest.client.BaseClient;
-import eu.unicore.services.rest.client.IAuthCallback;
-import eu.unicore.services.rest.client.UserPreferences;
+import eu.unicore.services.restclient.BaseClient;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UserPreferences;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
 

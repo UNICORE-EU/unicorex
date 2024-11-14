@@ -1,8 +1,8 @@
 package eu.unicore.uas;
 
 import eu.unicore.client.data.FiletransferClient;
-import eu.unicore.services.ClientCapabilities;
-import eu.unicore.services.ClientCapability;
+import eu.unicore.services.restclient.ClientCapabilities;
+import eu.unicore.services.restclient.ClientCapability;
 
 /**
  * advertises client capabilities of the uas-client module

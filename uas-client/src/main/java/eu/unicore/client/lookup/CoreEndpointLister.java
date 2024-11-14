@@ -13,7 +13,7 @@ import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.registry.IRegistryClient;
 import eu.unicore.client.registry.RegistryClient;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProvider;
-import eu.unicore.services.rest.client.IAuthCallback;
+import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.util.Log;
 import eu.unicore.util.Pair;
 import eu.unicore.util.httpclient.IClientConfiguration;
