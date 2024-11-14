@@ -198,6 +198,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			}
 			else {
 				action.addLogTrace(msg+". Giving up.");
+				rewriteJobDescription(null);
 				throw ExecutionException.wrapped(e);
 			}
 		}
@@ -926,6 +927,12 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 */
 	protected abstract List<DataStageOutInfo> extractStageOutInfo()throws Exception;
 
+	/**
+	 * useful if information is in the job description 
+	 * that should not be permanently stored
+	 * @param modified
+	 */
+	protected void rewriteJobDescription(T modified) {}
 
 	//delete files from stage in that were marked "DeleteOnTermination"
 	@SuppressWarnings("unchecked")

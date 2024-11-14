@@ -343,10 +343,10 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		long dataSize = info.getDataSize();
 		long consumedMillis=getElapsedTime();
 		long r = (long)((float)dataSize/(float)consumedMillis);
-		String what=isExport()?"sent":"received";
+		String what=isExport()?"Sent":"Received";
 		String dn=client!=null?client.getDistinguishedName():"anonymous";
 		String url=storageEndpoint.getUrl();
-		logger.debug("{} {} bytes in {} milliseconds, data rate={} kB/s)", what, dataSize, consumedMillis);
+		logger.debug("{} {} bytes in {} milliseconds, data rate={} kB/s)", what, dataSize, consumedMillis, r);
 		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}] [{}] [{}]"
 				    ,dn, what, dataSize, r,
 				    url, info.getSource(), info.getTarget(), info.getProtocol(),

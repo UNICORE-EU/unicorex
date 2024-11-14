@@ -43,9 +43,11 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		return jobDescription;
 	}
 	
-	// useful if information is in the job description 
-	// that should not be kept long-term in the DB
+	@Override
 	protected void rewriteJobDescription(JSONObject modified) {
+		if(modified==null) {
+			modified = new JSONObject();
+		}
 		action.setAjd(modified.toString());
 	}
 
@@ -71,6 +73,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected void extractFromJobDescription()throws ExecutionException{
+		if(isEmptyJob())return;
 		Incarnation grounder = xnjs.get(Incarnation.class);
 		Client client = action.getClient();
 		try{
@@ -106,12 +109,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			action.setDirty();
 
 		} catch (Exception e) {
-			if(e instanceof ExecutionException){
-				throw (ExecutionException)e;
-			}
-			else{
-				throw new ExecutionException(e);
-			}
+			throw ExecutionException.wrapped(e);
 		}
 	}
 

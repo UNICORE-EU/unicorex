@@ -245,11 +245,11 @@ public class JSONParser {
 	private static String parseResourceValue(String name, String value) {
 		if(ResourceSet.MEMORY_PER_NODE.equals(name)
 				|| "Memory".equals(name)) {
-			return String.valueOf((long)UnitParser.getCapacitiesParser(0).getDoubleValue(value));
+			return String.valueOf(UnitParser.getCapacitiesParser(0).getLongValue(value));
 		}
 		else if(ResourceSet.RUN_TIME.equals(name))
 		{
-			return String.valueOf((long)UnitParser.getTimeParser(0).getDoubleValue(value));
+			return String.valueOf(UnitParser.getTimeParser(0).getLongValue(value));
 		}
 		else if(ResourceSet.EXCLUSIVE.equals(name)) {
 			return String.valueOf(BooleanResource.parse(value));
@@ -325,8 +325,8 @@ public class JSONParser {
 		
 		if("INT".equals(type)){
 			Long value = defaultValue!=null ? Long.valueOf(defaultValue):null;
-			Long minI=min!=null ? (long)up.getDoubleValue(min):null;
-			Long maxI=max!=null ? (long)up.getDoubleValue(max):null;
+			Long minI=min!=null ? up.getLongValue(min):null;
+			Long maxI=max!=null ? up.getLongValue(max):null;
 			resource=new IntResource(name, value, maxI, minI, ResourceSet.getCategory(name));
 		}
 		else if("DOUBLE".equals(type)){
@@ -376,9 +376,9 @@ public class JSONParser {
 		
 		UnitParser up = getUnitParser(name);
 		
-		Long minI=min!=null ? (long)up.getDoubleValue(min) :null;
-		Long maxI=max!=null ? (long)up.getDoubleValue(max):null;
-		Long valI=defaultValue!=null ? (long)up.getDoubleValue(defaultValue):null;
+		Long minI=min!=null ? up.getLongValue(min) :null;
+		Long maxI=max!=null ? up.getLongValue(max):null;
+		Long valI=defaultValue!=null ? up.getLongValue(defaultValue):null;
 		
 		return new IntResource(name, valI,maxI,minI, ResourceSet.getCategory(name));
 	}
