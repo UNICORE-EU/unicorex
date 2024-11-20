@@ -90,11 +90,11 @@ public class Jobs extends ServicesBase {
 				details.put("rawDetailsData", detailString);
 			}
 			parsePropertySpec(fieldSpec);
-			if(requestedProperties.size()>0) {
+			if(requestedProperties.size()>0 || excludedProperties.size()>0) {
 				Iterator<String>i=details.keys();
 				while(i.hasNext()) {
 					String k = i.next();
-					if(!requestedProperties.contains(k)) {
+					if(!wantProperty(k)) {
 						i.remove();
 					}
 				}
