@@ -19,7 +19,7 @@
     <connection>scm:git:git://github.com/UNICORE-EU/unicorex.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/UNICORE-EU/unicorex.git</developerConnection>
     <url>https://github.com/UNICORE-EU/unicorex</url>
-    <tag>HEAD</tag>
+    <tag>unicorex-2.8.0</tag>
   </scm>
 
   <issueManagement>
