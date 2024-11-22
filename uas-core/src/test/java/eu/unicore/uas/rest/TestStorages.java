@@ -144,6 +144,21 @@ public class TestStorages extends Base {
 	}
 
 	@Test
+	public void testImportError1() throws Exception {
+		StorageClient sms = createStorage();
+		assertThrows(IOException.class,
+				()->sms.createImport("test123", false, -1, "NOSUCHPROTOCOL", null));
+		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/imports", sms.getSecurityConfiguration());
+		JSONObject data = new JSONObject();
+		data.put("protocol", "NOSUCHPROTOCOL");
+		data.put("file", "foo");
+		RESTException re = assertThrows(RESTException.class,
+				()->bc.post(data));
+		System.out.println("GOT: "+re.getMessage());
+		assertTrue(re.getMessage().contains("not available"));
+	}
+
+	@Test
 	public void testExportFile() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
@@ -151,6 +166,21 @@ public class TestStorages extends Base {
 		HttpFileTransferClient fts = (HttpFileTransferClient)sms.createExport("test.txt", "BFT", null);
 		String content = IOUtils.toString(fts.getInputStream(), "UTF-8");
 		System.out.println(content);
+	}
+
+	@Test
+	public void testExportError1() throws Exception {
+		StorageClient sms = createStorage();
+		assertThrows(IOException.class,
+				()->sms.createExport("test123", "NOSUCHPROTOCOL", null));
+		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/exports", sms.getSecurityConfiguration());
+		JSONObject data = new JSONObject();
+		data.put("protocol", "NOSUCHPROTOCOL");
+		data.put("file", "foo");
+		RESTException re = assertThrows(RESTException.class,
+				()->bc.post(data));
+		System.out.println("GOT: "+re.getMessage());
+		assertTrue(re.getMessage().contains("not available"));
 	}
 
 	@Test

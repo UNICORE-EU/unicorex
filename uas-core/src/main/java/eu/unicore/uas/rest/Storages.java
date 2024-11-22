@@ -136,6 +136,9 @@ public class Storages extends ServicesBase {
 			JSONObject json = new JSONObject(jsonString);
 			String file = json.getString("file");
 			String protocol = json.optString("protocol","BFT");
+			if(!getResource().getAvailableProtocols().contains(protocol)) {
+				throw new IllegalArgumentException("Protocol '"+protocol+"' is not available.");
+			}
 			Boolean overwrite = Boolean.valueOf(json.optString("overwrite","true"));
 			Long numBytes = Long.valueOf(json.optString("numBytes","-1"));
 			Map<String,String>extraParameters = JSONUtil.asMap(json.optJSONObject("extraParameters"));
@@ -164,6 +167,9 @@ public class Storages extends ServicesBase {
 			JSONObject json = new JSONObject(jsonString);
 			String file = json.getString("file");
 			String protocol = json.optString("protocol","BFT");
+			if(!getResource().getAvailableProtocols().contains(protocol)) {
+				throw new IllegalArgumentException("Protocol '"+protocol+"' is not available.");
+			}
 			Map<String,String>extraParameters = JSONUtil.asMap(json.optJSONObject("extraParameters"));
 			String id = ((SMSBaseImpl)getResource()).createFileExport(file, protocol, extraParameters);
 			String location = getBaseURL()+"/client-server-transfers/"+id;

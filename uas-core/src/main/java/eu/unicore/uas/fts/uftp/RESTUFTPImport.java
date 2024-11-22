@@ -56,6 +56,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 	public RESTUFTPImport(XNJS config){
 		super(config);
 		uftpProperties = kernel.getAttribute(UFTPProperties.class);
+		if(uftpProperties==null)throw new IllegalArgumentException("UFTP is not enabled.");
 		localMode = uftpProperties.getBooleanValue(UFTPProperties.PARAM_CLIENT_LOCAL);
 		info.setProtocol("UFTP");
 		clientHost = setupClientHost();
@@ -66,13 +67,12 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 	@Override
 	public void setExtraParameters(Map<String,String>params){
 		for(Map.Entry<String,String> e: params.entrySet()){
-			String key=e.getKey();
-			String value=e.getValue();
+			String key = e.getKey();
 			if(UFTPConstants.PARAM_ENABLE_ENCRYPTION.equals(key)){
-				useEncryption = Boolean.parseBoolean(value);
+				useEncryption = Boolean.parseBoolean(e.getValue());
 			}
-			if(UFTPConstants.PARAM_STREAMS.equals(key)){
-				streams = Integer.parseInt(value);
+			else if(UFTPConstants.PARAM_STREAMS.equals(key)){
+				streams = Integer.parseInt(e.getValue());
 			}
 		}
 	}
