@@ -269,7 +269,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			long numBytes, Map<String,String>extraParameters)
 			throws Exception {
 		FiletransferInitParameters init = new FiletransferInitParameters();
-		String target=makeSMSLocal(file);
+		String target = makeSMSLocal(file);
 		checkImportTarget(target);
 		init.target = target;
 		init.overwrite = overwrite;
@@ -294,7 +294,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	public String createFileExport(String file, String protocol, Map<String,String>extraParameters)
 			throws Exception {
 		FiletransferInitParameters init = new FiletransferInitParameters();
-		String source=makeSMSLocal(file);
+		String source = makeSMSLocal(file);
 		if(!source.contains(UFTPConstants.SESSION_TAG) && getProperties(source)==null){
 			throw new FileNotFoundException("File <"+source+"> not found on storage");
 		}
@@ -322,6 +322,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			throws Exception{
 		initParam.smsUUID = getUniqueID();
 		initParam.workdir = getStorageRoot();
+		if(initParam.workdir==null) {
+			throw new Exception("Storage is not ready.");
+		}
 		initParam.umask = getUmask();
 		initParam.storageAdapterFactory = getStorageAdapterFactory();
 		initParam.xnjsReference = getModel().getXnjsReference();

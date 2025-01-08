@@ -30,8 +30,6 @@ import eu.unicore.client.core.BaseServiceClient;
  */
 public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 
-	private volatile boolean running = false;
-
 	private final BlockingQueue<T> queue;
 
 	private final List<Producer<T>>producers = new ArrayList<>();
@@ -43,8 +41,6 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 	protected AddressFilter addressFilter = new AcceptAllFilter();
 
 	private long timeout = 10;
-
-	private TimeUnit unit = TimeUnit.SECONDS;
 
 	public Lister(){
 		this(Integer.MAX_VALUE);
@@ -66,21 +62,20 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 	}
 	
 	/**
-	 * set the timeout that is used the iterator next() method. If no results become available
+	 * set the timeout (seconds) that is used the iterator next() method. If no results become available
 	 * in that time, the next() method will return null.
 	 * 
 	 * @param timeout
-	 * @param timeUnit
 	 */
-	public void setTimeout(long timeout, TimeUnit timeUnit){
+	public void setTimeout(long timeout){
 		this.timeout = timeout;
-		this.unit = timeUnit;
 	}
 
 	public void addProducer(Producer<T> producer){
+		if(isRunning())throw new IllegalStateException();
 		producers.add(producer);
 	}
-	
+
 	public void setExecutor(ExecutorService executor){
 		this.executor = executor;
 	}
@@ -90,22 +85,30 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 	 * the run() method, the lookup will be started. 
 	 */
 	public Iterator<T> iterator(){
-		if(!running){
+		if(!isRunning()){
 			run();
 		}
 		return new Iterator<T>() {
 
 			@Override
 			public boolean hasNext() {
-				return running && (runCounter.get()>0 || queue.size()>0);
+				return runCounter.get()>0 || queue.size()>0;
 			}
 
 			@Override
 			public T next() {
 				try{
-					return queue.poll(timeout, unit);
+					int i=0;
+					// poll/wait for 50 millis, and exit if no more producers
+					// are running or the global timeout is reached
+					long time_out = 20*timeout;
+					while(i<time_out && runCounter.get()>0) {
+						T res = queue.poll(50, TimeUnit.MILLISECONDS);
+						if(res!=null)return res;
+						i++;
+					}
+					return null;
 				}catch(InterruptedException it){
-					running = false;
 					return null;
 				}
 			}
@@ -118,7 +121,7 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 	}
 
 	public boolean isRunning(){
-		return running;
+		return runCounter.get()>0;
 	}
 
 	/**
@@ -127,10 +130,8 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 	 * to check whether the background tasks have finished.
 	 */
 	public void run(){
-		if(running==true)throw new IllegalStateException();
-
+		if(isRunning())throw new IllegalStateException();
 		if(producers.size()>0){
-			running=true;
 			runCounter.set(producers.size());
 			for(Producer<T> p: producers){
 				p.init(queue, runCounter);

@@ -32,7 +32,7 @@ public abstract class Resource {
 	
 	/**
 	 * check if the requested value is within the validity range of this resource
-	 * @param otherValue
+	 * @param requestedValue
 	 */
 	public abstract boolean isInRange(String requestedValue);
 	
