@@ -45,7 +45,7 @@
     <commons-io.version>2.18.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <bc.version>1.78.1</bc.version>
-    <jgit.version>7.1.0.202411261347-r</jgit.version>
+    <jgit.version>6.9.0.202403050737-r</jgit.version>
   </properties>
 
   <modules>
