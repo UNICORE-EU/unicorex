@@ -147,7 +147,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	/**
 	 * Get the underlying XNJS action
 	 */
-	public synchronized Action getXNJSAction(){
+	public synchronized Action getXNJSAction() throws Exception {
 		if(xnjsAction == null){
 			xnjsAction = getXNJSFacade().getAction(getUniqueID());
 			if(xnjsAction==null){

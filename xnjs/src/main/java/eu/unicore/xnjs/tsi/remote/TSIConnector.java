@@ -47,6 +47,7 @@ public class TSIConnector {
 		this.port = tsiPort;
 		this.hostname = hostname;
 		this.category = category;
+		this.waitingPeriod = 5 * properties.getIntValue(TSIProperties.BSS_UPDATE_INTERVAL);
 	}
 	
 	public String getHostname() {
@@ -68,13 +69,12 @@ public class TSIConnector {
 		try{
 			log.debug("Contacting TSI at {}:{}", address, port);
 			TSIConnection c = doCreateNewTSIConnection(server);
-			log.info("Created new TSI connection to {}:{} this is <{}>", address, port, 1+counter.get());
+			log.info("Created new TSI connection to {}:{} this is <{}>", address, port, counter.get());
 			OK();
 			return c;
 		}
 		catch(IOException ex){
-			String msg = Log.createFaultMessage("Can't create connection to "+this, ex);
-			notOK(msg);
+			notOK(Log.createFaultMessage("Can't create connection to "+this, ex));
 			throw ex;
 		}
 	}
@@ -86,8 +86,7 @@ public class TSIConnector {
 				server.setSoTimeout(connectTimeout);
 				signalShepherd(server, "set "+key+" "+value+"\n");
 			}catch(IOException ex) {
-				String msg = Log.createFaultMessage("Can't set parameter on TSI"+this, ex);
-				notOK(msg);
+				notOK(Log.createFaultMessage("Can't set parameter on TSI"+this, ex));
 				throw ex;
 			}
 		}
@@ -248,7 +247,7 @@ public class TSIConnector {
 
 	private long disabledAt = 0;
 
-	// waiting period in milliseconds, default is 1 minute
+	// waiting period in milliseconds
 	private long waitingPeriod = 60 * 1000;
 
 	private String statusMessage;
@@ -287,4 +286,5 @@ public class TSIConnector {
 	public String getStatusMessage(){
 		return statusMessage;
 	}
+
 }

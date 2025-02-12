@@ -51,9 +51,10 @@ public class ShowJobDetails implements AdminAction {
 
 	}
 
-	private StringBuilder getSingleActionInfo(String requestedID, String xnjsReference,  Kernel kernel){
+	private StringBuilder getSingleActionInfo(String requestedID, String xnjsReference,  Kernel kernel)
+			throws Exception {
 		StringBuilder info=new StringBuilder();
-		Action a=XNJSFacade.get(xnjsReference, kernel).getAction(requestedID);
+		Action a = XNJSFacade.get(xnjsReference, kernel).getAction(requestedID);
 		if(a!=null){
 			info.append(a.toString());
 			info.append("Processing context: ");

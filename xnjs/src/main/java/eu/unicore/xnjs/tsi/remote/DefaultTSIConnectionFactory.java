@@ -54,8 +54,6 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	// TSI machine
 	private String machineID="";
 
-	private String tsiDescription="";
-
 	private volatile boolean isRunning = false;
 
 	private String tsiVersion = null;
@@ -123,12 +121,17 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	private TSIConnector getConnector(String preferredHost) {
 		List<String>candidates = getTSIHostNames(preferredHost, connectors.values());
 		TSIConnector connector = null;
+		boolean tsiExists = false;
 		for(String name: candidates){
 			connector = connectors.get(name);
-			if(connector!=null)break;
+			if(connector!=null) {
+				tsiExists = true;
+				if(connector.isOK())break;
+			}
 		}
 		if(connector==null){
-			throw new IllegalArgumentException("No TSI is configured at '"+preferredHost+"'");
+			throw new IllegalArgumentException("No TSI is "+(tsiExists? "available" : "configured")
+					+" at '"+preferredHost+"'");
 		}
 		return connector;
 
@@ -207,7 +210,6 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 			}
 			machineID = machineSpec.toString();
 			machineSpec.append(", XNJS listens on port ").append(tsiProperties.getTSIMyPort());
-			tsiDescription = machineSpec.toString();
 			pos = new RollingIndex(connectors.size());
 			connectionPool.configure(connectors.values());
 		}catch(Exception ex) {
@@ -262,7 +264,14 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}
 		if(numOK>0){
 			sb.append("OK [TSI v").append(tsiVersion).append(" (").append(numOK).append("/").append(numTotal)
-			.append(" nodes up) at ").append(tsiDescription).append("]");
+			.append(" nodes up)");
+			if(numTotal-numOK>0) {
+				for(TSIConnector c: connectors.values()) {
+					if(!c.isOK()) {
+						sb.append(" DOWN:").append(c.getAddress());
+					}
+				}
+			}
 		}
 		else{
 			sb.append("NOT OK [none of the configured TSIs is available").append("]");

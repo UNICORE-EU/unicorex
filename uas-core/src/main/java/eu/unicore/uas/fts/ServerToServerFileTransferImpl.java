@@ -77,7 +77,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 	/**
 	 * returns <code>true</code> if the file transfer is not yet finished
 	 */
-	protected boolean isFinished(){
+	protected boolean isFinished() throws Exception {
 		Status s = getStatus();
 		return s==Status.DONE || s==Status.FAILED || s==Status.ABORTED;
 	}
@@ -106,7 +106,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		super.destroy();
 	}
 
-	public Status getStatus(){
+	public Status getStatus() throws Exception {
 		int status = getXNJSAction().getStatus();
 		Status ftStatus = Status.CREATED;
 		switch (status) {
@@ -130,7 +130,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		return ftStatus;
 	}
 
-	public String getFiletransferStatusMessage(){
+	public String getFiletransferStatusMessage() throws Exception {
 		ActionResult result = getXNJSAction().getResult();
 		if(result!=null)
 			return result.getStatusString()
@@ -179,7 +179,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 
 	private Action xnjsAction;
 
-	public synchronized Action getXNJSAction(){
+	public synchronized Action getXNJSAction() throws Exception {
 		if(xnjsAction == null){
 			xnjsAction = getXNJSFacade().getAction(getUniqueID());
 		}

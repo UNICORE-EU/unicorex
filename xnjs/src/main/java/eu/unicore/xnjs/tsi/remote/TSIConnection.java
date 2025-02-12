@@ -198,22 +198,22 @@ public class TSIConnection implements AutoCloseable {
 	@Override
 	public void close() {
 		idLine = "";
-		if(shutDown){
-			return;
+		if(!shutDown){
+			factory.done(this);
 		}
-		factory.done(this);
 	}
 	
 	/**
 	 * The TSIConnection is no longer required or is unusable.
 	 */
 	public void shutdown() {
-		if(shutDown)return;
-		logger.debug("Connection {} shutdown.", getConnectionID());
-		shutDown = true;
-		command.close();
-		data.close();
-		factory.notifyConnectionDied();
+		if(!shutDown) {
+			logger.debug("Connection {} shutdown.", getConnectionID());
+			shutDown = true;
+			command.close();
+			data.close();
+			factory.notifyConnectionDied();
+		}
 	}
 
 	public boolean isShutdown() {

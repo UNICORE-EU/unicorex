@@ -149,7 +149,7 @@ public interface IStorageAdapter {
 	 * 
 	 * @param target - the link target (i.e. the real file)
 	 * @param linkName - the name of the link
-	 * @throws ExecutionExcepion
+	 * @throws ExecutionException
 	 */
 	public void link(String target, String linkName)throws ExecutionException;
 	

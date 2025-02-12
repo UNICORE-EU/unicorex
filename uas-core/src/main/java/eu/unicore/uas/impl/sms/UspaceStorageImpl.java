@@ -10,7 +10,6 @@ import eu.unicore.services.Resource;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
-import eu.unicore.xnjs.ems.ExecutionException;
 
 /**
  * A storage serving files from a job's working directory
@@ -27,7 +26,7 @@ public class UspaceStorageImpl extends SMSBaseImpl {
 	}
 
 	// must update workdir since it is created asynchronously
-	private void updateWorkdir()throws ExecutionException{
+	private void updateWorkdir()throws Exception{
 		if(getModel().workdir==null){
 			SMSModel m = getModel();
 			String actionId = m.storageDescription.getPathSpec();
@@ -57,7 +56,7 @@ public class UspaceStorageImpl extends SMSBaseImpl {
 	public String getStorageRoot() {
 		try{
 			updateWorkdir();
-		}catch(ExecutionException e) {}
+		}catch(Exception e) {}
 		return getModel().workdir;
 	}
 	

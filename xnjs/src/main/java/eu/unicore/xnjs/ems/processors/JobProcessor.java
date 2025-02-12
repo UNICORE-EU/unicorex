@@ -48,8 +48,6 @@ import eu.unicore.xnjs.util.LogUtil;
  * Base processor for UNICORE jobs<br/>
  * Handles just about everything, except parsing the job description.
  *
- * @param T - the type containing the job description
- * 
  * @author schuller
  */
 public abstract class JobProcessor<T> extends DefaultProcessor {

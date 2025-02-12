@@ -36,7 +36,7 @@ public class TSIConfigurator {
 			// standard machine
 			String machine = tsiProperties.getTSIMachine();
 			int port = tsiProperties.getTSIPort();
-			List<TSIConnector> newConnectors =createConnectors(machine, port, null);
+			List<TSIConnector> newConnectors = createConnectors(machine, port, null);
 			// machines in categories
 			updateTSIHostCategories(categories);
 			for(String category: categories){

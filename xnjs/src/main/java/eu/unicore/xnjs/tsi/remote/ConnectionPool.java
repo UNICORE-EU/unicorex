@@ -55,7 +55,7 @@ public class ConnectionPool {
 	public boolean offer(TSIConnection connection){
 		synchronized (pool) {
 			List<TSIConnection> pooled = getOrCreateConnectionList(connection.getTSIHostName());
-			if(pooled.size()<keepConnections){
+			if(pooled.size()<keepConnections && connection.getConnector().isOK()){
 				pooled.add(connection);
 				return true;
 			}

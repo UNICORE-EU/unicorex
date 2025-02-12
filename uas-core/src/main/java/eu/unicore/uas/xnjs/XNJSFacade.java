@@ -214,7 +214,7 @@ public class XNJSFacade implements ISubSystem {
 	private void doDefaultInit(Kernel kernel){
 		UASProperties uasConfig = kernel.getAttribute(UASProperties.class);
 		TSI_MODE mode = uasConfig.getEnumValue(UASProperties.TSF_TSI_MODE, TSI_MODE.class);
-		logger.info("Configuring XNJS using <"+mode+"> TSI.");
+		logger.info("Configuring XNJS using <{}> TSI.", mode);
 		Properties props = kernel.getContainerProperties().getRawProperties();
 		try{
 			configure(mode, props, uasConfig);
@@ -253,29 +253,16 @@ public class XNJSFacade implements ISubSystem {
 		return kernel;
 	}
 
-	public String getWorkdir(String actionID){
-		try{
-			return ems.getAction(actionID).getExecutionContext().getWorkingDirectory();
-		}catch(Exception e){
-			return null;
-		}
+	public String getWorkdir(String actionID) throws Exception {
+		return ems.getAction(actionID).getExecutionContext().getWorkingDirectory();
 	}
 	
-	public Action makeAction(JSONObject doc){
-		try{
-			return xnjs.makeAction(doc);
-		}catch(Exception e){
-			return null;
-		}
+	public Action makeAction(JSONObject doc) throws Exception {
+		return xnjs.makeAction(doc);
 	}
 
-	public final Action getAction(String id){
-		try{
-			return mgr.getAction(id);
-		}catch(Exception e){
-			LogUtil.logException("Error retrieving action <"+id+">", e);
-			return null;
-		}
+	public final Action getAction(String id) throws Exception {
+		return mgr.getAction(id);
 	}
 
 	/**

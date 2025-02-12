@@ -105,7 +105,7 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 	/**
 	 * Get the underlying XNJS action
 	 */
-	public synchronized Action getXNJSAction(){
+	public synchronized Action getXNJSAction() throws Exception {
 		if(xnjsAction == null){
 			xnjsAction = getXNJSFacade().getAction(getUniqueID());
 			if(xnjsAction==null){
