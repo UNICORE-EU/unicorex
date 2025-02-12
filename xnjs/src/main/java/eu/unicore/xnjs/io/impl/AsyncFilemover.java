@@ -302,7 +302,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		String r=IOUtils.format(consumedMillis>0?(float)dataSize/(float)consumedMillis:0,2);
 		String what=isImport()?"received":"sent";
 		String dn=client!=null?client.getDistinguishedName():"anonymous";
-		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}]<w [{}]",
+		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}] [{}]",
 					dn, what, dataSize, r, info.getSource(), info.getTarget(),
 					info.getProtocol(), info.getParentActionID());
 	}
