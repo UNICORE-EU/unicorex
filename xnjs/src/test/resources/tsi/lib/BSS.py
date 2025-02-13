@@ -33,11 +33,6 @@ class BSS(BSSBase):
         TSI_TIME
         TSI_MEMORY
         """
-        self.cleanup(config)
-
-        children = config.get('tsi.child_pids')
-
-        LOG.debug("Submitting a script.")
         message = Utils.expand_variables(message)
 
         outcome_dir = Utils.extract_parameter(message, "OUTCOME_DIR")
@@ -114,8 +109,9 @@ class BSS(BSSBase):
         LOG.debug("Running: %s" % cmd)
         # fork a child to run the command
         child = subprocess.Popen(cmd, shell=True, start_new_session=True)
-        # remember child to be able to clean up processes later
-        children.append(child)
+        # remember child PID to be able to clean up processes later
+        child_pids = config.get('tsi.child_pids')
+        child_pids.append(child.pid)
         connector.write_message(job_id)
 
     def extract_info(self, qstat_line):

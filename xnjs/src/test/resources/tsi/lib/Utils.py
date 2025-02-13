@@ -57,7 +57,7 @@ def addperms(path, mode):
     os.chmod(path, mode)
 
 
-def run_command(cmd, discard=False, children=None):
+def run_command(cmd, discard=False, child_pids=None):
     """
     Runs command, capturing the output if the discard flag is True
     Returns a success flag and the output.
@@ -75,13 +75,15 @@ def run_command(cmd, discard=False, children=None):
             # run the command in the background
             child = subprocess.Popen(cmd, shell=True, start_new_session=True)
             # remember child to be able to clean up processes later
-            if children is not None: 
-                children.append(child)
+            if child_pids is not None:
+                child_pids.append(child.pid)
+
         success = True
     except subprocess.CalledProcessError as cpe:
         output = "Command '%s' failed with code %s: %s" % (
-            cmd, cpe.returncode, cpe.output)
+            cmd, cpe.returncode, cpe.output.decode("UTF-8"))
         success = False
+
     return success, output
 
 
@@ -94,3 +96,60 @@ def run_and_report(cmd, connector):
         connector.failed(output)
     else:
         connector.ok(output)
+
+
+rdn_map = {"C": "countryName",
+           "CN": "commonName",
+           "O": "organizationName",
+           "OU": "organizationalUnitName",
+           "L": "localityName",
+           "ST": "stateOrProvinceName",
+           "DC": "domainComponent",
+           }
+
+
+def convert_rdn(rdn):
+    split = rdn.split("=")
+    translated = rdn_map.get(split[0])
+    if translated is None:
+        return None
+    val = split[1]
+    return translated, val
+
+
+def convert_dn(dn):
+    """ Convert X500 DN in RFC format to a tuple """
+    converted = []
+    # split dn and strip leading/trailing whitespace
+    elements = [x.strip() for x in re.split(r"[,]", dn)]
+    for element in elements:
+        if element != '':
+            rdn = convert_rdn(element)
+            if rdn is None:
+                pass
+            converted.append(rdn)
+    return converted
+
+
+def match_rdn(rdn, subject):
+    for x in subject:
+        for y in x:
+            if str(y[0]) == str(rdn[0]) and str(y[1]) == str(rdn[1]):
+                return True
+    return False
+
+
+def check_access(subject, acl):
+    """ matches the given cert subject to the ACL. The subject must be 
+        in the format as returned by ssl.getpeercert()['subject']
+    """
+    for dn in acl:
+        accept = True
+        # every RDN of the ACL entry has to be in the subject
+        for rdn in dn:
+            accept = accept and match_rdn(rdn, subject)
+            if not accept:
+                break
+        if accept:
+            return True
+    return False

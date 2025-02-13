@@ -6,12 +6,12 @@ import os
 import re
 import socket
 import sys
-import ACL, BecomeUser, BSS, Connector, Log, PAM, Reservation, Server, SSL, IO, UFTP, Utils
+import ACL, BecomeUser, BSS, Connector, Log, PAM, Reservation, Server, IO, UFTP, Utils
 
 #
 # the TSI version
 #
-MY_VERSION = "10.0.0"
+MY_VERSION = "10.2.0"
 
 # supported Python versions
 REQUIRED_VERSION = (3, 7, 0)
@@ -41,11 +41,12 @@ def setup_defaults(config):
     config['tsi.unicorex_machine'] = 'localhost'
     config['tsi.safe_dir'] = '/tmp'
     config['tsi.keyfiles'] = ['.ssh/authorized_keys']
+    config['tsi.child_pids'] = []
 
 
 def process_config_value(key, value, config):
     """
-    Handles configuration values, checking for correctness
+    Handles key=value line from config file, checking for correctness
     and storing the appropriate settings in the config dictionary
     """
     boolean_keys = ['tsi.open_user_sessions',
@@ -71,15 +72,15 @@ def process_config_value(key, value, config):
                            "must be 'NONE', 'POSIX' or 'NFS'" % (value, key))
     elif key.startswith('tsi.allowed_dn.'):
         allowed_dns = config.get('tsi.allowed_dns', [])
-        dn = SSL.convert_dn(value)
+        dn = Utils.convert_dn(value)
         allowed_dns.append(dn)
         config['tsi.allowed_dns'] = allowed_dns
     elif key == "tsi.keyfiles":
         config["tsi.keyfiles"] = value.split(":")  
     elif key== "tsi.njs_machine":
-        key="tsi_unicorex_machine"
+        config["tsi_unicorex_machine"] = value
     elif key== "tsi_njs_port":
-        key="tsi_unicorex_port"
+        config["tsi_unicorex_port"] = value
     else:
         config[key] = value
 
@@ -88,20 +89,15 @@ def setup_acl(config, LOG):
     """
     Configures the ACL settings
     """
-    if config.get('tsi.getfacl') is not None and config.get(
-            'tsi.setfacl') is not None:
-        success, res = Utils.run_command(config.get('tsi.getfacl')+" -v")
-        if success:
-            LOG.info("POSIX ACL support enabled, using: %s" % res)
-            config['tsi.posixacl_enabled'] = True
-        else:
-            LOG.info("POSIX ACL support disabled: %s" % res)
-            config['tsi.posixacl_enabled'] = False
+    if config.get('tsi.getfacl_cmd') is not None and config.get(
+            'tsi.setfacl_cmd') is not None:
+        config['tsi.posixacl_enabled'] = True
     else:
         config['tsi.posixacl_enabled'] = False
         LOG.info("POSIX ACL support disabled (commands not configured)")
-    if config.get('tsi.nfs_getfacl') is not None and config.get(
-            'tsi.nfs_setfacl') is not None:
+
+    if config.get('tsi.nfs_getfacl_cmd') is not None and config.get(
+            'tsi.nfs_setfacl_cmd') is not None:
         config['tsi.nfsacl_enabled'] = True
     else:
         config['tsi.nfsacl_enabled'] = False
@@ -149,9 +145,8 @@ def setup_portrange(config, LOG):
 
 def read_config_file(file_name):
     """
-    Read config properties file, check values, and return
+    Read the config properties file, check values, and return
     a dictionary with the configuration.
-    Parameters: file_name, LOG logger object
     Returns: a dictionary with config values
     """
     with open(file_name, "r") as f:
@@ -176,7 +171,7 @@ def finish_setup(config, LOG):
     setup_portrange(config, LOG)
 
 
-def ping(connector, config, LOG):
+def ping(message, connector, config, LOG):
     """ Returns TSI version."""
     connector.write_message(MY_VERSION)
 
@@ -223,8 +218,8 @@ def execute_script(message, connector, config, LOG):
     the output is discarded, otherwise it is returned to UNICORE/X.
     """
     discard = "#TSI_DISCARD_OUTPUT true\n" in message
-    children = config.get('tsi.child_pids', None)
-    (success, output) = Utils.run_command(message, discard, children)
+    child_pids = config.get('tsi.child_pids', None)
+    (success, output) = Utils.run_command(message, discard, child_pids)
     if success:
         connector.ok(output)
     else:
@@ -254,11 +249,11 @@ def init_functions(bss):
         "TSI_GETSTATUSLISTING": bss.get_status_listing,
         "TSI_GETPROCESSLISTING": bss.get_process_listing,
         "TSI_GETJOBDETAILS": bss.get_job_details,
+        "TSI_GET_PARTITIONS": bss.get_partitions,
         "TSI_ABORTJOB": bss.abort_job,
         "TSI_HOLDJOB": bss.hold_job,
         "TSI_RESUMEJOB": bss.resume_job,
         "TSI_GET_COMPUTE_BUDGET": bss.get_budget,
-        "TSI_GET_PARTITIONS": bss.get_partitions,
         "TSI_MAKE_RESERVATION": Reservation.make_reservation,
         "TSI_QUERY_RESERVATION": Reservation.query_reservation,
         "TSI_CANCEL_RESERVATION": Reservation.cancel_reservation,
@@ -322,6 +317,7 @@ def process(connector, config, LOG):
     # read message from control
     first = True
     while True:
+        bss.cleanup(config)
         if config.get('tsi.testing', False) and not first:
             LOG.info("Testing mode, exiting main loop")
             break
@@ -347,7 +343,7 @@ def process(connector, config, LOG):
         if function is None:
             connector.failed("Unknown command %s" % command)
         elif "TSI_PING" == command:
-            ping(connector, config, LOG)
+            connector.write_message(MY_VERSION)
         else:
             handle_function(function, command, message, connector, config, LOG)
         # terminate the current "transaction" with UNICORE/X
