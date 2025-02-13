@@ -446,13 +446,13 @@ public class TestTSI extends RemoteTSITestCase{
 			tsi.cp("/no_such_file__", testDir+"/test123");
 		}catch(ExecutionException ee1) {
 			System.out.println(ee1.getMessage());
-			assertTrue(ee1.getMessage().contains("ERROR"), "Got: "+ee1.getMessage());
+			assertTrue(ee1.getMessage().contains("Command failed"), "Got: "+ee1.getMessage());
 		}
 		try{
 			tsi.link("/no_such_file__", testDir+"/test123");
 		}catch(ExecutionException ee1) {
 			System.out.println(ee1.getMessage());
-			assertTrue(ee1.getMessage().contains("ERROR"), "Got: "+ee1.getMessage());
+			assertTrue(ee1.getMessage().contains("Command failed"), "Got: "+ee1.getMessage());
 		}
 	}
 
