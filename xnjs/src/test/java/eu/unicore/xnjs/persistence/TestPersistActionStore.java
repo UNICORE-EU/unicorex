@@ -2,12 +2,13 @@ package eu.unicore.xnjs.persistence;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.impl.PersistImpl;
@@ -25,7 +26,7 @@ public class TestPersistActionStore extends EMSTestBase {
 		System.setProperty(IActionStore.CLEAR_ON_STARTUP,"true");
 	}
 
-	//jsdl document paths
+	//job document paths
 	private static String smallDoc="src/test/resources/json/date.json";
 	private static String faultyJob="src/test/resources/json/staging_failure.json";
 	
@@ -50,13 +51,20 @@ public class TestPersistActionStore extends EMSTestBase {
 		doTest(5, true, false, faultyJob, 2);
 	}
 
-	@Disabled
+	@Test
 	public void testExport()throws Exception{
 		JDBCActionStore as = (JDBCActionStore)xnjs.getActionStore("JOBS");
 		as.doCleanup();
 		doTest(2,false,false,smallDoc,1);
-		Export exporter=new Export((PersistImpl<?>)as.getDoneJobsStorage());
-		exporter.doExport();
+		File f = new File("target","testdata_TestPersistActionStore");
+		FileUtils.deleteQuietly(f);
+		try{
+			Export exporter = new Export((PersistImpl<?>)as.getDoneJobsStorage(), f.getAbsolutePath());
+			exporter.doExport();
+		}
+		finally {
+			FileUtils.deleteQuietly(f);
+		}
 	}
 	
 	private void doTest(int n)throws Exception{

@@ -363,11 +363,11 @@ public class Storages extends ServicesBase {
 	}
 
 	@Override
-	protected boolean doSetProperty(String name, String value) throws Exception {
+	protected boolean doSetProperty(String name, Object value) throws Exception {
 		if("umask".equals(name)){
-			if (!SMSProperties.umaskPattern.matcher(value).matches())
+			if (!SMSProperties.umaskPattern.matcher(String.valueOf(value)).matches())
 				throw new InvalidModificationException("Specified umask must be an octal number from 0 to 777.");
-			getModel().setUmask(value);
+			getModel().setUmask(String.valueOf(value));
 			return true;
 		}
 		return super.doSetProperty(name, value);
