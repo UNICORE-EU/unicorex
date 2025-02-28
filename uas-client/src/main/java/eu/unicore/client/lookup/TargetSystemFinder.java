@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
@@ -28,9 +29,12 @@ public class TargetSystemFinder implements Broker {
 	
 	private final static Logger log = Log.getLogger(Log.CLIENT, TargetSystemFinder.class);
 	
-	public TargetSystemFinder(){
+	private final ExecutorService executor;
 
+	public TargetSystemFinder(ExecutorService executor){
+		this.executor = executor;
 	}
+
 	@Override
 	public int getPriority(){
 		return 1;
@@ -44,9 +48,7 @@ public class TargetSystemFinder implements Broker {
 	@Override
 	public SiteClient findTSS(final IRegistryClient registry,
 			ClientConfigurationProvider configurationProvider, IAuthCallback auth,
-			Builder builder,
-			SiteSelectionStrategy selectionStrategy)
-					throws Exception{
+			Builder builder, SiteSelectionStrategy selectionStrategy) throws Exception {
 		if(selectionStrategy==null)selectionStrategy = new RandomSelection();
 		final List<SiteClient>available = listSites(registry, configurationProvider, auth, builder);
 		SiteClient tss=null;
@@ -78,13 +80,11 @@ public class TargetSystemFinder implements Broker {
 					throws Exception{
 		final Collection<Requirement> requirements = builder.getRequirements();
 		final String siteName = builder.getJSON().optString("Site name", null);
-		
 		final List<SiteClient>available=Collections.synchronizedList(new ArrayList<>());
-
 		final String blackList=builder.getProperty("blacklist"); 
 		final boolean checkResources=true;
 
-		CoreEndpointLister siteList = new CoreEndpointLister(registry, configurationProvider, auth);
+		CoreEndpointLister siteList = new CoreEndpointLister(registry, configurationProvider, auth, executor);
 		if(blackList!=null){
 			String[] blacklist=blackList.trim().split("[ ,]+");
 			siteList.setAddressFilter(new Blacklist(blacklist));

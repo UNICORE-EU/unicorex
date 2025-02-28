@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
@@ -18,18 +19,23 @@ import eu.unicore.util.Log;
 import eu.unicore.util.Pair;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
+/**
+ * Provides the "/rest/core" endpoints in the registry
+ * @author schuller
+ */
 public class CoreEndpointLister extends Lister<CoreClient>{
 
 	final static Logger log = Log.getLogger(Log.CLIENT, CoreEndpointLister.class);
-	
+
 	private final IRegistryClient registry;
 
 	private final ClientConfigurationProvider configurationProvider;
-	
+
 	private final IAuthCallback auth;
-	
-	public CoreEndpointLister(IRegistryClient registry, ClientConfigurationProvider configurationProvider, IAuthCallback auth){
-		super();
+
+	public CoreEndpointLister(IRegistryClient registry, ClientConfigurationProvider configurationProvider,
+			IAuthCallback auth, ExecutorService executor){
+		super(executor);
 		this.registry = registry;
 		this.configurationProvider = configurationProvider;
 		this.auth = auth;
@@ -63,8 +69,9 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 		private final Endpoint epr;
 
 		protected final IClientConfiguration securityProperties;
+
 		protected final IAuthCallback auth;
-		
+
 		protected final List<Pair<Endpoint,String>>errors = new ArrayList<>();
 
 		private AtomicInteger runCount;
@@ -72,7 +79,7 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 		protected BlockingQueue<CoreClient> target;
 
 		protected AddressFilter addressFilter;
-		
+
 		public CoreClientProducer(Endpoint epr, IClientConfiguration securityProperties, IAuthCallback auth, AddressFilter addressFilter) {
 			this.epr = epr;
 			this.securityProperties = securityProperties;
@@ -109,5 +116,5 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 			this.runCount=runCount;
 		}
 	}
-	
+
 }

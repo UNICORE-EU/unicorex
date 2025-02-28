@@ -79,7 +79,7 @@
       <dependency>
 	<groupId>eu.unicore.services</groupId>
 	<artifactId>use-restclient</artifactId>
-	<version>${use.version}</version>
+	<version>${use.version}-1</version>
       </dependency>
       <dependency>
 	<groupId>eu.unicore.security</groupId>

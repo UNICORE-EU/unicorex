@@ -34,7 +34,7 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 
 	private final List<Producer<T>>producers = new ArrayList<>();
 
-	private ExecutorService executor;
+	private final ExecutorService executor;
 
 	private final AtomicInteger runCounter = new AtomicInteger(0);
 
@@ -42,15 +42,16 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 
 	private long timeout = 10;
 
-	public Lister(){
-		this(Integer.MAX_VALUE);
+	public Lister(ExecutorService executor){
+		this(Integer.MAX_VALUE, executor);
 	}
 
 	/**
 	 * @param maxQueueSize - maximum number of results to keep in memory
 	 */
-	public Lister(int maxQueueSize){
+	public Lister(int maxQueueSize, ExecutorService executor){
 		this.queue = new LinkedBlockingQueue<T>(maxQueueSize);
+		this.executor = executor;
 	}
 
 	public void setAddressFilter(AddressFilter filter){
@@ -74,10 +75,6 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 	public void addProducer(Producer<T> producer){
 		if(isRunning())throw new IllegalStateException();
 		producers.add(producer);
-	}
-
-	public void setExecutor(ExecutorService executor){
-		this.executor = executor;
 	}
 
 	/**
