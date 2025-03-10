@@ -185,14 +185,14 @@ public class BSSState implements IBSSState {
 				}
 				tsiNodeStates.put(tsiNode, Boolean.FALSE);
 			}catch(Exception te){
-				Log.logException("Can't updating job states on ["+tsiNode+"]", te, log);
+				Log.logException("Error updating job states on ["+tsiNode+"]", te, log);
 			}finally {
 				if(locked)lock.unlock();
 			}
 		}
 		summary = new BSSSummary(parts);
 	}
-	
+
 	public static BSSSummary updateBatchJobStates(final Map<String, BSSInfo> statesMap, String tsiReply, EventHandler handler)
 	throws IOException {
 		int running=0;
