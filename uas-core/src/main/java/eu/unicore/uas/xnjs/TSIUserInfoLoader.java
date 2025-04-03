@@ -29,7 +29,7 @@ public class TSIUserInfoLoader implements UserInfoSource, KernelInjectable {
 			Client c = new Client();
 			c.setAnonymousClient();
 			c.setXlogin(new Xlogin(new String[]{userName}));
-			TSI tsi = XNJSFacade.get(null, kernel).getTSI(c);
+			TSI tsi = XNJSFacade.get(null, kernel).getTSI(c, null);
 			if(tsi instanceof RemoteTSI) {
 				RemoteTSI rTSI = (RemoteTSI)tsi;
 				return rTSI.getUserPublicKeys();

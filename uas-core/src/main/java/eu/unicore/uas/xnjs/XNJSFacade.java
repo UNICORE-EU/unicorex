@@ -393,8 +393,8 @@ public class XNJSFacade implements ISubSystem {
 	 * @param client -  the client object with authN/ authZ information
 	 * @return TSI
 	 */
-	public final TSI getStorageTSI(String storageRoot, Client client){
-		TSI tsi=xnjs.getTargetSystemInterface(client);
+	public final TSI getStorageTSI(String storageRoot, Client client, String preferredLoginNode){
+		TSI tsi=xnjs.getTargetSystemInterface(client, preferredLoginNode);
 		tsi.setStorageRoot(storageRoot);
 		return tsi;
 	}
@@ -404,8 +404,8 @@ public class XNJSFacade implements ISubSystem {
 	 * @param client -  the client object with authN/ authZ information
 	 * @return TSI
 	 */
-	public final TSI getTSI(Client client){
-		return xnjs.getTargetSystemInterface(client);
+	public final TSI getTSI(Client client, String preferredLoginNode){
+		return xnjs.getTargetSystemInterface(client, preferredLoginNode);
 	}
 
 	/**

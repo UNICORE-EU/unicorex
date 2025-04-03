@@ -9,7 +9,7 @@ public class TSIStorageAdapterFactory implements StorageAdapterFactory {
 
 	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)throws IOException{
 		try{
-			return parent.getXNJSFacade().getTSI(parent.getClient());
+			return parent.getXNJSFacade().getTSI(parent.getClient(), null);
 		}catch(Exception e){
 			throw new IOException(e);
 		}

@@ -63,6 +63,8 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	private TSI tsi;
 
+	private String preferredLoginNode;
+
 	private volatile boolean isCancelled = false;
 	
 	protected IStorageAdapter storageAdapter;
@@ -179,6 +181,11 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		this.storageEndpoint = storageEndpoint;
 	}
 
+	@Override
+	public void setPreferredLoginNode(String loginNode) {
+		this.preferredLoginNode = loginNode;
+	}
+
 	protected void initSecurityProperties()
 	{
 		try{
@@ -207,7 +214,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	protected synchronized IStorageAdapter getStorageAdapter()throws ExecutionException{
 		if(storageAdapter!=null)return storageAdapter;
 		if(tsi==null){
-			tsi=configuration.getTargetSystemInterface(client);
+			tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 			tsi.setStorageRoot(workdir);
 		}
 		return tsi;

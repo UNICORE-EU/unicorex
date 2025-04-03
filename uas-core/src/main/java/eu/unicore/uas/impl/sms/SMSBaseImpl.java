@@ -403,7 +403,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 
 	private TSI getTSI(){
 		Client client=getClient();
-		TSI ret = getXNJSFacade().getTSI(client);
+		TSI ret = getXNJSFacade().getTSI(client,null);
 		ret.setUmask(getUmask());
 		return ret;
 	}

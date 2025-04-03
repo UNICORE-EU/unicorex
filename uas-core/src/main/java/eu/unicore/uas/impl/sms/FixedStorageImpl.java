@@ -20,7 +20,7 @@ public class FixedStorageImpl extends SMSBaseImpl {
 		SMSModel m = getModel();
 		String workdir = m.storageDescription.getPathSpec();
 		if(workdir==null)throw new IllegalArgumentException("Work directory cannot be null.");
-		TSI tsi=getXNJSFacade().getTSI(getClient());
+		TSI tsi=getXNJSFacade().getTSI(getClient(),null);
 		if(tsi!=null && tsi.isLocal()){
 			workdir=new File(workdir).getAbsolutePath();
 		}
@@ -37,7 +37,7 @@ public class FixedStorageImpl extends SMSBaseImpl {
 	}
 
 	private void checkWorkdirExists()throws ExecutionException{
-		TSI tsi=getXNJSFacade().getTSI(getClient());
+		TSI tsi=getXNJSFacade().getTSI(getClient(),null);
 		//some sanity checks
 		String workdir=getModel().workdir;
 		XnjsFileWithACL xnjsFile=tsi.getProperties(workdir);

@@ -135,7 +135,7 @@ public class RecreateXNJSJobs implements Runnable{
 			if(!isRecreated())return;
 			
 			// at least check if exit code exists -> successful
-			TSI tsi = xnjs.getTargetSystemInterface(action.getClient());
+			TSI tsi = xnjs.getTargetSystemInterface(action.getClient(), null);
 			tsi.setStorageRoot(action.getExecutionContext().getWorkingDirectory());
 			int result=ActionResult.UNKNOWN;
 			try{
