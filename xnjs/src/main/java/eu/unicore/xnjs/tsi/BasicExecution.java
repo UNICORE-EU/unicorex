@@ -143,7 +143,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		String cmdFile=workDir+tmpName;
 		String cmd = tsiMessages.makeSubmitCommand(action, null);
 		//write to file
-		TSI tsi = tsiFactory.createTSI(action.getClient());
+		TSI tsi = tsiFactory.createTSI(action.getClient(), null);
 		try(OutputStreamWriter writer = new OutputStreamWriter(tsi.getOutputStream(cmdFile))){
 			writer.write(cmd);
 		}catch(IOException ioe){
@@ -332,7 +332,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			//limit the number of unsuccessful attempts to get the progress
 			Integer j=(Integer)job.getProcessingContext().get(PROGRESS_NOT_FOUND_KEY);
 			if(j!=null && j>3)return;
-			TSI tsi = tsiFactory.createTSI(job.getClient());
+			TSI tsi = tsiFactory.createTSI(job.getClient(), null);
 			String progressFile = job.getExecutionContext().getWorkingDirectory()+"/"+PROGRESS_FILENAME;
 			String s = null;
 			try(BufferedReader br=new BufferedReader(new InputStreamReader(tsi.getInputStream(progressFile)))) {

@@ -26,7 +26,8 @@ public class InlineFTS implements IFTSController {
 	private final String target;
 	private final String inlineData;
 	private OverwritePolicy overwrite;
-	
+	private String preferredLoginNode;
+
 	private IStorageAdapter tsi;
 		
 	public InlineFTS(XNJS xnjs, Client client, String workingDirectory, String target, String data) {
@@ -58,6 +59,11 @@ public class InlineFTS implements IFTSController {
 	}
 
 	@Override
+	public void setPreferredLoginNode(String loginNode){
+		this.preferredLoginNode = loginNode;
+	}
+
+	@Override
 	public long collectFilesForTransfer(List<FTSTransferInfo> fileList) throws Exception {
 		SourceFileInfo sfi = new SourceFileInfo();
 		sfi.setPath("inline://");
@@ -71,6 +77,7 @@ public class InlineFTS implements IFTSController {
 		Inline inline = new Inline(xnjs,client, workingDirectory, target, inlineData);
 		inline.setOverwritePolicy(overwrite);
 		inline.setStorageAdapter(tsi);
+		inline.setPreferredLoginNode(preferredLoginNode);
 		return inline;
 	}
 

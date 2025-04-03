@@ -56,7 +56,6 @@ public class GrounderImpl implements Incarnation {
 	@Override
 	public ApplicationInfo incarnateApplication(ApplicationInfo fromUser, Client client) throws ExecutionException {
 		ApplicationInfo result = null;
-
 		String appName=fromUser.getName();
 		if(appName!=null){
 			String version=fromUser.getVersion();
@@ -77,25 +76,22 @@ public class GrounderImpl implements Incarnation {
 			result.setPreferredLoginNode(fromUser.getPreferredLoginNode());
 			result.setRawBatchFile(fromUser.getRawBatchFile());
 		}
-
 		try{
 			mergeInfo(result,fromUser);
 		}catch(Exception ex){
 			throw new ExecutionException(ex);
 		}
-
 		return result;
 	}
 
 	@Override
 	public String incarnatePath(String fileName, String fileSystem, ExecutionContext ec, Client client) throws ExecutionException {
-
 		if(fileSystem==null) {
 			return (ec.getWorkingDirectory()+File.separator+fileName).replaceAll(File.separator+File.separator,File.separator);
 		}
 		else{
 			String base=null;
-			TSI tsi = tsiFactory.createTSI(client);
+			TSI tsi = tsiFactory.createTSI(client, ec.getPreferredExecutionHost());
 			if("HOME".equalsIgnoreCase(fileSystem)){
 				base=tsi.getHomePath();
 			}

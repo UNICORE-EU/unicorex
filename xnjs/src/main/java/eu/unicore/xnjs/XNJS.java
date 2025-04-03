@@ -320,10 +320,6 @@ public class XNJS implements UpdateableConfiguration {
 		return a;
 	}
 
-	public TSI getTargetSystemInterface(Client client){
-		return getTargetSystemInterface(client, null);
-	}
-
 	public TSI getTargetSystemInterface(Client client, String preferredTSINode){
 		return tsiFactory.createTSI(client, preferredTSINode);
 	}

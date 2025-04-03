@@ -161,7 +161,6 @@ public class Execution extends BasicExecution {
 				long iPid = readPID(job, tsiHost);
 				internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
 				msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
-				job.getExecutionContext().setPreferredExecutionHost(tsiHost);
 				if(!allocateOnly) {
 					initialState = BSS_STATE.RUNNING;
 					initialStatus = ActionStatus.RUNNING;
@@ -576,11 +575,11 @@ public class Execution extends BasicExecution {
 		final TSIFactory tsiFactory;
 		public Loader(Client c, TSIFactory tsiFactory) {
 			this.client = c;
-			this.tsiFactory = tsiFactory; 
+			this.tsiFactory = tsiFactory;
 		}
 		public List<BudgetInfo> call() throws ExecutionException {
 			tsiLog.info("Querying compute time for xlogin <{}>", client.getXlogin());
-			return ((RemoteTSI)tsiFactory.createTSI(client)).getComputeTimeBudget();
+			return ((RemoteTSI)tsiFactory.createTSI(client, null)).getComputeTimeBudget();
 		}
 	}
 	/**

@@ -18,8 +18,6 @@ public interface IExecutionContextManager {
 	 * (XNJSProperties.FILESPACE)
 	 *
 	 * @param action - the action
-	 * @return the new uspace directory
-	 *
 	 * @throws ExecutionException
 	 */
 	public String createUSpace(Action action) throws ExecutionException;

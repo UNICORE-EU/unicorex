@@ -16,6 +16,7 @@ import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.Incarnation;
 import eu.unicore.xnjs.io.DataStageInInfo;
 import eu.unicore.xnjs.io.DataStageOutInfo;
+import eu.unicore.xnjs.io.DataStagingInfo;
 import eu.unicore.xnjs.json.sweep.DocumentSweep;
 import eu.unicore.xnjs.json.sweep.JSONSweepProcessor;
 import eu.unicore.xnjs.json.sweep.ParameterSweep;
@@ -27,11 +28,11 @@ import eu.unicore.xnjs.util.JSONUtils;
 
 public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
+	private JSONObject jobDescription;
+
 	public JSONJobProcessor(XNJS xnjs) {
 		super(xnjs);
 	}
-
-	private JSONObject jobDescription;
 
 	@Override
 	protected JSONObject getJobDescriptionDocument(){
@@ -42,7 +43,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		}
 		return jobDescription;
 	}
-	
+
 	@Override
 	protected void rewriteJobDescription(JSONObject modified) {
 		if(modified==null) {
@@ -82,7 +83,6 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			ApplicationInfo applicationInfo = grounder.incarnateApplication(fromUser, client);
 			action.setApplicationInfo(applicationInfo);
 			updateExecutionContext(applicationInfo);
-
 			action.setJobName(getJobName());
 			action.setUmask(getUmask());
 			List<ResourceRequest>resourceRequest = JSONParser.parseResourceRequest(
@@ -99,15 +99,13 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 					projectRequest.setRequestedValue(requestedProject);
 				}
 			}
-			String email = jd.optString("User email", null);
-			Client c=action.getClient();
-			if(c!=null && email!=null)c.setUserEmail(email);
-
+			if(client!=null) {
+				client.setUserEmail(jd.optString("User email", null));
+			}
 			action.setStageIns(extractStageInInfo());
 			action.setStageOuts(extractStageOutInfo());
 			rewriteJobDescription(jobDescription);
 			action.setDirty();
-
 		} catch (Exception e) {
 			throw ExecutionException.wrapped(e);
 		}
@@ -132,6 +130,16 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			n = JSONUtils.getOrDefault(getJobDescriptionDocument(), "ApplicationName", "UNICORE_Job");
 		}
 		return n;
+	}
+
+	@Override
+	protected String getPreferredLoginNode() {
+		if(action.getApplicationInfo()!=null && action.getApplicationInfo().getPreferredLoginNode()!=null) {
+			return action.getApplicationInfo().getPreferredLoginNode();
+		}
+		else {
+			return JSONUtils.getString(getJobDescriptionDocument(), "Login node");
+		}
 	}
 
 	@Override
@@ -184,6 +192,14 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			else throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,
 					"'Imports' must be an array or a map");
 		}
+		String preferredLogin = getPreferredLoginNode();
+		if(preferredLogin!=null) {
+			for(DataStagingInfo i: result) {
+				if (i.getPreferredLoginNode()==null) {
+					i.setPreferredLoginNode(preferredLogin);
+				}
+			}
+		}
 		return result;
 	}
 
@@ -219,6 +235,14 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 			}
 			else throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,
 					"'Exports' must be an array or a map");
+		}
+		String preferredLogin = getPreferredLoginNode();
+		if(preferredLogin!=null) {
+			for(DataStagingInfo i: result) {
+				if (i.getPreferredLoginNode()==null) {
+					i.setPreferredLoginNode(preferredLogin);
+				}
+			}
 		}
 		return result;
 	}

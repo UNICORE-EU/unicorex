@@ -95,7 +95,7 @@ public class MultiJobTest extends EMSTestBase {
 		}
 		end=System.currentTimeMillis();
 		time=(0.0f+(end-start)/1000);
-		if(xnjs.getTargetSystemInterface(null).isLocal()){
+		if(xnjs.getTargetSystemInterface(null, null).isLocal()){
 			System.out.println("Tasks executed: "+LocalExecution.getCompletedTasks());
 			System.out.println("Rejected tasks: "+LocalExecution.getNumberOfRejectedTasks());
 		}
@@ -105,6 +105,5 @@ public class MultiJobTest extends EMSTestBase {
 		System.out.println("Rate: "+rate+" per sec.");
 
 		assertEquals(n, LocalExecution.getCompletedTasks());
-
 	}
 }

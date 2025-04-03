@@ -118,6 +118,11 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected abstract String getJobName();
 
 	/**
+	 * extract the preferred login node from the job description
+	 */
+	protected abstract String getPreferredLoginNode();
+
+	/**
 	 * extract the job umask from the job description
 	 */
 	protected abstract String getUmask();
@@ -141,6 +146,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 				storeTimeStamp(TIME_START);
 				setupNotifications();
 			}
+			action.getExecutionContext().setPreferredExecutionHost(getPreferredLoginNode());
 			boolean ok = createJobDirectory();
 			if(!ok) {
 				// wait a bit and re-try
@@ -636,32 +642,24 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	}
 
 	protected boolean fileSystemReadyBeforeStageout() {
-
 		List<DataStageOutInfo> stageOuts = action.getStageOuts();
 		if(stageOuts==null  || stageOuts.size()==0){
 			return true;
 		}
-
 		Object fsCheckedFlag = action.getProcessingContext().get(KEY_FS_CHECKED_FLAG);
 		if(fsCheckedFlag != null)
 		{
-			// checked before
 			return true; 
 		}
-
 		String uspace=action.getExecutionContext().getWorkingDirectory();
-
-		TSI tsi = xnjs.getTargetSystemInterface(action.getClient());
-
-		Set<String> toCheck = new HashSet<String>();
+		String executionHost = action.getExecutionContext().getPreferredExecutionHost();
+		TSI tsi = xnjs.getTargetSystemInterface(action.getClient(), executionHost);
+		Set<String> toCheck = new HashSet<>();
 		String fileSep = "/";
-
 		try {
 			fileSep = tsi.getFileSeparator();
-
 			for(DataStagingInfo dst:stageOuts){
 				try{
-
 					String workingDirectory=uspace;
 					String fsName=dst.getFileSystemName();
 					if(fsName!=null){
@@ -670,7 +668,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 							continue;
 						}
 						workingDirectory=tsi.resolve(fs);
-
 					}
 					toCheck.add(workingDirectory+fileSep+dst.getFileName());
 				}
@@ -719,7 +716,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			action.setDirty();
 			return true;
 		}
-
 		long timeout = 1000 * xnjs.getIOProperties().getIntValue(IOProperties.STAGING_FS_GRACE);
 		Long firstFailure = (Long) action.getProcessingContext().get(KEY_FIRST_STAGEOUT_FAILURE);
 		long currentTime = System.currentTimeMillis();
@@ -736,7 +732,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			return true;
 		}
 		return false; // need to wait a little longer
-
 	}
 
 
@@ -833,12 +828,10 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * updates ExecutionContext with values from the effective application
 	 * @param appDescription
 	 */
-	public void updateExecutionContext(ApplicationInfo appDescription){
-		ExecutionContext ec=action.getExecutionContext();
-
-		String executable=appDescription.getExecutable();
+	protected void updateExecutionContext(ApplicationInfo appDescription){
+		ExecutionContext ec = action.getExecutionContext();
+		String executable = appDescription.getExecutable();
 		action.getExecutionContext().setExecutable(executable);
-
 		if(appDescription.getStdout()!=null)ec.setStdout(appDescription.getStdout());
 		if(appDescription.getStderr()!=null)ec.setStderr(appDescription.getStderr());
 		if(appDescription.getStdin()!=null)ec.setStdin(appDescription.getStdin());
@@ -851,15 +844,15 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			String fs = idb.getFilespace(fileSystemName);
 			map.put(fileSystemName, fs);
 		}
-
-		//interactive execution
+		// interactive execution
 		if(appDescription.isRunOnLoginNode() 
 				// legacy environment variable
 				|| Boolean.parseBoolean(appDescription.getEnvironment().get("UC_PREFER_INTERACTIVE_EXECUTION"))){
 			ec.setRunOnLoginNode(true);
 		}
-		ec.setPreferredExecutionHost(appDescription.getPreferredLoginNode());
-
+		if(appDescription.getPreferredLoginNode()!=null) {
+			ec.setPreferredExecutionHost(appDescription.getPreferredLoginNode());
+		}
 		action.setDirty();
 	}
 
@@ -884,7 +877,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		return new TimeProfile(context);
 	}
 
-	public void updateQueuedStats(ProcessingContext context){
+	protected void updateQueuedStats(ProcessingContext context){
 		Long timeQueued = getTimeQueued(context);
 		if(timeQueued!=null){
 			Histogram h = (Histogram)xnjs.getMetrics().get(XNJSConstants.MEAN_TIME_QUEUED);
@@ -938,7 +931,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			List<String>files=(List<String>)action.getProcessingContext().get(KEY_DELETEONTERMINATION);
 			if(files==null || files.size()==0)return;
-			TSI tsi=xnjs.getTargetSystemInterface(action.getClient());
+			TSI tsi=xnjs.getTargetSystemInterface(action.getClient(), getPreferredLoginNode());
 			tsi.setStorageRoot(action.getExecutionContext().getWorkingDirectory());
 			int c=0;
 			for(String file: files){
@@ -956,7 +949,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		}
 	}
 
-	public void setToDoneSuccessfully(){
+	protected void setToDoneSuccessfully(){
 		storeTimeStamp(TIME_END);
 		action.setStatus(ActionStatus.DONE);
 		action.getProcessingContext().set(ApplicationExecutionStatus.done());

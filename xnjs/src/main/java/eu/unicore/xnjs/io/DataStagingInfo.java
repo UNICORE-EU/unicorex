@@ -54,4 +54,11 @@ public interface DataStagingInfo extends Cloneable {
 
 	public Map<String,String> getExtraParameters();
 
+	/**
+	 * preferred login node
+	 */
+	public String getPreferredLoginNode();
+
+	public void setPreferredLoginNode(String loginNode);
+
 }

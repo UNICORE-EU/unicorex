@@ -95,5 +95,10 @@ public interface IFileTransfer extends Runnable {
 	 * Might not be supported by every implementation.
 	 */
 	public default void setPermissions(String permissions) {}
+	
+	/**
+	 * set the preferred login node for performing this file transfer
+	 */
+	public default void setPreferredLoginNode(String loginNode) {}
 
 }

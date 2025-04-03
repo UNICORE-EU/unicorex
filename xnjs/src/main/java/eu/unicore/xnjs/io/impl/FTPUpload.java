@@ -70,7 +70,7 @@ public class FTPUpload extends AsyncFilemover {
 			URL url=IOUtils.addFTPCredentials(new URL(info.getTarget()), credentials);
 			os=url.openConnection().getOutputStream();
 			if(storageAdapter==null){
-				TSI tsi=configuration.getTargetSystemInterface(client);
+				TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 				tsi.setStorageRoot(workingDirectory);
 				is=tsi.getInputStream(info.getSource());
 			}

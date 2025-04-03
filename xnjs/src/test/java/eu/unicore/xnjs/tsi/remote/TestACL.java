@@ -25,7 +25,7 @@ public class TestACL extends RemoteTSITestCase {
 
 	@Test
 	public void testACLSupport() throws ExecutionException {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
 		assertNotNull(tsi);
 		if(!tsi.isACLSupported("/")) {
 			System.out.println("*** ACL support not active");
@@ -34,7 +34,7 @@ public class TestACL extends RemoteTSITestCase {
 	
 	@Test
 	public void testGetSetACL() throws ExecutionException, IOException {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
 		assertNotNull(tsi);
 		if(!tsi.isACLSupported("/")){
 			System.out.println("*** ACL support not active");

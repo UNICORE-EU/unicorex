@@ -58,6 +58,8 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 
 	protected long startTime=System.currentTimeMillis();
 
+	protected String preferredLoginNode = null;
+
 	protected final TransferInfo info;
 
 	public AsyncFilemover(Client client, String workingDirectory, String source, String target, XNJS config){
@@ -86,12 +88,13 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 
 	protected abstract boolean isImport();
 
+	@Override
 	public void run() {
 		//update to compensate for potential waiting in executor
 		startTime=System.currentTimeMillis();
 
 		if(storageAdapter==null){
-			TSI tsi=configuration.getTargetSystemInterface(client);
+			TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 			tsi.setStorageRoot(workingDirectory);
 			storageAdapter = tsi;
 		}
@@ -107,7 +110,8 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 			if(isImport()) {
 				createParentDirectories();
 				//register a listener on the target file
-				monitor=new FileMonitor(workingDirectory,info.getTarget(),client,configuration,3,TimeUnit.SECONDS);
+				monitor = new FileMonitor(workingDirectory, info.getTarget(), client, configuration,
+						preferredLoginNode, 3, TimeUnit.SECONDS);
 				monitor.registerObserver(this);
 			}
 			doRun();
@@ -130,14 +134,14 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 	}
 
 	protected void doRun() throws Exception {
-		String cmd=makeCommandline();
-		ach=new AsyncCommandHelper(configuration,cmd,info.getUniqueId(),info.getParentActionID(),client);
+		String cmd = makeCommandline();
+		ach = new AsyncCommandHelper(configuration,cmd,info.getUniqueId(),info.getParentActionID(),client);
+		ach.setPreferredExecutionHost(preferredLoginNode);
 		preSubmit();
 		ach.submit();
 		while(!ach.isDone()){
 			Thread.sleep(2000);
 		}
-
 		ResultHolder res=ach.getResult();
 		if(res.getExitCode()!=null && res.getExitCode()==0){
 			logger.info("Async transfer "+info.getSource()+" -> "+info.getTarget()+" is DONE.");
@@ -167,14 +171,14 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		if(info.getDataSize()<0){
 			if(isImport() && Status.DONE==info.getStatus()){
 				try{
-					TSI tsi=configuration.getTargetSystemInterface(client);
+					TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 					tsi.setStorageRoot(workingDirectory);
 					info.setDataSize(tsi.getProperties(info.getTarget()).getSize());
 				}catch(Exception ex){}
 			}
 			else{
 				try{
-					TSI tsi=configuration.getTargetSystemInterface(client);
+					TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 					tsi.setStorageRoot(workingDirectory);
 					info.setDataSize(tsi.getProperties(info.getSource()).getSize());
 				}catch(Exception ex){}
@@ -194,6 +198,11 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 	@Override
 	public void setPermissions(String permissions) {
 		this.permissions = permissions;
+	}
+
+	@Override
+	public void setPreferredLoginNode(String loginNode) {
+		this.preferredLoginNode = loginNode;
 	}
 
 	@Override

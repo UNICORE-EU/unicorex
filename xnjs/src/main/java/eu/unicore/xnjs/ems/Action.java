@@ -64,15 +64,15 @@ public class Action implements Serializable {
 	private ProcessingContext processingContext = new ProcessingContext();
 
 	//the context during execution
-	private ExecutionContext executionContext = new ExecutionContext();
+	private final ExecutionContext executionContext = new ExecutionContext();
 
 	//the application information
 	private ApplicationInfo applicationInfo;
 
 	private List<DataStageInInfo>stageIns;
-	
+
 	private List<DataStageOutInfo>stageOuts;
-	
+
 	// if true, Action needs to be written back into persistence
 	private transient boolean dirty=false;
 
@@ -81,7 +81,7 @@ public class Action implements Serializable {
 
 	//the instant until this action should not be processed further
 	private long notBefore;
-	
+
 	//Optional umask setting for this action. Is carried here as it is set by the TSS.
 	private String umask;
 
@@ -111,7 +111,7 @@ public class Action implements Serializable {
 		UUID=uuid;
 		dirty = true;
 	}
-	
+
 	/**
 	 * creates a new Action
 	 */
@@ -125,7 +125,7 @@ public class Action implements Serializable {
 	public String getBSID() {
 		return BSID;
 	}
-	
+
 	/**
 	 * @param bsid The BSID to set.
 	 */
@@ -250,7 +250,6 @@ public class Action implements Serializable {
 		return type;
 	}
 
-
 	/**
 	 * set the type of this action
 	 */
@@ -258,7 +257,6 @@ public class Action implements Serializable {
 		this.type = type;
 		setDirty();
 	}
-
 
 	public ProcessingContext getProcessingContext() {
 		return processingContext;
@@ -305,11 +303,11 @@ public class Action implements Serializable {
 	public void setStageOuts(List<DataStageOutInfo> stageOuts) {
 		this.stageOuts = stageOuts;
 	}
-	
+
 	public void setWaitForClientStageIn(boolean waitForClientStageIn){
 		processingContext.put(AUTO_SUBMIT, Boolean.valueOf(waitForClientStageIn));
 	}
-	
+
 	public List<String> getNotificationURLs() {
 		return notificationURls;
 	}

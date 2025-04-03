@@ -169,10 +169,15 @@ public class JSONParser {
 		if(credentials!=null) {
 			dsi.setCredentials(extractCredentials(credentials));
 		}
-		
+
 		JSONObject extraParameters = spec.optJSONObject("ExtraParameters");
 		if(extraParameters!=null) {
 			dsi.setExtraParameters(JSONUtils.asStringMap(extraParameters));
+		}
+
+		String loginNode = spec.optString("Login node", null);
+		if(loginNode!=null) {
+			dsi.setPreferredLoginNode(loginNode);
 		}
 	}
 

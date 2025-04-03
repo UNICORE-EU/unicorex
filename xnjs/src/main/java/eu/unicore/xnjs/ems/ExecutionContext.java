@@ -51,9 +51,9 @@ public class ExecutionContext implements Serializable{
 
 	private String exitCodeFileName = TSIMessages.EXITCODE_FILENAME;
 	
-	//the preferred execution host (hostname or IP)
+	// the preferred execution host (hostname pattern)
 	private String preferredExecutionHost;
-	
+
 	//the umask as octal string
 	private String umask;
 	

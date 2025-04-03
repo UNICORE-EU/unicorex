@@ -71,6 +71,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 			if(info.getExtraParameters()!=null){
 				f.setExtraParameters(info.getExtraParameters());
 			}
+			f.setPreferredLoginNode(info.getPreferredLoginNode());
 		}
 		return f;
 	}
@@ -114,6 +115,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 				f.setExtraParameters(info.getExtraParameters());
 			}
 			f.setPermissions(info.getPermissions());
+			f.setPreferredLoginNode(info.getPreferredLoginNode());
 		}
 		return f;
 	}
@@ -137,6 +139,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 				f.setExtraParameters(info.getExtraParameters());
 			}
 			f.setPermissions(info.getPermissions());
+			f.setPreferredLoginNode(info.getPreferredLoginNode());
 		}
 		return f;
 	}
@@ -154,6 +157,7 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 			if(info.getExtraParameters()!=null) {
 				f.setExtraParameters(info.getExtraParameters());
 			}
+			f.setPreferredLoginNode(info.getPreferredLoginNode());
 		}
 		return f;
 	}

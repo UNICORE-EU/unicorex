@@ -80,7 +80,8 @@ public class DataStagingProcessor extends DefaultProcessor {
 							if(fs==null){
 								throw new Exception("Requested file system <"+fsName+"> is not available at this site.");
 							}
-							workingDirectory = xnjs.getTargetSystemInterface(action.getClient()).resolve(fs);
+							workingDirectory = xnjs.getTargetSystemInterface(action.getClient(),
+									dst.getPreferredLoginNode()).resolve(fs);
 						}
 						if(dst instanceof DataStageInInfo){
 							DataStageInInfo in=(DataStageInInfo)dst;

@@ -198,7 +198,7 @@ public class TestUtils {
 		fos.close();
 		assertTrue(target.exists());
 		//create a monitor for the target file
-		FileMonitor f=new FileMonitor("target",target.getName(),null,xnjs,200,TimeUnit.MILLISECONDS);
+		FileMonitor f=new FileMonitor("target",target.getName(),null,xnjs,null,200,TimeUnit.MILLISECONDS);
 		XnjsFile info=f.getInfo();
 		assertNotNull(info);
 		assertEquals(name, info.getPath());

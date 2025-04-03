@@ -49,7 +49,8 @@ public class LocalECManager implements IExecutionContextManager {
 	 * @throws ExecutionException
 	 */
 	public String createUSpace(Action action) throws ExecutionException{
-		TSI targetSystem = tsiFactory.createTSI(action.getClient());
+		String preferredLogin = action.getExecutionContext().getPreferredExecutionHost();
+		TSI targetSystem = tsiFactory.createTSI(action.getClient(), preferredLogin);
 		String uspaces = properties.getValue(XNJSProperties.FILESPACE);
 		String baseDirectory = targetSystem.resolve(uspaces);
 		String sep = targetSystem.getFileSeparator();
@@ -105,7 +106,8 @@ public class LocalECManager implements IExecutionContextManager {
 	 */
 	@Override
 	public String createUSpace(Action action, String baseDirectory) throws ExecutionException{
-		TSI targetSystem = tsiFactory.createTSI(action.getClient());
+		String preferredLogin = action.getExecutionContext().getPreferredExecutionHost();
+		TSI targetSystem = tsiFactory.createTSI(action.getClient(), preferredLogin);
 		if(targetSystem.isLocal()){
 			baseDirectory=new File(baseDirectory).getAbsolutePath();
 		}
@@ -143,7 +145,8 @@ public class LocalECManager implements IExecutionContextManager {
 	@Override
 	public void destroyUSpace(Action action) throws ExecutionException{
 		logger.info("Destroying {}", uspaceInfo(action));
-		TSI targetSystem = tsiFactory.createTSI(action.getClient());
+		String preferredHost = action.getExecutionContext().getPreferredExecutionHost();
+		TSI targetSystem = tsiFactory.createTSI(action.getClient(), preferredHost);
 		try{
 			String wd=action.getExecutionContext().getWorkingDirectory();
 			targetSystem.rmdir(wd);

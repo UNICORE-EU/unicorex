@@ -28,9 +28,10 @@ public class FileCopy implements IFileTransfer {
 	private final boolean isImport;
 	private ImportPolicy policy = ImportPolicy.PREFER_COPY;
 	private String permissions = null;
+	private String preferredLoginNode = null;
 
 	private final TransferInfo transferInfo;
-	
+
 	public FileCopy(XNJS configuration, Client client, String workingDirectory, String source, String target, boolean isImport) {
 		this.configuration=configuration;
 		this.client=client;
@@ -40,13 +41,13 @@ public class FileCopy implements IFileTransfer {
 		transferInfo.setStatus(Status.CREATED);
 		transferInfo.setProtocol("file");
 	}
-	
+
 	/**
 	 * does simple copy
 	 */
 	public void run() {
 		transferInfo.setStatus(Status.RUNNING);
-		TSI tsi = configuration.getTargetSystemInterface(client);
+		TSI tsi = configuration.getTargetSystemInterface(client, preferredLoginNode);
 		String mode = "copy";
 		String s= isImport ? transferInfo.getSource() : workingDirectory+tsi.getFileSeparator()+transferInfo.getSource();
 		String t=!isImport ? transferInfo.getTarget() : workingDirectory+tsi.getFileSeparator()+transferInfo.getTarget();
@@ -75,7 +76,7 @@ public class FileCopy implements IFileTransfer {
 			tsi.mkdir(parent);
 		}
 	}
-	
+
 	public void abort() {}
 
 	public Map<String,Serializable>pause() {
@@ -107,4 +108,8 @@ public class FileCopy implements IFileTransfer {
 		this.permissions = permissions;
 	}
 
+	@Override
+	public void setPreferredLoginNode(String loginNode) {
+		this.preferredLoginNode = loginNode;
+	}
 }

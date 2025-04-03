@@ -196,7 +196,7 @@ public class IDBImpl implements IDB {
 		Collection<ApplicationInfo>apps = new HashSet<>();
 		apps.addAll(getIdb());
 		if(havePerUserExtensions && client!=null && client.getXlogin()!=null && client.getXlogin().getUserName()!=null){
-			apps.addAll(getPerUserApps(client));
+			apps.addAll(getPerUserApps(client, null));
 		}
 		return apps;
 	}
@@ -209,7 +209,7 @@ public class IDBImpl implements IDB {
 		return null;
 	}
 
-	protected synchronized Collection<ApplicationInfo> getPerUserApps(Client client){
+	protected synchronized Collection<ApplicationInfo> getPerUserApps(Client client, String preferredLoginNode){
 		String dn = client.getDistinguishedName();
 		Collection<ApplicationInfo> ext = extensions.get(dn);
 		Long lastRefresh = extensionsLastRefreshed.get(dn);
@@ -218,7 +218,7 @@ public class IDBImpl implements IDB {
 			extensionsLastRefreshed.put(dn, System.currentTimeMillis());
 			ext = new HashSet<>();
 			extensions.put(dn, ext);
-			TSI tsi = tsiFactory.createTSI(client);
+			TSI tsi = tsiFactory.createTSI(client, preferredLoginNode);
 			List<ExtensionInfo> extensionsPerUser = resolvedExtensionsPerUser.get(dn);
 			if(extensionsPerUser==null){
 				extensionsPerUser = new ArrayList<>();
@@ -234,7 +234,7 @@ public class IDBImpl implements IDB {
 					}
 					String realPath = extension.resolvedPath;
 					logger.info("Reading user-specific apps from <{}>", realPath);
-					Collection<String>files = getFiles(realPath, client);
+					Collection<String>files = getFiles(realPath, client, preferredLoginNode);
 					for(String file : files){
 						try(InputStream is = tsi.getInputStream(file)){
 							readApplications(is, ext);
@@ -250,13 +250,13 @@ public class IDBImpl implements IDB {
 		return ext;
 	}
 
-	protected Collection<String> getFiles(String pathPattern, Client client) throws ExecutionException {
+	protected Collection<String> getFiles(String pathPattern, Client client, String preferredLoginNode) throws ExecutionException {
 		Collection<String> results = new HashSet<>();
 		if(SimpleFindOptions.isWildCard(pathPattern)){
 			File path = new File(pathPattern);
 			String base = path.getParent();
 			String pattern = path.getName();
-			TSI tsi= tsiFactory.createTSI(client);
+			TSI tsi= tsiFactory.createTSI(client, preferredLoginNode);
 			FileFilter options = SimpleFindOptions.stringMatch(pattern, false);
 			XnjsFile[]files = tsi.find(base, options, 0, 1000);
 			for(XnjsFile match : files){

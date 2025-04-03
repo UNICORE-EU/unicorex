@@ -58,7 +58,7 @@ public class HttpExportsController implements IFTSController {
 	
 	public synchronized IStorageAdapter getStorageAdapter() {
 		if(localStorage==null) {
-			localStorage = xnjs.getTargetSystemInterface(client);
+			localStorage = xnjs.getTargetSystemInterface(client, dso.getPreferredLoginNode());
 		}
 		localStorage.setStorageRoot(workingDirectory);
 		return localStorage;

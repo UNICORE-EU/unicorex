@@ -37,7 +37,7 @@ public class GSIFTPUpload extends AsyncFilemover{
 	}
 
 	protected void preSubmit()throws Exception{
-		GSIFTPDownload.writeProxyIfRequired(configuration,client,workingDirectory);
+		GSIFTPDownload.writeProxyIfRequired(configuration, client, workingDirectory, preferredLoginNode);
 		ach.setEnvironmentVariable("X509_USER_PROXY", ".proxy");
 	}
 

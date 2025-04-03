@@ -43,18 +43,18 @@ public class GSIFTPDownload extends AsyncFilemover {
 	}
 	
 	protected void preSubmit()throws Exception{
-		writeProxyIfRequired(configuration,client,workingDirectory);
+		writeProxyIfRequired(configuration, client, workingDirectory, preferredLoginNode);
 		ach.setEnvironmentVariable("X509_USER_PROXY", ".proxy");
 	}
 	
-	public static void writeProxyIfRequired(XNJS configuration, Client client, String workingDirectory)
+	public static void writeProxyIfRequired(XNJS configuration, Client client, String workingDirectory, String preferredLoginNode)
 	throws Exception{
 		String pem=(String)client.getSecurityTokens().getContext().get("Proxy");
 		if(pem==null){
 			logger.error("No proxy cert available in security attributes! Can't execute GSIFTP");
 			throw new Exception("No proxy cert available in security attributes! Can't execute GSIFTP");
 		}
-		TSI tsi=configuration.getTargetSystemInterface(client);
+		TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 		tsi.setStorageRoot(workingDirectory);
 		ByteArrayInputStream is=new ByteArrayInputStream(pem.getBytes());
 		try(OutputStream os=tsi.getOutputStream(".proxy");){

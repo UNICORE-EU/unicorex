@@ -25,18 +25,16 @@ public class FileMonitor implements Runnable {
 	private final Client client;
 	private final String workingDirectory;
 	private final String target;
-	
 	private final long updateInterval;
 	private final TimeUnit timeUnit;
-	
 	private XnjsFile info;
 	private volatile boolean interrupt;
 	private final Set<Observer<XnjsFile>>observers = new HashSet<>();
-	
 	private final XNJS configuration;
-	
-	public FileMonitor(String workingDirectory, String target, Client client, XNJS config){
-		this(workingDirectory, target,client,config,5,TimeUnit.SECONDS);
+	private final String preferredLoginNode;
+
+	public FileMonitor(String workingDirectory, String target, Client client, XNJS config, String preferredLoginNode){
+		this(workingDirectory, target,client,config,null,5,TimeUnit.SECONDS);
 	}
 
 	/**
@@ -44,16 +42,19 @@ public class FileMonitor implements Runnable {
 	 * @param target  - file relative to working directory
 	 * @param client
 	 * @param config
+	 * @param preferredLoginNode
 	 * @param updateInterval
 	 * @param timeUnit
 	 */
-	public FileMonitor(String workingDirectory, String target, Client client, XNJS config, long updateInterval, TimeUnit timeUnit){
+	public FileMonitor(String workingDirectory, String target, Client client, 
+			XNJS config, String preferredLoginNode, long updateInterval, TimeUnit timeUnit){
 		this.workingDirectory=workingDirectory;
 		this.target=target;
 		this.client=client;
 		this.updateInterval=updateInterval;
 		this.timeUnit=timeUnit;
 		this.configuration=config;
+		this.preferredLoginNode = preferredLoginNode;
 		run();
 		reschedule();
 	}
@@ -62,10 +63,11 @@ public class FileMonitor implements Runnable {
 		configuration.getScheduledExecutor().schedule(this, updateInterval, timeUnit);
 	}
 	
+	@Override
 	public synchronized void run(){
 		try {
 			if(interrupt)return;
-			TSI tsi=configuration.getTargetSystemInterface(client);
+			TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 			tsi.setStorageRoot(workingDirectory);
 			XnjsFile newInfo=tsi.getProperties(target);
 			//check if file was modified

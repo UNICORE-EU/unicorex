@@ -42,7 +42,7 @@ public class PerfFileIORemoteTSI extends RemoteTSITestCase {
 		File tmpDir = new File("target","tsi_io_tests");
 		FileUtils.deleteQuietly(tmpDir);
 		
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
 		tsi.mkdir(tmpDir.getAbsolutePath());
 
 		//write some junk to the file
@@ -86,42 +86,31 @@ public class PerfFileIORemoteTSI extends RemoteTSITestCase {
 	private long doWrite()throws Exception{
 		File tmpDir = new File("target","tsi_io_tests");
 		FileUtils.deleteQuietly(tmpDir);
-		
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
 		tsi.mkdir(tmpDir.getAbsolutePath());
 		String file=new File(tmpDir,"/out2").getAbsolutePath();
-		OutputStream os=tsi.getOutputStream(file);
-		assertNotNull(os);
-		OutputStreamWriter writer=new OutputStreamWriter(os);
 		long start=System.currentTimeMillis();
-		
-		for(int i=0;i<size;i++){
-			writer.write(theLine+"\n");
+		try(OutputStream os=tsi.getOutputStream(file)){
+			OutputStreamWriter writer=new OutputStreamWriter(os);
+			for(int i=0;i<size;i++){
+				writer.write(theLine+"\n");
+			}
 		}
-		writer.close();
-		
 		File f=new File(file);
 		System.out.println("length="+f.length());
-		
 		long duration=System.currentTimeMillis()-start;
 		long rate=f.length()/duration;
 		System.out.println(duration+" ms., "+rate+" kb/sec.");
-		
 		Thread.sleep(100);
-		
-		BufferedReader br=new BufferedReader(new InputStreamReader(
-				new FileInputStream(file)));
-		
-		String line;
-		while(true){
-			line=br.readLine();
-			if(line==null)break;
-			assertEquals("Content does not match",theLine,line);
+		try(BufferedReader br=new BufferedReader(new InputStreamReader(
+				new FileInputStream(file)))) {
+			String line;
+			while(true){
+				line=br.readLine();
+				if(line==null)break;
+				assertEquals("Content does not match",theLine,line);
+			}
 		}
-		
-		br.close();
-		
 		return rate;
-	}
-		
+	}		
 }

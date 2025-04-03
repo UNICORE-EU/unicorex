@@ -68,9 +68,8 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 			String want = requests[i];
 			assertTrue(DefaultTSIConnectionFactory.matches(want, actual));
 		}
-		
 		requests = new String[] { "node??.cluster.org" };
-		actual = "node-special1.cluster.org";
+		actual = "node-special01.cluster.org";
 		for(int i=0; i<requests.length; i++) {
 			String want = requests[i];
 			assertFalse(DefaultTSIConnectionFactory.matches(want, actual));

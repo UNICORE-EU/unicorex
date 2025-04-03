@@ -36,67 +36,42 @@ public class DataStageOutInfo implements Serializable, DataStagingInfo {
 	
 	private Map<String,String> extraParameters = null;
 
+	private String preferredLoginNode;
+
 	public DataStageOutInfo(){}
 	
-	/**
-	 * get the ID of this data staging item 
-	 */
 	public void setID(String id) {
 		this.id=id;
 	}
 
-	/**
-	 * get the ID of this data staging item 
-	 */
+	@Override
 	public String getID() {
 		return id;
 	}
 
-	/**
-	 * get the local file name
-	 */
+	@Override
 	public String getFileName() {
 		return fileName;
 	}
 
-	/**
-	 * set the local file name
-	 */
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
 
-	/**
-	 * should failure of the stage-out be ignored
-	 * @return <code>true</code> if failure of the stage out does NOT cause the job to fail
-	 */
+	@Override
 	public boolean isIgnoreFailure() {
 		return ignoreFailure;
 	}
 
-	/**
-	 * set the ignoreFailure
-	 * @param ignoreFailure <code>true</code> if failure of the stage out should NOT cause the job to fail
-	 */
+	@Override
 	public void setIgnoreFailure(boolean ignoreFailure) {
 		this.ignoreFailure = ignoreFailure;
 	}
 
-	/**
-	 * should this stage-out be performed if the user job was "not successful" 
-	 * (i.e. depending on the exit code)
-	 * @return <code>true</code> if the stage-out is dependent on the exit code
-	 */
 	public boolean isPerformStageOutOnFailure() {
 		return performStageOutOnFailure;
 	}
 
-	/**
-	 * should this stage-out be performed if the user job was "not successful" 
-	 * (i.e. depending on the exit code)
-	 * 
-	 * @param performStageOutOnFailure
-	 */
 	public void setPerformStageOutOnFailure(boolean performStageOutOnFailure) {
 		this.performStageOutOnFailure = performStageOutOnFailure;
 	}
@@ -109,44 +84,64 @@ public class DataStageOutInfo implements Serializable, DataStagingInfo {
 		this.target = target;
 	}
 
+	@Override
 	public OverwritePolicy getOverwritePolicy() {
 		return overwritePolicy;
 	}
 
+	@Override
 	public void setOverwritePolicy(OverwritePolicy overwritePolicy) {
 		this.overwritePolicy = overwritePolicy;
 	}
 
+	@Override
 	public boolean isDeleteOnTermination() {
 		return deleteOnTermination;
 	}
 
+	@Override
 	public void setDeleteOnTermination(boolean deleteOnTermination) {
 		this.deleteOnTermination = deleteOnTermination;
 	}
 
+	@Override
 	public DataStagingCredentials getCredentials() {
 		return credentials!=null? credentials.get():null;
 	}
 
+	@Override
 	public void setCredentials(DataStagingCredentials credentials) {
 		this.credentials = new Wrapper<DataStagingCredentials>(credentials);
 	}
 
+	@Override
 	public String getFileSystemName() {
 		return fileSystemName;
 	}
 
+	@Override
 	public void setFileSystemName(String fileSystemName) {
 		this.fileSystemName = fileSystemName;
 	}
 
+	@Override
 	public Map<String, String> getExtraParameters() {
 		return extraParameters;
 	}
 
+	@Override
 	public void setExtraParameters(Map<String, String> extraParameters) {
 		this.extraParameters = extraParameters;
+	}
+
+	@Override
+	public String getPreferredLoginNode() {
+		return preferredLoginNode;
+	}
+
+	@Override
+	public void setPreferredLoginNode(String preferredLoginNode) {
+		this.preferredLoginNode = preferredLoginNode;
 	}
 
 	@Override

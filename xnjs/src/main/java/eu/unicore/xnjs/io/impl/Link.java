@@ -24,7 +24,8 @@ public class Link implements IFileTransfer {
 	private final Client client;
 	private final XNJS configuration;
 	private final TransferInfo info;
-	
+	private String preferredLoginNode;
+
 	public Link(XNJS configuration, Client client, String workingDirectory, String source, String target) {
 		this.configuration=configuration;
 		this.client=client;
@@ -33,18 +34,15 @@ public class Link implements IFileTransfer {
 		info.setProtocol("link");
 	}
 	
-	public TransferInfo getInfo(){return info;}
-	
-	public long getDataSize() {
-		return -1;
+	@Override
+	public TransferInfo getInfo(){
+		return info;
 	}
 
-	/**
-	 * uses TSI link to create the link
-	 */
+	@Override
 	public void run() {
 		try{
-			TSI tsi=configuration.getTargetSystemInterface(client);
+			TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 			tsi.setStorageRoot("/");
 			String target = info.getSource();
 			String linkName = workingDirectory+tsi.getFileSeparator()+info.getTarget();
@@ -55,6 +53,11 @@ public class Link implements IFileTransfer {
 		}
 	}
 
+	@Override
+	public void setPreferredLoginNode(String loginNode) {
+		this.preferredLoginNode = loginNode;
+	}
+	
 	public void abort() {}
 
 	public Map<String,Serializable>pause() {

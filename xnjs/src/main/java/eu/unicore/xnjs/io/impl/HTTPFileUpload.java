@@ -51,7 +51,7 @@ public class HTTPFileUpload extends AsyncFilemover{
 		InputStream is = null;
 		try{
 			if(storageAdapter==null){
-				TSI tsi=configuration.getTargetSystemInterface(client);
+				TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 				tsi.setStorageRoot(workingDirectory);
 				is=tsi.getInputStream(info.getSource());
 			}

@@ -52,6 +52,12 @@ public interface IFTSController {
 	public default void setPermissions(String permissions) {}
 
 	/**
+	 * Set the desired login node for running the file transfer(s).
+	 * Might not be supported by every implementation.
+	 */
+	public default void setPreferredLoginNode(String loginNode) {}
+
+	/**
 	 * collect all the files that should be transferred and put them into the
 	 * given list
 	 * 

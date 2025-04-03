@@ -28,6 +28,7 @@ public class Inline implements IFileTransfer {
 	private final String inlineData;
 	private String umask = null;
 	private String permissions = null;
+	private String preferredLoginNode = null;
 
 	private final TransferInfo info;
 
@@ -54,10 +55,11 @@ public class Inline implements IFileTransfer {
 	/**
 	 * uses TSI link to write inline data to the target
 	 */
+	@Override
 	public void run() {
 		info.setStatus(Status.RUNNING);
 		if(tsi == null){
-			tsi=configuration.getTargetSystemInterface(client);
+			tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
 			if(umask!=null)tsi.setUmask(umask);
 		}
 		tsi.setStorageRoot(workingDirectory);
@@ -104,6 +106,11 @@ public class Inline implements IFileTransfer {
 	@Override
 	public void setPermissions(String permissions) {
 		this.permissions = permissions;
+	}
+
+	@Override
+	public void setPreferredLoginNode(String loginNode) {
+		this.preferredLoginNode = loginNode;
 	}
 
 	private OutputStreamWriter getTarget(String target, boolean append)throws Exception{

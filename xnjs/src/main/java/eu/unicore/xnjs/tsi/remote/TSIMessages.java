@@ -366,7 +366,7 @@ public class TSIMessages {
 		return commands.toString();
 	}
 
-	private String [] ls_ignored = new String[] {"TSI_OK", "END_LISTING", "START_LISTING", "<", "-"};
+	private static final String [] ls_ignored = new String[] {"TSI_OK", "END_LISTING", "START_LISTING", "<", "-"};
 
 	/**
 	 * read a line from a TSI LS result, skipping irrelevant lines

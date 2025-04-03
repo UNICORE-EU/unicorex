@@ -42,7 +42,7 @@ public class TestGSIFTP extends EMSTestBase {
 		assertEquals(Integer.valueOf(0), d.getResult().getExitCode());
 		//check proxy has been written out
 		String workdir=d.getResult().getAction().getExecutionContext().getWorkingDirectory();
-		TSI tsi=xnjs.getTargetSystemInterface(client);
+		TSI tsi=xnjs.getTargetSystemInterface(client,null);
 		tsi.setStorageRoot(workdir);
 		String proxyLoc=d.getResult().getAction().getExecutionContext().getEnvironment().get("X509_USER_PROXY");
 		assertNotNull(proxyLoc);
@@ -90,7 +90,7 @@ public class TestGSIFTP extends EMSTestBase {
 		ExecutionContext ctx=d.getResult().getAction().getExecutionContext();
 		assertEquals(Integer.valueOf(0), ctx.getExitCode());
 		//check proxy has been written out
-		TSI tsi=xnjs.getTargetSystemInterface(client);
+		TSI tsi=xnjs.getTargetSystemInterface(client,null);
 		tsi.setStorageRoot(wd);
 		String proxyLoc=ctx.getEnvironment().get("X509_USER_PROXY");
 		XnjsFile f=tsi.getProperties(proxyLoc);

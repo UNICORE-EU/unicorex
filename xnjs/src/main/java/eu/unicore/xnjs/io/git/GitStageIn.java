@@ -38,6 +38,7 @@ public class GitStageIn implements IFileTransfer {
 	private final Client client;
 	private final XNJS xnjs;
 	private final DataStagingCredentials credentials;
+	private String preferredLoginNode = null;
 	private final String gitURI;
 	private final String targetDirectory;
 	private String umask = null;
@@ -67,10 +68,15 @@ public class GitStageIn implements IFileTransfer {
 		this.umask = umask;
 	}
 
+	@Override
+	public void setPreferredLoginNode(String loginNode) {
+		this.preferredLoginNode = loginNode;
+	}
+
 	public void run() {
 		info.setStatus(Status.RUNNING);
 		if(tsi == null){
-			tsi = xnjs.getTargetSystemInterface(client);
+			tsi = xnjs.getTargetSystemInterface(client, preferredLoginNode);
 			if(umask!=null)tsi.setUmask(umask);
 		}
 		tsi.setStorageRoot(workingDirectory);

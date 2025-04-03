@@ -43,7 +43,7 @@ public class AsyncCommandProcessor extends DefaultProcessor {
 	protected void submit()throws ExecutionException{
 		SubCommand subCommand = (SubCommand)action.getAjd();
 		ExecutionContext ec=action.getExecutionContext();
-		TSI tsi = xnjs.getTargetSystemInterface(action.getClient());
+		TSI tsi = xnjs.getTargetSystemInterface(action.getClient(), subCommand.preferredExecutionHost);
 		tsi.setUmask(subCommand.umask);
 		if(subCommand.workingDir != null) ec.setWorkingDirectory(subCommand.workingDir);
 		if(subCommand.outputDir != null){

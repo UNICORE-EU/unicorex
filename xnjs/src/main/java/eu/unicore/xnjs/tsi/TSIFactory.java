@@ -15,18 +15,7 @@ public class TSIFactory {
 	 * create a TSI
 	 * 
 	 * @param client - the client
-	 */
-	public TSI createTSI(Client client){
-		TSI tsi = xnjs.get(TSI.class);
-		tsi.setClient(client);
-		return tsi;
-	}
-		
-	/**
-	 * create a TSI
-	 * 
-	 * @param client - the client
-	 * @param preferredHost - the preferred TSI host (if applicable)
+	 * @param preferredHost - the preferred TSI host (if applicable, can be null to use any host)
 	 */
 	public TSI createTSI(Client client, String preferredHost){
 		TSI tsi = xnjs.get(TSI.class);
