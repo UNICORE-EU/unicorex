@@ -6,20 +6,15 @@ import java.util.List;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.KernelInjectable;
 import eu.unicore.services.rest.security.UserPublicKeyCache.UserInfoSource;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 
-public class TSIUserInfoLoader implements UserInfoSource, KernelInjectable {
+public class TSIUserInfoLoader implements UserInfoSource {
 
-	private Kernel kernel;
-	
+	private final Kernel kernel;
+
 	public TSIUserInfoLoader(Kernel kernel) {
-		this.kernel = kernel;
-	}
-	
-	public void setKernel(Kernel kernel) {
 		this.kernel = kernel;
 	}
 
@@ -29,7 +24,7 @@ public class TSIUserInfoLoader implements UserInfoSource, KernelInjectable {
 			Client c = new Client();
 			c.setAnonymousClient();
 			c.setXlogin(new Xlogin(new String[]{userName}));
-			TSI tsi = XNJSFacade.get(null, kernel).getTSI(c, null);
+			TSI tsi = XNJSFacade.get(null, kernel).getTSI(c);
 			if(tsi instanceof RemoteTSI) {
 				RemoteTSI rTSI = (RemoteTSI)tsi;
 				return rTSI.getUserPublicKeys();

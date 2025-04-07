@@ -1,6 +1,5 @@
 package eu.unicore.xnjs.io.impl;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -60,9 +59,9 @@ public class FileTransferEngine implements IFileTransferEngine{
 	private final XNJS xnjs;
 
 	private final PersistenceProperties persistenceProperties;
-	
+
 	private final Map<String,IFileTransfer> ftMap = new ConcurrentHashMap<>();
-	
+
 	private final Map<String,TransferInfo> ftInfo = new ConcurrentHashMap<>();
 
 	@Inject
@@ -100,8 +99,9 @@ public class FileTransferEngine implements IFileTransferEngine{
 	/**
 	 * Creates a new file import into the action's working directory
 	 */
+	@Override
 	public IFileTransfer createFileImport(Client client, String workingDirectory, DataStageInInfo info) 
-	throws IOException{
+	throws Exception{
 		for(IFileTransferCreator c: creators){
 			IFileTransfer f=c.createFileImport(client,workingDirectory,info);
 			if(f!=null){
@@ -115,8 +115,9 @@ public class FileTransferEngine implements IFileTransferEngine{
 	/**
 	 * Creates a new file export from the actions working directory
 	 */
+	@Override
 	public IFileTransfer createFileExport(Client client, String workingDirectory, DataStageOutInfo info) 
-	throws IOException{
+	throws Exception{
 		for(IFileTransferCreator c: creators){
 			IFileTransfer f=c.createFileExport(client,workingDirectory,info);
 			if(f!=null){
@@ -129,7 +130,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 
 	@Override
 	public IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) 
-			throws IOException{
+			throws Exception{
 		for(IFileTransferCreator c: creators){
 			IFTSController f = c.createFTSImport(client,workingDirectory,info);
 			if(f!=null){
@@ -141,7 +142,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 
 	@Override
 	public IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) 
-	throws IOException{
+	throws Exception{
 		for(IFileTransferCreator c: creators){
 			IFTSController f = c.createFTSExport(client,workingDirectory,info);
 			if(f!=null){
@@ -152,7 +153,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 	}
 
 	private Persist<FTSInfo> ftsStorage;
-	
+
 	@Override
 	public synchronized Persist<FTSInfo> getFTSStorage() throws PersistenceException {
 		if(ftsStorage==null) {
@@ -160,7 +161,8 @@ public class FileTransferEngine implements IFileTransferEngine{
 		}
 		return ftsStorage;
 	}
-	
+
+	@Override
 	public synchronized void registerFileTransferCreator(IFileTransferCreator creator) {
 		if(!creators.contains(creator)){
 			creators.add(creator);
@@ -170,7 +172,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 				logger.debug("Added <{}> for protocol {}", creator, creator.getProtocol());
 			}
 		}
-		order();
+		Collections.sort(creators, comp);
 	}
 
 	final Comparator<IFileTransferCreator> comp = new Comparator<IFileTransferCreator>(){
@@ -179,50 +181,47 @@ public class FileTransferEngine implements IFileTransferEngine{
 			return Integer.compare(o2.getPriority(),o1.getPriority());
 		}
 	}; 
-	
-	// order ft creators by priority
-	private void order() {
-		Collections.sort(creators, comp);
-	}
 
+	@Override
 	public synchronized String[] listProtocols() {
 		return (String[]) protocols.toArray(new String[0]);
 	}
 
-	public synchronized IFileTransfer getFiletransfer(String id) {
-		return ftMap.get(id);
-	}
-
+	@Override
 	public synchronized TransferInfo getInfo(String id) {
 		return ftInfo.get(id);
 	}
-	
+
+	@Override
 	public synchronized void updateInfo(TransferInfo info) {
 		ftInfo.put(info.getUniqueId(), info);
 	}
-	
+
+	@Override
 	public synchronized void registerFileTransfer(IFileTransfer ft) {
 		TransferInfo fti = ft.getInfo();
 		ftMap.put(fti.getUniqueId(), ft);
 		ftInfo.put(fti.getUniqueId(), fti);
 		fti.setFileTransferEngine(this);
 	}
-	
+
+	@Override
 	public synchronized void cleanup(String id) {
 		ftMap.remove(id);
 		ftInfo.remove(id);
 	}
 
+	@Override
 	public synchronized void abort(String id) {
 		ftMap.get(id).abort();
 	}
 
 	public static class FileTransferEvent implements Serializable {
-		
+
 		private static final long serialVersionUID = 1L;
-		
+
 		public String type, id;
-		
+
 		public FileTransferEvent(String type, String id) {
 			this.type=type;
 			this.id=id;

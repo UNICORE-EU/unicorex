@@ -1,7 +1,5 @@
 package eu.unicore.xnjs.io;
 
-import java.io.IOException;
-
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.fts.IFTSController;
 
@@ -34,7 +32,7 @@ public interface IFileTransferCreator {
 	 * @param workingDirectory
 	 * @param info - details about the transfer
 	 */
-	public default IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) throws IOException{
+	public default IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info) throws Exception{
 		return null;
 	}
 
@@ -47,7 +45,7 @@ public interface IFileTransferCreator {
 	 * @param workingDirectory
 	 * @param info - details about the transfer
 	 */
-	public default IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) throws IOException{
+	public default IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info) throws Exception{
 		return null;
 	}
 	

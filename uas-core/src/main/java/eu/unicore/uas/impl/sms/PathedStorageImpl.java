@@ -46,7 +46,7 @@ public class PathedStorageImpl extends SMSBaseImpl {
 	}
 
 	private void resolveRootDir()throws ExecutionException{
-		TSI tsi=getXNJSFacade().getTSI(getClient(),null);
+		TSI tsi = getXNJSFacade().getTSI(getClient());
 		storageRoot=tsi.resolve(getModel().workdir);
 		if(tsi.isLocal()){
 			//make sure it is absolute
@@ -96,14 +96,14 @@ public class PathedStorageImpl extends SMSBaseImpl {
 	}
 
 	private void createParent(String dir) throws ExecutionException {
-		TSI tsi=getXNJSFacade().getTSI(getClient(),null);
+		TSI tsi = getXNJSFacade().getTSI(getClient());
 		tsi.setUmask("0002");
 		tsi.setStorageRoot(dir);
 		tsi.mkdir("/");
 	}
 
 	private void checkDirExists()throws ExecutionException{
-		TSI tsi=getXNJSFacade().getTSI(getClient(),null);
+		TSI tsi = getXNJSFacade().getTSI(getClient());
 		//some sanity checks
 		XnjsFileWithACL xnjsFile=tsi.getProperties(storageRoot);
 		if(xnjsFile==null){

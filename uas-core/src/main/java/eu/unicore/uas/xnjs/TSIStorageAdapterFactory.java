@@ -7,9 +7,10 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 
 public class TSIStorageAdapterFactory implements StorageAdapterFactory {
 
+	@Override
 	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)throws IOException{
 		try{
-			return parent.getXNJSFacade().getTSI(parent.getClient(), null);
+			return parent.getXNJSFacade().getTSI(parent.getClient());
 		}catch(Exception e){
 			throw new IOException(e);
 		}

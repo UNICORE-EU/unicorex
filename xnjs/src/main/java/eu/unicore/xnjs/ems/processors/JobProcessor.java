@@ -652,8 +652,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 			return true; 
 		}
 		String uspace=action.getExecutionContext().getWorkingDirectory();
-		String executionHost = action.getExecutionContext().getPreferredExecutionHost();
-		TSI tsi = xnjs.getTargetSystemInterface(action.getClient(), executionHost);
+		TSI tsi = xnjs.getTargetSystemInterface(action.getClient());
 		Set<String> toCheck = new HashSet<>();
 		String fileSep = "/";
 		try {
@@ -931,7 +930,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		try{
 			List<String>files=(List<String>)action.getProcessingContext().get(KEY_DELETEONTERMINATION);
 			if(files==null || files.size()==0)return;
-			TSI tsi=xnjs.getTargetSystemInterface(action.getClient(), getPreferredLoginNode());
+			TSI tsi = xnjs.getTargetSystemInterface(action.getClient());
 			tsi.setStorageRoot(action.getExecutionContext().getWorkingDirectory());
 			int c=0;
 			for(String file: files){

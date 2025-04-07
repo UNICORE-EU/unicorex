@@ -29,7 +29,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 	}
 
 	protected RemoteTSI makeTSI(){
-		return (RemoteTSI)xnjs.getTargetSystemInterface(null, null);
+		return (RemoteTSI)xnjs.getTargetSystemInterface(null);
 	}
 
 	@Override

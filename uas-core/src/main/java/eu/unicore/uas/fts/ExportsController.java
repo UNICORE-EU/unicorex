@@ -8,12 +8,7 @@ import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 
 import eu.unicore.client.Endpoint;
-import eu.unicore.client.core.StorageClient;
 import eu.unicore.security.Client;
-import eu.unicore.services.Kernel;
-import eu.unicore.services.rest.jwt.JWTDelegation;
-import eu.unicore.services.rest.jwt.JWTServerProperties;
-import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.xnjs.UFileTransferCreator;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
@@ -32,37 +27,26 @@ import eu.unicore.xnjs.util.IOUtils;
 
 public class ExportsController implements IFTSController {
 
-	protected IStorageAdapter localStorage;
+	private IStorageAdapter localStorage;
 
-	protected final Client client;
-	
-	protected final XNJS xnjs;
-	
-	protected final Kernel kernel;
+	private final Client client;
 
-	protected DataStageOutInfo dso;
+	private final XNJS xnjs;
 
-	protected OverwritePolicy overwritePolicy;
-	
-	protected ImportPolicy importPolicy;
-	
-	protected Map<String,String> extraParameters;
-	
-	protected StorageClient remoteStorage;
-	
-	protected final Endpoint remoteEndpoint;
+	private DataStageOutInfo dso;
 
-	protected final String target;
-	
-	protected FileSet sourceFileSet;
+	private final Endpoint remoteEndpoint;
 
-	protected final String workingDirectory;
-	
-	protected String protocol;
-	
+	private final String target;
+
+	private FileSet sourceFileSet;
+
+	private final String workingDirectory;
+
+	private String protocol;
+
 	public ExportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageOutInfo dso, String workingDirectory) {
 		this.xnjs = xnjs;
-		this.kernel = xnjs.get(Kernel.class);
 		this.client = client;
 		this.remoteEndpoint = remoteEndpoint;
 		this.dso = dso;
@@ -74,7 +58,7 @@ public class ExportsController implements IFTSController {
 	public void setStorageAdapter(IStorageAdapter storageAdapter) {
 		this.localStorage = storageAdapter;
 	}
-	
+
 	public synchronized IStorageAdapter getStorageAdapter() {
 		if(localStorage==null) {
 			localStorage = xnjs.getTargetSystemInterface(client, dso.getPreferredLoginNode());
@@ -83,37 +67,27 @@ public class ExportsController implements IFTSController {
 		return localStorage;
 	}
 
-	
 	@Override
 	public void setOverwritePolicy(OverwritePolicy overwrite) {
-		this.overwritePolicy = overwrite;
+		// N/A
 	}
 
 	@Override
 	public void setImportPolicy(ImportPolicy importPolicy) {
-		this.importPolicy = importPolicy;
+		// N/A
 	}
 
 	@Override
 	public void setExtraParameters(Map<String,String>extraParameters) {
-		this.extraParameters = extraParameters;
+		// N/A
 	}
 
 	@Override
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
-	
-	protected void setup() throws Exception {
-		if(remoteStorage==null) {
-			String user = client.getDistinguishedName();
-			IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
-					new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), user);
-			remoteStorage = new StorageClient(remoteEndpoint, kernel.getClientConfiguration(), auth);
-		}
-	}
-	
-	protected boolean isDirectory(String file) throws ExecutionException, IOException
+
+	private boolean isDirectory(String file) throws ExecutionException, IOException
 	{
 		XnjsFile f = getStorageAdapter().getProperties(file);
 		if(f!=null) {
@@ -122,17 +96,16 @@ public class ExportsController implements IFTSController {
 		else throw new IOException("The file <"+file+"> does not exist or can not be accessed.");
 	}
 
-	protected synchronized long getFileSize(String file)throws ExecutionException, IOException {
+	private synchronized long getFileSize(String file)throws ExecutionException, IOException {
 		XnjsFile f = getStorageAdapter().getProperties(file);
 		if(f!=null){
 			return f.getSize();
 		}
 		else throw new IOException("The file <"+file+"> does not exist or can not be accessed.");
 	}
-	
+
 	@Override
 	public long collectFilesForTransfer(List<FTSTransferInfo> fileList) throws Exception {
-		setup();
 		String source = dso.getFileName();
 		if(FileSet.hasWildcards(source)){
 			sourceFileSet = new FileSet(source);
@@ -158,12 +131,10 @@ public class ExportsController implements IFTSController {
 			sfi.setSize(dataSize);
 			fileList.add(new FTSTransferInfo(sfi, UFileTransferCreator.getFileSpec(dso.getTarget().toString()), false));
 		}
-		
 		return dataSize;
-
 	}
-	
-	protected long doCollectFiles(List<FTSTransferInfo> fileList, XnjsFile sourceFolder, 
+
+	private long doCollectFiles(List<FTSTransferInfo> fileList, XnjsFile sourceFolder,
 			String targetFolder) throws Exception
 	{
 		long result = 0;
@@ -188,18 +159,15 @@ public class ExportsController implements IFTSController {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
-		setup();
 		String target = remoteEndpoint.getUrl() +
 				FilenameUtils.normalize("/files/"+to, true);
 		if(protocol!=null)target=protocol+":"+target;
 		DataStageOutInfo info = dso.clone();
 		info.setTarget(new URI(target));
 		info.setFileName(from.getPath());
-		IFileTransfer ft = xnjs.get(IFileTransferEngine.class).createFileExport(client, workingDirectory, info);
-		return ft;
+		return xnjs.get(IFileTransferEngine.class).createFileExport(client, workingDirectory, info);
 	}
-
 }

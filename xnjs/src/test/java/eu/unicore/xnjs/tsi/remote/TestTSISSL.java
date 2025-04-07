@@ -56,7 +56,7 @@ public class TestTSISSL extends RemoteTSISSLTestCase{
 
 	@Test
 	public void testForwardingSSL() throws Exception {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		assertNotNull(tsi);
 		SocketChannel s = tsi.openConnection("127.0.0.1", echo.getServerPort());
 		PrintWriter w = new PrintWriter(new OutputStreamWriter(ChannelUtils.newOutputStream(s, 65536)), true);

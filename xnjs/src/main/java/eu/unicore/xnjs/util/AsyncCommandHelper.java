@@ -69,7 +69,7 @@ public class AsyncCommandHelper {
 	 * @throws ExecutionException
 	 */
 	public void submit()throws Exception{
-		subActionID=createAction();
+		subActionID = createAction();
 	}
 
 	public boolean isDone()throws Exception{

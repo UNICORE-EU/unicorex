@@ -10,7 +10,7 @@ import eu.unicore.uas.fts.http.FileServlet;
  * File transfer home<br/>.
  * 
  * The actual class created by {@link #doCreateInstance()} is looked up dynamically
- * in the UAS properties.
+ * in the {@link FileTransferCapabilities}.
  *
  * @author schuller
  */

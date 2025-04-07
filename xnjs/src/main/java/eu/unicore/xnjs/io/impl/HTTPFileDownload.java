@@ -81,7 +81,7 @@ public class HTTPFileDownload extends AsyncFilemover{
 	}
 
 	protected InputStream getInputStream(String url)throws IOException, MalformedURLException{
-		IConnectionFactory cf=configuration.get(IConnectionFactory.class);
+		IConnectionFactory cf=xnjs.get(IConnectionFactory.class);
 		HttpGet get=new HttpGet(info.getSource());
 		if(credentials!=null){
 			get.addHeader("Authorization", credentials.getHTTPAuthorizationHeader(client));

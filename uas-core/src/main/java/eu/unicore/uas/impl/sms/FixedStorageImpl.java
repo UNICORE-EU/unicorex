@@ -20,16 +20,16 @@ public class FixedStorageImpl extends SMSBaseImpl {
 		SMSModel m = getModel();
 		String workdir = m.storageDescription.getPathSpec();
 		if(workdir==null)throw new IllegalArgumentException("Work directory cannot be null.");
-		TSI tsi=getXNJSFacade().getTSI(getClient(),null);
+		TSI tsi = getXNJSFacade().getTSI(getClient());
 		if(tsi!=null && tsi.isLocal()){
 			workdir=new File(workdir).getAbsolutePath();
 		}
 		StorageInitParameters init = (StorageInitParameters)initobjs;
 		if(!workdir.endsWith(getSeparator()))workdir+=getSeparator();
 		if(init.appendUniqueID){
-			workdir=workdir+getUniqueID();
+			workdir = workdir+getUniqueID();
 		}
-		m.workdir=workdir;
+		m.workdir = workdir;
 		if(m.storageDescription.isCheckExistence() 
 				&& !init.skipResolve){
 			checkWorkdirExists();
@@ -37,7 +37,7 @@ public class FixedStorageImpl extends SMSBaseImpl {
 	}
 
 	private void checkWorkdirExists()throws ExecutionException{
-		TSI tsi=getXNJSFacade().getTSI(getClient(),null);
+		TSI tsi=getXNJSFacade().getTSI(getClient());
 		//some sanity checks
 		String workdir=getModel().workdir;
 		XnjsFileWithACL xnjsFile=tsi.getProperties(workdir);

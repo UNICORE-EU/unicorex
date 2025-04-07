@@ -1,6 +1,5 @@
 package eu.unicore.xnjs.ems.processors;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,9 +44,9 @@ import eu.unicore.xnjs.util.LogUtil;
 public class DataStagingProcessor extends DefaultProcessor {
 
 	private static final Logger logger=LogUtil.getLogger(LogUtil.JOBS,DataStagingProcessor.class);
-	
+
 	private final static String fileTransferKey="FILETRANSFERS";
-	
+
 	public DataStagingProcessor(XNJS xnjs){
 		super(xnjs);
 	}
@@ -58,7 +57,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 	 * whole staging action is set to "FAILED". 
 	 */
 	protected void handleCreated() throws ExecutionException {
-		logger.debug("Adding file transfers for job {}", action.getParentActionID());
+		logger.trace("Adding file transfers for job {}", action.getParentActionID());
 		try{
 			StagingInfo dstInfo=(StagingInfo)action.getAjd();
 			List<String> ftList = new ArrayList<>();
@@ -80,17 +79,14 @@ public class DataStagingProcessor extends DefaultProcessor {
 							if(fs==null){
 								throw new Exception("Requested file system <"+fsName+"> is not available at this site.");
 							}
-							workingDirectory = xnjs.getTargetSystemInterface(action.getClient(),
-									dst.getPreferredLoginNode()).resolve(fs);
+							workingDirectory = xnjs.getTargetSystemInterface(action.getClient()).resolve(fs);
 						}
 						if(dst instanceof DataStageInInfo){
-							DataStageInInfo in=(DataStageInInfo)dst;
-							ft=createImport(workingDirectory, in);
+							ft = createImport(workingDirectory, (DataStageInInfo)dst);
 							ft.setUmask(action.getUmask());
 						}
 						else{
-							DataStageOutInfo out=(DataStageOutInfo)dst;
-							ft=createExport(workingDirectory, out);
+							ft = createExport(workingDirectory, (DataStageOutInfo)dst);
 						}
 						TransferInfo fti = ft.getInfo();
 						fti.setParentActionID(action.getRootActionID());
@@ -101,8 +97,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 						}
 					}catch(Exception e){
 						if(!dst.isIgnoreFailure()){
-							String msg=LogUtil.createFaultMessage("Error adding filetransfer",e);
-							LogUtil.logException("Error adding filetransfer", e, logger);
+							String msg = LogUtil.createFaultMessage("Error adding filetransfer",e);
 							setToDoneAndFailed(msg);
 							return;
 						}
@@ -114,7 +109,6 @@ public class DataStagingProcessor extends DefaultProcessor {
 				if(filesToDelete.size()>0){
 					action.getProcessingContext().put(JobProcessor.KEY_DELETEONTERMINATION, filesToDelete);
 				}
-				
 				for(IFileTransfer ft:ftInstances){
 					TransferInfo fti = ft.getInfo();
 					try{
@@ -133,30 +127,21 @@ public class DataStagingProcessor extends DefaultProcessor {
 			throw ExecutionException.wrapped(ex);
 		}
 	}	
-	
-	protected IFileTransfer createImport(String workingDirectory, DataStageInInfo info)throws IOException{
-		IFileTransfer ft = xnjs.get(IFileTransferEngine.class).
-		   createFileImport(action.getClient(), workingDirectory, info);
-		return ft;
+
+	protected IFileTransfer createImport(String workingDirectory, DataStageInInfo info)throws Exception{
+		return xnjs.get(IFileTransferEngine.class).createFileImport(action.getClient(), workingDirectory, info);
 	}
-	
-	protected IFileTransfer createExport(String workingDirectory, DataStageOutInfo info)throws IOException{
-		IFileTransfer ft = xnjs.get(IFileTransferEngine.class).
-		   createFileExport(action.getClient(), workingDirectory, info);
-		return ft;
+
+	protected IFileTransfer createExport(String workingDirectory, DataStageOutInfo info)throws Exception{
+		return xnjs.get(IFileTransferEngine.class).createFileExport(action.getClient(), workingDirectory, info);
 	}
-	
-	
+
 	@Override
 	@SuppressWarnings("unchecked")
 	protected void handleAborting()throws ExecutionException {
-		ArrayList<String> ftList=(ArrayList<String>)action.getProcessingContext().get(fileTransferKey);
+		ArrayList<String> ftList = (ArrayList<String>)action.getProcessingContext().get(fileTransferKey);
 		if(ftList==null)throw new IllegalStateException("Filetransfer list not found in context");
-		Iterator<String>iter=ftList.iterator();
-		while(iter.hasNext()){
-			String ftId=iter.next();
-			xnjs.get(IFileTransferEngine.class).abort(ftId);	
-		}
+		ftList.forEach((ftId)-> xnjs.get(IFileTransferEngine.class).abort(ftId));
 		super.handleAborting();
 	}
 
@@ -173,15 +158,14 @@ public class DataStagingProcessor extends DefaultProcessor {
 				//TODO how to deal with re-start of UNICORE/X ?
 				throw new IllegalStateException("Internal server error: File transfer '"+ftId+"' not found!");
 			}
-			
 			if(ft.getStatus()==Status.DONE){
-				logger.debug("File transfer {} SUCCESSFUL.", ft);
+				logger.trace("File transfer {} SUCCESSFUL.", ft);
 				xnjs.get(IFileTransferEngine.class).cleanup(ftId);
 				iter.remove();
 				action.setDirty();
 			}
 			else if(ft.getStatus()==Status.FAILED){
-				logger.debug("File transfer {} FAILED.", ft.getUniqueId());
+				logger.trace("File transfer {} FAILED.", ft.getUniqueId());
 				if(!ft.isIgnoreFailure()){
 					String message="Filetransfer FAILED: "+ft+" error message: "+ft.getStatusMessage();
 					action.addLogTrace(message);
@@ -198,7 +182,7 @@ public class DataStagingProcessor extends DefaultProcessor {
 		if(ftList.size()==0){
 			action.setStatus(ActionStatus.DONE);
 			action.setResult(new ActionResult(ActionResult.SUCCESSFUL));
-			logger.debug("File transfers <{}> done.", action.getUUID());
+			logger.trace("File transfers <{}> done.", action.getUUID());
 		}
 	}
 
@@ -211,13 +195,13 @@ public class DataStagingProcessor extends DefaultProcessor {
 			fte.cleanup(ftId);
 		}
 	}
-	
+
 	protected TransferInfo getInfo(String id){
 		return  xnjs.get(IFileTransferEngine.class).getInfo(id);
 	}
-	
+
 	private static Executor exec=null;
-	
+
 	/**
 	 * get an {@link Executor} for running filetransfers. 
 	 * This default implementation uses a thread pool with a fixed number of threads, as
@@ -251,5 +235,4 @@ public class DataStagingProcessor extends DefaultProcessor {
 	protected int getNumberOfFiletransferThreads(){
 		return xnjs.getIOProperties().getIntValue(IOProperties.FT_THREADS);
 	}
-
 }

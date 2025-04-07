@@ -232,8 +232,7 @@ public class GitStageIn implements IFileTransfer {
 
 	private void cloneSubmodules(TSIRepository repo, TSIDirCacheCheckout co, String parentURL) throws Exception {
 		if(recursionDepth.incrementAndGet()>10) {
-			throw new Exception("Submodules are too deeply nested for my taste. "
-					+ "Rethink your life choices.");
+			throw new Exception("Submodules are too deeply nested for my taste. Rethink your life choices.");
 		}
 		Map<String, String> submodules = repo.getSubmodules();
 		for(String path: submodules.keySet()) {

@@ -42,7 +42,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 
 	protected final Client client;
 
-	protected final XNJS configuration;
+	protected final XNJS xnjs;
 
 	protected AsyncCommandHelper ach;
 
@@ -56,16 +56,16 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 
 	protected volatile boolean abort=false;
 
-	protected long startTime=System.currentTimeMillis();
+	protected long startTime;
 
 	protected String preferredLoginNode = null;
 
 	protected final TransferInfo info;
 
-	public AsyncFilemover(Client client, String workingDirectory, String source, String target, XNJS config){
-		this.configuration=config;
-		this.workingDirectory=workingDirectory;
-		this.client=client;
+	public AsyncFilemover(Client client, String workingDirectory, String source, String target, XNJS xnjs){
+		this.xnjs = xnjs;
+		this.workingDirectory = workingDirectory;
+		this.client = client;
 		this.info = new TransferInfo(UUID.newUniqueID(), source, target);
 	}
 
@@ -90,11 +90,10 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 
 	@Override
 	public void run() {
-		//update to compensate for potential waiting in executor
 		startTime=System.currentTimeMillis();
 
 		if(storageAdapter==null){
-			TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
+			TSI tsi = xnjs.getTargetSystemInterface(client, preferredLoginNode);
 			tsi.setStorageRoot(workingDirectory);
 			storageAdapter = tsi;
 		}
@@ -104,13 +103,13 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 			return;
 		}
 		info.setStatus(Status.RUNNING, "Running");
-		logger.info("Submitting "+this);
+		logger.debug("Submitting "+this);
 
 		try{
 			if(isImport()) {
 				createParentDirectories();
 				//register a listener on the target file
-				monitor = new FileMonitor(workingDirectory, info.getTarget(), client, configuration,
+				monitor = new FileMonitor(workingDirectory, info.getTarget(), client, xnjs,
 						preferredLoginNode, 3, TimeUnit.SECONDS);
 				monitor.registerObserver(this);
 			}
@@ -123,7 +122,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 			//force a last update on the file info
 			if(monitor!=null)monitor.run();
 			reportUsage();
-			configuration.get(IFileTransferEngine.class).updateInfo(info);
+			xnjs.get(IFileTransferEngine.class).updateInfo(info);
 		}catch(Exception ex){
 			reportFailure("Could not do transfer", ex);
 			LogUtil.logException("Could not do transfer",ex,logger);
@@ -135,7 +134,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 
 	protected void doRun() throws Exception {
 		String cmd = makeCommandline();
-		ach = new AsyncCommandHelper(configuration,cmd,info.getUniqueId(),info.getParentActionID(),client);
+		ach = new AsyncCommandHelper(xnjs,cmd,info.getUniqueId(),info.getParentActionID(),client);
 		ach.setPreferredExecutionHost(preferredLoginNode);
 		preSubmit();
 		ach.submit();
@@ -144,7 +143,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		}
 		ResultHolder res=ach.getResult();
 		if(res.getExitCode()!=null && res.getExitCode()==0){
-			logger.info("Async transfer "+info.getSource()+" -> "+info.getTarget()+" is DONE.");
+			logger.debug("Async transfer {} -> {} is DONE.", info.getSource(), info.getTarget());
 			info.setStatus(Status.DONE);
 		}
 		else{
@@ -163,29 +162,25 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 			info.setStatus(Status.FAILED, statusMessage);
 		}
 	}
-	
+
+	@Override
 	public void update(XnjsFile xinfo){
 		if(xinfo!=null){
 			info.setTransferredBytes(xinfo.getSize());
 		}
 		if(info.getDataSize()<0){
-			if(isImport() && Status.DONE==info.getStatus()){
-				try{
-					TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
+			try{
+				String f = isImport() ? info.getTarget() : info.getSource();
+				if(!isImport() || Status.DONE==info.getStatus()) {
+					TSI tsi=xnjs.getTargetSystemInterface(client, preferredLoginNode);
 					tsi.setStorageRoot(workingDirectory);
-					info.setDataSize(tsi.getProperties(info.getTarget()).getSize());
-				}catch(Exception ex){}
-			}
-			else{
-				try{
-					TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
-					tsi.setStorageRoot(workingDirectory);
-					info.setDataSize(tsi.getProperties(info.getSource()).getSize());
-				}catch(Exception ex){}
-			}
+					info.setDataSize(tsi.getProperties(f).getSize());
+				}
+			}catch(Exception ex){}
 		}
 	}
 
+	@Override
 	public void setStorageAdapter(IStorageAdapter adapter) {
 		this.storageAdapter=adapter;
 	}
@@ -261,6 +256,8 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		int i=result.lastIndexOf(storageAdapter.getFileSeparator());
 		return i>0 ? result.substring(0,i) : "/" ;
 	}
+
+	@Override
 	public String toString(){
 		return getDescription();
 	}
@@ -274,10 +271,6 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 			sb.append(" client='").append(client.getDistinguishedName()+"'");
 		}
 		return sb.toString();
-	}
-
-	public String getWorkingDirectory() {
-		return workingDirectory;
 	}
 
 	/**

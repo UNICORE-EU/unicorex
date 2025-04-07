@@ -51,14 +51,14 @@ public class HTTPFileUpload extends AsyncFilemover{
 		InputStream is = null;
 		try{
 			if(storageAdapter==null){
-				TSI tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
+				TSI tsi=xnjs.getTargetSystemInterface(client, preferredLoginNode);
 				tsi.setStorageRoot(workingDirectory);
 				is=tsi.getInputStream(info.getSource());
 			}
 			else{
 				is=storageAdapter.getInputStream(info.getSource());
 			}
-			IConnectionFactory cf=configuration.get(IConnectionFactory.class);
+			IConnectionFactory cf=xnjs.get(IConnectionFactory.class);
 			
 			HttpPut put=new HttpPut(info.getTarget());
 			put.setEntity(new InputStreamEntity(is, -1, ContentType.WILDCARD));

@@ -31,13 +31,13 @@ import eu.unicore.xnjs.io.IFileTransferCreator;
  */
 @Singleton
 public class UFileTransferCreator implements IFileTransferCreator{
-	
-	protected static final Logger logger = LogUtil.getLogger(LogUtil.DATA,UFileTransferCreator.class);
-	
+
+	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA,UFileTransferCreator.class);
+
 	private final XNJS xnjs;
-	
+
 	private final Kernel kernel;
-	
+
 	public UFileTransferCreator(XNJS config) {
 		super();
 		this.xnjs = config;
@@ -49,7 +49,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		return 1;
 	}
 	
-
+	@Override
 	public IFileTransfer createFileExport(Client client, String workdir, DataStageOutInfo info) {
 		String source = info.getFileName();
 		URI target = info.getTarget();
@@ -106,39 +106,36 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	public static boolean isREST(URI url) {
 		return isREST(url.toString());
 	}
-	
+
 	public static boolean isREST(String url) {
 		return url.contains("/rest/core/storages/") && url.contains("/files");
 	}
-	
+
+	@Override
 	public String getProtocol() {
 		return String.valueOf(FileTransferCapabilities.getProtocols(kernel));
 	}
-	
+
+	@Override
 	public String getStageOutProtocol() {
 		return getProtocol();
 	}
-	
+
+	@Override
 	public String getStageInProtocol() {
 		return getProtocol();
 	}
-	
+
 	/**
 	 * create a transfer FROM a RESTful storage to a local file
-	 * 
+	 *
 	 * the assumed URI format is
 	 *   
 	 *   unicore_protocol:http(s)://host:port/rest/core/storages/resourceID/files/filespec
-	 * 
-	 * @param clazz 
-	 * @param client
-	 * @param workdir
-	 * @param source - remote file
-	 * @param targetFile - local file
-	 * @param creds - ignored
+	 *
 	 * @return IFileTransfer instance
 	 */
-	public IFileTransfer createImportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, URI source, String targetFile, DataStagingCredentials creds){
+	private IFileTransfer createImportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, URI source, String targetFile, DataStagingCredentials creds){
 		String sourceFile = getFileSpec(source.toString());
 		try{
 			RESTFileTransferBase ft=(RESTFileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
@@ -150,12 +147,21 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			ft.setExport(false);
 			return ft;
 		}catch(Exception e){
-			logger.warn("Unable to instantiate file transfer", e);
+			logger.debug("Unable to instantiate file transfer", e);
 			return null;
 		}
 	} 
-	
-	public IFileTransfer createExportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, String sourceFile, URI target, DataStagingCredentials credentials){
+
+	/**
+	 * create a transfer TO a RESTful storage from a local file
+	 *
+	 * the assumed URI format is
+	 *   
+	 *   unicore_protocol:http(s)://host:port/rest/core/storages/resourceID/files/filespec
+	 *
+	 * @return IFileTransfer instance
+	 */
+	private IFileTransfer createExportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, String sourceFile, URI target, DataStagingCredentials credentials){
 		String targetFile = getFileSpec(target.toString());
 		try{
 			RESTFileTransferBase ft = (RESTFileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
@@ -167,29 +173,27 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			ft.setExport(true);
 			return ft;
 		}catch(Exception e){
-			e.printStackTrace();
-			logger.warn("Unable to instantiate file transfer", e);
+			logger.debug("Unable to instantiate file transfer", e);
 			return null;
 		}
 	}
-	
-	
+
 	public static String getFileSpec(String restURL) {
 		String[] tokens = urlDecode(restURL.toString()).split("/files",2);
 		return tokens.length>1? tokens[1] : "/";
 	}
-	
+
 	private static final Pattern restURLPattern = Pattern.compile("(.*)://(.*/rest/core/storages/.*)/files/.*");
-	
+
 	/**
-	 * extracts the storage part from a REST staging URL
+	 * returns UNICORE protocol and Storage URL
 	 */
 	public static Pair<String,String>extractUrlInfo(URI url){
 		return extractUrlInfo(url.toString());
 	}
 
 	/**
-	 * extracts the storage part from a REST staging URL
+	 * returns UNICORE protocol and Storage URL
 	 */
 	public static Pair<String,String>extractUrlInfo(String url){
 		Matcher m = restURLPattern.matcher(url);
@@ -199,7 +203,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		
 		if(schemeSpec.equalsIgnoreCase("http")||schemeSpec.equalsIgnoreCase("https")) {
 			protocol = "BFT";
-			scheme = schemeSpec;;
+			scheme = schemeSpec;
 		}
 		else {
 			String[] tok = schemeSpec.split(":");
@@ -223,7 +227,6 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			return orig;
 		}
 	}
-
 
 	@Override
 	public IFTSController createFTSImport(Client client, String workingDirectory, DataStageInInfo info)

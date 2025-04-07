@@ -41,7 +41,7 @@ public class TestLocalTS extends EMSTestBase {
 	}
 
 	protected void initTSI()throws Exception{
-		tsi = xnjs.getTargetSystemInterface(null,null);
+		tsi = xnjs.getTargetSystemInterface(null);
 		tsi.setStorageRoot(tmpDir);
 	}
 

@@ -285,7 +285,7 @@ public class TestUFTP extends RemoteTSITestCase {
 	}
 
 	private void runCommand(String command, String outcomeDir) throws Exception {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		assertNotNull(tsi);
 		tsi.runTSICommand(command);
 		tsi.setStorageRoot(outcomeDir);
@@ -303,7 +303,7 @@ public class TestUFTP extends RemoteTSITestCase {
 	}
 
 	private void assertFileLength(File file, long length) throws Exception {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		assertEquals(length, tsi.getProperties(file.getAbsolutePath()).getSize());
 	}
 }

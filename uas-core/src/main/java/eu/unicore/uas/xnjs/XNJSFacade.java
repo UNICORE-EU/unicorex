@@ -404,8 +404,8 @@ public class XNJSFacade implements ISubSystem {
 	 * @param client -  the client object with authN/ authZ information
 	 * @return TSI
 	 */
-	public final TSI getTSI(Client client, String preferredLoginNode){
-		return xnjs.getTargetSystemInterface(client, preferredLoginNode);
+	public final TSI getTSI(Client client){
+		return xnjs.getTargetSystemInterface(client, null);
 	}
 
 	/**

@@ -16,7 +16,7 @@ import eu.unicore.xnjs.fts.IFTSController;
 import eu.unicore.xnjs.io.IFileTransfer;
 
 /**
- * Describes the available filetransfers in UAS Core<br/>
+ * Describes the available filetransfers in UNICORE/X<br/>
  * 
  * Additionally there are some utility methods for finding the available filetransfer
  * capabilities

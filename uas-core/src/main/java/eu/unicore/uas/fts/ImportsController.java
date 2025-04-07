@@ -32,35 +32,27 @@ import eu.unicore.xnjs.util.IOUtils;
 
 public class ImportsController implements IFTSController {
 
-	protected IStorageAdapter localStorage;
+	private final Client client;
 
-	protected final Client client;
-	
-	protected final XNJS xnjs;
-	
-	protected final Kernel kernel;
+	private final XNJS xnjs;
 
-	protected DataStageInInfo dsi;
+	private final Kernel kernel;
 
-	protected OverwritePolicy overwritePolicy;
-	
-	protected ImportPolicy importPolicy;
-	
-	protected Map<String,String> extraParameters;
-	
-	protected StorageClient remoteStorage;
-	
-	protected final Endpoint remoteEndpoint;
+	private DataStageInInfo dsi;
 
-	protected final String source;
-	
-	protected FileSet sourceFileSet;
-	
-	protected FileListEntry remoteBaseInfo;
+	private StorageClient remoteStorage;
 
-	protected final String workingDirectory;
+	private final Endpoint remoteEndpoint;
 
-	protected String protocol;
+	private final String source;
+
+	private FileSet sourceFileSet;
+
+	private FileListEntry remoteBaseInfo;
+
+	private final String workingDirectory;
+
+	private String protocol;
 
 	public ImportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageInInfo dsi, String workingDirectory) {
 		this.xnjs = xnjs;
@@ -74,22 +66,22 @@ public class ImportsController implements IFTSController {
 
 	@Override
 	public void setStorageAdapter(IStorageAdapter storageAdapter) {
-		this.localStorage = storageAdapter;
+		// unused
 	}
 
 	@Override
 	public void setOverwritePolicy(OverwritePolicy overwrite) {
-		this.overwritePolicy = overwrite;
+		// unused
 	}
 
 	@Override
 	public void setImportPolicy(ImportPolicy importPolicy) {
-		this.importPolicy = importPolicy;
+		// unused
 	}
 
 	@Override
 	public void setExtraParameters(Map<String,String>extraParameters) {
-		this.extraParameters = extraParameters;
+		// unused
 	}
 
 	@Override
@@ -97,7 +89,7 @@ public class ImportsController implements IFTSController {
 		this.protocol = protocol;
 	}
 
-	protected void setup() throws Exception {
+	private void setup() throws Exception {
 		if(remoteStorage==null) {
 			String user = client.getDistinguishedName();
 			IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
@@ -105,8 +97,8 @@ public class ImportsController implements IFTSController {
 			remoteStorage = new StorageClient(remoteEndpoint, kernel.getClientConfiguration(), auth);
 		}
 	}
-	
-	protected void getRemoteFileInfo(String source) throws Exception {
+
+	private void getRemoteFileInfo(String source) throws Exception {
 		if(!FileSet.hasWildcards(source)){
 			remoteBaseInfo = remoteStorage.stat(source);
 			boolean dir = remoteBaseInfo.isDirectory;
@@ -141,8 +133,8 @@ public class ImportsController implements IFTSController {
 			return remoteBaseInfo.size;
 		}
 	}
-	
-	protected long doCollectFiles(List<FTSTransferInfo> fileList, FileListEntry sourceFolder, 
+
+	private long doCollectFiles(List<FTSTransferInfo> fileList, FileListEntry sourceFolder,
 			String targetFolder, String baseDirectory) throws Exception
 	{
 		long result = 0;
@@ -166,7 +158,7 @@ public class ImportsController implements IFTSController {
 		}
 		return result;
 	}
-	
+
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
@@ -176,8 +168,6 @@ public class ImportsController implements IFTSController {
 		DataStageInInfo info = dsi.clone();
 		info.setSources(new URI[]{new URI(source)});
 		info.setFileName(to);
-		IFileTransfer ft = xnjs.get(IFileTransferEngine.class).createFileImport(client, workingDirectory, info);
-		return ft;
+		return xnjs.get(IFileTransferEngine.class).createFileImport(client, workingDirectory, info);
 	}
-
 }

@@ -42,7 +42,7 @@ public class PerfFileIORemoteTSI extends RemoteTSITestCase {
 		File tmpDir = new File("target","tsi_io_tests");
 		FileUtils.deleteQuietly(tmpDir);
 		
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		tsi.mkdir(tmpDir.getAbsolutePath());
 
 		//write some junk to the file
@@ -86,7 +86,7 @@ public class PerfFileIORemoteTSI extends RemoteTSITestCase {
 	private long doWrite()throws Exception{
 		File tmpDir = new File("target","tsi_io_tests");
 		FileUtils.deleteQuietly(tmpDir);
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null, null);
+		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
 		tsi.mkdir(tmpDir.getAbsolutePath());
 		String file=new File(tmpDir,"/out2").getAbsolutePath();
 		long start=System.currentTimeMillis();

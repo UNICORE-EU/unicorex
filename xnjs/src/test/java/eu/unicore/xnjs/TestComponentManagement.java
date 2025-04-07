@@ -27,9 +27,9 @@ public class TestComponentManagement extends XNJSTestBase {
 	@Test
 	public void testXNJSSetupAndStart(){
 		assertNotNull(xnjs);
-		TSI tsi1 = xnjs.getTargetSystemInterface(null, null);
+		TSI tsi1 = xnjs.getTargetSystemInterface(null);
 		assertNotNull(tsi1);
-		TSI tsi2 = xnjs.getTargetSystemInterface(null, null);
+		TSI tsi2 = xnjs.getTargetSystemInterface(null);
 		assertNotSame(tsi1,tsi2);
 	}
 	
