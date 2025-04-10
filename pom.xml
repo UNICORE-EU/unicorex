@@ -45,7 +45,7 @@
     <mvel.version>2.5.2.Final</mvel.version>
     <bc.version>1.78.1</bc.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
-    <junit.version>5.12.0</junit.version>
+    <junit.version>5.11.4</junit.version>
   </properties>
 
   <modules>

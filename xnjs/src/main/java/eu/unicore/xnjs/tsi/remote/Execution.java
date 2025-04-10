@@ -106,8 +106,8 @@ public class Execution extends BasicExecution {
 				throw new TSIBusyException("Too many running jobs.");
 			}
 		}
-		ApplicationInfo appDescription=job.getApplicationInfo();
-		ExecutionContext ec=job.getExecutionContext();
+		ApplicationInfo appDescription = job.getApplicationInfo();
+		ExecutionContext ec = job.getExecutionContext();
 		int initialStatus = ActionStatus.QUEUED;
 		boolean isFirstSubmit = null==job.getProcessingContext().get(BSS_SUBMIT_COUNT);
 		boolean runOnLoginNode = ec.isRunOnLoginNode();
@@ -152,15 +152,13 @@ public class Execution extends BasicExecution {
 				}
 			}
 			job.addLogTrace("TSI reply: submission OK.");
-			String bssid=res.trim();
-
+			String bssid = res.trim();
 			msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
-
 			String internalID = bssid;
 			BSS_STATE initialState = BSS_STATE.QUEUED;
-
 			if(runOnLoginNode || allocateOnly){
-				long iPid = runOnLoginSupport ? Long.valueOf(bssid) : readPID(job, tsiHost);
+				boolean readPIDFromFile = !runOnLoginSupport || XNJSConstants.asyncCommandType.equals(job.getType());
+				long iPid = readPIDFromFile ? readPID(job, tsiHost) : Long.valueOf(bssid);
 				internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
 				msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
 				if(!allocateOnly) {
