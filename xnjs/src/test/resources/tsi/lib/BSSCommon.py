@@ -1,10 +1,7 @@
-from time import time
-import re
-import os
+import json, os, re, subprocess
 import Quota
 import Utils
 from abc import ABCMeta
-
 
 class BSSBase(object):
     """Base class for batch system specific functions:
@@ -22,12 +19,13 @@ class BSSBase(object):
     def get_variant(self):
         return "<base>"
 
+
     def cleanup(self, config):
         """ cleanup child processes """
         children = config.get('tsi.child_pids', [])
         for child_pid in children:
             try:
-                _pid, _exit_code = os.waitpid(child_pid, os.WNOHANG)
+                _pid, _ = os.waitpid(child_pid, os.WNOHANG)
                 if _pid!=0:
                     children.remove(child_pid)
             except ChildProcessError:
@@ -41,6 +39,7 @@ class BSSBase(object):
         'tsi.hold_command': 'kill -STOP',
         'tsi.resume_command': 'kill -CONT'
     }
+
 
     def init(self, config, LOG):
         """ setup default commands if necessary """
@@ -59,26 +58,28 @@ class BSSBase(object):
                       "Please check that the correct TSI is installed, and " \
                       "check the configuration of 'tsi.qstat_cmd' : %s" % output
                 LOG.error(msg)
-                raise RuntimeError(msg)
         # for storing child process PIDs
         children = config.get('tsi.child_pids')
         if children is None:
             config['tsi.child_pids'] = []
 
-    def create_submit_script(self, message, config, LOG):
+
+    def create_submit_script(self, msg, config, LOG):
         """ For batch systems, this method is responsible for 
             creating the script that is sent to the batch system.
             See the slurm/BSS.py for an example.
         """
         return []
 
-    def create_alloc_script(self, message, config, LOG):
+
+    def create_alloc_script(self, msg, config, LOG):
         """ For batch systems, this method is responsible for
             creating a script that will allocate resources,
             but not launch any tasks.
             See the slurm/BSS.py for an example.
         """
         return []
+
 
     def submit(self, message, connector, config, LOG):
         """ Submit a script to the batch system.
@@ -126,7 +127,7 @@ class BSSBase(object):
             return
         
         # create unique name for the files used in this job submission
-        submit_id = str(int(time() * 1000))
+        submit_id = Utils.random_string()
         userjob_file_name = "UNICORE_Job_%s" % submit_id
 
         if job_mode.startswith("alloc"):
@@ -167,9 +168,40 @@ class BSSBase(object):
             else:
                 connector.failed("Submit failed? Submission result:" + reply)
 
+
+    def run_on_login_node(self, message, connector, config, LOG):
+        """Run a script on the TSI node, i.e. fork a child process to
+        execute the script. The user script is written to a "UNICORE_JOB_*"
+        file in the job directory and the child PID is reported back.
+        """
+        message = Utils.expand_variables(message)
+        outcome_dir = Utils.extract_parameter(message, "OUTCOME_DIR")
+        uspace_dir = Utils.extract_parameter(message, "USPACE_DIR")
+        stdout = Utils.extract_parameter(message, "STDOUT")
+        stderr = Utils.extract_parameter(message, "STDERR")
+        os.chdir(uspace_dir)
+        if not os.path.exists(outcome_dir):
+            os.mkdir(outcome_dir)
+            Utils.addperms(outcome_dir, 0o700)
+        # Write the commands to a file
+        submit_id = Utils.random_string()
+        cmds_file_name = "UNICORE_Job_%s" % submit_id
+        with open(cmds_file_name, "w") as cmds:
+            cmds.write(message)
+        Utils.addperms(cmds_file_name, 0o700)
+        cmd = "./%s > %s/%s 2> %s/%s" % (cmds_file_name, outcome_dir, stdout, outcome_dir, stderr)
+        LOG.debug("Running: %s" % cmd)
+        cmds = ["/bin/bash", "-l", "-c", cmd]
+        child = subprocess.Popen(cmds, start_new_session=True)
+        child_pids = config.get('tsi.child_pids')
+        child_pids.append(child.pid)
+        connector.write_message(str(child.pid))
+
+
     def get_extract_id_expr(self):
         """ regular expression for extracting the job ID after batch submit """
         return r"\D*(\d+)\D*"
+
 
     def extract_job_id(self, submit_result):
         """ extracts the job ID after submission to the BSS """
@@ -181,15 +213,18 @@ class BSSBase(object):
             job_id = m.group(1)
         return job_id
 
+
     def extract_info(self, qstat_line):
         raise RuntimeError("Method not implemented!")
+
 
     def convert_status(self, bss_state):
         raise RuntimeError("Method not implemented!")
 
+
     __ustates = [ "COMPLETED", "QUEUED", "SUSPENDED", "RUNNING", "UNKNOWN" ]
 
-    def parse_status_listing(self, qstat_result):
+    def parse_status_listing(self, qstat_result: str):
         """ Does the actual parsing of the status listing. """
         states = {}
         for line in qstat_result.splitlines():
@@ -211,6 +246,7 @@ class BSSBase(object):
             result += " %s %s %s %s\n" % (bssid, ustate, queue_name, original_state)
         return result
 
+
     def get_status_listing(self, message, connector, config, LOG):
         """ Get info about all the batch jobs and parses it.
         """
@@ -222,11 +258,13 @@ class BSSBase(object):
         result = self.parse_status_listing(qstat_output)
         connector.write_message(result)
 
+
     def get_process_listing(self, message, connector, config, LOG):
         """ Get list of the processes on this machine.
         """
         ps_cmd = Utils.extract_parameter(message, "PS", config["tsi.get_processes_cmd"])
         Utils.run_and_report(ps_cmd, connector)
+
 
     def parse_job_details(self, raw_info):
         """ Converts the raw job info into a dictionary """
@@ -244,6 +282,7 @@ class BSSBase(object):
             result['BSSJobDetails'] = raw_info
         return result
 
+
     def get_job_details(self, message, connector, config, LOG):
         bssid = Utils.extract_parameter(message, "BSSID")
         cmd = config["tsi.details_cmd"] + " " + bssid
@@ -253,26 +292,29 @@ class BSSBase(object):
             return
         result = self.parse_job_details(output)
         try:
-            import json
             out = json.dumps(result)
         except:
             out = str(result)
         connector.ok("%s\n" % out)
+
 
     def abort_job(self, message, connector, config, LOG):
         bssid = Utils.extract_parameter(message, "BSSID")
         cmd = config["tsi.abort_cmd"] % bssid
         Utils.run_and_report(cmd, connector)
 
+
     def hold_job(self, message, connector, config, LOG):
         bssid = Utils.extract_parameter(message, "BSSID")
         cmd = config["tsi.hold_cmd"] + " " + bssid
         Utils.run_and_report(cmd, connector)
 
+
     def resume_job(self, message, connector, config, LOG):
         bssid = Utils.extract_parameter(message, "BSSID")
         cmd = config["tsi.resume_cmd"] + " " + bssid
         Utils.run_and_report(cmd, connector)
+
 
     def get_budget(self, message, connector, config, LOG):
         """ Gets the remaining compute time for the current user 
@@ -280,6 +322,7 @@ class BSSBase(object):
         """
         quota = Quota.get_quota(config, LOG)
         connector.ok("%s\n" % quota)
+
 
     def parse_partitions(self, raw_info):
         """ Converts the raw partition info into a dictionary """
@@ -293,9 +336,7 @@ class BSSBase(object):
             return
         result = self.parse_partitions(output)
         try:
-            import json
             out = json.dumps(result)
         except:
             out = str(result)
         connector.ok("%s\n" % out)
-

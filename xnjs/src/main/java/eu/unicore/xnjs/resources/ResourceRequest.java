@@ -17,18 +17,18 @@ import eu.unicore.xnjs.resources.Resource.Category;
  * @author schuller
  */
 public class ResourceRequest implements Serializable  {
-	
+
 	private static final long serialVersionUID=1L;
-	
+
 	private final String name;
-	
+
 	private String requestedValue;
-	
+
 	public ResourceRequest(String name, String value){
 		this.name=name;
 		this.requestedValue=value;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -36,7 +36,7 @@ public class ResourceRequest implements Serializable  {
 	public String getRequestedValue() {
 		return requestedValue;
 	}
-	
+
 	public void setRequestedValue(String value) {
 		requestedValue = value;
 	}
@@ -75,15 +75,15 @@ public class ResourceRequest implements Serializable  {
 		}
 		return false;
 	}
-	
+
 	public static ResourceRequest find(Collection<ResourceRequest>req, String name){
 		for(ResourceRequest r: req){
 			if(r.getName().equals(name))return r;
 		}
 		return null;
 	}
-	
-	public static ResourceRequest findAndRemove(Collection<ResourceRequest>req, String name){
+
+	public static ResourceRequest pop(Collection<ResourceRequest>req, String name){
 		for(ResourceRequest r: req){
 			if(r.getName().equals(name)) {
 				req.remove(r);
@@ -94,7 +94,7 @@ public class ResourceRequest implements Serializable  {
 	}
 
 	public static void removeQuietly(Collection<ResourceRequest>req, String name){
-		findAndRemove(req, name);
+		pop(req, name);
 	}
 
 	public static List<ResourceRequest> merge(Collection<ResourceRequest > defaults, Collection<ResourceRequest>overrides){

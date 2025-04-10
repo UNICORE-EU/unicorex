@@ -64,7 +64,12 @@ public class GrounderImpl implements Incarnation {
 				result = idbApp.clone();
 			}
 			else{
-				throw new ExecutionException(ErrorCode.ERR_UNKNOWN_APPLICATION,"Application could not be mapped to an executable.");
+				String app = appName;
+				if(version!=null) {
+					app += " v"+version;
+				}
+				throw new ExecutionException(ErrorCode.ERR_UNKNOWN_APPLICATION,
+						"The requested Application '"+app+"' is not available.");
 			}
 		}
 		else{

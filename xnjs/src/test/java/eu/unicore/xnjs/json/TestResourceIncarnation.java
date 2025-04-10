@@ -184,7 +184,7 @@ public class TestResourceIncarnation {
 		incarnated = ResourceRequest.find(testRes,"AStringResource").getRequestedValue();
 		assertEquals("myvalue", incarnated);
 		
-		incarnated = ResourceRequest.findAndRemove(testRes,"AStringResource").getRequestedValue();
+		incarnated = ResourceRequest.pop(testRes,"AStringResource").getRequestedValue();
 		assertEquals("myvalue", incarnated);
 		assertNull(ResourceRequest.find(testRes,"AStringResource"));
 	}

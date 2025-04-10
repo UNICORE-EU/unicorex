@@ -67,14 +67,10 @@ public class TSIMessages {
 		Incarnation grounder = xnjs.get(Incarnation.class);
 		StringBuilder commands = new StringBuilder();
 		commands.append(idb.getScriptHeader());
-		commands.append("#TSI_SUBMIT\n");
-		
+		commands.append("#TSI_SUBMIT\n");	
 		Formatter f = new Formatter(commands, null);
-
-		commands.append("\n"); // start on a fresh line independent of the script template
-
+		commands.append("\n");
 		List<ResourceRequest> rt=grounder.incarnateResources(job);
-
 		ResourceRequest reservation=ResourceRequest.find(rt, ResourceSet.RESERVATION_ID);
 		if(reservation!=null){
 			rt.remove(reservation);
@@ -116,11 +112,8 @@ public class TSIMessages {
 			commands.append("#TSI_JOB_MODE raw\n");
 			f.format("#TSI_JOB_FILE %s\n", jobFile);
 		}
-
 		commands.append("#TSI_SCRIPT\n");
-
 		appendEnvironment(commands, ec, true);
-
 		if (client!=null) {
 			String dn=client.getDistinguishedName().replaceAll("\"", "_");
 			f.format("UC_USERDN=\"%s\"; export UC_USERDN\n", dn);
@@ -135,12 +128,71 @@ public class TSIMessages {
 			f.format("UC_OUTPUT_DIRECTORY=\"%s\"; export UC_OUTPUT_DIRECTORY\n", ec.getOutputDirectory());
 		}
 		commands.append("cd ${UC_WORKING_DIRECTORY}\n");
-
 		if(ioProperties.getBooleanValue(IOProperties.STAGING_FS_WAIT)) {
 			// make sure all staged input files are available ON THE WORKER NODE
 			insertImportedFilesWaitingLoop(commands, job);
 		}
+		// executable (user-pre, prologue, main, epilogue, user-post)
+		insertExecutable(commands, applicationInfo, ec, false);
+		f.close();
+		return commands.toString();
+	}
 
+	/**
+	 * make a TSI "run on login node" command <br/>
+	 *
+	 * @return TSI commmand string
+	 */
+	public String makeRunOnLoginNodeCommand(Action job, String credentials, boolean useRunOnLogin) throws ExecutionException {
+		if(!useRunOnLogin) {
+			// fall back to pre 10.2.0 style
+			return makeExecuteAsyncScript(job, credentials);
+		}
+		ApplicationInfo applicationInfo = job.getApplicationInfo();
+		Client client=job.getClient();
+		ExecutionContext ec = job.getExecutionContext();
+		IDB idb = xnjs.get(IDB.class);
+		StringBuilder commands = new StringBuilder();
+		commands.append(idb.getScriptHeader());
+		commands.append("#TSI_RUN_ON_LOGIN_NODE\n");	
+		Formatter f = new Formatter(commands, null);
+		commands.append("\n");
+		if(credentials!=null){
+			f.format("#TSI_CREDENTIALS %s\n", credentials);
+		}
+		f.format("#TSI_OUTCOME_DIR %s\n", ec.getOutputDirectory());
+		f.format("#TSI_USPACE_DIR %s\n", ec.getWorkingDirectory());
+		String stdout=ec.getStdout()!=null? checkLegal(ec.getStdout(),"Stdout") : "stdout";
+		f.format("#TSI_STDOUT %s\n", stdout);
+		String stderr=ec.getStderr()!=null? checkLegal(ec.getStderr(),"Stderr") : "stderr";
+		f.format("#TSI_STDERR %s\n", stderr);
+		String jobName=job.getJobName()!=null ? checkLegal(job.getJobName(), "Job name") : "UNICORE_Job";
+		f.format("#TSI_JOBNAME %s\n", jobName);
+		String email="NONE";
+		if(client!=null && client.getUserEmail()!=null){
+			email = checkLegal(client.getUserEmail(),"Email");
+		}
+		f.format("#TSI_EMAIL %s\n", email);
+		commands.append("#TSI_SCRIPT\n");
+		appendEnvironment(commands, ec, true);
+		if (client!=null) {
+			String dn=client.getDistinguishedName().replaceAll("\"", "_");
+			f.format("UC_USERDN=\"%s\"; export UC_USERDN\n", dn);
+		}
+		// add "." to PATH to make sure user executable can be specified without
+		// having to prefix "./"
+		commands.append("PATH=$PATH:. ; export PATH\n");
+		if (ec.getWorkingDirectory() != null) {
+			f.format("UC_WORKING_DIRECTORY=\"%s\"; export UC_WORKING_DIRECTORY\n", ec.getWorkingDirectory());
+		}
+		if (ec.getOutputDirectory() != null) {
+			f.format("UC_OUTPUT_DIRECTORY=\"%s\"; export UC_OUTPUT_DIRECTORY\n", ec.getOutputDirectory());
+		}
+		commands.append("cd ${UC_WORKING_DIRECTORY}\n");
+		if(ioProperties.getBooleanValue(IOProperties.STAGING_FS_WAIT)) {
+			// make sure all staged input files are available ON THE WORKER NODE
+			insertImportedFilesWaitingLoop(commands, job);
+		}
 		// executable (user-pre, prologue, main, epilogue, user-post)
 		insertExecutable(commands, applicationInfo, ec, false);
 		f.close();
@@ -171,7 +223,6 @@ public class TSIMessages {
 				}
 				catch(Exception e){}
 			}
-
 			// wait for stage-ins to be visible on network file system
 			commands.append("end=$((`date +%s`+").append(timeout).append("))\n");
 			commands.append("_l=\"true\"\n");
@@ -293,14 +344,11 @@ public class TSIMessages {
 		StringBuilder commands = new StringBuilder();
 		commands.append(idb.getScriptHeader());
 		commands.append("#TSI_EXECUTESCRIPT\n");
-		
 		Formatter f = new Formatter(commands, null);
 		if(credentials!=null){
 			f.format("#TSI_CREDENTIALS %s\n", credentials);
 		}
-
 		commands.append("#TSI_SCRIPT\n");
-
 		if (ec != null) {
 			appendEnvironment(commands, ec, true);
 		}
@@ -337,7 +385,6 @@ public class TSIMessages {
 		commands.append(idb.getScriptHeader());
 		commands.append("#TSI_EXECUTESCRIPT\n");
 		Formatter f = new Formatter(commands, null);
-
 		if(credentials!=null){
 			f.format("#TSI_CREDENTIALS %s\n", credentials);
 		}
@@ -350,17 +397,12 @@ public class TSIMessages {
 			f.format("UC_OUTPUT_DIRECTORY=%s; export UC_OUTPUT_DIRECTORY\n", ec.getOutputDirectory());
 		}
 		commands.append("cd ${UC_WORKING_DIRECTORY}\n");
-
 		appendEnvironment(commands, ec, true);
-
 		commands.append("{ ");
-		
 		if(ioProperties.getBooleanValue(IOProperties.STAGING_FS_WAIT)) {
 			insertImportedFilesWaitingLoop(commands, job);
 		}
-
 		insertExecutable(commands, ai, ec, true);
-
 		f.format("} & echo $! > ${UC_OUTPUT_DIRECTORY}/%s", ec.getPIDFileName());
 		f.close();
 		return commands.toString();
@@ -724,90 +766,71 @@ public class TSIMessages {
 	 * @return the queue / partition name the job will be submitted into
 	 */
 	public String appendTSIResourceSpec(StringBuilder commands, List<ResourceRequest> resources) {
-
 		int run_time = -1; // walltime
-
 		int nodes = -1;
 		int total_processors = -1;
 		int processors_per_node = -1;
 		int gpus_per_node = -1;
 		int memory = -1;
+		Formatter f = new Formatter(commands, null);
 
 		String queue="NONE";
-
-		Formatter f = new Formatter(commands, null);
-		//check Queue resource
-		ResourceRequest queueResource = ResourceRequest.findAndRemove(resources,ResourceSet.QUEUE);
-		if(queueResource!=null){
-			queue = checkLegal(queueResource.getRequestedValue(),"Queue");
+		ResourceRequest queueRequest = ResourceRequest.pop(resources,ResourceSet.QUEUE);
+		if(queueRequest!=null){
+			queue = checkLegal(queueRequest.getRequestedValue(),"Queue");
 		}
 
-		// project
-		ResourceRequest projectResource = ResourceRequest.findAndRemove(resources,ResourceSet.PROJECT);
-		if(projectResource!=null){
-			String project = checkLegal(projectResource.getRequestedValue(),"Project");
-			if(project!=null){
-				f.format("#TSI_PROJECT %s\n", project);
-			}
-		}
-		
-		// quality of service
-		ResourceRequest qosResource = ResourceRequest.findAndRemove(resources, ResourceSet.QOS);
-		if(qosResource!=null){
-			String qos = checkLegal(qosResource.getRequestedValue(), "QoS");
-			f.format("#TSI_QOS %s\n", qos);
+		ResourceRequest project = ResourceRequest.pop(resources,ResourceSet.PROJECT);
+		if(project!=null){
+			f.format("#TSI_PROJECT %s\n", checkLegal(project.getRequestedValue(),"Project"));
 		}
 
-		// exclusive execution
-		ResourceRequest exclusiveResource = ResourceRequest.findAndRemove(resources, ResourceSet.EXCLUSIVE);
-		if(exclusiveResource!=null){
-			String excl = checkLegal(exclusiveResource.getRequestedValue(), "Exclusive execution");
-			f.format("#TSI_EXCLUSIVE %s\n", excl);
+		ResourceRequest qos = ResourceRequest.pop(resources, ResourceSet.QOS);
+		if(qos!=null){
+			f.format("#TSI_QOS %s\n", checkLegal(qos.getRequestedValue(), "QoS"));
 		}
 
-		// node constraints
-		ResourceRequest nodeConstraints = ResourceRequest.findAndRemove(resources, ResourceSet.NODE_CONSTRAINTS);
+		ResourceRequest exclusive = ResourceRequest.pop(resources, ResourceSet.EXCLUSIVE);
+		if(exclusive!=null){
+			f.format("#TSI_EXCLUSIVE %s\n", checkLegal(exclusive.getRequestedValue(), "Exclusive execution"));
+		}
+
+		ResourceRequest nodeConstraints = ResourceRequest.pop(resources, ResourceSet.NODE_CONSTRAINTS);
 		if(nodeConstraints!=null){
-			String nc=checkLegal(nodeConstraints.getRequestedValue(),"Node constraints");
-			if(nc!=null){
-				f.format("#TSI_BSS_NODES_FILTER %s\n", nc);
-			}
+			f.format("#TSI_BSS_NODES_FILTER %s\n", checkLegal(nodeConstraints.getRequestedValue(), "Node constraints"));
 		}
 
-		// job array size and limit
-		ResourceRequest arraySizeResource = ResourceRequest.findAndRemove(resources, ResourceSet.ARRAY_SIZE);
-		if(arraySizeResource!=null){
-			ResourceRequest arrayLimitResource = null;
-			int size = Integer.parseInt(arraySizeResource.getRequestedValue())-1;
+		ResourceRequest jobArraySize = ResourceRequest.pop(resources, ResourceSet.ARRAY_SIZE);
+		if(jobArraySize!=null){
+			ResourceRequest jobArrayLimit = null;
+			int size = Integer.parseInt(jobArraySize.getRequestedValue())-1;
 			if(size>0){
 				f.format("#TSI_ARRAY 0-%d\n", size);
-				arrayLimitResource = ResourceRequest.findAndRemove(resources, ResourceSet.ARRAY_LIMIT);
-				if(arrayLimitResource!=null){
-					f.format("#TSI_ARRAY_LIMIT %s\n", arrayLimitResource.getRequestedValue());
+				jobArrayLimit = ResourceRequest.pop(resources, ResourceSet.ARRAY_LIMIT);
+				if(jobArrayLimit!=null){
+					f.format("#TSI_ARRAY_LIMIT %s\n", jobArrayLimit.getRequestedValue());
 				}
 			}
 		}
 
-		// CPUs / nodes / GPUs
-		ResourceRequest totalCpusRequest=ResourceRequest.findAndRemove(resources, ResourceSet.TOTAL_CPUS);
+		ResourceRequest totalCpusRequest=ResourceRequest.pop(resources, ResourceSet.TOTAL_CPUS);
 		if (totalCpusRequest!= null) {
 			total_processors = totalCpusRequest.toIntSafe();
 		}
-		ResourceRequest cpusRequest=ResourceRequest.findAndRemove(resources, ResourceSet.CPUS_PER_NODE);
+		ResourceRequest cpusRequest=ResourceRequest.pop(resources, ResourceSet.CPUS_PER_NODE);
 		if(cpusRequest!=null){
 			processors_per_node = cpusRequest.toIntSafe();
 		}
-		ResourceRequest nodesRequest=ResourceRequest.findAndRemove(resources, ResourceSet.NODES);
+		ResourceRequest nodesRequest=ResourceRequest.pop(resources, ResourceSet.NODES);
 		if (nodesRequest!= null) {
 			nodes = nodesRequest.toIntSafe();
 		}
-		ResourceRequest gpusRequest=ResourceRequest.findAndRemove(resources, ResourceSet.GPUS_PER_NODE);
+		ResourceRequest gpusRequest=ResourceRequest.pop(resources, ResourceSet.GPUS_PER_NODE);
 		if(gpusRequest!=null){
 			gpus_per_node = gpusRequest.toIntSafe();
 		}
 
-		// memory per node
-		ResourceRequest memoryRequest=ResourceRequest.findAndRemove(resources, ResourceSet.MEMORY_PER_NODE);
+		ResourceRequest memoryRequest=ResourceRequest.pop(resources, ResourceSet.MEMORY_PER_NODE);
 		if (memoryRequest!= null) {
 			try {
 				memory = Integer.valueOf(memoryRequest.toInt()) / MEGABYTE;
@@ -817,37 +840,30 @@ public class TSIMessages {
 		// time, individual == wall clock time
 		run_time = getRuntime(resources);
 		ResourceRequest.removeQuietly(resources, ResourceSet.RUN_TIME);
-
 		if(run_time>0){
 			f.format("#TSI_TIME %d\n", run_time);
 		}
-
 		if(memory>0){
 			f.format("#TSI_MEMORY %d\n", memory);
 		}
-
 		if(gpus_per_node>0){
 			f.format("#TSI_GPUS_PER_NODE %d\n", memory);
 		}
-
 		// can also have nodes not set at all (TSI does the mapping based on
 		// total number of processors)
 		f.format("#TSI_NODES %d\n", nodes);
 		f.format("#TSI_PROCESSORS_PER_NODE %d\n", processors_per_node);
 		f.format("#TSI_TOTAL_PROCESSORS %d\n", total_processors);
 		f.format("#TSI_QUEUE %s\n", queue);
-		
+
 		// Set some resources as environment variables
 		f.format("UC_NODES=%d; export UC_NODES\n", nodes);
 		f.format("UC_PROCESSORS_PER_NODE=%d; export UC_PROCESSORS_PER_NODE\n", processors_per_node);
 		f.format("UC_TOTAL_PROCESSORS=%d; export UC_TOTAL_PROCESSORS\n", total_processors);
 		f.format("UC_RUNTIME=%d; export UC_RUNTIME\n", run_time);
 		f.format("UC_MEMORY_PER_NODE=%d; export UC_MEMORY_PER_NODE\n", memory);
-
 		f.close();
-
 		appendSiteSpecificResources(commands, resources);
-
 		return queue;
 	}
 
@@ -990,7 +1006,6 @@ public class TSIMessages {
 		return runtime;
 	}
 
-
 	private static String[] illegal = {"\n","\r","`","$("};
 
 	/**
@@ -1021,8 +1036,7 @@ public class TSIMessages {
 	 * @return sanitized string with single quotes replaced by a properly quoted version
 	 */
 	public static String sanitize(String input){
-		String sane = input.replace("'","'\\''");
-		return sane;
+		return input.replace("'","'\\''");
 	}
 
 	/**

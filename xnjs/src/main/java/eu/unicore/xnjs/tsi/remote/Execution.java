@@ -122,7 +122,6 @@ public class Execution extends BasicExecution {
 		          (preferredTSIHost==null? "" : ", requested node: <"+preferredTSIHost+">");
 			job.addLogTrace(msg);
 		}
-		String tsiCmd = createTSIScript(job);
 		String tsiHost=null;
 		String msg;
 		String res;
@@ -130,9 +129,12 @@ public class Execution extends BasicExecution {
 
 		Lock lock = null;
 		boolean locked = false;
+		boolean runOnLoginSupport = false;
 		try{
 			try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
-				tsiHost=conn.getTSIHostName();
+				runOnLoginSupport = conn.compareVersion("10.2.0");
+				String tsiCmd = createTSIScript(job, runOnLoginSupport);
+				tsiHost = conn.getTSIHostName();
 				lock = runOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
 				locked = lock.tryLock(120, TimeUnit.SECONDS);
 				if(!locked) {
@@ -158,7 +160,7 @@ public class Execution extends BasicExecution {
 			BSS_STATE initialState = BSS_STATE.QUEUED;
 
 			if(runOnLoginNode || allocateOnly){
-				long iPid = readPID(job, tsiHost);
+				long iPid = runOnLoginSupport ? Long.valueOf(bssid) : readPID(job, tsiHost);
 				internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
 				msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
 				if(!allocateOnly) {
@@ -185,7 +187,7 @@ public class Execution extends BasicExecution {
 		return initialStatus;
 	}
 	
-	public String createTSIScript(Action job) throws ExecutionException {
+	private String createTSIScript(Action job, boolean runOnLoginSupport) throws ExecutionException {
 		if(XNJSConstants.asyncCommandType.equals(job.getType())){
 			SubCommand sc = (SubCommand)job.getAjd();
 			if(sc.type == SubCommand.UFTP) {
@@ -196,16 +198,16 @@ public class Execution extends BasicExecution {
 				}
 			}
 		}
-		return createDefaultTSIScript(job);
+		return createDefaultTSIScript(job, runOnLoginSupport);
 	}
 
-	private String createDefaultTSIScript(Action job) throws ExecutionException {
+	private String createDefaultTSIScript(Action job, boolean runOnLoginSupport) throws ExecutionException {
 		return job.getExecutionContext().isRunOnLoginNode() ? 
-				tsiMessages.makeExecuteAsyncScript(job, extractBSSCredentials(job)) : 
+				tsiMessages.makeRunOnLoginNodeCommand(job, extractBSSCredentials(job), runOnLoginSupport) : 
 				tsiMessages.makeSubmitCommand(job, extractBSSCredentials(job));
 	}
 	
-	//for interactive execution, read the PID of the submitted script
+	//for async script execution, read the PID of the submitted script
 	private long readPID(Action job, String preferredTSINode)throws IOException, ExecutionException, InterruptedException {
 		Thread.sleep(3000); // async submit, so PID file may not yet be written - let's try and avoid errors later
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);

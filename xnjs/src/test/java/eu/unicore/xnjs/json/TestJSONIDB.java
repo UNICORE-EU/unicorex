@@ -20,6 +20,7 @@ import eu.unicore.xnjs.BaseModule;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.idb.IDB;
+import eu.unicore.xnjs.idb.IDBImpl;
 import eu.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.xnjs.resources.ResourceSet;
 import eu.unicore.xnjs.tsi.local.LocalTSIModule;
@@ -83,4 +84,16 @@ public class TestJSONIDB {
 		assertTrue(idb.getScriptHeader().contains("FOO=bar\n"));
 	}
 
+	@Test
+	public void testVersionMatching() throws Exception{
+		String[] req = new String[] {null, "3.1.1", "3.1.1", "3.1", "1", "2", "3"};
+		String have = "3.1.1";
+		for(String r: req) {
+			assertTrue(IDBImpl.versionMatches(r, have));
+		}
+		req = new String[] {"3.1.2", "3.2", "4"};
+		for(String r: req) {
+			assertFalse(IDBImpl.versionMatches(r, have));
+		}
+	}
 }

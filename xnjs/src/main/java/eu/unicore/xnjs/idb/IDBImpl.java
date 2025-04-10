@@ -553,5 +553,27 @@ public class IDBImpl implements IDB {
 	public Collection<ApplicationInfo> getIdb() {
 		return idb;
 	}
-	
+
+	/**
+	 * simple version match
+	 * @param requested
+	 * @param available
+	 * @return <code>true</code> if "available" is higher than "requested"
+	 */
+	public static boolean versionMatches(String requested, String available) {
+		if(requested==null || available.equals(requested))return true;
+		String[]requestedParts = requested.split("\\.");
+		String[]availableParts = available.split("\\.");
+		boolean haveMatch = true;
+		for(int i=0; i<requestedParts.length; i++) {
+			if(i>availableParts.length)break;
+			String want = requestedParts[i];
+			String have = availableParts[i];
+			if(have.compareTo(want)<0) {
+				haveMatch = false;
+				break;
+			}
+		}
+		return haveMatch;
+	}
 }
