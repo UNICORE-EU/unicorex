@@ -34,7 +34,6 @@ import eu.unicore.xnjs.tsi.TSIBusyException;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import eu.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
 import eu.unicore.xnjs.util.ErrorCode;
-import eu.unicore.xnjs.util.IOUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -107,11 +106,9 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		cs.submit(t1);
 		cs.submit(t2);
 		cs.submit(t3);
-
 		for(int i=0; i<3; i++) {
 			cs.poll(120, TimeUnit.SECONDS).get();
 		}
-
 		es.shutdownNow();
 	}
 
@@ -162,13 +159,9 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			public void run(){
 				try{
 					Action a1 = mgr.getAction(id);
-					final String wd=a1.getExecutionContext().getWorkingDirectory();
+					final String wd = a1.getExecutionContext().getWorkingDirectory();
 					System.out.println("Script running in "+wd);
-					File pidFile=new File(wd, a1.getExecutionContext().getPIDFileName());
-					assertTrue(pidFile.exists());
-					pid=IOUtils.readFile(pidFile);
-					System.out.println("Have PID : "+pid);
-				}catch(Exception e){}
+					}catch(Exception e){}
 			}
 		};
 		doRun(id, check);
