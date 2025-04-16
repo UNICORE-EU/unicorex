@@ -43,9 +43,10 @@
     <tika.version>2.9.2</tika.version>
     <commons-io.version>2.18.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
-    <bc.version>1.78.1</bc.version>
+    <bc.version>1.80</bc.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
-    <junit.version>5.11.4</junit.version>
+    <junit.version>5.12.0</junit.version>
+    <junit.p.version>1.12.0</junit.p.version>
   </properties>
 
   <modules>
@@ -65,6 +66,12 @@
 	<version>${junit.version}</version>
 	<scope>test</scope>
       </dependency>
+      <dependency>
+	<groupId>org.junit.platform</groupId>
+	<artifactId>junit-platform-launcher</artifactId>
+	<version>${junit.p.version}</version>
+	<scope>test</scope>
+    </dependency>
       <dependency>
 	<groupId>com.google.inject</groupId>
 	<artifactId>guice</artifactId>
