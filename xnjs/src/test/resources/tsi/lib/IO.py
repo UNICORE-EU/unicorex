@@ -11,7 +11,6 @@ import os.path
 import stat
 from Utils import expand_variables, extract_parameter, run_command
 
-import Testing
 
 def get_file_chunk(message, connector, config, LOG):
     """Return part of a file to UNICORE/X via the data_out stream.
@@ -86,7 +85,6 @@ def put_file_chunk(message, connector, config, LOG):
         connector.ok("ENDOFMESSAGE")
         remaining = length
 
-        Testing.fail_io(config, LOG)
         while remaining > 0:
             buf = connector.read_data(remaining)
             bytes_read = len(buf)
@@ -304,7 +302,8 @@ def df(message, connector, config, LOG):
     # free space for certain paths
 
     command = "df -P -B 1 %s" % path
-    (success, result) = run_command(command)
+    (success, result) = run_command(command, login_shell=config.get('tsi.use_login_shell', True))
+    print(success)
     total = free = user = '-1'
 
     if success:

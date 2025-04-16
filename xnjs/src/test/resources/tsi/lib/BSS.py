@@ -57,7 +57,7 @@ class BSS(BSSBase):
             cmds_file_name = "UNICORE_Job_1234"
             with open(cmds_file_name, "w") as job:
                 job.write(u"" + cmd)
-            children = config.get('tsi.child_pids', None)
+            children = config['tsi.child_pids']
             (success, reply) = Utils.run_command(cmd, True, children)
             if success:
                 connector.ok("")
@@ -111,7 +111,7 @@ class BSS(BSSBase):
             stdout, outcome_dir, stderr)
         LOG.debug("Running: %s" % cmd)
         child = subprocess.Popen(cmd, shell=True, start_new_session=True)
-        child_pids = config.get('tsi.child_pids')
+        child_pids = config['tsi.child_pids']
         child_pids.append(child.pid)
         connector.write_message(job_id)
 
