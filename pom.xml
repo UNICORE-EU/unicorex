@@ -45,6 +45,7 @@
     <mvel.version>2.5.2.Final</mvel.version>
     <bc.version>1.80</bc.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
+    <jclouds.version>2.7.0</jclouds.version>
     <junit.version>5.12.0</junit.version>
     <junit.p.version>1.12.0</junit.p.version>
   </properties>
@@ -53,7 +54,8 @@
     <module>xnjs</module>
     <module>uas-core</module>
     <module>uas-client</module>
-    <module>uas-metadata</module>    
+    <module>uas-metadata</module>
+    <module>uas-jclouds</module>
     <module>unicorex-dist</module>
     <module>registry-dist</module>
   </modules>
@@ -241,6 +243,39 @@
 	<artifactId>mvel2</artifactId>
 	<version>${mvel.version}</version>
       </dependency>
+       <dependency>
+       <groupId>org.apache.jclouds.api</groupId>
+       <artifactId>openstack-swift</artifactId>
+       <version>${jclouds.version}</version>
+      </dependency>
+      <dependency>
+       <groupId>org.apache.jclouds.provider</groupId>
+       <artifactId>aws-s3</artifactId>
+       <version>${jclouds.version}</version>
+      </dependency>
+      <dependency>
+       <groupId>org.apache.jclouds.driver</groupId>
+       <artifactId>jclouds-log4j</artifactId>
+       <version>${jclouds.version}</version>
+       <exclusions>
+         <exclusion>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+          </exclusion>
+       </exclusions>
+      </dependency>
+      <dependency>
+       <groupId>org.springframework</groupId>
+       <artifactId>spring-expression</artifactId>
+       <version>${spring.version}</version>
+       <exclusions>
+         <exclusion>
+           <groupId>org.springframework</groupId>
+            <artifactId>spring-jcl</artifactId>
+         </exclusion>
+       </exclusions>
+ </dependency>
+      
     </dependencies>
   </dependencyManagement>
 
