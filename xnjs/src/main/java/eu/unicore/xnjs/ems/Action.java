@@ -14,7 +14,6 @@ import eu.unicore.security.Client;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.io.DataStageInInfo;
 import eu.unicore.xnjs.io.DataStageOutInfo;
-import eu.unicore.xnjs.persistence.GSONUtils;
 
 /**
  * An Action is a unit of work processed and managed by the XNJS, 
@@ -23,7 +22,7 @@ import eu.unicore.xnjs.persistence.GSONUtils;
  * @author schuller
  */
 @Table(name="JOBS")
-@JSON(customHandlers={Wrapper.WrapperConverter.class,GSONUtils.XmlBeansConverter.class})
+@JSON(customHandlers={Wrapper.WrapperConverter.class})
 public class Action implements Serializable {
 
 	private static final long serialVersionUID=1L;

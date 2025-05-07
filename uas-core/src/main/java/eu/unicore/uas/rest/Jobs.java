@@ -68,7 +68,6 @@ public class Jobs extends ServicesBase {
 		return "jobs";
 	}
 
-	
 	/**
 	 * get the BSS job details for this job
 	 */

@@ -28,6 +28,16 @@
   <dependencies>
     <dependency>
       <groupId>eu.unicore</groupId>
+      <artifactId>uas-client</artifactId>
+      <version>${ux.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.unicore</groupId>
+      <artifactId>xnjs</artifactId>
+      <version>${ux.version}</version>
+    </dependency>
+        <dependency>
+      <groupId>eu.unicore</groupId>
       <artifactId>uas-core</artifactId>
       <version>${ux.version}</version>
     </dependency>

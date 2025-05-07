@@ -9,11 +9,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
-
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.registry.RegistryClient;
-import eu.unicore.uas.UAS;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.restclient.BaseClient;

@@ -12,7 +12,7 @@
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicore-parent</artifactId>
-    <version>3.0.3</version>
+    <version>3.0.4</version>
   </parent>
 
   <scm>
@@ -31,17 +31,17 @@
     <!-- goes into .jar manifests, dist poms and packaging versions -->
     <specification.version>10.2.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>5.2.1</use.version>
-    <secutils.version>4.1.2</secutils.version>
-    <persistence.version>1.2.4</persistence.version>
+    <use.version>5.3.0</use.version>
+    <secutils.version>4.2.0</secutils.version>
+    <persistence.version>1.2.5</persistence.version>
     <metrics.version>4.2.30</metrics.version>
-    <uftp.version>2.20.3</uftp.version>
+    <uftp.version>2.21.0</uftp.version>
     <guice.version>7.0.0</guice.version>
-    <guava.version>33.4.6-jre</guava.version>
+    <guava.version>33.4.8-jre</guava.version>
     <json.version>20250107</json.version>
     <lucene.version>9.11.1</lucene.version>
     <tika.version>2.9.2</tika.version>
-    <commons-io.version>2.18.0</commons-io.version>
+    <commons-io.version>2.19.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <bc.version>1.80</bc.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
@@ -88,7 +88,7 @@
       <dependency>
 	<groupId>eu.unicore.services</groupId>
 	<artifactId>use-restclient</artifactId>
-	<version>${use.version}-1</version>
+	<version>${use.version}</version>
       </dependency>
       <dependency>
 	<groupId>eu.unicore.security</groupId>
@@ -145,11 +145,6 @@
 	    <artifactId>slf4j-api</artifactId>
 	  </exclusion>
 	</exclusions>
-      </dependency>
-      <dependency>
-	<groupId>org.apache.xmlbeans</groupId>
-	<artifactId>xmlbeans</artifactId>
-	<version>2.6.0</version>
       </dependency>
       <dependency>
 	<groupId>org.json</groupId>
@@ -264,24 +259,22 @@
           </exclusion>
        </exclusions>
       </dependency>
-      <dependency>
-       <groupId>org.springframework</groupId>
-       <artifactId>spring-expression</artifactId>
-       <version>${spring.version}</version>
-       <exclusions>
-         <exclusion>
-           <groupId>org.springframework</groupId>
-            <artifactId>spring-jcl</artifactId>
-         </exclusion>
-       </exclusions>
- </dependency>
-      
     </dependencies>
   </dependencyManagement>
 
+  <dependencies>
+      <dependency>
+	<groupId>org.junit.jupiter</groupId>
+	<artifactId>junit-jupiter</artifactId>
+      </dependency>
+      <dependency>
+	<groupId>org.junit.platform</groupId>
+	<artifactId>junit-platform-launcher</artifactId>
+      </dependency>
+  </dependencies>
+
   <build>
     <defaultGoal>install</defaultGoal>
-
     <pluginManagement>
       <plugins>
         <plugin>
@@ -291,16 +284,6 @@
             <useProjectReferences>false</useProjectReferences>
           </configuration>
         </plugin>
-	<!-- report TODOs etc-->
-	<plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>taglist-maven-plugin</artifactId>
-          <version>2.4</version>
-          <configuration>
-            <linkXRef>false</linkXRef>
-            <aggregate>true</aggregate>
-          </configuration>
-	</plugin>
       </plugins>
     </pluginManagement>
   </build>
