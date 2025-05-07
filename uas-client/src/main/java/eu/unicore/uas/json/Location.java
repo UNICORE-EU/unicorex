@@ -7,14 +7,13 @@ package eu.unicore.uas.json;
  */
 public interface Location {
 
-	
 	/**
 	 * is this a local file?
 	 *
 	 * @return true if this is a local file
 	 */
 	public boolean isLocal();
-	
+
 	/**
 	 * does this location denote a UNICORE storage
 	 *  
@@ -29,7 +28,7 @@ public interface Location {
 	 * @return true if it is a raw URL
 	 */
 	public boolean isRaw();
-	
+
 	/**
 	 * return the physical endpoint URL for accessing the file
 	 */

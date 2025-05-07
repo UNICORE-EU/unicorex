@@ -137,7 +137,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	 * @throws Exception
 	 */
 	@Override
-	public void writeAllData(final InputStream is)throws Exception{
+	public void writeAllData(final InputStream is)throws IOException {
 		HttpClient client = getClient();
 		ClassicHttpRequest upload = createMethodForUpload();
 		//monitor transfer progress, costs a bit performance though
@@ -149,7 +149,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 					totalBytesTransferred++;
 					if(observer!=null){
 						observer.notifyProgress(Long.valueOf(1));
-						if(observer.isCancelled())throw new ProgressListener.CancelledException("Cancelled.");
+						if(observer.isCancelled())throw new IOException("Cancelled.");
 					}
 				}
 				return b;
@@ -161,7 +161,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 					totalBytesTransferred+=r;
 					if(observer != null){
 						observer.notifyProgress(Long.valueOf(r));
-						if(observer.isCancelled())throw new ProgressListener.CancelledException("Cancelled.");
+						if(observer.isCancelled())throw new IOException("Cancelled.");
 					}
 				}
 				return r;
@@ -236,7 +236,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 				if(c % 10 == 0){
 					if(observer != null){
 						observer.notifyProgress(progress);
-						if(observer.isCancelled())throw new ProgressListener.CancelledException("Cancelled.");
+						if(observer.isCancelled())throw new IOException("Cancelled.");
 						progress = 0;
 					}
 				}

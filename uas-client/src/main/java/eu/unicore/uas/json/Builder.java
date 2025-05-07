@@ -1,7 +1,6 @@
 package eu.unicore.uas.json;
 
 import java.io.File;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -16,7 +15,7 @@ import org.json.JSONObject;
 import eu.unicore.client.Job;
 
 /**
- * Helper to convert a UNICORE job description in JSON to JSDL form 
+ * Helper for handling JSON job descriptions
  * 
  * @author schuller
  */
@@ -106,18 +105,6 @@ public class Builder {
 			ApplicationRequirement appRequired=new ApplicationRequirement(appName,appVersion);
 			requirements.add(appRequired);
 		}
-		JSONObject ee=json.optJSONObject("Execution environment");
-		if(ee!=null){
-			throw new IllegalArgumentException("Tag 'Execution environment' is no longer supported");
-		}
-	}
-
-	protected Location createLocation(String descriptor){
-		return new RawLocation(descriptor);
-	}
-
-	protected boolean hasCredentials(JSONObject jObj){
-		return jObj!=null && jObj.optJSONObject("Credentials")!=null;
 	}
 
 	public void setProperty(String key, String value) {
@@ -154,11 +141,6 @@ public class Builder {
 			json.put("Parameters", parameters);
 		}
 		return parameters;
-	}
-
-	public void writeTo(Writer os) throws Exception {
-		os.write(json.toString(2)+"\n");
-		os.flush();
 	}
 
 	public Collection<Requirement>getRequirements(){

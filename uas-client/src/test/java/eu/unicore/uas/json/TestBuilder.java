@@ -1,11 +1,12 @@
 package eu.unicore.uas.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+
+import eu.unicore.client.Job;
 
 public class TestBuilder{
 	
@@ -20,13 +21,15 @@ public class TestBuilder{
 	}
 
 	@Test
-	public void testFoo() throws Exception {
-		String foo = "{ Environment: { Memory: \"${1024*1024}\"\n}}";
-		JSONObject j = new JSONObject(foo);
-		JSONArray a = j.optJSONArray("Environment");
-		assertNull(a);
-		JSONObject o = j.optJSONObject("Environment");
-		assertNotNull(o);
+	public void testBuilder() throws Exception {
+		JSONObject j = new JSONObject();
+		j.put("ApplicationName", "Date");
+		j.put("Parameters", new JSONObject());
+		Builder b = new Builder(j.toString());
+		b.setJobType(Job.Type.ON_LOGIN_NODE);
+		assertEquals(1, b.getRequirements().size());
+		assertNotNull(b.getParameters());
+		assertEquals("Date", b.getProperty("ApplicationName"));
 	}
-	
+
 }
