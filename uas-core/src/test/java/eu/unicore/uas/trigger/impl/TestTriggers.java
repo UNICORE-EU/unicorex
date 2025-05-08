@@ -11,15 +11,14 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.uas.trigger.Rule;
-import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.trigger.xnjs.ScanSettings;
 
 public class TestTriggers {
@@ -39,7 +38,7 @@ public class TestTriggers {
 	@Test
 	public void testRuleFactory()throws Exception{
 		RuleFactory rf=new RuleFactory(null, "test123");
-		RuleSet rules=null;
+		List<Rule> rules=null;
 		try(InputStream is=new FileInputStream("src/test/resources/testing_rules"))
 		{
 			rules=rf.readRules(is);
@@ -68,7 +67,7 @@ public class TestTriggers {
 	}
 	
 	
-	private Rule getRule(String name, Set<Rule>rules){
+	private Rule getRule(String name, List<Rule>rules){
 		for(Rule r: rules){
 			if(name.equals(((SimpleRule)r).getName()))return r;
 		}

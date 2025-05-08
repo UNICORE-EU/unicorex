@@ -24,26 +24,20 @@ public class FederatedMetadataSearchWatcher implements Runnable {
 
 	@Override
 	public void run() {
-		Map<String,String> result = null;
-
 		if (future.isDone()) {
 			try {
-				FederatedSearchResultCollection searchResults = future.get();
-				
-				result = searchResults.asMap();
+				Map<String,String> result  = future.get().asMap();
 				TaskImpl.putResult(kernel, taskID, result, "OK", 0);
-				
 			} catch (Exception ex) {
 				try{
-					String msg=Log.createFaultMessage("Error: ", ex);
+					String msg = Log.createFaultMessage("Error: ", ex);
 					TaskImpl.failTask(kernel, taskID, msg, 1);
 				}catch(Exception ignored){}
 			}
-			
 		} else {
 			kernel.getContainerProperties().getThreadingServices()
 					.getScheduledExecutorService()
-					.schedule(this, 5000, TimeUnit.MILLISECONDS);
+					.schedule(this, 10, TimeUnit.SECONDS);
 		}
 	}
 }

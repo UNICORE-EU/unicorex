@@ -270,8 +270,8 @@ public class Job {
 
 		protected final JSONObject resources;
 
-		public Resources(JSONObject stage) {
-			this.resources = stage;
+		public Resources(JSONObject resources) {
+			this.resources = resources;
 		}
 
 		public Resources() {

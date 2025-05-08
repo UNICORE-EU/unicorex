@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
-import eu.unicore.uas.trigger.RuleSet;
+import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.impl.RuleFactory;
 import eu.unicore.uas.trigger.impl.TriggerRunner;
 import eu.unicore.uas.trigger.impl.TriggerStatistics;
@@ -82,7 +82,7 @@ public class SharedTriggerProcessor extends TriggerProcessor {
 				logger.debug("No trigger settings for <{}>", dir);
 				return;
 			}
-			RuleSet rules = rf.getRules(dir);
+			List<Rule> rules = rf.getRules(dir);
 			List<XnjsFile> files=findFiles(settings, dir,client);
 			Set<String> ids = getSubmittedActionIDs();
 			if(files.size()>0){

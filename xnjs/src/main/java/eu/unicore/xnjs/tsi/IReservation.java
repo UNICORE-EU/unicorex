@@ -23,7 +23,7 @@ public interface IReservation {
 	 * @throws ExecutionException
 	 */
 	public String makeReservation(Map<String,String> resources, Calendar startTime, Client client) throws ExecutionException;
-	
+
 	/**
 	 * Cancel a reservation
 	 *
@@ -31,7 +31,6 @@ public interface IReservation {
 	 * @param client the {@link Client} cancelling the reservation
 	 */
 	public void cancelReservation(String reservationID, Client client)throws ExecutionException;
-	
 
 	/**
 	 * Query a reservation
@@ -41,8 +40,6 @@ public interface IReservation {
 	 * @return {@link ReservationStatus}
 	 */
 	public ReservationStatus queryReservation(String reservationID, Client client)throws ExecutionException;
-	
-	
-	
+
 }	
 

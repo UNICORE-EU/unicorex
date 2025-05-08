@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.security.Client;
 import eu.unicore.uas.trigger.MultiFileAction;
 import eu.unicore.uas.trigger.Rule;
-import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.trigger.SingleFileAction;
 import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.util.LogUtil;
@@ -30,7 +29,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 
 	private final List<XnjsFile> files;
 
-	private final RuleSet rules;
+	private final List<Rule> rules;
 
 	private final IStorageAdapter storage;
 
@@ -40,7 +39,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 
 	private final String logDirectory;
 
-	public TriggerRunner(List<XnjsFile> files, RuleSet rules, IStorageAdapter storage, Client client, XNJS xnjs, String logDirectory){
+	public TriggerRunner(List<XnjsFile> files, List<Rule> rules, IStorageAdapter storage, Client client, XNJS xnjs, String logDirectory){
 		this.files=files;
 		this.rules=rules;
 		this.storage=storage;
@@ -56,17 +55,12 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 	public TriggerStatistics call() {
 		TriggerStatistics ts = new TriggerStatistics();
 		boolean logging = logDirectory!=null;
-		
 		List<String>log = new ArrayList<>();
-		
 		long time=System.currentTimeMillis();
-
 		for(Rule r: rules){
 			r.begin();
 		}
-
 		Map<MultiFileAction, List<String>>multifile = new HashMap<>();
-
 		for(XnjsFile file: files){
 			String path=file.getPath();
 			if(logging && path.startsWith(logDirectory)){
@@ -139,14 +133,17 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 		return ts;
 	}
 
+	@Override
 	public IStorageAdapter getStorage() {
 		return storage;
 	}
 
+	@Override
 	public Client getClient() {
 		return client;
 	}
 
+	@Override
 	public XNJS getXNJS() {
 		return xnjs;
 	}

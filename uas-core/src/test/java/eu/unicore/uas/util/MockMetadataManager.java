@@ -33,10 +33,6 @@ public class MockMetadataManager implements StorageMetadataManager{
 
 	private static final Map<String,Map<String,String>>meta=new HashMap<String,Map<String,String>>();
 
-	public MockMetadataManager(){
-
-	}
-
 	public void setStorageAdapter(IStorageAdapter storage, String uniqueID) {
 		this.storage = storage;
 	}
@@ -80,8 +76,8 @@ public class MockMetadataManager implements StorageMetadataManager{
 
 	@Override
 	public Map<String,String> getMetadataByName(String resourceName) {
-		Map<String,String>result=meta.get(resourceName);
-		if(result==null)result=new HashMap<String,String>();
+		Map<String,String>result = meta.get(resourceName);
+		if(result==null)result = new HashMap<>();
 		return result;
 	}
 
@@ -101,7 +97,7 @@ public class MockMetadataManager implements StorageMetadataManager{
 	@Override
 	public List<SearchResult> searchMetadataByContent(String searchString,
 			boolean isAdvancedSearch) {
-		List<SearchResult>result=new ArrayList<SearchResult>();
+		List<SearchResult>result=new ArrayList<>();
 		for(Map.Entry<String,Map<String,String>> e: meta.entrySet()) {
 			if(e.getValue().toString().contains(searchString)) {
 				SearchResult r=new SearchResult();
@@ -111,7 +107,7 @@ public class MockMetadataManager implements StorageMetadataManager{
 		}
 		return result;
 	}
-	
+
 	@Override
 	 public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString, List<String> storagesList, boolean isAdvanced)
 	 {
@@ -136,36 +132,24 @@ public class MockMetadataManager implements StorageMetadataManager{
 			@Override
 			public FederatedSearchResultCollection get() throws InterruptedException,
 					ExecutionException {
-
 				FederatedSearchResultCollection collection = new FederatedSearchResultCollection();
-				
 				Date endDate = new Date();
-
-				
-				
 				FederatedSearchResult sre = new FederatedSearchResult();
-				
 				sre.addResourceURL("https://somestorage/files/some%20resource%201");
 				sre.addResourceURL("https://somestorage/files/some%20resource%202");
 				sre.addResourceURL("https://somestorage/files/some%20resource%203");
 				sre.addResourceURL("https://somestorage/files/some%20resource%204");
-				
 				collection.addSearchResult(sre);
-				
 				collection.setSearchEndTime(endDate);
-				
 				return collection;
 			}
 			
 			@Override
 			public boolean cancel(boolean mayInterruptIfRunning) {
-				// TODO Auto-generated method stub
 				return false;
 			}
 		};
-    	
-
-		return result; // temporary
+		return result;
 	 } 
 
 	@Override

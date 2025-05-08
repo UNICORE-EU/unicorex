@@ -13,7 +13,6 @@ import java.util.concurrent.ExecutorService;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.core.CoreClient;

@@ -22,7 +22,7 @@ import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
-import eu.unicore.uas.trigger.RuleSet;
+import eu.unicore.uas.trigger.Rule;
 import eu.unicore.uas.trigger.impl.RuleFactory;
 import eu.unicore.uas.trigger.impl.TriggerRunner;
 import eu.unicore.uas.trigger.impl.TriggerStatistics;
@@ -78,7 +78,7 @@ public class TriggerProcessor extends DefaultProcessor {
 			if(sad.enabled){
 				try{
 					RuleFactory rf = new RuleFactory(storage, sad.storageUID);
-					RuleSet rules = rf.getRules(sad.baseDirectory);
+					List<Rule> rules = rf.getRules(sad.baseDirectory);
 					List<XnjsFile> files = findFiles(sad, sad.baseDirectory, action.getClient());
 					Set<String> ids = getSubmittedActionIDs();
 					if(files.size()>0){

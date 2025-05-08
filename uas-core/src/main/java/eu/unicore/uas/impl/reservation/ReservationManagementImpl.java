@@ -38,7 +38,6 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 			model = new ReservationModel();
 		}
 		ReservationModel m = getModel();
-		
 		ReservationInitParameters initParams = (ReservationInitParameters)init;
 		Calendar startTime = initParams.starttime;
 		m.resources = initParams.resources;
@@ -47,18 +46,10 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 		lifetime.setTime(startTime.getTime());
 		lifetime.add(Calendar.SECOND, getDefaultLifetime());
 		super.initialise(new InitParameters(null, lifetime));
-		
-		IReservation reservation=getXNJSFacade().getReservation();
-		if(reservation==null)throw new Exception("Reservation not supported.");
-		
+		IReservation reservation = getXNJSFacade().getReservation();
+		if(reservation==null)throw new Exception("Reservation not supported.");	
 		m.reservationReference=reservation.makeReservation(m.resources, startTime, getClient());
-	
-		//original Xlogin
-		m.xlogin=getClient()!=null?getClient().getXlogin():null;
-
-		String tssID=initParams.tssReference;
-		m.setParentUID(tssID);
-		
+		m.setParentUID(initParams.tssReference);
 	}
 
 	/**
@@ -81,7 +72,7 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 
 	long lastUpdate=0;
 	final long updateInterval=3000;
-	transient ReservationStatus reservationStatus;
+	ReservationStatus reservationStatus;
 
 	public synchronized ReservationStatus getReservationStatus()throws ExecutionException{
 		if(reservationStatus==null || System.currentTimeMillis()>lastUpdate+updateInterval){
@@ -92,12 +83,7 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 	}
 
 	public void cancel()throws Exception{
-		try{
-			getXNJSFacade().getReservation().cancelReservation(getModel().reservationReference, getClient());
-		}
-		catch(Exception e){
-			LogUtil.logException("Could not cancel resource reservation.",e,logger);
-		}
+		getXNJSFacade().getReservation().cancelReservation(getModel().reservationReference, getClient());
 	}
 
 	private Action xnjsAction;

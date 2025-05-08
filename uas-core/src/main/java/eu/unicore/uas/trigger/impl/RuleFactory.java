@@ -2,6 +2,8 @@ package eu.unicore.uas.trigger.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
@@ -12,7 +14,6 @@ import eu.unicore.security.Client;
 import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.trigger.Rule;
-import eu.unicore.uas.trigger.RuleSet;
 import eu.unicore.uas.trigger.TriggeredAction;
 import eu.unicore.uas.trigger.xnjs.ScanSettings;
 import eu.unicore.xnjs.XNJS;
@@ -66,8 +67,8 @@ public class RuleFactory {
 	 * 
 	 * @param directory
 	 */
-	public RuleSet getRules(String directory)throws IOException, ExecutionException{
-		RuleSet result = new RuleSet(directory);
+	public List<Rule> getRules(String directory)throws IOException, ExecutionException{
+		List<Rule> result = new ArrayList<>();
 		XnjsFile f=storage.getProperties(directory+"/"+RULE_FILE_NAME);
 		if(f!=null){
 			result.addAll(readRuleFile(f.getPath()));
@@ -76,12 +77,12 @@ public class RuleFactory {
 	}
 	
 
-	protected RuleSet readRules(InputStream input)throws ExecutionException, IOException{
+	protected List<Rule> readRules(InputStream input)throws ExecutionException, IOException{
 		try{
-			RuleSet result = new RuleSet(null);
-			String source=IOUtils.toString(input, "UTF-8");
-			JSONObject json=JSONUtil.read(source);
-			JSONArray rules=json.optJSONArray("Rules");
+			List<Rule> result = new ArrayList<>();
+			String source = IOUtils.toString(input, "UTF-8");
+			JSONObject json = JSONUtil.read(source);
+			JSONArray rules = json.optJSONArray("Rules");
 			if(rules!=null) {
 				for(int i=0; i<rules.length(); i++){
 					JSONObject rule = rules.getJSONObject(i);
@@ -94,9 +95,8 @@ public class RuleFactory {
 			throw new IOException(je);
 		}
 	}
-	
-	
-	public RuleSet readRuleFile(String ruleFile)throws ExecutionException, IOException{
+
+	public List<Rule> readRuleFile(String ruleFile)throws ExecutionException, IOException{
 		try(InputStream is=storage.getInputStream(ruleFile)){
 			return readRules(is);
 		}
