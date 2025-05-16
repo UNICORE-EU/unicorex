@@ -39,20 +39,21 @@ public class TestS3InMemory {
 	public void testS3() throws Exception {
 		final BlobStoreStorageAdapter s3 = (BlobStoreStorageAdapter)createS3();
 		s3.mkdir("/");
-		System.out.println(Arrays.asList(s3.ls("testing.unicore.eu/")));
-		s3.mkdir("testing.unicore.eu/test");
-		assertEquals(0,s3.ls("testing.unicore.eu/test").length);
-		s3.mkdir("testing.unicore.eu/test/mydata");
-		System.out.println(s3.getProperties("testing.unicore.eu/test/mydata"));
+		System.out.println(Arrays.asList(s3.ls("/")));
+		s3.mkdir("/test");
+		assertEquals(0,s3.ls("/test").length);
+		s3.mkdir("/test/mydata");
+		System.out.println(s3.getProperties("/test/mydata"));
 		// upload some stuff
-		final String resource = "testing.unicore.eu/test/mydata/in.1";
+		final String resource = "/test/mydata/in.1";
 		final byte[] testdata ="this is some test data".getBytes();
 		
 		String md5 = Utils.md5(testdata);
 		OutputStream os = s3.getOutputStream(resource, false, testdata.length);
 		os.write(testdata);
 		os.close();
-		for(XnjsFile f : s3.ls("testing.unicore.eu/")){
+		Thread.sleep(1000); // data copy is async - avoid race condition
+		for(XnjsFile f : s3.ls("/")){
 			System.out.println(f+" "+f.getMetadata());
 			if(f.getPath().equals(resource)){
 				Map<String,String> md = JSONUtil.asMap(new JSONObject(f.getMetadata()));
@@ -74,7 +75,7 @@ public class TestS3InMemory {
 		String secret = "none";
 		String endpoint = "none";
 		String provider = "transient";
-		String bucket = "test";
+		String bucket = "testing.unicore.eu";
 		return new S3StorageAdapterFactory().createStorageAdapter(null,access,secret,endpoint,provider,bucket,null,false);
 	}
 
