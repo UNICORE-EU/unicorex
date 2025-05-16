@@ -21,18 +21,20 @@ public class TestS3SMSFactory extends Base {
 	@Test
 	public void testCreateS3() throws Exception {
 		StorageFactoryClient smf = getStorageFactory();
-		StorageClient sms = smf.createStorage("S3","myS3", null, null);
+		Map<String,String>params = new HashMap<>();
+		params.put("bucket", "testing.unicore.eu");
+		StorageClient sms = smf.createStorage("S3","myS3", params, null);
 		System.out.println(sms.getProperties().toString(2));
-		sms.mkdir("testing.unicore.eu");
-		assertNotNull(sms.stat("testing.unicore.eu"));
-		sms.mkdir("testing.unicore.eu/data");
-		assertNotNull(sms.stat("testing.unicore.eu/data"));
-		System.out.println(sms.ls("testing.unicore.eu"));
-		System.out.println(sms.stat("testing.unicore.eu/data"));
-		HttpFileTransferClient ft = sms.upload("testing.unicore.eu/data/testdata");
+		sms.mkdir("/data");
+		assertNotNull(sms.stat("/data"));
+		System.out.println(sms.ls("/"));
+		System.out.println(sms.stat("/data"));
+		byte[] data = "some test data".getBytes();
+		HttpFileTransferClient ft = ((HttpFileTransferClient) sms.createImport("/data/testdata",
+				false, data.length, "BFT", null));
 		ft.writeAllData(new ByteArrayInputStream("some test data".getBytes()));
 		ft.delete();
-		System.out.println(sms.ls("testing.unicore.eu"));
+		System.out.println(sms.ls("/"));
 	}
 
 	@Test
@@ -41,6 +43,7 @@ public class TestS3SMSFactory extends Base {
 		Map<String,String>params = new HashMap<>();
 		String accessKey = "test123";
 		params.put("accessKey", accessKey);
+		params.put("bucket", "test");
 		StorageClient sms = smf.createStorage("S3","my s3", params, null);
 		String url = sms.getEndpoint().getUrl();
 		String uid = url.substring(url.lastIndexOf("/")+1);

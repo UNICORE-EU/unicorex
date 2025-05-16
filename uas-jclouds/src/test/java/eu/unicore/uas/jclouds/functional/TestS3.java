@@ -33,23 +33,22 @@ public class TestS3 {
 		String access = cred.getProperty("accessKey");
 		String secret = cred.getProperty("secretKey");
 		String endpoint = cred.getProperty("endpoint");
+		String bucket = cred.getProperty("bucket");
 		String provider = cred.getProperty("provider","aws-s3");
-		
 		System.out.println("Accessing endpoint at "+endpoint);
-		IStorageAdapter s3 = new S3StorageAdapterFactory().createStorageAdapter(null,access,secret,endpoint,provider,null);
+		IStorageAdapter s3 = new S3StorageAdapterFactory().createStorageAdapter(null,access,secret,endpoint,provider,bucket,null,false);
 		// create container
-		s3.mkdir("testing.unicore.eu");
-		
+		s3.mkdir("/");
 		System.out.println(Arrays.asList(s3.ls("testing.unicore.eu")));
-		s3.mkdir("testing.unicore.eu/test/mydata");
+		s3.mkdir("/test/mydata");
 		// upload some stuff
-		String resource = "testing.unicore.eu/test/mydata/in.1";
+		String resource = "/test/mydata/in.1";
 		OutputStream os = s3.getOutputStream(resource);
 		String testdata ="this is some test data";
 		String md5 = Utils.md5(testdata.getBytes());
 		os.write(testdata.getBytes());
 		os.close();
-		for(XnjsFile f : s3.ls("testing.unicore.eu")){
+		for(XnjsFile f : s3.ls("/")){
 			System.out.println(f+" "+f.getMetadata());
 			if(f.getPath().equals(resource)){
 				Map<String,String> md = JSONUtil.asMap(new JSONObject(f.getMetadata()));

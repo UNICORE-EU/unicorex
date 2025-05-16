@@ -44,13 +44,13 @@ public class StorageClient extends BaseServiceClient {
 		super(endpoint, security, auth);
 		initRegisteredClients();
 	}
-	
+
 	public FileList ls(String basedir) throws Exception {
 		String url = getLinkUrl("files")+normalize(basedir);
 		Endpoint ep = endpoint.cloneTo(url);
 		return new FileList(this, basedir, ep, security, auth);
 	}
-	
+
 	/**
 	 * get file properties for a path 
 	 *
@@ -69,34 +69,33 @@ public class StorageClient extends BaseServiceClient {
 		Endpoint ep = endpoint.cloneTo(url);
 		return new FileClient(ep, security, auth);
 	}
-	
 
 	public void mkdir(String path) throws Exception {
 		getFileClient(path).mkdir();
 	}
-	
+
 	public void chmod(String path, String unixPermissions) throws Exception {
 		getFileClient(path).chmod(unixPermissions);
 	}
-	
+
 	public void copy(String from, String to) throws Exception {
 		JSONObject op = new JSONObject();
 		op.put("from", from);
 		op.put("to", to);
 		executeAction("copy", op);
 	}
-	
+
 	public void rename(String from, String to) throws Exception {
 		JSONObject op = new JSONObject();
 		op.put("from", from);
 		op.put("to", to);
 		executeAction("rename", op);
 	}
-	
+
 	public boolean supportsMetadata() throws Exception {
 		return getProperties().getBoolean("metadataSupported");
 	}
-	
+
 	public List<String> searchMetadata(String query) throws Exception {
 		BaseClient bc = createTransport(endpoint.getUrl()+"/search", security, auth);
 		URIBuilder ub = new URIBuilder(bc.getURL());
@@ -116,20 +115,19 @@ public class StorageClient extends BaseServiceClient {
 		}
 		return result;
 	}
-	
-	
+
 	public String getMountPoint() throws Exception {
 		return getProperties().optString("mountPoint", null);
 	}
-	
+
 	public String getFileSystemDescription() throws Exception {
 		return getProperties().optString("filesystemDescription", null);
 	}
-	
+
 	public FiletransferClient createImport(String filename,  boolean append, long numBytes, String protocol, Map<String,String>extraParameters) throws Exception {
-		
+
 		Class<? extends FiletransferClient> clazz = getFiletransferClientClass(protocol);
-		
+
 		try {
 			JSONObject json = new JSONObject();
 			json.put("file", filename);
@@ -137,7 +135,7 @@ public class StorageClient extends BaseServiceClient {
 			json.put("overwrite", !append);
 			json.put("extraParameters", JSONUtil.asJSON(extraParameters));
 			if(numBytes>-1)json.put("numBytes", BigInteger.valueOf(numBytes));
-			
+
 			BaseClient c = createTransport(endpoint.getUrl()+"/imports", security, auth);
 			try(ClassicHttpResponse res = c.post(json)){
 				JSONObject response = c.asJSON(res);
@@ -163,18 +161,28 @@ public class StorageClient extends BaseServiceClient {
 			throw new IOException(msg,e);
 		}
 	}
-	
+
 	/**
 	 * create BFT upload
+	 * @param target file name
+	 * @param number of bytes (or -1 if not known)
+	 */
+	public HttpFileTransferClient upload(String filename, long numberOfBytes) throws Exception {
+		return (HttpFileTransferClient)createImport(filename, false, numberOfBytes, "BFT", null);
+	}
+
+	/**
+	 * create BFT upload
+	 * @param target file name
 	 */
 	public HttpFileTransferClient upload(String filename) throws Exception {
-		return (HttpFileTransferClient)createImport(filename, false, -1, "BFT", null);
+		return upload(filename, -1);
 	}
-	
+
 	public FiletransferClient createExport(String filename,  String protocol, Map<String,String>extraParameters) throws Exception {
-		
+
 		Class<? extends FiletransferClient> clazz = getFiletransferClientClass(protocol);
-		
+
 		try {
 			JSONObject json = new JSONObject();
 			json.put("file", filename);
@@ -199,14 +207,14 @@ public class StorageClient extends BaseServiceClient {
 			throw new IOException(msg,e);
 		}
 	}
-	
+
 	/**
 	 * create BFT download
 	 */
 	public HttpFileTransferClient download(String filename) throws Exception {
 		return (HttpFileTransferClient) createExport(filename, "BFT", null);
 	}
-	
+
 	/**
 	 * initiate a server-server transfer, which will fetch a remote file to this storage
 	 * 
@@ -223,7 +231,7 @@ public class StorageClient extends BaseServiceClient {
 		String url = c.create(json);
 		return new TransferControllerClient(new Endpoint(url), security, auth);
 	}
-	
+
 	/**
 	 * initiate a server-server transfer, which will send a file from this storage to a remote location
 	 * 
@@ -240,7 +248,7 @@ public class StorageClient extends BaseServiceClient {
 		String url = c.create(json);
 		return new TransferControllerClient(new Endpoint(url), security, auth);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected Class<? extends FiletransferClient> getFiletransferClientClass(String protocol) throws IOException {
 		Class<? extends FiletransferClient> clazz = null;
@@ -262,7 +270,7 @@ public class StorageClient extends BaseServiceClient {
 		}
 		return clazz;
 	}
-	
+
 	/**
 	 * register a client class supporting the given protocol. Note that clients are usually registered 
 	 * using the service loader mechanism 

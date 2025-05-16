@@ -24,10 +24,13 @@ import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.jclouds.BlobStoreStorageAdapter;
 import eu.unicore.uas.xnjs.StorageAdapterFactory;
 import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.emi.security.authn.x509.X509CertChainValidator;
+import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.security.canl.SSLContextCreator;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.Model;
 import eu.unicore.util.Log;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 /**
  * Creates and configures the jClouds S3 connector
@@ -55,38 +58,38 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 		String accessKey = model.getAccessKey();
 		String secretKey = model.getSecretKey();
 		String endpoint = model.getEndpoint();
+		String bucket = model.getBucket();
 		String provider = model.getProvider();
 		String region = model.getRegion();
-		return createStorageAdapter(parent.getKernel(), accessKey, secretKey, endpoint, provider, region);
+		boolean validate = model.isSslValidate();
+		return createStorageAdapter(parent.getKernel(), accessKey, secretKey, endpoint, provider, bucket, region, validate);
 	}
 
 	public IStorageAdapter createStorageAdapter(Kernel kernel, String accessKey, String secretKey, String endpoint, 
-			String provider, String region) throws IOException {
+			String provider, String bucket, String region, boolean sslValidate) throws IOException {
 		BlobStore blobStore = null;
 		if("transient".equals(provider)){
 			blobStore = getTransientBlobstore();
 		}
 		else{
-			ContextBuilder builder = ContextBuilder.newBuilder(provider)
-					.credentials(accessKey, secretKey);
+			ContextBuilder builder = ContextBuilder.newBuilder(provider).credentials(accessKey, secretKey);
 			if(endpoint!=null){
 				builder.endpoint(endpoint);
 			}
-			Set<Module>modules = new HashSet<Module>();
-			modules.addAll(getHTTPSClientConfig(kernel));
-			
+			Set<Module>modules = new HashSet<>();
+			modules.addAll(getHTTPSClientConfig(kernel, sslValidate));
 			builder.modules(modules);
 			BlobStoreContext context = builder.buildView(BlobStoreContext.class);
 			blobStore = context.getBlobStore();
 			if(logger.isDebugEnabled()){
-				logger.debug("Connected to S3 " + endpoint
+				logger.debug("Connected to S3 " + endpoint+" /" + bucket 
 						+ " provider " + provider
 						+ " accessKey " + (accessKey!=null ? "***" : "n/a")
 						+ " secretKey " + (secretKey!=null ? "***" : "n/a"));	
 			}
 
 		}
-		return new BlobStoreStorageAdapter(endpoint, blobStore, region);
+		return new BlobStoreStorageAdapter(kernel, endpoint, bucket, blobStore, region);
 	}
 
 	// when using the 'transient' provider, we want the same in-memory blobstore 
@@ -111,7 +114,7 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 	 * 
 	 * TODO add more http connect/read timeouts and other settings (proxy...)
 	 */
-	private Collection<Module> getHTTPSClientConfig(final Kernel kernel){
+	private Collection<Module> getHTTPSClientConfig(final Kernel kernel, final boolean sslValidation){
 		Module sslConfig = new AbstractModule() {
 			@Override
 			protected void configure() {
@@ -123,13 +126,13 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 					public synchronized SSLContext get() {
 						if(ctx==null){
 							try{
-								ctx = SSLContextCreator.createSSLContext(
-										null,
-										kernel.getClientConfiguration().getValidator(),
-										"TLS",
-										"S3Connector", logger,
-										kernel.getClientConfiguration().getServerHostnameCheckingMode()
-										);
+								X509CertChainValidator v = sslValidation ?
+										kernel.getClientConfiguration().getValidator() :
+										new BinaryCertChainValidator(true);
+								ServerHostnameCheckingMode m = sslValidation ?
+										ServerHostnameCheckingMode.NONE :
+										kernel.getClientConfiguration().getServerHostnameCheckingMode();
+								ctx = SSLContextCreator.createSSLContext(null, v, "TLS", "S3Connector", logger, m);
 							}catch(Exception ex){
 								throw new RuntimeException("Cannot setup SSL context for S3 connector",ex);
 							}

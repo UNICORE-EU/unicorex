@@ -60,12 +60,13 @@ public class SwiftStorageAdapterFactory implements StorageAdapterFactory {
 		String username = model.getUsername();
 		String password = model.getPassword();
 		String endpoint = model.getEndpoint();
+		String bucket = model.getContainer();
 		String region = model.getRegion();
-		return createStorageAdapter(parent.getKernel(), username, password, endpoint, region);
+		return createStorageAdapter(parent.getKernel(), username, password, endpoint, bucket, region);
 	}
 
-	public IStorageAdapter createStorageAdapter(Kernel kernel, String username, String password, 
-			String endpoint, String region)	throws IOException {
+	private IStorageAdapter createStorageAdapter(Kernel kernel, String username, String password, 
+			String endpoint, String bucket, String region)	throws IOException {
 		Properties overrides = new Properties();
 		overrides.put(KeystoneProperties.KEYSTONE_VERSION, "3");
 		ContextBuilder builder = ContextBuilder.newBuilder("openstack-swift")
@@ -83,9 +84,8 @@ public class SwiftStorageAdapterFactory implements StorageAdapterFactory {
 					(password!=null ? "***" : "n/a")
 					);	
 		}
-		return new BlobStoreStorageAdapter(endpoint, blobStore, region);
+		return new BlobStoreStorageAdapter(kernel, endpoint, bucket, blobStore, region);
 	}
-
 
 	/**
 	 * Sets up the SSL support using the container's truststore.
@@ -126,7 +126,6 @@ public class SwiftStorageAdapterFactory implements StorageAdapterFactory {
 				bind(new TypeLiteral<Supplier<SSLContext>>(){}).toInstance(provider);
 			}
 		};
-
 		return Collections.singleton(sslConfig);
 	}
 }

@@ -13,7 +13,7 @@ import eu.unicore.services.InitParameters;
 public class CDMIStorageImpl extends SMSBaseImpl {
 
 	public static final String CDMI_ATTRIBUTE_PREFIX = "cdmi.";
-	
+
 	@Override
 	public void initialise(InitParameters initobjs)
 			throws Exception {
@@ -48,6 +48,7 @@ public class CDMIStorageImpl extends SMSBaseImpl {
 		model.setWorkdir(workdir);
 	}
 
+	@Override
 	public CDMIModel getModel(){
 		return (CDMIModel)model;
 	}
@@ -56,12 +57,12 @@ public class CDMIStorageImpl extends SMSBaseImpl {
 	public boolean isProtocolAllowed(String protocol) {
 		return "BFT".equalsIgnoreCase(protocol);
 	}
-	
+
 	@Override
 	public String getStorageRoot() throws ExecutionException {
 		return getModel().getWorkdir();
 	}
-	
+
 	@Override
 	public IStorageAdapter getStorageAdapter()throws Exception{
 		IStorageAdapter sms = getStorageAdapterFactory().createStorageAdapter(this);
@@ -85,7 +86,7 @@ public class CDMIStorageImpl extends SMSBaseImpl {
 		String res = getUserAttributeValue(CDMI_ATTRIBUTE_PREFIX, key);
 		return res!=null ? res : props.get(key);
 	}
-	
+
 	private String getUserAttributeValue(String prefix,String key){
 		if(prefix!=null)key = prefix+key; 
 		try{

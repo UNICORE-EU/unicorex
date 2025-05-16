@@ -19,6 +19,7 @@ public class S3InfoProvider extends DefaultStorageInfoProvider {
 		res.put("secretKey", "secret key");
 		res.put("endpoint", "S3 endpoint to access");
 		res.put("provider", "JClouds provider to use");
+		res.put("validate", "Validate s3 server cert");
 		return res;
 	}
 }

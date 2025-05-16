@@ -12,7 +12,7 @@ import eu.unicore.uas.json.JSONUtil;
  * @author schuller
  */
 public class Job {
-	
+
 	protected JSONObject json;
 
 	public Job(JSONObject json) {
@@ -77,12 +77,12 @@ public class Job {
 		JSONUtil.putQuietly(json, "User precommand", cmd);
 		return this;
 	}
-	
+
 	public Job post_command(String cmd) {
 		JSONUtil.putQuietly(json, "User postcommand", cmd);
 		return this;
 	}
-	
+
 	public Stage stagein() {
 		JSONArray in = JSONUtil.getOrCreateArray(json, "Imports");
 		Stage s = new Stage();
@@ -96,7 +96,7 @@ public class Job {
 		in.put(s.getJSON());
 		return s;
 	}
-	
+
 	/**
 	 * add required resources
 	 */
@@ -127,7 +127,7 @@ public class Job {
 		notify.put(url);
 		return this;
 	}
-	
+
 	/**
 	 * accounting project
 	 */
@@ -135,7 +135,7 @@ public class Job {
 		JSONUtil.putQuietly(json, "Project", name);
 		return this;
 	}
-	
+
 	/**
 	 * do not fail the job if user script's exit code is non-zero
 	 */
@@ -143,7 +143,7 @@ public class Job {
 		JSONUtil.putQuietly(json, "IgnoreNonZeroExitCode", "true");
 		return this;
 	}
-	
+
 	/**
 	 * set standard input (default: none)
 	 */
@@ -167,7 +167,7 @@ public class Job {
 		JSONUtil.putQuietly(json, "Stderr", error);
 		return this;
 	}
-	
+
 	public Job run_on_login_node() {
 		return run_on_login_node(null);
 	}
@@ -177,16 +177,14 @@ public class Job {
 		if(nodeSpec!=null){
 			JSONUtil.putQuietly(json, "Login node", nodeSpec);
 		}
-		// for legacy servers
-		environment("UC_PREFER_INTERACTIVE_EXECUTION", "true");
 		return this;
 	}
-	
+
 	public Job wait_for_client_stage_in() {
 		JSONUtil.putQuietly(json, "haveClientStageIn", "true");
 		return this;
 	}
-	
+
 	public Job type(Job.Type type) {
 		JSONUtil.putQuietly(json, "Job type", String.valueOf(type));
 		return this;
@@ -265,7 +263,7 @@ public class Job {
 			credentials.put("Password", password);
 		}
 	}
-	
+
 	public static class Resources {
 
 		protected final JSONObject resources;
@@ -289,22 +287,22 @@ public class Job {
 			resources.put("Queue", value);
 			return this;
 		}
-		
+
 		public Resources nodes(int value) throws JSONException {
 			resources.put("Nodes", value);
 			return this;
 		}
-		
+
 		public Resources cpus_per_node(int value) throws JSONException {
 			resources.put("CPUsPerNode", value);
 			return this;
 		}
-		
+
 		public Resources total_cpus(int value) throws JSONException {
 			resources.put("CPUs", value);
 			return this;
 		}
-		
+
 		/**
 		 * runtime in seconds (you can use unit suffixes "m", "h", "d")
 		 */
@@ -312,7 +310,7 @@ public class Job {
 			resources.put("Runtime", value);
 			return this;
 		}
-		
+
 		/**
 		 * memory per node in bytes (you can use unit suffixes "k", "M", "G")
 		 */
@@ -320,23 +318,23 @@ public class Job {
 			resources.put("MemoryPerNode", value);
 			return this;
 		}
-		
+
 		public Resources node_constraints(String value) throws JSONException {
 			resources.put("NodeConstraints", value);
 			return this;
 		}
-		
+
 		public Resources reservation(String value) throws JSONException {
 			resources.put("Reservation", value);
 			return this;
 		}
-		
+
 		public Resources other(String name, String value) throws JSONException {
 			resources.put(name, value);
 			return this;
 		}
 	}
-	
+
 	public enum Type {
 		ON_LOGIN_NODE,
 		BATCH,

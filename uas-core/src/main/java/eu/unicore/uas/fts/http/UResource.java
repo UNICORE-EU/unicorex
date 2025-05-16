@@ -60,10 +60,9 @@ public class UResource extends Resource {
 		this.append = append;
 	}
 	
-	public void setNumberOfBytes(long bytes){
-		
+	public void setNumberOfBytes(long numberOfBytes){
+		this.numberOfBytes = numberOfBytes;
 	}
-	
 	
 	protected void updateTransferredBytes(){
 		if(id!=null){
@@ -174,7 +173,7 @@ public class UResource extends Resource {
 
 	public OutputStream getOutputStream() throws IOException, SecurityException {
 		try {
-			final OutputStream os=storage.getOutputStream(path,append,numberOfBytes);
+			final OutputStream os = storage.getOutputStream(path, append, numberOfBytes);
 			OutputStream decoratedStream=new OutputStream(){
 				
 				@Override

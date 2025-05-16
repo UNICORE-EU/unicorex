@@ -25,24 +25,19 @@ public class SwiftStorageImpl extends SMSBaseImpl {
 		StorageDescription sd = init.storageDescription;
 		sd.setEnableTrigger(false);
 		sd.setDisableMetadata(true);
-		
 		Map<String,String> props = sd.getAdditionalProperties();
-		
 		boolean allowUserDefinedEndpoint = Boolean.parseBoolean(getSetting("allowUserdefinedEndpoint", props));
 		if(!allowUserDefinedEndpoint){
 			if(init.userParameters.get("endpoint")!=null){
 				throw new IllegalArgumentException("You are not allowed to set the Swift endpoint.");
 			}
 		}
-		
 		props.putAll(init.userParameters);
 		model.setUsername(getSetting("username",props));
 		model.setPassword(getSetting("password",props));
 		model.setEndpoint(getSetting("endpoint",props));
 		model.setRegion(getSetting("region",props));
-		
 		super.initialise(initobjs);
-
 		String workdir = sd.getPathSpec();
 		if(workdir==null)workdir="/";
 		if(!workdir.endsWith(getSeparator()))workdir+=getSeparator();
@@ -52,15 +47,16 @@ public class SwiftStorageImpl extends SMSBaseImpl {
 		model.setWorkdir(workdir);
 	}
 
+	@Override
 	public SwiftModel getModel(){
 		return (SwiftModel)model;
 	}
-	
+
 	@Override
 	public String getStorageRoot() throws ExecutionException {
 		return getModel().getWorkdir();
 	}
-	
+
 	@Override
 	public IStorageAdapter getStorageAdapter()throws Exception{
 		IStorageAdapter sms = getStorageAdapterFactory().createStorageAdapter(this);
@@ -77,7 +73,6 @@ public class SwiftStorageImpl extends SMSBaseImpl {
 	protected String getSeparator(){
 		return "/";
 	}
-	
 
 	// retrieve a value from the current user context, if not set,
 	// use the one from the incoming properties
@@ -85,7 +80,7 @@ public class SwiftStorageImpl extends SMSBaseImpl {
 		String res = getUserAttributeValue(SWIFT_ATTRIBUTE_PREFIX, key);
 		return res!=null ? res : props.get(key);
 	}
-	
+
 	private String getUserAttributeValue(String prefix,String key){
 		if(prefix!=null)key = prefix+key; 
 		try{

@@ -13,7 +13,7 @@ import eu.unicore.services.InitParameters;
 public class S3StorageImpl extends SMSBaseImpl {
 
 	public static final String S3_ATTRIBUTE_PREFIX = "s3.";
-	
+
 	@Override
 	public void initialise(InitParameters initobjs)
 			throws Exception {
@@ -25,42 +25,40 @@ public class S3StorageImpl extends SMSBaseImpl {
 		StorageDescription sd = init.storageDescription;
 		sd.setEnableTrigger(false);
 		sd.setDisableMetadata(true);
-		
 		Map<String,String> props = sd.getAdditionalProperties();
-		
 		boolean allowUserDefinedEndpoint = Boolean.parseBoolean(getSetting("allowUserDefinedEndpoint", props));
 		if(!allowUserDefinedEndpoint){
 			if(init.userParameters.get("endpoint")!=null || init.userParameters.get("provider")!=null){
 				throw new IllegalArgumentException("You are not allowed to set S3 endpoint/provider.");
 			}
 		}
-		
 		props.putAll(init.userParameters);
 		model.setAccessKey(getSetting("accessKey",props));
 		model.setSecretKey(getSetting("secretKey",props));
 		model.setEndpoint(getSetting("endpoint",props));
 		model.setProvider(getSetting("provider",props));
-		
+		model.setBucket(getSetting("bucket",props));
+		model.setSslValidate(Boolean.parseBoolean(getSetting("validate",props)));
+		if(model.getProvider()==null)model.setProvider("aws-s3");
+		if(model.getBucket()==null)throw new IllegalArgumentException("Parameter 'bucket' is required");
+		if(model.getEndpoint()==null)throw new IllegalArgumentException("Parameter 'endpoint' is required");
 		super.initialise(initobjs);
-
 		String workdir = sd.getPathSpec();
 		if(workdir==null)workdir="/";
 		if(!workdir.endsWith(getSeparator()))workdir+=getSeparator();
-		if(init.appendUniqueID){
-			workdir=workdir+getUniqueID();
-		}
 		model.setWorkdir(workdir);
 	}
 
+	@Override
 	public S3Model getModel(){
 		return (S3Model)model;
 	}
-	
+
 	@Override
 	public String getStorageRoot() throws ExecutionException {
 		return getModel().getWorkdir();
 	}
-	
+
 	@Override
 	public IStorageAdapter getStorageAdapter()throws Exception{
 		IStorageAdapter sms = getStorageAdapterFactory().createStorageAdapter(this);
@@ -77,7 +75,6 @@ public class S3StorageImpl extends SMSBaseImpl {
 	protected String getSeparator(){
 		return "/";
 	}
-	
 
 	// retrieve a value from the current user context, if not set,
 	// use the one from the incoming properties
@@ -98,4 +95,10 @@ public class S3StorageImpl extends SMSBaseImpl {
 		catch(Exception e){}
 		return null;
 	}
+
+	@Override
+	public boolean isProtocolAllowed(String protocol) {
+		return "BFT".equalsIgnoreCase(protocol);
+	}
+
 }

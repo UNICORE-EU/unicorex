@@ -96,15 +96,21 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 			public T next() {
 				try{
 					int i=0;
-					// poll/wait for 50 millis, and exit if no more producers
+					T res = null;
+					// poll/wait for a result, and exit if no more producers
 					// are running or the global timeout is reached
-					long time_out = 20*timeout;
-					while(i<time_out && runCounter.get()>0) {
-						T res = queue.poll(50, TimeUnit.MILLISECONDS);
-						if(res!=null)return res;
+					long time_out = 19*timeout;
+					while(i<time_out) {
 						i++;
+						res = queue.poll(50, TimeUnit.MILLISECONDS);
+						if(res!=null)return res;
+						else if(runCounter.get()==0) {
+							// once more to avoid race condition
+							res = queue.poll();
+							break;
+						}
 					}
-					return null;
+					return res;
 				}catch(InterruptedException it){
 					return null;
 				}

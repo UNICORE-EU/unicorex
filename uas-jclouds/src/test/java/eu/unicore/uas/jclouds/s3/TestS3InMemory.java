@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import eu.unicore.uas.jclouds.BlobStoreStorageAdapter;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uftp.dpc.Utils;
-import eu.unicore.util.Pair;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;
 
@@ -25,28 +24,7 @@ public class TestS3InMemory {
 	@Test
 	public void testPathHandling() throws Exception {
 		BlobStoreStorageAdapter s3 = (BlobStoreStorageAdapter)createS3();
-		Pair<String,String>split = s3.splitFullPath("testing.unicore.eu");
-		assertEquals("testing.unicore.eu",split.getM1());
-		assertTrue(split.getM2().isEmpty());
-
-		split = s3.splitFullPath("/testing.unicore.eu/");
-		assertEquals("testing.unicore.eu",split.getM1());
-		assertTrue(split.getM2().isEmpty());
-
-		split = s3.splitFullPath("/testing.unicore.eu/directory");
-		assertEquals("testing.unicore.eu",split.getM1());
-		assertEquals("directory",split.getM2());
-
-
-		split = s3.splitFullPath("/testing.unicore.eu/directory/subdir/data");
-		assertEquals("testing.unicore.eu",split.getM1());
-		assertEquals("directory/subdir/data",split.getM2());
-
-		split = s3.splitFullPath("/");
-		assertEquals("",split.getM1());
-		assertEquals("",split.getM2());
-		
-		s3.setStorageRoot("testing.unicore.eu");
+		s3.setStorageRoot("/");
 		s3.mkdir("/");
 		// create dirs
 		s3.mkdir("foo/bar/ham/spam");
@@ -60,7 +38,7 @@ public class TestS3InMemory {
 	@Test
 	public void testS3() throws Exception {
 		final BlobStoreStorageAdapter s3 = (BlobStoreStorageAdapter)createS3();
-		s3.mkdir("testing.unicore.eu");
+		s3.mkdir("/");
 		System.out.println(Arrays.asList(s3.ls("testing.unicore.eu/")));
 		s3.mkdir("testing.unicore.eu/test");
 		assertEquals(0,s3.ls("testing.unicore.eu/test").length);
@@ -68,10 +46,11 @@ public class TestS3InMemory {
 		System.out.println(s3.getProperties("testing.unicore.eu/test/mydata"));
 		// upload some stuff
 		final String resource = "testing.unicore.eu/test/mydata/in.1";
-		OutputStream os = s3.getOutputStream(resource);
-		final String testdata ="this is some test data";
-		String md5 = Utils.md5(testdata.getBytes());
-		os.write(testdata.getBytes());
+		final byte[] testdata ="this is some test data".getBytes();
+		
+		String md5 = Utils.md5(testdata);
+		OutputStream os = s3.getOutputStream(resource, false, testdata.length);
+		os.write(testdata);
 		os.close();
 		for(XnjsFile f : s3.ls("testing.unicore.eu/")){
 			System.out.println(f+" "+f.getMetadata());
@@ -88,17 +67,6 @@ public class TestS3InMemory {
 		// delete
 		s3.rm(resource);
 		assertNull(s3.getProperties(resource));
-
-		// upload in streaming mode
-		final String resource2 = "testing.unicore.eu/test/mydata/in.2";
-
-		os = s3.getOutputStream(resource2,false,testdata.length());
-		os.write(testdata.getBytes());
-		os.close();
-		Thread.sleep(1000); // potential race condition
-		// download and check
-		downloaded = IOUtils.toString(s3.getInputStream(resource2), "UTF-8");
-		assertEquals(md5,Utils.md5(downloaded.getBytes()));
 	}
 
 	private IStorageAdapter createS3() throws Exception {
@@ -106,8 +74,8 @@ public class TestS3InMemory {
 		String secret = "none";
 		String endpoint = "none";
 		String provider = "transient";
-
-		return new S3StorageAdapterFactory().createStorageAdapter(null,access,secret,endpoint,provider,null);
+		String bucket = "test";
+		return new S3StorageAdapterFactory().createStorageAdapter(null,access,secret,endpoint,provider,bucket,null,false);
 	}
 
 }

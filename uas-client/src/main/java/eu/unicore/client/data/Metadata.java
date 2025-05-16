@@ -13,7 +13,6 @@ import eu.unicore.client.core.StorageClient;
  */
 public class Metadata {
 
-
 	public static final String CONTENT_TYPE="Content-Type";
 
 	public static final String CONTENT_MD5="Content-MD5";
@@ -23,10 +22,10 @@ public class Metadata {
 	public static final String CRAWLER_CONTROL_FILENAME = ".unicore_metadata_control";
 
 	public static void writeCrawlerControlFile(StorageClient sms, String baseDir, CrawlerControl control)throws Exception{
-		sms.upload(baseDir+"/"+CRAWLER_CONTROL_FILENAME).
+		sms.upload(baseDir+"/"+CRAWLER_CONTROL_FILENAME, -1).
 			writeAllData(IOUtils.toInputStream(control.toString(), "UTF-8"));
 	}
-	
+
 	public static class CrawlerControl {
 
 		private final String[] includes;
@@ -59,7 +58,6 @@ public class Metadata {
 		public static CrawlerControl create(Properties p){
 			String[]incl=null;
 			String[]excl=null;
-
 			String exclS=p.getProperty("exclude");
 			if(exclS!=null){
 				excl=exclS.split(",");

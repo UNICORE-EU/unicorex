@@ -7,6 +7,7 @@ public class SwiftModel extends SMSModel {
 	private static final long serialVersionUID = 1L;
 
 	private String endpoint;
+	private String container;
 	private String region;
 	private String username;
 	private String password;
@@ -34,5 +35,11 @@ public class SwiftModel extends SMSModel {
 	}
 	public void setRegion(String region) {
 		this.region = region;
+	}
+	public String getContainer() {
+		return container;
+	}
+	public void setContainer(String container) {
+		this.container = container;
 	}
 }

@@ -76,6 +76,7 @@ public class FileServlet extends DefaultServlet {
 			AuthZAttributeStore.setClient(m.getClient());
 			UResource u = new UResource(id, r.getPath(), r.getStorageAdapter(), kernel);
 			u.setAppend(!m.getOverWrite());
+			u.setNumberOfBytes(m.getNumberOfBytes());
 			return u;
 		}catch(ResourceUnknownException re){
 			return null;

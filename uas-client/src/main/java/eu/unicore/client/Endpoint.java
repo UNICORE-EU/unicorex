@@ -53,4 +53,9 @@ public class Endpoint {
 		ep.setServerPublicKey(serverPublicKey);
 		return ep;
 	}
+
+	@Override
+	public String toString() {
+		return url;
+	}
 }

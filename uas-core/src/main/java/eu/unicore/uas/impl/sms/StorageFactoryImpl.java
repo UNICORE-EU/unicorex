@@ -95,11 +95,14 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 				appendUniqueID = false;
 				// and do *not* delete this dir on destroy
 				factoryDesc.setCleanup(false);
-				if(pathSpec.contains("$")) {
-					factoryDesc.setStorageType(StorageTypes.VARIABLE);
-				}
+				if("DEFAULT".equals(storageBackendType))
+				{
+					if(pathSpec.contains("$")) {
+						factoryDesc.setStorageType(StorageTypes.VARIABLE);
+					}
 				else {
 					factoryDesc.setStorageType(StorageTypes.FIXEDPATH);
+					}
 				}
 			}
 			else {
@@ -132,7 +135,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		initMap.userParameters.putAll(parameters);
 		String smsID=createStorageResource(initMap);
 		initStorage(smsID);
-		logger.info("Created new StorageManagement resource <{}> for <{}>", smsID, clientName);
+		logger.info("Created new <{}> StorageManagement resource <{}> for <{}>", storageBackendType, smsID, clientName);
 		return smsID;
 	}
 

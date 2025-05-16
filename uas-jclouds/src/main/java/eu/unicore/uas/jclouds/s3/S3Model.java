@@ -8,10 +8,12 @@ public class S3Model extends SMSModel {
 
 	private String endpoint;
 	private String provider;
+	private String bucket;
 	private String accessKey;
 	private String secretKey;
 	private String region;
-	
+	private boolean sslValidate;
+
 	public String getEndpoint() {
 		return endpoint;
 	}
@@ -23,6 +25,12 @@ public class S3Model extends SMSModel {
 	}
 	public void setProvider(String provider) {
 		this.provider = provider;
+	}
+	public String getBucket() {
+		return bucket;
+	}
+	public void setBucket(String bucket) {
+		this.bucket = bucket;
 	}
 	public String getAccessKey() {
 		return accessKey;
@@ -41,5 +49,11 @@ public class S3Model extends SMSModel {
 	}
 	public void setRegion(String region) {
 		this.region = region;
+	}
+	public boolean isSslValidate() {
+		return sslValidate;
+	}
+	public void setSslValidate(boolean sslValidate) {
+		this.sslValidate = sslValidate;
 	}
 }

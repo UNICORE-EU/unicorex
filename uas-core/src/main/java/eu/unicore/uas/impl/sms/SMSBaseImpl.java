@@ -35,7 +35,6 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;
 import eu.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.xnjs.tsi.BatchMode;
-import eu.unicore.xnjs.tsi.TSI;
 
 /**
  * Basic storage resource implementation
@@ -83,7 +82,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		}
 		model.inheritSharing = init.inheritSharing;
 	}
-	
+
 	public void copy(String source, String target) throws Exception {
 		source = makeSMSLocal(source);
 		target = makeSMSLocal(target);
@@ -93,14 +92,14 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			mm.copyResourceMetadata(source, target);
 		}
 	}
-	
+
 	/**
 	 * Retrieve the base dir of this storage.</br>
 	 * If necessary, the base dir is resolved.
 	 * It is assumed to end with the file separator.
 	 */
 	public abstract String getStorageRoot() throws ExecutionException;
-	
+
 	public void mkdir(String path) throws Exception {
 		path = makeSMSLocal(path);
 		getStorageAdapter().mkdir(path);
@@ -140,7 +139,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			XnjsFileWithACL xnjsFile = hasWildcards?null:getProperties(source);
 			if(!hasWildcards && xnjsFile == null)
 			{
-				throw new Exception("File "+source+" not found on this storage.");
+				throw new FileNotFoundException("File "+source+" not found on this storage.");
 			}
 			if (!source.startsWith(getSeparator())){
 				source = getSeparator() + source;
@@ -160,7 +159,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		}
 		return createTransferResource(init);
 	}
-	
+
 	/**
 	 * creates server-server transfer instance
 	 *
@@ -176,7 +175,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		init.xnjsReference = getModel().getXnjsReference();
 		return kernel.getHome(UAS.SERVER_FTS).createResource(init);
 	}
-	
+
 	public void rename(String source, String target) throws Exception {
 		source = makeSMSLocal(source);
 		target = makeSMSLocal(target);
@@ -279,7 +278,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		createParentDirectories(target);
 		return createFileTransfer(init, protocol);
 	}
-	
 
 	/**
 	 * create a new file export resource
@@ -350,15 +348,11 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		if(f.isDirectory())throw new IllegalArgumentException("Invalid target filename "+target+": is a directory");
 	}
 
-	private String sep=null;
-	
 	/**
-	 * gets the file separator string. Override this if providing a non-TSI storage.
-	 * @return the separator char returned by the {@link TSI#getFileSeparator()}
+	 * gets the file separator string
 	 */
 	protected String getSeparator(){
-		if(sep==null)sep=getTSI().getFileSeparator();
-		return sep;
+		return "/";
 	}
 
 	/**
@@ -382,7 +376,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 			IStorageAdapter tsi=getStorageAdapter();
 			XnjsFile xDir=tsi.getProperties(path);
 			if(xDir==null){
-				logger.debug("Creating directory "+path);
+				logger.debug("Creating directory {}", path);
 				tsi.mkdir(path);	
 			}
 			else if(!xDir.isDirectory()){
@@ -396,15 +390,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * and export of data.<br/>
 	 */
 	public IStorageAdapter getStorageAdapter()throws Exception{
-		TSI tsi=getTSI();
-		tsi.setStorageRoot(getStorageRoot());
-		return tsi;
-	}
-
-	private TSI getTSI(){
-		TSI ret = getXNJSFacade().getTSI(getClient());
-		ret.setUmask(getUmask());
-		return ret;
+		return getStorageAdapterFactory().createStorageAdapter(this);
 	}
 
 	/**
@@ -452,23 +438,22 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	}
 
 	public boolean isTriggerEnabled(){
-		SMSModel m = getModel();
-		return m.storageDescription!=null && m.storageDescription.isEnableTrigger();
+		return getModel().storageDescription.isEnableTrigger();
 	}
 
+	@Override
 	public String getUmask() {
 		return getModel().umask;
 	}
 
+	@Override
 	public void setUmask(String umask) {
 		getModel().umask=umask;
-		getTSI().setUmask(umask);
 	}
 
 	public StorageDescription getStorageDescription() {
 		return getModel().storageDescription;
 	}
-
 
 	protected void setNormalAndDefACL(String gid, String aclSpec) throws Exception {
 		ChangeACL change = new ChangeACL(Type.GROUP, gid, aclSpec, false, ACLChangeMode.MODIFY);

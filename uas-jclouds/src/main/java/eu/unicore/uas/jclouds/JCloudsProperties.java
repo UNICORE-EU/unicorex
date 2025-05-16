@@ -32,15 +32,12 @@ public class JCloudsProperties extends PropertiesHelper {
 	public static final String TRUSTCERTS = "trustCerts";
 	public static final String TSI_INSTALL_SCRIPT = "tsiInstallScript";
 	public static final String XNJS_CONFIG_TEMPLATE = "xnjsConfigTemplate";
-	
 	public static final String SECURITY_KEY_NAME = "securityKeyName";
 	public static final String PRIVATE_KEY = "privateKey";
-	
+
 	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
-	static {
-
-	}
+	static {}
 
 	public JCloudsProperties(Properties properties) throws ConfigurationException {
 		super(PREFIX, properties, META, log);

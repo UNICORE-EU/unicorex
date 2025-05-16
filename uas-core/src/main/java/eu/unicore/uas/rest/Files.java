@@ -16,6 +16,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import eu.unicore.security.OperationType;
@@ -458,13 +459,21 @@ public class Files extends RESTRendererBase {
 			}
 			o.put("content", childrenInfo); 
 		}
+		Map<String,String> meta = new HashMap<>();
 		MetadataManager mm = sms.getMetadataManager();
 		if(mm!=null){
-			Map<String,String> meta = mm.getMetadataByName(resourceID);
-			o.put("metadata",meta);
+			meta.putAll(mm.getMetadataByName(resourceID));
 		}
+		if(props.getMetadata()!=null) {
+			try {
+				JSONObject xnjsMeta = new JSONObject(props.getMetadata());
+				meta.putAll(JSONUtil.asMap(xnjsMeta));
+			}catch(JSONException je){
+				meta.put("backend-metadata", props.getMetadata());
+			}
+		}
+		o.put("metadata",meta);
 		// TODO other properties, ACLs and the like
-
 		return o;
 	}
 

@@ -2,7 +2,6 @@ package eu.unicore.uas.jclouds;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,10 +11,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.UUID;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.logging.log4j.Logger;
 import org.jclouds.blobstore.BlobStore;
 import org.jclouds.blobstore.ContainerNotFoundException;
@@ -28,7 +25,9 @@ import org.jclouds.blobstore.options.ListContainerOptions;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import eu.unicore.services.Kernel;
 import eu.unicore.uas.json.JSONUtil;
+import eu.unicore.util.Log;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.ChangeACL;
 import eu.unicore.xnjs.io.ChangePermissions;
@@ -40,8 +39,6 @@ import eu.unicore.xnjs.io.XnjsFileImpl;
 import eu.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.xnjs.io.XnjsStorageInfo;
 import eu.unicore.xnjs.util.IOUtils;
-import eu.unicore.util.Log;
-import eu.unicore.util.Pair;
 
 /**
  * storage adapter using a JClouds blob store
@@ -50,21 +47,34 @@ import eu.unicore.util.Pair;
  */
 public class BlobStoreStorageAdapter implements IStorageAdapter {
 
-	private static final Logger logger = Log.getLogger(Log.SERVICES+".jclouds", BlobStoreStorageAdapter.class);
+	private static final Logger logger = Log.getLogger(Log.SERVICES, BlobStoreStorageAdapter.class);
 
 	private final BlobStore blobStore;
 
 	private final String endpoint;
 
+	private final String bucket;
+
 	private String storageRoot = "/";
+
+	private final Kernel kernel;
 
 	@SuppressWarnings("unused")
 	private final String region;
-	
-	public BlobStoreStorageAdapter(String endpoint, BlobStore blobStore, String region){
+
+	/**
+	 * @param kernel
+	 * @param endpoint
+	 * @param bucket
+	 * @param blobStore
+	 * @param region
+	 */
+	public BlobStoreStorageAdapter(Kernel kernel, String endpoint, String bucket, BlobStore blobStore, String region){
+		this.kernel = kernel;
 		this.blobStore = blobStore;
 		this.endpoint = endpoint;
 		this.region = region;
+		this.bucket = bucket;
 	}
 
 	@Override
@@ -78,34 +88,20 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 	}
 
 	private String makePath(String relativePath){
-		return new File(getStorageRoot(),FilenameUtils.normalize(relativePath)).getPath();
-	}
-
-	/**
-	 * split a full path into container (bucket) name and resource
-	 * @param resource - relative path to resource
-	 * @return pair (container,resource)
-	 */
-	public Pair<String,String>splitFullPath(String resource){
-		resource = makePath(resource);
-		while(resource.startsWith("/"))resource = resource.substring(1);
-		String[]comps = resource.split("/",2);
-		String container = comps[0];
-		String blob = comps.length>1?comps[1]:"";
-		while(blob.endsWith("/"))blob = blob.substring(0,blob.length()-1);
-		return new Pair<String, String>(container,blob);
+		String p = new File(getStorageRoot()+getFileSeparator()+FilenameUtils.normalize(relativePath)).getPath();
+		while(p.startsWith("/"))p=p.substring(1);
+		return p;
 	}
 
 	@Override
 	public ReadableByteChannel getReadChannel(String file) throws IOException {
-		// TODO
-		throw new IOException("Not implemented yet.");
+		throw new IOException("Not implemented.");
 	}
 
 	@Override
 	public InputStream getInputStream(String resource) throws IOException {
-		Pair<String, String>path = splitFullPath(resource);
-		Blob blob = blobStore.getBlob(path.getM1(), path.getM2());
+		String path = makePath(resource);
+		Blob blob = blobStore.getBlob(bucket, path);
 		if(blob == null)throw new FileNotFoundException("Not found: "+resource);
 		return blob.getPayload().openStream();
 	}
@@ -117,70 +113,31 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 	 * @param append - whether to append data
 	 * @param numBytes - number of bytes that will be written. If negative, the number of bytes is not known.
 	 * 
-	 * @throws ExecutionException
+	 * @throws IOException
 	 */
+	@Override
 	public OutputStream getOutputStream(final String resource, boolean append, long numBytes)
 			throws IOException {
-		try{
-			final Pair<String, String>path = splitFullPath(resource);
-			if(numBytes<0){
-				// do not know the size, so will buffer locally :-/
-				final long LIMIT = 1073741824; // 1 gig	
-				final File tmp = new File(System.getProperty("java.io.tmpdir"),"s3-upload-+"+UUID.randomUUID().toString());
-				logger.info("Upload of unknown size, caching in <"+tmp.getPath()+"> (up to "+LIMIT+ " bytes)");
-				final FileOutputStream fos = new FileOutputStream(tmp);
-				CountingOutputStream os = new CountingOutputStream(fos){
-					public void close() throws IOException {
-						super.close();
-						try{
-							Blob blob = blobStore.blobBuilder(path.getM2()).build();
-							blob.setPayload(tmp);
-							blobStore.putBlob(path.getM1(), blob);
-						}
-						finally{
-							tmp.delete();
-						}
-					}
-					// check whether limit for local caching was reached
-					protected synchronized void beforeWrite(int n) {
-						if(getByteCount()>LIMIT)throw new IllegalStateException("File size exceeds limit of <"
-								+LIMIT+"> bytes and cannot be cached locally. Update your client!");
-						super.beforeWrite(n);
-					}
-				};
-				
-				return os;
-			}
-			else{
-				logger.info("Fixed-length upload of size <"+numBytes+">");
-				PipedOutputStream os = new PipedOutputStream();
-				PipedInputStream is = new PipedInputStream(1*1024*1024);
-				os.connect(is);
-				final Blob blob = blobStore.blobBuilder(path.getM2()).build();
-				blob.setPayload(is);
-				blob.getPayload().getContentMetadata().setContentLength(numBytes);
-
-				// due to the piped streams, we need to do the actual upload
-				// on a different thread
-				Runnable r = new Runnable(){
-					public void run(){
-						blobStore.putBlob(path.getM1(), blob);	
-					}
-				};
-				Thread uploader = new Thread(r);
-				uploader.start();
-
-				return os;
-			}
+		if(numBytes<0)throw new IOException("Need content-length, streaming is not supported.");
+		logger.debug("Prepare write to {} numbytes={}", resource, numBytes);
+		final String path = makePath(resource);
+		PipedOutputStream os = new PipedOutputStream();
+		PipedInputStream is = new PipedInputStream(1*1024*1024);
+		os.connect(is);
+		final Blob blob = blobStore.blobBuilder(path).build();
+		blob.setPayload(is);
+		blob.getPayload().getContentMetadata().setContentLength(numBytes);
+		// due to the piped streams, we need to do the actual upload
+		// on a different thread
+		if(kernel!=null) {
+			kernel.getContainerProperties().getThreadingServices().
+			getExecutorService().execute(()->blobStore.putBlob(bucket, blob));
+		}else {
+			new Thread(()->blobStore.putBlob(bucket, blob)).start();
 		}
-		catch(Exception e){
-			throw new IOException(e);
-		}
+		return os;
 	}
 
-	/**
-	 * s3 does not support streaming, so this will buffer the data in local /tmp storage
-	 */
 	@Override
 	public OutputStream getOutputStream(final String resource, boolean append)
 			throws IOException {
@@ -188,31 +145,32 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 	}
 
 	@Override
-	public OutputStream getOutputStream(String resource)
-			throws IOException {
+	public OutputStream getOutputStream(String resource) throws IOException {
 		return getOutputStream(resource, false);
 	}
 
 	@Override
 	public void mkdir(String dir) throws ExecutionException {
-		Pair<String, String>path = splitFullPath(dir);
-		if(path.getM2().isEmpty()){
-			blobStore.createContainerInLocation(null, path.getM1());
-		}
-		else{
-			createDir(path.getM1(), path.getM2());
+		String path = makePath(dir);
+		if("/".equals(path) || path.isEmpty()) {
+			createBucket();
+		}else {
+			createDir(bucket, path);
 		}
 	}
-	
-	protected void createDir(String container, String dir){
-		try{
-			Blob x = blobStore.getBlob(container, dir);
-			if(x==null){
-				Blob blob = blobStore.blobBuilder(dir).payload("").type(StorageType.FOLDER).build();
-				blobStore.putBlob(container, blob);
-			}
-		}catch(Exception ex){return;}
-		
+
+	protected void createBucket() {
+		boolean created = blobStore.createContainerInLocation(null, bucket);
+		logger.debug("Connected to bucket {} (existing={})", bucket, !created);
+	}
+
+	protected void createDir(String container, String dir) throws ExecutionException {
+		if(!dir.endsWith("/"))dir+="/";
+		Blob x = blobStore.getBlob(container, dir);
+		if(x==null){
+			Blob blob = blobStore.blobBuilder(dir).payload("").type(StorageType.FOLDER).build();
+			blobStore.putBlob(container, blob);
+		}
 		// create parent, if necessary
 		File file = new File(dir);
 		String parent = file.getParent();
@@ -220,7 +178,7 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 			createDir(container, parent);
 		}
 	}
-	
+
 	@Override
 	public void chmod(String file, Permissions perm) throws ExecutionException {
 		// NOP
@@ -246,15 +204,7 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 
 	@Override
 	public void rm(String target) throws ExecutionException {
-		Pair<String, String>path = splitFullPath(target);
-		String container = path.getM1();
-		String resource = path.getM2();
-		if(resource.isEmpty()){
-			blobStore.deleteContainer(container);
-		}
-		else{
-			blobStore.removeBlob(container, resource);
-		}
+		blobStore.removeBlob(bucket, makePath(target));
 	}
 
 	@Override
@@ -275,7 +225,7 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 	public void link(String source, String linkName) throws ExecutionException {
 		throw new ExecutionException("Symlinking is not supported!");
 	}
-	
+
 	@Override
 	public void rename(String source, String target) throws ExecutionException {
 		throw new ExecutionException("Not implemented!");
@@ -289,19 +239,12 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 	@Override
 	public XnjsFile[] ls(String base, int offset, int limit, boolean filter)
 			throws ExecutionException {
-		Pair<String, String>path = splitFullPath(base);
-		String container = path.getM1();
-		base = path.getM2();
-		if(base.isEmpty() && container.isEmpty()){
-			return convert("",blobStore.list(), null);
-		}
-		else{
-			ListContainerOptions options = ListContainerOptions.Builder.
-					prefix(base).
-					maxResults(limit).
-					recursive();
-			return convert("/"+container, blobStore.list(container, options),base);
-		}
+		String path = makePath(base);
+		if(path.length()>0 && !path.endsWith("/"))path+="/";
+		ListContainerOptions options = ListContainerOptions.Builder.
+					maxResults(limit).delimiter("/");
+		if(path.length()>0)options.prefix(path);
+		return convert(blobStore.list(bucket, options), path);
 	}
 
 	@Override
@@ -312,27 +255,19 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 
 	@Override
 	public XnjsFileWithACL getProperties(String file) throws ExecutionException {
-		Pair<String, String>path = splitFullPath(file);
-		String container = path.getM1();
-		String resource = path.getM2();
+		String path = makePath(file);
 		XnjsFileImpl res = new XnjsFileImpl();
 		res.setPath(file);
-		if(resource.isEmpty()){
+		if(path.isEmpty() || path=="/"){
 			res.setDirectory(true);
 			res.setPermissions(new Permissions(true, true, true));
 		}
 		else {
 			try{
 				ListContainerOptions options = ListContainerOptions.Builder.maxResults(10000).recursive();
-				String base = FilenameUtils.getFullPath(resource);
-				if(!base.isEmpty() && !"/".equals(base)){
-					options.prefix(base);
-				}
-				while(resource.length()>1 && resource.endsWith("/")){
-					resource = resource.substring(0,resource.length()-1);
-				}
-				for(StorageMetadata r: blobStore.list(container, options)){
-					if(resource.equals(r.getName())){
+				options.prefix(path);
+				for(StorageMetadata r: blobStore.list(bucket, options)){
+					if(path.equals(r.getName())|| (path+"/").equals(r.getName())){
 						convert(res,r);
 						return res;
 					}
@@ -353,7 +288,7 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 
 	@Override
 	public String getFileSystemIdentifier() {
-		return "s3-"+endpoint;
+		return "s3-"+endpoint+"/"+bucket;
 	}
 
 	@Override
@@ -376,13 +311,13 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 		return null;
 	}
 
-	XnjsFile[]convert(String container, PageSet<? extends StorageMetadata> results, String target) {
+	XnjsFile[]convert(PageSet<? extends StorageMetadata> results, String target) {
 		Collection<XnjsFile> converted = new ArrayList<XnjsFile>();
 		String root = getStorageRoot();
-		if(target!=null)target=IOUtils.getRelativePath(container+"/"+target, root);
+		if(target!=null)target=IOUtils.getRelativePath(target, root);
 		for(StorageMetadata r: results){
 			XnjsFileImpl xf = new XnjsFileImpl();
-			String path = IOUtils.getRelativePath(container+"/"+r.getName(), root);
+			String path = IOUtils.getRelativePath(r.getName(), root);
 			if(target!=null && target.equals(path)){
 				continue;
 			}
@@ -391,7 +326,6 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 			converted.add(xf);
 		}
 		return converted.toArray(new XnjsFile[converted.size()]);
-
 	}
 
 	void convert(XnjsFileImpl target, StorageMetadata r){
@@ -408,7 +342,8 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 			}catch(JSONException e){}
 		}
 		target.setMetadata(meta.toString());
-		boolean isDir = StorageType.CONTAINER == r.getType() 
+		boolean isDir = r.getName().endsWith("/")
+					  || StorageType.CONTAINER == r.getType() 
 				      || StorageType.FOLDER == r.getType() 
 				      || StorageType.RELATIVE_PATH == r.getType();
 		target.setDirectory(isDir);

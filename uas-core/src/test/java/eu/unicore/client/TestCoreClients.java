@@ -55,8 +55,8 @@ public class TestCoreClients extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource = url+"/registries/default_registry";
 		System.out.println("Accessing "+resource);
-		RegistryClient client = new RegistryClient(resource, kernel.getClientConfiguration(), null);
-		List<Endpoint> entries = client.listEntries();
+		RegistryClient registry = new RegistryClient(resource, kernel.getClientConfiguration(), null);
+		List<Endpoint> entries = registry.listEntries();
 		boolean found = false;
 		for (int i=0; i<entries.size(); i++){
 			Endpoint ep = entries.get(i);
@@ -73,7 +73,7 @@ public class TestCoreClients extends Base {
 	public void testTargetSystemFinder() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource = url+"/registries/default_registry";
-		RegistryClient client = new RegistryClient(resource, kernel.getClientConfiguration(), null);
+		RegistryClient registry = new RegistryClient(resource, kernel.getClientConfiguration(), null);
 		Builder b = new Builder();
 		ClientConfigurationProvider ccp = new ClientConfigurationProvider() {
 			@Override
@@ -104,10 +104,8 @@ public class TestCoreClients extends Base {
 			public void flushSessions() throws IOException {}
 		};
 		ExecutorService es = kernel.getContainerProperties().getThreadingServices().getExecutorService();
-		Thread.sleep(500);
 		TargetSystemFinder tsf = new TargetSystemFinder(es);
-		//kernel.getContainerProperties().getThreadingServices().getExecutorService());
-		SiteClient site = tsf.findTSS(client, ccp, new UsernamePassword("demouser", "test123"), b, null);
+		SiteClient site = tsf.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null);
 		assertNotNull(site);
 		System.out.println(site.getEndpoint().getUrl());
 		AddressFilter f = new AcceptAllFilter();
@@ -124,20 +122,7 @@ public class TestCoreClients extends Base {
 		assertFalse(f.accept(site.getEndpoint().getUrl()));
 		b.setProperty("blacklist", "core");
 		assertThrows(Exception.class, 
-				()->tsf.findTSS(client, ccp, new UsernamePassword("demouser", "test123"), b, null));
-	}
-
-	@Test
-	public void testStorageClient() throws Exception {
-		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient storage = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
-		System.out.println(storage.getProperties().toString(2));
-		for(FileListEntry e: storage.ls(".").list(0, 1000)) {
-			System.out.println(e);
-		}
-		System.out.println(storage.stat("/"));
-		System.out.println("MP: "+storage.getMountPoint());
-		System.out.println("FS: "+storage.getFileSystemDescription());
+				()->tsf.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null));
 	}
 
 	@Test
@@ -166,6 +151,19 @@ public class TestCoreClients extends Base {
 		assertEquals(3, files.size());
 		files = fl.list(0,2);
 		assertEquals(2, files.size());
+	}
+
+	@Test
+	public void testStorageClient() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient storage = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		System.out.println(storage.getProperties().toString(2));
+		for(FileListEntry e: storage.ls(".").list(0, 1000)) {
+			System.out.println(e);
+		}
+		System.out.println(storage.stat("/"));
+		System.out.println("MP: "+storage.getMountPoint());
+		System.out.println("FS: "+storage.getFileSystemDescription());
 	}
 
 	@Test
