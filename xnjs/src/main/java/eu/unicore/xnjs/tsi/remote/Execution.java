@@ -579,7 +579,7 @@ public class Execution extends BasicExecution {
 			this.tsiFactory = tsiFactory;
 		}
 		public List<BudgetInfo> call() throws ExecutionException {
-			tsiLog.info("Querying compute time for xlogin <{}>", client.getXlogin());
+			tsiLog.debug("Querying compute time for xlogin <{}>", client.getXlogin());
 			return ((RemoteTSI)tsiFactory.createTSI(client, null)).getComputeTimeBudget();
 		}
 	}

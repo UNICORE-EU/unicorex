@@ -49,11 +49,12 @@ public class RecreateJMSReferenceList implements Runnable{
 		this.jms=kernel.getHome(UAS.JMS);
 	}
 
+	@Override
 	public void run(){
 		try{
 			AuthZAttributeStore.setClient(client);
 			String user = client.getDistinguishedName();
-			logger.info("Re-generating job list for {}", X500NameUtils.getReadableForm(user));
+			logger.debug("Re-generating job list for {}", X500NameUtils.getReadableForm(user));
 			//check if owner has more TSSs
 			Collection<String>tssIds=tssHome.getStore().getUniqueIDs();
 			tssIds.remove(tssID);
@@ -98,7 +99,7 @@ public class RecreateJMSReferenceList implements Runnable{
 						count++;
 					}
 				}
-				logger.info("Added <{}> existing jobs to new target system", count);
+				logger.debug("Added <{}> existing jobs to new target system", count);
 			}
 			catch(ResourceUnknownException rue){
 				logger.error(rue);

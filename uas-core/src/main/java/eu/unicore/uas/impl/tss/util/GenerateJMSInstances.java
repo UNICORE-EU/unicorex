@@ -39,7 +39,7 @@ public class GenerateJMSInstances implements Runnable{
 	private final Collection<String>jobIDs;
 
 	private final Kernel kernel;
-	
+
 	public GenerateJMSInstances(Kernel kernel, String tssID, Client client, String xnjsReference)throws Exception{
 		this.kernel=kernel;
 		this.tssID=tssID;
@@ -55,10 +55,11 @@ public class GenerateJMSInstances implements Runnable{
 		XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
 		return xnjs.listJobIDs(client);
 	}
-	
+
+	@Override
 	public void run(){
 		try{
-			logger.info("Regenerating UNICORE jobs for {}", client.getDistinguishedName());
+			logger.debug("Regenerating UNICORE jobs for {}", client.getDistinguishedName());
 			AuthZAttributeStore.setClient(client);
 			XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
 			int num = 0;
@@ -74,7 +75,7 @@ public class GenerateJMSInstances implements Runnable{
 					}
 				}
 			}
-			logger.info("Restored <{}> UNICORE jobs for {}", num, client.getDistinguishedName());
+			logger.debug("Restored <{}> UNICORE jobs for {}", num, client.getDistinguishedName());
 		}catch(Exception ex){
 			logger.error("Could not restore jobs for ", client.getDistinguishedName(), ex);
 		}

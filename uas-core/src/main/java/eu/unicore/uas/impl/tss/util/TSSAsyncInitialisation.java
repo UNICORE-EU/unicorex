@@ -25,13 +25,14 @@ public class TSSAsyncInitialisation implements Runnable{
 	private final String resourceID;
 	private final Kernel kernel;
 	private final Collection<Runnable> tasks;
-	
+
 	public TSSAsyncInitialisation(Kernel kernel, final String resourceID, final Collection<Runnable> tasks) {
 		this.resourceID = resourceID;
 		this.kernel = kernel;
 		this.tasks = tasks;
 	}
 
+	@Override
 	public void run() {
 		RuntimeException rte = null;
 		try{ 
@@ -43,7 +44,7 @@ public class TSSAsyncInitialisation implements Runnable{
 			ExtendedResourceStatus resource = (ExtendedResourceStatus)r;
 			if(rte==null) {
 				resource.setResourceStatus(ResourceStatus.READY);
-				logger.info("Finished init/update of TSS {}", resourceID);
+				logger.debug("Finished init/update of TSS {}", resourceID);
 			}
 			else {
 				String msg = Log.createFaultMessage("Failed init/update of TSS "+resourceID, rte);

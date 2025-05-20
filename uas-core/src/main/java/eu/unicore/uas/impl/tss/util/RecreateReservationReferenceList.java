@@ -46,15 +46,14 @@ public class RecreateReservationReferenceList implements Runnable{
 		this.reservations=kernel.getHome(UAS.RESERVATIONS);
 	}
 
+	@Override
 	public void run(){
 		try{
 			if(reservations==null){
 				//nothing to do
 				return;
 			}
-			
 			String user = client.getDistinguishedName();
-			
 			//check if owner has more TSSs
 			Collection<String>tssIds=tssHome.getStore().getUniqueIDs();
 			tssIds.remove(tssID);
@@ -65,8 +64,7 @@ public class RecreateReservationReferenceList implements Runnable{
 					return;
 				}
 			}
-			
-			logger.info("Re-generating reservation reference list for {}", user);
+			logger.debug("Re-generating reservation reference list for {}", user);
 			List<String>oldReservations = new ArrayList<>();
 			for(String reservationID: getExistingReservations()){
 				try{
@@ -83,7 +81,7 @@ public class RecreateReservationReferenceList implements Runnable{
 			}
 			try(TargetSystemImpl tss=(TargetSystemImpl)tssHome.getForUpdate(tssID)){
 				tss.getModel().getReservationIDs().addAll(oldReservations);
-				logger.info("Added <{}> existing reservations to target system", oldReservations.size());
+				logger.debug("Added <{}> existing reservations to target system", oldReservations.size());
 			}
 		}catch(Exception ex){
 			logger.error("Could not restore reservations for {}", client.getDistinguishedName(),ex);

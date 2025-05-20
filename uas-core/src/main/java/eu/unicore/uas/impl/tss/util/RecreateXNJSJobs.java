@@ -45,7 +45,7 @@ public class RecreateXNJSJobs implements Runnable{
 	private final Collection<String>existingJobs;
 
 	private final Kernel kernel;
-	
+
 	public RecreateXNJSJobs(Kernel kernel, Client client, String xnjsReference)throws Exception{
 		this.kernel=kernel;
 		this.client=client;
@@ -54,28 +54,26 @@ public class RecreateXNJSJobs implements Runnable{
 		this.existingJobs=getExistingJobs();
 	}
 
+	@Override
 	public void run(){
 		try{
-			logger.info("Regenerating UNICORE XNJS Jobs for {}", client.getDistinguishedName());
+			logger.debug("Regenerating UNICORE XNJS Jobs for {}", client.getDistinguishedName());
 			ensureProcessing();
 			XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
 			for(String jobID: existingJobs){
 				// check if job belongs to us
 				try{
 					JobManagementImpl jms=(JobManagementImpl)jmsHome.get(jobID);
-					String owner=jms.getOwner();
-					if(!X500NameUtils.equal(client.getDistinguishedName(), owner))
+					if(!X500NameUtils.equal(client.getDistinguishedName(), jms.getOwner())) {
 						continue;
-
-					Action action=xnjs.getAction(jobID);
-					if(action==null){
+					}
+					if(xnjs.getAction(jobID)==null){
 						restore(jms);
 					}
 				}
 				catch(Exception ex){
 					logger.error("Could not restore XNJS action: {}", jobID, ex);
 				}
-				
 			}
 		}catch(Exception ex){
 			logger.error("Could not restore jobs for {}", client.getDistinguishedName(), ex);
@@ -115,13 +113,13 @@ public class RecreateXNJSJobs implements Runnable{
 	private Collection<String>getExistingJobs()throws Exception{
 		return jmsHome.getStore().getUniqueIDs();
 	}
-	
+
 	public static class ReCreateProcessor extends DefaultProcessor{
 
 		public ReCreateProcessor(XNJS configuration) {
 			super(configuration);
 		}
-		
+
 		@Override
 		protected void begin(){
 			if(isRecreated()){
@@ -129,11 +127,10 @@ public class RecreateXNJSJobs implements Runnable{
 				next=null;
 			}
 		}
-		
+
 		@Override
 		protected void done() {
 			if(!isRecreated())return;
-			
 			// at least check if exit code exists -> successful
 			TSI tsi = xnjs.getTargetSystemInterface(action.getClient(), null);
 			tsi.setStorageRoot(action.getExecutionContext().getWorkingDirectory());
@@ -148,11 +145,10 @@ public class RecreateXNJSJobs implements Runnable{
 			action.getResult().setStatusCode(result);
 			action.setDirty();
 		}
-		
+
 		protected boolean isRecreated(){
 			return false; // TODO?!
 		}
-		
 	}
 
 }
