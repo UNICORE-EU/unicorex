@@ -2,6 +2,7 @@ package eu.unicore.uas.jclouds.s3;
 
 import java.util.Map;
 
+import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.impl.sms.DefaultStorageInfoProvider;
 import eu.unicore.uas.impl.sms.StorageDescription;
 import eu.unicore.services.Kernel;
@@ -15,8 +16,11 @@ public class S3InfoProvider extends DefaultStorageInfoProvider {
 	@Override
 	public Map<String,String> getUserParameterInfo(StorageDescription storageDesc){
 		Map<String,String> res = super.getUserParameterInfo(storageDesc);
+		res.remove(SMSProperties.ENABLE_TRIGGER);
+		res.remove(SMSProperties.DISABLE_METADATA);
 		res.put("accessKey", "access key");
 		res.put("secretKey", "secret key");
+		res.put("bucket", "bucket to access (or create)");
 		res.put("endpoint", "S3 endpoint to access");
 		res.put("provider", "JClouds provider to use");
 		res.put("validate", "Validate s3 server cert");

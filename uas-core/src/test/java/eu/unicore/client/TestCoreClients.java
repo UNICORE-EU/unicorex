@@ -103,9 +103,14 @@ public class TestCoreClients extends Base {
 			@Override
 			public void flushSessions() throws IOException {}
 		};
+
+		TargetSystemFinder tsf1 = new TargetSystemFinder(null);
+		SiteClient site = tsf1.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null);
+		assertNotNull(site);
+
 		ExecutorService es = kernel.getContainerProperties().getThreadingServices().getExecutorService();
-		TargetSystemFinder tsf = new TargetSystemFinder(es);
-		SiteClient site = tsf.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null);
+		final TargetSystemFinder tsf = new TargetSystemFinder(es);
+		site = tsf.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null);
 		assertNotNull(site);
 		System.out.println(site.getEndpoint().getUrl());
 		AddressFilter f = new AcceptAllFilter();
@@ -191,7 +196,7 @@ public class TestCoreClients extends Base {
 		List<String> jL2 = jobList.getUrls(0, 100, "date");
 		assertEquals(1, jL2.size());
 	}
-	
+
 	protected void waitForFinish(JobClient jc) throws Exception {
 		int c=0;
 		while(c<20 && !jc.isFinished()){

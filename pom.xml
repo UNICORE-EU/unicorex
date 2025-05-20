@@ -73,7 +73,7 @@
 	<artifactId>junit-platform-launcher</artifactId>
 	<version>${junit.p.version}</version>
 	<scope>test</scope>
-    </dependency>
+      </dependency>
       <dependency>
 	<groupId>com.google.inject</groupId>
 	<artifactId>guice</artifactId>
