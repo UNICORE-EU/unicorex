@@ -1,6 +1,5 @@
 package eu.unicore.xnjs.json;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -9,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import eu.unicore.security.Client;
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.processors.JobProcessor;
@@ -164,7 +164,7 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 		String notBefore = JSONUtils.getString(getJobDescriptionDocument(), "Not before");
 		if(notBefore!=null){
 			try{
-				Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(notBefore);
+				Date date = UnitParser.extractDateTime(notBefore);
 				action.setNotBefore(date.getTime());
 			}catch(Exception ex) {
 				throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,

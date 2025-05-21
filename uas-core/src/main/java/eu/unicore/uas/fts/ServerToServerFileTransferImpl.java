@@ -1,6 +1,6 @@
 package eu.unicore.uas.fts;
 
-import java.net.URL;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,9 +54,8 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		if(model==null){
 			setModel(new ServerToServerTransferModel());
 		}
-		ServerToServerTransferModel m = getModel();
-
 		super.initialise(map);
+		ServerToServerTransferModel m = getModel();
 		Map<String,String>extraParameters = m.extraParameters;
 		String startTime=extraParameters!=null ? extraParameters.get(PARAM_SCHEDULED_START) : null;
 		if(startTime!=null){
@@ -213,8 +212,8 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 			}catch(Exception e) {}
 		}
 		else {
-			// not a UNICORE storage URL - try to use the plain protocol
-			protocol = new URL(remote).getProtocol();
+			// not a UNICORE storage URL - use the plain protocol
+			protocol = new URI(remote).getScheme();
 		}
 		logger.debug("FTS action = {}", j.toString(2));
 		Action action = getXNJSFacade().getXNJS().makeAction(j, "FTS", model.getUniqueID());

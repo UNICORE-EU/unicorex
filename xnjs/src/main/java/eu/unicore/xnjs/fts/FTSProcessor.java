@@ -22,6 +22,7 @@ import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.processors.DefaultProcessor;
 import eu.unicore.xnjs.io.DataStageInInfo;
 import eu.unicore.xnjs.io.DataStageOutInfo;
+import eu.unicore.xnjs.io.DataStagingInfo;
 import eu.unicore.xnjs.io.IFileTransfer;
 import eu.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import eu.unicore.xnjs.io.IFileTransferEngine;
@@ -86,14 +87,11 @@ public class FTSProcessor extends DefaultProcessor {
 	protected IFTSController getController() throws Exception {
 		if(ftc!=null)return ftc;
 		JSONObject ftSpec = getTransferSpecification();
-		OverwritePolicy policy = OverwritePolicy.OVERWRITE;
 		if(isExport(ftSpec)){
 			DataStageOutInfo info = new DataStageOutInfo();
 			info.setFileName(ftSpec.getString("file"));
-			info.setOverwritePolicy(policy);
 			info.setTarget(new URI(urlEncode(ftSpec.getString("target"))));
-			JSONObject creds = ftSpec.optJSONObject("credentials");
-			if(creds!=null)info.setCredentials(JSONParser.extractCredentials(creds));
+			configureCommon(info, ftSpec);
 			ftc = xnjs.get(IFileTransferEngine.class).
 					createFTSExport(
 							action.getClient(),
@@ -103,21 +101,24 @@ public class FTSProcessor extends DefaultProcessor {
 		else{
 			DataStageInInfo info = new DataStageInInfo();
 			info.setFileName(ftSpec.getString("file"));
-			info.setOverwritePolicy(policy);
 			info.setSources(new URI[]{new URI(urlEncode(ftSpec.getString("source")))});
 			info.setInlineData(ftSpec.optString("data", null));
-			JSONObject creds = ftSpec.optJSONObject("credentials");
-			if(creds!=null)info.setCredentials(JSONParser.extractCredentials(creds));
+			configureCommon(info, ftSpec);
 			ftc = xnjs.get(IFileTransferEngine.class).
 					createFTSImport(
 							action.getClient(),
 							ftSpec.getString("workdir"),
 							info);
 		}
-		try{
-			ftc.setExtraParameters(JSONUtils.asStringMap(ftSpec.optJSONObject("extraParameters")));
-		}catch(Exception e) {}
 		return ftc;
+	}
+
+	private void configureCommon(DataStagingInfo info, JSONObject spec) throws Exception {
+		JSONObject creds = ftSpec.optJSONObject("credentials");
+		if(creds!=null)info.setCredentials(JSONParser.extractCredentials(creds));
+		JSONObject extra = ftSpec.optJSONObject("extraParameters");
+		if(extra!=null)info.setExtraParameters(JSONUtils.asStringMap(extra));
+		info.setOverwritePolicy(OverwritePolicy.OVERWRITE);
 	}
 
 	protected FTSInfo getFTSInfo() throws Exception {

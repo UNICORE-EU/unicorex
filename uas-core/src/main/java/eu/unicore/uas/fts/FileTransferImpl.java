@@ -63,7 +63,7 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 		m.extraParameters = map.extraParameters;
 		initialiseSourceAndTarget(rawsource, rawtarget);
 		m.setStorageAdapterFactory(map.storageAdapterFactory);
-		logger.info("New file transfer: "+toString());
+		logger.info("New file transfer: {}", toString());
 	}
 
 	/**

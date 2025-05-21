@@ -1,12 +1,12 @@
-package eu.unicore.uas.xnjs;
+package eu.unicore.uas.jclouds.s3;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import eu.unicore.client.Endpoint;
-import eu.unicore.client.data.FiletransferClient;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.jwt.JWTDelegation;
@@ -25,21 +25,20 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.TransferInfo;
 import eu.unicore.xnjs.io.TransferInfo.Status;
 import eu.unicore.xnjs.io.XnjsFile;
-import eu.unicore.xnjs.tsi.TSI;
 
 
 /**
- * Base class for UNICORE RESTful file staging <br/>
- * There are subclasses {@link RESTFileImportBase} for import and {@link RESTFileExportBase} for export.
+ * Base class for file staging from/to S3 <br/>
  * 
  * @author schuller
- * @author demuth
  */
-public abstract class RESTFileTransferBase implements IFileTransfer, ProgressListener<Long> {
+public abstract class S3FileTransferBase implements IFileTransfer, ProgressListener<Long> {
 
-	protected static final Logger logger = LogUtil.getLogger(LogUtil.DATA, RESTFileTransferBase.class);
+	protected static final Logger logger = LogUtil.getLogger(LogUtil.DATA, S3FileTransferBase.class);
 
-	protected static final Logger usageLogger = Log.getLogger(Log.SERVICES+".datatransfer.USAGE", RESTFileTransferBase.class);
+	protected static final Logger usageLogger = Log.getLogger(Log.SERVICES+".datatransfer.USAGE", S3FileTransferBase.class);
+
+	protected String url;
 
 	protected OverwritePolicy overwrite = OverwritePolicy.OVERWRITE;
 
@@ -49,25 +48,17 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	protected Client client;
 
-	protected Endpoint storageEndpoint;
-
-	protected Endpoint fileTransferEndpoint;
-
 	protected IClientConfiguration sec;
 
 	protected IAuthCallback auth;
 
 	protected boolean export;
 
-	protected FiletransferClient ftc;
-
-	private TSI tsi;
-
 	private String preferredLoginNode;
 
 	private volatile boolean isCancelled = false;
 
-	protected IStorageAdapter storageAdapter;
+	protected IStorageAdapter localStorage;
 
 	protected final XNJS configuration;
 
@@ -81,31 +72,33 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	protected StatusTracker statusTracker;
 
-	public RESTFileTransferBase(XNJS configuration){
+	protected Map<String,String> s3Params;
+	
+	protected IStorageAdapter s3Adapter;
+
+	public S3FileTransferBase(XNJS configuration){
 		this.configuration=configuration;
 		this.kernel=configuration.get(Kernel.class);
 		this.info = new TransferInfo(Utilities.newUniqueID(), null, null);
-		this.info.setProtocol("BFT");
+		this.info.setProtocol("S3");
 	}
 
 	public TransferInfo getInfo(){
 		return info;
 	}
-
+	
 	/**
 	 * cleanup references to reduce memory footprint: this class might
 	 * reside in memory for quite some time, so it should reduce memory
 	 * consumption as soon as the transfer has been completed
 	 */
 	protected void onFinishCleanup(){
-		ftc=null;
 		client=null;
-		storageAdapter=null;
-		storageEndpoint=null;
+		localStorage=null;
+		url=null;
 		sec=null;
-		tsi=null;
 	}
-
+	
 	public void setClient(Client client){
 		this.client=client;
 	}
@@ -132,7 +125,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	public ImportPolicy getImportPolicy(){
 		return importPolicy;
 	}
-	
+
 	/**
 	 * increase the total number of transferred bytes by the given amount 
 	 * 
@@ -162,27 +155,27 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	@Override
 	public void setStorageAdapter(IStorageAdapter adapter) {
-		this.storageAdapter=adapter;
+		this.localStorage=adapter;
 	}
 
 	public String getWorkdir() {
 		return workdir;
 	}
-	
+
 	public void setWorkdir(String workdir) {
 		this.workdir = workdir;
 	}
-	
+
 	public Client getClient() {
 		return client;
 	}
-	
-	public Endpoint getStorageEndpoint() {
-		return storageEndpoint;
+
+	public String getURL() {
+		return url;
 	}
 
-	public void setStorageEndpoint(Endpoint storageEndpoint) {
-		this.storageEndpoint = storageEndpoint;
+	public void setURL(String url) {
+		this.url = url;
 	}
 
 	@Override
@@ -202,26 +195,27 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 			logger.warn("No security info available, running in non-secure mode?");
 		}
 	}
-	
-	protected void destroyFileTransferResource()
-	{
-		try{
-			if(ftc!=null){
-				ftc.delete();
-			}
+
+	protected synchronized IStorageAdapter getLocalStorage()throws ExecutionException{
+		if(localStorage==null) {
+			localStorage = configuration.getTargetSystemInterface(client, preferredLoginNode);
+			localStorage.setStorageRoot(workdir);
 		}
-		catch(Exception e){
-			Log.logException("Could not destroy file transfer resource.", e, logger);
-		}
+		return localStorage;
 	}
 
-	protected synchronized IStorageAdapter getStorageAdapter()throws ExecutionException{
-		if(storageAdapter!=null)return storageAdapter;
-		if(tsi==null){
-			tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
-			tsi.setStorageRoot(workdir);
-		}
-		return tsi;
+	protected IStorageAdapter createS3Adapter() throws IOException {
+		String accessKey = s3Params.get("accessKey");
+		String secretKey = s3Params.get("secretKey");
+		String endpoint = s3Params.get("endpoint");
+		String bucket = s3Params.get("bucket");
+		String provider = s3Params.get("provider");
+		boolean sslValidate = Boolean.parseBoolean(s3Params.get("validate"));
+		if(provider==null)provider="aws-s3";
+		if(bucket==null)throw new IllegalArgumentException("Parameter 'bucket' is required");
+		if(endpoint==null)throw new IllegalArgumentException("Parameter 'endpoint' is required");
+		return new S3StorageAdapterFactory().createStorageAdapter(kernel, accessKey, secretKey, 
+				endpoint, provider, bucket, null, sslValidate);
 	}
 
 	/**
@@ -248,15 +242,15 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	 */
 	protected String cleanLocalFilePath(String file) throws ExecutionException
 	{
-		return file.replaceAll("/+","/").replace("\\/","/").replace("/", getStorageAdapter().getFileSeparator());
+		return file.replaceAll("/+","/").replace("\\/","/").replace("/", getLocalStorage().getFileSeparator());
 	}
-	
+
 	/**
 	 * creates any missing directories
 	 */
 	protected void createParentDirectories(String target)throws ExecutionException{
 		String s = getParentOfLocalFilePath(target);
-		IStorageAdapter sms = getStorageAdapter();
+		IStorageAdapter sms = getLocalStorage();
 		XnjsFile parent=sms.getProperties(s);
 		if(parent==null){
 			sms.mkdir(s);
@@ -265,7 +259,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 			throw new ExecutionException("Parent <"+s+"> is not a directory");
 		}
 	}
-	
+
 	/**
 	 * get the parent file path
 	 * @param file
@@ -276,7 +270,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	protected String getParentOfLocalFilePath(String file) throws ExecutionException
 	{
 		String result = cleanLocalFilePath(file);
-		int i=result.lastIndexOf(getStorageAdapter().getFileSeparator());
+		int i=result.lastIndexOf(getLocalStorage().getFileSeparator());
 		return i>0 ? result.substring(0,i) : "/" ;
 	}
 
@@ -297,10 +291,9 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	/**
 	 * setup a map containing protocol dependent extra parameters
-	 * @return {@link Map} or <code>null</code>
 	 */
-	protected Map<String,String>getExtraParameters(){
-		return null;
+	public void setS3Params(Map<String,String> params){
+		this.s3Params = params;
 	}
 
 	public boolean isExport() {
@@ -310,7 +303,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	public void setExport(boolean export) {
 		this.export = export;
 	}
-	
+
 	/**
 	 * get the time that this transfer is/was running
 	 * 
@@ -326,7 +319,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	public void cancelled(){
 		info.setStatus(Status.ABORTED, "File transfer cancelled.");
 	}
-	
+
 	/**
 	 * helper to set the status and message in case of failure
      * @param msg - error message to set		
@@ -334,11 +327,11 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	public void failed(String msg){
 		info.setStatus(Status.FAILED,msg);
 	}
-	
+
 	public void setStatusTracker(StatusTracker tracker) {
 		this.statusTracker = tracker;
 	}
-	
+
 	/**
 	 * computes transfer rates, bytes transferred and
 	 * logs it to the USAGE logger at INFO level<br/>
@@ -356,7 +349,6 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		long r = (long)((float)dataSize/(float)consumedMillis);
 		String what=isExport()?"Sent":"Received";
 		String dn=client!=null?client.getDistinguishedName():"anonymous";
-		String url=storageEndpoint.getUrl();
 		logger.debug("{} {} bytes in {} milliseconds, data rate={} kB/s)", what, dataSize, consumedMillis, r);
 		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}] [{}] [{}]"
 				    ,dn, what, dataSize, r,
@@ -364,4 +356,19 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 				    info.getParentActionID());
 	}
 	
+	//copy all data from an input stream to an output stream, while tracking progress via
+	//the transferredBytes field
+	protected void copy(InputStream in, OutputStream out)throws Exception{
+		int bufferSize=65536;
+		byte[] buffer = new byte[bufferSize];
+		int len=0;
+		long transferredBytes=0;
+		while (!isCancelled) {
+			len=in.read(buffer,0,bufferSize);
+			if(len<0)break;
+			out.write(buffer,0,len);
+			transferredBytes+=len;
+			info.setTransferredBytes(transferredBytes);
+		}
+	}
 }

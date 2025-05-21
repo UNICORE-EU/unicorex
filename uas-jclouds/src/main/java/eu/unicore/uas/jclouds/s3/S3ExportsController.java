@@ -1,15 +1,11 @@
-package eu.unicore.uas.fts;
+package eu.unicore.uas.jclouds.s3;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
-
-import eu.unicore.client.Endpoint;
 import eu.unicore.security.Client;
-import eu.unicore.uas.xnjs.UFileTransferCreator;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.fts.FTSTransferInfo;
@@ -31,7 +27,7 @@ import eu.unicore.xnjs.util.IOUtils;
  *
  * @author schuller
  */
-public class ExportsController implements IFTSController {
+public class S3ExportsController implements IFTSController {
 
 	private IStorageAdapter localStorage;
 
@@ -41,7 +37,7 @@ public class ExportsController implements IFTSController {
 
 	private DataStageOutInfo dso;
 
-	private final Endpoint remoteEndpoint;
+	private final Map<String,String> s3Params;
 
 	private final String target;
 
@@ -49,14 +45,12 @@ public class ExportsController implements IFTSController {
 
 	private final String workingDirectory;
 
-	private String protocol;
-
-	public ExportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageOutInfo dso, String workingDirectory) {
+	public S3ExportsController(XNJS xnjs, Client client, Map<String,String> s3Params, DataStageOutInfo dso, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.client = client;
-		this.remoteEndpoint = remoteEndpoint;
 		this.dso = dso;
-		this.target = UFileTransferCreator.getFileSpec(dso.getTarget().toString());
+		this.s3Params =  s3Params;
+		this.target = this.s3Params.get("file");
 		this.workingDirectory = workingDirectory;
 	}
 
@@ -74,24 +68,16 @@ public class ExportsController implements IFTSController {
 	}
 
 	@Override
-	public void setOverwritePolicy(OverwritePolicy overwrite) {
-		// N/A
-	}
+	public void setOverwritePolicy(OverwritePolicy overwrite) {}
 
 	@Override
-	public void setImportPolicy(ImportPolicy importPolicy) {
-		// N/A
-	}
+	public void setImportPolicy(ImportPolicy importPolicy) {}
 
 	@Override
-	public void setExtraParameters(Map<String,String>extraParameters) {
-		// N/A
-	}
+	public void setExtraParameters(Map<String,String>extraParameters) {}
 
 	@Override
-	public void setProtocol(String protocol) {
-		this.protocol = protocol;
-	}
+	public void setProtocol(String protocol) {}
 
 	private boolean isDirectory(String file) throws ExecutionException, IOException
 	{
@@ -135,7 +121,7 @@ public class ExportsController implements IFTSController {
 			SourceFileInfo sfi = new SourceFileInfo();
 			sfi.setPath(source);
 			sfi.setSize(dataSize);
-			fileList.add(new FTSTransferInfo(sfi, UFileTransferCreator.getFileSpec(dso.getTarget().toString()), false));
+			fileList.add(new FTSTransferInfo(sfi, target, true));
 		}
 		return dataSize;
 	}
@@ -168,12 +154,14 @@ public class ExportsController implements IFTSController {
 
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
-		String target = remoteEndpoint.getUrl() +
-				FilenameUtils.normalize("/files/"+to, true);
-		if(protocol!=null)target=protocol+":"+target;
+		String f = to;
+		if(!f.startsWith("/"))f="/"+f;
+		String target = "S3:"+s3Params.get("endpoint")+"/"+s3Params.get("bucket")+f;
 		DataStageOutInfo info = dso.clone();
 		info.setTarget(new URI(target));
 		info.setFileName(from.getPath());
+		info.getExtraParameters().putAll(s3Params);
+		info.getExtraParameters().remove("file");
 		return xnjs.get(IFileTransferEngine.class).createFileExport(client, workingDirectory, info);
 	}
 }

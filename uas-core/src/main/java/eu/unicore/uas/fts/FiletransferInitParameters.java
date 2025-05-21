@@ -1,8 +1,5 @@
 package eu.unicore.uas.fts;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import eu.unicore.uas.impl.BaseInitParameters;
 import eu.unicore.uas.xnjs.StorageAdapterFactory;
 
@@ -27,8 +24,6 @@ public class FiletransferInitParameters extends BaseInitParameters {
 	public String umask;
 
 	public StorageAdapterFactory storageAdapterFactory;
-
-	public Map<String,String> extraParameters = new HashMap<>();
 
 	public long numbytes = -1;
 	

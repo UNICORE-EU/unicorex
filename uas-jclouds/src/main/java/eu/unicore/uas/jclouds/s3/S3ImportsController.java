@@ -1,22 +1,14 @@
-package eu.unicore.uas.fts;
+package eu.unicore.uas.jclouds.s3;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
-
-import eu.unicore.client.Endpoint;
-import eu.unicore.client.core.FileList.FileListEntry;
-import eu.unicore.client.core.StorageClient;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.rest.jwt.JWTDelegation;
-import eu.unicore.services.rest.jwt.JWTServerProperties;
-import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
-import eu.unicore.uas.xnjs.UFileTransferCreator;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.fts.FTSTransferInfo;
 import eu.unicore.xnjs.fts.IFTSController;
@@ -28,6 +20,7 @@ import eu.unicore.xnjs.io.IFileTransfer.ImportPolicy;
 import eu.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import eu.unicore.xnjs.io.IFileTransferEngine;
 import eu.unicore.xnjs.io.IStorageAdapter;
+import eu.unicore.xnjs.io.XnjsFile;
 import eu.unicore.xnjs.util.IOUtils;
 
 /**
@@ -35,7 +28,7 @@ import eu.unicore.xnjs.util.IOUtils;
  *
  * @author schuller
  */
-public class ImportsController implements IFTSController {
+public class S3ImportsController implements IFTSController {
 
 	private final Client client;
 
@@ -45,27 +38,26 @@ public class ImportsController implements IFTSController {
 
 	private DataStageInInfo dsi;
 
-	private StorageClient remoteStorage;
-
-	private final Endpoint remoteEndpoint;
+	private IStorageAdapter s3adapter;
 
 	private final String source;
 
 	private FileSet sourceFileSet;
 
-	private FileListEntry remoteBaseInfo;
+	private XnjsFile remoteBaseInfo;
 
 	private final String workingDirectory;
+	
+	private final Map<String,String> s3Params;
+	
 
-	private String protocol;
-
-	public ImportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageInInfo dsi, String workingDirectory) {
+	public S3ImportsController(XNJS xnjs, Client client, Map<String,String> s3Params, DataStageInInfo dsi, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.kernel = xnjs.get(Kernel.class);
 		this.client = client;
-		this.remoteEndpoint = remoteEndpoint;
 		this.dsi = dsi;
-		this.source = UFileTransferCreator.getFileSpec(dsi.getSources()[0].toString());
+		this.s3Params =  s3Params;
+		this.source = this.s3Params.get("file");
 		this.workingDirectory = workingDirectory;
 	}
 
@@ -91,22 +83,19 @@ public class ImportsController implements IFTSController {
 
 	@Override
 	public void setProtocol(String protocol) {
-		this.protocol = protocol;
+		// unused
 	}
 
 	private void setup() throws Exception {
-		if(remoteStorage==null) {
-			String user = client.getDistinguishedName();
-			IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
-					new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), user);
-			remoteStorage = new StorageClient(remoteEndpoint, kernel.getClientConfiguration(), auth);
+		if(s3adapter==null) {
+			s3adapter = createS3Adapter();
 		}
 	}
 
 	private void getRemoteFileInfo(String source) throws Exception {
 		if(!FileSet.hasWildcards(source)){
-			remoteBaseInfo = remoteStorage.stat(source);
-			boolean dir = remoteBaseInfo.isDirectory;
+			remoteBaseInfo = s3adapter.getProperties(source);
+			boolean dir = remoteBaseInfo.isDirectory();
 			if(dir){
 				sourceFileSet = new FileSet(source, true);
 			}
@@ -116,7 +105,7 @@ public class ImportsController implements IFTSController {
 		}
 		else{
 			sourceFileSet = new FileSet(source);
-			remoteBaseInfo = remoteStorage.stat(sourceFileSet.getBase());
+			remoteBaseInfo = s3adapter.getProperties(sourceFileSet.getBase());
 		}
 		if(remoteBaseInfo == null){
 			throw new FileNotFoundException("No files found for: "+source);
@@ -127,52 +116,69 @@ public class ImportsController implements IFTSController {
 	public long collectFilesForTransfer(List<FTSTransferInfo> fileList) throws Exception {
 		setup();
 		getRemoteFileInfo(source);
-		if(remoteBaseInfo.isDirectory) {
-			return doCollectFiles(fileList, remoteBaseInfo, dsi.getFileName(), remoteBaseInfo.path);
+		if(remoteBaseInfo.isDirectory()) {
+			return doCollectFiles(fileList, remoteBaseInfo, dsi.getFileName(), remoteBaseInfo.getPath());
 		}
 		else{
 			SourceFileInfo sfi = new SourceFileInfo();
-			sfi.setPath(remoteBaseInfo.path);
-			sfi.setSize(remoteBaseInfo.size);
+			sfi.setPath(remoteBaseInfo.getPath());
+			sfi.setSize(remoteBaseInfo.getSize());
 			fileList.add(new FTSTransferInfo(sfi, dsi.getFileName(), false));
-			return remoteBaseInfo.size;
+			return remoteBaseInfo.getSize();
 		}
 	}
 
-	private long doCollectFiles(List<FTSTransferInfo> fileList, FileListEntry sourceFolder,
+	private long doCollectFiles(List<FTSTransferInfo> fileList, XnjsFile sourceFolder,
 			String targetFolder, String baseDirectory) throws Exception
 	{
 		long result = 0;
-		for (FileListEntry child : remoteStorage.ls(sourceFolder.path).list(0, SMSBaseImpl.MAX_LS_RESULTS)) {
-			String relative = IOUtils.getRelativePath(child.path, sourceFolder.path);
+		for (XnjsFile child : s3adapter.ls(sourceFolder.getPath(), 0, SMSBaseImpl.MAX_LS_RESULTS, false)) {
+			String relative = IOUtils.getRelativePath(child.getPath(), sourceFolder.getPath());
 			String target = targetFolder+relative;
-			if(child.isDirectory && sourceFileSet.isRecurse())
+			while(target.startsWith("//"))target=target.substring(1);
+			if(child.isDirectory() && sourceFileSet.isRecurse())
 			{
 				result += doCollectFiles(fileList, child, target, baseDirectory);
 			}
 			else 
 			{
-				if(remoteBaseInfo.isDirectory && sourceFileSet.matches(child.path)){
+				if(remoteBaseInfo.isDirectory() && sourceFileSet.matches(child.getPath())){
 					SourceFileInfo sfi = new SourceFileInfo();
-					sfi.setPath(child.path);
-					sfi.setSize(child.size);
+					sfi.setPath(child.getPath());
+					sfi.setSize(child.getSize());
 					fileList.add(new FTSTransferInfo(sfi, target, false));
-					result += child.size;
+					result += child.getSize();
 				}
 			}
 		}
 		return result;
 	}
 
+	protected IStorageAdapter createS3Adapter() throws IOException {
+		String accessKey = s3Params.get("accessKey");
+		String secretKey = s3Params.get("secretKey");
+		String endpoint = s3Params.get("endpoint");
+		String bucket = s3Params.get("bucket");
+		String provider = s3Params.get("provider");
+		boolean sslValidate = Boolean.parseBoolean(s3Params.get("validate"));
+		if(provider==null)provider="aws-s3";
+		if(bucket==null)throw new IllegalArgumentException("Parameter 'bucket' is required");
+		if(endpoint==null)throw new IllegalArgumentException("Parameter 'endpoint' is required");
+		return new S3StorageAdapterFactory().createStorageAdapter(kernel, accessKey, secretKey, 
+				endpoint, provider, bucket, null, sslValidate);
+	}
+	
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
-		String source = remoteEndpoint.getUrl() +
-				FilenameUtils.normalize("/files"+from.getPath(), true);
-		if(protocol!=null)source=protocol+":"+source;
+		String f = from.getPath();
+		if(!f.startsWith("/"))f="/"+f;
+		String source = "S3:"+s3Params.get("endpoint")+"/"+s3Params.get("bucket")+f;
 		DataStageInInfo info = dsi.clone();
 		info.setSources(new URI[]{new URI(source)});
 		info.setFileName(to);
+		info.getExtraParameters().putAll(s3Params);
+		info.getExtraParameters().remove("file");
 		return xnjs.get(IFileTransferEngine.class).createFileImport(client, workingDirectory, info);
 	}
 }

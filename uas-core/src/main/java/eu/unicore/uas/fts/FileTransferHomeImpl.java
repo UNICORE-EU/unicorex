@@ -40,13 +40,14 @@ public class FileTransferHomeImpl extends DefaultHome {
 	@Override
 	public String createResource(InitParameters initobjs) throws ResourceNotCreatedException{
 		FiletransferInitParameters ftInit = (FiletransferInitParameters)initobjs;
-		if(ftInit.protocol!=null)protocolT.set(ftInit.protocol.toString());
+		if(ftInit.protocol!=null)protocolT.set(ftInit.protocol);
 		return super.createResource(initobjs);
 	}
 
 	/**
 	 * Called after server start
 	 */
+	@Override
 	public void run(){
 		initBFT();
 	}
