@@ -72,6 +72,7 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 			blobStore = getTransientBlobstore();
 		}
 		else{
+			System.setProperty("jclouds.s3.virtual-host-buckets", "false");
 			ContextBuilder builder = ContextBuilder.newBuilder(provider).credentials(accessKey, secretKey);
 			if(endpoint!=null){
 				builder.endpoint(endpoint);

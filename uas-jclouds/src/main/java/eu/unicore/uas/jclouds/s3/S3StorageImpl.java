@@ -37,6 +37,7 @@ public class S3StorageImpl extends SMSBaseImpl {
 		model.setSecretKey(getSetting("secretKey",props));
 		model.setEndpoint(getSetting("endpoint",props));
 		model.setProvider(getSetting("provider",props));
+		model.setRegion(getSetting("region",props));
 		model.setBucket(getSetting("bucket",props));
 		model.setSslValidate(Boolean.parseBoolean(getSetting("validate",props)));
 		if(model.getProvider()==null)model.setProvider("aws-s3");

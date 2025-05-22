@@ -21,9 +21,14 @@ public class S3InfoProvider extends DefaultStorageInfoProvider {
 		res.put("accessKey", "access key");
 		res.put("secretKey", "secret key");
 		res.put("bucket", "bucket to access (or create)");
-		res.put("endpoint", "S3 endpoint to access");
-		res.put("provider", "JClouds provider to use");
 		res.put("validate", "Validate s3 server cert");
+		boolean allowUser = Boolean.parseBoolean(storageDesc.getAdditionalProperties()
+				.get("allowUserDefinedEndpoint"));
+		if(allowUser){
+			res.put("endpoint", "S3 endpoint to access");
+			res.put("region", "S3/AWS region identifier");
+			res.put("provider", "JClouds provider to use");
+		}
 		return res;
 	}
 }

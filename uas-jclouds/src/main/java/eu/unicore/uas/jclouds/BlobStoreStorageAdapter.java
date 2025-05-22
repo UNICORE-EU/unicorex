@@ -11,6 +11,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +23,9 @@ import org.jclouds.blobstore.domain.PageSet;
 import org.jclouds.blobstore.domain.StorageMetadata;
 import org.jclouds.blobstore.domain.StorageType;
 import org.jclouds.blobstore.options.ListContainerOptions;
+import org.jclouds.domain.Location;
+import org.jclouds.domain.LocationBuilder;
+import org.jclouds.domain.LocationScope;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,7 +63,6 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 
 	private final Kernel kernel;
 
-	@SuppressWarnings("unused")
 	private final String region;
 
 	/**
@@ -160,7 +163,14 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 	}
 
 	protected void createBucket() {
-		boolean created = blobStore.createContainerInLocation(null, bucket);
+		Location location = null;
+		if(region!=null) {
+			location = new LocationBuilder().id(region).scope(LocationScope.REGION).
+					description("").metadata(Collections.emptyMap()).
+					iso3166Codes(Collections.emptyList()).
+					build();
+		}
+		boolean created = blobStore.createContainerInLocation(location, bucket);
 		logger.debug("Connected to bucket {} (existing={})", bucket, !created);
 	}
 
