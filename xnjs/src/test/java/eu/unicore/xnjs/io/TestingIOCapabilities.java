@@ -3,6 +3,8 @@ package eu.unicore.xnjs.io;
 import java.io.File;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -41,18 +43,8 @@ public class TestingIOCapabilities implements IOCapabilities {
 		}
 
 		@Override
-		public String getProtocol() {
-			return "test";
-		}
-
-		@Override
-		public String getStageInProtocol() {
-			return getProtocol();
-		}
-
-		@Override
-		public String getStageOutProtocol() {
-			return getProtocol();
+		public Collection<String> getProtocols() {
+			return Arrays.asList("test");
 		}
 
 	}

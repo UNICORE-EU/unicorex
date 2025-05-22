@@ -21,7 +21,7 @@ public class S3InfoProvider extends DefaultStorageInfoProvider {
 		res.put("accessKey", "access key");
 		res.put("secretKey", "secret key");
 		res.put("bucket", "bucket to access (or create)");
-		res.put("validate", "Validate s3 server cert");
+		res.put("validate", "Validate S3 server cert");
 		boolean allowUser = Boolean.parseBoolean(storageDesc.getAdditionalProperties()
 				.get("allowUserDefinedEndpoint"));
 		if(allowUser){

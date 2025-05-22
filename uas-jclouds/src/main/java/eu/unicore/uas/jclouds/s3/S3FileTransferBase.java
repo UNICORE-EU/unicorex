@@ -38,8 +38,6 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 
 	protected static final Logger usageLogger = Log.getLogger(Log.SERVICES+".datatransfer.USAGE", S3FileTransferBase.class);
 
-	protected String url;
-
 	protected OverwritePolicy overwrite = OverwritePolicy.OVERWRITE;
 
 	protected ImportPolicy importPolicy = ImportPolicy.PREFER_COPY;
@@ -95,7 +93,6 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 	protected void onFinishCleanup(){
 		client=null;
 		localStorage=null;
-		url=null;
 		sec=null;
 	}
 	
@@ -168,14 +165,6 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 
 	public Client getClient() {
 		return client;
-	}
-
-	public String getURL() {
-		return url;
-	}
-
-	public void setURL(String url) {
-		this.url = url;
 	}
 
 	@Override
@@ -350,9 +339,9 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 		String what=isExport()?"Sent":"Received";
 		String dn=client!=null?client.getDistinguishedName():"anonymous";
 		logger.debug("{} {} bytes in {} milliseconds, data rate={} kB/s)", what, dataSize, consumedMillis, r);
-		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}] [{}] [{}]"
+		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}] [{}]"
 				    ,dn, what, dataSize, r,
-				    url, info.getSource(), info.getTarget(), info.getProtocol(),
+				    info.getSource(), info.getTarget(), info.getProtocol(),
 				    info.getParentActionID());
 	}
 	

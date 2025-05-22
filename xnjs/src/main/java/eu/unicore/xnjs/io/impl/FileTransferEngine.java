@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
@@ -54,7 +56,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 
 	private final List<IFileTransferCreator>creators;
 
-	private final List<String>protocols;
+	private final Set<String>protocols;
 
 	private final XNJS xnjs;
 
@@ -69,7 +71,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 		this.xnjs = xnjs;
 		this.persistenceProperties = xnjs.getPersistenceProperties();
 		creators = new ArrayList<>();
-		protocols = new ArrayList<>();
+		protocols = new HashSet<>();
 		loadExtensions();
 	}
 
@@ -166,10 +168,9 @@ public class FileTransferEngine implements IFileTransferEngine{
 	public synchronized void registerFileTransferCreator(IFileTransferCreator creator) {
 		if(!creators.contains(creator)){
 			creators.add(creator);
-			String p=creator.getProtocol();
-			if(!protocols.contains(p)){
+			for(String p: creator.getProtocols()){
 				protocols.add(p);
-				logger.debug("Added <{}> for protocol {}", creator, creator.getProtocol());
+				logger.debug("Added <{}> for protocol {}", creator, p);
 			}
 		}
 		Collections.sort(creators, comp);

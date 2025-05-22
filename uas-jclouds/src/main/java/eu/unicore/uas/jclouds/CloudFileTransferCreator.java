@@ -2,6 +2,8 @@ package eu.unicore.uas.jclouds;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -68,18 +70,8 @@ public class CloudFileTransferCreator implements IFileTransferCreator{
 	}
 
 	@Override
-	public String getProtocol() {
-		return "S3";
-	}
-
-	@Override
-	public String getStageOutProtocol() {
-		return getProtocol();
-	}
-
-	@Override
-	public String getStageInProtocol() {
-		return getProtocol();
+	public Collection<String> getProtocols() {
+		return Arrays.asList("S3");
 	}
 
 	/**

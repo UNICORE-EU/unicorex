@@ -218,8 +218,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		Client client=createClient();
 
 		// exports
-		String[]protocols=fc.getStageOutProtocol().split(",");
-		for(String p: protocols){
+		for(String p: fc.getStageOutProtocols()){
 			String protocol=p.trim();
 			URI target=new URI(protocol+"://foo");
 
@@ -233,8 +232,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		}
 
 		// imports
-		protocols=fc.getStageInProtocol().split(",");
-		for(String p: protocols){
+		for(String p: fc.getStageInProtocols()){
 			String protocol=p.trim();
 			URI source=new URI(protocol+"://foo");
 			DataStageInInfo info = new DataStageInInfo();

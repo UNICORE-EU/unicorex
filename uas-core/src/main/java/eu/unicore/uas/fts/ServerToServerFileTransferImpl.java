@@ -215,7 +215,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 			// not a UNICORE storage URL - use the plain protocol
 			protocol = new URI(remote).getScheme();
 		}
-		logger.debug("FTS action = {}", j.toString(2));
+		logger.debug("FTS action = {}", ()->j.toString(2));
 		Action action = getXNJSFacade().getXNJS().makeAction(j, "FTS", model.getUniqueID());
 		if(model.scheduledStartTime>0){
 			action.setNotBefore(model.scheduledStartTime);

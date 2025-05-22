@@ -2,6 +2,7 @@ package eu.unicore.uas.xnjs;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -112,18 +113,8 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	}
 
 	@Override
-	public String getProtocol() {
-		return String.valueOf(FileTransferCapabilities.getProtocols(kernel));
-	}
-
-	@Override
-	public String getStageOutProtocol() {
-		return getProtocol();
-	}
-
-	@Override
-	public String getStageInProtocol() {
-		return getProtocol();
+	public Collection<String> getProtocols() {
+		return FileTransferCapabilities.getProtocols(kernel);
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package eu.unicore.xnjs.io;
 
+import java.util.Collection;
+
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.fts.IFTSController;
 
@@ -50,19 +52,23 @@ public interface IFileTransferCreator {
 	}
 	
 	/**
-	 * returns the protocol
+	 * returns the protocols supported by this creator
 	 */
-	public String getProtocol();
+	public Collection<String> getProtocols();
 
 	/**
-	 * returns the protocol for stage-in
+	 * returns the protocols supported for stage-in
 	 */
-	public String getStageInProtocol();
+	public default Collection<String> getStageInProtocols(){
+		return getProtocols();
+	}
 
 	/**
-	 * returns the protocol for stage-out
+	 * returns the protocols supported for stage-out
 	 */
-	public String getStageOutProtocol();
+	public default Collection<String> getStageOutProtocols(){
+		return getProtocols();
+	}
 	
 	/**
 	 * Used to order different file transfer creator implementations. Higher

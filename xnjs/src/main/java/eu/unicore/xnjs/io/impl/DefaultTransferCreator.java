@@ -1,6 +1,8 @@
 package eu.unicore.xnjs.io.impl;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collection;
 
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.XNJS;
@@ -30,18 +32,18 @@ public class DefaultTransferCreator implements IFileTransferCreator {
 	}
 
 	@Override
-	public String getProtocol() {
-		return "ftp, gsiftp, scp, http, https, file, link, inline, git";
+	public Collection<String> getProtocols() {
+		return Arrays.asList("ftp", "gsiftp", "scp", "http", "https", "file", "link", "inline", "git");
 	}
 	
 	@Override
-	public String getStageInProtocol() {
-		return "ftp, gsiftp, scp, http, https, file, link, inline, git";
+	public Collection<String> getStageInProtocols() {
+		return Arrays.asList("ftp", "gsiftp", "scp", "http", "https", "file", "link", "inline", "git");
 	}
 
 	@Override
-	public String getStageOutProtocol() {
-		return "ftp, gsiftp, scp, http, https, file";
+	public Collection<String> getStageOutProtocols() {
+		return Arrays.asList("ftp", "gsiftp", "scp", "http", "https", "file");
 	}
 
 	@Override
