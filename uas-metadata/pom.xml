@@ -8,7 +8,7 @@
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicorex-parent</artifactId>
-    <version>2.9.0</version>
+    <version>2.9.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
