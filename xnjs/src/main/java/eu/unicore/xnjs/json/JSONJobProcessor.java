@@ -8,7 +8,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import eu.unicore.security.Client;
-import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.processors.JobProcessor;
@@ -161,15 +160,9 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 
 	@Override
 	protected void extractNotBefore() throws ExecutionException {
-		String notBefore = JSONUtils.getString(getJobDescriptionDocument(), "Not before");
+		Date notBefore = JSONParser.parseNotBefore(getJobDescriptionDocument());
 		if(notBefore!=null){
-			try{
-				Date date = UnitParser.extractDateTime(notBefore);
-				action.setNotBefore(date.getTime());
-			}catch(Exception ex) {
-				throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,
-						"Could not parse start time from <"+notBefore+">", ex);
-			}
+			action.setNotBefore(notBefore.getTime());
 		}
 	}
 

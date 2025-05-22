@@ -3,6 +3,7 @@ package eu.unicore.xnjs.json;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import org.json.JSONArray;
@@ -11,6 +12,7 @@ import org.json.JSONObject;
 
 import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.ApplicationInfo.JobType;
 import eu.unicore.xnjs.idb.ApplicationMetadata;
@@ -35,10 +37,11 @@ import eu.unicore.xnjs.resources.ResourceRequest;
 import eu.unicore.xnjs.resources.ResourceSet;
 import eu.unicore.xnjs.resources.StringResource;
 import eu.unicore.xnjs.resources.ValueListResource;
+import eu.unicore.xnjs.util.ErrorCode;
 import eu.unicore.xnjs.util.JSONUtils;
 
 public class JSONParser {
-	
+
 	public static ApplicationInfo parseSubmittedApplication(JSONObject job) throws Exception {
 		ApplicationInfo app = new ApplicationInfo();
 		app.setName(job.optString("ApplicationName",null));
@@ -47,7 +50,7 @@ public class JSONParser {
 		app.setUserPreCommand(JSONUtils.readMultiLine("User precommand", null, job));
 		app.setUserPreCommandOnLoginNode(job.optBoolean("RunUserPrecommandOnLoginNode", true));
 		app.setUserPreCommandIgnoreExitCode(job.optBoolean("UserPrecommandIgnoreNonZeroExitCode", false));
-		
+
 		app.setExecutable(job.optString("Executable",null));
 		app.setArguments(JSONUtils.asStringArray(job.optJSONArray("Arguments")));
 		app.getEnvironment().putAll(JSONUtils.asStringMap(job.optJSONObject("Parameters")));
@@ -58,7 +61,7 @@ public class JSONParser {
 		app.setUserPostCommand(JSONUtils.readMultiLine("User postcommand", null, job));
 		app.setUserPostCommandOnLoginNode(job.optBoolean("RunUserPostcommandOnLoginNode", true));
 		app.setUserPostCommandIgnoreExitCode(job.optBoolean("UserPostcommandIgnoreNonZeroExitCode", false));
-		
+
 		app.setResourceRequest(parseResourceRequest(job.optJSONObject("Resources")));
 
 		switch(parseJobType(job)){
@@ -77,14 +80,14 @@ public class JSONParser {
 				break;
 		}
 		app.setPreferredLoginNode(job.optString("Login node", null));
-		
+
 		app.setStdout(job.optString("Stdout",null));
 		app.setStderr(job.optString("Stderr",null));
 		app.setStdin(job.optString("Stdin",null));
-		
+
 		return app;
 	}
-	
+
 	public static String parseUmask(JSONObject job) {
 		return JSONUtils.getStringAlt(job, "Umask", "umask");
 	}
@@ -111,7 +114,7 @@ public class JSONParser {
 			}
 		}
 	}
-	
+
 	public static DataStageInInfo parseStageIn(String to, JSONObject spec) throws Exception {
 		DataStageInInfo dsi = new DataStageInInfo();
 		if(to==null) {
@@ -146,7 +149,7 @@ public class JSONParser {
 		extractDataStagingOptions(spec, dso);
 		return dso;
 	}
-	
+
 	public static void extractDataStagingOptions(JSONObject spec, DataStagingInfo dsi) throws Exception {
 		String creation = JSONUtils.getOrDefault(spec, "Mode", "overwrite");
 		if("append".equalsIgnoreCase(creation)){
@@ -201,24 +204,24 @@ public class JSONParser {
 		info.setName(source.getString("Name"));
 		info.setVersion(source.getString("Version"));
 		info.setDescription(source.optString("Description", null));
-		
+
 		info.setPreCommand(JSONUtils.readMultiLine("PreCommand", null, source));
 		info.setPrologue(JSONUtils.readMultiLine("Prologue", null, source));
 		info.setExecutable(source.getString("Executable"));
 		info.setArguments(JSONUtils.asStringArray(source.optJSONArray("Arguments")));
 		info.getEnvironment().putAll(JSONUtils.asStringMap(source.optJSONObject("Environment")));
 		info.setEpilogue(JSONUtils.readMultiLine("Epilogue", null, source));
-		
+
 		info.setRunOnLoginNode(source.optBoolean("RunOnLoginNode", false));
 		info.setIgnoreNonZeroExitCode(source.optBoolean("IgnoreNonZeroExitCode", false));
 		info.setPostCommand(JSONUtils.readMultiLine("PostCommand", null, source));
 
 		info.setResourceRequest(parseResourceRequest(source.optJSONObject("Resources")));
 		info.setMetadata(parseApplicationMetadata(source.optJSONObject("Parameters")));
-		
+
 		return info;
 	}
-	
+
 	public static ApplicationMetadata parseApplicationMetadata(JSONObject source) throws Exception {
 		ApplicationMetadata meta = new ApplicationMetadata();
 		if(source!=null) {
@@ -261,7 +264,7 @@ public class JSONParser {
 		}
 		return value;
 	}
-	
+
 	public static OptionDescription parseOptionDescription(String name, JSONObject source) throws JSONException {
 		OptionDescription option = new OptionDescription();
 		option.setName(name);
@@ -273,11 +276,11 @@ public class JSONParser {
 		}
 		return option;
 	}
-	
+
 	public static Partition parsePartition(JSONObject source) throws JSONException {
 		return parsePartition(source.getString("Name"), source);
 	}
-	
+
 	public static Partition parsePartition(String name, JSONObject source) throws JSONException {
 		Partition p = new Partition();
 		p.setName(name);
@@ -307,27 +310,25 @@ public class JSONParser {
 		return createResource(name, doc);
 	}
 
-	
 	public static Resource createResource(String name, JSONObject doc)
 			throws JSONException {
 		Resource resource;
 		if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
-		
+
 		String description = doc.optString("Description", null);
 		String valueSpec = doc.optString("Range", "0-1");
 		String min = null, max = null;
 		String defaultValue = doc.optString("Default", null);
-		
-		
+
 		String type = doc.optString("Type", "INT").toUpperCase();
 		UnitParser up = getUnitParser(name);
-		
+
 		if("INT".equals(type)|| "DOUBLE".equals(type)){
 			String[] rangeTokens = valueSpec.split("-");
 			min = rangeTokens[0];
 			max = rangeTokens[1];
 		}
-		
+
 		if("INT".equals(type)){
 			Long value = defaultValue!=null ? Long.valueOf(defaultValue):null;
 			Long minI=min!=null ? up.getLongValue(min):null;
@@ -359,35 +360,35 @@ public class JSONParser {
 		else {
 			throw new JSONException("Unknown type of Resource " + name + ": " + type);
 		}
-		
+
 		if (description != null)
 			resource.setDescription(description);
 		return resource;
 	}
-	
+
 	public static Resource createIntResource(String name, String valueSpec)
 			throws JSONException {
 		if("Memory".equals(name))name=ResourceSet.MEMORY_PER_NODE;
-		
+
 		String min = null, max = null;
-		
+
 		String[] tokens = valueSpec.split(":");
 		String defaultValue = tokens.length>1? tokens[1] : null;
 		valueSpec = tokens[0];
-		
+
 		String[] rangeTokens = valueSpec.split("-");
 		min = rangeTokens[0];
 		max = rangeTokens[1];
-		
+
 		UnitParser up = getUnitParser(name);
-		
+
 		Long minI=min!=null ? up.getLongValue(min) :null;
 		Long maxI=max!=null ? up.getLongValue(max):null;
 		Long valI=defaultValue!=null ? up.getLongValue(defaultValue):null;
-		
+
 		return new IntResource(name, valI,maxI,minI, ResourceSet.getCategory(name));
 	}
-	
+
 	public static UnitParser getUnitParser(String resourceName) {
 		if(ResourceSet.RUN_TIME.equalsIgnoreCase(resourceName)) {
 			return UnitParser.getTimeParser(0);
@@ -396,7 +397,20 @@ public class JSONParser {
 			return UnitParser.getCapacitiesParser(0);
 		}
 	}
-	
+
+	public static Date parseNotBefore(JSONObject job) throws ExecutionException {
+		String notBefore = JSONUtils.getString(job, "Not before");
+		if(notBefore!=null){
+			try {
+				return UnitParser.extractDateTime(notBefore);
+			}catch(Exception ex) {
+				throw new ExecutionException(ErrorCode.ERR_JOB_DESCRIPTION,
+						"Could not parse start time from <"+notBefore+">", ex);
+			}
+		}
+		return null;
+	}
+
 	public static List<String>parseNotificationURLs(JSONObject job){
 		List<String> res = new ArrayList<>();
 		JSONObject spec = job.optJSONObject("NotificationSettings");
@@ -425,7 +439,7 @@ public class JSONParser {
 		}
 		return res;
 	}
-	
+
 	public static List<String>parseNotificationBSSTriggers(JSONObject job){
 		List<String> res = new ArrayList<>();
 		JSONObject spec = job.optJSONObject("NotificationSettings");

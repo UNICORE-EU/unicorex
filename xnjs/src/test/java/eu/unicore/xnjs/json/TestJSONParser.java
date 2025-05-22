@@ -387,6 +387,14 @@ public class TestJSONParser {
 	}
 
 	@Test
+	public void testParseNotBefore() throws Exception {
+		JSONObject job = new JSONObject();
+		assertNull(JSONParser.parseNotBefore(job));
+		job.put("Not before", "12:00");
+		assertNotNull(JSONParser.parseNotBefore(job));
+	}
+
+	@Test
 	public void testParseNotificationURL() throws Exception {
 		JSONObject job = new JSONObject();
 		assertTrue(JSONParser.parseNotificationURLs(job).isEmpty());
