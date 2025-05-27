@@ -21,7 +21,7 @@ public class StorageFactoryClient extends BaseServiceClient {
 	public StorageFactoryClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
-	
+
 	public StorageClient createStorage() throws Exception {
 		return createStorage(null,null,null,null);
 	}

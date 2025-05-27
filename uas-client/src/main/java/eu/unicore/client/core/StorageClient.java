@@ -220,12 +220,17 @@ public class StorageClient extends BaseServiceClient {
 	 * 
 	 * @param sourceURL - the URL of the remote file to fetch
 	 * @param fileName  - the local file name
+	 * @param extraParameters - additional parameters (can be null)
 	 * @param protocol  - protocol to use, can be null if default BFT is used or protocol is encoded into source URL
 	 */
-	public TransferControllerClient fetchFile(String sourceURL, String fileName, String protocol) throws Exception {
+	public TransferControllerClient fetchFile(String sourceURL, String fileName,
+			Map<String,String>extraParameters, String protocol) throws Exception {
 		JSONObject json = new JSONObject();
 		json.put("source", sourceURL);
 		json.put("file", fileName);
+		if(extraParameters!=null && extraParameters.size()>0) {
+			json.put("extraParameters", JSONUtil.asJSON(extraParameters));
+		}
 		if(protocol!=null)json.put("protocol",protocol);
 		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
 		String url = c.create(json);
@@ -237,12 +242,17 @@ public class StorageClient extends BaseServiceClient {
 	 * 
 	 * @param fileName  - local file to send
 	 * @param targetURL - the remote file URL
+	 * @param extraParameters - additional parameters (can be null)
 	 * @param protocol  - protocol, can be null if default BFT is used or protocol is encoded into the target URL
 	 */
-	public TransferControllerClient sendFile(String fileName, String targetURL, String protocol) throws Exception {
+	public TransferControllerClient sendFile(String fileName, String targetURL,
+			Map<String,String>extraParameters, String protocol) throws Exception {
 		JSONObject json = new JSONObject();
 		json.put("file", fileName);
 		json.put("target", targetURL);
+		if(extraParameters!=null && extraParameters.size()>0) {
+			json.put("extraParameters", JSONUtil.asJSON(extraParameters));
+		}
 		if(protocol!=null)json.put("protocol",protocol);
 		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
 		String url = c.create(json);
