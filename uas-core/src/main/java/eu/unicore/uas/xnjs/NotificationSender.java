@@ -6,7 +6,9 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 
+import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.USEClientProperties;
 import eu.unicore.services.rest.jwt.JWTDelegation;
 import eu.unicore.services.rest.jwt.JWTServerProperties;
 import eu.unicore.services.restclient.BaseClient;
@@ -46,7 +48,9 @@ public class NotificationSender implements INotificationSender {
 
 	public static void doSend(final Kernel kernel, final String url, final JSONObject message, final String userDN)
 			throws Exception {
-		final IClientConfiguration security = kernel.getClientConfiguration();
+		final USEClientProperties  security = kernel.getClientConfiguration();
+		// we don't need to trust the notification target
+		security.setValidator(new BinaryCertChainValidator(true));
 		final IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(),
 				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), userDN);
 		String res = new TimeoutRunner<>( ()->{
