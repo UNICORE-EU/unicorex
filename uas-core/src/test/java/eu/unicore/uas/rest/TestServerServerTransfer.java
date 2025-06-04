@@ -130,7 +130,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void fetchSingleFile(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c = target.fetchFile(sourceURL+"/files/test.txt", "/test.txt", protocol);
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/test.txt", "/test.txt", null, protocol);
 		assertTrue(c!=null);
 		int cnt=0;
 		while(!c.isComplete()&& !c.hasFailed()){
@@ -144,7 +144,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void fetchFolder(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder1", "/folder1", protocol);
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder1", "/folder1", null, protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -159,7 +159,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void fetchWildcard(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder1/test1*", "/folder1", protocol);
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder1/test1*", "/folder1", null, protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -178,7 +178,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void fetchWildcard2(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder*/test*", "/target", protocol);
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/folder*/test*", "/target", null, protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -197,7 +197,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected TransferControllerClient sendSingleFile(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c = source.sendFile("/test.txt", targetURL+"/files/testfile2", protocol);
+		TransferControllerClient c = source.sendFile("/test.txt", targetURL+"/files/testfile2", null, protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -212,7 +212,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void sendFolder(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c = source.sendFile("folder1", targetURL+"/files/folder1", protocol);
+		TransferControllerClient c = source.sendFile("folder1", targetURL+"/files/folder1", null, protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -227,7 +227,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void sendWildcard(String protocol)throws Exception{
 		reInitTarget();
-		TransferControllerClient c = source.sendFile("folder1/test1*", targetURL+"/files/folder1", protocol);
+		TransferControllerClient c = source.sendFile("folder1/test1*", targetURL+"/files/folder1", null, protocol);
 		assertTrue(c!=null);
 
 		int cnt=0;
@@ -254,7 +254,7 @@ public class TestServerServerTransfer extends Base {
 		source.download("test%20file").readAllData(bos);
 		assertTrue(testdata.equals(bos.toString()));
 
-		TransferControllerClient c1 = source.sendFile("/test file", targetURL+"/files/test%20file", "BFT");
+		TransferControllerClient c1 = source.sendFile("/test file", targetURL+"/files/test%20file", null, "BFT");
 		int cnt=0;
 		do{
 			if(cnt>0)System.out.println("Not complete...");
@@ -269,7 +269,7 @@ public class TestServerServerTransfer extends Base {
 		assertTrue(testdata.equals(bos.toString()));
 
 		//same story with receiveFile
-		c1 = source.fetchFile(targetURL+"/files/test%20file","/another test file", "BFT");
+		c1 = source.fetchFile(targetURL+"/files/test%20file","/another test file", null, "BFT");
 		assertTrue(c1!=null);
 		cnt=0;
 		do{
@@ -297,7 +297,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void fetchSingleFileWhichDoesNotExist() throws Exception{
 		reInitTarget();
-		TransferControllerClient c = target.fetchFile(sourceURL+"/files/noSuchFile", "/in", "BFT");
+		TransferControllerClient c = target.fetchFile(sourceURL+"/files/noSuchFile", "/in", null, "BFT");
 		int cnt=0;
 		while(!c.isComplete()&& !c.hasFailed()){
 			if(cnt>0)System.out.print(".");

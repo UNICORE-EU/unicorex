@@ -188,7 +188,7 @@ public class TestStorages extends Base {
 		StorageClient sms = createStorage();
 		String sourceURL = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storages/WORK/files/test.txt";
-		TransferControllerClient tcc = sms.fetchFile(sourceURL, "test.txt", "BFT");
+		TransferControllerClient tcc = sms.fetchFile(sourceURL, "test.txt", null, "BFT");
 		int c = 0;
 		while(!tcc.isComplete() && c<2000){
 			Thread.sleep(1000);

@@ -81,7 +81,7 @@ public class TestUFTPServerServerTransfer {
 	@Test
 	public void testSend() throws Exception {
 		TransferControllerClient tcc = sms1.sendFile("test", 
-				sms2.getEndpoint().getUrl()+"/files/test-sent", "UFTP");
+				sms2.getEndpoint().getUrl()+"/files/test-sent", null, "UFTP");
 		int c=0;
 		while(!tcc.isComplete() && c<30) {
 			Thread.sleep(3000);
@@ -95,7 +95,7 @@ public class TestUFTPServerServerTransfer {
 	@Test
 	public void testReceive() throws Exception {
 		TransferControllerClient tcc = sms2.fetchFile(sms1.getEndpoint().getUrl()+"/files/test",
-				"test-received", "UFTP");
+				"test-received", null, "UFTP");
 		int c=0;
 		while(!tcc.isComplete() && c<30) {
 			Thread.sleep(3000);
