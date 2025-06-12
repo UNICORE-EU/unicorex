@@ -15,7 +15,6 @@ import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.utils.TimeoutRunner;
 import eu.unicore.util.Log;
-import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.event.INotificationSender;
 import jakarta.inject.Inject;
@@ -25,12 +24,12 @@ import jakarta.inject.Singleton;
 public class NotificationSender implements INotificationSender {
 
 	private final Kernel kernel;
-	
+
 	@Inject
 	public NotificationSender(Kernel kernel) {
 		this.kernel = kernel;
 	}
-	
+
 	@Override
 	public void send(JSONObject msg, Action action) {
 		if(action==null || action.getNotificationURLs()==null || action.getNotificationURLs().isEmpty())return;
@@ -60,5 +59,5 @@ public class NotificationSender implements INotificationSender {
 				kernel.getContainerProperties().getThreadingServices(), 30, TimeUnit.SECONDS).call();
 		if(res==null)throw new TimeoutException();
 	}
-	
+
 }

@@ -94,10 +94,12 @@ public interface TSIConnectionFactory {
 	
 	
 	/**
-	 * connect to a service via a TSI node (= port forwarding)
+	 * connect to a service listening on the given address
+	 * via a TSI node (= port forwarding). The address can be
+	 * of the form "host:port" for a normal TCP socket,
+	 * or "file:socketfile" for a UNIX domain socket
 	 * 
-	 * @param serviceHost - the host where the service is running, if null, localhost is used
-	 * @param servicePort - the port where the service is listening
+	 * @param address - service to connect to
 	 * @param tsiHost - the TSI node to use (can be null, if that makes sense)
 	 * @param user
 	 * @param group
@@ -105,7 +107,7 @@ public interface TSIConnectionFactory {
 	 * @throws TSIUnavailableException
 	 * @throws IOException
 	 */
-	public SocketChannel connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
+	public SocketChannel connectToService(String address, String tsiHost, String user, String group)
 			throws TSIUnavailableException, IOException;
 
 }

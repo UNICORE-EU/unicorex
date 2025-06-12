@@ -93,14 +93,15 @@ public interface TSI extends IStorageAdapter{
 	public String[]getGroups() throws TSIBusyException, ExecutionException;
 
 	/**
-	 * have the TSI make a connection to the service listening on the given host and port
+	 * have the TSI make a connection to the service listening on the given address
+	 * the address can be of the form "host:port" for a normal TCP socket,
+	 * or "file:socketfile" for a UNIX domain socket
 	 * 
-	 * @param host - hostname, or null if on the local TSI node
-	 * @param serverPort
+	 * @param address - service to connect to
 	 * @return a connected SocketChannel
 	 * @throws TSIBusyException
 	 * @throws IOException
 	 */
-	public SocketChannel openConnection(String host, int serverPort) throws Exception;
-	
+	public SocketChannel openConnection(String address) throws Exception;
+
 }

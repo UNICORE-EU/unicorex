@@ -161,15 +161,14 @@ public class TSIConnector {
 		return newConn;
 	}
 
-	public SocketChannel connectToService(TSISocketFactory server, String host, int port, String user, String group)throws IOException{
+	public SocketChannel connectToService(TSISocketFactory server, String serviceAddress, String user, String group)throws IOException{
 		if(!isOK()){
 			throw new IOException(statusMessage);
 		}
 		try{
-			if(host==null)host="localhost";
-			log.debug("Contacting TSI at {}:{}", address, port);
-			SocketChannel s = doConnectToService(server, host, port, user, group);
-			log.info("Started port forwarding to {}:{}", host, port);
+			log.debug("Contacting TSI at {}", address);
+			SocketChannel s = doConnectToService(server, serviceAddress, user, group);
+			log.info("Started port forwarding to {}", serviceAddress);
 			OK();
 			return s;
 		}
@@ -180,7 +179,7 @@ public class TSIConnector {
 		}
 	}
 
-	private SocketChannel doConnectToService(TSISocketFactory server, String host, int port, String user, String group)
+	private SocketChannel doConnectToService(TSISocketFactory server, String serviceAddress, String user, String group)
 			throws IOException {
 		InetAddress actualTSIAddress=null;
 		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
@@ -189,7 +188,7 @@ public class TSIConnector {
 		SocketChannel result = null;
 		synchronized(server) {
 			server.setSoTimeout(connectTimeout);
-			String msg = String.format("start-forwarding %s %s:%s %s %s\n", replyport, host, port, user, group);
+			String msg = String.format("start-forwarding %s %s %s %s\n", replyport, serviceAddress, user, group);
 			actualTSIAddress = signalShepherd(server, msg);
 			base = server.accept(false).getChannel();
 			if(server.useSSL()) {

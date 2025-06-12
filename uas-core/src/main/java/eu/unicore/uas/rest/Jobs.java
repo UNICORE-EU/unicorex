@@ -219,6 +219,7 @@ public class Jobs extends ServicesBase {
 			@HeaderParam(value="Upgrade") String upgrade,
 			@QueryParam(value="host") String host,
 			@QueryParam(value="port") String portS,
+			@QueryParam(value="file") String fileName,
 			@QueryParam(value="loginNode") String loginNode)
 	{
 		if(ForwardingHelper.REQ_UPGRADE_HEADER_VALUE.equalsIgnoreCase(upgrade)) {
@@ -228,11 +229,21 @@ public class Jobs extends ServicesBase {
 				if(bssID==null){
 					throw new Exception("Job BSSID is null - application is not (yet?) running.");
 				}
-				if(portS==null) {
-					// TODO we might already have the host/port via the job
-					throw new Exception("Port cannot be null");
+				if(portS==null && fileName==null) {
+					// TODO we might already addressvia the job
+					throw new Exception("Need address to connect to");
 				}
-				return doStartForwarding(host, portS, loginNode);
+				String address = null;
+				if(fileName!=null) {
+					String wd = action.getExecutionContext().getWorkingDirectory();
+					address = "file:"+wd+fileName;
+				}
+				else {
+					if(host==null)host="localhost";
+					int port = Integer.valueOf(portS);
+					address = host+":"+port;
+				}
+				return doStartForwarding(address, loginNode);
 			}catch(Exception ex){
 				return handleError("Could not connect to backend service", ex, logger);
 			}
@@ -249,11 +260,9 @@ public class Jobs extends ServicesBase {
 		}
 	}
 
-	protected Response doStartForwarding(String host, String portS, String loginNode) {
+	protected Response doStartForwarding(String address, String loginNode) {
 		try{
-			if(host==null)host="localhost";
-			int port = Integer.valueOf(portS);
-			SocketChannel backend = getBackend(host, port, loginNode);
+			SocketChannel backend = getBackend(address, loginNode);
 			ResponseBuilderImpl res = new ResponseBuilderImpl();
 			res.status(HttpStatus.SWITCHING_PROTOCOLS_101);
 			res.header("Upgrade", "UNICORE-Socket-Forwarding");
@@ -264,13 +273,13 @@ public class Jobs extends ServicesBase {
 		}
 	}
 
-	protected SocketChannel getBackend(String host, int port, String loginNode) throws Exception {
+	protected SocketChannel getBackend(String address, String loginNode) throws Exception {
 		XNJS xnjs = getResource().getXNJSFacade().getXNJS();
 		Action action = getResource().getXNJSAction();
 		String tsiNode = loginNode!=null ?
 				loginNode : action.getExecutionContext().getPreferredExecutionHost();
 		TSI tsi = xnjs.getTargetSystemInterface(AuthZAttributeStore.getClient(), tsiNode);
-		return tsi.openConnection(host, port);
+		return tsi.openConnection(address);
 	}
 
 	@Override

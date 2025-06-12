@@ -1061,7 +1061,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	}
 	
 	@Override
-	public SocketChannel openConnection(String host, int port) throws Exception {
-		return factory.connectToService(host, port, preferredHost, user, group);
+	public SocketChannel openConnection(String address) throws Exception {
+		return factory.connectToService(address, preferredHost, user, group);
 	}
 }

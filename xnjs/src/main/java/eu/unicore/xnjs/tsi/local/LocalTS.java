@@ -617,8 +617,19 @@ public class LocalTS implements TSI {
 	}
 
 	@Override
-	public SocketChannel openConnection(String host, int port) throws Exception {
-		if(host==null)host="localhost";
+	public SocketChannel openConnection(String address) throws Exception {
+		if(address.startsWith("file:"))throw new Exception("Domain sockets not supported");
+		String[] t = address.split(":");
+		String host;
+		int port;
+		if(t.length<2) {
+			host="localhost";
+			port = Integer.parseInt(t[0]);
+		}
+		else {
+			host = t[0];
+			port = Integer.parseInt(t[1]);
+		}
 		return SocketChannel.open(new InetSocketAddress(host, port));
 	}
 	

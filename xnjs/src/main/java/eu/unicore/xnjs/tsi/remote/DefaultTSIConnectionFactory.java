@@ -326,13 +326,13 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public SocketChannel connectToService(String serviceHost, int servicePort, String tsiHost, String user, String group)
+	public SocketChannel connectToService(String serviceAddress, String tsiHost, String user, String group)
 			throws TSIUnavailableException, IOException{
 		if(tsiHost!=null) {
-			return getConnector(tsiHost).connectToService(server, serviceHost, servicePort, user, group);
+			return getConnector(tsiHost).connectToService(server, serviceAddress, user, group);
 		}else {
 			for(TSIConnector connector: connectors.values()) {
-				return connector.connectToService(server, serviceHost, servicePort, user, group);
+				return connector.connectToService(server, serviceAddress, user, group);
 			}
 			// no connectors
 			throw new TSIUnavailableException();
