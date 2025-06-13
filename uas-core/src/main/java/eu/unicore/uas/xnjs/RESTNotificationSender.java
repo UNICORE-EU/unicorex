@@ -54,6 +54,8 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 		ActionResult result = action.getResult();
 		message.put("status", Jobs.convertStatus(action.getStatus(),result.isSuccessful()));
 		message.put("statusMessage", "");
+		String bssID = action.getBSID();
+		message.put("batchSystemID", bssID!=null ? bssID : "N/A");
 		Integer exitCode = action.getExecutionContext().getExitCode();
 		if(exitCode!=null){
 			message.put("exitCode", String.valueOf(exitCode.longValue()));
