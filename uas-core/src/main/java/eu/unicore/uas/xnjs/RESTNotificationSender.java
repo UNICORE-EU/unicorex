@@ -27,7 +27,7 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 		this.xnjs = xnjs;
 	}
 	
-	protected boolean isTrigger(int actionState, int[]triggers) {
+	private boolean isTrigger(int actionState, int[]triggers) {
 		for(int i: triggers) {
 			if(i==actionState)return true;
 		}
