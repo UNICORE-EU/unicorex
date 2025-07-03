@@ -439,7 +439,7 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	@Override
-	public void scheduleEvent(final XnjsEvent event, int time, TimeUnit units) throws RejectedExecutionException{
+	public void scheduleEvent(final XnjsEvent event, long time, TimeUnit units) throws RejectedExecutionException{
 		Runnable r=new Runnable(){
 			public void run(){
 				try{

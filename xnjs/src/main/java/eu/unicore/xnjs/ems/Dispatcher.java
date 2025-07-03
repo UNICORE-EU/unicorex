@@ -20,9 +20,9 @@ public class Dispatcher extends Thread {
 
 	private final IActionStore jobs;
 
-	private JobRunner[] workers;
+	private ActionRunner[] workers;
 
-	private BlockingQueue<JobRunner> availableRunners;
+	private BlockingQueue<ActionRunner> availableRunners;
 
 	protected final BlockingQueue<QueueEntry> workQueue;
 
@@ -56,10 +56,10 @@ public class Dispatcher extends Thread {
 
 	private void setup() {
 		int nWorkers=xnjs.getXNJSProperties().getIntValue(XNJSProperties.XNJSWORKERS);
-		workers=new JobRunner[nWorkers];
+		workers=new ActionRunner[nWorkers];
 		availableRunners = new ArrayBlockingQueue<>(nWorkers);
 		for(int i=0;i<workers.length;i++){
-			workers[i] = new JobRunner(xnjs, this);
+			workers[i] = new ActionRunner(xnjs, this);
 			workers[i].start();
 			notifyAvailable(workers[i]);
 		}
@@ -67,7 +67,7 @@ public class Dispatcher extends Thread {
 		refillQueue();
 	}
 
-	public void notifyAvailable(JobRunner runner){
+	public void notifyAvailable(ActionRunner runner){
 		availableRunners.offer(runner);
 	}
 
@@ -87,7 +87,7 @@ public class Dispatcher extends Thread {
 		}
 		try{
 			while(!isInterrupted){
-				JobRunner r = availableRunners.take();
+				ActionRunner r = availableRunners.take();
 				QueueEntry q = workQueue.take();
 				while(q.getDelay(TimeUnit.MILLISECONDS)>0)Thread.sleep(50);
 				r.process(q.getActionID());

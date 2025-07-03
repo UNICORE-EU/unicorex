@@ -18,14 +18,14 @@ import eu.unicore.xnjs.persistence.IActionStore;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
- * The main worker class that takes jobs from a queue 
+ * The main worker class that takes active actions from a queue 
  * and initiates processing, depending on the action type<br/>
  * 
  * @author schuller
  */
-public class JobRunner extends Thread {
+public class ActionRunner extends Thread {
 
-	private static final Logger logger=LogUtil.getLogger(LogUtil.XNJS,JobRunner.class); 
+	private static final Logger logger=LogUtil.getLogger(LogUtil.XNJS,ActionRunner.class); 
 
 	private final XNJS xnjs;
 
@@ -34,16 +34,16 @@ public class JobRunner extends Thread {
 	private final ActionStateChangeListener changeListener;
 
 	private final BlockingQueue<String> transfer = new ArrayBlockingQueue<>(1);
-	
+
 	private final IActionStore jobs;
-	
+
 	private final Dispatcher dispatcher;
 
 	volatile boolean isInterrupted=false;
-	
-	private static AtomicInteger count = new AtomicInteger(0);
 
-	public JobRunner(XNJS xnjs, Dispatcher dispatcher) {
+	private static final AtomicInteger count = new AtomicInteger(0);
+
+	public ActionRunner(XNJS xnjs, Dispatcher dispatcher) {
 		super();
 		this.xnjs = xnjs;
 		this.dispatcher = dispatcher;
@@ -69,7 +69,7 @@ public class JobRunner extends Thread {
 	
 	/**
 	 *  runs actions<br>
-	 *  On every iteration, the Jobrunner will
+	 *  On every iteration,
 	 *  <ul>
 	 *  <li> get an action from the Manager</li>
 	 *  <li> get a processing chain for it</li>
@@ -92,7 +92,7 @@ public class JobRunner extends Thread {
 						logger.warn("Can't get action for processing",eex);
 					}
 					if(a!=null){
-						if(check(a)){
+						if(isEligible(a)){
 							process(a);
 						}
 						else{
@@ -108,15 +108,15 @@ public class JobRunner extends Thread {
 		}
 	}
 
-	private boolean check(Action a){
-		return a.getNotBefore()-System.currentTimeMillis()<0;
+	private boolean isEligible(Action a){
+		return a.getNotBefore()<System.currentTimeMillis();
 	}
 
 	private void sendToSleep(Action a){
 		a.setWaiting(true);
-		long delay=a.getNotBefore()-System.currentTimeMillis();
-		if(delay<=0)delay=5000;
-		mgr.scheduleEvent(new ContinueProcessingEvent(a.getUUID()), (int)delay, TimeUnit.MILLISECONDS);
+		long delay = a.getNotBefore()-System.currentTimeMillis();
+		if(delay<=0)delay = 5000;
+		mgr.scheduleEvent(new ContinueProcessingEvent(a.getUUID()), delay, TimeUnit.MILLISECONDS);
 		mgr.doneProcessing(a);
 	}
 

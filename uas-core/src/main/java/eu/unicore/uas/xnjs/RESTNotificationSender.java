@@ -19,25 +19,25 @@ import jakarta.inject.Singleton;
 public class RESTNotificationSender implements ActionStateChangeListener {
 
 	final int[] defaultTriggers = new int[] {ActionStatus.RUNNING, ActionStatus.DONE};
-	
+
 	private final XNJS xnjs;
-	
+
 	@Inject
 	public RESTNotificationSender(XNJS xnjs) {
 		this.xnjs = xnjs;
 	}
-	
+
 	private boolean isTrigger(int actionState, int[]triggers) {
 		for(int i: triggers) {
 			if(i==actionState)return true;
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void stateChanged(Action action) {
 		if(action==null || action.getNotificationURLs()==null || action.getNotificationURLs().isEmpty())return;
-		
+
 		int status = action.getStatus();
 		boolean success = action.getResult().isSuccessful();
 		int[] triggers = defaultTriggers;
@@ -49,7 +49,7 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 			}
 		}
 		if(!isTrigger(status, triggers))return;
-		
+
 		JSONObject message = new JSONObject();
 		ActionResult result = action.getResult();
 		message.put("status", Jobs.convertStatus(action.getStatus(),result.isSuccessful()));
@@ -72,7 +72,6 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 			action.addLogTrace(Log.createFaultMessage("Could not send notification.", ex));
 		}
 	}
-	
 
 	private int notifyFor(String userDefinedTrigger, boolean success){
 		switch (userDefinedTrigger){

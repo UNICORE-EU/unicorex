@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 
+import eu.unicore.xnjs.ConfigurationSource.ProcessorChain;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.DummyProcessor;
@@ -32,28 +32,21 @@ public class TestComponentManagement extends XNJSTestBase {
 		TSI tsi2 = xnjs.getTargetSystemInterface(null);
 		assertNotSame(tsi1,tsi2);
 	}
-	
+
 	@Test
-	public void testProcessorChainInit(){
-		try{
-			xnjs.getProcessorChain("foo");
-		}catch(Exception e){
-			fail();
-		}
+	public void testAddProcessing() throws Exception {
+		xnjs.setProcessingChain("foo", "urn:test", DummyProcessor.class.getName());
+		assertTrue(xnjs.haveProcessingFor("foo"));
+		assertTrue(xnjs.getProcessorChain("foo").getProcessorClasses().
+				get(0).equals(DummyProcessor.class.getName()));
+		ProcessorChain pc = xnjs.getProcessorChain("foo");
+		pc.insertProcessor(DummyProcessor2.class.getName(), 0);
+		assertEquals(2, pc.getProcessorClasses().size());
+		pc.insertProcessor(DummyProcessor3.class.getName(), DummyProcessor.class.getName(), DummyProcessor2.class.getName());
+		assertEquals(3, pc.getProcessorClasses().size());
+		assertEquals(DummyProcessor3.class.getName(), pc.getProcessorClasses().get(1));
 	}
-	
-	@Test
-	public void testAddProcessing(){
-		String[]proc=new String[]{DummyProcessor.class.getName()};
-		try{
-			xnjs.setProcessingChain("foo", "urn:test", proc);
-			assertTrue(xnjs.haveProcessingFor("foo"));
-			assertTrue(xnjs.getProcessorChain("foo").get(0).equals(DummyProcessor.class.getName()));
-		}catch(Exception e){
-			fail();
-		}
-	}
-	
+
 	@Test
 	public void testPrintInfo(){
 		Action a=new Action();
@@ -68,7 +61,7 @@ public class TestComponentManagement extends XNJSTestBase {
 		assertTrue(s.contains("some error message"));
 		System.out.println(s);
 	}
-	
+
 	@Test
 	public void testActionInit(){
 		Action a=new Action();
@@ -76,7 +69,7 @@ public class TestComponentManagement extends XNJSTestBase {
 		assertNotNull(a.getLog());
 		assertEquals(a.getStatus(), ActionStatus.CREATED);
 	}
-	
+
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testProcessingContext(){
@@ -92,7 +85,7 @@ public class TestComponentManagement extends XNJSTestBase {
 		List<String>l3=pc.getAs("foo",List.class);
 		assertNotNull(l3);
 	}
-	
+
 	@Test
 	public void testMetricsRegistry() throws Exception {
 		MetricRegistry m = new MetricRegistry();
@@ -101,5 +94,17 @@ public class TestComponentManagement extends XNJSTestBase {
 		ConsoleReporter r = ConsoleReporter.forRegistry(m).build();
 		r.report();
 	}
-	
+
+	public static class DummyProcessor2 extends DummyProcessor {
+		public DummyProcessor2(XNJS xnjs){
+			super(xnjs);
+		}
+	}
+
+	public static class DummyProcessor3 extends DummyProcessor {
+		public DummyProcessor3(XNJS xnjs){
+			super(xnjs);
+		}
+	}
+
 }

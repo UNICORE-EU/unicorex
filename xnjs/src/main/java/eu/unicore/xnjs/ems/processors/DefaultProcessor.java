@@ -74,14 +74,9 @@ public class DefaultProcessor extends Processor {
 	 * @param amount
 	 * @param units
 	 */
-	protected void sleep(int amount, TimeUnit units){
+	protected void sleep(long amount, TimeUnit units){
 		action.setWaiting(true);
 		manager.scheduleEvent(new ContinueProcessingEvent(action.getUUID()), amount, units);
-	}
-
-	@Deprecated
-	protected void sleep(int millis){
-		sleep(millis, TimeUnit.MILLISECONDS);
 	}
 
 	/**

@@ -78,5 +78,5 @@ public interface InternalManager extends EventHandler {
 	 * @param delay - delay 
 	 * @param unit - delay units
 	 */
-	public void scheduleEvent(final XnjsEvent event, int delay, TimeUnit unit);
+	public void scheduleEvent(final XnjsEvent event, long delay, TimeUnit unit);
 }

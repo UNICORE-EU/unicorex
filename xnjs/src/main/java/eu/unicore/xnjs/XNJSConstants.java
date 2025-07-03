@@ -12,7 +12,7 @@ public interface XNJSConstants {
 	public static final String jobStageInActionType = "JOB_STAGEIN";
 	public static final String jobStageOutActionType = "JOB_STAGEOUT";
 	public static final String asyncCommandType = "ASYNC_COMMAND";
-	
+
 	// predefined metric names
 	public static final String MEAN_TIME_QUEUED = "MeanTimeQueued";
 

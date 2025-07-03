@@ -181,35 +181,33 @@ public class XNJS implements UpdateableConfiguration {
 	protected void assureDefaultProcessingAvailable(){
 
 		if(!haveProcessingFor(XNJSConstants.jobActionType)){
-			setProcessingChain(XNJSConstants.jobActionType, "JSON", 
-					new String[]{JSONJobProcessor.class.getName(),UsageLogger.class.getName(),
-			});
+			setProcessingChain(XNJSConstants.jobActionType, "JSON",
+					JSONJobProcessor.class.getName(),UsageLogger.class.getName());
 		}
 		if(!haveProcessingFor(XNJSConstants.jobStageInActionType)){
-			setProcessingChain(XNJSConstants.jobStageInActionType, null, 
-					new String[]{DataStagingProcessor.class.getName()});
+			setProcessingChain(XNJSConstants.jobStageInActionType, null,
+					DataStagingProcessor.class.getName());
 		}
 		if(!haveProcessingFor(XNJSConstants.jobStageOutActionType)){
-			setProcessingChain(XNJSConstants.jobStageOutActionType, null, 
-					new String[]{DataStagingProcessor.class.getName()});
+			setProcessingChain(XNJSConstants.jobStageOutActionType, null,
+					DataStagingProcessor.class.getName());
 		}
 		if(!haveProcessingFor(XNJSConstants.asyncCommandType)){
-			setProcessingChain(XNJSConstants.asyncCommandType, null, 
-					new String[]{AsyncCommandProcessor.class.getName()});
+			setProcessingChain(XNJSConstants.asyncCommandType, null,
+					AsyncCommandProcessor.class.getName());
 		}
 		if(!haveProcessingFor(JSONSweepProcessor.sweepActionType)){
-			setProcessingChain(JSONSweepProcessor.sweepActionType, null, 
-					new String[]{JSONSweepProcessor.class.getName()});
+			setProcessingChain(JSONSweepProcessor.sweepActionType, null,
+					JSONSweepProcessor.class.getName());
 		}
 		if(!haveProcessingFor(JSONSweepProcessor.sweepInstanceType)){
-			setProcessingChain(JSONSweepProcessor.sweepInstanceType, null, 
-					new String[]{JSONSweepInstanceProcessor.class.getName()});
+			setProcessingChain(JSONSweepProcessor.sweepInstanceType, null,
+					JSONSweepInstanceProcessor.class.getName());
 		}
 
 		if(!haveProcessingFor("FTS")){
-			setProcessingChain("FTS", "FTS", 
-					new String[]{FTSProcessor.class.getName(),
-			});
+			setProcessingChain("FTS", "FTS",
+					FTSProcessor.class.getName());
 		}
 	}
 
@@ -254,22 +252,15 @@ public class XNJS implements UpdateableConfiguration {
 		}
 	}
 
-	public Processor createProcessor(String actionType){
-		try{
-			return getProcessor(actionType);
-		}catch(Exception ex){
-			LogUtil.logException("Can't create processor for action type "+actionType+", continuing...",ex,logger);
-			return null;
-		}
-	}
-
 	/**
 	 * create/return a fully configured processor for the given Action type 
 	 */
-	private Processor getProcessor(String actionType)throws ExecutionException{
+	public Processor createProcessor(String actionType)throws ExecutionException{
 		try{
 			//get a chain of processor class names from config
-			List<String> chain = getProcessorChain(actionType);
+			ProcessorChain pc = getProcessorChain(actionType);
+			if(pc==null)throw new ExecutionException("No processing for <"+actionType+">");
+			List<String> chain = pc.getProcessorClasses();
 			int size = chain.size();
 			Processor[] ps=new Processor[size];
 			for(int i=0; i<size;i++){
@@ -280,7 +271,7 @@ public class XNJS implements UpdateableConfiguration {
 			}
 			return ps[0];
 		}catch(Exception e){
-			throw new ExecutionException("Can't create processor for action type <"+actionType+">",e);
+			throw ExecutionException.wrapped(e);
 		}
 	}
 
@@ -294,21 +285,20 @@ public class XNJS implements UpdateableConfiguration {
 		return c.newInstance(new Object[]{this});
 	}
 
-	public List<String> getProcessorChain(String type)
+	public ProcessorChain getProcessorChain(String type)
 	{
-		ProcessorChain pc = config.getProcessing(type);
-		return pc!=null ? pc.getProcessorClasses() : null;
+		return config.getProcessing(type);
 	}
 
 	public boolean haveProcessingFor(String actionType){
 		return config.getProcessing(actionType)!=null;
 	}
 
-	public void setProcessingChain(String actionType, String jdType, String[] chain){
+	public void setProcessingChain(String actionType, String jdType, String... chain){
 		ProcessorChain pc = new ProcessorChain(actionType, jdType, chain);
 		config.getProcessingChains().put(actionType, pc);
 	}
-	
+
 	public Action makeAction(JSONObject job){
 		return makeAction(job, "JSON", UUID.newUniqueID());
 	}

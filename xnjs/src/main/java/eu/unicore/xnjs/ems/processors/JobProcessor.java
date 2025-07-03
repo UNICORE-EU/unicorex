@@ -28,7 +28,6 @@ import eu.unicore.xnjs.ems.IExecutionContextManager;
 import eu.unicore.xnjs.ems.Manager;
 import eu.unicore.xnjs.ems.ProcessingContext;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
-import eu.unicore.xnjs.ems.event.XnjsEvent;
 import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.IDB;
@@ -1068,10 +1067,9 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	 * @param time
 	 * @param units
 	 */
-	protected void pauseExecution(int time, TimeUnit units){
+	protected void pauseExecution(long time, TimeUnit units){
 		action.setWaiting(true);
-		XnjsEvent e=new ContinueProcessingEvent(action.getUUID());
-		manager.scheduleEvent(e, time, units);
+		manager.scheduleEvent(new ContinueProcessingEvent(action.getUUID()), time, units);
 	}
 
 	public static class TimeProfile {

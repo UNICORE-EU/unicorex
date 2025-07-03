@@ -25,17 +25,17 @@ import eu.unicore.xnjs.util.LogUtil;
  * @author golbi
  */
 public class UsageLogger extends Processor {
-	
+
 	private static final Logger usage = LogUtil.getLogger(LogUtil.JOBS+".USAGE", UsageLogger.class);
-	
+
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS, UsageLogger.class);
-	
+
 	public static final String USAGE_LOGGED="USAGE.logged";
-	
+
 	public UsageLogger(XNJS xnjs){
 		super(xnjs);
 	}
-	
+
 	public void done() {
 		if(action.getStatus()!=ActionStatus.DONE)return;
 		try{
@@ -49,7 +49,7 @@ public class UsageLogger extends Processor {
 			logger.error("Error when logging usage.",ex);
 		}
 	}
-	
+
 	/**
 	 *  create a "usage record"
 	 */
@@ -67,15 +67,15 @@ public class UsageLogger extends Processor {
 		if(exec==null){
 			exec="n/a";
 		}
-		
+
 		String bsid = action.getBSID();
 		String localUserName = c!=null? c.getSelectedXloginName() : "n/a";
 		String jobName = action.getJobName();
-		
+
 		String machineName = action.getExecutionContext().getPreferredExecutionHost();
 		if (machineName == null)
 			machineName = "n/a";
-		
+
 		String vo = null;
 		if (c != null && c.getVos() != null &&
 				c.getVos().length > 0) {
@@ -90,7 +90,7 @@ public class UsageLogger extends Processor {
 				vosb.append(vos[i]);
 			vo = vosb.toString();
 		}
-		
+
 		if (bsid == null) {
 			bsid = "";
 		}
@@ -103,10 +103,10 @@ public class UsageLogger extends Processor {
 		if (vo == null) {
 			vo = "";
 		}
-		
+
 		String timeProfile = JobProcessor.getTimeProfile(action
 				.getProcessingContext());
-		
+
 		sb.append("[").append(escapeBrackets(result)).append("] [ ");
 		sb.append(escapeBrackets(exec)).append("] [ ");
 		sb.append(escapeBrackets(uuid)).append("] [");
@@ -121,12 +121,10 @@ public class UsageLogger extends Processor {
 
 		return sb.toString();
 	}
-	
+
 	private static String escapeBrackets(String input)
 	{
-		String ret1 = input.replace("\\", "\\\\");
-		String ret = ret1.replace("]", "\\]");
-		return ret;
+		return input.replace("\\", "\\\\").replace("]", "\\]");
 	}
 
 	/**

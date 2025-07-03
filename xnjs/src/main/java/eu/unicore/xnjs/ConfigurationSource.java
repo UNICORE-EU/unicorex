@@ -86,40 +86,70 @@ public class ConfigurationSource implements UpdateableConfiguration {
 	}
 
 	public static class ProcessorChain {
-		
+
 		private final String jobDescriptionType;
 		private final String actionType;
 		private final List<String>processorClasses = new ArrayList<>();
-		
+
 		public ProcessorChain(String actionType, String jobdescriptionType){
 			this.jobDescriptionType = jobdescriptionType;
 			this.actionType = actionType;
 		}
-		
+
 		public ProcessorChain(String actionType, String jobdescriptionType, String[]processorClasses){
 			this.jobDescriptionType = jobdescriptionType;
 			this.actionType = actionType;
 			if(processorClasses!=null)
 				this.processorClasses.addAll(Arrays.asList(processorClasses));
 		}
-		
+
 		public String getJobDescriptionType() {
 			return jobDescriptionType;
 		}
-		
+
 		public String getActionType() {
 			return actionType;
 		}
-		
+
 		public List<String> getProcessorClasses() {
 			return processorClasses;
 		}
+
+		public void insertProcessor(String processorClass, int position) {
+			processorClasses.add(position, processorClass);
+		}
 		
+		public void insertProcessor(String processorClass, String before, String after) {
+			if(processorClasses.contains(processorClass))return;
+			int i = -1;
+			if(after!=null) {
+				for(int a=0; a<processorClasses.size();a++) {
+					if(processorClasses.get(a).equals(after)) {
+						i=a+1;
+					}
+				}
+			}
+			if(before!=null) {
+				int start = i>0? i : 0;
+				for(int b=start; b<processorClasses.size();b++) {
+					if(processorClasses.get(b).equals(before)) {
+						i=b;
+					}
+				}
+			}
+			if(i<0) {
+				processorClasses.add(processorClass);
+			}
+			else {
+				processorClasses.add(i, processorClass);
+			}
+		}
+
 		public String toString(){
 			return "ProcessorChain: "+actionType+"<"+jobDescriptionType+"> "+processorClasses;
 		}
 	}
-	
+
 	public static interface MetricProvider {
 		public Map<String, Metric> getMetrics();
 	}
