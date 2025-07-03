@@ -14,6 +14,7 @@ import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.job.JobManagementImpl;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.uas.xnjs.XNJSFacade;
+import eu.unicore.xnjs.ConfigurationSource.ProcessorChain;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.XNJSConstants;
 import eu.unicore.xnjs.ems.Action;
@@ -84,9 +85,10 @@ public class RecreateXNJSJobs implements Runnable{
 	protected void ensureProcessing(){
 		XNJS config=XNJSFacade.get(xnjsReference, kernel).getXNJS();
 		synchronized(config){
-			List<String> chain = config.getProcessorChain(XNJSConstants.jobActionType);
-			if(!ReCreateProcessor.class.getName().equals(chain.get(0))){
-				chain.add(0,ReCreateProcessor.class.getName());
+			ProcessorChain chain = config.getProcessorChain(XNJSConstants.jobActionType);
+			List<String> cs = chain.getProcessorClasses();
+			if(!ReCreateProcessor.class.getName().equals(cs.get(0))){
+				chain.insertProcessor(ReCreateProcessor.class.getName(),0);
 			}
 		}
 	}
