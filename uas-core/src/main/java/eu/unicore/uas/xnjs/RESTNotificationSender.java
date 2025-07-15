@@ -35,10 +35,8 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 	}
 
 	@Override
-	public void stateChanged(Action action) {
+	public void stateChanged(Action action, int newState) {
 		if(action==null || action.getNotificationURLs()==null || action.getNotificationURLs().isEmpty())return;
-
-		int status = action.getStatus();
 		boolean success = action.getResult().isSuccessful();
 		int[] triggers = defaultTriggers;
 		List<String> userdefinedTriggers = action.getNotifyStates();
@@ -48,11 +46,10 @@ public class RESTNotificationSender implements ActionStateChangeListener {
 				triggers[i] = notifyFor(userdefinedTriggers.get(i), success);
 			}
 		}
-		if(!isTrigger(status, triggers))return;
-
+		if(!isTrigger(newState, triggers))return;
 		JSONObject message = new JSONObject();
 		ActionResult result = action.getResult();
-		message.put("status", Jobs.convertStatus(action.getStatus(),result.isSuccessful()));
+		message.put("status", Jobs.convertStatus(newState, result.isSuccessful()));
 		message.put("statusMessage", "");
 		String bssID = action.getBSID();
 		message.put("batchSystemID", bssID!=null ? bssID : "N/A");

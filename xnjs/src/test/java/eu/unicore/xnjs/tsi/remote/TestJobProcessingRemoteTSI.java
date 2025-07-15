@@ -19,9 +19,12 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
+import eu.unicore.util.Log;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.XNJSProperties;
 import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.ActionStateChangeListener;
+import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.IExecutionContextManager;
 import eu.unicore.xnjs.ems.event.EventHandler;
@@ -60,6 +63,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			bind(IExecution.class).to(MyExec.class);
 			bind(IExecutionSystemInformation.class).to(MyExec.class);
 			bind(INotificationSender.class).to(MockNotificationSender.class);
+			bind(ActionStateChangeListener.class).to(MockNotificationSender.class);
 		}
 
 	}
@@ -303,14 +307,32 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		assertEquals("123456", a.getBSID());
 		a.printLogTrace();
 	}
+	@Test
+	public void testBasicNotify() throws Exception {
+		MyExec.failSubmits=false;
+		JSONObject job = new JSONObject();
+		job.put("Executable", "sleep 10");
+		job.put("Job type", "ON_LOGIN_NODE");
+		job.put("Notification", "dummy://notification-target");
+		Action a = xnjs.makeAction(job);
+		Client c = new Client();
+		a.setClient(c);
+		c.setXlogin(new Xlogin(new String[] {"nobody"}));
+		String id = a.getUUID();
+		mgr.add(a,c);
+		doRun(id);
+		assertSuccessful(id);
+		a = mgr.getAction(id);
+		a.printLogTrace();
+	}
 
 	@Test
-	public void testNotifyJob() throws Exception {
+	public void testDetailedNotify() throws Exception {
 		MyExec.failSubmits=false;
 		String id="";
 		Action a = null;
 		JSONObject job = new JSONObject();
-		job.put("Executable", "sleep 20");
+		job.put("Executable", "sleep 10");
 		JSONObject notification = new JSONObject();
 		notification.put("URL", "dummy://notification-target");
 		JSONArray arr = new JSONArray();
@@ -363,7 +385,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	}
 	
 	@Singleton
-	public static class MockNotificationSender implements INotificationSender {
+	public static class MockNotificationSender implements INotificationSender, ActionStateChangeListener {
 
 		public MockNotificationSender() { }
 
@@ -371,6 +393,23 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		public void send(JSONObject msg, Action job) throws Exception{
 			System.out.println("Notification: "+msg.toString(2));
 			job.addLogTrace("Sent to: "+job.getNotificationURLs().get(0));
+		}
+
+		// simplified version from the uas-core implementation for testing
+		@Override
+		public void stateChanged(Action action, int newState) {
+			if(action==null || action.getNotificationURLs()==null || action.getNotificationURLs().isEmpty())return;
+			if (newState==ActionStatus.RUNNING || newState==ActionStatus.DONE) {
+				JSONObject message = new JSONObject();
+				String bssID = action.getBSID();
+				message.put("batchSystemID", bssID!=null ? bssID : "N/A");
+				message.put("status", ActionStatus.toString(newState));
+				try {
+					send(message, action);
+				}catch(Exception ex) {
+					action.addLogTrace(Log.createFaultMessage("Could not send notification.", ex));
+				}
+			}
 		}
 	}
 }

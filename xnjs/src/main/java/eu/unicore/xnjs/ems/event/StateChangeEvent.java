@@ -15,9 +15,12 @@ public class StateChangeEvent implements CallbackEvent {
 
 	private final ActionStateChangeListener listener;
 
-	public StateChangeEvent(String actionID, ActionStateChangeListener listener){
+	private final int newState;
+
+	public StateChangeEvent(String actionID, int newState, ActionStateChangeListener listener){
 		this.actionID = actionID;
 		this.listener = listener;
+		this.newState = newState;
 	}
 
 	public String getActionID() {
@@ -26,6 +29,6 @@ public class StateChangeEvent implements CallbackEvent {
 
 	@Override
 	public void callback(final Action action, final XNJS xnjs) {
-		listener.stateChanged(action);
+		listener.stateChanged(action, newState);
 	}
 }

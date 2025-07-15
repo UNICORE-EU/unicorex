@@ -157,17 +157,10 @@ public class ActionRunner extends Thread {
 		List<XnjsEvent> events = new ArrayList<>();
 		if(newStatus!=oldStatus){
 			if(changeListener!=null) {
-				events.add(new StateChangeEvent(a.getUUID(), changeListener));
+				events.add(new StateChangeEvent(a.getUUID(), newStatus, changeListener));
 			}
-			if(newStatus==ActionStatus.DONE){
-				if(a.getParentActionID()!=null){
-					try{
-						events.add(new ContinueProcessingEvent(a.getParentActionID()));
-					}
-					catch(Exception ex){
-						logger.error("Error sending notification", ex);
-					}
-				}
+			if(newStatus==ActionStatus.DONE && a.getParentActionID()!=null){
+				events.add(new ContinueProcessingEvent(a.getParentActionID()));
 			}
 		}
 		return events;

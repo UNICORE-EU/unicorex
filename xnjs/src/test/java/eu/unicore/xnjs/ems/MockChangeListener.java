@@ -12,7 +12,7 @@ public class MockChangeListener implements ActionStateChangeListener {
 	private final Map<String, AtomicInteger> changes = new HashMap<>();
 	
 	@Override
-	public void stateChanged(Action action) {
+	public void stateChanged(Action action, int newState) {
 		getOrCreate(action.getUUID()).incrementAndGet();
 	}
 	
