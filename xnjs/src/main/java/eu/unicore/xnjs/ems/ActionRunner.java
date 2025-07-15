@@ -18,14 +18,14 @@ import eu.unicore.xnjs.persistence.IActionStore;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
- * The main worker class that takes active actions from a queue 
+ * The main worker class that takes active actions from a queue
  * and initiates processing, depending on the action type<br/>
  * 
  * @author schuller
  */
 public class ActionRunner extends Thread {
 
-	private static final Logger logger=LogUtil.getLogger(LogUtil.XNJS,ActionRunner.class); 
+	private static final Logger logger=LogUtil.getLogger(LogUtil.XNJS,ActionRunner.class);
 
 	private final XNJS xnjs;
 

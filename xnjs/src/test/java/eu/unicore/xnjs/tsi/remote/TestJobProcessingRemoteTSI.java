@@ -395,14 +395,13 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			job.addLogTrace("Sent to: "+job.getNotificationURLs().get(0));
 		}
 
-		// simplified version from the uas-core implementation for testing
 		@Override
 		public void stateChanged(Action action, int newState) {
-			if(action==null || action.getNotificationURLs()==null || action.getNotificationURLs().isEmpty())return;
+			if(action==null ||
+					action.getNotificationURLs()==null ||
+					action.getNotificationURLs().isEmpty())return;
 			if (newState==ActionStatus.RUNNING || newState==ActionStatus.DONE) {
 				JSONObject message = new JSONObject();
-				String bssID = action.getBSID();
-				message.put("batchSystemID", bssID!=null ? bssID : "N/A");
 				message.put("status", ActionStatus.toString(newState));
 				try {
 					send(message, action);
