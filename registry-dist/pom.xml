@@ -24,15 +24,19 @@
   <dependencies>
     <dependency>
       <groupId>eu.unicore.services</groupId>
+      <artifactId>use-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>eu.unicore.services</groupId>
       <artifactId>use-rest</artifactId>
     </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
-      <artifactId>use-aip</artifactId>
+      <artifactId>use-pdp</artifactId>
     </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
-      <artifactId>use-pdp</artifactId>
+      <artifactId>use-aip</artifactId>
     </dependency>
   </dependencies>
 

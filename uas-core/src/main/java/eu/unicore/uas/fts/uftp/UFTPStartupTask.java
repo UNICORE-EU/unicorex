@@ -5,6 +5,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.Kernel;
+import eu.unicore.services.StartupTask;
 import eu.unicore.util.Log;
 
 /**
@@ -12,15 +13,16 @@ import eu.unicore.util.Log;
  * 
  * @author K. Benedyczak
  */
-public class UFTPStartupTask implements Runnable {
+public class UFTPStartupTask implements StartupTask {
 
 	private static Logger logger = Log.getLogger(Log.CONFIGURATION, UFTPStartupTask.class);
-	
-	private Kernel kernel;
-	
+
+	private final Kernel kernel;
+
 	public UFTPStartupTask(Kernel kernel) {
 		this.kernel = kernel;
 	}
+
 	public void run() {
 		try {
 			setupUFTPConnector();
@@ -28,7 +30,7 @@ public class UFTPStartupTask implements Runnable {
 			Log.logException("UFTP connector could not be initialised, UFTP will not be available.", ex, logger);
 		}
 	}
-	
+
 	protected void setupUFTPConnector() {
 		Properties cfg = kernel.getContainerProperties().getRawProperties();
 		if(!Boolean.parseBoolean(cfg.getProperty(UFTPProperties.PREFIX+UFTPProperties.PARAM_ENABLE_UFTP, "true")))

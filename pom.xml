@@ -12,14 +12,14 @@
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicore-parent</artifactId>
-    <version>3.0.4</version>
+    <version>3.1.1</version>
   </parent>
 
   <scm>
     <connection>scm:git:git://github.com/UNICORE-EU/unicorex.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/UNICORE-EU/unicorex.git</developerConnection>
     <url>https://github.com/UNICORE-EU/unicorex</url>
-    <tag>unicorex-2.9.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <issueManagement>
@@ -29,11 +29,11 @@
 
   <properties>
     <!-- goes into .jar manifests, dist poms and packaging versions -->
-    <specification.version>10.2.0</specification.version>
+    <specification.version>10.3.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>5.3.0</use.version>
-    <secutils.version>4.2.0</secutils.version>
-    <persistence.version>1.2.5</persistence.version>
+    <use.version>5.4.0</use.version>
+    <secutils.version>4.2.1</secutils.version>
+    <persistence.version>1.2.6</persistence.version>
     <metrics.version>4.2.33</metrics.version>
     <uftp.version>2.21.0</uftp.version>
     <guice.version>7.0.0</guice.version>
@@ -43,7 +43,6 @@
     <tika.version>2.9.2</tika.version>
     <commons-io.version>2.19.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
-    <bc.version>1.81</bc.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
     <jclouds.version>2.7.0</jclouds.version>
     <junit.version>5.12.0</junit.version>
@@ -96,28 +95,13 @@
 	<version>${secutils.version}</version>
       </dependency>
       <dependency>
-	<groupId>org.bouncycastle</groupId>
-	<artifactId>bcprov-jdk18on</artifactId>
-	<version>${bc.version}</version>
-      </dependency>
-      <dependency>
-	<groupId>org.bouncycastle</groupId>
-	<artifactId>bcpkix-jdk18on</artifactId>
-	<version>${bc.version}</version>
-      </dependency>
-      <dependency>
-	<groupId>org.bouncycastle</groupId>
-	<artifactId>bcmail-jdk18on</artifactId>
-	<version>${bc.version}</version>
-      </dependency>
-      <dependency>
 	<groupId>eu.unicore.services</groupId>
-	<artifactId>use-rest</artifactId>
+	<artifactId>use-core</artifactId>
 	<version>${use.version}</version>
       </dependency>
       <dependency>
 	<groupId>eu.unicore.services</groupId>
-	<artifactId>use-core</artifactId>
+	<artifactId>use-rest</artifactId>
 	<version>${use.version}</version>
       </dependency>
       <dependency>
@@ -145,11 +129,6 @@
 	    <artifactId>slf4j-api</artifactId>
 	  </exclusion>
 	</exclusions>
-      </dependency>
-      <dependency>
-	<groupId>org.json</groupId>
-	<artifactId>json</artifactId>
-	<version>${json.version}</version>
       </dependency>
       <dependency>
 	<groupId>commons-io</groupId>

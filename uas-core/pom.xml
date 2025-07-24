@@ -44,19 +44,15 @@
     </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
+      <artifactId>use-rest</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>eu.unicore.services</groupId>
       <artifactId>use-pdp</artifactId>
     </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
       <artifactId>use-aip</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>eu.unicore.services</groupId>
-      <artifactId>use-rest</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
     </dependency>
   </dependencies>
 

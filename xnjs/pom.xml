@@ -39,14 +39,6 @@
       <artifactId>guice</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk18on</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk18on</artifactId>
-    </dependency>
-    <dependency>
       <groupId>eu.unicore.services</groupId>
       <artifactId>use-restclient</artifactId>
     </dependency>
@@ -57,10 +49,6 @@
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.json</groupId>
-      <artifactId>json</artifactId>
     </dependency>
     <dependency>
       <groupId>org.mvel</groupId>

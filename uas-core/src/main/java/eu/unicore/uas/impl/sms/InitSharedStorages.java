@@ -16,14 +16,13 @@ import eu.unicore.services.security.ACLEntry;
 import eu.unicore.services.security.ACLEntry.MatchType;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
-import eu.unicore.uas.features.StorageAccessStartupTask;
 import eu.unicore.uas.util.LogUtil;
 
 
 /**
  * Creates the configured shared storage instances of the StorageManagement service
  * 
- * It is run from the {@link StorageAccessStartupTask}
+ * It is run from the StorageAccessFeature startup
  * 
  * @author schuller
  */
