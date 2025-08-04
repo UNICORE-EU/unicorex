@@ -417,7 +417,8 @@ public class JSONParser {
 		String url = null;
 		if(spec!=null) {
 			url = spec.optString("URL");
-		} else {
+		}
+		if(url==null) {
 			url = job.optString("Notification");
 		}
 		if(url!=null && !url.isEmpty()) {
