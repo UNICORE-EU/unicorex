@@ -2,18 +2,7 @@
 	"openapi": "3.0.4",
 
 	"components": {
-		"securitySchemes": {
-			"username_password": {
-				"type": "http",
-				"scheme": "basic"
-			},
-			"bearer_token": {
-				"type": "http",
-				"scheme": "bearer",
-				"bearerFormat": "JWT"
-			},
-			"none": {}
-		},
+
 		"parameters": {
 			"user_preferences": {
 				"name": "X-UNICORE-UserPreferences",
@@ -26,6 +15,12 @@
 				"in": "query",
 				"required": false,
 				"description": "Comma-separated list of property fields to return."
+			},
+			"tags": {
+				"name": "tags",
+				"in": "query",
+				"required": false,
+				"description": "Comma-separated list of tags used to filter the item list."
 			},
 			"id": {
 				"name": "id",
@@ -40,7 +35,9 @@
 				"description": "File path relative to storage root."
 			}
 		},
+
 		"responses": {
+
 			"server_status": {
 				"type": "object",
 				"properties": {
@@ -62,7 +59,7 @@
 							},
 							"authenticationMethod": {
 								"type": "string",
-								"description": "which authentication method was used"
+								"description": "Shows which authentication method was used"
 							}
 						}
 					},
@@ -86,6 +83,7 @@
 					}
 				}
 			},
+
 			"storages_list": {
 				"description": "List of storages",
 				"content": {
@@ -103,6 +101,7 @@
 					}
 				}
 			},
+
 			"storage_properties": {
 				"description": "Properties of a storage",
 				"content": {
@@ -132,6 +131,7 @@
 					}
 				}
 			},
+
 			"files_properties": {
 				"description": "Properties of a file/directory",
 				"content": {
@@ -160,6 +160,60 @@
 					}
 				}
 			},
+
+			"transfers_list": {
+				"description": "List of server-to-server transfers",
+				"content": {
+					"application/json": {
+						"type": "object",
+						"properties": {
+							"storages": {
+								"type": "array",
+								"description": "URLs of transfers"
+							},
+							"_links": {
+								"self": { "$ref": "#/components/schemas/link" }
+							}
+						}
+					}
+				}
+			},
+
+			"transfer_properties": {
+				"description": "Properties of a server-to-server transfer",
+				"content": {
+					"application/json": {
+						"type": "object",
+						"properties": {
+							"status": { "$ref": "#/components/schemas/transfer_status" },
+							"statusMessage": { "type": "string" },
+							"isExport": { "type": "boolean" },
+							
+							"tags": { "$ref": "#/components/schemas/tags"},
+							"owner": {"type": "string"},
+							"size": { "type": "integer" },
+							"transferredBytes": { "type": "integer" },
+							"source": { "type": "string" },
+							"target": { "type": "string" },
+							"protocol": { "type": "string" },
+							"files": {
+								"description": "Status for each individual file",
+								"type" : "object",
+								"patternProperties": {
+								 	"^(/[^/]+)+$": "#/components/schemas/transfer_status"
+								}
+							},
+							"acl": { "$ref": "#/components/schemas/acl"},
+							"terminationTime": { "type": "string"},
+							"_links": {
+								"self": { "$ref": "#/components/schemas/link" },
+								"storage": { "$ref": "#/components/schemas/link" }
+							}
+						}
+					}
+				}
+			},
+
 			"jobs_list": {
 				"description": "List of jobs",
 				"content": {
@@ -177,6 +231,7 @@
 					}
 				}
 			},
+
 			"job_properties": {
 				"description": "Properties of a job",
 				"content": {
@@ -215,8 +270,6 @@
 							"tags": { "$ref": "#/components/schemas/tags"},
 							"acl": { "$ref": "#/components/schemas/acl"},
 							"terminationTime": { "type": "string"},
-							"resourceStatus": { "type": "string"},
-							"resourceStatusMessage": { "type": "string"},
 							"_links": {
 								"self": { "$ref": "#/components/schemas/link" },
 								"action:abort": { "$ref": "#/components/schemas/link" },
@@ -232,7 +285,9 @@
 				}
 			}
 		},
+
 		"schemas": {
+
 			"link": {
 				"type": "object",
 				"description": "A link to another part of the API",
@@ -247,24 +302,29 @@
 				},
 				"required": ["href"]
 			},
+
 			"acl": {
 				"type": "array",
 				"description": "A list of ACL entries of the form '[read|modify]:[DN|GROUP|UID|ROLE]:[value]'",
 				"items": { "type": "string" }
 			},
+
 			"tags": {
 				"type": "array",
 				"description": "A list of tags",
 				"items": { "type": "string" }
 			},
+
 			"job_type": {
 				"description": "Job type, defaults to BATCH",
 				"enum": ["BATCH", "ON_LOGIN_NODE", "RAW", "ALLOCATE_ONLY" ]
 			},
+
 			"job_status": {
 				"description": "Job status",
 				"enum": ["UNDEFINED", "CREATED", "STAGINGIN", "READY", "QUEUED", "RUNNING", "STAGINGOUT", "SUCCESSFUL", "FAILED"]
 			},
+
 			"stat_entry": {
 				"description": "File properties",
 				"type": "object",
@@ -277,16 +337,49 @@
 					"permissions": { "type": "string"}
 				}
 			},
+
+			"transfer_description": {
+				"description": "Server-to-server transfer description. Specify either 'source' URL for an incoming transfer or 'target' URL for an outgoing transfer.",
+				"type": "object",
+				"properties": {
+					"file": {
+						"description": "Local file to send/write to",
+						"type": "string"
+					},
+					"source":{
+						"description": "Remote URL to retrieve",
+						"type": "string"
+					},
+					"target":{
+						"description": "Remote URL to send to",
+						"type": "string"
+					},
+					"protocol": {
+						"description": "Transfer protocol to be used (if not already given in the URL)",
+						"type": "string"
+					},
+					"extraParameters":{
+						"description": "Additional, protocol-dependent parameters",
+						"type": "object"
+					}
+				}
+			},
+
+			"transfer_status": {
+				"description": "Status of a server-to-server transfer",
+				"enum": ["CREATED", "RUNNING", "DONE", "FAILED", "ABORTED"]
+			},
+
 			"job_description": {
 				"description": "Job description including staging, pre- and postprocessing, main executable",
 				"type": "object",
 				"properties": {
 				 	"Job type": { "$ref": "#/components/schemas/job_type"},
 				 	"Login node": { "type": "string",
-				 		"description": "if the Job type is ON_LOGIN_NODE, this element can be used to further specify which login node to use"
+				 		"description": "If the Job type is ON_LOGIN_NODE, this element can be used to further specify which login node to use"
 				 	},
 				 	"BSS file": { "type": "string",
-				 		"description": "if the Job type is RAW, this element contains the name of the file containing BSS specifications"
+				 		"description": "If the Job type is RAW, this element contains the name of the file containing BSS specifications"
 				 	},
 				 	"Name": { "type": "string", "description": "Job name"},
 				 	"Executable": {
@@ -324,6 +417,7 @@
 				 	}
 				 }
 			},
+
 			"imports_specification": { "type": "array", "description": "File(s) to stage-in",
 				"items": {
 					"type": "object",
@@ -334,11 +428,12 @@
 						},
 						"data": {
 							"type": "array", "items": { "type": "string" },
-							"description": "data for inline:// stage-in"
+							"description": "Data for inline:// stage-in"
 						}
 					}
 				}
 			},
+
 			"exports_specification": { "type": "array", "description": "File(s) to stage-out",
 				"items": {
 					"type": "object",
@@ -350,6 +445,7 @@
 					}
 				}
 			},
+
 			"resource_specification": {
 				"type": "object",
 				"description": "Describes requested resources for jobs of type BATCH or ALLOCATE_ONLY",

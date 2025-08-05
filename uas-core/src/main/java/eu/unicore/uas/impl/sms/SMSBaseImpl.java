@@ -132,7 +132,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 	 * @throws Exception
 	 */
 	public String transferFile(String source, String target, boolean isExport,
-			Map<String,String>extraParameters)
+			Map<String,String>extraParameters, String[] tags)
 	throws Exception {
 		if(isExport){
 			boolean hasWildcards=FileSet.hasWildcards(source); 
@@ -154,6 +154,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource implemen
 		init.target = target;
 		init.source = source;
 		init.isExport = isExport;
+		init.initialTags = tags;
 		if(extraParameters!=null){
 			init.extraParameters.putAll(extraParameters);
 		}

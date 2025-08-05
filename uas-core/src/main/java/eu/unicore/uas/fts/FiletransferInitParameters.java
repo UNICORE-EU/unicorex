@@ -18,15 +18,17 @@ public class FiletransferInitParameters extends BaseInitParameters {
 	public String workdir;
 
 	public boolean isExport;
-	
+
 	public boolean overwrite = true;
-	
+
 	public String umask;
 
 	public StorageAdapterFactory storageAdapterFactory;
 
 	public long numbytes = -1;
-	
+
 	public String mimetype;
+
+	public String[] initialTags;
 
 }

@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import eu.unicore.security.Client;
+import eu.unicore.services.ExtendedResourceStatus;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
@@ -50,7 +51,7 @@ import eu.unicore.xnjs.tsi.remote.TSIMessages;
  * 
  * @author schuller
  */
-public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
+public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, ExtendedResourceStatus {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS, TargetSystemImpl.class);
 
@@ -96,7 +97,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 			LogUtil.logException(e.getMessage(),e,logger);
 		}
 	}
-	
+
 	public String submit(JSONObject job, boolean autoStartWhenReady, Calendar tt,
 			String... tags) throws Exception {
 		if(tt!=null){
@@ -131,7 +132,6 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport {
 			home.setTerminationTime(getUniqueID(),tt);
 		}
 	}
-
 
 	@Override
 	public void initialise(InitParameters initobjs) throws Exception{

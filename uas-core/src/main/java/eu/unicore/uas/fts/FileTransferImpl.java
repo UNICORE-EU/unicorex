@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -63,6 +64,10 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 		m.extraParameters = map.extraParameters;
 		initialiseSourceAndTarget(rawsource, rawtarget);
 		m.setStorageAdapterFactory(map.storageAdapterFactory);
+		String[] tags = map.initialTags;
+		if(tags!=null && tags.length>0){
+			m.getTags().addAll(Arrays.asList(tags));
+		}
 		logger.info("New file transfer: {}", toString());
 	}
 

@@ -16,7 +16,6 @@ import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.impl.sms.SMFModel;
 import eu.unicore.uas.impl.sms.StorageDescription;
 import eu.unicore.uas.impl.sms.StorageFactoryImpl;
-import eu.unicore.uas.impl.sms.StorageInfoProvider;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
@@ -78,12 +77,11 @@ public class StorageFactories extends ServicesBase {
 		}
 		return props;
 	}
-	
+
 	protected Map<String,String> getParameterInfo(StorageDescription sd) throws Exception {
-		Class<? extends StorageInfoProvider> infoP=sd.getInfoProviderClass();
-		return ((StorageInfoProvider)kernel.load(infoP)).getUserParameterInfo(sd);
+		return kernel.load(sd.getInfoProviderClass()).getUserParameterInfo(sd);
 	}
-	
+
 	/**
 	 * create a new storage via the storage factory service
 	 * using a JSON description (type, name, parameters, termination time, ...) 

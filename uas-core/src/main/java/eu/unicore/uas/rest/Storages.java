@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import eu.unicore.security.Client;
@@ -183,8 +184,9 @@ public class Storages extends ServicesBase {
 
 	/**
 	 * create a new server-to-server transfer resource (send/receive file)
-	 * using a JSON transfer definition (localPath, source/target, protocol, extra params?)
-	 * 
+	 * using a JSON transfer definition (local file, remote source/target,
+	 * protocol, extra parameters)
+	 *
 	 * @return address of new file import resource
 	 */
 	@POST
@@ -213,8 +215,11 @@ public class Storages extends ServicesBase {
 				source = remote;
 				target = localPath;
 			}
+			JSONArray jtags = json.optJSONArray("Tags");
+			if(jtags==null)jtags = json.optJSONArray("tags");
+			String[] tags = JSONUtil.toArray(jtags);
 			Map<String,String>extraParameters = JSONUtil.asMap(json.optJSONObject("extraParameters"));
-			String id = getResource().transferFile(source, target, isExport, extraParameters);
+			String id = getResource().transferFile(source, target, isExport, extraParameters, tags);
 			String location = getBaseURL()+"/transfers/"+id;
 			return Response.created(new URI(location)).build();
 		}catch(Exception ex){

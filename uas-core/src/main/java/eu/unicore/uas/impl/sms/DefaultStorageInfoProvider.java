@@ -12,11 +12,11 @@ import eu.unicore.uas.SMSProperties;
 public class DefaultStorageInfoProvider implements StorageInfoProvider {
 
 	protected final Kernel kernel;
-	
+
 	public DefaultStorageInfoProvider(Kernel kernel){
 		this.kernel = kernel;
 	}
-		
+
 	@Override
 	public Map<String,String> getUserParameterInfo(StorageDescription storageDescription){
 		Map<String,String> params = new HashMap<>();

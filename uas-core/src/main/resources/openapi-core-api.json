@@ -20,6 +20,20 @@
 		}
 	],
 
+	"components": {
+		"securitySchemes": {
+			"username_password": {
+				"type": "http",
+				"scheme": "basic"
+			},
+			"bearer_token": {
+				"type": "http",
+				"scheme": "bearer"
+			},
+			"none": {}
+		}
+	},
+
 	"paths": {
 
 		"/": {
@@ -68,9 +82,8 @@
 			"get": {
 				"description": "Get server's status and user's properties",
 				"parameters": [
-					{
-						"$ref": "./openapi-core-components.json#/components/parameters/user_preferences"
-					}
+					{ "$ref": "./openapi-core-components.json#/components/parameters/user_preferences" },
+					{ "$ref": "./openapi-core-components.json#/components/parameters/tags" }
 				],
 				"responses": {
 					"200": {
@@ -149,14 +162,100 @@
 				],
 				"requestBody":{
 					"content": {
-						"application/octet-stream":{
+						"application/json": {
+							"type": "object"
+						},
+						"*/*": {
 								"type": "string",
 								"format": "binary"
-						},
-						"application/json":{
-							"type": "object"
 						}
 					}
+				},
+				"responses": {
+					"204": {
+						"description": "No content"
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"404": { "description": "Resource not found" },
+					"500": { "description": "Internal server error" }
+				}
+			}
+		},
+
+		"/storages/{id}/transfers": {
+			"post":{
+				"description": "Create a new server-to-server transfer involving this storage",
+				"parameters": [
+					{ "$ref": "./openapi-core-components.json#/components/parameters/user_preferences" },
+					{ "$ref": "./openapi-core-components.json#/components/parameters/id" }
+				],
+				"requestBody":{
+					"required": "true",
+					"content": {
+						"application/json": {
+							"schema": { "$ref": "./openapi-core-components.json#/components/schemas/transfer_description" }
+						}
+					}
+				},
+				"responses": {
+					"201":{
+						"description": "New transfer was created",
+						"headers":{
+							"Location": {
+								"description": "URL of the newly created transfer"
+							}
+						}
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"500": { "description": "Internal server error" }
+				}
+			 }
+		},
+
+		"/transfers": {
+			"get": {
+				"description": "Lists server-to-server transfers",
+				"parameters": [
+					{ "$ref": "./openapi-core-components.json#/components/parameters/tags" }
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"$ref": "./openapi-core-components.json#/components/responses/transfers_list"
+							}
+						}
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"500": { "description": "Internal server error" }
+				}
+			}
+		},
+
+		"/transfers/{id}": {
+			"get": {
+				"description": "Get server-to-server transfer properties",
+				"parameters": [
+					{ "$ref": "./openapi-core-components.json#/components/parameters/fields" },
+					{ "$ref": "./openapi-core-components.json#/components/parameters/id" }
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"$ref": "./openapi-core-components.json#/components/responses/transfer_properties"
+							}
+						}
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"404": { "description": "Resource not found" },
+					"500": { "description": "Internal server error" }
 				}
 			}
 		},
@@ -166,7 +265,7 @@
 				"description": "Get job list",
 				"parameters": [
 					{ "$ref": "./openapi-core-components.json#/components/parameters/user_preferences" },
-					{ "$ref": "./openapi-core-components.json#/components/parameters/fields" }
+					{ "$ref": "./openapi-core-components.json#/components/parameters/tags" }
 				],
 				"responses": {
 					"200": {
@@ -204,11 +303,13 @@
 							}
 						}
 					},
+					"401": { "description": "Unauthorized" },
 					"403": { "description": "Forbidden" },
 					"500": { "description": "Internal server error" }
 				}
 			 }
 		},
+
 		"/jobs/{id}": {
 			"get": {
 				"description": "Get job properties",
@@ -231,7 +332,127 @@
 					"404": { "description": "Resource not found" },
 					"500": { "description": "Internal server error" }
 				}
+			},
+			"put": {
+				"description": "Modify job properties",
+				"parameters": [
+					{ "$ref": "./openapi-core-components.json#/components/parameters/id" }
+				],
+				"requestBody":{
+					"required": "true",
+					"content": {
+						"application/json": {
+							"schema": { "type": "object",
+								"properties":{
+									"tags" : { "$ref": "./openapi-core-components.json#/components/schemas/tags" },
+									"acl": { "$ref": "./openapi-core-components.json#/components/schemas/acl" }
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"type": "object"
+							}
+						}
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"404": { "description": "Resource not found" },
+					"500": { "description": "Internal server error" }
+				}
+			}
+		},
+
+		"/jobs/{id}/details":{
+			"get": {
+				"description": "Get batch system details for the job",
+				"parameters": [
+					{ "$ref": "./openapi-core-components.json#/components/parameters/id" }
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"type": "object"
+							}
+						}
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"404": { "description": "Resource not found" },
+					"500": { "description": "Internal server error" }
+				}
+			}
+		},
+
+		"/jobs/{id}/submitted":{
+			"get": {
+				"description": "Get the submitted job description",
+				"parameters": [
+					{ "$ref": "./openapi-core-components.json#/components/parameters/id" }
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"type": "object"
+							}
+						}
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"404": { "description": "Resource not found" },
+					"500": { "description": "Internal server error" }
+				}
+			}
+		},
+
+		"/jobs/{id}/forward-port": {
+			"get": {
+				"description": "Start port forwarding to the application started by this job",
+				"parameters": [
+					{ "$ref": "./openapi-core-components.json#/components/parameters/id" },
+					{
+					  "name": "Upgrade", "in": "header", "required": true,
+					  "schema": { "const": "UNICORE-Socket-Forwarding" }
+					},
+					{
+					  "name": "host", "in": "query", "description": "Application host to connect to"
+					},
+					{
+					  "name": "port", "in": "query", "description": "Application port to connect to"
+					},
+					{
+					  "name": "file", "in": "query", "description": "Unix domain socket file to connect to"
+					},
+					{
+					  "name": "loginNode", "in": "query", "description": "Specify login node"
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"type": "object"
+							}
+						}
+					},
+					"401": { "description": "Unauthorized" },
+					"403": { "description": "Forbidden" },
+					"404": { "description": "Resource not found" },
+					"500": { "description": "Internal server error" }
+				}
 			}
 		}
+
 	}
+
 }

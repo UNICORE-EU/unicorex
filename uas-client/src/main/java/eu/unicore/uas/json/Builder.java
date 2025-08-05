@@ -77,14 +77,7 @@ public class Builder {
 	public String[] getTags(){
 		JSONArray tags = json.optJSONArray("Tags");
 		if(tags==null)tags = json.optJSONArray("tags");
-		if(tags!=null){
-			String[] ret = new String[tags.length()];
-			for(int i=0;i<tags.length();i++){
-				ret[i]=tags.optString(i);
-			}
-			return ret;
-		}
-		return null;
+		return JSONUtil.toArray(tags);
 	}
 
 	protected void build(){

@@ -13,7 +13,7 @@ import eu.unicore.uas.util.LogUtil;
  * @author schuller
  */
 public class StorageManagementHomeImpl extends DefaultHome {
-	
+
 	/**
 	 * the types of storages</br>
 	 * HOME: mapped to current user's home
@@ -34,11 +34,11 @@ public class StorageManagementHomeImpl extends DefaultHome {
 		String clazz = initObjs.resourceClassName;
 		return(Resource)(Class.forName(clazz).getConstructor().newInstance());
 	}
-	
+
 	protected Resource doCreateInstance() throws Exception {
 		throw new IllegalStateException();
 	}
-	
+
 	@Override
 	public  String createResource(InitParameters map) throws ResourceNotCreatedException {
 		StorageInitParameters init = (StorageInitParameters)map;
@@ -66,7 +66,7 @@ public class StorageManagementHomeImpl extends DefaultHome {
 		map.resourceClassName = clazz;
 		return super.createResource(map);
 	}
-	
+
 	@Override
 	protected void postInitialise(Resource r){
 		if(r instanceof SMSBaseImpl){
@@ -77,5 +77,5 @@ public class StorageManagementHomeImpl extends DefaultHome {
 			}
 		}
 	}
-	
+
 }
