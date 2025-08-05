@@ -54,7 +54,7 @@ public class UspaceStorageImpl extends SMSBaseImpl implements ExtendedResourceSt
 		}catch(Exception e) {}
 		return getModel().workdir;
 	}
-	
+
 	private void persistChanges(final String workdir) {
 		new AsyncCallback<UspaceStorageImpl>(getHome(), getUniqueID()) 
 		{
