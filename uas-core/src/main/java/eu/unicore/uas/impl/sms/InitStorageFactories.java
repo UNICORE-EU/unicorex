@@ -23,32 +23,66 @@ import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
 
 /**
- * Creates the "default" instance of the StorageFactory service
+ * Creates the configured instances of the StorageFactory service
  *
  * @author schuller
  */
-public class InitDefaultStorageFactory implements Runnable{
+public class InitStorageFactories implements Runnable {
 
-	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, InitDefaultStorageFactory.class);
+	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, InitStorageFactories.class);
 
 	private final Kernel kernel;
 
-	public InitDefaultStorageFactory(Kernel kernel){
+	public InitStorageFactories(Kernel kernel){
 		this.kernel=kernel;
 	}
 
 	public void run(){
 		try{
-			createDefaultStorageFactoryIfNotExists();
+			Home smfHome=kernel.getHome(UAS.SMF);
+			if(smfHome==null){
+				logger.info("No StorageFactory service configured for this site!");
+				return;
+			}
+			for(String id: smfHome.getStore().getUniqueIDs()){
+				try{
+					if(!StorageFactoryHomeImpl.DEFAULT_SMF_NAME.equals(id)) {
+						smfHome.destroyResource(id);
+					}
+				}catch(Exception e) {}
+			}
+			UASProperties props = kernel.getAttribute(UASProperties.class);
+			Map<String, StorageDescription> factories = props.getStorageFactories();
+			LockSupport ls=kernel.getPersistenceManager().getLockSupport();
+			Lock smfLock=ls.getOrCreateLock(InitStorageFactories.class.getName());
+			if(smfLock.tryLock()){
+			}
+			try{
+				for(String smfID: factories.keySet()) {
+					BaseInitParameters init = new BaseInitParameters(smfID, TerminationMode.NEVER);
+					Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactoryImpl.class);
+					init.resourceClassName = clazz.getName();
+					smfHome.createResource(init);
+					logger.info("Added StorageFactory resource '{}' of type <{}>.", smfID, clazz.getName());
+				}
+			}finally{
+				smfLock.unlock();
+			}
+			try{
+				createDefaultStorageFactoryIfNotExists();
+			} catch (Exception e) {
+				throw new RuntimeException("Could not setup default storage factory.",e);
+			}
 		} catch (Exception e) {
-			throw new RuntimeException("Could not setup default storage factory.",e);
+			throw new RuntimeException("Could not setup storage factory service(s).",e);
 		}
 	}
 
 	/**
 	 * add a "default" storage factory if it does not yet exist
+	 * @deprecated will be removed for UNICORE 11
 	 */
-	protected void createDefaultStorageFactoryIfNotExists()throws ResourceNotCreatedException,PersistenceException{
+	private void createDefaultStorageFactoryIfNotExists()throws ResourceNotCreatedException,PersistenceException{
 		Home smfHome=kernel.getHome(UAS.SMF);
 		if(smfHome==null){
 			logger.info("No StorageFactory service configured for this site!");
@@ -56,7 +90,7 @@ public class InitDefaultStorageFactory implements Runnable{
 		}
 		//get "global" lock
 		LockSupport ls=kernel.getPersistenceManager().getLockSupport();
-		Lock smfLock=ls.getOrCreateLock(InitDefaultStorageFactory.class.getName());
+		Lock smfLock=ls.getOrCreateLock(InitStorageFactories.class.getName());
 		String defaultSmfName=StorageFactoryHomeImpl.DEFAULT_SMF_NAME;
 		if(smfLock.tryLock()){
 			try{

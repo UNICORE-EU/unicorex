@@ -15,6 +15,7 @@ import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.impl.sms.SMFModel;
 import eu.unicore.uas.impl.sms.StorageDescription;
+import eu.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import eu.unicore.uas.impl.sms.StorageFactoryImpl;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.util.LogUtil;
@@ -22,6 +23,7 @@ import eu.unicore.util.Log;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -36,6 +38,7 @@ public class StorageFactories extends ServicesBase {
 
 	private static final Logger logger=Log.getLogger(LogUtil.SERVICES,StorageFactories.class);
 
+	@Override
 	protected String getResourcesName(){
 		return "storagefactories";
 	}
@@ -43,7 +46,14 @@ public class StorageFactories extends ServicesBase {
 	@Override
 	protected Map<String,Object>getProperties() throws Exception {
 		Map<String,Object> props = super.getProperties();
-		props.put("storageDescriptions", getStorageDescriptions());
+		if(StorageFactoryHomeImpl.DEFAULT_SMF_NAME.equals(resourceID)) {
+			props.put("storageDescriptions", getStorageDescriptions());
+		}
+		else {
+			Map<String, StorageDescription> desc = 
+					kernel.getAttribute(UASProperties.class).getStorageFactories();
+			props.putAll(convert(desc.get(resourceID)));
+		}
 		return props;
 	}
 
@@ -57,7 +67,7 @@ public class StorageFactories extends ServicesBase {
 		return (StorageFactoryImpl)resource;
 	}
 
-	protected Map<String,Object> getStorageDescriptions(){
+	private Map<String,Object> getStorageDescriptions(){
 		Map<String,Object> props = new HashMap<>();
 		Map<String, StorageDescription> factoriesDesc = 
 				kernel.getAttribute(UASProperties.class).getStorageFactories();
@@ -66,8 +76,8 @@ public class StorageFactories extends ServicesBase {
 		}
 		return props;
 	}
-	
-	protected Map<String,Object> convert(StorageDescription sd){
+
+	private Map<String,Object> convert(StorageDescription sd){
 		Map<String,Object> props = new HashMap<>();
 		props.put("description", sd.getDescription());
 		try{
@@ -78,7 +88,7 @@ public class StorageFactories extends ServicesBase {
 		return props;
 	}
 
-	protected Map<String,String> getParameterInfo(StorageDescription sd) throws Exception {
+	private Map<String,String> getParameterInfo(StorageDescription sd) throws Exception {
 		return kernel.load(sd.getInfoProviderClass()).getUserParameterInfo(sd);
 	}
 
@@ -88,12 +98,16 @@ public class StorageFactories extends ServicesBase {
 	 * for the new storage
 	 */
 	@POST
-	@Path("/{uniqueID}")
+	@Path("/{type}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createSMS(String jsonString) throws Exception {
+	public Response createSMS(String jsonString, @PathParam("type") String type) throws Exception {
 		try{
+			if(!StorageFactoryHomeImpl.DEFAULT_SMF_NAME.equals(type)){
+				// will use type from JSON
+				type = null;
+			}
 			StorageFactoryImpl smf = getResource();
-			String id = createSMS(smf, jsonString);
+			String id = createSMS(smf, jsonString, type);
 			String location = getBaseURL()+"/storages/"+id;
 			return Response.created(new URI(location)).build();
 		}catch(Exception ex){
@@ -101,7 +115,7 @@ public class StorageFactories extends ServicesBase {
 		}
 	}
 
-	public static String createSMS(StorageFactoryImpl smf, String jsonString) throws Exception {
+	public static String createSMS(StorageFactoryImpl smf, String jsonString, String storageBackendType) throws Exception {
 		JSONObject json = new JSONObject(jsonString);
 		Calendar tt = null;
 		String timeSpec = json.optString("terminationTime",null);
@@ -109,7 +123,9 @@ public class StorageFactories extends ServicesBase {
 			tt = Calendar.getInstance();
 			tt.setTime(UnitParser.extractDateTime(timeSpec));
 		}
-		String storageBackendType = json.optString("type", null);
+		if(storageBackendType==null) {
+			storageBackendType = json.optString("type", null);
+		}
 		String name = json.optString("name", null);
 		Map<String,String>parameters = JSONUtil.asMap(json.optJSONObject("parameters"));
 		return smf.createSMS(storageBackendType, name, tt, parameters);

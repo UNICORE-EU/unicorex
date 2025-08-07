@@ -6,13 +6,14 @@ import eu.unicore.services.utils.deployment.FeatureImpl;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.fts.FileTransferHomeImpl;
 import eu.unicore.uas.fts.uftp.UFTPStartupTask;
-import eu.unicore.uas.impl.sms.InitDefaultStorageFactory;
 import eu.unicore.uas.impl.sms.InitSharedStorages;
+import eu.unicore.uas.impl.sms.InitStorageFactories;
 import eu.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl;
 
 /**
- * storage access
+ * Storage access feature: provides Storage, StorageFactory,
+ * Client/Server and Server/Server transfers
  * 
  * @author schuller
  */
@@ -53,18 +54,17 @@ public class StorageAccessFeature extends FeatureImpl {
 		/**
 		 * add a "default" storage factory instance if it does not yet exist	
 		 */
-		protected void createSharedStorages(){
+		private void createSharedStorages(){
 			new InitSharedStorages(kernel).run();
 		}
 
 		/**
 		 * add a "default" storage factory instance if it does not yet exist	
 		 */
-		protected void createDefaultStorageFactoryIfNotExists(){
-			new InitDefaultStorageFactory(kernel).run();
+		private void createDefaultStorageFactoryIfNotExists(){
+			new InitStorageFactories(kernel).run();
 		}
 
 	}
-
 
 }

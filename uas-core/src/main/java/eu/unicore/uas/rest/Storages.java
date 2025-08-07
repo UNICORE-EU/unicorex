@@ -320,7 +320,7 @@ public class Storages extends ServicesBase {
 		try{
 			Home smfHome = kernel.getHome(UAS.SMF);
 			try(StorageFactoryImpl smf = (StorageFactoryImpl)smfHome.getForUpdate(findSMF())){
-				String id = StorageFactories.createSMS(smf,jsonString);
+				String id = StorageFactories.createSMS(smf,jsonString, null);
 				return Response.created(new URI(getBaseURL()+"/storages/"+id)).build();
 			}
 		}catch(Exception ex){
