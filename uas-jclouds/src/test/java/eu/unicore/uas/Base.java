@@ -1,7 +1,5 @@
 package eu.unicore.uas;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.File;
 import java.util.List;
 
@@ -11,7 +9,6 @@ import org.junit.jupiter.api.BeforeAll;
 
 import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageFactoryClient;
-import eu.unicore.client.registry.RegistryClient;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.restclient.BaseClient;
@@ -53,18 +50,12 @@ public abstract class Base{
 		kernel.shutdown();
 	}
 	
-	protected StorageFactoryClient getStorageFactory() throws Exception {
+	protected StorageFactoryClient getStorageFactory(String type) throws Exception {
 		String url=kernel.getContainerProperties().getValue(ContainerProperties.EXTERNAL_URL)
-				+"/rest/registries/default_registry";
+				+"/rest/core/storagefactories/"+type;
 		IAuthCallback auth = null;
-		RegistryClient reg = new RegistryClient(url, kernel.getClientConfiguration(), auth);
-		//find a StorageFactory
-		List<Endpoint> eps = reg.listEntries("StorageFactory");
-		assertTrue(eps!=null && eps.size()>0);
-		Endpoint smf = findFirstAccessibleService(eps);
-		assertTrue(smf!=null);
-		System.out.println("Using StorageFactory at "+smf.getUrl());
-		return new StorageFactoryClient(smf, kernel.getClientConfiguration(), auth);
+		System.out.println("Using StorageFactory at "+url);
+		return new StorageFactoryClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
 	}
 	
 	protected Endpoint findFirstAccessibleService(List<Endpoint>eps){

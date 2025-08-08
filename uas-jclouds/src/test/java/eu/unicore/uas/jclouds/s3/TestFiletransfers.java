@@ -77,7 +77,27 @@ public class TestFiletransfers extends Base {
 		File i1 = new File("./target/unicorex-test/imported.txt");
 		assertEquals(Utils.md5(i1), Utils.md5(td));
 	}
-	
+
+	@Test
+	public void testS3ImportWildcard() throws Exception {
+		FileTransferEngine e = XNJSFacade.get(null, kernel).getXNJS().get(FileTransferEngine.class);
+		DataStageInInfo in = new DataStageInInfo();
+		String url = "S3:https://foo/testing/test.*";
+		in.setSources(new URI[] {new URI(url)});
+		in.setFileName(".");
+		Map<String, String>params = new HashMap<>();
+		params.put("provider", "transient");
+		in.setExtraParameters(params);
+		Client c = new Client();
+		IFileTransfer ft = e.createFileImport(c, new File("./target/unicorex-test/").getAbsolutePath(), in);
+		assertNotNull(ft);
+		assertTrue(ft instanceof S3FileImport);
+		ft.run();
+		System.out.println("FT status: "+ft.getInfo().getStatusMessage());
+		File i1 = new File("./target/unicorex-test/test.txt");
+		assertEquals(Utils.md5(i1), Utils.md5(td));
+	}
+
 	@Test
 	public void testS3ImportsController() throws Exception {
 		FileTransferEngine e = XNJSFacade.get(null, kernel).getXNJS().get(FileTransferEngine.class);
@@ -105,6 +125,31 @@ public class TestFiletransfers extends Base {
 	}
 
 	@Test
+	public void testS3ImportsControllerWildcard() throws Exception {
+		FileTransferEngine e = XNJSFacade.get(null, kernel).getXNJS().get(FileTransferEngine.class);
+		DataStageInInfo in = new DataStageInInfo();
+		String url = "S3:https://foo/testing/test.*";
+		in.setSources(new URI[] {new URI(url)});
+		in.setFileName(".");
+		Map<String, String>params = new HashMap<>();
+		params.put("provider", "transient");
+		in.setExtraParameters(params);
+		Client c = new Client();
+		IFTSController fts = e.createFTSImport(c, "./target/unicorex-test/", in);
+		assertNotNull(fts);
+		assertTrue(fts instanceof S3ImportsController);
+		List<FTSTransferInfo> fileList = new ArrayList<>();
+		fts.collectFilesForTransfer(fileList);
+		assertEquals(1, fileList.size());
+		IFileTransfer ft = fts.createTransfer(fileList.get(0).getSource(), "test.txt");
+		assertNotNull(ft);
+		assertTrue(ft instanceof S3FileImport);
+		ft.run();
+		System.out.println("FT status: "+ft.getInfo().getStatusMessage());
+		File i1 = new File("./target/unicorex-test/test.txt");
+		assertEquals(Utils.md5(i1), Utils.md5(td));
+	}
+	@Test
 	public void testS3Export() throws Exception {
 		FileTransferEngine e = XNJSFacade.get(null, kernel).getXNJS().get(FileTransferEngine.class);
 		DataStageOutInfo out = new DataStageOutInfo();
@@ -122,6 +167,27 @@ public class TestFiletransfers extends Base {
 		System.out.println("FT status: "+ft.getInfo().getStatusMessage());
 		Thread.sleep(500);
 		byte[] exported = getInMemoryS3().getInputStream("exported.txt").readAllBytes();
+		assertEquals(Utils.md5(exported), Utils.md5(td));
+	}
+	
+	@Test
+	public void testS3ExportWildcard() throws Exception {
+		FileTransferEngine e = XNJSFacade.get(null, kernel).getXNJS().get(FileTransferEngine.class);
+		DataStageOutInfo out = new DataStageOutInfo();
+		String url = "S3:https://foo/testing/";
+		out.setTarget(new URI(url));
+		out.setFileName("test1.*");
+		Map<String, String>params = new HashMap<>();
+		params.put("provider", "transient");
+		out.setExtraParameters(params);
+		Client c = new Client();
+		IFileTransfer ft = e.createFileExport(c, new File("./target/unicorex-test/").getAbsolutePath(), out);
+		assertNotNull(ft);
+		assertTrue(ft instanceof S3FileExport);
+		ft.run();
+		System.out.println("FT status: "+ft.getInfo().getStatusMessage());
+		Thread.sleep(500);
+		byte[] exported = getInMemoryS3().getInputStream("test1.txt").readAllBytes();
 		assertEquals(Utils.md5(exported), Utils.md5(td));
 	}
 
@@ -149,6 +215,33 @@ public class TestFiletransfers extends Base {
 		System.out.println("FT status: "+ft.getInfo().getStatusMessage());
 		Thread.sleep(500);
 		byte[] exported = getInMemoryS3().getInputStream("exported.txt").readAllBytes();
+		assertEquals(Utils.md5(exported), Utils.md5(td));
+	}
+
+	@Test
+	public void testS3ExportsControllerWildcard() throws Exception {
+		FileTransferEngine e = XNJSFacade.get(null, kernel).getXNJS().get(FileTransferEngine.class);
+		DataStageOutInfo out = new DataStageOutInfo();
+		String url = "S3:https://foo/testing/";
+		out.setTarget(new URI(url));
+		out.setFileName("test1.*");
+		Map<String, String>params = new HashMap<>();
+		params.put("provider", "transient");
+		out.setExtraParameters(params);
+		Client c = new Client();
+		IFTSController fts = e.createFTSExport(c, new File("./target/unicorex-test/").getAbsolutePath(), out);
+		assertNotNull(fts);
+		assertTrue(fts instanceof S3ExportsController);
+		List<FTSTransferInfo> fileList = new ArrayList<>();
+		fts.collectFilesForTransfer(fileList);
+		assertEquals(1, fileList.size());
+		IFileTransfer ft = fts.createTransfer(fileList.get(0).getSource(), "test1.txt");
+		assertNotNull(ft);
+		assertTrue(ft instanceof S3FileExport);
+		ft.run();
+		System.out.println("FT status: "+ft.getInfo().getStatusMessage());
+		Thread.sleep(500);
+		byte[] exported = getInMemoryS3().getInputStream("test1.txt").readAllBytes();
 		assertEquals(Utils.md5(exported), Utils.md5(td));
 	}
 

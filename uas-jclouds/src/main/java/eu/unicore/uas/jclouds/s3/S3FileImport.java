@@ -243,7 +243,7 @@ public class S3FileImport extends S3FileTransferBase {
 		checkCancelled();
 		boolean append=OverwritePolicy.APPEND.equals(overwrite);
 		try(OutputStream os = getLocalStorage().getOutputStream(localFile, append);
-				InputStream is = s3Adapter.getInputStream(remote.getPath())){
+				InputStream is = s3Adapter.getInputStream(source.getPath())){
 			checkCancelled();
 			copy(is, os);
 		}

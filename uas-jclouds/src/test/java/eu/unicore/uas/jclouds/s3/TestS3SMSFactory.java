@@ -20,10 +20,10 @@ public class TestS3SMSFactory extends Base {
 
 	@Test
 	public void testCreateS3() throws Exception {
-		StorageFactoryClient smf = getStorageFactory();
+		StorageFactoryClient smf = getStorageFactory("S3");
 		Map<String,String>params = new HashMap<>();
 		params.put("bucket", "testing.unicore.eu");
-		StorageClient sms = smf.createStorage("S3","myS3", params, null);
+		StorageClient sms = smf.createStorage("myS3", params, null);
 		System.out.println(sms.getProperties().toString(2));
 		sms.mkdir("/data");
 		assertNotNull(sms.stat("/data"));
@@ -39,12 +39,12 @@ public class TestS3SMSFactory extends Base {
 
 	@Test
 	public void testCreateS3WithParams() throws Exception {
-		StorageFactoryClient smf = getStorageFactory();
+		StorageFactoryClient smf = getStorageFactory("S3");
 		Map<String,String>params = new HashMap<>();
 		String accessKey = "test123";
 		params.put("accessKey", accessKey);
 		params.put("bucket", "test");
-		StorageClient sms = smf.createStorage("S3","my s3", params, null);
+		StorageClient sms = smf.createStorage("my s3", params, null);
 		String url = sms.getEndpoint().getUrl();
 		String uid = url.substring(url.lastIndexOf("/")+1);
 		System.out.println(uid);
@@ -62,7 +62,7 @@ public class TestS3SMSFactory extends Base {
 		String endpoint = "my_ep";
 		params.put("endpoint", endpoint);
 		try{
-			smf.createStorage("S3", "my s3", params, null);
+			smf.createStorage("my s3", params, null);
 		}catch(Exception ex){
 			// OK
 			System.out.println(Log.createFaultMessage("As expected", ex));
