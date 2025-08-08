@@ -198,10 +198,6 @@ public class TestCoreClients extends Base {
 	}
 
 	protected void waitForFinish(JobClient jc) throws Exception {
-		int c=0;
-		while(c<20 && !jc.isFinished()){
-			Thread.sleep(1000);
-			c++;
-		}
+		jc.poll(JobClient.Status.SUCCESSFUL);
 	}
 }

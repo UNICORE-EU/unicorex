@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class TestStorages extends Base {
 			FileUtils.write(new File("target/unicorex-test/test.txt"), "test data", "UTF-8");
 		}catch(IOException e){throw new RuntimeException(e);}
 	}
-	
+
 	@Test
 	public void testFactory() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
@@ -60,6 +61,7 @@ public class TestStorages extends Base {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testFactoryErrorType() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/default_storage_factory";
@@ -69,22 +71,22 @@ public class TestStorages extends Base {
 		try{
 			smf.createStorage("non-existing-type","my new SMS", null, null);
 		}catch(RESTException e) {
-			assertTrue(500 == e.getStatus());
+			assertTrue(404 == e.getStatus());
 			assertTrue(e.getErrorMessage().contains("non-existing-type"));
 		}
 	}
-	
+
 	@Test
 	public void testFactoryErrorPath() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
-				"/rest/core/storagefactories/default_storage_factory";
+				"/rest/core/storagefactories/DEFAULT";
 		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
 		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
 		try{
 			var params = new HashMap<String,String>();
 			params.put("path", "some/path/");
-			smf.createStorage(null,"my new SMS", params, null);
+			smf.createStorage("my new SMS", params, null);
 		}catch(RESTException e) {
 			assertTrue(500 == e.getStatus());
 			assertTrue(e.getErrorMessage().contains("not allowed"));
@@ -108,15 +110,14 @@ public class TestStorages extends Base {
 		JSONObject storageProps = client.getJSON();
 		System.out.println("*** storage "+storage+":");
 		System.out.println(storageProps.toString(2));
-		
+
 		// directory
 		client.setURL(storage+"/files");
 		JSONObject dirListing = client.getJSON();
 		System.out.println("*** Directory listing '/':");
 		System.out.println(dirListing.toString(2));
 		assertTrue(dirListing.getBoolean("isDirectory"));
-		
-		
+
 		// chunked
 		client.setURL(storage+"/files?offset=0&num=2");
 		dirListing = client.getJSON();
@@ -124,7 +125,7 @@ public class TestStorages extends Base {
 		System.out.println(dirListing.toString(2));
 		assertTrue(dirListing.getBoolean("isDirectory"));
 		assertEquals(2, dirListing.getJSONObject("content").length());
-			
+
 		// single file
 		client.setURL(storage+"/files/test.txt");
 		JSONObject fileListing = client.getJSON();
@@ -132,7 +133,7 @@ public class TestStorages extends Base {
 		System.out.println(fileListing.toString(2));
 		assertFalse(fileListing.getBoolean("isDirectory"));
 	}
-	
+
 	@Test
 	public void testImportFile() throws Exception {
 		StorageClient sms = createStorage();
@@ -189,15 +190,13 @@ public class TestStorages extends Base {
 		String sourceURL = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storages/WORK/files/test.txt";
 		TransferControllerClient tcc = sms.fetchFile(sourceURL, "test.txt", null, "BFT");
-		int c = 0;
-		while(!tcc.isComplete() && c<2000){
-			Thread.sleep(1000);
-			c++;
-		}
+		tcc.setTags(Arrays.asList("test"));
+		tcc.poll(Status.DONE, 20);
 		System.out.println(tcc.getProperties().toString(2));
 		assertEquals(Status.DONE, tcc.getStatus());
+		assertEquals("test", tcc.getProperties().getJSONArray("tags").get(0));
 	}
-	
+
 	@Test
 	public void testSearch() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";

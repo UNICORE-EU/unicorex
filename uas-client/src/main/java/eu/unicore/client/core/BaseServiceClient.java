@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.net.URIBuilder;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -106,6 +107,13 @@ public class BaseServiceClient {
 
 	public List<String> getTags() throws Exception {
 		return JSONUtil.toList(getProperties().getJSONArray("tags"));
+	}
+
+	public void setTags(List<String>tags) throws Exception {
+		JSONObject p = new JSONObject();
+		p.put("tags", new JSONArray(tags));
+		bc.put(p);
+		cachedProperties = null;
 	}
 
 	public long getUpdateInterval() {

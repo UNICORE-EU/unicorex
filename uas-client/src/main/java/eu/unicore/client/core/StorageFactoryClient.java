@@ -23,9 +23,25 @@ public class StorageFactoryClient extends BaseServiceClient {
 	}
 
 	public StorageClient createStorage() throws Exception {
-		return createStorage(null,null,null,null);
+		return createStorage(null,null,null);
 	}
 
+	public StorageClient createStorage(String name, Map<String,String> parameters, Calendar tt) throws Exception {
+		JSONObject json = new JSONObject();
+		if(name!=null)json.put("name", name);
+		if(tt!=null) {
+			json.put("terminationTime", UnitParser.getISO8601().format(tt.getTime()));
+		}
+		json.put("parameters", JSONUtil.asJSON(parameters));
+		String url = bc.create(json);
+		return new StorageClient(new Endpoint(url), security, auth);
+	}
+
+	/**
+	 * U10 had one factory endpoint supporting multiple types,
+	 * U11 has multiple endpoints, one per supported type
+	 * @deprecated
+	 */
 	public StorageClient createStorage(String type, String name, Map<String,String> parameters, Calendar tt) throws Exception {
 		JSONObject json = new JSONObject();
 		if(type!=null)json.put("type", type);

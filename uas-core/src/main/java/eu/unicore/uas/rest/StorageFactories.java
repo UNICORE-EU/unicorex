@@ -98,11 +98,12 @@ public class StorageFactories extends ServicesBase {
 	 * for the new storage
 	 */
 	@POST
-	@Path("/{type}")
+	@Path("/{uniqueID}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response createSMS(String jsonString, @PathParam("type") String type) throws Exception {
+	public Response createSMS(String jsonString, @PathParam("uniqueID") String uniqueID) throws Exception {
 		try{
-			if(!StorageFactoryHomeImpl.DEFAULT_SMF_NAME.equals(type)){
+			String type = uniqueID;
+			if(StorageFactoryHomeImpl.DEFAULT_SMF_NAME.equals(uniqueID)){
 				// will use type from JSON
 				type = null;
 			}
