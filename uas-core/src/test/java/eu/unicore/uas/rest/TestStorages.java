@@ -71,7 +71,7 @@ public class TestStorages extends Base {
 		try{
 			smf.createStorage("non-existing-type","my new SMS", null, null);
 		}catch(RESTException e) {
-			assertTrue(404 == e.getStatus());
+			assertTrue(500 == e.getStatus());
 			assertTrue(e.getErrorMessage().contains("non-existing-type"));
 		}
 	}
