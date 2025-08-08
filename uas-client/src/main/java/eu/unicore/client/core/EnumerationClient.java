@@ -26,7 +26,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
 public class EnumerationClient extends BaseServiceClient implements Iterable<String> {
 
 	protected String resourcesName;
-	
+
 	protected String[] tags;
 
 	protected String filterSpec;
@@ -91,13 +91,13 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 
 	@Override
 	public Iterator<String> iterator() {
-		
+
 		return new Iterator<String>(){
 			private int offset = 0;
 			private int num = 0;
-				
+
 			private final List<String> avail = new ArrayList<>();
-			
+
 			@Override
 			public boolean hasNext() {
 				if(avail.size()==0)getChunk();
@@ -110,7 +110,7 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 				if(avail.size()==0)throw new NoSuchElementException();
 				return avail.remove(0);
 			}
-			
+
 			protected void getChunk() {
 				if(num==0)num=50;
 				try {
@@ -121,14 +121,13 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 					throw new RuntimeException(ex);
 				}
 			}
-			
+
 		};
-		
 	}
 
 	public <T extends BaseServiceClient> T createClient(String url, Class<T> clazz) throws Exception { 
 		return clazz.getConstructor(Endpoint.class, IClientConfiguration.class, IAuthCallback.class)
 				.newInstance(endpoint.cloneTo(url), security, auth);
 	}
-	
+
 }

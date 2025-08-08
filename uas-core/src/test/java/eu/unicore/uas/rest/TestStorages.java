@@ -61,6 +61,14 @@ public class TestStorages extends Base {
 	}
 
 	@Test
+	public void testFindFactories() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
+		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		List<StorageFactoryClient>sfcs = client.getStorageFactories();
+		assertTrue(sfcs.size()>0);
+	}
+
+	@Test
 	@SuppressWarnings("deprecation")
 	public void testFactoryErrorType() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+

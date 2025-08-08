@@ -1,5 +1,8 @@
 package eu.unicore.client.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
@@ -25,8 +28,7 @@ public class CoreClient extends BaseServiceClient {
 
 	public String getUID() throws AuthenticationException {
 		try{
-			JSONObject json = getClientInfo().getJSONObject("xlogin");
-			return json.getString("UID");
+			return getClientInfo().getJSONObject("xlogin").getString("uid");
 		}catch(Exception e){
 			throw new AuthenticationException();
 		}
@@ -43,8 +45,7 @@ public class CoreClient extends BaseServiceClient {
 
 	public String getGroup() throws AuthenticationException {
 		try{
-			JSONObject json = getClientInfo().getJSONObject("xlogin");
-			return json.getString("group");
+			return getClientInfo().getJSONObject("xlogin").getString("group");
 		}catch(Exception e){
 			throw new AuthenticationException();
 		}
@@ -68,31 +69,37 @@ public class CoreClient extends BaseServiceClient {
 
 	public SiteFactoryClient getSiteFactoryClient() throws Exception {
 		String url = getLinkUrl("factories")+"/default_target_system_factory";
-		Endpoint ep = endpoint.cloneTo(url);
-		return new SiteFactoryClient(ep, security, auth);
+		return new SiteFactoryClient(endpoint.cloneTo(url), security, auth);
 	}
 
 	public EnumerationClient getJobsList() throws Exception {
 		String url = getLinkUrl("jobs");
-		Endpoint ep = endpoint.cloneTo(url);
-		return new EnumerationClient(ep, security, auth);
+		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
 	}
 
 	public EnumerationClient getStoragesList() throws Exception {
 		String url = getLinkUrl("storages");
-		Endpoint ep = endpoint.cloneTo(url);
-		return new EnumerationClient(ep, security, auth);
+		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
 	}
 
 	public EnumerationClient getTransfersList() throws Exception {
 		String url = getLinkUrl("transfers");
-		Endpoint ep = endpoint.cloneTo(url);
-		return new EnumerationClient(ep, security, auth);
+		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
 	}
 
 	public StorageFactoryClient getStorageFactory() throws Exception {
 		String url = getLinkUrl("storagefactories");
 		Endpoint ep = endpoint.cloneTo(url+"/default_storage_factory");
 		return new StorageFactoryClient(ep, security, auth);
+	}
+
+	public List<StorageFactoryClient> getStorageFactories() throws Exception {
+		List<StorageFactoryClient>res = new ArrayList<>();
+		String url = getLinkUrl("storagefactories");
+		EnumerationClient ec = new EnumerationClient(endpoint.cloneTo(url), security, auth);
+		ec.forEach((smf)->{
+			res.add(new StorageFactoryClient(endpoint.cloneTo(smf), security, auth));
+		});
+		return res;
 	}
 }
