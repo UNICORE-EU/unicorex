@@ -129,4 +129,18 @@ public class TestJobControl extends EMSTestBase {
 		waitUntilDone(id);
 	}
 
+	@Test
+	public void testConcurrency() throws Exception {
+		Action action=xnjs.makeAction(loadJSONObject(d2));
+		String id=action.getUUID();
+		mgr.add(action,null);
+		mgr.run(id,null);
+		waitUntilRunning(id);
+		BasicManager bmgr = (BasicManager)mgr;
+		action = bmgr.getActionForUpdate(id);
+		Thread.sleep(20000);
+		bmgr.getActionStore().put(id, action);
+		waitUntilDone(id);
+	}
+
 }

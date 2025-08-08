@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
@@ -52,7 +53,7 @@ public class ActionRunner extends Thread {
 		this.jobs = xnjs.getActionStore("JOBS");
 		int n = count.incrementAndGet();
 		super.setName("XNJS-"+xnjs.getID()+"-JobRunner-"+n);
-		logger.debug("Job runner thread {} starting", n);
+		logger.debug("Action runner thread {} starting", n);
 	}
 
 	public synchronized void interrupt() {
@@ -88,6 +89,9 @@ public class ActionRunner extends Thread {
 					logger.debug("Processing {}", id);
 					try{
 						a=jobs.getForUpdate(id);
+					}catch(TimeoutException te) {
+						// not an issue - try again later
+						dispatcher.process(id);
 					}catch(Exception eex){
 						logger.warn("Can't get action for processing",eex);
 					}

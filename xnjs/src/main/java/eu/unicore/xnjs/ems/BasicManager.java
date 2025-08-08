@@ -435,7 +435,6 @@ public class BasicManager implements Manager, InternalManager {
 			}
 		};
 		xnjs.getScheduledExecutor().schedule(r, 200, TimeUnit.MILLISECONDS);
-
 	}
 
 	@Override

@@ -86,7 +86,7 @@ public class TestJSONIDB {
 
 	@Test
 	public void testVersionMatching() throws Exception{
-		String[] req = new String[] {null, "3.1.1", "3.1.1", "3.1", "1", "2", "3"};
+		String[] req = new String[] {null, "3.1.1", "3.1", "1", "2", "3"};
 		String have = "3.1.1";
 		for(String r: req) {
 			assertTrue(IDBImpl.versionMatches(r, have));
