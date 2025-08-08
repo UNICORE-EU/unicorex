@@ -3,6 +3,9 @@ package eu.unicore.uas.json;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.util.Arrays;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -32,4 +35,17 @@ public class TestBuilder{
 		assertEquals("Date", b.getProperty("ApplicationName"));
 	}
 
+	@Test
+	public void testVersionMatch()throws Exception {
+		ApplicationRequirement ar = new ApplicationRequirement("Date", "1.1");
+		String[] available = new String[] { "0.9", "1", "2.0", "1.0", "1.2"};
+		boolean[] expect = new boolean[] { false, true, true, false, true };
+		JSONObject props = new JSONObject();
+		for(int i=0; i<available.length; i++){
+			JSONArray apps = new JSONArray(Arrays.asList("Date---v"+available[i]));
+			props.put("applications", apps);
+			boolean checkResult = ar.isFulfilled(props);
+			assertEquals(expect[i], checkResult, "failed: "+props);
+		}
+	}
 }

@@ -1,10 +1,8 @@
 package eu.unicore.uas.json;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -21,15 +19,11 @@ import eu.unicore.client.Job;
  */
 public class Builder {
 
-	protected final List<ArgumentSweep> sweeps;
-
 	protected final JSONObject json;
 
 	protected final Set<Requirement>requirements=new HashSet<>();
 
 	protected boolean initialised;
-
-	protected boolean isSweepJob=false;
 
 	protected String preferredProtocol = "BFT";
 
@@ -51,13 +45,10 @@ public class Builder {
 	 * @throws IllegalArgumentException on JSON parsing errors
 	 */
 	public Builder(String jsonString) {
-		sweeps = new ArrayList<>();
 		try{
 			json=JSONUtil.read(jsonString);
-			isSweepJob = json.optBoolean("isSweepJob", false);
 		}catch(JSONException ex){
-			String message=JSONUtil.makeParseErrorMessage(jsonString, ex);
-			throw new IllegalArgumentException(message);
+			throw new IllegalArgumentException(JSONUtil.makeParseErrorMessage(jsonString, ex));
 		}
 	}
 
@@ -95,8 +86,7 @@ public class Builder {
 		String appName=JSONUtil.getString(json,"ApplicationName");
 		String appVersion=JSONUtil.getString(json,"ApplicationVersion");
 		if(appName!=null){
-			ApplicationRequirement appRequired=new ApplicationRequirement(appName,appVersion);
-			requirements.add(appRequired);
+			requirements.add(new ApplicationRequirement(appName,appVersion));
 		}
 	}
 
@@ -144,10 +134,6 @@ public class Builder {
 	@Override
 	public String toString(){
 		return json.toString(2);
-	}
-
-	public boolean isSweepJob(){
-		return isSweepJob;
 	}
 
 }
