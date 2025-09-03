@@ -7,7 +7,6 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 
 import javax.net.ssl.SSLContext;
@@ -34,7 +33,9 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 	private int myPort;
 
 	private boolean disableSSL;
-	
+
+	private int connectTimeout;
+
 	public TSISocketFactory(XNJS xnjs)throws Exception{
 		this.xnjs = xnjs;
 		reInit();
@@ -55,6 +56,7 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 		IOUtils.closeQuietly(server);
 		sslContext = null;
 		server = createServer(myPort);
+		connectTimeout = 1000 * tsiProps.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
 	}
 	
 	private ServerSocket createServer(int myPort)throws IOException{
@@ -65,7 +67,10 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 
 	public Socket accept()throws IOException{
 		Socket s = server.accept();
-		if(useSSL()) {
+		if(disableSSL) {
+			return s;
+		}
+		else {
 			SSLSocketFactory ssf = getSSLContext().getSocketFactory();
 			InetSocketAddress peer = (InetSocketAddress)s.getRemoteSocketAddress();
 			SSLSocket ssl = (SSLSocket)ssf.createSocket(s, peer.getHostName(), peer.getPort(), true);
@@ -73,7 +78,6 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 			ssl.startHandshake();
 			return ssl;
 		}
-		else return s;
 	}
 	
 	/**
@@ -101,41 +105,15 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 	private SSLContext sslContext = null;
 
 	public Socket createSocket(InetAddress source_addr, int port) throws IOException{
+		Socket s = null;
 		if(disableSSL){
-			return new Socket(source_addr,port);
+			s = new Socket();
 		}
 		else{
-			return getSSLContext().getSocketFactory().createSocket(source_addr, port);
+			s = getSSLContext().getSocketFactory().createSocket();
 		}
-	}
-
-	public Socket createSocket(String host, int port) throws IOException,UnknownHostException {
-		if(disableSSL){
-			return new Socket(host,port);
-		}
-		else{
-			return getSSLContext().getSocketFactory().createSocket(host, port);
-		}
-	}
-
-	public Socket createSocket(String host, int port, InetAddress localHost,
-			int localPort) throws IOException, UnknownHostException {
-		if(disableSSL){
-			return new Socket(host,port,localHost,localPort);
-		}
-		else{
-			return getSSLContext().getSocketFactory().createSocket(host,port,localHost,localPort);
-		}
-	}
-
-	public Socket createSocket(InetAddress address, int port,
-			InetAddress localAddress, int localPort) throws IOException {
-		if(useSSL()){
-			return getSSLContext().getSocketFactory().createSocket(address,port,localAddress,localPort);
-		}
-		else{
-			return new Socket(address,port,localAddress,localPort);
-		}
+		s.connect(new InetSocketAddress(source_addr, port), connectTimeout);
+		return s;
 	}
 
 	public synchronized SSLContext getSSLContext() throws IOException{
@@ -152,5 +130,5 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 	public boolean useSSL(){
 		return !disableSSL;
 	}
-	
+
 }

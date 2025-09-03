@@ -34,8 +34,6 @@ public class S3FileImport extends S3FileTransferBase {
 
 	private FileSet fileSet;
 
-	private String permissions = null;
-
 	/**
 	 * files to transfer: pairs of remote source and local target
 	 */
@@ -45,6 +43,7 @@ public class S3FileImport extends S3FileTransferBase {
 		super(configuration);
 	}	
 
+	@Override
 	public final void run(){
 		try{
 			setup();
@@ -116,7 +115,7 @@ public class S3FileImport extends S3FileTransferBase {
 	 * transfer all previously collected files
 	 */
 	protected void runTransfers() throws Exception {
-		for (Pair<XnjsFile,String> pair : filesToTransfer) {
+		for (var pair : filesToTransfer) {
 			checkCancelled();
 			XnjsFile currentSource = pair.getM1();
 			String currentTarget = pair.getM2();
@@ -131,15 +130,10 @@ public class S3FileImport extends S3FileTransferBase {
 		}
 	}
 
-	@Override
-	public void setPermissions(String permissions) {
-		this.permissions = permissions;
-	}
-
 	protected void setFilePermissions() {
 		try{
 			IStorageAdapter tsi = getLocalStorage();
-			boolean supportsBatch=tsi instanceof BatchMode;
+			boolean supportsBatch = tsi instanceof BatchMode;
 			if(supportsBatch){
 				((BatchMode)tsi).startBatch();
 			}
@@ -169,18 +163,13 @@ public class S3FileImport extends S3FileTransferBase {
 	 * sets up security and creates the SMS client
 	 */
 	protected void setup() throws Exception{
-		if(OverwritePolicy.RESUME_FAILED_TRANSFER.equals(overwrite)
-				&&!supportsResume()){
+		if(OverwritePolicy.RESUME_FAILED_TRANSFER.equals(overwrite)){
 			throw new Exception("Resuming a transfer is not supported!");
 		}
 		checkCancelled();
 		initSecurityProperties();
 		s3Adapter = createS3Adapter();
 		startTime=System.currentTimeMillis();
-	}
-
-	protected boolean supportsResume(){
-		return false;
 	}
 
 	/**
@@ -276,10 +265,6 @@ public class S3FileImport extends S3FileTransferBase {
 		}
 		return result;
 	}
-
-	protected void doRun(String localFile)throws Exception{
-		
-	}	
 
 	protected void copyPermissions(XnjsFile remote, String localFile) {
 		try{

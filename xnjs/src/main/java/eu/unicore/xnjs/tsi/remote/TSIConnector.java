@@ -22,7 +22,7 @@ import eu.unicore.xnjs.util.LogUtil;
  * @author schuller
  */
 public class TSIConnector {
-	
+
 	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,TSIConnector.class);
 
 	private final String hostname;
@@ -34,10 +34,14 @@ public class TSIConnector {
 	private final AtomicInteger counter = new AtomicInteger(0);
 
 	/**
-	 * 
-	 * @param tsiAddress
-	 * @param tsiPort
-	 * @param hostname - the hostname used to lookup the address 
+	 * create a new TSI connector
+	 *
+	 * @param factory
+	 * @param properties
+	 * @param tsiAddress - address of the TSI to connect to
+	 * @param tsiPort - port of the TSI to connect to
+	 * @param hostname - hostname from configuration
+	 * @param category - category from configuration
 	 */
 	public TSIConnector(TSIConnectionFactory factory, TSIProperties properties,
 			InetAddress tsiAddress, int tsiPort, String hostname, String category){
@@ -49,15 +53,15 @@ public class TSIConnector {
 		this.category = category;
 		this.waitingPeriod = 5 * properties.getIntValue(TSIProperties.BSS_UPDATE_INTERVAL);
 	}
-	
+
 	public String getHostname() {
 		return hostname;
 	}
-	
+
 	public InetAddress getAddress() {
 		return address;
 	}
-	
+
 	public String getCategory() {
 		return category;
 	}
@@ -84,7 +88,7 @@ public class TSIConnector {
 		synchronized(server) {
 			try {
 				server.setSoTimeout(connectTimeout);
-				signalShepherd(server, "set "+key+" "+value+"\n");
+				messageTSI(server, "set "+key+" "+value+"\n");
 			}catch(IOException ex) {
 				notOK(Log.createFaultMessage("Can't set parameter on TSI"+this, ex));
 				throw ex;
@@ -108,7 +112,7 @@ public class TSIConnector {
 		Socket data_socket = null;
 		synchronized(server) {
 			server.setSoTimeout(connectTimeout);
-			actualTSIAddress = signalShepherd(server, "newtsiprocess "+replyport+"\n");
+			actualTSIAddress = messageTSI(server, "newtsiprocess "+replyport+"\n");
 			// Wait for TSI callback (commands first, then data)
 			commands_socket = server.accept();
 			try {
@@ -189,7 +193,7 @@ public class TSIConnector {
 		synchronized(server) {
 			server.setSoTimeout(connectTimeout);
 			String msg = String.format("start-forwarding %s %s %s %s\n", replyport, serviceAddress, user, group);
-			actualTSIAddress = signalShepherd(server, msg);
+			actualTSIAddress = messageTSI(server, msg);
 			base = server.accept(false).getChannel();
 			if(server.useSSL()) {
 				SSLEngine engine = server.getSSLContext().createSSLEngine(hostname, port);
@@ -228,12 +232,13 @@ public class TSIConnector {
 	}
 
 	/**
-	 * signal the TSI that we want a new TSI process
+	 * send a message to the main TSI process
+	 * 
 	 * @return the peer address (which may be different the from tsiHost parameter in some cases like DNS level redirects)
 	 * @throws Exception
 	 */
-	private InetAddress signalShepherd(TSISocketFactory server, String message) throws IOException {
-		log.debug("Signalling TSI at {}:{} : {}", address, port, message);
+	private InetAddress messageTSI(TSISocketFactory server, String message) throws IOException {
+		log.debug("Messaging main TSI process at {}:{} <{}>", address, port, message);
 		Socket s = server.createSocket(address, port);
 		s.getOutputStream().write(message.getBytes());
 		s.getOutputStream().flush();
@@ -250,7 +255,7 @@ public class TSIConnector {
 	private long waitingPeriod = 60 * 1000;
 
 	private String statusMessage;
-	
+
 	/**
 	 * Check the state of the circuit breaker. If "not OK", it will check whether the 
 	 * waiting period has passed. If yes the circuit will be re-enabled.

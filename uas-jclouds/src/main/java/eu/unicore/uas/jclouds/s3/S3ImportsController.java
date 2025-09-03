@@ -62,29 +62,19 @@ public class S3ImportsController implements IFTSController {
 	}
 
 	@Override
-	public void setStorageAdapter(IStorageAdapter storageAdapter) {
-		// unused
-	}
+	public void setStorageAdapter(IStorageAdapter storageAdapter) {}
 
 	@Override
-	public void setOverwritePolicy(OverwritePolicy overwrite) {
-		// unused
-	}
+	public void setOverwritePolicy(OverwritePolicy overwrite) {}
 
 	@Override
-	public void setImportPolicy(ImportPolicy importPolicy) {
-		// unused
-	}
+	public void setImportPolicy(ImportPolicy importPolicy) {}
 
 	@Override
-	public void setExtraParameters(Map<String,String>extraParameters) {
-		// unused
-	}
+	public void setExtraParameters(Map<String,String>extraParameters) {}
 
 	@Override
-	public void setProtocol(String protocol) {
-		// unused
-	}
+	public void setProtocol(String protocol) {}
 
 	private void setup() throws Exception {
 		if(s3adapter==null) {
@@ -95,8 +85,7 @@ public class S3ImportsController implements IFTSController {
 	private void getRemoteFileInfo(String source) throws Exception {
 		if(!FileSet.hasWildcards(source)){
 			remoteBaseInfo = s3adapter.getProperties(source);
-			boolean dir = remoteBaseInfo.isDirectory();
-			if(dir){
+			if(remoteBaseInfo.isDirectory()){
 				sourceFileSet = new FileSet(source, true);
 			}
 			else{

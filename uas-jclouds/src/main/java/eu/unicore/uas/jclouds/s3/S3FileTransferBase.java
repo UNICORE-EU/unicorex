@@ -74,6 +74,8 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 	
 	protected IStorageAdapter s3Adapter;
 
+	protected String permissions = null;
+
 	public S3FileTransferBase(XNJS configuration){
 		this.configuration=configuration;
 		this.kernel=configuration.get(Kernel.class);
@@ -161,6 +163,11 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 
 	public void setWorkdir(String workdir) {
 		this.workdir = workdir;
+	}
+
+	@Override
+	public void setPermissions(String permissions) {
+		this.permissions = permissions;
 	}
 
 	public Client getClient() {

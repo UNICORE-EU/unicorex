@@ -81,8 +81,6 @@ public class TSIProperties extends PropertiesHelper {
 
 	static
 	{
-		// connection settings
-		
 		META.put(TSI_MACHINE, new PropertyMD("localhost").setCanHaveSubkeys().
 				setDescription("TSI host(s) or IP address(es). Specify multiple hosts in the format 'machine1[:port1],machine2[:port2],...'"));
 		META.put(TSI_PORT, new PropertyMD("4433").setInt().setPositive().
@@ -93,10 +91,10 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Read timeout (seconds) on the TSI connection. Set to '0' for no timeout."));	
 		META.put(TSI_CONNECT_TIMEOUT, new PropertyMD("10").setInt().setBounds(0, Integer.MAX_VALUE).
 				setDescription("Connection timeout (seconds) on when establishing (or checking) the TSI connection. Set to '0' for no timeout."));	
-		
+
 		META.put(TSI_NO_CHECK, new PropertyMD("false").
 				setDescription("Disable checking if IP address(es) of command/data socket callbacks are as expected."));
-	
+
 		META.put(TSI_BSSUSER, new PropertyMD("unicore").
 				setDescription("Account used for getting statuses of all batch jobs (cannot be 'root')."));	
 		META.put(TSI_DISABLE_SSL, new PropertyMD("true").setBoolean().
@@ -105,8 +103,7 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Limit the total number of TSI worker processes created by this UNICORE/X ('-1' means no limit)."));
 		META.put(TSI_POOL_SIZE, new PropertyMD("4").setInt().setPositive().
 				setDescription("How many TSI worker processes per TSI host to keep (even if idle)."));
-		
-		// commands
+
 		META.put(TSI_CD, new PropertyMD("cd").
 				setDescription("Unix 'cd' command."));
 		META.put(TSI_CP, new PropertyMD("/bin/cp").
@@ -135,8 +132,7 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Unix command template for aborting a process and its child processes."));
 		META.put(TSI_BUFFERSIZE, new PropertyMD(String.valueOf(1024*1024)).setInt().setPositive().
 				setDescription("Buffer size (in bytes) for transferring data from/to the TSI."));
-		
-		// various
+
 		META.put(BSS_UPDATE_INTERVAL, new PropertyMD("10000").setInt().setPositive().
 				setDescription("Interval (ms) for updating job statuses on the batch system."));
 		META.put(BSS_NO_USER_INTERACTIVE_APPS, new PropertyMD("false").setBoolean().

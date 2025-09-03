@@ -28,8 +28,6 @@ public class S3FileExport extends S3FileTransferBase {
 
 	private FileSet fileSet;
 
-	private String permissions = null;
-
 	/**
 	 * files to transfer: stores pairs of (local_source + size) and remote filename
 	 */
@@ -40,6 +38,7 @@ public class S3FileExport extends S3FileTransferBase {
 		this.export = true;
 	}	
 
+	@Override
 	public final void run(){
 		try{
 			setup();
@@ -101,7 +100,7 @@ public class S3FileExport extends S3FileTransferBase {
 	 * @throws IOException if the file does not exist
 	 * @throws ExecutionException if the file properties can not be checked
 	 */
-	protected synchronized long computeFileSize(String file)throws ExecutionException {
+	protected long computeFileSize(String file)throws ExecutionException {
 		XnjsFile f = getLocalStorage().getProperties(file);
 		if(f!=null){
 			return f.getSize();
@@ -113,9 +112,9 @@ public class S3FileExport extends S3FileTransferBase {
 	 * transfer all previously collected files
 	 */
 	protected void runTransfers() throws Exception {
-		for (Pair<Pair<String,Long>,String> pair: filesToTransfer) {
+		for (var pair: filesToTransfer) {
 			checkCancelled();
-			Pair<String,Long>sourceDesc=pair.getM1();
+			var sourceDesc = pair.getM1();
 			String currentSource = sourceDesc.getM1();
 			String currentTarget = pair.getM2();
 			if(isDirectory(currentSource))
@@ -146,11 +145,6 @@ public class S3FileExport extends S3FileTransferBase {
 			}
 		}
 	}
-	
-	@Override
-	public void setPermissions(String permissions) {
-		this.permissions = permissions;
-	}
 
 	/**
 	 * copies the permissions of the local file to the remote file
@@ -175,18 +169,6 @@ public class S3FileExport extends S3FileTransferBase {
 		startTime=System.currentTimeMillis();
 	}
 
-	protected boolean supportsResume(){
-		return false;
-	}
-
-	/**
-	 * Import a single file.<br/> 
-	 * Will check if the remote file system is in fact the local one, and
-	 * will invoke the transferFileByCopy() in that case
-	 * @param source
-	 * @param target
-	 * @throws Exception
-	 */
 	protected void transferFile(Pair<String,Long> sourceDesc, String target) throws Exception
 	{
 		checkCancelled();
@@ -206,7 +188,7 @@ public class S3FileExport extends S3FileTransferBase {
 	protected long doCollectFiles(List<Pair<Pair<String,Long>,String>> collection, String sourceFolder, String targetFolder) throws Exception
 	{
 		long result = 1;
-		collection.add(new Pair<Pair<String,Long>,String>(new Pair<String,Long>(sourceFolder,1l), targetFolder));
+		collection.add(new Pair<>(new Pair<>(sourceFolder,1l), targetFolder));
 		for (XnjsFile child : getLocalStorage().ls(sourceFolder)) {
 			String path = child.getPath();
 			String relative = new File(path).getName();
