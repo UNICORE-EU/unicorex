@@ -9,11 +9,11 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import de.fzj.unicore.uas.UAS;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.uas.Base;
+import eu.unicore.uas.UAS;
 import eu.unicore.util.Log;
 
 public class TestS3SMSFactory extends Base {
