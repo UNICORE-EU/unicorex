@@ -25,25 +25,20 @@ public class MetadataSupport {
 	 * The class to be used is read from configuration
 	 */
 	public static synchronized MetadataManager getManager(Kernel kernel, UASProperties config) {
-		
-		Class<? extends MetadataManager> managerClass = null;
 		try{
-			managerClass=config.getClassValue(UASProperties.METADATA_MANAGER_CLASSNAME, MetadataManager.class);
-		} catch(Exception ex){
-			Log.logException("Shouldn't happen: metadata wrongly configured.", ex, logger);
-		}
-		
-		if (managerClass!=null){
-			try{
-				MetadataManager mm=kernel.load(managerClass);
-				return mm;
-			}catch(Exception ex){
-				Log.logException("Cannot instatiate metadata manager from class "+managerClass.getName(), ex, logger);
+			var mgrClass = config.getClassValue(UASProperties.METADATA_MANAGER_CLASSNAME, MetadataManager.class);
+			return kernel.load(mgrClass);
+		}catch(Exception ex){
+			if(!logged) {
+				logged = true;
+				Log.logException("Cannot instatiate metadata manager.", ex, logger);
 			}
 		}
 		return null;
 	}
-	
+
+	private static boolean logged = false;
+
 	/**
 	 * get a new instance of the {@link MetadataManager}<br/>
 	 * 
@@ -52,8 +47,8 @@ public class MetadataSupport {
 	 * @param uniqueID - the unique ID of the storage
 	 */
 	public static synchronized MetadataManager getManager(Kernel kernel, IStorageAdapter storage, String uniqueID){
-		MetadataManager mm=MetadataSupport.getManager(kernel, kernel.getAttribute(UASProperties.class));
-		if(mm instanceof StorageMetadataManager){
+		MetadataManager mm = getManager(kernel, kernel.getAttribute(UASProperties.class));
+		if(mm !=null && mm instanceof StorageMetadataManager){
 			StorageMetadataManager smm=(StorageMetadataManager)mm;
 			smm.setStorageAdapter(storage, uniqueID);
 		}
