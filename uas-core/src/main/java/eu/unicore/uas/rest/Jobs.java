@@ -277,7 +277,7 @@ public class Jobs extends ServicesBase {
 		XNJS xnjs = getResource().getXNJSFacade().getXNJS();
 		Action action = getResource().getXNJSAction();
 		String tsiNode = loginNode!=null ?
-				loginNode : action.getExecutionContext().getPreferredExecutionHost();
+				loginNode : action.getExecutionContext().getLocation();
 		TSI tsi = xnjs.getTargetSystemInterface(AuthZAttributeStore.getClient(), tsiNode);
 		return tsi.openConnection(address);
 	}

@@ -116,16 +116,16 @@ public class Execution extends BasicExecution {
 			String allocationID = job.getProcessingContext().getAs(TSIMessages.ALLOCATION_ID, String.class);
 			job.addLogTrace("Submitting into allocation with ID <"+allocationID+">");
 		}
-		String preferredTSIHost=ec.getPreferredExecutionHost();
+		String preferredTSIHost = ec.getPreferredExecutionHost();
 		if(runOnLoginNode && isFirstSubmit){
 			String msg = "Execution on login node" + 
 		          (preferredTSIHost==null? "" : ", requested node: <"+preferredTSIHost+">");
 			job.addLogTrace(msg);
 		}
-		String tsiHost=null;
+		String tsiHost = null;
 		String msg;
 		String res;
-		String idLine="";
+		String idLine = "";
 
 		Lock lock = null;
 		boolean locked = false;
@@ -141,8 +141,8 @@ public class Execution extends BasicExecution {
 					throw new TSIProblem(preferredTSIHost, ErrorCode.ERR_TSI_COMMUNICATION,
 							"Could not acquire TSI submit lock (timeout)", null);
 				}
-				res=conn.send(tsiCmd);
-				idLine=conn.getIdLine();
+				res = conn.send(tsiCmd);
+				idLine = conn.getIdLine();
 				if(isFirstSubmit) {
 					job.addLogTrace("Command is: "+tsiCmd);
 				}
@@ -168,6 +168,7 @@ public class Execution extends BasicExecution {
 				}
 			}
 			job.setBSID(internalID);
+			ec.setLocation(tsiHost);
 			BSSInfo newJob=new BSSInfo(internalID,job.getUUID(), initialState);
 			newJob.wantsBSSStateChangeNotifications = 
 					job.getNotificationURLs()!=null && 
@@ -445,7 +446,7 @@ public class Execution extends BasicExecution {
 	protected void terminateInteractiveJob(Action job) throws ExecutionException, IOException {
 		String[] tok = job.getBSID().split("_");
 		String pid = tok[tok.length-1];
-		String tsiNode = job.getExecutionContext().getPreferredExecutionHost();
+		String tsiNode = job.getExecutionContext().getLocation();
 		String script = tsiMessages.getAbortProcessCommand(pid);
 		if(!TSIConnection.doCompareVersions(connectionFactory.getTSIVersion(),"9.1.1")){
 			script = "pkill -P "+pid+"; kill "+pid;
