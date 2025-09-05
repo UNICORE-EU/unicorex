@@ -16,7 +16,6 @@ import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
-import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
 import eu.unicore.services.messaging.ResourceAddedMessage;
@@ -28,7 +27,6 @@ import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.impl.UmaskSupport;
 import eu.unicore.uas.impl.job.JobInitParameters;
 import eu.unicore.uas.impl.reservation.ReservationInitParameters;
-import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.StorageDescription;
 import eu.unicore.uas.impl.sms.StorageInitParameters;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
@@ -177,32 +175,22 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 		return initTasks;
 	}
 
-	protected String createStorageID(String smsName){
-		try{
-			if(!uasProperties.getBooleanValue(UASProperties.TSS_FORCE_UNIQUE_STORAGE_IDS)){
-				String xlogin=getClient().getXlogin().getUserName();
-				return xlogin+"-"+smsName;	
-			}
-		}catch(Exception ex){}
-		return Utilities.newUniqueID();
-	}
-
 	//create additional storages defined in the config file...
 	protected void createAdditionalStorages(){
 		Collection<StorageDescription> storages = uasProperties.getAddonStorages();
 		for(StorageDescription a: storages){
 			createStorageResource(a);
-			logger.debug("Added " + a);
+			logger.debug("Added ", a);
 		}
 	} 
 
 	protected void createStorageResource(StorageDescription desc){
-		String uuid=createStorageID(desc.getName());
-		StorageInitParameters init = new StorageInitParameters(uuid,TerminationMode.NEVER);
+		String uuid = Utilities.newUniqueID();
+		StorageInitParameters init = new StorageInitParameters(uuid, TerminationMode.NEVER);
 		init.storageDescription = desc;
 		init.acl.addAll(getModel().getAcl());
 		init.xnjsReference = getModel().getXnjsReference();
-		String id=createStorageManagement(desc.getStorageType(), init);
+		String id = createStorageManagement(desc.getStorageType(), init);
 		if (id != null){
 			getModel().getStorageIDs().add(id);
 		}
@@ -243,36 +231,12 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 				logger.warn("Storage management service is not deployed.");
 				return null;
 			}
-
-			String id=init.uniqueID;
-			boolean mustCreate=true;
-			if(id!=null){
-				try{
-					SMSBaseImpl sms=(SMSBaseImpl)home.get(id);
-					//exists, now check if it is accessible for the current user
-					String smsOwner=sms.getOwner();
-					if(smsOwner!=null && !kernel.getSecurityManager().isAccessible(getClient(), 
-							sms.getServiceName(), id, 
-							smsOwner, sms.getModel().getAcl())){
-						mustCreate=true;
-						logger.info("Existing storage <"+id+"> is not accessible to current user (certificate change?), re-creating it.");
-					}
-					else{
-						mustCreate=false;
-					}
-				}catch(ResourceUnknownException ignored){
-					mustCreate=true;
-				}
-			}
-			if(mustCreate){
-				id=home.createResource(init);
-			}
-			return id;
+			return home.createResource(init);
 		} catch (ResourceNotCreatedException rnc){
 			String msg=Log.createFaultMessage("Storage of type <"+type+"> was NOT created.", rnc);
 			logger.info(msg);
 		} catch (Exception e) {
-			LogUtil.logException("Could not create storage management service.",e,logger);
+			LogUtil.logException("Could not create storage instance.",e,logger);
 		}
 		return null;
 	}

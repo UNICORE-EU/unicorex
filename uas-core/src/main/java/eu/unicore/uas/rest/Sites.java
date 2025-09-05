@@ -49,28 +49,27 @@ import jakarta.ws.rs.core.Response;
 @Path("/sites")
 @USEResource(home=UAS.TSS)
 public class Sites extends ServicesBase {
-	
+
 	private static final Logger logger = Log.getLogger("unicore.rest", Sites.class);
-	
+
 	protected String getResourcesName(){
 		return "sites";
 	}
-	
+
 	@Override
 	protected Map<String,Object>getProperties() throws Exception {
 		TargetSystemImpl tss = (TargetSystemImpl)resource;
 		Map<String,Object> props = super.getProperties();
 		TSSModel model = getModel();
-		
+
 		props.put("umask", model.getUmask());
 		props.put("supportsReservation", String.valueOf(model.getSupportsReservation()));
-		props.put("storages", RESTUtils.makeHrefs(kernel, "core/storages", model.getStorageIDs()));
 		props.put("numberOfJobs", model.getJobIDs().size());
-		
+
 		IDB idb = tss.getXNJSFacade().getIDB();
 		Map<String,Object> resources = IDBContentRendering.asMap(idb.getPartitions());
 		props.put("resources", resources);
-		
+
 		Client client = AuthZAttributeStore.getClient();
 		List<String> apps = new ArrayList<>();
 		for(ApplicationInfo app: tss.getXNJSFacade().getDefinedApplications(client)){
@@ -147,8 +146,12 @@ public class Sites extends ServicesBase {
 		if(tsfID!=null){
 			links.add(new Link("parent",getBaseURL()+"/"+getResourcesName()+"/factories/"+tsfID));
 		}
+		for(String sid: getModel().getStorageIDs()) {
+			String href = RESTUtils.makeHref(kernel, "core/storages", sid);
+			links.add(new Link("storage:"+sid, href));
+		}
 	}
-	
+
 	/**
 	 * list jobs (JSON)
 	 * 
@@ -176,7 +179,7 @@ public class Sites extends ServicesBase {
 			return handleError("Could not list jobs", ex, logger);
 		}
 	}
-	
+
 	protected List<String>getTaggedJobs(String tagSpec) throws Exception { 
 		Home jmsHome = kernel.getHome(UAS.JMS);
 		Client c=AuthZAttributeStore.getClient(); 
@@ -184,7 +187,7 @@ public class Sites extends ServicesBase {
 		List<String> tagged = jmsHome.getStore().getTaggedResources(tags);
 		return jmsHome.getAccessibleResources(tagged, c);
 	}
-	
+
 	/**
 	 * list jobs (HTML)
 	 * 
@@ -205,7 +208,6 @@ public class Sites extends ServicesBase {
 			return handleError("Could not list jobs", ex, logger);
 		}
 	}
-	
 
 	@Path("/{uniqueID}/applications")
 	public Applications getApplicationResource() {

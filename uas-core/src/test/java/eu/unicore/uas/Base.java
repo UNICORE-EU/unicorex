@@ -7,7 +7,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import eu.unicore.services.Kernel;
-import eu.unicore.uas.impl.sms.InitSharedStorages;
 
 /**
  * base class for functional tests. Starts a "clean" UNICORE/X server.
@@ -15,7 +14,7 @@ import eu.unicore.uas.impl.sms.InitSharedStorages;
 public abstract class Base{
 
 	static final String configPath="src/test/resources/uas.config";
-	
+
 	public static void initDirectories() {
 		//clear data directory
 		FileUtils.deleteQuietly(new File("target","data"));
@@ -26,26 +25,19 @@ public abstract class Base{
 		new File(testsRoot, "storagefactory").mkdir();
 		new File(testsRoot, "teststorage").mkdir();
 	}
-	
+
 	protected static UAS uas;
 	protected static Kernel kernel;
-	
+
 	@BeforeAll
 	public static void startUNICORE() throws Exception{
-		
-		long start=System.currentTimeMillis();
+		long start = System.currentTimeMillis();
 		System.out.println("Starting UNICORE/X...");
-		
 		initDirectories();
-		uas=new UAS(configPath);
-		kernel=uas.getKernel();
-		
+		uas = new UAS(configPath);
+		kernel = uas.getKernel();
 		uas.startSynchronous();
-		
 		System.err.println("UNICORE/X startup time: "+(System.currentTimeMillis()-start)+" ms.");
-		
-		//create a shared SMS
-		new InitSharedStorages(kernel).run();
 	}
 
 	@AfterAll

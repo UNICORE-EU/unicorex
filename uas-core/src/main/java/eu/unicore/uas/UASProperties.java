@@ -139,12 +139,8 @@ public class UASProperties extends PropertiesHelper {
 	public static final Map<String, PropertyMD> META = new HashMap<>();
 	static {
 
-		META.put(TSS_FORCE_UNIQUE_STORAGE_IDS, new PropertyMD("false").setDeprecated().
-				setDescription("Whether to use unique identifiers for all storages attached to TSS services. "
-						+ "If set to true, the storages attached to a TSS will always have unique IDs. "
-						+ "In the default case, storage names will be formed from the user's xlogin and the storage name, e.g. 'a.user-Home'. "
-						+ "Unique identifiers are long and not possible to be predicted but are needed if many grid users are mapped to "
-						+ "the same local account."));
+		META.put(TSS_FORCE_UNIQUE_STORAGE_IDS, new PropertyMD("true").setDeprecated().
+				setDescription("(deprecated)"));
 
 		META.put(SMS_TRANSFER_FORCEREMOTE, new PropertyMD("false").
 				setDescription("When doing file transfers, UNICORE tries to detect whether two storage resources are accessing the same (local) filesystem. If yes, the transfer is done by direct copying. Set to 'true' to disable this feature."));

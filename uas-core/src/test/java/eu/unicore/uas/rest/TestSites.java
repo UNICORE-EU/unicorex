@@ -40,6 +40,9 @@ public class TestSites extends Base {
 		// create a new TSS
 		SiteClient sc = client.getOrCreateSite();
 		System.out.println("created: "+sc.getEndpoint().getUrl());
+
+		// check TSS properties
+		System.out.println(sc.getProperties().toString(2));
 		sc.delete();
 	}
 
