@@ -1,5 +1,8 @@
 package eu.unicore.client.core;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
@@ -42,6 +45,22 @@ public class SiteClient extends BaseServiceClient implements IJobSubmission {
 	public AllocationClient createAllocation(JSONObject allocation) throws Exception {
 		String allocationURL = bc.create(allocation);
 		return new AllocationClient( endpoint.cloneTo(allocationURL), security, auth);
+	}
+
+	/**
+	 * Get the storages configured specifically for this Site.
+	 * (note: this does NOT include shared storages, or job working directories!)
+	 */
+	public List<StorageClient> getSiteSpecificStorages() throws Exception {
+		List<StorageClient> res = new ArrayList<>();
+		JSONObject ls = getProperties().getJSONObject("_links");
+		for(String k: ls.keySet()) {
+			if(k.startsWith("storage:")) {
+				Endpoint ep = endpoint.cloneTo(ls.getJSONObject(k).getString("href"));
+				res.add(new StorageClient(ep, security, auth));
+			}
+		}
+		return res;
 	}
 
 }

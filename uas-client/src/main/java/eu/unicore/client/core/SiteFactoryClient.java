@@ -19,12 +19,10 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  */
 public class SiteFactoryClient extends BaseServiceClient {
 
-	private EnumerationClient siteList;
-	
 	public SiteFactoryClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
-	
+
 	public SiteClient createSite() throws Exception {
 		return createSite(null,null);
 	}
@@ -43,8 +41,7 @@ public class SiteFactoryClient extends BaseServiceClient {
 		// "global" sync to avoid creating more sites than required
 		// TODO more controlled locking behavior
 		synchronized (getClass()) {
-			EnumerationClient ec = getOrCreateSiteList();
-			List<String>urls = ec.getUrls(0, 1);
+			List<String>urls = getSiteList().getUrls(0, 1);
 			if(urls.size()==0) {
 				return createSite();
 			}
@@ -53,16 +50,9 @@ public class SiteFactoryClient extends BaseServiceClient {
 			}
 		}
 	}
-	
+
 	public EnumerationClient getSiteList() throws Exception {
-		return getOrCreateSiteList();
-	}
-	
-	protected EnumerationClient getOrCreateSiteList() throws Exception{
-		if(siteList==null) {
 			Endpoint sitesEp = endpoint.cloneTo(getLinkUrl("sites"));
-			siteList = new EnumerationClient(sitesEp, security, auth);
-		}
-		return siteList;
+			return new EnumerationClient(sitesEp, security, auth);
 	}
 }

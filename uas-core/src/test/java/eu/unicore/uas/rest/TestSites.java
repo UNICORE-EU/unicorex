@@ -43,6 +43,10 @@ public class TestSites extends Base {
 
 		// check TSS properties
 		System.out.println(sc.getProperties().toString(2));
+
+		// check site-specific storages list
+		assertEquals(1, sc.getSiteSpecificStorages().size());
+
 		sc.delete();
 	}
 

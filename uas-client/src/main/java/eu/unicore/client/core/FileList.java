@@ -22,6 +22,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
 public class FileList extends BaseServiceClient {
 
 	protected StorageClient parentStorage;
+
 	protected String baseDir;
 
 	public FileList(StorageClient parentStorage, String baseDir, Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
@@ -33,11 +34,11 @@ public class FileList extends BaseServiceClient {
 	public StorageClient getStorage(){
 		return parentStorage;
 	}
-	
+
 	public List<FileListEntry>list() throws Exception {
 		return list(0, 1000);
 	}
-	
+
 	public List<FileListEntry>list(int offset, int num) throws Exception {
 		String url = bc.getURL();
 		URIBuilder ub = new URIBuilder(bc.getURL());
@@ -55,7 +56,7 @@ public class FileList extends BaseServiceClient {
 		}
 		return res;
 	}
-	
+
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Files @ ").append(parentStorage.getEndpoint().getUrl()).append("/files/").append(baseDir);
@@ -67,7 +68,7 @@ public class FileList extends BaseServiceClient {
 		}catch(Exception e) {}
 		return sb.toString();
 	}
-	
+
 	public static class FileListEntry{
 		public String path, owner, group;
 		public long size;
@@ -75,7 +76,7 @@ public class FileList extends BaseServiceClient {
 		public boolean isDirectory;
 		public String permissions;
 		public Map<String,String> metadata;
-		
+
 		public FileListEntry(String path, JSONObject fromJson){			
 			this.lastAccessed = fromJson.optString("lastAccessed",null);
 			this.path = path;
@@ -90,13 +91,14 @@ public class FileList extends BaseServiceClient {
 				metadata = JSONUtil.asMap(m);
 			}else metadata = new HashMap<>();
 		}
-		
+
+		@Override
 		public String toString(){
 			String d = isDirectory? "d" : "-";
 			return String.format("%1$1s %2$-11s %3$18s %4$s %5$-30s",
 							d, permissions, String.valueOf(size), lastAccessed, path);
 		}
-		
+
 	}
-	
+
 }

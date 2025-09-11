@@ -230,7 +230,7 @@ public class Jobs extends ServicesBase {
 					throw new Exception("Job BSSID is null - application is not (yet?) running.");
 				}
 				if(portS==null && fileName==null) {
-					// TODO we might already addressvia the job
+					// TODO we might already have the address via the job
 					throw new Exception("Need address to connect to");
 				}
 				String address = null;

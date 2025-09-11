@@ -34,26 +34,26 @@ public class TestJobs extends SecuredBase {
 		JSONObject jobProps = job.getProperties();
 		System.out.println("*** new job: ");
 		System.out.println(jobProps.toString(2));
-		
+
 		// access parent TSS
 		String tssUrl = job.getLinkUrl("parentTSS");
 		client.setURL(tssUrl);
 		JSONObject tssProps = client.getJSON();
 		System.out.println("*** parent TSS: ");
 		System.out.println(tssProps.toString(2));
-		
+
 		String jobsURL=client.getLink("jobs");
 		client.setURL(jobsURL);
 		// check that the job URL is listed
 		System.out.println(client.getJSON().toString(2));
 		assertTrue(contains(client.getJSON().getJSONArray("jobs"),jobUrl));
-		
+
 		// job desc
 		JSONObject submitted = job.getSubmittedJobDescription();
 		System.out.println("*** retrieving submitted job: ");
 		System.out.println(submitted.toString(2));
 		assertEquals("Date",submitted.getString("ApplicationName"));
-		
+
 		// details
 		JSONObject details = job.getBSSDetails();
 		System.out.println("*** bss details: ");
@@ -61,6 +61,11 @@ public class TestJobs extends SecuredBase {
 		// with query params
 		details = job.getBSSDetails("rawDetailsData");
 		assertEquals(1, details.length());
+
+		// working directory
+		JSONObject wdProps = job.getWorkingDirectory().getProperties();
+		System.out.println("*** working directory: ");
+		System.out.println(wdProps.toString(2));
 	}
 
 	@Test
@@ -69,7 +74,7 @@ public class TestJobs extends SecuredBase {
 		System.out.println("Accessing "+url);
 		IAuthCallback auth = new UsernamePassword("demouser", "test123");
 		BaseClient client = new BaseClient(url,kernel.getClientConfiguration(), auth);
-		
+
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
 		JSONArray tags = new JSONArray();
@@ -95,7 +100,7 @@ public class TestJobs extends SecuredBase {
 		taggedJobs = client.getJSON().getJSONArray("jobs");
 		assertEquals(0, taggedJobs.length());
 	}
-	
+
 	@Test
 	public void testJobDirectoryHandling() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
