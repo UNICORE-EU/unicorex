@@ -73,9 +73,9 @@ public class ActionRunner extends Thread {
 	 *  On every iteration,
 	 *  <ul>
 	 *  <li> get an action from the Manager</li>
-	 *  <li> get a processing chain for it</li>
+	 *  <li> get the processing chain for it</li>
 	 *  <li> call process() on the first Processor of the chain</li>
-	 *  <li> return the action to the Manager</li>
+	 *  <li> store and trigger the next processing iteration</li>
 	 *   </ul> 
 	 */
 	public void run() {
@@ -88,7 +88,7 @@ public class ActionRunner extends Thread {
 				if(id != null){
 					logger.debug("Processing {}", id);
 					try{
-						a=jobs.getForUpdate(id);
+						a = jobs.getForUpdate(id);
 					}catch(TimeoutException te) {
 						// not an issue - try again later
 						dispatcher.process(id);
@@ -96,12 +96,7 @@ public class ActionRunner extends Thread {
 						logger.warn("Can't get action for processing",eex);
 					}
 					if(a!=null){
-						if(isEligible(a)){
-							process(a);
-						}
-						else{
-							sendToSleep(a);
-						}
+						doProcess(a);
 					}
 					dispatcher.notifyAvailable(this);
 				}
@@ -109,6 +104,49 @@ public class ActionRunner extends Thread {
 		}catch(Exception ie){
 			logger.info("Worker {} stopped.", getName());
 			return;
+		}
+	}
+
+	private final List<XnjsEvent> events = new ArrayList<>();
+
+	/**
+	 * if the action is not delayed, this will invoke the processing chain
+	 * for the action, put it back into persistence, and trigger the next
+	 * iteration, based on the action state
+	 */
+	private void doProcess(Action a){
+		int status = a.getStatus();
+		events.clear();
+		try{
+			if(isEligible(a)) {
+				LogUtil.fillLogContext(a);
+				Processor p = xnjs.createProcessor(a.getType());
+				logger.trace("Processing Action <{}> in status {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
+				p.process(a);
+				logger.trace("New status for Action <{}>: {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
+				events.addAll(checkNotify(a, status));
+			}
+			else {
+				sendToSleep(a);
+			}
+		}catch(Throwable pe){
+			// set status first to make sure we trigger notifications
+			a.setStatus(ActionStatus.DONE);
+			a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
+			a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", pe));
+			events.addAll(checkNotify(a, status));
+			if(a.getParentActionID()!=null){
+				events.add(new ContinueProcessingEvent(a.getParentActionID()));
+			}
+		}
+		finally{
+			finishProcessing(a);
+			if(events.size()>0) {
+				for(XnjsEvent event: events) {
+					mgr.handleEvent(event);
+				}
+			}
+			LogUtil.clearLogContext();
 		}
 	}
 
@@ -121,39 +159,6 @@ public class ActionRunner extends Thread {
 		long delay = a.getNotBefore()-System.currentTimeMillis();
 		if(delay<=0)delay = 5000;
 		mgr.scheduleEvent(new ContinueProcessingEvent(a.getUUID()), delay, TimeUnit.MILLISECONDS);
-		mgr.doneProcessing(a);
-	}
-
-	//processes the action, and returns it to the manager
-	private void process(Action a){
-		int status=a.getStatus();
-		List<XnjsEvent> events = null;
-		try{
-			LogUtil.fillLogContext(a);
-			Processor p = xnjs.createProcessor(a.getType());
-			logger.trace("Processing Action <{}> in status {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
-			p.process(a);
-			logger.trace("New status for Action <{}>: {}", a.getUUID(), ActionStatus.toString(a.getStatus()));
-			events = checkNotify(a, status);
-			mgr.doneProcessing(a);
-		}catch(Throwable pe){
-			// set status here to make sure we trigger notifications
-			a.setStatus(ActionStatus.DONE);
-			a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
-			a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", pe));
-			events = checkNotify(a, status);
-			try {
-				mgr.errorProcessing(a, pe);
-			}catch(Exception e2) {}
-		}
-		finally{
-			if(events!=null && events.size()>0) {
-				for(XnjsEvent event: events) {
-					mgr.handleEvent(event);
-				}
-			}
-			LogUtil.clearLogContext();
-		}
 	}
 
 	private List<XnjsEvent> checkNotify(Action a, int oldStatus) {
@@ -168,6 +173,31 @@ public class ActionRunner extends Thread {
 			}
 		}
 		return events;
+	}
+
+	private void finishProcessing(Action a){
+		try{
+			String id = a.getUUID();
+			if(a.getStatus()== ActionStatus.DESTROYED) {
+				jobs.remove(a);
+				logger.debug("[{}] Action is destroyed.", id);
+			}
+			else {
+				if(a.getStatus()==ActionStatus.DONE){
+					a.setWaiting(false);
+					jobs.put(id, a);
+				}
+				else {
+					jobs.put(id, a);
+					if(!a.isWaiting()){
+						dispatcher.process(id);
+					}
+				}
+			}
+		}
+		catch(Exception e){
+			logger.error("Persistence problem",e);
+		}
 	}
 
 }

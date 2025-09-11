@@ -52,15 +52,15 @@ public class JDBCActionStore extends AbstractActionStore {
 	@Override
 	protected Action doGetForUpdate(String id)throws Exception, TimeoutException {
 		try{
-			Action a=null;
-			DoneAction da=null;
-			da=doneJobs.getForUpdate(id, getForUpdateTimeoutPeriod, TimeUnit.SECONDS);
-			if(da!=null)a=da.getAction();
-			if(a!=null){
-				return a;
+			Action a = null;
+			DoneAction da = null;
+			da = doneJobs.getForUpdate(id, getForUpdateTimeoutPeriod, TimeUnit.SECONDS);
+			if(da!=null)a = da.getAction();
+			if(a==null){
+				a = activeJobs.getForUpdate(id, getForUpdateTimeoutPeriod, TimeUnit.SECONDS);
 			}
-			else{
-				a=activeJobs.getForUpdate(id, getForUpdateTimeoutPeriod, TimeUnit.SECONDS);
+			if(a==null) {
+				doneJobs.getLockSupport().cleanup(id);
 			}
 			return a;
 		}catch(InterruptedException te){

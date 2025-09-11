@@ -13,16 +13,6 @@ import eu.unicore.xnjs.ems.event.XnjsEvent;
  * @author schuller
  */
 public interface InternalManager extends EventHandler {
-	
-	/**
-	 * notify manager that processing is done
-	 */
-	public void doneProcessing(Action a);
-	
-	/**
-	 * notify manager that an error occured during processing
-	 */
-	public void errorProcessing(Action a, Throwable t);
 
 	/**
 	 * retrieve an action by id.

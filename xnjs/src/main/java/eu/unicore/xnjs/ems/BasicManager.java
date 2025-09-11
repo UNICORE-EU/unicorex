@@ -5,12 +5,10 @@ import java.util.Collection;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
-import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.event.CallbackEvent;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
@@ -46,8 +44,6 @@ public class BasicManager implements Manager, InternalManager {
 	private volatile boolean isPaused = false;
 
 	private volatile boolean started = false;
-
-	private final AtomicLong storeOperations=new AtomicLong(0);
 
 	private final XNJS xnjs;
 
@@ -117,70 +113,6 @@ public class BasicManager implements Manager, InternalManager {
 		return jobs.getForUpdate(id);
 	}
 
-	/**
-	 * called from the workers when a processing iteration has finished without error
-	 */
-	@Override
-	public void doneProcessing(Action a){
-		if(a!=null){
-			try{
-				storeOperations.incrementAndGet();
-				String id=a.getUUID();
-				if(a.getStatus()==ActionStatus.DONE){
-					a.setWaiting(false);
-					jobs.put(id, a);
-				}
-				else if(a.getStatus()!=ActionStatus.DESTROYED){
-					jobs.put(id, a);
-					if(!a.isWaiting()){
-						dispatcher.process(id);
-					}
-				}
-				else {
-					jobs.remove(a);
-					logger.debug("[{}] Action is destroyed.", id);
-				}
-			}
-			catch(TimeoutException te){
-				logger.error("Internal Error: can't remove job <"+a.getUUID()+">");
-			}
-			catch(Exception e){
-				logger.error("Persistence problem",e);
-			}
-		}
-		else{
-			logger.warn("Internal Error: doneProcessing() called with non-existent action?");
-		}
-
-	}
-	/**
-	 * processing iteration has produced an error
-	 */
-	@Override
-	public void errorProcessing(Action a, Throwable t){
-		if(a!=null){
-			a.addLogTrace("End of processing - not successful.");
-			a.setStatus(ActionStatus.DONE);
-			a.getResult().setStatusCode(ActionResult.NOT_SUCCESSFUL);
-			a.getResult().setErrorMessage(Log.createFaultMessage("Processing failed", t));
-			try{
-				jobs.put(a.getUUID(),a);
-			}catch(Exception pe){
-				LogUtil.logException("Persistence problem", pe, logger);
-			}
-			if(a.getParentActionID()!=null){
-				String parent=a.getParentActionID();
-				try{
-					handleEvent(new ContinueProcessingEvent(parent));
-				}catch(Exception ex){
-					LogUtil.logException("Error sending notification", ex, logger);
-				}
-			}
-		}
-		else{
-			logger.error("Internal Error: errorProcessing() called with non-existent action?");
-		}
-	}
 
 	@Override
 	public Object pause(String id, Client client) throws Exception {

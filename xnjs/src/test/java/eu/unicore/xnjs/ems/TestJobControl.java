@@ -61,7 +61,6 @@ public class TestJobControl extends EMSTestBase {
 		System.out.println(a1.getUUID()+" is "+a1.getStatusAsString());
 		System.out.println(a1.getResult().getErrorMessage());
 		assertEquals("USER_ABORTED",a1.getResult().getStatusString());
-		((BasicManager)mgr).doneProcessing(a1);
 		assertFalse(xnjs.get(IExecution.class).isBeingTracked(action));
 	}
 
