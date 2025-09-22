@@ -23,9 +23,9 @@ public class ListPartitions implements AdminAction {
 
 	@Override
 	public AdminActionResult invoke(Map<String, String> params, Kernel kernel) {
-		boolean success=true;
+		boolean success = true;
 		String message = null;
-		String xnjsReference=params.get("xnjsReference");
+		String xnjsReference = params.get("xnjsReference");
 		Collection<Partition> partitions = null;
 		try{
 			message = "Partitions";
@@ -34,15 +34,14 @@ public class ListPartitions implements AdminAction {
 			}
 			partitions = getPartitions(xnjsReference, kernel);
 		}catch(Exception ex){
-			success=false;
-			message=Log.createFaultMessage("Getting partitions failed", ex);
+			success = false;
+			message = Log.createFaultMessage("Getting partitions failed", ex);
 		}
 		AdminActionResult res = new AdminActionResult(success,message);
 		for(Partition p: partitions) {
 			res.addResult(p.getName(), p.toString());
 		}
 		return res;
-
 	}
 
 	private Collection<Partition> getPartitions(String xnjsReference, Kernel kernel) throws Exception {

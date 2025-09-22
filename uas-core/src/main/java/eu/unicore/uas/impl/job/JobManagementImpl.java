@@ -21,6 +21,7 @@ import eu.unicore.uas.impl.sms.StorageInitParameters;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.ems.Action;
+import eu.unicore.services.Resource;
 
 /**
  * implements a Job resource
@@ -101,8 +102,8 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		}
 		catch(Exception e){}
 		tp.time("triggered_action_destroy");
-		try{
-			kernel.getHome(UAS.SMS).destroyResource(getModel().getUspaceId());
+		try(Resource sms = kernel.getHome(UAS.SMS).getForUpdate(getModel().getUspaceId())){
+			sms.destroy();
 		}catch(Exception e){}
 		tp.time("sms_destroyed");
 		super.destroy();

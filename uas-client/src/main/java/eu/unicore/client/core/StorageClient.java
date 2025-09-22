@@ -164,8 +164,8 @@ public class StorageClient extends BaseServiceClient {
 
 	/**
 	 * create BFT upload
-	 * @param target file name
-	 * @param number of bytes (or -1 if not known)
+	 * @param filename - target file name
+	 * @param numberOfBytes (-1 if not known)
 	 */
 	public HttpFileTransferClient upload(String filename, long numberOfBytes) throws Exception {
 		return (HttpFileTransferClient)createImport(filename, false, numberOfBytes, "BFT", null);
@@ -173,7 +173,7 @@ public class StorageClient extends BaseServiceClient {
 
 	/**
 	 * create BFT upload
-	 * @param target file name
+	 * @param filename - target file name
 	 */
 	public HttpFileTransferClient upload(String filename) throws Exception {
 		return upload(filename, -1);
