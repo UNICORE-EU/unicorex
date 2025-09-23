@@ -11,6 +11,7 @@ import eu.unicore.persist.impl.LockSupport;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.Resource;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.registry.LocalRegistryClient;
@@ -37,6 +38,7 @@ public class InitStorageFactories implements Runnable {
 		this.kernel=kernel;
 	}
 
+	@Override
 	public void run(){
 		try{
 			Home smfHome=kernel.getHome(UAS.SMF);
@@ -47,7 +49,9 @@ public class InitStorageFactories implements Runnable {
 			for(String id: smfHome.getStore().getUniqueIDs()){
 				try{
 					if(!StorageFactoryHomeImpl.DEFAULT_SMF_NAME.equals(id)) {
-						smfHome.destroyResource(id);
+						try(Resource smf = smfHome.getForUpdate(id)){
+							smf.destroy();
+						}
 					}
 				}catch(Exception e) {}
 			}
@@ -82,6 +86,7 @@ public class InitStorageFactories implements Runnable {
 	 * add a "default" storage factory if it does not yet exist
 	 * @deprecated will be removed for UNICORE 11
 	 */
+	@Deprecated
 	private void createDefaultStorageFactoryIfNotExists()throws ResourceNotCreatedException,PersistenceException{
 		Home smfHome=kernel.getHome(UAS.SMF);
 		if(smfHome==null){

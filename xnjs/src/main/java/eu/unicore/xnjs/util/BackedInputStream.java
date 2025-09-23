@@ -3,24 +3,29 @@ package eu.unicore.xnjs.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * an input stream that reads data on demand from a back-end
+ *
+ * @author schuller
+ */
 public abstract class BackedInputStream extends InputStream {
 
-	//read buffer
+	// read buffer
 	protected byte[] buffer;
-	//bytes available to the application before buffer has to be re-filled
-	protected int avail=0;
-	//position in the read buffer
-	protected int pos=0;
-	//position in the underlying source
-	protected long bytesRead=0;
-	//total length of data to read
-	protected long length=-1;
+	// bytes available to the application before buffer has to be re-filled
+	protected int avail = 0;
+	// position in the read buffer
+	protected int pos = 0;
+	// position in the underlying source
+	protected long bytesRead = 0;
+	// total length of data to read
+	protected long length = -1;
 
 	public BackedInputStream(int bufferSize, long length){
 		this.length = length;
 		while(buffer==null){
 			try{
-				buffer=new byte[bufferSize];
+				buffer = new byte[bufferSize];
 			}catch(OutOfMemoryError mem){
 				bufferSize=bufferSize/2;
 				if(bufferSize<8192){
@@ -33,7 +38,7 @@ public abstract class BackedInputStream extends InputStream {
 	public BackedInputStream(int bufferSize){
 		this(bufferSize,-1);
 	}		
-	
+
 	@Override
 	public int read() throws IOException {
 		if(length==-1)length = getTotalDataSize();

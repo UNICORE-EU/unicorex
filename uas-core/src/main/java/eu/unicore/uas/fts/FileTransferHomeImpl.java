@@ -26,11 +26,11 @@ public class FileTransferHomeImpl extends DefaultHome {
 	@Override
 	protected Resource doCreateInstance()throws Exception{
 		try{
-			String protocol=protocolT.get();
+			String protocol = protocolT.get();
 			if(protocol==null){
 				return new ServerToServerFileTransferImpl();
 			}
-			else return FileTransferCapabilities.getFileTransferImpl(protocol, getKernel());
+			else return FileTransferCapabilities.getFileTransferImpl(protocol, kernel);
 		}
 		finally{
 			protocolT.remove();
@@ -53,7 +53,7 @@ public class FileTransferHomeImpl extends DefaultHome {
 	}
 
 	protected void initBFT(){
-		FileServlet.initialise(getKernel());
+		FileServlet.initialise(kernel);
 	}
 
 }

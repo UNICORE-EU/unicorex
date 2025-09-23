@@ -56,14 +56,15 @@ public class UspaceStorageImpl extends SMSBaseImpl implements ExtendedResourceSt
 	}
 
 	private void persistChanges(final String workdir) {
-		new AsyncCallback<UspaceStorageImpl>(getHome(), getUniqueID()) 
+		AsyncCallback<UspaceStorageImpl> ac = new AsyncCallback<>(getHome(), getUniqueID()) 
 		{
 			@Override
 			public void callback(UspaceStorageImpl resource) {
 				resource.getModel().setWorkdir(workdir);
 				resource.setResourceStatus(ResourceStatus.READY);
 			}
-		}.submit();
+		};
+		kernel.getContainerProperties().getThreadingServices().getExecutorService().submit(ac);
 	}
 
 }

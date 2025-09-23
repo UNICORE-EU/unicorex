@@ -52,6 +52,6 @@ public class TSSAsyncInitialisation implements Runnable{
 				resource.setResourceStatusMessage(msg);
 				logger.error(msg);
 			}
-		}
+		}catch(Exception e) {}
 	}
 }

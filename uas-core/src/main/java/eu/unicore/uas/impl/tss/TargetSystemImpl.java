@@ -14,6 +14,7 @@ import eu.unicore.security.Client;
 import eu.unicore.services.ExtendedResourceStatus;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
+import eu.unicore.services.Resource;
 import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.messaging.Message;
@@ -258,8 +259,10 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 			try{
 				//destroy our SMS instances
 				Home smsHome = kernel.getHome(UAS.SMS);
-				for(String smsID: model.getStorageIDs()){
-					smsHome.destroyResource(smsID);
+				for(String id: model.getStorageIDs()){
+					try(Resource sms = smsHome.getForUpdate(id)){
+						sms.destroy();
+					}
 				}
 			}catch(Exception e){}
 		}

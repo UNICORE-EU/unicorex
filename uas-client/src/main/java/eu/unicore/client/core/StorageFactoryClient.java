@@ -40,8 +40,9 @@ public class StorageFactoryClient extends BaseServiceClient {
 	/**
 	 * U10 had one factory endpoint supporting multiple types,
 	 * U11 has multiple endpoints, one per supported type
-	 * @deprecated
+	 * @deprecated with U11 use the per-type factory
 	 */
+	@Deprecated
 	public StorageClient createStorage(String type, String name, Map<String,String> parameters, Calendar tt) throws Exception {
 		JSONObject json = new JSONObject();
 		if(type!=null)json.put("type", type);

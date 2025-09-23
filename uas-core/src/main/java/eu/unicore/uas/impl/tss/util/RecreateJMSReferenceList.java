@@ -18,7 +18,6 @@ import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.job.JobManagementImpl;
 import eu.unicore.uas.impl.tss.TargetSystemImpl;
 import eu.unicore.uas.util.LogUtil;
-import eu.unicore.util.Log;
 
 /**
  * Re-creates the list of accessible job references in a TSS as it is created.
@@ -55,8 +54,8 @@ public class RecreateJMSReferenceList implements Runnable{
 			AuthZAttributeStore.setClient(client);
 			String user = client.getDistinguishedName();
 			logger.debug("Re-generating job list for {}", X500NameUtils.getReadableForm(user));
-			//check if owner has more TSSs
-			Collection<String>tssIds=tssHome.getStore().getUniqueIDs();
+			// check if owner has more TSSs
+			Collection<String>tssIds = tssHome.getStore().getUniqueIDs();
 			tssIds.remove(tssID);
 			Collection<String>tssIdsOwnedByUser = new HashSet<>();
 			for(String id: tssIds){
@@ -65,8 +64,7 @@ public class RecreateJMSReferenceList implements Runnable{
 					tssIdsOwnedByUser.add(id);
 				}
 			}
-
-			List<String>oldJobs=new ArrayList<>();
+			List<String>oldJobs = new ArrayList<>();
 			for(String jobID: getExistingJobs()){
 				try{
 					JobManagementImpl j=(JobManagementImpl)jms.get(jobID);
@@ -78,12 +76,8 @@ public class RecreateJMSReferenceList implements Runnable{
 					}
 					if(j.getOwner()==null || X500NameUtils.equal(j.getOwner(), user)){
 						oldJobs.add(jobID);
-						try{
-							j=(JobManagementImpl)jms.getForUpdate(jobID);
+						try(JobManagementImpl j2 =(JobManagementImpl)jms.getForUpdate(jobID);){
 							j.setTSSID(tssID);
-							jms.persist(j);
-						}catch(Exception ex){
-							Log.logException("Could not change TSS ID of job <"+jobID+">", ex, logger);
 						}
 					}
 				}catch(ResourceUnknownException re){
