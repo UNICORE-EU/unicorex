@@ -22,6 +22,10 @@
   </properties>
 
   <dependencies>
+     <dependency>
+      <groupId>eu.unicore</groupId>
+      <artifactId>persistence</artifactId>
+    </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
       <artifactId>use-core</artifactId>
