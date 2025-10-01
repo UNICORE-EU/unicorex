@@ -1,5 +1,7 @@
 package eu.unicore.client;
 
+import java.util.Objects;
+
 /**
  * A REST service endpoint including some metadata about it
  * 
@@ -8,13 +10,13 @@ package eu.unicore.client;
 public class Endpoint {
 
 	private final String url;
-	
+
 	private String serverIdentity;
-	
+
 	private String serverPublicKey;
-	
+
 	private String interfaceName;
-	
+
 	public Endpoint(String url) {
 		this.url = url;
 	}
@@ -51,6 +53,7 @@ public class Endpoint {
 		Endpoint ep = new Endpoint(url);
 		ep.setServerIdentity(serverIdentity);
 		ep.setServerPublicKey(serverPublicKey);
+		ep.setInterfaceName(interfaceName);
 		return ep;
 	}
 
@@ -58,4 +61,24 @@ public class Endpoint {
 	public String toString() {
 		return url;
 	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(interfaceName, serverIdentity, serverPublicKey, url);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Endpoint other = (Endpoint) obj;
+		return Objects.equals(interfaceName, other.interfaceName)
+				&& Objects.equals(serverIdentity, other.serverIdentity)
+				&& Objects.equals(serverPublicKey, other.serverPublicKey) && Objects.equals(url, other.url);
+	}
+
 }

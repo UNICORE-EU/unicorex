@@ -25,16 +25,23 @@ public class MetadataSupport {
 	 * The class to be used is read from configuration
 	 */
 	public static synchronized MetadataManager getManager(Kernel kernel, UASProperties config) {
+		MetadataManager mm = null;
 		try{
 			var mgrClass = config.getClassValue(UASProperties.METADATA_MANAGER_CLASSNAME, MetadataManager.class);
-			return kernel.load(mgrClass);
+			if(mgrClass!=null) {
+				mm = kernel.load(mgrClass);
+				if(!logged) {
+					logged = true;
+					logger.info("Loaded MetadataManager <{}>", mgrClass.getName());
+				}
+			}
 		}catch(Exception ex){
 			if(!logged) {
 				logged = true;
-				Log.logException("Cannot instatiate metadata manager.", ex, logger);
+				Log.logException("Cannot instantiate metadata manager.", ex, logger);
 			}
 		}
-		return null;
+		return mm;
 	}
 
 	private static boolean logged = false;
