@@ -1,6 +1,5 @@
 package eu.unicore.uas.impl.sms;
 
-import eu.unicore.services.ExtendedResourceStatus;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.utils.AsyncCallback;
 import eu.unicore.xnjs.ems.Action;
@@ -11,7 +10,7 @@ import eu.unicore.xnjs.ems.ActionStatus;
  *
  * @author schuller
  */
-public class UspaceStorageImpl extends SMSBaseImpl implements ExtendedResourceStatus {
+public class UspaceStorageImpl extends SMSBaseImpl {
 
 	@Override
 	public void initialise(InitParameters initobjs)throws Exception{

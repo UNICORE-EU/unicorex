@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
+import eu.unicore.services.ExtendedResourceStatus;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
@@ -41,7 +42,8 @@ import eu.unicore.xnjs.tsi.BatchMode;
  * 
  * @author schuller
  */
-public abstract class SMSBaseImpl extends PersistingPreferencesResource implements UmaskSupport {
+public abstract class SMSBaseImpl extends PersistingPreferencesResource
+    implements UmaskSupport, ExtendedResourceStatus {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, SMSBaseImpl.class);
 
