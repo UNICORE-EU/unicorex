@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
+import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
@@ -50,6 +51,9 @@ public class SiteFactories extends ServicesBase {
 		TargetSystemFactoryImpl tsf = getResource();
 		Map<String,Object> props = super.getProperties();
 		TSFModel model = getModel();
+		try{
+			props.put("siteName", kernel.getContainerProperties().getValue(ContainerProperties.VSITE_NAME_PROPERTY));
+		}catch(Exception ex) {}
 		props.put("supportsReservation", String.valueOf(model.getSupportsReservation()));
 		IDB idb = tsf.getXNJSFacade().getIDB();
 		Map<String,Object> resources = IDBContentRendering.asMap(idb.getPartitions());

@@ -12,6 +12,7 @@ import org.json.JSONObject;
 
 import eu.unicore.persist.PersistenceException;
 import eu.unicore.security.Client;
+import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.Link;
@@ -61,7 +62,9 @@ public class Sites extends ServicesBase {
 		TargetSystemImpl tss = (TargetSystemImpl)resource;
 		Map<String,Object> props = super.getProperties();
 		TSSModel model = getModel();
-
+		try{
+			props.put("siteName", kernel.getContainerProperties().getValue(ContainerProperties.VSITE_NAME_PROPERTY));
+		}catch(Exception ex) {}
 		props.put("umask", model.getUmask());
 		props.put("supportsReservation", String.valueOf(model.getSupportsReservation()));
 		props.put("numberOfJobs", model.getJobIDs().size());
