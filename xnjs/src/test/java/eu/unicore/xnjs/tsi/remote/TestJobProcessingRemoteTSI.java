@@ -45,8 +45,9 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 
 	private static String 
 	date = "src/test/resources/json/date.json",
-	date_with_redirect="src/test/resources/json/date_with_extras.json",
-	sleep = "src/test/resources/json/sleep.json";
+	date_with_redirect = "src/test/resources/json/date_with_extras.json",
+	sleep = "src/test/resources/json/sleep.json",
+	pre_post = "src/test/resources/json/prepost.json";
 
 	@Override
 	protected RemoteTSIModule getTSIModule(ConfigurationSource cs){
@@ -307,6 +308,21 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		assertEquals("123456", a.getBSID());
 		a.printLogTrace();
 	}
+	
+	@Test
+	public void testPrePostJob() throws Exception {
+		System.out.println("*** prePostJob");
+		JSONObject job = loadJSONObject(pre_post);
+		Action a = xnjs.makeAction(job);
+		Client c = new Client();
+		a.setClient(c);
+		c.setXlogin(new Xlogin(new String[] {"nobody"}));
+		String id = a.getUUID();
+		mgr.add(a,c);
+		doRun(id);
+		assertSuccessful(id);
+	}
+
 	@Test
 	public void testBasicNotify() throws Exception {
 		MyExec.failSubmits=false;
