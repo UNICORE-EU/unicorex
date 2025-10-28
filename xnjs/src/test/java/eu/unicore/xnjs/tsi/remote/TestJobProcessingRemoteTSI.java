@@ -308,7 +308,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		assertEquals("123456", a.getBSID());
 		a.printLogTrace();
 	}
-	
+
 	@Test
 	public void testPrePostJob() throws Exception {
 		System.out.println("*** prePostJob");
