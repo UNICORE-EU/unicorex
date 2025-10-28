@@ -157,8 +157,7 @@ public class Execution extends BasicExecution {
 			String internalID = bssid;
 			BSS_STATE initialState = BSS_STATE.QUEUED;
 			if(runOnLoginNode || allocateOnly){
-				boolean readPIDFromFile = !runOnLoginSupport || 
-						XNJSConstants.asyncCommandType.equals(job.getType()) || allocateOnly;
+				boolean readPIDFromFile = !runOnLoginSupport || allocateOnly;
 				long iPid = readPIDFromFile ? readPID(job, tsiHost) : Long.valueOf(bssid);
 				internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;
 				msg = "Submitted to TSI as ["+idLine+"] with PID="+iPid+" on ["+tsiHost+"]";
