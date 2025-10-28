@@ -110,14 +110,14 @@ public class Execution extends BasicExecution {
 		ExecutionContext ec = job.getExecutionContext();
 		int initialStatus = ActionStatus.QUEUED;
 		boolean isFirstSubmit = null==job.getProcessingContext().get(BSS_SUBMIT_COUNT);
-		boolean runOnLoginNode = ec.isRunOnLoginNode();
+		boolean executeOnLoginNode = ec.isRunOnLoginNode();
 		boolean allocateOnly = appDescription.isAllocateOnly();
 		if(job.getProcessingContext().get(TSIMessages.ALLOCATION_ID)!=null && isFirstSubmit) {
 			String allocationID = job.getProcessingContext().getAs(TSIMessages.ALLOCATION_ID, String.class);
 			job.addLogTrace("Submitting into allocation with ID <"+allocationID+">");
 		}
 		String preferredTSIHost = ec.getPreferredExecutionHost();
-		if(runOnLoginNode && isFirstSubmit){
+		if(executeOnLoginNode && isFirstSubmit){
 			String msg = "Execution on login node" + 
 		          (preferredTSIHost==null? "" : ", requested node: <"+preferredTSIHost+">");
 			job.addLogTrace(msg);
@@ -132,10 +132,10 @@ public class Execution extends BasicExecution {
 		boolean runOnLoginSupport = false;
 		try{
 			try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
-				runOnLoginSupport = conn.compareVersion("10.2.0");
+				runOnLoginSupport = conn.compareVersion("10.2.0") && !XNJSConstants.asyncCommandType.equals(job.getType());
 				String tsiCmd = createTSIScript(job, runOnLoginSupport);
 				tsiHost = conn.getTSIHostName();
-				lock = runOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
+				lock = executeOnLoginNode ? bss.getNodeLock(tsiHost) : bss.getBSSLock();
 				locked = lock.tryLock(120, TimeUnit.SECONDS);
 				if(!locked) {
 					throw new TSIProblem(preferredTSIHost, ErrorCode.ERR_TSI_COMMUNICATION,
@@ -156,7 +156,7 @@ public class Execution extends BasicExecution {
 			msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
 			String internalID = bssid;
 			BSS_STATE initialState = BSS_STATE.QUEUED;
-			if(runOnLoginNode || allocateOnly){
+			if(executeOnLoginNode || allocateOnly){
 				boolean readPIDFromFile = !runOnLoginSupport || allocateOnly;
 				long iPid = readPIDFromFile ? readPID(job, tsiHost) : Long.valueOf(bssid);
 				internalID = "INTERACTIVE_"+tsiHost+"_"+iPid;

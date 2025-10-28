@@ -26,7 +26,7 @@ public class TSIUserInfoLoader implements UserInfoSource {
 			c.setXlogin(new Xlogin(new String[]{userName}));
 			TSI tsi = XNJSFacade.get(null, kernel).getTSI(c);
 			if(tsi instanceof RemoteTSI) {
-				return ((RemoteTSI)tsi).getUserPublicKeys();
+				return ((RemoteTSI)tsi).getUserPublicKeys().getKeys();
 			}
 		} catch(Exception ex) {}
 		return Collections.emptyList();

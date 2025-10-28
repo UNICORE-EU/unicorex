@@ -11,6 +11,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
@@ -36,6 +37,7 @@ import eu.unicore.xnjs.tsi.BatchMode;
 import eu.unicore.xnjs.tsi.MultiNodeTSI;
 import eu.unicore.xnjs.tsi.TSIProblem;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
+import eu.unicore.xnjs.tsi.UserInfoHolder;
 import eu.unicore.xnjs.util.BackedInputStream;
 import eu.unicore.xnjs.util.BackedOutputStream;
 import eu.unicore.xnjs.util.ErrorCode;
@@ -661,19 +663,26 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return budget;
 	}
 
-	public List<String> getUserPublicKeys() throws ExecutionException {
+	public UserInfoHolder getUserPublicKeys() throws ExecutionException {
 		String reply = runTSICommand(tsiMessages.makeGetUserInfoCommand());
-		List<String> result = new ArrayList<>();
+		UserInfoHolder result = new UserInfoHolder();
+		List<String> keys = result.getKeys();
+		Map<String,String>attributes = result.getAttributes();
 		BufferedReader br = new BufferedReader(new StringReader(reply+"\n"));
 		while(true){
 			String line = tsiMessages.readTSIDFLine(br);
 			if(line==null)break;
 			try {
-				if(line.startsWith("Accepted key")) {
-					result.add(line.split(":")[1]);
+				if(line.startsWith("Accepted key:")) {
+					keys.add(line.split(":")[1]);
+				}
+				else if(line.startsWith("Attribute:")) {
+					String attr = line.split(":")[1].trim();
+					String[]tk = attr.split("=",2);
+					attributes.put(tk[0], tk[1]);
 				}
 			}catch(Exception ex) {
-				Log.logException("Could not get_user_info reply item <"+line+">", ex, tsiLogger);
+				Log.logException("Could not handle get_user_info reply item <"+line+">", ex, tsiLogger);
 			}
 		}
 		return result;
