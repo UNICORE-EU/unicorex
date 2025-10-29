@@ -460,7 +460,7 @@ public class TestTSI extends RemoteTSITestCase{
 	public void testGetUserInfo() {
 		RemoteTSI tsi=makeTSI();
 		try{
-			List<String>keys = tsi.getUserPublicKeys().getKeys();
+			List<String>keys = tsi.getUserInfo().getPublicKeys();
 			System.out.println(keys);
 		}catch(ExecutionException ee1) {
 			System.out.println(ee1.getMessage());

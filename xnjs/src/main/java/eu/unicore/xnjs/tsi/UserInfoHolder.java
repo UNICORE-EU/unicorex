@@ -15,7 +15,7 @@ public class UserInfoHolder {
 		return attributes;
 	}
 
-	public List<String> getKeys() {
+	public List<String> getPublicKeys() {
 		return keys;
 	}
 

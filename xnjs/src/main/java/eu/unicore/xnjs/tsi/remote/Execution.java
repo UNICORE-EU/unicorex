@@ -250,7 +250,7 @@ public class Execution extends BasicExecution {
 		}
 		throw new IOException("Could not read PID file <"+file+"> on <"+preferredTSINode+">");
 	}
-	
+
 	/*
 	 *  Some back-ends may require credentials for status checks or output retrieval.
 	 *  This method extracts these from the job.
@@ -391,6 +391,7 @@ public class Execution extends BasicExecution {
 			}
 		}
 	}
+
 	private boolean hasGracePeriodPassed(Action job){
 		int myGracePeriod = gracePeriod;
 		Long timeOfFirstStatusCheck=(Long)job.getProcessingContext().get(GRACE_PERIOD_start);
@@ -409,7 +410,6 @@ public class Execution extends BasicExecution {
 		job.getProcessingContext().remove(GRACE_PERIOD_start);
 		job.setDirty();
 	}
-
 
 	@Override
 	public void abort(Action job) throws ExecutionException {
@@ -455,7 +455,7 @@ public class Execution extends BasicExecution {
 			TSIMessages.checkNoErrors(res, conn.getTSIHostName());
 		}
 	}
-	
+
 	@Override
 	public int getNumberOfQueuedJobs() {
 		return bss.getBSSSummary().queued;

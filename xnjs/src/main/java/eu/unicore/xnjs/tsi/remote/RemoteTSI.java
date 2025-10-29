@@ -663,10 +663,10 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return budget;
 	}
 
-	public UserInfoHolder getUserPublicKeys() throws ExecutionException {
+	public UserInfoHolder getUserInfo() throws ExecutionException {
 		String reply = runTSICommand(tsiMessages.makeGetUserInfoCommand());
 		UserInfoHolder result = new UserInfoHolder();
-		List<String> keys = result.getKeys();
+		List<String> keys = result.getPublicKeys();
 		Map<String,String>attributes = result.getAttributes();
 		BufferedReader br = new BufferedReader(new StringReader(reply+"\n"));
 		while(true){
