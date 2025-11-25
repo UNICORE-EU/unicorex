@@ -667,13 +667,13 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		String reply = runTSICommand(tsiMessages.makeGetUserInfoCommand());
 		UserInfoHolder result = new UserInfoHolder();
 		List<String> keys = result.getPublicKeys();
-		Map<String,String>attributes = result.getAttributes();
+		Map<String,Object>attributes = result.getAttributes();
 		BufferedReader br = new BufferedReader(new StringReader(reply+"\n"));
 		while(true){
 			String line = tsiMessages.readTSIDFLine(br);
 			if(line==null)break;
 			try {
-				if(line.startsWith("Accepted key:")) {
+				if(line.startsWith("Accepted key")) {
 					keys.add(line.split(":")[1]);
 				}
 				else if(line.startsWith("Attribute:")) {
@@ -1049,7 +1049,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	public String runTSICommand(String command) throws ExecutionException {
 		try(TSIConnection conn = getConnection()){
-			String res=conn.send(command);
+			String res = conn.send(command);
 			if(res.startsWith("TSI_FAILED")){
 				throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,
 						"TSI ERROR: Error executing command on TSI <"+lastUsedTSIHost+">. TSI reply: "+res);
@@ -1060,7 +1060,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			throw new ExecutionException(ioe);
 		}
 	}
-	
+
 	private void checkNoErrors(String reply) throws ExecutionException {
 		if (reply==null)return;
 		reply = reply.replaceFirst("TSI_OK", "").trim();
@@ -1068,7 +1068,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "TSI <"+lastUsedTSIHost+"> ERROR: '"+reply+"'");
 		}
 	}
-	
+
 	@Override
 	public SocketChannel openConnection(String address) throws Exception {
 		return factory.connectToService(address, preferredHost, user, group);

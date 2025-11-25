@@ -9,9 +9,9 @@ public class UserInfoHolder {
 
 	private final List<String> keys = new ArrayList<>();
 
-	private final Map<String,String>attributes = new HashMap<>();
+	private final Map<String, Object>attributes = new HashMap<>();
 
-	public Map<String, String> getAttributes() {
+	public Map<String, Object> getAttributes() {
 		return attributes;
 	}
 

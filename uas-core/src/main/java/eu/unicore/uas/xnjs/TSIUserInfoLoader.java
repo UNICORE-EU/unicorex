@@ -1,13 +1,13 @@
 package eu.unicore.uas.xnjs;
 
-import java.util.Collections;
-import java.util.List;
-
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.rest.RESTUtils;
+import eu.unicore.services.rest.security.UserPublicKeyCache.AttributesHolder;
 import eu.unicore.services.rest.security.UserPublicKeyCache.UserInfoSource;
 import eu.unicore.xnjs.tsi.TSI;
+import eu.unicore.xnjs.tsi.UserInfoHolder;
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 
 public class TSIUserInfoLoader implements UserInfoSource {
@@ -19,17 +19,23 @@ public class TSIUserInfoLoader implements UserInfoSource {
 	}
 
 	@Override
-	public List<String> getAcceptedKeys(String userName) {
+	public AttributesHolder getAttributes(String userName, String identityAssign) {
+		AttributesHolder ah = new AttributesHolder(userName);
 		try {
 			Client c = new Client();
 			c.setAnonymousClient();
 			c.setXlogin(new Xlogin(new String[]{userName}));
 			TSI tsi = XNJSFacade.get(null, kernel).getTSI(c);
 			if(tsi instanceof RemoteTSI) {
-				return ((RemoteTSI)tsi).getUserInfo().getPublicKeys();
+				RemoteTSI rtsi = (RemoteTSI)tsi;
+				UserInfoHolder ui = rtsi.getUserInfo();
+				ah.getPublicKeys().addAll(ui.getPublicKeys());
+				if(identityAssign!=null && ui.getAttributes()!=null && ui.getAttributes().size()>0) {
+					ah.setDN(RESTUtils.evaluateToString(identityAssign, ui.getAttributes()));
+				}
 			}
 		} catch(Exception ex) {}
-		return Collections.emptyList();
+		return ah;
 	}
 
 }

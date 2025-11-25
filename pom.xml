@@ -31,9 +31,9 @@
     <!-- goes into .jar manifests, dist poms and packaging versions -->
     <specification.version>10.3.1</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>5.5.0</use.version>
+    <use.version>5.5.1</use.version>
     <secutils.version>4.2.1</secutils.version>
-    <persistence.version>1.2.8</persistence.version>
+    <persistence.version>1.2.9</persistence.version>
     <metrics.version>4.2.37</metrics.version>
     <uftp.version>2.22.0</uftp.version>
     <guice.version>7.0.0</guice.version>
@@ -41,7 +41,7 @@
     <json.version>20250517</json.version>
     <lucene.version>9.11.1</lucene.version>
     <tika.version>2.9.2</tika.version>
-    <commons-io.version>2.20.0</commons-io.version>
+    <commons-io.version>2.21.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
     <jclouds.version>2.7.0</jclouds.version>
