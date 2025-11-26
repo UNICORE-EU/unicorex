@@ -18,8 +18,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
  *
  * @author schuller
  */
-public class UFTPDInstance extends UFTPDInstanceBase
-implements ExternalSystemConnector {
+public class UFTPDInstance extends UFTPDInstanceBase implements ExternalSystemConnector {
 
 	private final Kernel kernel;
 
@@ -35,17 +34,14 @@ implements ExternalSystemConnector {
 		setHost(properties.getValue(UFTPProperties.PARAM_SERVER_HOST));
 		setPort(properties.getIntValue(UFTPProperties.PARAM_SERVER_PORT));
 	}
-	
-	public String getConnectionStatusMessage(){
-		checkConnection();
-		return statusMessage;
-	}
-	
+
+	@Override
 	public Status getConnectionStatus() {
 		checkConnection();
 		return isUp? Status.OK : Status.DOWN;
 	}
-	
+
+	@Override
 	public String getExternalSystemName() {
 		return  "UFTPD "+getHost()+":"+getPort();
 	}

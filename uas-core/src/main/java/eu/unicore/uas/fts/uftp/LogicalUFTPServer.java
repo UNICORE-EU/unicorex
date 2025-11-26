@@ -3,6 +3,7 @@ package eu.unicore.uas.fts.uftp;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -136,7 +137,7 @@ public class LogicalUFTPServer implements ISubSystem {
 	}
 
 	int index = 0;
-	
+
 	public synchronized UFTPDInstance getUFTPDInstance() throws IOException {
 		int c=0;
 		while(c<=instances.size()) {
@@ -151,12 +152,10 @@ public class LogicalUFTPServer implements ISubSystem {
 		}
 		throw new IOException("None of the configured UFTPD servers is available!");
 	}
-	
+
 	@Override
 	public Collection<ExternalSystemConnector>getExternalConnections(){
-		Collection<ExternalSystemConnector>l = new ArrayList<>();
-		l.addAll(instances);
-		return l;
+		return Collections.unmodifiableCollection(instances);
 	}
 
 	@Override

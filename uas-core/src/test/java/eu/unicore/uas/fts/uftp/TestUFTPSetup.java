@@ -38,7 +38,6 @@ public class TestUFTPSetup {
 	public static void init() throws Exception {
 		uftpd1.start();
 		uftpd2.start();
-
 		// start UNICORE
 		long start = System.currentTimeMillis();
 		// clear data directories

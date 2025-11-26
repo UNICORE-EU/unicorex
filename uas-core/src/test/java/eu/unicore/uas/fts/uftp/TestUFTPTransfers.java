@@ -18,6 +18,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
+import org.h2.expression.function.SysInfoFunction;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
@@ -39,6 +41,7 @@ import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
+import eu.unicore.uas.rest.CoreServices;
 import eu.unicore.uftp.dpc.Utils;
 
 /**
@@ -47,12 +50,12 @@ import eu.unicore.uftp.dpc.Utils;
 public class TestUFTPTransfers {
 
 	static UFTPDServerRunner uftpd = new UFTPDServerRunner();
-	
+
 	static StorageClient sms;
 	static SiteClient tss;
 
 	static Kernel kernel;
-	
+
 	protected static String getConfigPath() {
 		return "src/test/resources/uas.config";
 	}
@@ -65,9 +68,7 @@ public class TestUFTPTransfers {
 
 	@BeforeAll
 	public static void init() throws Exception {
-		
 		uftpd.start();
-
 		// start UNICORE
 		long start = System.currentTimeMillis();
 		// clear data directories
@@ -103,6 +104,16 @@ public class TestUFTPTransfers {
 		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core/factories/default_target_system_factory");
 		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), null);
 		tss = tsf.getOrCreateSite();
+	}
+
+	@Test
+	public void testUFTPAvail() throws Exception {
+		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core");
+		CoreClient cc = new CoreClient(ep1, kernel.getClientConfiguration(), null);
+		JSONObject status = cc.getProperties();
+		JSONObject ext = status.getJSONObject("server").getJSONObject("externalConnections");
+		System.out.println(ext.toString(2));
+		assertEquals("OK", ext.get("UFTPD localhost:62435"));
 	}
 
 	@Test
@@ -147,7 +158,7 @@ public class TestUFTPTransfers {
 		assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 	}
-	
+
 	@Test
 	public void testStageOut() throws Exception {
 		doStageOut(false);
@@ -157,7 +168,7 @@ public class TestUFTPTransfers {
 	public void testStageOutEncrypt() throws Exception {
 		doStageOut(true);
 	}
-	
+
 	private void doStageOut(boolean encrypt) throws Exception {
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
