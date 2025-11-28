@@ -43,7 +43,8 @@ import jakarta.ws.rs.core.Response;
 public class Reservations extends ServicesBase {
 
 	private static final Logger logger = Log.getLogger("unicore.rest", Reservations.class);
-	
+
+	@Override
 	protected String getResourcesName(){
 		return "reservations";
 	}
@@ -73,7 +74,7 @@ public class Reservations extends ServicesBase {
 			return handleError("Could not get job details", ex, logger);
 		}
 	}
-	
+
 	/**
 	 * create a new allocation / reservation on any of our accessible target system instances
 	 * 
@@ -145,5 +146,5 @@ public class Reservations extends ServicesBase {
 			return tss2.createReservationResource(resources, startTime);
 		}
 	}
-	
+
 }

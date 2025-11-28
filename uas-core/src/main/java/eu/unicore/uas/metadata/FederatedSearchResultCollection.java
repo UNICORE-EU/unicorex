@@ -31,10 +31,8 @@ public class FederatedSearchResultCollection {
 
 	public void setSearchEndTime(Date endTime) {
 		if (searchStartTime.after(endTime)) {
-			throw new IllegalArgumentException(
-					"The specified search end time is not valid - it's less than start time.");
+			throw new IllegalArgumentException("The specified search end time is not valid - it's less than start time.");
 		}
-
 		searchEndTime = endTime;
 	}
 
@@ -44,33 +42,31 @@ public class FederatedSearchResultCollection {
 
 	public int getResourceCount() {
 		int result = 0;
-
-		for (FederatedSearchResult item : items)
+		for (FederatedSearchResult item : items) {
 			result += item.getResourceCount();
-
+		}
 		return result;
 	}
 
 	public List<FederatedSearchResult> getSearchResults() {
 		return items;
 	}
-	
+
 	public void addSearchResult(FederatedSearchResult searchResult)
 	{
 		items.add(searchResult);
 	}
-	
+
 	public void addSearchResultsRange(List<FederatedSearchResult> searchResults)
 	{
 		items.addAll(searchResults);
 	}
-	
+
 	public Map<String,String> asMap()
 	{
 		Map<String,String> result = new HashMap<>();
 		result.put("resourceCount", String.valueOf(getResourceCount())); 
 		result.put("storageCount", String.valueOf(getStorageCount())); 
-		
 		List<FederatedSearchResult> searchResults = getSearchResults();
 		int i = 1;
 		for(FederatedSearchResult searchResult : searchResults)
@@ -80,7 +76,6 @@ public class FederatedSearchResultCollection {
 				i++;
 			}
 		}
-		
 		return result;
 	}
 

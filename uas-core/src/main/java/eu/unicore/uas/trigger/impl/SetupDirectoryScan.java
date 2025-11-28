@@ -24,11 +24,11 @@ public class SetupDirectoryScan implements Callable<String>{
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, SetupDirectoryScan.class);
 
 	private final Client client;
-	
+
 	private final XNJS xnjs;
-	
+
 	private final ScanSettings scanSettings;
-	
+
 	/**
 	 * 
 	 * @param storageID -  unique ID of the storage service
@@ -47,7 +47,7 @@ public class SetupDirectoryScan implements Callable<String>{
 		this.client=client;
 		this.xnjs=xnjs;
 	}
-	
+
 	/**
 	 * 
 	 * @param scanSettings
@@ -59,7 +59,8 @@ public class SetupDirectoryScan implements Callable<String>{
 		this.client=client;
 		this.xnjs=xnjs;
 	}
-	
+
+	@Override
 	public String call() throws Exception{
 		if(actionExists()){
 			logger.info("Scan of <{}/{}> is already running for for <{}>",
@@ -89,14 +90,15 @@ public class SetupDirectoryScan implements Callable<String>{
 		if(maxDepth>0)ajd.maxDepth=maxDepth;
 		return ajd;
 	}
-	
+
 	public String getActionUUID(){
 		int hash = Math.abs((scanSettings.baseDirectory+client.getDistinguishedName()).hashCode());
 		return scanSettings.storageUID+"-scan"
 				+ (scanSettings.sharedStorageMode ? "-"+hash : "");
 	}
-	
+
 	private boolean actionExists() throws Exception {
 		return xnjs.get(InternalManager.class).getAction(getActionUUID())!=null;
 	}
+
 }

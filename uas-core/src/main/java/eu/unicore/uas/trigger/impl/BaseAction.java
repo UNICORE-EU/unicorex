@@ -38,7 +38,7 @@ public abstract class BaseAction {
 		context.put(TriggeredAction.BASE_DIR, storage.getStorageRoot());
 		return context;
 	}
-	
+
 	protected String expandVariables(String var, Map<String,String>context){
 		if(var.contains("${")){
 			for(Object o: context.keySet()){

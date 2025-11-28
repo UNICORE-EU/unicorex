@@ -38,13 +38,11 @@ import eu.unicore.util.configuration.PropertyMD;
  * @author B. Schuller
  */
 public class UASProperties extends PropertiesHelper {
+
 	private static final Logger log = Log.getLogger(Log.CONFIGURATION, UASProperties.class);
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "coreServices."; 
-
-	@Deprecated
-	public static final String TSF_XNJS_CONFIGFILE = "targetsystemfactory.xnjs.configfile";
 
 	/**
 	 * TSI mode: remote, embedded, or custom
@@ -63,12 +61,12 @@ public class UASProperties extends PropertiesHelper {
 	 *  the TSF class
 	 */
 	public static final String TSF_CLASS = "targetsystemfactory.class";
-	
+
 	/**
 	 *  the TSS class
 	 */
 	public static final String TSS_CLASS = "targetsystemfactory.tssClass";
-	
+
 	/**
 	 * if set to <code>true</code>, the storages attached to a TSS will always
 	 * have unique IDs. In the default case, storage names will be formed from
@@ -100,7 +98,7 @@ public class UASProperties extends PropertiesHelper {
 
 	@Deprecated
 	public static final String SMS_DIRECT_FILETRANSFER = "filetransfer.direct";
-	
+
 	@Deprecated
 	public static final String SMS_STAGING_MAXTHREADS = "filetransfer.maxthreads";
 
@@ -138,12 +136,11 @@ public class UASProperties extends PropertiesHelper {
 	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META = new HashMap<>();
 	static {
-
 		META.put(TSS_FORCE_UNIQUE_STORAGE_IDS, new PropertyMD("true").setDeprecated().
 				setDescription("(deprecated)"));
-
 		META.put(SMS_TRANSFER_FORCEREMOTE, new PropertyMD("false").
-				setDescription("When doing file transfers, UNICORE tries to detect whether two storage resources are accessing the same (local) filesystem. If yes, the transfer is done by direct copying. Set to 'true' to disable this feature."));
+				setDescription("When doing file transfers, UNICORE tries to detect whether two storage resources are accessing "
+						+ "the same (local) filesystem. If yes, the transfer is done by direct copying. Set to 'true' to disable this feature."));
 
 		//note: if you want to change the maximum of the property, 
 		//then also implementation of ListDirectory needs to be changed as it uses the constants.
@@ -160,19 +157,19 @@ public class UASProperties extends PropertiesHelper {
 				setDescription("Implementation class name for the StorageFactory."));		
 		META.put(SMS_ENABLED_FACTORIES, new PropertyMD((String)null).
 				setDescription("Space separated list of names of enabled storage factories. If this property is left undefined then all defined factories are enabled. If this property value is empty then all are disabled."));
-		
+
 		META.put(SMS_SHARE_PREFIX, new PropertyMD().setCanHaveSubkeys().
 				setDescription("Properties with this prefix are used to configure storages. See documentation of storage factories for details."));		
 		META.put(SMS_ENABLED_SHARES, new PropertyMD((String)null).
 				setDescription("Space separated list of names of enabled storages. If this property is left undefined then all defined shares are enabled. "
 						+ "If this property value is empty then all are disabled."));
-		
+
 		META.put(FTS_HTTP_PREFER_POST, new PropertyMD("false").
 				setDescription("Controls whether to use HTTP POST for the HTTP filetransfers."));
 
 		META.put(USPACE_SMS_PREFIX, new PropertyMD().setCanHaveSubkeys().
 				setDescription("Properties with this prefix are used to configure the job working directory storage (i.e. the storage bound to each job). See documentation of storage factories for details."));
-		
+
 		META.put(TSF_CLASS, new PropertyMD(TargetSystemFactoryImpl.class, Resource.class).
 				setDescription("The Java class to use for the target system factory."));
 		META.put(TSS_CLASS, new PropertyMD(TargetSystemImpl.class,TargetSystemImpl.class).
@@ -193,12 +190,8 @@ public class UASProperties extends PropertiesHelper {
 		META.put("xtreemfs.", new PropertyMD().setHidden().setCanHaveSubkeys());
 		META.put("extension.", new PropertyMD().setHidden().setCanHaveSubkeys());
 		META.put("jclouds.", new PropertyMD().setHidden().setCanHaveSubkeys());
-		
 
 		// deprecated stuff
-		META.put("bes.", new PropertyMD().setDeprecated().setHidden().setCanHaveSubkeys());
-		META.put(TSF_XNJS_CONFIGFILE, new PropertyMD().setPath().setDeprecated().
-				setDescription("(DEPRECATED, UNUSED)"));
 		META.put(SMS_PROTOCOLS, new PropertyMD().setUpdateable().setDeprecated().
 				setDescription("(DEPRECATED, UNUSED)"));
 		META.put(SMS_DIRECT_FILETRANSFER, new PropertyMD("false").setDeprecated().
@@ -218,14 +211,15 @@ public class UASProperties extends PropertiesHelper {
 				SMS_ENABLED_ADDON_STORAGES, false).values();
 
 		addPropertyChangeListener(new PropertyChangeListener() {
+
 			private final String[] PROPS = {SMS_ADDON_STORAGE_PREFIX, SMS_FACTORY_PREFIX};
 
 			@Override
 			public void propertyChanged(String propertyKey) {
 				if (propertyKey.equals(SMS_ADDON_STORAGE_PREFIX))
-					updateStorages(addOnStorages, SMS_ADDON_STORAGE_PREFIX, false);
+					updateStorageDescriptions(addOnStorages, SMS_ADDON_STORAGE_PREFIX, false);
 				else if (propertyKey.equals(SMS_FACTORY_PREFIX))
-					updateStorages(factories.values(), SMS_FACTORY_PREFIX, true);
+					updateStorageDescriptions(factories.values(), SMS_FACTORY_PREFIX, true);
 			}
 
 			@Override
@@ -257,10 +251,7 @@ public class UASProperties extends PropertiesHelper {
 		return factories;
 	}
 
-	/**
-	 * Updates the existing storage descriptions
-	 */
-	private void updateStorages(Collection<StorageDescription> storages, 
+	private void updateStorageDescriptions(Collection<StorageDescription> storages, 
 			String prefixComponent, boolean factory) {
 		for(StorageDescription storage: storages) {
 			String pfx = prefixComponent + storage.getId() + ".";
@@ -274,7 +265,6 @@ public class UASProperties extends PropertiesHelper {
 		}
 	}
 
-
 	/**
 	 * @return a map with SMS or factory configurations, by name
 	 * 
@@ -286,7 +276,6 @@ public class UASProperties extends PropertiesHelper {
 			String enabledKey, boolean disableExistenceCheck) {
 		String enabledV = getValue(enabledKey); 
 		Set<String> storageIds = getStorageIds(enabledV, prefixComponent, properties);
-
 		Map<String, StorageDescription> ret = new HashMap<>();
 		for(String id: storageIds) {
 			try {
@@ -326,7 +315,6 @@ public class UASProperties extends PropertiesHelper {
 	 */
 	public StorageDescription parseStorage(String prefix, String id, boolean factory) {
 		String pfx = PREFIX + prefix ;
-
 		SMSProperties smsProps = factory ? new SMSProperties(pfx, properties) :
 			new SMSProperties(pfx, properties);
 		Class<? extends SMSBaseImpl> cl = smsProps.getClassValue(SMSProperties.CLASS, SMSBaseImpl.class);
@@ -350,9 +338,8 @@ public class UASProperties extends PropertiesHelper {
 		configureCommon(asd, smsProps, path, checkExistence);
 		return asd;
 	}
-	
-	
-	protected void configureCommon(StorageDescription asd, SMSProperties smsProps, String path, boolean checkExist){
+
+	private void configureCommon(StorageDescription asd, SMSProperties smsProps, String path, boolean checkExist){
 		asd.setFilterListing(smsProps.getBooleanValue(SMSProperties.FILTER_LISTING));
 		asd.setCleanup(smsProps.getBooleanValue(SMSProperties.CLEANUP));
 		asd.setAllowUserDefinedPath(smsProps.getBooleanValue(SMSProperties.ALLOW_USER_DEFINED_PATH));
@@ -370,8 +357,6 @@ public class UASProperties extends PropertiesHelper {
 		asd.setPathSpec(path);
 	}
 
-
-
 	/**
 	 * @return a list of SMSs/factories configuration ids.
 	 */
@@ -382,7 +367,7 @@ public class UASProperties extends PropertiesHelper {
 			useAll = true;
 		else {
 			String[] enabledTypesA = enabledTypesV.trim().split(" +");
-			enabledTypes = new HashSet<String>(enabledTypesA.length);
+			enabledTypes = new HashSet<>(enabledTypesA.length);
 			Collections.addAll(enabledTypes, enabledTypesA);
 		}
 		String pfx = PREFIX+prefixComponent;

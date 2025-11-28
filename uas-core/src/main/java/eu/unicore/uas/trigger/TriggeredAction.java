@@ -13,15 +13,15 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 public interface TriggeredAction<T> {
 
 	public static final String FILE_NAME="UC_FILE_NAME";
-	
+
 	public static final String FILE_PATH="UC_FILE_PATH";
-	
+
 	public static final String CURRENT_DIR="UC_CURRENT_DIR";
-	
+
 	public static final String BASE_DIR="UC_BASE_DIR";
-	
+
 	public static final String FILES = "UC_FILES";
-	
+
 	/**
 	 * run the action
 	 *

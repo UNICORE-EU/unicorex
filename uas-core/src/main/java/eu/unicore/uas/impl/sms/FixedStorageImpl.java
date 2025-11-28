@@ -37,9 +37,8 @@ public class FixedStorageImpl extends SMSBaseImpl {
 	}
 
 	private void checkWorkdirExists()throws ExecutionException{
-		TSI tsi=getXNJSFacade().getTSI(getClient());
-		//some sanity checks
-		String workdir=getModel().workdir;
+		TSI tsi = getXNJSFacade().getTSI(getClient());
+		String workdir = getModel().workdir;
 		XnjsFileWithACL xnjsFile=tsi.getProperties(workdir);
 		if(xnjsFile==null){
 			throw new ExecutionException("Directory '"+workdir+"' does not exist.");

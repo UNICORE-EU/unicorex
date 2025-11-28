@@ -33,7 +33,7 @@ import jakarta.ws.rs.core.Response;
 public class Applications extends RESTRendererBase {
 
 	private static final Logger logger = Log.getLogger("unicore.rest", Applications.class);
-	
+
 	String xnjsRef;
 	Kernel kernel;
 
@@ -65,7 +65,7 @@ public class Applications extends RESTRendererBase {
 			return handleError("Error getting application info", ex, logger);
 		}
 	}
-	
+
 	/**
 	 * retrieve the list of applications in HTML format
 	 */
@@ -85,7 +85,7 @@ public class Applications extends RESTRendererBase {
 		}
 		return b.build();
 	}
-	
+
 	/**
 	 * retrieve the application's representation in HTML format
 	 */
@@ -131,7 +131,7 @@ public class Applications extends RESTRendererBase {
 		o.put("Options", IDBContentRendering.asMap(appInfo.getMetadata()));
 		return o;
 	}
-	
+
 	private Pair<String,String>getAppNameAndVersion(String appID){
 		String[]t=appID.split(IDBContentRendering.appSeparator);
 		return new Pair<>(t[0],t[1]);

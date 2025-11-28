@@ -45,37 +45,32 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 			model = new UFTPFiletransferModel();
 		}
 		UFTPFiletransferModel m = getModel();
-		
 		instancesCreated.incrementAndGet();
-		
 		super.initialise(map);
-		if(logger.isDebugEnabled()){
-			logger.debug("Creating new UFTP file transfer for client "+getClient());
-		}
+		logger.debug("Creating new UFTP file transfer for client ", getClient());
 		Map<String,String>extraParameters = m.getExtraParameters();
 		if(extraParameters==null){
 			throw new IllegalArgumentException("Missing parameters for UFTP");	
 		}
 		m.clientHost=extraParameters.get(PARAM_CLIENT_HOST);
-		
 		if(m.clientHost==null){
 			m.clientHost=getClient().getSecurityTokens().getClientIP();
 			if(m.clientHost==null){
 				throw new IllegalArgumentException("Missing parameter: "+PARAM_CLIENT_HOST);
 			}
 		}
-		String streamsP=extraParameters.get(PARAM_STREAMS);
-		m.streams=streamsP!=null?Integer.parseInt(streamsP) : 1;
-		int streams=checkNumberOfRequestedStreams(m.streams);
+		String streamsP = extraParameters.get(PARAM_STREAMS);
+		m.streams = streamsP!=null?Integer.parseInt(streamsP) : 1;
+		int streams = checkNumberOfRequestedStreams(m.streams);
 		if(streamsP!=null && streams!=m.streams){
 			throw new IllegalArgumentException("Requested number of streams exceeds server limit of <"+streams+"> !");
 		}
-		String secret=extraParameters.get(PARAM_SECRET);
-		String keySpec=extraParameters.get(PARAM_ENABLE_ENCRYPTION);
+		String secret = extraParameters.get(PARAM_SECRET);
+		String keySpec = extraParameters.get(PARAM_ENABLE_ENCRYPTION);
 		if(keySpec!=null && Boolean.parseBoolean(keySpec)){
 			m.key = Utils.createKey(EncryptionAlgorithm.BLOWFISH);
 		}
-		String compress=extraParameters.get(PARAM_ENABLE_COMPRESSION);
+		String compress = extraParameters.get(PARAM_ENABLE_COMPRESSION);
 		if(compress!=null && Boolean.parseBoolean(compress)){
 			m.compress=true;
 		}
@@ -86,22 +81,12 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	@Override
 	public Map<String, String> getProtocolDependentParameters() {
 		Map<String, String> params = super.getProtocolDependentParameters();
-
 		UFTPFiletransferModel m = getModel();
-		
-		String serverHost = m.getServerHost();
-		int serverPort = m.getServerPort();
-
-		params.put(PARAM_SERVER_HOST,serverHost);
-		params.put(PARAM_SERVER_PORT,String.valueOf(serverPort));
-		
-		int streams = m.streams;
-		params.put(PARAM_STREAMS,String.valueOf(streams));
-		
-		byte[] key=m.key;
-		if(key!=null){
-			String base64=Utils.encodeBase64(key);
-			params.put(PARAM_ENCRYPTION_KEY,base64);
+		params.put(PARAM_SERVER_HOST, m.getServerHost());
+		params.put(PARAM_SERVER_PORT,String.valueOf(m.getServerPort()));
+		params.put(PARAM_STREAMS,String.valueOf(m.streams));
+		if(m.key!=null){
+			params.put(PARAM_ENCRYPTION_KEY, Utils.encodeBase64(m.key));
 		}
 		params.put(PARAM_ENABLE_COMPRESSION,String.valueOf(m.compress));
 		return params;
@@ -129,12 +114,10 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		int maxStreams = cfg.getIntValue(UFTPProperties.PARAM_STREAMS_LIMIT);
 		return Math.min(maxStreams, streamsRequested);
 	}
-	
+
 	/**
 	 * check whether the target file can be read or written.
 	 * Do this here to fail fast
-	 * 
-	 * @throws IOException
 	 */
 	protected void checkAccess(boolean isExport)throws IOException{
 		if(isExport)checkReadAccess();
@@ -168,25 +151,21 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		if(secret==null || secret.equalsIgnoreCase("null")) {
 			throw new IllegalArgumentException("Secret cannot be null.");
 		}
-		String user="nobody";
-		String group="nobody";
-		Client c=getClient();
+		String user = "nobody";
+		String group = "nobody";
+		Client c = getClient();
 		if(c.getXlogin()!=null){
-			user=c.getXlogin().getUserName();
-			group=c.getXlogin().getGroup();
-			logger.debug("Initiating UFTP file transfer for user '"+user+"' group '"+group+"'");
+			user = c.getXlogin().getUserName();
+			group = c.getXlogin().getGroup();
+			logger.debug("Initiating UFTP file transfer for user '{}' group '{}", user, group);
 		}
-		try{
-			String reply=initUFTPJob(secret,user,group,getModel().key);
-			if(reply==null || ! (reply.startsWith("OK") || reply.startsWith("200 OK") )){
-				String err="UFTPD server reported an error";
-				if(reply!=null){
-					err+=": "+reply.trim();
-				}
-				throw new IOException(err);
+		String reply = initUFTPJob(secret,user,group,getModel().key);
+		if(reply==null || ! (reply.startsWith("OK") || reply.startsWith("200 OK") )){
+			String err="UFTPD server reported an error";
+			if(reply!=null){
+				err+=": "+reply.trim();
 			}
-		}catch(IOException ex){
-			throw new Exception("Problem communicating with the UFTP server",ex);
+			throw new IOException(err);
 		}
 	}
 
@@ -196,8 +175,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	protected String initUFTPJob(String secret, String user, String group, byte[] key)throws IOException{
 		UFTPFiletransferModel m = getModel();
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
-		
-		boolean append= m.getOverWrite()==false;
+		boolean append = m.getOverWrite()==false;
 		boolean compress = m.isCompress();
 		int rateLimit = cfg.getIntValue(UFTPProperties.PARAM_RATE_LIMIT);
 		InetAddress[] clientHosts = Utils.parseInetAddresses(m.clientHost, null);

@@ -42,6 +42,7 @@ import jakarta.ws.rs.core.Response;
 @USEResource(home=UAS.TSF)
 public class SiteFactories extends ServicesBase {
 
+	@Override
 	protected String getResourcesName(){
 		return "factories";
 	}

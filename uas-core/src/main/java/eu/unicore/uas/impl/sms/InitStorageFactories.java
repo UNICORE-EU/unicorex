@@ -41,7 +41,7 @@ public class InitStorageFactories implements Runnable {
 	@Override
 	public void run(){
 		try{
-			Home smfHome=kernel.getHome(UAS.SMF);
+			Home smfHome = kernel.getHome(UAS.SMF);
 			if(smfHome==null){
 				logger.info("No StorageFactory service configured for this site!");
 				return;

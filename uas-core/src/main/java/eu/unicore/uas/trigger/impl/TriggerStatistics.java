@@ -53,8 +53,10 @@ public class TriggerStatistics {
 		return actionsLaunched;
 	}
 
+	@Override
 	public String toString(){
 		return "Files processed: "+numberOfFiles.get()+", rules invoked: "+rulesInvoked+
 				", actions launched: "+actionsLaunched+", time: "+duration+ " ms.";
 	}
+
 }

@@ -23,23 +23,21 @@ public class UFTPStartupTask implements StartupTask {
 		this.kernel = kernel;
 	}
 
+	@Override
 	public void run() {
 		try {
-			setupUFTPConnector();
+			Properties cfg = kernel.getContainerProperties().getRawProperties();
+			if(!Boolean.parseBoolean(cfg.getProperty(UFTPProperties.PREFIX+UFTPProperties.PARAM_ENABLE_UFTP, "true")))
+			{
+				logger.info("UFTP is disabled.");
+				return;
+			}
+			LogicalUFTPServer connector = new LogicalUFTPServer(kernel);
+			kernel.setAttribute(LogicalUFTPServer.class, connector);
+			kernel.register(connector);
 		}catch(Throwable ex) {
 			Log.logException("UFTP connector could not be initialised, UFTP will not be available.", ex, logger);
 		}
 	}
 
-	protected void setupUFTPConnector() {
-		Properties cfg = kernel.getContainerProperties().getRawProperties();
-		if(!Boolean.parseBoolean(cfg.getProperty(UFTPProperties.PREFIX+UFTPProperties.PARAM_ENABLE_UFTP, "true")))
-		{
-			logger.info("UFTP is disabled.");
-			return;
-		}
-		LogicalUFTPServer connector = new LogicalUFTPServer(kernel);
-		kernel.setAttribute(LogicalUFTPServer.class, connector);
-		kernel.register(connector);
-	}
 }

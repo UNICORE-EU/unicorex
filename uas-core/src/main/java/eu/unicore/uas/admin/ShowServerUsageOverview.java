@@ -27,34 +27,31 @@ public class ShowServerUsageOverview implements AdminAction {
 	@SuppressWarnings("unchecked")
 	@Override
 	public AdminActionResult invoke(Map<String, String> params, Kernel kernel) {
-		String requestedDN=params.get("clientDN"); //only DNs having this as substring will be shown
-		boolean success=true;
-		String message= requestedDN!=null ? "Retrieving usage for users matching '"+requestedDN+"'" : "Usage by all users";
+		String requestedDN = params.get("clientDN"); //only DNs having this as substring will be shown
+		boolean success = true;
+		String message = requestedDN!=null ? "Retrieving usage for users matching '"+requestedDN+"'" : "Usage by all users";
 		AdminActionResult res=new AdminActionResult(success,message);
 
 		//map DNs to Servicename+Instances
-		Map<String,Map<String,Integer>>merged=new HashMap<String, Map<String,Integer>>();
+		Map<String,Map<String,Integer>>merged = new HashMap<>();
+		List<String>serviceNames = new ArrayList<>();
+		List<Map<String,AtomicInteger>>instPerDN = new ArrayList<>();
 
-		List<String>serviceNames=new ArrayList<String>();
-		List<Map<String,AtomicInteger>>instPerDN=new ArrayList<Map<String,AtomicInteger>>();
-		
 		for(Service s: kernel.getServices()){
-			DefaultHome home=(DefaultHome)s.getHome();
+			DefaultHome home = (DefaultHome)s.getHome();
 			if(home==null)continue;
 			//maps client DN to number of instances
-			Map<String,AtomicInteger>perDN=home.getInstancesPerUser();
-			String serviceName=home.getServiceName();
-			serviceNames.add(serviceName);
+			Map<String,AtomicInteger>perDN = home.getInstancesPerUser();
+			serviceNames.add(home.getServiceName());
 			instPerDN.add(perDN);
 		}
-		merged=merge(requestedDN,serviceNames,
-				instPerDN.toArray(new Map[instPerDN.size()]));
+		merged=merge(requestedDN, serviceNames, instPerDN.toArray(new Map[instPerDN.size()]));
 
 		for(String dn: merged.keySet()){
-			Map<String,Integer>perService=merged.get(dn);
+			Map<String,Integer>perService = merged.get(dn);
 			StringBuilder sb=new StringBuilder();
 			for(String serviceName: perService.keySet()){
-				Integer num=perService.get(serviceName);
+				Integer num = perService.get(serviceName);
 				if(num!=null&&num.intValue()>0){
 					sb.append(serviceName).append(": ").append(num).append(" ");
 				}
@@ -66,26 +63,26 @@ public class ShowServerUsageOverview implements AdminAction {
 
 	@SuppressWarnings("unchecked")
 	Map<String,Map<String,Integer>>merge(String requestedDN, List<String>serviceNames,Map<String,AtomicInteger> ... perDNInstances){
-		Map<String,Map<String,Integer>>merged=new HashMap<String, Map<String,Integer>>();
+		Map<String,Map<String,Integer>>merged = new HashMap<>();
 
 		for (int i=0; i<serviceNames.size(); i++){
-			Map<String,? extends Number>instPerDN=perDNInstances[i];
-			String serviceName=serviceNames.get(i);
+			Map<String,? extends Number>instPerDN = perDNInstances[i];
+			String serviceName = serviceNames.get(i);
 			for(String dn: instPerDN.keySet()){
 				if(requestedDN!=null && !dn.contains(requestedDN))continue;
-				Map<String, Integer>instPerService=merged.get(dn);
+				Map<String, Integer>instPerService = merged.get(dn);
 				if(instPerService==null){
-					instPerService=new HashMap<String, Integer>();
+					instPerService = new HashMap<>();
 				}
-				Number n=instPerDN.get(dn);
-				int num= n!=null ? n.intValue(): 0;
+				Number n = instPerDN.get(dn);
+				int num = n!=null ? n.intValue(): 0;
 				instPerService.put(serviceName, num);
 				merged.put(dn, instPerService);
 			}
 		}
 		return merged;
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return "parameters: [clientDN]";

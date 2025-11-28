@@ -42,7 +42,7 @@ public class Tasks extends ServicesBase {
 	public TaskModel getModel(){
 		return (TaskModel)model;
 	}
-	
+
 	@Override
 	public TaskImpl getResource(){
 		return (TaskImpl)resource;
@@ -56,7 +56,7 @@ public class Tasks extends ServicesBase {
 		}
 		return null;
 	}
-	
+
 	@Override
 	protected void updateLinks() {
 		super.updateLinks();

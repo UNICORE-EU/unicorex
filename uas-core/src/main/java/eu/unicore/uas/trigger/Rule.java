@@ -13,14 +13,14 @@ public interface Rule {
 	 * invoked at the very start of processing
 	 */
 	public void begin();
-	
+
 	/**
 	 * for informational use, each rule has a name
 	 * 
 	 * @return the name of the rule
 	 */
 	public String getName();
-	
+
 	/**
 	 * checks whether this rule applies to the given file path
 	 * 
@@ -29,16 +29,15 @@ public interface Rule {
 	 * @return <code>true</code> if this rule matches
 	 */
 	public boolean matches(String filePath, TriggerContext context);
-	
+
 	/**
 	 * get the action to be executed if the rule matches
 	 */
 	public TriggeredAction<?> getAction();
-	
+
 	/**
 	 * invoked at the very end of processing
 	 */
 	public void commit();
-	
 
 }

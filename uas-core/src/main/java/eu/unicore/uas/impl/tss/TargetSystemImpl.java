@@ -54,10 +54,6 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS, TargetSystemImpl.class);
 
-	public TargetSystemImpl(){
-		super();
-	}
-
 	@Override
 	public TSSModel getModel(){
 		return (TSSModel)model;
@@ -220,7 +216,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 	}
 
 	/**
-	 * create new storage management service and return its epr
+	 * create new storage management instance and return its id
 	 * @param type 
 	 * @param init
 	 * @return UUID or null if SMS could not be created
@@ -242,9 +238,6 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 		return null;
 	}
 
-	/**
-	 * resource-specific destruction
-	 */
 	@Override
 	public void destroy() {
 		TSSModel model = getModel();

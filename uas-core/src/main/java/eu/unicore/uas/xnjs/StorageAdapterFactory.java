@@ -16,5 +16,5 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 public interface StorageAdapterFactory {
 
 	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)throws IOException;
-	
+
 }

@@ -7,7 +7,7 @@ import java.util.Map;
 import eu.unicore.uas.impl.BaseInitParameters;
 
 public class StorageInitParameters extends BaseInitParameters {
-	
+
 	public StorageInitParameters() {
 		super();
 	}
@@ -25,15 +25,15 @@ public class StorageInitParameters extends BaseInitParameters {
 	}
 
 	public StorageDescription storageDescription;
-	
-	public String factoryID;
-	
-	public boolean inheritSharing = false;
 
+	public String factoryID;
+
+	public boolean inheritSharing = false;
+	
 	public boolean appendUniqueID = false;
-	
+
 	public boolean skipResolve = false;
-	
+
 	public final Map<String,String> userParameters = new HashMap<>();
-	
+
 }

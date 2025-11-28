@@ -68,6 +68,7 @@ public class Storages extends ServicesBase {
 
 	private static final Logger logger=Log.getLogger(LogUtil.SERVICES,Storages.class);
 
+	@Override
 	protected String getResourcesName(){
 		return "storages";
 	}
@@ -268,6 +269,7 @@ public class Storages extends ServicesBase {
 		}
 		return o;
 	}
+
 	/**
 	 * search 
 	 * 
@@ -308,6 +310,7 @@ public class Storages extends ServicesBase {
 			return handleError("Error in search", ex, logger);
 		}
 	}
+
 	/**
 	 * create a new storage via the storage factory service
 	 * using a JSON description (type, name, parameters, termination time, ...) 

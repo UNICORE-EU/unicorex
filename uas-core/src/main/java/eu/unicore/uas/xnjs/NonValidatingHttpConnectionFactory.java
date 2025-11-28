@@ -10,19 +10,20 @@ import eu.unicore.util.httpclient.HttpUtils;
 import eu.unicore.xnjs.io.http.IConnectionFactory;
 
 /**
- * creates HTTP(s) connections for plain http(s) data staging
- * trusts every server
+ * Creates HTTP(s) connections for (non-UNICORE) data staging
+ * that does not validate server certificates
  *
  * @author schuller
  */
-public class U6HttpConnectionFactory implements IConnectionFactory{
+public class NonValidatingHttpConnectionFactory implements IConnectionFactory{
 
-	public U6HttpConnectionFactory(Kernel kernel){}
-	
+	public NonValidatingHttpConnectionFactory(Kernel kernel){}
+
 	@Override
 	public HttpClient getConnection(String url, Client client) {
 		DefaultClientConfiguration cc =
 			new DefaultClientConfiguration(new BinaryCertChainValidator(true), null);
 		return HttpUtils.createClient(url, cc);
 	}
+
 }

@@ -10,9 +10,9 @@ public class HttpFileTransferModel extends FileTransferModel {
 	String accessURL;
 
 	String contentType;
-	
+
 	Client client;
-	
+
 	public String getAccessURL() {
 		return accessURL;
 	}

@@ -109,7 +109,7 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 		super.destroy();
 		tp.time("jms_destroyed");
 	}
-	
+
 	/**
 	 * creates an SMS instance for the job working directory
 	 * 
@@ -142,9 +142,9 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	public void setTSSID(String id){
 		getModel().setParentUID(id);
 	}
-	
+
 	private Action xnjsAction;
-	
+
 	/**
 	 * Get the underlying XNJS action
 	 */

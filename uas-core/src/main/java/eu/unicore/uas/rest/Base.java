@@ -27,7 +27,7 @@ import jakarta.ws.rs.core.Response;
 public class Base extends ApplicationBaseResource {
 
 	private final static Logger logger = Log.getLogger(Log.SERVICES, Base.class);
-	
+
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)

@@ -246,7 +246,7 @@ public class Files extends RESTRendererBase {
 			throw new WebApplicationException("Action '"+action+"' not available.", 404);
 		}
 	}
-	
+
 	protected Response startMetadataExtraction(String path, String jsonString) throws Exception {
 		try{
 			if(path== null || path.isEmpty())path="/";
@@ -285,7 +285,6 @@ public class Files extends RESTRendererBase {
 		}
 	}
 
-
 	/**
 	 * get file content
 	 */
@@ -298,7 +297,7 @@ public class Files extends RESTRendererBase {
 		InputStream is = null;
 		try{
 			if(path==null || path.isEmpty())path="/";
-			path=sms.makeSMSLocal(path);
+			path  = sms.makeSMSLocal(path);
 			XnjsFileWithACL props = sms.getProperties(path);
 			if(props == null){
 				return Response.status(404).build();
@@ -375,7 +374,6 @@ public class Files extends RESTRendererBase {
 	public Response upload(@PathParam("path")String path, InputStream content, @QueryParam("size") Long size, 
 			@HeaderParam("Content-Type") String mediaType) 
 					throws Exception {
-
 		try{
 			if(path==null || path.isEmpty())path="/";
 			path = sms.makeSMSLocal(path);
@@ -406,9 +404,7 @@ public class Files extends RESTRendererBase {
 	@DELETE
 	@Path("/{path:.*}")
 	@SEIOperationType(OperationType.write)
-	public Response delete(@PathParam("path")String path) 
-			throws Exception {
-
+	public Response delete(@PathParam("path")String path) throws Exception {
 		if(path == null || path.isEmpty())path="/";
 		try{
 			sms.doDelete(path);
@@ -419,15 +415,12 @@ public class Files extends RESTRendererBase {
 		}
 	}
 
-
 	/**
 	 * create a new directory
 	 */
 	@POST
 	@Path("/{path:.*}")
-	public Response mkdir(@PathParam("path")String path) 
-			throws Exception {
-
+	public Response mkdir(@PathParam("path")String path) throws Exception {
 		if(path == null || path.isEmpty())path="/";
 		try{
 			sms.mkdir(path);
@@ -466,8 +459,7 @@ public class Files extends RESTRendererBase {
 		}
 		if(props.getMetadata()!=null) {
 			try {
-				JSONObject xnjsMeta = new JSONObject(props.getMetadata());
-				meta.putAll(JSONUtil.asMap(xnjsMeta));
+				meta.putAll(JSONUtil.asMap(new JSONObject(props.getMetadata())));
 			}catch(JSONException je){
 				meta.put("backend-metadata", props.getMetadata());
 			}
@@ -502,7 +494,6 @@ public class Files extends RESTRendererBase {
 					"Extract metadata for this file"));
 		}
 	}
-
 
 	/**
 	 * creates missing directories

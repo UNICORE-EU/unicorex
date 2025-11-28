@@ -67,7 +67,7 @@ public class SharedTriggerProcessor extends TriggerProcessor {
 			throw ExecutionException.wrapped(ex);
 		}
 	}
-	
+
 	protected void processDirectory(XnjsFile directory, String storageUID){
 		try{
 			String dir = directory.getPath();
@@ -76,8 +76,8 @@ public class SharedTriggerProcessor extends TriggerProcessor {
 			client.setXlogin(xlogin);
 			logger.debug("Running trigger on <{}> using uid <{}>", directory, directory.getOwner());	
 			IStorageAdapter storage = getStorageAdapter(client);
-			RuleFactory rf=new RuleFactory(storage, storageUID);
-			ScanSettings settings=rf.parseSettings(dir);
+			RuleFactory rf = new RuleFactory(storage, storageUID);
+			ScanSettings settings = rf.parseSettings(dir);
 			if(settings == null){
 				logger.debug("No trigger settings for <{}>", dir);
 				return;
@@ -86,7 +86,7 @@ public class SharedTriggerProcessor extends TriggerProcessor {
 			List<XnjsFile> files=findFiles(settings, dir,client);
 			Set<String> ids = getSubmittedActionIDs();
 			if(files.size()>0){
-				TriggerRunner tr=new TriggerRunner(files, rules, storage, client, xnjs, TriggerProcessor.logDirectory);
+				TriggerRunner tr = new TriggerRunner(files, rules, storage, client, xnjs, TriggerProcessor.logDirectory);
 				logger.debug("Executing trigger run on <{}> files.", files.size());	
 				TriggerStatistics ts = tr.call();
 				ids.addAll(ts.getActionsLaunched());

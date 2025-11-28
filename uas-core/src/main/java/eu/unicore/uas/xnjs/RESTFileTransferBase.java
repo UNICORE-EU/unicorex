@@ -88,6 +88,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		this.info.setProtocol("BFT");
 	}
 
+	@Override
 	public TransferInfo getInfo(){
 		return info;
 	}
@@ -168,15 +169,15 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	public String getWorkdir() {
 		return workdir;
 	}
-	
+
 	public void setWorkdir(String workdir) {
 		this.workdir = workdir;
 	}
-	
+
 	public Client getClient() {
 		return client;
 	}
-	
+
 	public Endpoint getStorageEndpoint() {
 		return storageEndpoint;
 	}
@@ -202,7 +203,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 			logger.warn("No security info available, running in non-secure mode?");
 		}
 	}
-	
+
 	protected void destroyFileTransferResource()
 	{
 		try{
@@ -250,7 +251,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	{
 		return file.replaceAll("/+","/").replace("\\/","/").replace("/", getStorageAdapter().getFileSeparator());
 	}
-	
+
 	/**
 	 * creates any missing directories
 	 */
@@ -265,7 +266,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 			throw new ExecutionException("Parent <"+s+"> is not a directory");
 		}
 	}
-	
+
 	/**
 	 * get the parent file path
 	 * @param file
@@ -288,7 +289,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	 */
 	protected String getFileName(String filePath) throws ExecutionException
 	{
-		int index=filePath.lastIndexOf("/");
+		int index = filePath.lastIndexOf("/");
 		if(index>-1){
 			return filePath.substring(filePath.lastIndexOf("/")+1);
 		}
@@ -310,7 +311,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	public void setExport(boolean export) {
 		this.export = export;
 	}
-	
+
 	/**
 	 * get the time that this transfer is/was running
 	 * 
@@ -334,11 +335,11 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	public void failed(String msg){
 		info.setStatus(Status.FAILED,msg);
 	}
-	
+
 	public void setStatusTracker(StatusTracker tracker) {
 		this.statusTracker = tracker;
 	}
-	
+
 	/**
 	 * computes transfer rates, bytes transferred and
 	 * logs it to the USAGE logger at INFO level<br/>
@@ -363,5 +364,5 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 				    url, info.getSource(), info.getTarget(), info.getProtocol(),
 				    info.getParentActionID());
 	}
-	
+
 }

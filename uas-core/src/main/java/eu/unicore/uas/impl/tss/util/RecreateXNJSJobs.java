@@ -83,7 +83,7 @@ public class RecreateXNJSJobs implements Runnable{
 
 	// fix processing chain to skip all processing for re-created jobs
 	protected void ensureProcessing(){
-		XNJS config=XNJSFacade.get(xnjsReference, kernel).getXNJS();
+		XNJS config = XNJSFacade.get(xnjsReference, kernel).getXNJS();
 		synchronized(config){
 			ProcessorChain chain = config.getProcessorChain(XNJSConstants.jobActionType);
 			List<String> cs = chain.getProcessorClasses();

@@ -33,21 +33,22 @@ public class ClientTransfers extends ServicesBase {
 		props.put("transferredBytes",model.getTransferredBytes());
 		return props;
 	}
-	
+
 	@Override
 	public FileTransferModel getModel(){
 		return (FileTransferModel)model;
 	}
-	
+
 	@Override
 	public FileTransferImpl getResource(){
 		return (FileTransferImpl)resource;
 	}
-	
+
 	@Override
 	protected void updateLinks() {
 		super.updateLinks();
 		FileTransferModel model = getModel();
 		links.add(new Link("storage",RESTUtils.makeHref(kernel, "core/storages", model.getParentUID()),"Parent Storage"));
 	}
+
 }

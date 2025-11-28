@@ -49,7 +49,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	public int getPriority() {
 		return 1;
 	}
-	
+
 	@Override
 	public IFileTransfer createFileExport(Client client, String workdir, DataStageOutInfo info) {
 		String source = info.getFileName();
@@ -141,7 +141,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			logger.debug("Unable to instantiate file transfer", e);
 			return null;
 		}
-	} 
+	}
 
 	/**
 	 * create a transfer TO a RESTful storage from a local file
@@ -247,7 +247,6 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			throw new IOException(e);
 		}
 	}
-
 
 	@Override
 	public IFTSController createFTSExport(Client client, String workingDirectory, DataStageOutInfo info)

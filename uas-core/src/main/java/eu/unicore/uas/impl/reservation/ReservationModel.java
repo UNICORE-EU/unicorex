@@ -11,7 +11,7 @@ public class ReservationModel extends UASBaseModel {
 	String reservationReference;
 
 	Map<String,String> resources;
-	
+
 	public String getReservationReference() {
 		return reservationReference;
 	}

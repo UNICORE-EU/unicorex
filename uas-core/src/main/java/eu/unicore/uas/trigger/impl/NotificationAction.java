@@ -24,11 +24,11 @@ public class NotificationAction extends BaseAction implements MultiFileAction {
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, NotificationAction.class);
 
 	private final String url;
-	
+
 	public NotificationAction(String url){
 		this.url = url;
 	}
-		
+
 	private List<String>files;
 
 	@Override
@@ -50,7 +50,9 @@ public class NotificationAction extends BaseAction implements MultiFileAction {
 		return null;
 	}
 
+	@Override
 	public String toString(){
 		return "NOTIFY";
 	}
+
 }

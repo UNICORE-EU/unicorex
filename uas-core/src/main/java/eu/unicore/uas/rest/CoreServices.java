@@ -29,7 +29,7 @@ public class CoreServices extends Application implements USERestApplication {
 
 	@Override
 	public Set<Class<?>> getClasses() {
-		Set<Class<?>>classes=new HashSet<>();
+		Set<Class<?>>classes  = new HashSet<>();
 		classes.add(Base.class);
 		classes.add(Sites.class);
 		classes.add(SiteFactories.class);
@@ -46,10 +46,9 @@ public class CoreServices extends Application implements USERestApplication {
 	public static boolean isEnabled(Kernel kernel){
 		return kernel.getService("core")!=null;
 	}
-	
+
 	public static void publish(Kernel kernel){
-		if(!isEnabled(kernel))return;
-		try{
+		if(isEnabled(kernel)) try{
 			LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
 			String endpoint = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 			Map<String,String>content = new HashMap<>();
@@ -72,5 +71,5 @@ public class CoreServices extends Application implements USERestApplication {
 			Log.logException("Could not publish to registry", ex);
 		}
 	}
-	
+
 }

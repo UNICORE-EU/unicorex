@@ -27,7 +27,7 @@ import eu.unicore.util.configuration.PropertyMD;
  * @author K. Benedyczak
  */
 public class SMSProperties extends PropertiesHelper {
-	
+
 	private static final Logger log = LogUtil.getLogger(LogUtil.CONFIG, SMSProperties.class);
 
 	// Subkeys of general-purpose configuration properties of storages and storage factories.
@@ -38,28 +38,28 @@ public class SMSProperties extends PropertiesHelper {
 	public static final String WORKDIR="workdir";
 	public static final String CLASS="class";
 	public static final String PROTOCOLS="protocols";
-	
+
 	public static final String FILTER_LISTING="filterFiles";
 	public static final String CLEANUP="cleanup";
 	public static final String DISABLE_METADATA="disableMetadata";
 	public static final String CHECK_EXISTENCE="checkExistence";
 	public static final String ALLOW_USER_DEFINED_PATH="allowUserDefinedPath";
-	
-	// triggering stuff
+
+	// data-triggering settings
 	public static final String ENABLE_TRIGGER="enableTrigger";
 	public static final String ALLOW_TRIGGER="allowTrigger";
 	public static final String SHARED_TRIGGER_USER="triggerUserID";
-	
+
 	public static final String UMASK_KEY = "defaultUmask";
 	public static final String DESCRIPTION="description";
 
 	// info provider needed for custom SMS types
 	public static final String INFO_PROVIDER="infoProviderClass";
-	
+
 	public static final String EXTRA_PREFIX="settings.";
 
 	public static final Pattern umaskPattern = Pattern.compile("[0]?[0-7]?[0-7]?[0-7]");
-	
+
 	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META = new HashMap<>();
 	static {
@@ -103,10 +103,9 @@ public class SMSProperties extends PropertiesHelper {
 		META.put(WORKDIR, new PropertyMD().
 				setDescription("(DEPRECATED, use 'path' instead)"));
 		META.put(PROTOCOLS, new PropertyMD().setUpdateable().
-				setDescription("(DEPRECATED, ignored)"));
-		
+				setDescription("(DEPRECATED, ignored)"));		
 	}
-	
+
 	public SMSProperties(String prefix, Properties properties) throws ConfigurationException {
 		super(prefix, properties, META, log);
 	}
@@ -128,7 +127,7 @@ public class SMSProperties extends PropertiesHelper {
 		if (type != null && type.equalsIgnoreCase(StorageTypes.CUSTOM.toString()) && clazz == null)
 			throw new ConfigurationException("For the CUSTOM storage type the class must be always set.");
 	}
-	
+
 	@Override
 	protected void checkPropertyConstraints(PropertyMD meta, String key) throws ConfigurationException {
 		super.checkPropertyConstraints(meta, key);
@@ -138,18 +137,18 @@ public class SMSProperties extends PropertiesHelper {
 				throw new ConfigurationException("Specified umask must be an octal number from 0 to 777.");
 		}
 	}
-	
+
 	public Map<String, String> getExtraSettings() {
 		PropertyGroupHelper helper = new PropertyGroupHelper(properties, prefix+EXTRA_PREFIX);
 		Map<String, String> filteredMap = helper.getFilteredMap();
-		Map<String, String> cutMap = new HashMap<String, String>();
+		Map<String, String> cutMap = new HashMap<>();
 		int len = prefix.length()+EXTRA_PREFIX.length();
 		for (String key: filteredMap.keySet()) {
 			cutMap.put(key.substring(len), filteredMap.get(key));
 		}
 		return cutMap; 
 	}
-	
+
 	@Override
 	protected void findUnknown(Properties properties) throws ConfigurationException {
 		// backwards compatibility fixes
@@ -164,5 +163,4 @@ public class SMSProperties extends PropertiesHelper {
 		}
 		super.findUnknown(properties);
 	}
-
 }

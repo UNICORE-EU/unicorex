@@ -25,13 +25,13 @@ public class BatchedJobAction extends BaseAction implements MultiFileAction {
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, BatchedJobAction.class);
 
 	private final JSONObject job;
-		
+
 	private List<String>files;
 
 	public BatchedJobAction(JSONObject job){
 		this.job=job;
 	}
-	
+
 	@Override
 	public void setTarget(List<String>target) {
 		this.files = target;
@@ -52,6 +52,7 @@ public class BatchedJobAction extends BaseAction implements MultiFileAction {
 		return action.getUUID();
 	}
 
+	@Override
 	public String toString(){
 		return "BATCHED-JOB";
 	}

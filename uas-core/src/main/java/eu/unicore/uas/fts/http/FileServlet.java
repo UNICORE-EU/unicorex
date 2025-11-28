@@ -21,16 +21,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * this servlet exposes files under a "hard to guess" URL 
- * 
+ * this servlet serves files for the built-in HTTP transfer
+ *
  * @author schuller
- * @since 1.0.1
  */
 public class FileServlet extends DefaultServlet {
 
 	private static final long serialVersionUID = 1L;
 
-	private final Map<String,Long> transferredBytes=new ConcurrentHashMap<>();
+	private final Map<String,Long> transferredBytes = new ConcurrentHashMap<>();
 
 	private final Kernel kernel;
 
@@ -40,9 +39,9 @@ public class FileServlet extends DefaultServlet {
 
 	public static synchronized void initialise(Kernel kernel){
 		if(kernel.getAttribute(FileServlet.class)!=null)return;
-		FileServlet fs=new FileServlet(kernel);
+		FileServlet fs = new FileServlet(kernel);
 		kernel.setAttribute(FileServlet.class, fs);
-		ServletHolder sh=new ServletHolder("fileServlet", fs);
+		ServletHolder sh = new ServletHolder("fileServlet", fs);
 		kernel.getServer().getRootServletContext().addServlet(sh,"/files/*");
 	}
 
@@ -57,7 +56,6 @@ public class FileServlet extends DefaultServlet {
 	public void setTransferredBytes(String id, Long transferred){
 		transferredBytes.put(id,transferred);
 	}
-
 
 	@Override
 	public UResource getResource(String pathInContext) {
@@ -97,8 +95,7 @@ public class FileServlet extends DefaultServlet {
 		}
 	} 
 
-
-	private static final String multipart="multipart/form-data";
+	private static final String multipart = "multipart/form-data";
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -114,5 +111,5 @@ public class FileServlet extends DefaultServlet {
 			response.setStatus(HttpURLConnection.HTTP_NO_CONTENT);
 		}
 	} 
-	
+
 }

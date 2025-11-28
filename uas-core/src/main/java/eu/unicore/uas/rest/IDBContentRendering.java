@@ -38,7 +38,7 @@ public class IDBContentRendering {
 		catch(Exception e){}
 		return resources;
 	}
-	
+
 	public static Map<String, Object> asMap(List<Partition> partitions){
 		Map<String,Object> resources = new HashMap<>();
 		try{
@@ -49,7 +49,7 @@ public class IDBContentRendering {
 		catch(Exception e){}
 		return resources;
 	}
-	
+
 	private static Object render(Resource r){
 		if(r instanceof RangeResource){
 			RangeResource dr = (RangeResource)r;
@@ -68,7 +68,7 @@ public class IDBContentRendering {
 		}
 		return "*";
 	}
-	
+
 	public static Map<String,Object> asMap(ApplicationMetadata meta){
 		Map<String,Object> result = new HashMap<>();
 		for(OptionDescription opt: meta.getOptions()){
@@ -76,7 +76,7 @@ public class IDBContentRendering {
 		}
 		return result;
 	}
-	
+
 	public static Map<String,Object> asMap(OptionDescription opt){
 		Map<String,Object> result = new HashMap<>();
 		result.put("Description", opt.getDescription());

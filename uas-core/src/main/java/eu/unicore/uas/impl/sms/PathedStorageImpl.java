@@ -27,7 +27,7 @@ public class PathedStorageImpl extends SMSBaseImpl {
 	public void activate(){
 		super.activate();
 		// make sure the storageRoot is resolved once per request
-		storageRoot=null;
+		storageRoot = null;
 	}
 
 	@Override
@@ -47,12 +47,12 @@ public class PathedStorageImpl extends SMSBaseImpl {
 
 	private void resolveRootDir()throws ExecutionException{
 		TSI tsi = getXNJSFacade().getTSI(getClient());
-		storageRoot=tsi.resolve(getModel().workdir);
+		storageRoot = tsi.resolve(getModel().workdir);
 		if(tsi.isLocal()){
-			//make sure it is absolute
+			// make sure it is absolute
 			storageRoot=new File(storageRoot).getAbsolutePath();
 		}
-		//check if the resolved dir is just "/", and fail in this case
+		// if the resolved dir is just "/", resolution has failed
 		if(getSeparator().equals(storageRoot)){
 			throw new ExecutionException("Variable path was resolved to '/', this is not allowed");
 		}
@@ -63,13 +63,13 @@ public class PathedStorageImpl extends SMSBaseImpl {
 		super.initialise(initobjs);
 		SMSModel m = getModel();
 		StorageInitParameters init = (StorageInitParameters)initobjs;
-		String workdir=m.storageDescription.getPathSpec();
+		String workdir = m.storageDescription.getPathSpec();
 		if(workdir==null) {
 			workdir = getDefaultWorkdir();
 		}
 		if(!workdir.endsWith(getSeparator()))workdir+=getSeparator();
 		if(init.appendUniqueID){
-			workdir=workdir+getUniqueID()+getSeparator();
+			workdir += getUniqueID()+getSeparator();
 		}
 		m.workdir = workdir;
 		//try to resolve once to detect problems early
@@ -104,7 +104,6 @@ public class PathedStorageImpl extends SMSBaseImpl {
 
 	private void checkDirExists()throws ExecutionException{
 		TSI tsi = getXNJSFacade().getTSI(getClient());
-		//some sanity checks
 		XnjsFileWithACL xnjsFile=tsi.getProperties(storageRoot);
 		if(xnjsFile==null){
 			throw new ExecutionException("Directory '"+storageRoot+"' does not exist.");

@@ -5,12 +5,12 @@ import eu.unicore.services.Resource;
 import eu.unicore.services.impl.DefaultHome;
 
 public class TargetSystemHomeImpl extends DefaultHome {
-	
-	private boolean jobSubmissionEnabled=true;
-	
+
+	private boolean jobSubmissionEnabled = true;
+
 	//the default message used when job submission is disabled
 	public static final String DEFAULT_MESSAGE="Job submission is currently disabled --- please try again later!";
-	
+
 	private String highMessage = "";
 
 	@Override
@@ -33,7 +33,7 @@ public class TargetSystemHomeImpl extends DefaultHome {
 	public void setJobSubmissionEnabled(boolean enabled){
 		this.jobSubmissionEnabled=enabled;
 	}
-	
+
 	public boolean isJobSubmissionEnabled(){
 		return jobSubmissionEnabled;
 	}
@@ -48,7 +48,5 @@ public class TargetSystemHomeImpl extends DefaultHome {
 	public void setHighMessage(String highMessage) {
 		this.highMessage = highMessage;
 	}
-	
-	
 
 }

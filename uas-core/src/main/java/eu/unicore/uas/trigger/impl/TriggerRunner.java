@@ -25,6 +25,7 @@ import eu.unicore.xnjs.io.XnjsFile;
 public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContext {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TRIGGER, TriggerRunner.class);
+
 	private static final Logger usage = LogUtil.getLogger(LogUtil.TRIGGER+".USAGE", TriggerRunner.class);
 
 	private final List<XnjsFile> files;
@@ -125,8 +126,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 			log.add("Finished trigger run. "+ts);
 		}
 		try{
-			if(logging)
-				storeLog(log);
+			if(logging)storeLog(log);
 		}catch(Exception e) {
 			Log.logException("Error storing trigger run log for "+client.getDistinguishedName(), e, logger);
 		}
@@ -149,7 +149,7 @@ public class TriggerRunner implements Callable<TriggerStatistics>, TriggerContex
 	}
 
 	private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-	
+
 	private void storeLog(List<String>log) throws Exception {
 		if(log.size()==0)return;
 		storage.mkdir(logDirectory);

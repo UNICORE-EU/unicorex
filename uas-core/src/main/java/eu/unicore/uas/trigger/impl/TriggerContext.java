@@ -7,10 +7,9 @@ import eu.unicore.xnjs.io.IStorageAdapter;
 public interface TriggerContext {
 
 	public IStorageAdapter getStorage();
-	
 
 	public Client getClient();
 
-
 	public XNJS getXNJS();
+
 }

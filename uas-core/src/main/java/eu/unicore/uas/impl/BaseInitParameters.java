@@ -21,7 +21,7 @@ public class BaseInitParameters extends InitParameters {
 	public BaseInitParameters(String uuid) {
 		super(uuid);
 	}
-	
+
 	protected BaseInitParameters(String uuid, TerminationMode terminationMode, Calendar terminationTime) {
 		super(uuid, terminationMode, terminationTime);
 	}

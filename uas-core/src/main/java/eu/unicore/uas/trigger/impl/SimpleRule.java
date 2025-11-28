@@ -12,13 +12,13 @@ public class SimpleRule implements Rule {
 	private final String name; 
 	private final String match;
 	private final TriggeredAction<?> action;
-	
+
 	public SimpleRule(String name, String match, TriggeredAction<?> action){
 		this.match=match;
 		this.name=name;
 		this.action=action;
 	}
-	
+
 	@Override
 	public boolean matches(String filePath, TriggerContext context) {
 		return filePath.matches(match);
@@ -29,15 +29,20 @@ public class SimpleRule implements Rule {
 		return action;
 	}
 
+	@Override
 	public String getName(){
 		return name;
 	}
 	
+	@Override
 	public void begin(){}
 	
+	@Override
 	public void commit(){}
-	
+
+	@Override
 	public String toString(){
 		return "Rule <"+name+"> matches <"+match+"> Action "+String.valueOf(action);
 	}
+
 }

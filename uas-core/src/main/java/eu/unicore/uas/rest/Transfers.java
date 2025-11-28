@@ -61,7 +61,7 @@ public class Transfers extends ServicesBase {
 			o.put("size", resource.getDataSize());
 		}
 	}
-	
+
 	@Override
 	public ServerToServerTransferModel getModel(){
 		return (ServerToServerTransferModel)model;
@@ -78,4 +78,5 @@ public class Transfers extends ServicesBase {
 		ServerToServerTransferModel model = getModel();
 		links.add(new Link("storage",RESTUtils.makeHref(kernel, "core/storages", model.getParentUID()),"Parent Storage"));
 	}
+
 }

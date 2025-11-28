@@ -15,15 +15,14 @@ import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 
 public class UFTPProperties extends PropertiesHelper {
-	
+
 	private static final Logger log = LogUtil.getLogger(LogUtil.DATA, UFTPProperties.class);
-	
+
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UASProperties.PREFIX + "uftp.";
 
 	public static final String PARAM_ENABLE_UFTP = "enable";
 
-	
 	/**
 	 * extra property for configuring the UFTP client side:
 	 * <ul>
@@ -33,12 +32,6 @@ public class UFTPProperties extends PropertiesHelper {
 	 * </ul>
 	 */
 	public static final String PARAM_CLIENT_LOCAL="client.local";
-
-	/**
-	 * property for configuring the path to the client executable (location of 'uftp.sh')
-	 * TSI 8.3 and later has builtin UFTP support, and this should not be set
-	 */
-	public static final String PARAM_CLIENT_EXECUTABLE="client.executable";
 
 	/**
 	 * property for disabling ssl on the command port (useful for testing)
@@ -54,22 +47,22 @@ public class UFTPProperties extends PropertiesHelper {
 	 * property for setting the command port
 	 */
 	public static final String PARAM_COMMAND_PORT="command.port";
-	
+
 	/**
 	 * property for setting the command port socket timeout
 	 */
 	public static final String PARAM_COMMAND_TIMEOUT="command.socketTimeout";
-	
+
 	/**
 	 * property for setting the file read/write buffer size in kbytes
 	 */
 	public static final String PARAM_BUFFERSIZE="buffersize";
-	
+
 	/**
 	 * parameter for configuring server limit for number of streams 
 	 */
 	public static final String PARAM_STREAMS_LIMIT="streamsLimit";
-	
+
 	/** 
 	 * client host, i.e. where the uftp client code runs
 	 */
@@ -112,10 +105,8 @@ public class UFTPProperties extends PropertiesHelper {
 				setDescription("Controls whether UFTP should be enabled for this server."));
 		META.put(PARAM_CLIENT_LOCAL, new PropertyMD("false").
 				setDescription("Controls whether, the Java UFTP client code should be run directly within the JVM, which will work only if the UNICORE/X has access to the target file system, or, if set to false, in the TSI."));
-		META.put(PARAM_CLIENT_EXECUTABLE, new PropertyMD().setDeprecated().
-				setDescription("DEPRECATED, does not do anything."));
 		META.put(PARAM_COMMAND_SSL_DISABLE, new PropertyMD("false").
-				setDescription("Allows to disable SSL on the command port (useful for testing)."));
+				setDescription("Allows to disable SSL on the command port (don't do it)."));
 		META.put(PARAM_COMMAND_HOST, new PropertyMD("localhost").
 				setDescription("The UFTPD command host."));
 		META.put(PARAM_COMMAND_PORT, new PropertyMD("64435").setBounds(1, 65535).
@@ -141,13 +132,13 @@ public class UFTPProperties extends PropertiesHelper {
 		META.put(PARAM_ENABLE_ENCRYPTION, new PropertyMD("false").
 				setDescription("Controls whether encryption should be enabled by default for server-server transfers."));
 	}
-	
+
 	public UFTPProperties(String prefix, Properties properties) throws ConfigurationException {
 		super(prefix, properties, META, log);
 	}
-	
+
 	public UFTPProperties(Properties properties) throws ConfigurationException {
 		this(PREFIX, properties);
 	}
-	
+
 }

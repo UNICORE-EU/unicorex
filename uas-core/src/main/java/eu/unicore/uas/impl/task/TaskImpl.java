@@ -23,7 +23,7 @@ public class TaskImpl extends BaseResourceImpl {
 	public TaskImpl(){
 		super();
 	}
-	
+
 	public void cancel() {
 		TaskModel m = getModel();
 		String status = m.getStatus();
@@ -38,7 +38,7 @@ public class TaskImpl extends BaseResourceImpl {
 	public TaskModel getModel(){
 		return (TaskModel)super.getModel();
 	}
-	
+
 	@Override
 	public void initialise(InitParameters initParams)
 			throws Exception {
@@ -58,7 +58,7 @@ public class TaskImpl extends BaseResourceImpl {
 	/**
 	 * put a result<br/>
 	 * 
-	 * TODO notify once we support notifications
+	 * TODO notify
 	 * 
 	 * @param kernel
 	 * @param uuid - task instance UUID
@@ -76,7 +76,7 @@ public class TaskImpl extends BaseResourceImpl {
 			model.setResult(result);
 		}
 	}
-	
+
 	public static void failTask(Kernel kernel, String uuid, String message, int exitCode)throws Exception {
 		try(TaskImpl ti=(TaskImpl)kernel.getHome(UAS.TASK).getForUpdate(uuid)){
 			TaskModel model = ti.getModel();

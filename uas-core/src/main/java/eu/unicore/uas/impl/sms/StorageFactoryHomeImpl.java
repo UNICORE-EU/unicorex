@@ -10,7 +10,7 @@ import eu.unicore.services.impl.DefaultHome;
  * @author schuller
  */
 public class StorageFactoryHomeImpl extends DefaultHome {
-	
+
 	public static final String DEFAULT_SMF_NAME="default_storage_factory";
 
 	@Override

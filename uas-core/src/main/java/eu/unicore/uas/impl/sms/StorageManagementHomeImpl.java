@@ -16,10 +16,11 @@ public class StorageManagementHomeImpl extends DefaultHome {
 
 	/**
 	 * the types of storages</br>
-	 * HOME: mapped to current user's home
-	 * VARIABLE: actual path is looked up using the TSI, resolving any variables
-	 * FIXEDPATH: mapped to a fixed path (e.g. "/opt/unicore/files")
-	 * CUSTOM: other, needs a class to instantiate
+	 * HOME: mapped to current user's home </br>
+	 * FIXEDPATH: mapped to a fixed path </br>
+	 * CUSTOM: other, needs a class to instantiate </br>
+	 * VARIABLE: actual path is looked up using the TSI, resolving any variables </br>
+	 * USPACE: job working directory </br>
 	 */
 	public static enum StorageTypes {
 		HOME,
@@ -35,6 +36,7 @@ public class StorageManagementHomeImpl extends DefaultHome {
 		return(Resource)(Class.forName(clazz).getConstructor().newInstance());
 	}
 
+	@Override
 	protected Resource doCreateInstance() throws Exception {
 		throw new IllegalStateException();
 	}

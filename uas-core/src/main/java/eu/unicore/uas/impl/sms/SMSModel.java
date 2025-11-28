@@ -16,9 +16,9 @@ public class SMSModel extends PersistingPrefsModel {
 	 */
 	String workdir;
 
-	Boolean enableDirectFiletransfer=Boolean.FALSE;
+	Boolean enableDirectFiletransfer = Boolean.FALSE;
 
-	Boolean inheritSharing=Boolean.FALSE;
+	Boolean inheritSharing = Boolean.FALSE;
 
 	/**
 	 * the umask of this storage
@@ -27,7 +27,7 @@ public class SMSModel extends PersistingPrefsModel {
 
 	String fsname;
 
-	String directoryScanUID=null;
+	String directoryScanUID;
 
 	public StorageDescription getStorageDescription() {
 		return storageDescription;

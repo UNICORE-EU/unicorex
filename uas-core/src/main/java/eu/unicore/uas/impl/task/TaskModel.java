@@ -12,13 +12,13 @@ public class TaskModel extends UASBaseModel {
 	private String serviceSpec;
 	
 	private Calendar submissionTime;
-	
+
 	private Map<String,String> result;
-	
+
 	private String status = "CREATED";
 	private String statusMessage = "";
 	private Integer exitCode;
-	
+
 	public String getServiceSpec() {
 		return serviceSpec;
 	}

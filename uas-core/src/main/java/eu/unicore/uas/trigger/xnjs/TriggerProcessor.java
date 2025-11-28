@@ -294,7 +294,7 @@ public class TriggerProcessor extends DefaultProcessor {
 		return getPattern(expr).matcher(path).find();
 	}
 
-	private Map<String, Pattern>patterns=new HashMap<>();
+	private final Map<String, Pattern>patterns = new HashMap<>();
 
 	private Pattern getPattern(String expr){
 		Pattern p=patterns.get(expr);
@@ -304,11 +304,11 @@ public class TriggerProcessor extends DefaultProcessor {
 		}
 		return p;
 	}
-	
+
 	public static final String logDirectory = ".UNICORE_data_processing";
 
-	private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
-	
+	private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+
 	protected void storeLog(List<String>log, String directory, IStorageAdapter storage) throws Exception {
 		if(log.size()==0)return;
 		storage.mkdir(directory);

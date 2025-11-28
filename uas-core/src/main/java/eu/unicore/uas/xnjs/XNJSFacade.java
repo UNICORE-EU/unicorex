@@ -51,10 +51,10 @@ import eu.unicore.xnjs.tsi.local.LocalTSIModule;
 import eu.unicore.xnjs.tsi.remote.RemoteTSIModule;
 
 /**
- * This facade class wrap some XNJS specifics to reduce 
- * clutter in the UAS implementation. Various helper methods
+ * This facade class wrap some XNJS specifics to reduce
+ * clutter in the services implementation. Various helper methods
  * provide convenient access to XNJS functionality.
- * 
+ *
  * @author schuller
  */
 public class XNJSFacade implements ISubSystem {
@@ -70,13 +70,13 @@ public class XNJSFacade implements ISubSystem {
 	private TSIStatusChecker tsiConnector;
 
 	private InternalManager mgr;
-	
+
 	private Manager ems;
-	
+
 	private static synchronized XNJSInstancesMap getXNJSInstanceMap(Kernel kernel){
-		XNJSInstancesMap map=kernel.getAttribute(XNJSInstancesMap.class);
+		XNJSInstancesMap map = kernel.getAttribute(XNJSInstancesMap.class);
 		if(map==null){
-			map=new XNJSInstancesMap();
+			map = new XNJSInstancesMap();
 			kernel.setAttribute(XNJSInstancesMap.class, map);
 		}
 		return map;
@@ -91,11 +91,10 @@ public class XNJSFacade implements ISubSystem {
 	 * @return {@link XNJSFacade}
 	 */
 	public static synchronized XNJSFacade get(String xnjsReference, Kernel kernel){
-		String ref=xnjsReference!=null?xnjsReference:DEFAULT_INSTANCE;
-
+		String ref = xnjsReference!=null ? xnjsReference : DEFAULT_INSTANCE;
 		XNJSFacade r=getXNJSInstanceMap(kernel).get(ref);
 		if (r==null){
-			r=new XNJSFacade(kernel);
+			r = new XNJSFacade(kernel);
 			if(xnjsReference==null){
 				r.doDefaultInit(kernel);
 			}
@@ -135,24 +134,21 @@ public class XNJSFacade implements ISubSystem {
 			cs.addModule(m);
 		}
 		else throw new ConfigurationException("Invalid / unsupported TSI mode <"+mode+">");
-			
-		xnjs=new XNJS(cs);
+		xnjs = new XNJS(cs);
 		configure(xnjs);
 		xnjs.start();
 		ems = xnjs.get(Manager.class);
 		mgr = xnjs.get(InternalManager.class);
-		
 		setupSystemConnector(mode);
 	}
-	
+
 	public static class UASBaseModule extends AbstractModule {
-		
+
 		protected final Kernel kernel;
-		
+
 		public UASBaseModule(Kernel kernel){
 			this.kernel = kernel;
 		}
-
 
 		@Override
 		protected void configure(){
@@ -162,35 +158,34 @@ public class XNJSFacade implements ISubSystem {
 			bind(ActionStateChangeListener.class).to(RESTNotificationSender.class);
 			bind(INotificationSender.class).to(NotificationSender.class);
 		}
-		
+
 		@Provides
 		public Kernel getKernel(){
 			return kernel;
 		}
-		
+
 		@Provides
 		public IClientConfiguration getSecurityConfiguration(){
 			return getKernel().getClientConfiguration();
 		}
-		
+
 		@Provides
 		public IConnectionFactory getConnectionFactory(){
-			return new U6HttpConnectionFactory(getKernel());
+			return new NonValidatingHttpConnectionFactory(getKernel());
 		}
-		
-		
+
 	}
 
 	private void setupSystemConnector(TSI_MODE mode){
 		tsiConnector = new TSIStatusChecker(xnjs, mode);
 	}
-	
+
 	@Override
 	public Collection<ExternalSystemConnector>getExternalConnections(){
 		return tsiConnector!=null ?
 				Lists.newArrayList(tsiConnector) : Collections.emptyList();
 	}
-	
+
 	@Override
 	public String getName() {
 		return "Target system access [XNJS "+id+"]";
@@ -200,7 +195,7 @@ public class XNJSFacade implements ISubSystem {
 	public String getStatusDescription() {
 		return "OK";
 	}
-	
+
 	@Override
 	public Map<String, Metric> getMetrics(){
 		return xnjs.getMetrics();
@@ -256,7 +251,7 @@ public class XNJSFacade implements ISubSystem {
 	public String getWorkdir(String actionID) throws Exception {
 		return ems.getAction(actionID).getExecutionContext().getWorkingDirectory();
 	}
-	
+
 	public Action makeAction(JSONObject doc) throws Exception {
 		return xnjs.makeAction(doc);
 	}
@@ -268,61 +263,35 @@ public class XNJSFacade implements ISubSystem {
 	/**
 	 * Retrieve the status of an action
 	 */
-	public final Integer getStatus(String id, Client client){
-		try{
-			return ems.getStatus(id,client);
-		}catch(Exception e){
-			LogUtil.logException("Error retrieving action status for <"+id+">", e);
-			return null;
-		}
+	public final Integer getStatus(String id, Client client) throws Exception {
+		return ems.getStatus(id,client);
 	}
 
 	/**
 	 * Retrieve the exit code of an action
 	 */
-	public final Integer getExitCode(String id, Client client){
-		try{
-			Action a = mgr.getAction(id);
-			if(a!=null)return a.getExecutionContext().getExitCode();
-			else return null;
-		}catch(Exception e){
-			LogUtil.logException("Error retrieving exit code for <"+id+">", e);
-			return null;
-		}
+	public final Integer getExitCode(String id, Client client) throws Exception {
+		Action a = mgr.getAction(id);
+		if(a!=null)return a.getExecutionContext().getExitCode();
+		else return null;
 	}
 
 	/**
 	 * Retrieve the progress of an action
 	 */
-	public final Float getProgress(String id, Client client){
-		try{
-			Action a = mgr.getAction(id);
-			if(a!=null)return a.getExecutionContext().getProgress();
-			else {
-				logger.info("Can't get progress for action "+id+", not found on XNJS.");
-				return null;
-			}
-		}catch(Exception e){
-			LogUtil.logException("Error retrieving progress for <"+id+">", e);
-			return null;
-		}
+	public final Float getProgress(String id, Client client) throws Exception {
+		Action a = mgr.getAction(id);
+		if(a!=null)return a.getExecutionContext().getProgress();
+		return null;
 	}
 
 	/**
 	 * Retrieve the progress of an action
 	 */
-	public final String getJobDescription(String id){
-		try{
-			Action a = mgr.getAction(id);
-			if(a!=null)return String.valueOf(a.getAjd());
-			else {
-				logger.info("Can't get job description for action "+id+", not found on XNJS.");
-				return "n/a";
-			}
-		}catch(Exception e){
-			LogUtil.logException("Error retrieving job description for <"+id+">", e);
-			return "n/a";
-		}
+	public final String getJobDescription(String id) throws Exception {
+		Action a = mgr.getAction(id);
+		if(a!=null)return String.valueOf(a.getAjd());
+		return "n/a";
 	}
 
 	/**
@@ -330,12 +299,8 @@ public class XNJSFacade implements ISubSystem {
 	 * 
 	 * @param id - the ID of the action to destroy 
 	 */
-	public void destroyAction(String id, Client client){
-		try{
-			ems.destroy(id,client);
-		}catch(Exception e){
-			LogUtil.logException("Error destroying job <"+id+">", e);
-		}
+	public void destroyAction(String id, Client client) throws Exception {
+		ems.destroy(id,client);
 	}
 
 	public final Manager getManager(){
@@ -413,7 +378,7 @@ public class XNJSFacade implements ISubSystem {
 	 * @return true if the XNJS supports reservation, false otherwise
 	 */
 	Boolean haveReservation;
-	
+
 	public synchronized boolean supportsReservation(){
 		if(haveReservation==null){
 			try{
@@ -435,8 +400,6 @@ public class XNJSFacade implements ISubSystem {
 		return xnjs.get(IReservation.class);
 	}
 
-
-	//TODO check xnjs.stop()
 	public void shutdown()throws Exception{
 		//do not shutdown the default instance
 		if(DEFAULT_INSTANCE.equals(id)){
@@ -446,15 +409,6 @@ public class XNJSFacade implements ISubSystem {
 		xnjs.stop();
 		//allow instance to be GC'ed
 		getXNJSInstanceMap(kernel).put(id, null);
-	}
-
-	/**
-	 * get the last instant that the IDB was updated
-	 *  
-	 * @return long - the last update time (in millis)
-	 */
-	public final long getLastIDBUpdate(){
-		return getIDB().getLastUpdateTime();
 	}
 
 	/**

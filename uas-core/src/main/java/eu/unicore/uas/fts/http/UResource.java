@@ -22,25 +22,24 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * a TSI / IStorageAdapter
  * 
  * @author schuller
- * @since 1.0.1
  */
 public class UResource extends Resource {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, UResource.class);
-	
-	protected final String path;
-	protected final String id;
-	protected final IStorageAdapter storage;
-	protected final Kernel kernel;
-	protected long transferred=0;
-	protected boolean append=false;
+
+	private final String path;
+	private final String id;
+	private final IStorageAdapter storage;
+	private final Kernel kernel;
+	private long transferred = 0;
+	private boolean append = false;
 	// expected number of incoming bytes
-	protected long numberOfBytes=-1;
-	
-	protected String lastErrorMessage = null;
-	
-	protected String contentType = null;
-	
+	private long numberOfBytes = -1;
+
+	private String lastErrorMessage = null;
+
+	private String contentType = null;
+
 	/**
 	 * creates a Resource object for serving a file
 	 * @param id - the unique ID of the resource, can be <code>null</code> if the resource is only temporary. If non-null,
@@ -50,7 +49,7 @@ public class UResource extends Resource {
 	 * @param kernel
 	 */
 	public UResource(String id, String path, IStorageAdapter storage, Kernel kernel){
-		this.id=id;
+		this.id = id;
 		this.path=path;
 		this.storage=storage;
 		this.kernel=kernel;
@@ -66,11 +65,10 @@ public class UResource extends Resource {
 	
 	protected void updateTransferredBytes(){
 		if(id!=null){
-			FileServlet fs=kernel.getAttribute(FileServlet.class);
-			fs.setTransferredBytes(id, transferred);
+			kernel.getAttribute(FileServlet.class).setTransferredBytes(id, transferred);
 		}
 	}
-	
+
 	@Override
 	public Resource addPath(String path) throws IOException,
 			MalformedURLException {
@@ -91,7 +89,7 @@ public class UResource extends Resource {
 	public File getFile() throws IOException {
 		return null;
 	}
-	
+
 	public String getContentType(){
 		return contentType;
 	}
@@ -103,8 +101,9 @@ public class UResource extends Resource {
 	@Override
 	public InputStream getInputStream() throws IOException {
 		try {
-			final InputStream is=storage.getInputStream(path);
-			InputStream decoratedStream=new InputStream(){
+			final InputStream is = storage.getInputStream(path);
+			InputStream decoratedStream = new InputStream(){
+
 				@Override
 				public int read() throws IOException {
 					try{
@@ -114,6 +113,7 @@ public class UResource extends Resource {
 						throw handleException("Error reading data", e);
 					}
 				}
+
 				@Override
 				public int read(byte[] b, int off, int len) throws IOException {
 					try{
@@ -128,15 +128,14 @@ public class UResource extends Resource {
 						throw handleException("Error reading data", e);
 					}
 				}
-				
+
 				@Override
 				public void close() throws IOException {
 					is.close();
 				}
-				
+
 			};
 			return decoratedStream;
-			
 		}
 		catch(Exception e){
 			throw handleException("Error reading data", e);
@@ -152,7 +151,7 @@ public class UResource extends Resource {
 			return new IOException(e);
 		}
 	}
-	
+
 	private String createErrorMessage(String msg, Exception e){
 		Log.logException(msg, e, logger);
 		StringBuilder sb = new StringBuilder();
@@ -162,10 +161,10 @@ public class UResource extends Resource {
 		if(id!=null) try{
 			Message message = new Message(lastErrorMessage);
 			kernel.getMessaging().getChannel(id).publish(message);
-		}catch(Exception ex){logger.error(ex);}
+		}catch(Exception ex){}
 		return lastErrorMessage;
 	}
-	
+
 	@Override
 	public String getName() {
 		return path;
@@ -175,7 +174,7 @@ public class UResource extends Resource {
 		try {
 			final OutputStream os = storage.getOutputStream(path, append, numberOfBytes);
 			OutputStream decoratedStream=new OutputStream(){
-				
+
 				@Override
 				public void write(int b) throws IOException {
 					try{
@@ -185,7 +184,7 @@ public class UResource extends Resource {
 						throw handleException("Error writing data", e);
 					}
 				}
-				
+
 				@Override
 				public void write(byte[] b, int off, int len) throws IOException {
 					try{
@@ -197,6 +196,7 @@ public class UResource extends Resource {
 					transferred+=len;
 					updateTransferredBytes();
 				}
+
 				@Override
 				public void close() throws IOException {
 					try{
@@ -205,6 +205,7 @@ public class UResource extends Resource {
 						throw handleException("Error writing data", e);
 					}
 				}
+
 				@Override
 				public void flush() throws IOException {
 					try{

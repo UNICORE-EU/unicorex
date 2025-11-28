@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.logging.log4j.Logger;
-
-import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.io.ChangePermissions.Mode;
 import eu.unicore.xnjs.io.ChangePermissions.PermissionsClass;
 import eu.unicore.xnjs.util.URIUtils;
@@ -17,9 +14,6 @@ import eu.unicore.xnjs.util.URIUtils;
  * utility methods for the SMS
  */
 public class SMSUtils {
-
-	// use SMS logger for this class
-	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA,SMSBaseImpl.class);
 
 	private SMSUtils(){}
 
@@ -33,7 +27,6 @@ public class SMSUtils {
 		try{
 			return URLDecoder.decode(p.replace("+","%2B"), "UTF-8");
 		}catch(Exception ex){
-			logger.warn(ex);
 			return p;
 		}
 	}
@@ -47,14 +40,11 @@ public class SMSUtils {
 		try{
 			return URIUtils.encodeAll(orig);
 		}catch(Exception e){
-			logger.error(e);
 			return orig;
 		}
 	}
 
-
 	private static final String[]jsonPermKinds = {"OWNER","GROUP","OTHER"};
-
 
 	private static final Pattern unixPermPattern = Pattern.compile("([rwx-][rwx-][rwx-])");
 
@@ -68,7 +58,7 @@ public class SMSUtils {
 		}
 		Matcher m = unixPermPattern.matcher(unixPermissions);
 		List<eu.unicore.xnjs.io.ChangePermissions>res = new ArrayList<>();
-		int i=0;
+		int i = 0;
 		while(m.find() && i<3) {
 			String kind = jsonPermKinds[i];
 			String perm = m.group();
@@ -83,6 +73,5 @@ public class SMSUtils {
 		}
 		return res.toArray(new eu.unicore.xnjs.io.ChangePermissions[res.size()]);
 	}
-	
-	
+
 }

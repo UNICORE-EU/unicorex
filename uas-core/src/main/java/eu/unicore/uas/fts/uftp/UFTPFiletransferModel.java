@@ -13,10 +13,10 @@ public class UFTPFiletransferModel extends FileTransferModel {
 	byte[] key;
 
 	boolean compress = false;
-	
+
 	String serverHost;
 	int serverPort;
-	
+
 	public String getClientHost() {
 		return clientHost;
 	}

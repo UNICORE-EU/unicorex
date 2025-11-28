@@ -20,20 +20,20 @@ public abstract class TaskWatcher<T>  implements Runnable{
 
 	protected final Kernel kernel;
 	
-	protected int errCount=0;
-	
+	protected int errCount = 0;
+
 	public TaskWatcher(Future<T>future, String taskID, Kernel kernel){
 		this.taskID=taskID;
 		this.future=future;
 		this.kernel=kernel;
 	}
-	
+
+	@Override
 	public void run(){
 		if(future.isDone()){
 			Map<String, String> result = new HashMap<>();
 			try{
-				T stats = future.get();
-				result = createResult(stats);
+				result = createResult(future.get());
 			}
 			catch(Exception ex){}
 			try{
@@ -52,15 +52,15 @@ public abstract class TaskWatcher<T>  implements Runnable{
 			reschedule();
 		}
 	}
-	
+
 	protected void reschedule(){
 		kernel.getContainerProperties().getThreadingServices().getScheduledExecutorService().
 		schedule(this, 5000, TimeUnit.MILLISECONDS);
 	}
-	
+
 	/**
 	 * create the result map
 	 */
 	protected abstract Map<String, String> createResult(T taskResult);
-	
+
 }

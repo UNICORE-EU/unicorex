@@ -47,7 +47,7 @@ public class UFTPDInstance extends UFTPDInstanceBase implements ExternalSystemCo
 	}
 
 	private SSLSocketFactory socketfactory = null;
-	
+
 	public synchronized SSLSocketFactory getSSLSocketFactory() {
 		if(socketfactory==null) {
 			IClientConfiguration cfg = kernel.getClientConfiguration();

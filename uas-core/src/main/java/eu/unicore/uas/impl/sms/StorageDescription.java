@@ -16,13 +16,13 @@ import eu.unicore.util.configuration.ConfigurationException;
  * @author K. Benedyczak
  */
 public class StorageDescription implements Serializable, Cloneable {
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	private final String id;
 	private String clazz;
 	private StorageTypes type;
-	
+
 	private String name;
 	private String infoProviderClass = DefaultStorageInfoProvider.class.getName();
 	private String pathSpec;
@@ -35,14 +35,14 @@ public class StorageDescription implements Serializable, Cloneable {
 	private boolean filterListing;
 	private boolean enableTrigger;
 	private boolean allowTrigger = true;
-	
+
 	private String sharedTriggerUser;
 	private boolean cleanup;
 	private String defaultUmask = "077";
 
 	// only used when created
 	private transient boolean checkExistence = true;
-	
+
 	/**
 	 * basic constructor, other settings need to be set via API
 	 * @param id - storage ID
@@ -51,44 +51,44 @@ public class StorageDescription implements Serializable, Cloneable {
 	 * @param clazz - implementation class
 	 */
 	public StorageDescription(String id, String name, StorageTypes type, String clazz){
-		this.id=id;
+		this.id = id;
 		this.name = name == null ? id : name;
-		this.type=type;
-		this.clazz=clazz;
+		this.type = type;
+		this.clazz = clazz;
 	}
-	
+
 	public void setDisableMetadata(boolean disable){
-		this.disableMetadata=disable;
+		this.disableMetadata = disable;
 	}
-	
+
 	public boolean isDisableMetadata(){
 		return disableMetadata;
 	}
-	
+
 	public void setEnableTrigger(boolean enable){
 		this.enableTrigger = enable;
 	}
-	
+
 	public boolean isEnableTrigger(){
 		return enableTrigger;
 	}
-	
+
 	public void setAllowTrigger(boolean allow){
 		this.allowTrigger = allow;
 	}
-	
+
 	public boolean isAllowTrigger(){
 		return allowTrigger;
 	}
-	
+
 	public boolean isAllowUserdefinedPath(){
 		return allowUserDefinedPath;
 	}
-	
+
 	public void setAllowUserDefinedPath(boolean allow){
 		this.allowUserDefinedPath=allow;
 	}
-	
+
 	/**
 	 * update the given settings
 	 * 
@@ -113,11 +113,11 @@ public class StorageDescription implements Serializable, Cloneable {
 		if (type.equals(StorageTypes.CUSTOM) && clazz == null)
 			throw new ConfigurationException("No class defined for the CUSTOM storage");
 	}
-	
+
 	public String getId() {
 		return id;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
@@ -133,7 +133,7 @@ public class StorageDescription implements Serializable, Cloneable {
 	public void setDescription(String description) {
 		this.description=description;
 	}
-	
+
 	public StorageTypes getStorageType() {
 		return type;
 	}
@@ -158,7 +158,7 @@ public class StorageDescription implements Serializable, Cloneable {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	public boolean isFilterListing() {
 		return filterListing;
 	}
@@ -166,15 +166,15 @@ public class StorageDescription implements Serializable, Cloneable {
 	public boolean isCleanupOnDestroy() {
 		return cleanup;
 	}
-	
+
 	public String getDefaultUmask() {
 		return defaultUmask;
 	}
-	
+
 	public void setDefaultUmask(String umask) {
 		this.defaultUmask=umask;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Class<? extends StorageInfoProvider> getInfoProviderClass() {
 		try{
@@ -189,7 +189,7 @@ public class StorageDescription implements Serializable, Cloneable {
 	public void setInfoProviderClass(String clazz) {
 		this.infoProviderClass = clazz;
 	}
-	
+
 	/**
 	 * whether to test the existence of the base directory when creating the storage
 	 */
@@ -200,7 +200,7 @@ public class StorageDescription implements Serializable, Cloneable {
 	public void setCheckExistence(boolean checkExistence){
 		this.checkExistence = checkExistence;
 	}
-	
+
 	public boolean isCleanup() {
 		return cleanup;
 	}
@@ -241,13 +241,13 @@ public class StorageDescription implements Serializable, Cloneable {
 					? ", triggerUserID="+sharedTriggerUser : "")
 				;
 	}
-	
+
 	public void setStorageClass(String clazz){
 		this.clazz = clazz;
 	}
 
 	public StorageDescription clone() {
-		Map<String, String> clonedAdd = new HashMap<String, String>();
+		Map<String, String> clonedAdd = new HashMap<>();
 		clonedAdd.putAll(additionalProperties);
 		StorageDescription ret = new StorageDescription(id, name, type, clazz);
 		ret.setPathSpec(pathSpec);

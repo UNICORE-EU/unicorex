@@ -63,7 +63,8 @@ import jakarta.ws.rs.core.Response;
 public class Jobs extends ServicesBase {
 
 	private static final Logger logger = Log.getLogger("unicore.rest", Jobs.class);
-	
+
+	@Override
 	protected String getResourcesName(){
 		return "jobs";
 	}
@@ -127,6 +128,7 @@ public class Jobs extends ServicesBase {
 			return handleError("Could not get job details", ex, logger);
 		}
 	}
+
 	/**
 	 * submit a job to the first accessible target system instance
 	 * (if necessary, create one)

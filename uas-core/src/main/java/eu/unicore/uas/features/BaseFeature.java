@@ -34,6 +34,7 @@ public class BaseFeature extends FeatureImpl {
 			this.kernel = kernel;
 		}
 
+		@Override
 		public void run() {
 			CoreServices.publish(kernel);
 		}

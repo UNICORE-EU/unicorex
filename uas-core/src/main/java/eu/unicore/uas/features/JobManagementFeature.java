@@ -68,6 +68,7 @@ public class JobManagementFeature extends FeatureImpl {
 			this.kernel=kernel;
 		}
 
+		@Override
 		public void run(){
 			try{
 				createDefaultTSFIfNotExists();
@@ -101,7 +102,7 @@ public class JobManagementFeature extends FeatureImpl {
 				finally{
 					tsfLock.unlock();
 				}
-				publishWS(defaultTsfName);
+				publish(defaultTsfName);
 			}
 		}
 
@@ -115,7 +116,7 @@ public class JobManagementFeature extends FeatureImpl {
 			logger.info("Added default TSF resource '{}' of type <{}>.", defaultTsfName, clazz.getName());
 		}
 
-		private void publishWS(String uid){
+		private void publish(String uid){
 			try{
 				LocalRegistryClient lrc = kernel.getAttribute(RegistryHandler.class).getRegistryClient();
 				Map<String,String> res = new HashMap<>();
@@ -131,8 +132,6 @@ public class JobManagementFeature extends FeatureImpl {
 				Log.logException("Could not publish to local registry", ex, logger);
 			}		
 		}
-
-		
 	}
-	
+
 }

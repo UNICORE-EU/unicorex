@@ -44,7 +44,7 @@ public class ToggleJobSubmission implements AdminAction {
 		}
 		return new AdminActionResult(success,message);
 	}
-	
+
 	@Override
 	public String getDescription() {
 		return "parameters: [message]";

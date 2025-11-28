@@ -18,7 +18,7 @@ import eu.unicore.uas.impl.sms.StorageManagementHomeImpl;
  * @author schuller
  */
 public class StorageAccessFeature extends FeatureImpl {
-	
+
 	public StorageAccessFeature() {
 		this.name = "StorageAccess";
 	}
@@ -32,7 +32,7 @@ public class StorageAccessFeature extends FeatureImpl {
 		homeClasses.put(UAS.CLIENT_FTS, FileTransferHomeImpl.class);
 		getStartupTasks().add(new Startup(kernel));
 	}
-	
+
 	@Override
 	public void initialise() throws Exception {
 		new UFTPStartupTask(kernel).run();
@@ -46,6 +46,7 @@ public class StorageAccessFeature extends FeatureImpl {
 			this.kernel=kernel;
 		}
 
+		@Override
 		public void run(){
 			createSharedStorages();
 			createDefaultStorageFactoryIfNotExists();

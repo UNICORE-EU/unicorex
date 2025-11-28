@@ -75,11 +75,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 		model.storageDescription = init.storageDescription;
 		model.fsname = init.storageDescription.getName();
 		model.umask = init.storageDescription.getDefaultUmask();
-		// we get a factory ID if this instance was created
-		// via a StorageFactory
-		String storageFactoryID=init.factoryID;
-		if(storageFactoryID != null){
-			model.setParentUID(storageFactoryID);
+		// created via a StorageFactory?
+		if(init.factoryID != null){
+			model.setParentUID(init.factoryID);
 			model.setParentServiceName(UAS.SMF);
 		}
 		model.inheritSharing = init.inheritSharing;
@@ -103,12 +101,11 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 	public abstract String getStorageRoot() throws ExecutionException;
 
 	public void mkdir(String path) throws Exception {
-		path = makeSMSLocal(path);
-		getStorageAdapter().mkdir(path);
+		getStorageAdapter().mkdir(makeSMSLocal(path));
 	}
 
 	public void doDelete(String... paths) throws Exception {
-		IStorageAdapter tsi=getStorageAdapter();
+		IStorageAdapter tsi = getStorageAdapter();
 		boolean supportsBatch=tsi instanceof BatchMode;
 		MetadataManager mm = getMetadataManager();
 		if(supportsBatch){
@@ -137,7 +134,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 			Map<String,String>extraParameters, String[] tags)
 	throws Exception {
 		if(isExport){
-			boolean hasWildcards=FileSet.hasWildcards(source); 
+			boolean hasWildcards = FileSet.hasWildcards(source); 
 			XnjsFileWithACL xnjsFile = hasWildcards?null:getProperties(source);
 			if(!hasWildcards && xnjsFile == null)
 			{
@@ -232,13 +229,12 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 	@Override
 	public void destroy() {
 		SMSModel model = getModel();
-		String storageFactoryID = model.getParentUID();
-		if(storageFactoryID!=null){
+		if(model.getParentUID()!=null){
 			try{
 				ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
 				m.setDeletedResource(getUniqueID());
 				m.setServiceName(getServiceName());
-				kernel.getMessaging().getChannel(storageFactoryID).publish(m);
+				kernel.getMessaging().getChannel(model.getParentUID()).publish(m);
 			}
 			catch(Exception e){}
 		}
@@ -311,7 +307,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 		return createFileTransfer(init, protocol);
 	}
 
-
 	/**
 	 * create new client-server FileTransfer resource and return its UUID
 	 * 
@@ -321,6 +316,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 	 */
 	private String createFileTransfer(FiletransferInitParameters initParam, String protocol)
 			throws Exception{
+		Home ftsHome = kernel.getHome(UAS.CLIENT_FTS);
+		if(ftsHome==null)throw new Exception("Requested service <"+UAS.CLIENT_FTS+"> is not available.");
+
 		initParam.smsUUID = getUniqueID();
 		initParam.workdir = getStorageRoot();
 		if(initParam.workdir==null) {
@@ -330,9 +328,7 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 		initParam.storageAdapterFactory = getStorageAdapterFactory();
 		initParam.xnjsReference = getModel().getXnjsReference();
 		initParam.protocol = protocol;
-		Home home=kernel.getHome(UAS.CLIENT_FTS);
-		if(home==null)throw new Exception("Requested service <"+UAS.CLIENT_FTS+"> is not available.");
-		return home.createResource(initParam);
+		return ftsHome.createResource(initParam);
 	}
 
 	/**
@@ -347,13 +343,11 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 	 */
 	protected void checkImportTarget(String target)throws Exception{
 		XnjsFile f=getProperties(target);
-		if(f==null)return;
-		if(f.isDirectory())throw new IllegalArgumentException("Invalid target filename "+target+": is a directory");
+		if(f!=null && f.isDirectory()) {
+			throw new IllegalArgumentException("Invalid target filename "+target+": is a directory");
+		}
 	}
 
-	/**
-	 * gets the file separator string
-	 */
 	protected String getSeparator(){
 		return "/";
 	}
@@ -362,8 +356,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 	 * creates any missing directories
 	 */
 	public void createParentDirectories(String target)throws Exception{
-		while(target.startsWith("/"))target=target.substring(1);
-		String[] dirs=target.split("/");
+		while(target.startsWith("/"))target = target.substring(1);
+		String[] dirs = target.split("/");
 		String dir="";
 		if(dirs.length>1 && dirs[0].length()!=0){
 			//build directory
@@ -375,11 +369,10 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 			}
 		}
 		if(dir.length()>0){
-			String path=dir;
+			String path = dir;
 			IStorageAdapter tsi=getStorageAdapter();
-			XnjsFile xDir=tsi.getProperties(path);
+			XnjsFile xDir = tsi.getProperties(path);
 			if(xDir==null){
-				logger.debug("Creating directory {}", path);
 				tsi.mkdir(path);	
 			}
 			else if(!xDir.isDirectory()){
@@ -419,8 +412,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 	protected void setupDirectoryScan()throws Exception{
 		if(isTriggerEnabled()){
 			Client scanClient = getClient();
-			ScanSettings scanSettings=new ScanSettings();
-			scanSettings.storageUID=getUniqueID();
+			ScanSettings scanSettings = new ScanSettings();
+			scanSettings.storageUID = getUniqueID();
 			if(!"user".equals(scanClient.getRole().getName())){
 				String userID = getModel().storageDescription.getSharedTriggerUser();
 				if(userID == null){
@@ -430,9 +423,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 				scanClient = new Client();
 				Xlogin xlogin = new Xlogin(new String[]{userID});
 				scanClient.setXlogin(xlogin);
-				scanSettings.sharedStorageMode=true;
+				scanSettings.sharedStorageMode = true;
 			}
-			SetupDirectoryScan sds=new SetupDirectoryScan(scanSettings, 
+			SetupDirectoryScan sds = new SetupDirectoryScan(scanSettings, 
 					scanClient, getXNJSFacade().getXNJS());
 			String uid = sds.call();
 			logger.info("Have directory scan <{}> for <{}>", uid, getClient().getDistinguishedName());

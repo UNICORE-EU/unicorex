@@ -36,6 +36,7 @@ public class InitSharedStorages implements Runnable{
 		this.kernel=kernel;
 	}
 
+	@Override
 	public void run(){
 		try{
 			createSharedStorages();
@@ -46,14 +47,14 @@ public class InitSharedStorages implements Runnable{
 
 	@SuppressWarnings("deprecation")
 	protected void createSharedStorages()throws ResourceNotCreatedException,PersistenceException{
-		Home smsHome=kernel.getHome(UAS.SMS);
+		Home smsHome = kernel.getHome(UAS.SMS);
 		if(smsHome==null){
 			logger.info("No StorageManagement service configured for this site!");
 			return;
 		}
 		//get "global" lock
-		LockSupport ls=kernel.getPersistenceManager().getLockSupport();
-		Lock lock=ls.getOrCreateLock(InitSharedStorages.class.getName());
+		LockSupport ls = kernel.getPersistenceManager().getLockSupport();
+		Lock lock = ls.getOrCreateLock(InitSharedStorages.class.getName());
 		if(lock.tryLock()){
 			try{
 				// get configured storage descriptions
@@ -82,14 +83,14 @@ public class InitSharedStorages implements Runnable{
 		String id = desc.getName();
 		// sanity check the ID
 		if(!id.matches("[-\\w]+"))throw new ResourceNotCreatedException("ID contains illegal characters! Only [a-z A-Z 0-9 - _] are allowed ");
-		
+
 		StorageInitParameters map = new StorageInitParameters(id, TerminationMode.NEVER);
 		map.storageDescription = desc;
 
 		// do not resolve and/or create directory scan 
 		// since we do not have a client context here
 		map.skipResolve = true;
-		
+
 		if(desc.getSharedTriggerUser() == null){
 			// triggering is per-user, so must disable it here
 			desc.setEnableTrigger(false);

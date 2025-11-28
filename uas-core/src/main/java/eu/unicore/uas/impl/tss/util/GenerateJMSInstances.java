@@ -52,8 +52,7 @@ public class GenerateJMSInstances implements Runnable{
 	}
 
 	Collection<String>getXNJSJobs()throws Exception{
-		XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
-		return xnjs.listJobIDs(client);
+		return XNJSFacade.get(xnjsReference, kernel).listJobIDs(client);
 	}
 
 	@Override
@@ -61,7 +60,7 @@ public class GenerateJMSInstances implements Runnable{
 		try{
 			logger.debug("Regenerating UNICORE jobs for {}", client.getDistinguishedName());
 			AuthZAttributeStore.setClient(client);
-			XNJSFacade xnjs=XNJSFacade.get(xnjsReference, kernel);
+			XNJSFacade xnjs = XNJSFacade.get(xnjsReference, kernel);
 			int num = 0;
 			for(String jobID: jobIDs){
 				Action action=xnjs.getAction(jobID);

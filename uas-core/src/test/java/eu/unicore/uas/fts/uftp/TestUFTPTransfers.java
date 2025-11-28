@@ -18,7 +18,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
-import org.h2.expression.function.SysInfoFunction;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +40,6 @@ import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
-import eu.unicore.uas.rest.CoreServices;
 import eu.unicore.uftp.dpc.Utils;
 
 /**

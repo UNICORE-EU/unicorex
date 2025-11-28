@@ -13,7 +13,6 @@ import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.uas.xnjs.RESTFileExportBase;
 import eu.unicore.uftp.client.UFTPSessionClient;
-import eu.unicore.util.Log;
 import eu.unicore.util.Pair;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
@@ -47,14 +46,15 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	private final String clientIPAddresses;
 
 	private boolean useEncryption = false;
+
 	private int streams = 1;
 
 	private final UFTPProperties uftpProperties;
 
 	private UFTPSessionClient sessionClient;
 
-	public RESTUFTPExport(XNJS config){
-		super(config);
+	public RESTUFTPExport(XNJS xnjs){
+		super(xnjs);
 		uftpProperties = kernel.getAttribute(UFTPProperties.class);
 		if(uftpProperties==null)throw new IllegalArgumentException("UFTP is not enabled.");
 		localMode = uftpProperties.getBooleanValue(UFTPProperties.PARAM_CLIENT_LOCAL);
@@ -112,13 +112,13 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	}
 
 	protected void setupUFTPSession()throws Exception{
-		Map<String,String>ep=getExtraParameters();
+		Map<String,String>ep = getExtraParameters();
 		ftc = storage.createExport(SESSION_TAG, "UFTP", ep);
 		if(localMode) {
 			UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
 			sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
 			sessionClient.setSecret(secret);
-			sessionClient.setNumConnections(getNumberOfStreams());
+			sessionClient.setNumConnections(streams);
 			sessionClient.connect();
 		}
 	}
@@ -132,8 +132,8 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	protected Map<String,String>getExtraParameters(){
 		Map<String,String>result = new HashMap<>();
 		result.put(PARAM_CLIENT_HOST, clientIPAddresses);
-		result.put(PARAM_STREAMS,String.valueOf(getNumberOfStreams()));
-		secret=UUID.randomUUID().toString();
+		result.put(PARAM_STREAMS,String.valueOf(streams));
+		secret = UUID.randomUUID().toString();
 		result.put(PARAM_SECRET, secret);
 		result.put(PARAM_ENABLE_ENCRYPTION,String.valueOf(useEncryption));
 		return result;
@@ -147,7 +147,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	}
 
 	private String setupClientHost(){
-		String clientHost=uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_HOST);
+		String clientHost = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_HOST);
 		if(clientHost==null){
 			if(localMode){
 				clientHost = getLocalHost();
@@ -182,31 +182,23 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 		}
 	}
 
-	protected int getNumberOfStreams(){
-		return streams;
-	}
-
 	private AsyncCommandHelper ach;
 
-
 	private void runAsync(String cmd, int cmdtype) throws Exception {
-		ach=new AsyncCommandHelper(configuration, cmd, info.getUniqueId(), info.getParentActionID(), client);
+		ach = new AsyncCommandHelper(configuration, cmd, info.getUniqueId(), info.getParentActionID(), client);
 		ach.setPreferredExecutionHost(clientHost);
 		ach.getSubCommand().type = cmdtype;
 		ach.submit();
-		int interval = 2000;
 		do{
 			try{
 				checkCancelled();
 			}catch(CancelledException ce){
 				try{
 					ach.abort();
-				}catch(Exception e){
-					logger.warn("Could not abort UFTP client run.");
-				}
+				}catch(Exception e){}
 				throw ce;
 			}
-			Thread.sleep(interval);
+			Thread.sleep(2000);
 		}while(!ach.isDone());
 
 		ResultHolder res=ach.getResult();
@@ -215,9 +207,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 			try{
 				String error = res.getErrorMessage();
 				if(error!=null && error.length()>0)message+=" Error details: "+error;
-			}catch(IOException ex){
-				Log.logException("Could not read UFTP error message", ex, logger);
-			}
+			}catch(IOException ex){}
 			throw new Exception(message);
 		}
 	}

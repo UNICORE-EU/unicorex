@@ -17,7 +17,7 @@ import eu.unicore.util.Pair;
  * @author Konstantine Muradov
  */
 public interface MetadataManager {
-	
+
     /**
      * Create metadata on given resource
      * 
@@ -54,7 +54,7 @@ public interface MetadataManager {
      * @return a Future for monitoring the search and collecting the results
      */
     public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString, List<String> storagesList, boolean isAdvanced) throws Exception;
-    
+   
     /**
      * This method retrieves the metadata
      * 

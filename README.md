@@ -1,5 +1,7 @@
 # UNICORE/X
 
+[![Unit tests](https://github.com/UNICORE-EU/unicorex/actions/workflows/maven.yml/badge.svg)](https://github.com/UNICORE-EU/unicorex/actions/workflows/maven.yml)
+
 This repository contains the source code for UNICORE/X, which is the
 central component of a typical UNICORE installation.
 UNICORE/X provides REST APIs for job management and data access

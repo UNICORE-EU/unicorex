@@ -17,5 +17,5 @@ public interface StorageInfoProvider {
 	 * @return a map (which can be <code>null</code>) where key=parameter name and value=parameter description  
 	 */
 	public Map<String,String> getUserParameterInfo(StorageDescription storageDescription);
-	
+
 }

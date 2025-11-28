@@ -22,11 +22,11 @@ public class AbortJob implements AdminAction {
 
 	@Override
 	public AdminActionResult invoke(Map<String, String> params, Kernel kernel) {
-		String requestedID=params.get("jobID");
-		boolean cleanup=Boolean.parseBoolean(params.get("cleanup"));
-		boolean success=true;
+		String requestedID = params.get("jobID");
+		boolean cleanup = Boolean.parseBoolean(params.get("cleanup"));
+		boolean success = true;
 		String message = null;
-		String xnjsReference=params.get("xnjsReference");
+		String xnjsReference = params.get("xnjsReference");
 		try{
 			if(requestedID != null){
 				message = "Aborting job "+requestedID;

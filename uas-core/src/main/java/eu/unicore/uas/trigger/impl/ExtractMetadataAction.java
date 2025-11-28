@@ -25,16 +25,16 @@ public class ExtractMetadataAction extends BaseAction implements MultiFileAction
 
 	@SuppressWarnings("unused")
 	private final JSONObject settings;
-	
+
 	private final String storageID;
-	
+
 	private List<String>files;
 
 	public ExtractMetadataAction(JSONObject settings, String storageID){
 		this.settings=settings;
 		this.storageID=storageID;
 	}
-	
+
 	@Override
 	public void setTarget(List<String>target) {
 		this.files = target;
@@ -48,8 +48,10 @@ public class ExtractMetadataAction extends BaseAction implements MultiFileAction
 		mm.startAutoMetadataExtraction(files, null);
 		return null;
 	}
-	
+
+	@Override
 	public String toString(){
 		return "EXTRACT";
 	}
+
 }

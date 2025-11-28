@@ -17,7 +17,7 @@ public class ExtractionWatcher extends TaskWatcher<ExtractionStatistics>{
 	public ExtractionWatcher(Future<ExtractionStatistics>future, String taskID, Kernel kernel){
 		super(future, taskID, kernel);
 	}
-	
+
 	@Override
 	protected Map<String,String> createResult(ExtractionStatistics stats) {
 		Map<String,String> res = new HashMap<>();
@@ -25,5 +25,5 @@ public class ExtractionWatcher extends TaskWatcher<ExtractionStatistics>{
 		res.put("durationMillis", String.valueOf(stats.getDurationMillis()));
 		return res;
 	}
-	
+
 }

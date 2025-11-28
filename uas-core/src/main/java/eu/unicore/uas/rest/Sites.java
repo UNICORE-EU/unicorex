@@ -53,6 +53,7 @@ public class Sites extends ServicesBase {
 
 	private static final Logger logger = Log.getLogger("unicore.rest", Sites.class);
 
+	@Override
 	protected String getResourcesName(){
 		return "sites";
 	}
@@ -113,12 +114,12 @@ public class Sites extends ServicesBase {
 			return handleError("Could not submit job", ex, logger);
 		}
 	}
-	
+
 	@Override
 	public TSSModel getModel(){
 		return (TSSModel)model;
 	}
-	
+
 	/**
 	 * create a new TSS via the target system factory service
 	 * 
@@ -139,7 +140,7 @@ public class Sites extends ServicesBase {
 			return handleError("Could not create TSS",ex,logger);
 		}
 	}
-	
+
 	@Override
 	protected void updateLinks() {
 		super.updateLinks();

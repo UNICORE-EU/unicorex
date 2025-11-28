@@ -25,32 +25,28 @@ public class TargetSystemFactoryImpl extends BaseResourceImpl {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.JOBS, TargetSystemFactoryImpl.class);
 
-	public TargetSystemFactoryImpl(){
-		super();
-	}
-
 	@Override
 	public TSFModel getModel(){
 		return (TSFModel)model;
 	}
-	
+
 	@Override
 	public void initialise(InitParameters initArgs)throws Exception{
 		if(model == null){
 			setModel(new TSFModel());
 		}
-		TSFModel model=getModel();
+		TSFModel model = getModel();
 		super.initialise(initArgs);
-		model.supportsReservation=getXNJSFacade().supportsReservation();
+		model.supportsReservation = getXNJSFacade().supportsReservation();
 	}
-	
+
 	/**
 	 * create a new TSS with default settings, add the ID to the model and return the ID
 	 */
 	public String createTargetSystem() throws Exception {
 		return createTargetSystem(null,null);
 	}
-	
+
 	/**
 	 * create a new TSS, add the ID to the model and return the ID
 	 * @param tt - initial termination time - null for default TT

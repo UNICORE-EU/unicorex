@@ -22,18 +22,9 @@ public class UAS extends USEContainer {
 	public static final String SERVER_FTS = "ServerServerFileTransfer";
 	public static final String CLIENT_FTS = "ClientServerFileTransfer";
 	public static final String TASK = "Task";
-	
-	/**
-	 * If one of the following is used as protocol for file transfers,
-	 * UNICORE should automatically try to negotiate a suitable file transfer protocol.
-	 */
-	public static final String[] AUTO_NEGOTIATE_FT_PROTOCOL = {"auto"};
 
 	private UASProperties uasProperties;
 
-	/**
-	 * @param configFile
-	 */
 	public UAS(String configFile) throws Exception {
 		super(configFile, "UNICORE/X");
 		initCommon();
@@ -51,7 +42,7 @@ public class UAS extends USEContainer {
 		return getClass().getPackage().getSpecificationVersion()!=null?
 				getClass().getPackage().getSpecificationVersion() : "DEVELOPMENT";
 	}
-	
+
 	private void initCommon() throws Exception {
 		this.uasProperties = new UASProperties(kernel.getContainerProperties().getRawProperties());
 		kernel.addConfigurationHandler(uasProperties);

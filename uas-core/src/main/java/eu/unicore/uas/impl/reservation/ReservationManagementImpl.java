@@ -26,12 +26,12 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 	public ReservationManagementImpl(){
 		super();
 	}
-	
+
 	@Override
 	public ReservationModel getModel(){
 		return (ReservationModel)model;
 	}
-	
+
 	@Override
 	public void initialise(InitParameters init) throws Exception {
 		if(model==null){
@@ -70,8 +70,8 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 		super.destroy();
 	}
 
-	long lastUpdate=0;
-	final long updateInterval=3000;
+	long lastUpdate = 0;
+	final long updateInterval = 3000;
 	ReservationStatus reservationStatus;
 
 	public synchronized ReservationStatus getReservationStatus()throws ExecutionException{

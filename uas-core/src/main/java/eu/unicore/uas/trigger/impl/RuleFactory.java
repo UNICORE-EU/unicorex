@@ -27,41 +27,41 @@ import eu.unicore.xnjs.io.XnjsFile;
  * @author schuller
  */
 public class RuleFactory {
-	
+
 	public static final String RULE_FILE_NAME= ".UNICORE_Rules"; // yes it does
-	
+
 	public static final String SCAN_SETTINGS="DirectoryScan";
-	
+
 	public static final String UPD_INTERVAL="Interval";
-	
+
 	public static final String GRACE_PERIOD="Grace";
-	
+
 	public static final String INHERIT="InheritFromParent";
-	
+
 	public static final String INCLUDE="IncludeDirs";
-	
+
 	public static final String EXCLUDE="ExcludeDirs";
-	
+
 	public static final String MAXDEPTH="MaxDepth";
-	
+
 	public static final String ENABLED="Enabled";
-	
+
 	public static final String LOGGING="Logging";
-	
+
 	private final IStorageAdapter storage;
-	
+
 	private final String uniqueStorageID;
-	
+
 	public RuleFactory(IStorageAdapter storage, String uniqueStorageID){
-		this.storage=storage;
-		this.uniqueStorageID=uniqueStorageID;
+		this.storage = storage;
+		this.uniqueStorageID = uniqueStorageID;
 	}
-	
+
 	public boolean haveSettingsUpdate(String directory, long lastUpdateInstant) throws ExecutionException {
 		XnjsFile f = storage.getProperties(directory+"/"+RULE_FILE_NAME);
 		return f!=null ? f.getLastModified().getTimeInMillis()>lastUpdateInstant : false;
 	}
-	
+
 	/**
 	 * Get the set of rules applicable to the given directory.
 	 * 
@@ -75,7 +75,6 @@ public class RuleFactory {
 		}
 		return result;
 	}
-	
 
 	protected List<Rule> readRules(InputStream input)throws ExecutionException, IOException{
 		try{
@@ -97,11 +96,11 @@ public class RuleFactory {
 	}
 
 	public List<Rule> readRuleFile(String ruleFile)throws ExecutionException, IOException{
-		try(InputStream is=storage.getInputStream(ruleFile)){
+		try(InputStream is = storage.getInputStream(ruleFile)){
 			return readRules(is);
 		}
 	}
-	
+
 	/**
 	 * read settings for periodic invocation from json and apply them to the rule set
 	 * 
@@ -128,7 +127,7 @@ public class RuleFactory {
 		}
 		return settings;
 	}
-	
+
 	public void updateSettings(ScanSettings settings, InputStream source) throws IOException, JSONException {
 		JSONObject json= new JSONObject(IOUtils.toString(source, "UTF-8")).optJSONObject(SCAN_SETTINGS);
 		if(json==null)return;
@@ -157,7 +156,7 @@ public class RuleFactory {
 		TriggeredAction<?> action = makeAction(json.getJSONObject("Action"));
 		return new SimpleRule(name, match, action);
 	}
-	
+
 	protected TriggeredAction<?> makeAction(JSONObject json)throws JSONException{
 		String type=json.optString("Type", null);
 		if("NOOP".equals(type) || json.keySet().size()==0) {
@@ -177,11 +176,11 @@ public class RuleFactory {
 		}
 		throw new JSONException("Cannot build action from: "+json.toString());
 	}
-	
+
 	protected TriggeredAction<?> makeJobAction(JSONObject json)throws JSONException{
 		return new JobAction(json.getJSONObject("Job"));
 	}
-	
+
 	protected TriggeredAction<?> makeBatchedJobAction(JSONObject json)throws JSONException{
 		return new BatchedJobAction(json.getJSONObject("BatchedJob"));
 	}
@@ -193,9 +192,9 @@ public class RuleFactory {
 	protected TriggeredAction<?> makeNotifyAction(JSONObject json)throws JSONException{
 		return new NotificationAction(json.getString("Notification"));
 	}
-	
+
 	private static final NOOP noop=new NOOP();
-	
+
 	public static class NOOP implements TriggeredAction<String>{
 
 		@Override
@@ -205,9 +204,11 @@ public class RuleFactory {
 		public String run(IStorageAdapter s, Client c, XNJS xnjs) {
 			return null;
 		}
-		
+
+		@Override
 		public String toString(){
 			return "NOOP";
 		}
 	}
+
 }

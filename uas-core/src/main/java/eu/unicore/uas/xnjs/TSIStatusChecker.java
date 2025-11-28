@@ -10,20 +10,20 @@ public class TSIStatusChecker implements ExternalSystemConnector {
 
 	private final XNJS xnjs;
 	private final TSI_MODE mode;
-	 
+
 	private Status status=Status.UNKNOWN;
-	
+
 	private String statusMessage;
-	
+
 	private String name;
-	
+
 	private long lastChecked;
 
 	public TSIStatusChecker(XNJS xnjs, TSI_MODE mode) {
 		this.xnjs = xnjs;
 		this.mode = mode;
 	}
-	
+
 	@Override
 	public String getConnectionStatusMessage() {
 		checkConnection();
@@ -41,12 +41,11 @@ public class TSIStatusChecker implements ExternalSystemConnector {
 		checkConnection();
 		return name;
 	}
-	
+
 	private void checkConnection(){
 		if (lastChecked+2000>System.currentTimeMillis())
 			return;
 		name = "TSI "+xnjs.getID();
-	
 		try{
 			if(TSI_MODE.embedded.equals(mode)){
 				statusMessage = "OK [using embedded TSI]";
@@ -61,7 +60,6 @@ public class TSIStatusChecker implements ExternalSystemConnector {
 				statusMessage = "N/A";
 				status = Status.OK;
 			}
-			
 		}catch(Exception ex){
 			status=Status.DOWN;
 			statusMessage = Log.createFaultMessage("Error! ",ex);

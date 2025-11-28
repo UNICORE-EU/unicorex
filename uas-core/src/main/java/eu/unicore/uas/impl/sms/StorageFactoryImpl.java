@@ -41,7 +41,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 	public void initialise(InitParameters initParams)
 			throws Exception {
 		if(model==null){
-			model=new SMFModel();
+			model = new SMFModel();
 		}
 		super.initialise(initParams);
 		logger.info("Storage factory <{}> created", getUniqueID());
@@ -59,11 +59,8 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 	public String createSMS(String storageBackendType, String name, Calendar tt, Map<String,String>parameters)
 	throws Exception 
 	{
-		String clientName=(getClient()!=null?getClient().getDistinguishedName():"<no client>");
+		String clientName = (getClient()!=null?getClient().getDistinguishedName():"<no client>");
 		Map<String, StorageDescription> factories = uasProperties.getStorageFactories();
-
-		//choose default backend type. If there is only one, or if there is one
-		//named "DEFAULT", it is used. Otherwise, an exception is thrown.
 		if(storageBackendType == null){
 			List<String>types = new ArrayList<>();
 			types.addAll(factories.keySet());
@@ -76,8 +73,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 			else{
 				throw new IllegalArgumentException("Please specify the storage backend type. Available are "+types);
 			}
-		}
-		
+		}	
 		StorageDescription factoryDesc = factories.get(storageBackendType);
 		if (factoryDesc == null)
 			throw new IllegalArgumentException("Unknown type of storage factory: " + storageBackendType);
@@ -93,7 +89,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 			if(factoryDesc.isAllowUserdefinedPath()) {
 				factoryDesc.setPathSpec(pathSpec);
 				appendUniqueID = false;
-				// and do *not* delete this dir on destroy
+				// do *not* delete this dir on destroy
 				factoryDesc.setCleanup(false);
 				if("DEFAULT".equals(storageBackendType))
 				{
@@ -115,7 +111,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		initMap.appendUniqueID = appendUniqueID;	
 		initMap.storageDescription = factoryDesc;
 		initMap.factoryID = getUniqueID();
-		
+
 		if(parameters.get(SMSProperties.ENABLE_TRIGGER)!=null){
 			factoryDesc.setEnableTrigger(Boolean.parseBoolean(parameters.get(SMSProperties.ENABLE_TRIGGER)));
 			if(factoryDesc.isEnableTrigger() && !factoryDesc.isAllowTrigger()) {
@@ -131,20 +127,16 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		if(parameters.get(SMSProperties.UMASK_KEY)!=null){
 			factoryDesc.setDefaultUmask(parameters.get(SMSProperties.UMASK_KEY));
 		}
-
 		initMap.userParameters.putAll(parameters);
-		String smsID=createStorageResource(initMap);
+		String smsID = createStorageResource(initMap);
 		initStorage(smsID);
 		logger.info("Created new <{}> StorageManagement resource <{}> for <{}>", storageBackendType, smsID, clientName);
 		return smsID;
 	}
 
-	/**
-	 * create new storage management service and return its epr
-	 */
 	protected String createStorageResource(StorageInitParameters initParam)
 			throws Exception{
-		Home home=kernel.getHome(UAS.SMS);
+		Home home = kernel.getHome(UAS.SMS);
 		if(home==null){
 			throw new ResourceUnknownException("Storage management service is not deployed.");
 		}
@@ -152,7 +144,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 	}
 
 	protected void initStorage(String uniqueID)throws Exception{
-		StorageManagementHomeImpl smsHome=(StorageManagementHomeImpl)kernel.getHome(UAS.SMS);
+		StorageManagementHomeImpl smsHome = (StorageManagementHomeImpl)kernel.getHome(UAS.SMS);
 		SMSBaseImpl sms=(SMSBaseImpl)smsHome.get(uniqueID);
 		sms.getStorageAdapter().mkdir("/");
 	}
@@ -162,9 +154,9 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		//check for deleted SMSs and remove them...
 		try{
 			while(p.hasNext()){
-				String m=(String)p.next().getBody();
+				String m = (String)p.next().getBody();
 				if(m.startsWith("deleted:")){
-					String id=m.substring(m.indexOf(":")+1);
+					String id = m.substring(m.indexOf(":")+1);
 					logger.debug("Removing Storage with ID <{}>", id);
 					getModel().removeChild(id);
 				}
