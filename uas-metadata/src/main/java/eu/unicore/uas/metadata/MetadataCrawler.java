@@ -20,10 +20,10 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.xml.sax.ContentHandler;
 
 import eu.unicore.client.data.Metadata.CrawlerControl;
+import eu.unicore.persist.util.UUID;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.metadata.MetadataFile.MD_State;
 import eu.unicore.uas.util.LogUtil;
-import eu.unicore.util.Log;
 import eu.unicore.util.Pair;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;
@@ -52,7 +52,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	private final IStorageAdapter storage;
 	private final List<String> files;
 	private final List<Pair<String,Integer>>dirs;
-
+	private final String uuid = UUID.newUniqueID();
 	/**
 	 * Crawls through resources available in basepath (and subdirs to @code{dephLimit}) via storage
 	 *<p>
@@ -72,7 +72,6 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		this.dirs = dirs;
 		this.metadataManager = metadataManager;
 		this.storage = storage;
-
 		MetadataProperties cfg = kernel.getAttribute(MetadataProperties.class);
 		Class<? extends Parser> parserClass = cfg.getClassValue(MetadataProperties.PARSER_CLASSNAME, 
 				Parser.class);
@@ -81,7 +80,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 
 	@Override
 	public ExtractionStatistics call() {
-		LOG.info("STARTING crawler.");
+		LOG.debug("[{}] STARTING crawler run", uuid);
 		long start = System.currentTimeMillis();
 		ExtractionStatistics stats = new ExtractionStatistics();
 		AtomicInteger docsProcessed = new AtomicInteger(0);
@@ -92,7 +91,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 			}
 		}
 		if(files!=null && files.size()>0){
-			LOG.info("Extracting from {} files...", files.size());
+			LOG.debug("[{}] Extracting from {} files...", uuid, files.size());
 			Map<String, MetadataFile.MD_State> statuses = new HashMap<>();
 			for(String file: files){
 				try{
@@ -111,25 +110,21 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		}
 
 		try{
-			LOG.info("Committing updated index...");
-			long startCommit=System.currentTimeMillis();
+			LOG.debug("[{}] Committing updated index...", uuid);
+			long startCommit = System.currentTimeMillis();
 			metadataManager.commit();
 			metadataManager.setAutoCommit(true);
-			if(LOG.isDebugEnabled()){
-				LOG.debug("Committing updated index took {} ms.",(System.currentTimeMillis()-startCommit));
-			}
+			LOG.debug("[{}] Committing updated index took {} ms.",uuid, (System.currentTimeMillis()-startCommit));			
 		} catch (Exception ex) {
 			LogUtil.logException("Error committing the metadata index.", ex, LOG);
 		}
-		
 		long time = System.currentTimeMillis() - start;
-		LOG.info("EXITING crawler, time {} ms.", time);
-		
+		LOG.debug("[{}] EXITING crawler, time {} ms.", uuid, time);
 		stats.setDocumentsProcessed(docsProcessed.get());
 		stats.setDurationMillis(time);
 		return  stats;
 	}
-	
+
 	/**
 	 * Do the crawling process for a directory
 	 * <p>
@@ -140,52 +135,46 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	 */
 	public void extractDir(String base, int depthLimit, AtomicInteger docsProcessed) {
 		String fullBase = base;
-		LOG.info("Entering directory {} crawling depth {}", fullBase, depthLimit);
-		
+		LOG.debug("[{}] Entering directory {} crawling depth {}", uuid, fullBase, depthLimit);
 		long start = System.currentTimeMillis();
 		List<String> fileList = new ArrayList<String>();
-		
 		try {
 			long startSingle=System.currentTimeMillis();
 			getFiles(fullBase, fileList, 0, depthLimit, createBaseFilter(fullBase));
-			LOG.debug("Getting file list (size {}) took {} ms.", fileList.size(), System.currentTimeMillis()-startSingle);
+			LOG.debug("[{}] Getting file list (size {}) took {} ms.", uuid, fileList.size(), System.currentTimeMillis()-startSingle);
 			startSingle=System.currentTimeMillis();
 			Map<String, MD_State> list = statusCheck(fileList);
-			LOG.debug("Checking file stati took {} ms.", System.currentTimeMillis()-startSingle);
+			LOG.debug("[{}] Checking file stati took {} ms.", uuid, System.currentTimeMillis()-startSingle);
 			process(list, docsProcessed);
 		} catch (Exception ex) {
 			LogUtil.logException("Error while crawling the metadata", ex, LOG);
 		}
-
 		long time = System.currentTimeMillis() - start;
-		LOG.info("Exiting directory " + fullBase + " time " + time + " ms.");
+		LOG.debug("[{}] Exiting directory {} time {} ms.", uuid, fullBase, time);
 	}
-	
-	private void process(Map<String, MD_State> list, AtomicInteger docsProcessed) throws Exception {
-		
-		for (Map.Entry<String, MD_State> entry : list.entrySet()) {
-			long startSingle=System.currentTimeMillis();
-			String file=entry.getKey();
 
+	private void process(Map<String, MD_State> list, AtomicInteger docsProcessed) throws Exception {		
+		for (Map.Entry<String, MD_State> entry : list.entrySet()) {
+			long startSingle = System.currentTimeMillis();
+			String file = entry.getKey();
 			switch (entry.getValue()) {
 			case CHK_CONSISTENCE:
 				//there is already a md file, update md
 				//XXX: we might also use tika here (complementary)
 				Map<String, String> metadata = Collections.emptyMap();
 				metadataManager.updateMetadata(file, metadata);
-				LOG.info("Updated index for <{}> took {} ms.", file, System.currentTimeMillis()-startSingle);
+				LOG.debug("[{}] Updated index for <{}> took {} ms.", uuid, file, System.currentTimeMillis()-startSingle);
 				break;
 			case NEW:
 				//it is new and no user metadata was created-> try extract
 				try{
 					Map<String, String> extracted = extractMetadata(file);
 					metadataManager.createMetadata(file, extracted);
-					LOG.debug("Extracted metadata for <{}> in {} ms.", file, System.currentTimeMillis()-startSingle);
+					LOG.debug("[{}] Extracted metadata for <{}> in {} ms.", uuid, file, System.currentTimeMillis()-startSingle);
 				}catch(TikaException te){
 					LogUtil.logException("Error while extracting metadata for <"+file+">", te, LOG);
 				}
 				break;
-
 			case RESOURCE_DELETED:
 				metadataManager.removeMetadata(file);
 				break;
@@ -196,7 +185,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 			docsProcessed.incrementAndGet();
 		}
 	}
-	
+
 	/**
 	 * Filters list of files to detect:
 	 * -removal of resource files without removal of metadata files (md sould be removed)
@@ -240,7 +229,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		}
 		return statuses;
 	}
-	
+
 	/**
 	 * check the status for a single resource
 	 * @param file
@@ -253,11 +242,9 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 
 	private void getFiles(String directoryName, List<String> list, int level, int limit, NameFilter nameFilter) throws ExecutionException {
 		level++;
-
 		if (level > limit) {
 			return;
 		}
-
 		XnjsFile x = storage.getProperties(directoryName);
 		if (x != null){
 			if(x.isDirectory()) {
@@ -266,14 +253,14 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 					XnjsFile x2 = gridFiles[j];
 					String name=x2.getPath();
 					if(nameFilter==null || nameFilter.accept(name)){
-						LOG.debug("Include: {}", name);
+						LOG.debug("[{}] Include: {}", uuid, name);
 						if (x2.isDirectory()) {
 							getFiles(name, list, level, limit, createChildFilter(nameFilter));
 						} else {
 							list.add(name);
 						}
 					}
-					else LOG.debug("Exclude: {}", name);
+					else LOG.debug("[{}] Exclude: {}", uuid, name);
 				}
 			}
 			else{
@@ -286,7 +273,6 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 				}
 			}
 		}
-
 		level--;
 	}
 
@@ -302,8 +288,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		}
 		return ret;
 	}
-	
-	
+
 	/**
 	 * create a NameFilter which decides whether a certain file should be 
 	 * metadata-extracted or not. This checks if a file named 
@@ -316,7 +301,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		try{
 			XnjsFile f=storage.getProperties(CRAWLER_CONTROL_FILENAME);
 			if(f!=null){
-				LOG.info("Found crawler control file {}", f.getPath());
+				LOG.debug("[{}] Found crawler control file {}", uuid, f.getPath());
 				Properties p=new Properties();
 				try(InputStream is=storage.getInputStream(f.getPath())){
 					p.load(is);
@@ -327,22 +312,19 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 				if(cc.getExcludes()!=null){
 					e=new PatternFilter(cc.getExcludes());
 					if(cc.isUseDefaultExcludes()){
-						e=new ChainedFilter(e, defaultExcludes); 
+						e = new ChainedFilter(e, defaultExcludes); 
 					}
 				}
-				
 				return new CombinedFilter(i, e);
 			}
 		}
 		catch(Exception ex){
-			String msg=Log.createFaultMessage("Cannot create crawler include/exclude filter", ex);
-			LOG.info(msg);
+			LOG.debug("[{}] Cannot create crawler include/exclude filter: {}", uuid, ex.getMessage());
 		}
-		
 		//return default filter
 		return new CombinedFilter(defaultIncludes, defaultExcludes);
 	}
-	
+
 	/**
 	 * create a NameFilter which decides whether a certain file should be 
 	 * metadata-extracted or not
@@ -353,7 +335,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 	public NameFilter createChildFilter(NameFilter parent){
 		return parent;
 	}
-	
+
 	public static interface NameFilter {
 		/**
 		 * @param name - non null file/directory name
@@ -361,30 +343,29 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		 */
 		public boolean accept(String name);
 	}
-	
-	//by default we crawl every file
+
+	// by default we crawl every file
 	private static NameFilter defaultIncludes=new NameFilter(){
 		public boolean accept(String name){
 			return true;
 		}
 	};
-	
-	//... but not these
-	private static NameFilter defaultExcludes=new NameFilter(){
+
+	// ... but not these
+	private static NameFilter defaultExcludes = new NameFilter(){
 		public boolean accept(String name){
 			return name.endsWith(".svn") || 
-				   name.endsWith(CRAWLER_CONTROL_FILENAME) ||
-				   name.endsWith(".unicore_rft.parts")
+				   name.endsWith(CRAWLER_CONTROL_FILENAME)
 				   ;
 		}
 	};
-	
+
 	static class PatternFilter implements NameFilter{
-		
+
 		private final Pattern[] patterns;
-		
+
 		public PatternFilter(String... patterns){
-			this.patterns=makePatterns(patterns);
+			this.patterns = makePatterns(patterns);
 		}
 
 		//accept files that match patterns
@@ -394,7 +375,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 			}
 			return false;
 		}
-		
+
 		private Pattern[] makePatterns(String[]patterns){
 			Pattern[] result=new Pattern[patterns.length];
 			for(int i=0; i<patterns.length; i++){
@@ -403,37 +384,37 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 			}
 			return result;
 		}
-		
+
 	}
-	
-	static class ChainedFilter implements NameFilter{
-		
+
+	static class ChainedFilter implements NameFilter {
+
 		private final NameFilter n1;
 		private final NameFilter n2;
-		
+
 		public ChainedFilter(NameFilter n1, NameFilter n2){
 			this.n1=n1;
 			this.n2=n2;
 		}
-		
+
 		//accept included files that are not excluded
 		public boolean accept(String name){
 			return n1.accept(name) || n2.accept(name);
 		}
 	}
-	
+
 	// combines include and exclude filters
-	static class CombinedFilter implements NameFilter{
-		
+	static class CombinedFilter implements NameFilter {
+
 		private final NameFilter include;
-		
+
 		private final NameFilter exclude;
-		
+
 		public CombinedFilter(NameFilter include, NameFilter exclude){
-			this.include=include;
-			this.exclude=exclude;
+			this.include = include;
+			this.exclude = exclude;
 		}
-		
+
 		//accept included files that are not excluded
 		public boolean accept(String name){
 			return include.accept(name) && !exclude.accept(name);

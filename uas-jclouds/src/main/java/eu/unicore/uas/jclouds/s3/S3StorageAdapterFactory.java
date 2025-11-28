@@ -144,7 +144,7 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 				bind(new TypeLiteral<Supplier<SSLContext>>(){}).toInstance(provider);
 			}
 		};
-		
 		return Collections.singleton(sslConfig);
 	}
+
 }

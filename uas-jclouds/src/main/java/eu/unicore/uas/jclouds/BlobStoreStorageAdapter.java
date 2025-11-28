@@ -219,11 +219,7 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 
 	@Override
 	public void rmdir(String target) throws ExecutionException {
-		try{
-			rm(target);
-		}catch(Exception ex){
-			Log.logException("Error deleting", ex);
-		}
+		rm(target);
 	}
 
 	@Override
@@ -363,10 +359,8 @@ public class BlobStoreStorageAdapter implements IStorageAdapter {
 			target.setLastModified(lastMod);
 		}
 		else target.setLastModified(Calendar.getInstance());
-
 		// TODO
-		Permissions perm = new Permissions(true,true,target.isDirectory());
-		target.setPermissions(perm);
+		target.setPermissions(new Permissions(true, true, target.isDirectory()));
 	}
 
 }

@@ -33,10 +33,10 @@ public class S3FileExport extends S3FileTransferBase {
 	 */
 	protected final List<Pair<Pair<String,Long>,String>> filesToTransfer = new ArrayList<>();
 
-	public S3FileExport(XNJS configuration){
-		super(configuration);
+	public S3FileExport(XNJS xnjs) {
+		super(xnjs);
 		this.export = true;
-	}	
+	}
 
 	@Override
 	public final void run(){
@@ -137,7 +137,7 @@ public class S3FileExport extends S3FileTransferBase {
 		if(OverwritePolicy.DONT_OVERWRITE.equals(overwrite)){
 			XnjsFile g=null;
 			try{
-				//will throw IOexception if file does not exist
+				// will throw IOexception if file does not exist
 				g = s3Adapter.getProperties(fileName);
 			}catch(Exception ioe){}
 			if(g!=null){
@@ -210,9 +210,7 @@ public class S3FileExport extends S3FileTransferBase {
 		return result;
 	}
 
-	protected void doRun(String localFile)throws Exception{
-		
-	}	
+	protected void doRun(String localFile)throws Exception{}	
 
 	protected void copyPermissions(XnjsFile remote, String localFile) {
 		try{

@@ -56,4 +56,5 @@ public class S3Model extends SMSModel {
 	public void setSslValidate(boolean sslValidate) {
 		this.sslValidate = sslValidate;
 	}
+
 }

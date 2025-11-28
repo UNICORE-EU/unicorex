@@ -7,6 +7,7 @@ import eu.unicore.services.server.AbstractStartupTask;
  * @author K. Benedyczak
  */
 public class MetadataStartupTask extends AbstractStartupTask {
+
 	@Override
 	public void run() {
 		MetadataProperties props = new MetadataProperties(

@@ -58,7 +58,7 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 
 	protected IStorageAdapter localStorage;
 
-	protected final XNJS configuration;
+	protected final XNJS xnjs;
 
 	protected final Kernel kernel;
 
@@ -71,40 +71,41 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 	protected StatusTracker statusTracker;
 
 	protected Map<String,String> s3Params;
-	
+
 	protected IStorageAdapter s3Adapter;
 
 	protected String permissions = null;
 
-	public S3FileTransferBase(XNJS configuration){
-		this.configuration=configuration;
-		this.kernel=configuration.get(Kernel.class);
+	public S3FileTransferBase(XNJS xnjs){
+		this.xnjs = xnjs;
+		this.kernel = xnjs.get(Kernel.class);
 		this.info = new TransferInfo(Utilities.newUniqueID(), null, null);
 		this.info.setProtocol("S3");
 	}
 
+	@Override
 	public TransferInfo getInfo(){
 		return info;
 	}
-	
+
 	/**
 	 * cleanup references to reduce memory footprint: this class might
 	 * reside in memory for quite some time, so it should reduce memory
 	 * consumption as soon as the transfer has been completed
 	 */
 	protected void onFinishCleanup(){
-		client=null;
-		localStorage=null;
-		sec=null;
+		client = null;
+		localStorage = null;
+		sec = null;
 	}
-	
+
 	public void setClient(Client client){
 		this.client=client;
 	}
 
 	@Override
 	public void abort() {
-		isCancelled=true;
+		isCancelled = true;
 	}
 
 	@Override
@@ -134,7 +135,7 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 	public void notifyProgress(Long amount) {
 		info.setTransferredBytes(info.getTransferredBytes()+amount);
 		//update finish time, so we have an up-to-date rate estimate
-		finishTime=System.currentTimeMillis();
+		finishTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -182,7 +183,6 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 	protected void initSecurityProperties()
 	{
 		try{
-			Kernel kernel = configuration.get(Kernel.class);
 			sec = kernel.getClientConfiguration();
 			String user = client.getDistinguishedName();
 			auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
@@ -194,7 +194,7 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 
 	protected synchronized IStorageAdapter getLocalStorage()throws ExecutionException{
 		if(localStorage==null) {
-			localStorage = configuration.getTargetSystemInterface(client, preferredLoginNode);
+			localStorage = xnjs.getTargetSystemInterface(client, preferredLoginNode);
 			localStorage.setStorageRoot(workdir);
 		}
 		return localStorage;

@@ -13,7 +13,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import eu.unicore.security.Client;
@@ -21,11 +20,9 @@ import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.ThreadingServices;
 import eu.unicore.uas.json.JSONUtil;
-import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Pair;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;
-import eu.unicore.xnjs.io.XnjsFileWithACL;
 
 /**
  * This class manage all core stuff for metadata management.
@@ -64,47 +61,38 @@ public class LuceneMetadataManager implements StorageMetadataManager {
      * Default number of documents returned in the search process
      */
     public static final int DEFAULT_NUMBER_OF_MATCHES = 200;
-    private static final Logger LOG = LogUtil.getLogger(LogUtil.DATA, LuceneMetadataManager.class);
     private IStorageAdapter storage;
     private LuceneIndexer indexer;
-    private Kernel kernel;
-    
-    /**
-     * Standard constructor.
-     */
+    private final Kernel kernel;
+
     public LuceneMetadataManager(Kernel kernel) {
-        super();
         this.kernel=kernel;
     }
 
     @Override
-    public void createMetadata(String resourceName, Map<String, String> lstMetadata) throws IOException {
+    public void createMetadata(String resourceName, Map<String, String> lstMetadata) throws Exception {
     	isStorageReady();
         isProperResource(resourceName);
         isProperMetadata(lstMetadata);
-
         String fileName = MetadataFile.getMetadatafileName(resourceName);
-
-        //for security reasons we copy and overwrite the resourceName
+        // for security reasons we copy and overwrite the resourceName
         Map<String, String> copy = new HashMap<>(lstMetadata);
         copy.put(LuceneIndexer.RESOURCE_NAME_KEY, resourceName);
-
         String metadata = JSONUtil.asJSON(copy).toString();
         try {
             writeData(fileName, metadata.toString());
             indexer.createMetadata(resourceName, copy, metadata);
             if(autoCommit)commit();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new IOException("Unable to create metadata for resource <" + resourceName + ">", ex);
         }
     }
 
     @Override
-    public void updateMetadata(String resourceName, Map<String, String> lstMetadata) throws IOException {
+    public void updateMetadata(String resourceName, Map<String, String> lstMetadata) throws Exception {
     	isStorageReady();
         isProperResource(resourceName);
         isProperMetadata(lstMetadata);
-        
         String fileName = MetadataFile.getMetadatafileName(resourceName);
         try {
             Map<String, String> original = getMetadataByName(resourceName);
@@ -116,7 +104,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
             }
             indexer.updateMetadata(resourceName, merged, metadata);
             if(autoCommit)commit();
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             throw new IOException("Unable to update metadata for resource <" + resourceName + ">", ex);
         }
     }
@@ -140,88 +128,60 @@ public class LuceneMetadataManager implements StorageMetadataManager {
     }
 
     @Override
-    public void renameResource(String source, String target) throws IOException {
+    public void renameResource(String source, String target) throws Exception {
     	isStorageReady();
         isProperResource(source);
         if (!isProperResourceName(target)) {
             throw new IllegalArgumentException("Resource <" + target + "> is not a proper resource name");
         }
-
         String sourceFileName = MetadataFile.getMetadatafileName(source);
         String targetFileName = MetadataFile.getMetadatafileName(target);
-        if (fileExists(targetFileName)) {
-            try {
-                storage.rm(targetFileName);
-            } catch (ExecutionException ex) {
-                throw new IllegalArgumentException("Target resource metadata file <" + targetFileName + "> exists and cannot be overwritten", ex);
-            }
+        if(fileExists(targetFileName)) {
+        	storage.rm(targetFileName);
         }
-        if (fileExists(sourceFileName)) {
-        	try {
-        		storage.rename(sourceFileName, targetFileName);
-        		try {
-        			indexer.moveMetadata(source, target);
-        			if(autoCommit)commit();
-        		}catch(Exception ex){}
-        	} catch (Exception ex) {
-        		throw new IOException(String.format("Unable to move metadata from %s to %s", source, target), ex);
-        	}
-        }
+    	storage.rename(sourceFileName, targetFileName);
+        try {
+        	indexer.moveMetadata(source, target);
+        	if(autoCommit)commit();
+        }catch(Exception ex){}
     }
 
     @Override
-    public void copyResourceMetadata(String source, String target) throws IOException {
+    public void copyResourceMetadata(String source, String target) throws Exception {
         isStorageReady();
         isProperResource(source);
         if (!isProperResourceName(target)) {
             throw new IllegalArgumentException("Resource <" + target + "> is not a proper resource name");
         }
-
-        try {
-            Map<String, String> metadata = getMetadataByName(source);
-            //XXX: create (overwrite) or update?
-            createMetadata(target, metadata);
-        } catch (IOException ex) {
-            throw new IOException(String.format("Unable to copy metadata from %s to %s", source, target), ex);
-        }
+        Map<String, String> metadata = getMetadataByName(source);
+        //XXX: create (overwrite) or update?
+        createMetadata(target, metadata);
     }
 
     @Override
-    public Future<ExtractionStatistics> startAutoMetadataExtraction(final List<String>files, final List<Pair<String,Integer>>dirs) throws InstantiationException, IllegalAccessException {
+    public Future<ExtractionStatistics> startAutoMetadataExtraction(final List<String>files, final List<Pair<String,Integer>>dirs) throws Exception{
         isStorageReady();
-        try {
-            MetadataCrawler metaCrawler = new MetadataCrawler(this, storage, files, dirs, kernel);
-            Future<ExtractionStatistics> future= kernel.getContainerProperties().getThreadingServices().
-                getExecutorService().submit(metaCrawler);
-            return future;
-        }catch(Exception e) {
-            throw new RuntimeException(e);
-        }
+        MetadataCrawler metaCrawler = new MetadataCrawler(this, storage, files, dirs, kernel);
+        return kernel.getContainerProperties().getThreadingServices().getExecutorService().submit(metaCrawler);
     }
-    
-    @Override
-    public List<SearchResult> searchMetadataByContent(String searchString, boolean isAdvancedSearch) {
-        isStorageReady();
 
+    @Override
+    public List<SearchResult> searchMetadataByContent(String searchString, boolean isAdvancedSearch) throws Exception {
+        isStorageReady();
         List<SearchResult> lstMetafiles = null;
-        List<String> searchTokens = new ArrayList<String>();
-
-        try {
-            if (isAdvancedSearch) {
-                searchTokens.add(searchString);
-            } else {
-                StringTokenizer strTokens = new StringTokenizer(searchString, " ");
-                while (strTokens.hasMoreTokens()) {
-                    searchTokens.add(strTokens.nextToken());
-                }
-            }
-            lstMetafiles = indexer.search(searchTokens.toArray(new String[searchTokens.size() - 1]), DEFAULT_NUMBER_OF_MATCHES);
-        } catch (Exception e) {
-            LogUtil.logException("Error searching metadata: ", e, LOG);
+        List<String> searchTokens = new ArrayList<>();
+        if (isAdvancedSearch) {
+        	searchTokens.add(searchString);
+        } else {
+        	StringTokenizer strTokens = new StringTokenizer(searchString, " ");
+        	while (strTokens.hasMoreTokens()) {
+        		searchTokens.add(strTokens.nextToken());
+        	}
         }
+        lstMetafiles = indexer.search(searchTokens.toArray(new String[searchTokens.size() - 1]), DEFAULT_NUMBER_OF_MATCHES);
         return lstMetafiles;
     }
-    
+
     @Override
 	public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString, List<String> storagesList, boolean isAdvanced)
 			throws Exception {
@@ -233,25 +193,19 @@ public class LuceneMetadataManager implements StorageMetadataManager {
 	}
 
     @Override
-    public Map<String, String> getMetadataByName(final String resourceName) throws IOException {
+    public Map<String, String> getMetadataByName(final String resourceName) throws Exception {
         isStorageReady();
         isProperResource(resourceName);
-
         Map<String, String> metadata = new HashMap<>();
-
         String fileName = MetadataFile.getMetadatafileName(resourceName);
+
         if (!fileExists(fileName)) {
-            //XXX: we might consider creating the file for the future.
-            return metadata;
+        	//XXX: we might consider creating the file for the future.
+        	return metadata;
         }
-        try {
-            JSONObject o = new JSONObject(readFully(fileName));
-            return JSONUtil.asMap(o);
-        } catch (Exception ex) {
-            throw new IOException("Unkown data format of metadata read from file: <" + fileName + "> ", ex);
-        }
+        return JSONUtil.asMap(new JSONObject(readFully(fileName)));
     }
-    
+
     @Override
     public synchronized void setStorageAdapter(IStorageAdapter storage, String storageID) {
         if (storage == null) {
@@ -266,7 +220,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
     public void commit()throws IOException{
     	indexer.commit();
     }
-    
+
     private boolean autoCommit=true;
 
     public void setAutoCommit(boolean autocommit){
@@ -304,7 +258,6 @@ public class LuceneMetadataManager implements StorageMetadataManager {
      * @throws IOException
      */
     protected String readFully(String fileName) throws IOException {
-
         if (storage == null) {
             throw new IllegalStateException("Storage cannot be null");
         }
@@ -330,7 +283,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         if (oldData == null || newData == null) {
             throw new IllegalArgumentException("Metadata to merge cannot be null");
         }
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.putAll(oldData);
         map.putAll(newData);
         return map;
@@ -340,10 +293,7 @@ public class LuceneMetadataManager implements StorageMetadataManager {
         if (resourceName == null || resourceName.trim().isEmpty()) {
             return false;
         }
-        if (MetadataFile.isMetadataFileName(resourceName)) {
-            return false;
-        }
-        return true;
+        return !MetadataFile.isMetadataFileName(resourceName);
     }
 
     /**
@@ -355,15 +305,13 @@ public class LuceneMetadataManager implements StorageMetadataManager {
      * @throws IllegalArgumentException when the name is not proper resource name
      * @return true if the check is ok
      */
-    public boolean isProperResource(String resourceName) {
+    public boolean isProperResource(String resourceName) throws Exception {
         if (resourceName == null || resourceName.trim().isEmpty()) {
             throw new IllegalArgumentException("Resource name cannot be empty or null.");
         }
-
         if (MetadataFile.isMetadataFileName(resourceName)) {
             throw new IllegalArgumentException("Resource <" + resourceName + "> is not proper resource name (it is a metadata file)");
         }
-
         if (!fileExists(resourceName)) {
             throw new IllegalArgumentException("Resource <" + resourceName + "> does not exist");
         }
@@ -384,15 +332,11 @@ public class LuceneMetadataManager implements StorageMetadataManager {
     }
 
     private boolean fileExists(String resourceName) {
-        try {
-            //check if original file exists
-            XnjsFileWithACL properties = storage.getProperties(resourceName);
-            if (properties == null) {
-                return false;
-            }
-        } catch (ExecutionException ex) {
-            return false;
+        try{
+        	return storage.getProperties(resourceName)!=null;
+        }catch(ExecutionException e) {
+        	return false;
         }
-        return true;
     }
+
 }

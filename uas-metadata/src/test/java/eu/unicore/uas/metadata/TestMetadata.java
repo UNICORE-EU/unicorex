@@ -162,14 +162,14 @@ public class TestMetadata {
 	}
 
 	@Test
-	public void testRename5() throws ExecutionException, IOException {
+	public void testRename5() throws Exception {
 		LuceneMetadataManager manager = new LuceneMetadataManager(kernel);
 		IStorageAdapter storage = mock(IStorageAdapter.class);
 		when(storage.getFileSeparator()).thenReturn("/");
 		String source = "Source.file";
 		String target = "Target.file";
 		manager.setStorageAdapter(storage, "ID");
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("key", "value");
 		OutputStream stream = mock(OutputStream.class);
 		when(storage.getOutputStream(anyString(), anyBoolean())).thenReturn(stream);
@@ -177,7 +177,6 @@ public class TestMetadata {
 		XnjsFileWithACL mockedFile = mock(XnjsFileWithACL.class);
 		when(storage.getProperties(source)).thenReturn(mockedFile);
 		manager.createMetadata(source, map);
-
 		manager.renameResource(source, target);
 		verify(storage, times(1)).rename(anyString(), anyString());
 		verify(stream).write((byte[]) any());

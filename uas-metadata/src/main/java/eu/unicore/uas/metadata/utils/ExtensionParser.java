@@ -27,7 +27,7 @@ import eu.unicore.uas.metadata.LuceneIndexer;
  * @author jrybicki
  */
 public class ExtensionParser implements Parser {  
-    
+
 	private static final long serialVersionUID=1l;
 
     @Override
@@ -37,11 +37,11 @@ public class ExtensionParser implements Parser {
 
     @Override
     public void parse(InputStream stream, ContentHandler handler, Metadata metadata, ParseContext context) throws IOException, SAXException, TikaException {
-        String path = metadata.get(LuceneIndexer.RESOURCE_NAME_KEY);
-               
+        String path = metadata.get(LuceneIndexer.RESOURCE_NAME_KEY);               
         String ext = FilenameUtils.getExtension(path);
         if (!ext.isEmpty()) {
             metadata.add("Tags", ext);
         }
     }
+
 }

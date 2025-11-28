@@ -156,7 +156,7 @@ public class S3ImportsController implements IFTSController {
 		return new S3StorageAdapterFactory().createStorageAdapter(kernel, accessKey, secretKey, 
 				endpoint, provider, bucket, null, sslValidate);
 	}
-	
+
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
@@ -170,4 +170,5 @@ public class S3ImportsController implements IFTSController {
 		info.getExtraParameters().remove("file");
 		return xnjs.get(IFileTransferEngine.class).createFileImport(client, workingDirectory, info);
 	}
+
 }

@@ -21,16 +21,16 @@ import eu.unicore.util.configuration.PropertyMD;
  * @author K. Benedyczak
  */
 public class MetadataProperties extends PropertiesHelper {
-	
+
 	private static final Logger log = LogUtil.getLogger(LogUtil.DATA, MetadataProperties.class);
-	
+
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UASProperties.PREFIX + "metadata.";
-	
+
 	public static final String MANAGER_CLASSNAME = "managerClass";
 	public static final String PARSER_CLASSNAME = "parserClass";
 	public static final String LUCENE_INDEX_DIR = "luceneDirectory";
-	
+
 	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	static {
@@ -41,8 +41,9 @@ public class MetadataProperties extends PropertiesHelper {
 		META.put(LUCENE_INDEX_DIR, new PropertyMD("/tmp/data/luceneIndexFiles/").setPath().
 				setDescription("Directory name where the Lucene index should be located."));
 	}
-	
+
 	public MetadataProperties(Properties properties) throws ConfigurationException {
 		super(PREFIX, properties, META, log);
 	}
+
 }

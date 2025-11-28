@@ -39,8 +39,8 @@ public class S3FileImport extends S3FileTransferBase {
 	 */
 	protected final List<Pair<XnjsFile, String>> filesToTransfer = new ArrayList<>();
 
-	public S3FileImport(XNJS configuration){
-		super(configuration);
+	public S3FileImport(XNJS xnjs){
+		super(xnjs);
 	}	
 
 	@Override
@@ -157,7 +157,6 @@ public class S3FileImport extends S3FileTransferBase {
 			LogUtil.logException(msg,ex,logger);
 		}
 	}
-
 
 	/**
 	 * sets up security and creates the SMS client

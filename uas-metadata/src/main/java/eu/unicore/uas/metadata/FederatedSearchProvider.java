@@ -77,7 +77,7 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 				}
 			}catch(Exception ex) {}
 		}
-   		
+  
 		for(String storageURL: storageURLs) {
 			FederatedSearchResult federatedSearchResult = new FederatedSearchResult();
 			StorageClient sms = new StorageClient(new Endpoint(storageURL), kernel.getClientConfiguration(), jwt);
@@ -88,7 +88,7 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 		result.setSearchEndTime(new Date());
 		return result;
 	}
-	
+
 	private IRegistry getRegistryClient() throws Exception {
 		RegistryHandler rh = kernel.getAttribute(RegistryHandler.class);
 		IRegistry registryClient = rh.getExternalRegistryClient();
@@ -98,8 +98,6 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 		return registryClient;
 	}
 
-	
-	 // check if endpoint address is accepted (preferred storages list)
 	private boolean acceptURL(String url){
 		if(acceptedStorageURLPatterns==null || acceptedStorageURLPatterns.size()==0){
 			return true;
@@ -109,6 +107,5 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 		}
 		return false;
 	}
-	
-	
+
 }

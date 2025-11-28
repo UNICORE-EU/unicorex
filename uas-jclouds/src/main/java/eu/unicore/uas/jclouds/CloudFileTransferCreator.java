@@ -34,15 +34,15 @@ public class CloudFileTransferCreator implements IFileTransferCreator{
 
 	private final XNJS xnjs;
 
-	public CloudFileTransferCreator(XNJS config) {
-		this.xnjs = config;
+	public CloudFileTransferCreator(XNJS xnjs) {
+		this.xnjs = xnjs;
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
 	}
-	
+
 	@Override
 	public IFileTransfer createFileExport(Client client, String workdir, DataStageOutInfo info) {
 		URI target = info.getTarget();
@@ -92,7 +92,7 @@ public class CloudFileTransferCreator implements IFileTransferCreator{
 		ft.getInfo().setTarget(info.getFileName());
 		ft.setS3Params(s3Params);
 		return ft;
-	} 
+	}
 
 	/**
 	 * create a transfer TO a S3 storage from a local file

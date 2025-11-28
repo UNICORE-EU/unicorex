@@ -31,4 +31,5 @@ public class S3InfoProvider extends DefaultStorageInfoProvider {
 		}
 		return res;
 	}
+
 }

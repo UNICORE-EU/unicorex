@@ -1,6 +1,5 @@
 package eu.unicore.uas.metadata;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -23,9 +22,8 @@ public interface MetadataManager {
      * 
      * @param resourceName	
      * @param metadata	- metadata key-value pairs
-     * @throws IOException
      */
-    public void createMetadata(String resourceName, Map<String, String> metadata) throws IOException;
+    public void createMetadata(String resourceName, Map<String, String> metadata) throws Exception;
 
     /**
      * This method updates the metadata
@@ -39,7 +37,7 @@ public interface MetadataManager {
     /**
      * This method searches the index using the provided search string
      * 
-     * @param searchString search string space is used as delimeter.
+     * @param searchString search string space is used as delimiter.
      * @param isAdvancedSearch If advance search is true then query is translated to boolean/range query.
      */
     public List<SearchResult> searchMetadataByContent(String searchString, boolean isAdvancedSearch) throws Exception;
@@ -53,8 +51,9 @@ public interface MetadataManager {
      * @param isAdvanced - true if it is an advanced search
      * @return a Future for monitoring the search and collecting the results
      */
-    public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString, List<String> storagesList, boolean isAdvanced) throws Exception;
-   
+    public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString,
+    		List<String> storagesList, boolean isAdvanced) throws Exception;
+
     /**
      * This method retrieves the metadata
      * 
