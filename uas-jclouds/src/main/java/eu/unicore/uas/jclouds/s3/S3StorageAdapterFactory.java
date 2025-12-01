@@ -18,19 +18,19 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.TypeLiteral;
 
-import eu.unicore.uas.UAS;
-import eu.unicore.uas.fts.FileTransferModel;
-import eu.unicore.uas.impl.BaseResourceImpl;
-import eu.unicore.uas.jclouds.BlobStoreStorageAdapter;
-import eu.unicore.uas.xnjs.StorageAdapterFactory;
-import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.security.canl.SSLContextCreator;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.Model;
+import eu.unicore.uas.UAS;
+import eu.unicore.uas.fts.FileTransferModel;
+import eu.unicore.uas.impl.BaseResourceImpl;
+import eu.unicore.uas.jclouds.BlobStoreStorageAdapter;
+import eu.unicore.uas.xnjs.StorageAdapterFactory;
 import eu.unicore.util.Log;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import eu.unicore.xnjs.io.IStorageAdapter;
 
 /**
  * Creates and configures the jClouds S3 connector

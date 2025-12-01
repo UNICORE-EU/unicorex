@@ -41,18 +41,16 @@ public abstract class PersistingPreferencesResource extends BaseResourceImpl {
 			m = new PersistingPrefsModel();
 			setModel(m);
 		}
-		
 		super.initialise(initParams);
 		SecurityTokens secTokens = AuthZAttributeStore.getTokens();
-		if (secTokens == null)
-			return;
-		
-		Map<String, String[]> actualPreferences = secTokens.getUserPreferences();
-		Map<String, String[]> storedPreferences = new HashMap<>();
-		storedPreferences.putAll(actualPreferences);
-		m.setStoredPreferences(storedPreferences);
-		logger.debug("Persisted user preferences, used to create {}[{}]: {}",
+		if (secTokens != null) {
+			Map<String, String[]> actualPreferences = secTokens.getUserPreferences();
+			Map<String, String[]> storedPreferences = new HashMap<>();
+			storedPreferences.putAll(actualPreferences);
+			m.setStoredPreferences(storedPreferences);
+			logger.debug("Persisted user preferences, used to create {}[{}]: {}",
 					getServiceName(), getUniqueID(), storedPreferences.keySet());
+		}
 	}
 	
 	/**
@@ -65,7 +63,6 @@ public abstract class PersistingPreferencesResource extends BaseResourceImpl {
 		Map<String, String[]> storedPreferences = getModel().getStoredPreferences(); 
 		if (storedPreferences == null || storedPreferences.size() == 0)
 			return;
-		
 		Map<String, String[]> actualPreferences = secTokens.getUserPreferences();
 		for (Map.Entry<String, String[]> entry: storedPreferences.entrySet()) {
 			if (!actualPreferences.containsKey(entry.getKey())) {

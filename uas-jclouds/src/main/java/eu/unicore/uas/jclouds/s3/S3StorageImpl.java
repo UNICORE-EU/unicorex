@@ -1,5 +1,7 @@
 package eu.unicore.uas.jclouds.s3;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
@@ -43,6 +45,12 @@ public class S3StorageImpl extends SMSBaseImpl {
 		if(model.getProvider()==null)model.setProvider("aws-s3");
 		if(model.getBucket()==null)throw new IllegalArgumentException("Parameter 'bucket' is required");
 		if(model.getEndpoint()==null)throw new IllegalArgumentException("Parameter 'endpoint' is required");
+		try {
+			new URL(model.getEndpoint());
+		}catch(MalformedURLException mue) {
+			throw new IllegalArgumentException("Parameter 'endpoint' must be a valid URL - got '"+
+					model.getEndpoint()+"'");
+		}
 		super.initialise(initobjs);
 		String workdir = sd.getPathSpec();
 		if(workdir==null)workdir="/";

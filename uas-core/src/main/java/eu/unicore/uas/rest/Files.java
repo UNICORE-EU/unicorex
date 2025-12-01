@@ -255,12 +255,9 @@ public class Files extends RESTRendererBase {
 			if(props == null){
 				throw new WebApplicationException(404);
 			}
-
 			MetadataManager mm = sms.getMetadataManager();
 			if(mm == null)throw new WebApplicationException(404);
-
 			JSONObject reply = new JSONObject();
-
 			JSONObject json = new JSONObject(jsonString);
 			List<String>files = new ArrayList<>(); 
 			List<Pair<String, Integer>> dirs = new ArrayList<>();
@@ -278,7 +275,6 @@ public class Files extends RESTRendererBase {
 			reply.put("asyncExtraction", futureResult!=null);
 			String taskHref = makeMonitoringTask(futureResult, path);
 			if(taskHref!=null)reply.put("taskHref", taskHref);
-
 			return Response.ok(reply.toString(),MediaType.APPLICATION_JSON).build();
 		}catch(Exception ex){
 			return handleError("Error setting up metadata extraction", ex, logger);
