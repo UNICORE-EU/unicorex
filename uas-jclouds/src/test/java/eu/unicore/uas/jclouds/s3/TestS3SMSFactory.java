@@ -2,6 +2,7 @@ package eu.unicore.uas.jclouds.s3;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.HttpFileTransferClient;
+import eu.unicore.services.restclient.RESTException;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.UAS;
 import eu.unicore.util.Log;
@@ -40,7 +42,7 @@ public class TestS3SMSFactory extends Base {
 	@Test
 	public void testCreateS3WithParams() throws Exception {
 		StorageFactoryClient smf = getStorageFactory("S3");
-		Map<String,String>params = new HashMap<>();
+		final Map<String,String>params = new HashMap<>();
 		String accessKey = "test123";
 		params.put("accessKey", accessKey);
 		params.put("bucket", "test");
@@ -58,14 +60,9 @@ public class TestS3SMSFactory extends Base {
 		assertEquals("site-default-secretkey", effectiveSecretKey);
 		
 		// try with custom endpoint : should fail because it is forbidden in config
-		params = new HashMap<>();
+		params.clear();
 		String endpoint = "my_ep";
 		params.put("endpoint", endpoint);
-		try{
-			smf.createStorage("my s3", params, null);
-		}catch(Exception ex){
-			// OK
-			System.out.println(Log.createFaultMessage("As expected", ex));
-		}
+		assertThrows(RESTException.class, ()->smf.createStorage("my s3", params, null));
 	}
 }
