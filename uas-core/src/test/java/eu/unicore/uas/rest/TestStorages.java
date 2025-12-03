@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -159,7 +158,7 @@ public class TestStorages extends Base {
 	@Test
 	public void testImportError1() throws Exception {
 		StorageClient sms = createStorage();
-		assertThrows(IOException.class,
+		assertThrows(IllegalArgumentException.class,
 				()->sms.createImport("test123", false, -1, "NOSUCHPROTOCOL", null));
 		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/imports", sms.getSecurityConfiguration());
 		JSONObject data = new JSONObject();
@@ -194,7 +193,7 @@ public class TestStorages extends Base {
 	@Test
 	public void testExportError1() throws Exception {
 		StorageClient sms = createStorage();
-		assertThrows(IOException.class,
+		assertThrows(IllegalArgumentException.class,
 				()->sms.createExport("test123", "NOSUCHPROTOCOL", null));
 		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/exports", sms.getSecurityConfiguration());
 		JSONObject data = new JSONObject();
