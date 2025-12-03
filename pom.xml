@@ -31,11 +31,11 @@
     <!-- goes into .jar manifests, dist poms and packaging versions -->
     <specification.version>10.3.1</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>5.5.1</use.version>
+    <use.version>5.5.2</use.version>
     <secutils.version>4.3.0</secutils.version>
     <persistence.version>1.2.9</persistence.version>
     <metrics.version>4.2.37</metrics.version>
-    <uftp.version>2.22.0</uftp.version>
+    <uftp.version>2.23.1</uftp.version>
     <guice.version>7.0.0</guice.version>
     <guava.version>33.5.0-jre</guava.version>
     <json.version>20250517</json.version>
