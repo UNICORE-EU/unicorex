@@ -42,68 +42,73 @@ public class UFTPFileTransferClient extends FiletransferClient
 	private static final Logger logger = Log.getLogger(Log.CLIENT, UFTPFileTransferClient.class);
 
 	private String secret;
-
 	private InetAddress[] serverHosts;
 	private final int serverPort;
 	private final int streams;
 	private final byte[] key;
 	private final boolean compress;
-	
+
 	private ProgressListener<Long>listener;
-	
+
 	private String remoteFile;
 
 	private boolean append;
-	
+
 	public UFTPFileTransferClient(Endpoint endpoint, JSONObject initialProperties, IClientConfiguration security, IAuthCallback auth) throws Exception {
 		super(endpoint, initialProperties, security, auth);
-
-		Map<String,String>params=JSONUtil.asMap(initialProperties);
+		Map<String,String>params = JSONUtil.asMap(initialProperties);
 		updateServerHost(params.get(PARAM_SERVER_HOST));
-		serverPort=Integer.parseInt(params.get(PARAM_SERVER_PORT));
-		streams=Integer.parseInt(params.get(PARAM_STREAMS));
-		String keySpec=params.get(PARAM_ENCRYPTION_KEY);
+		serverPort = Integer.parseInt(params.get(PARAM_SERVER_PORT));
+		streams = Integer.parseInt(params.get(PARAM_STREAMS));
+		String keySpec = params.get(PARAM_ENCRYPTION_KEY);
 		key = keySpec!=null ? Utils.decodeBase64(keySpec) : null;
-		compress=Boolean.parseBoolean(params.get(PARAM_ENABLE_COMPRESSION));
+		compress = Boolean.parseBoolean(params.get(PARAM_ENABLE_COMPRESSION));
 		remoteFile = params.get("fileName");
 	}
 
 	@Override
 	public void configure(Map<String,String>params){
-		String secret=params.get(UFTPConstants.PARAM_SECRET);
+		String secret = params.get(UFTPConstants.PARAM_SECRET);
 		if(secret!=null)setSecret(secret);
 		String overrideHost = params.get(PARAM_SERVER_HOST);
 		if(overrideHost!=null){
 			updateServerHost(overrideHost);
 		}
 	}
-	
+
+	@Override
+	public Long getTransferredBytes() {
+		return lastTotal;
+	}
+
 	protected void updateServerHost(String hostSpec){
 		serverHosts = asHosts(hostSpec);
 		if(serverHosts.length==0){
 			throw new ConfigurationException("No usable UFTP server host could be determined from <"+hostSpec+">");
 		}
 	}
-	
+
 	public void setSecret(String secret){
 		this.secret=secret;
 	}
 
 	@Override
-	public void readAllData(OutputStream target) throws Exception {
-		try(UFTPSessionClient c=new UFTPSessionClient(serverHosts, serverPort)){
+	public void readFully(OutputStream target) throws Exception {
+		try(UFTPSessionClient c = new UFTPSessionClient(serverHosts, serverPort)){
 			configureClient(c);
 			c.connect();
-			c.get("./"+remoteFile, target);
+			lastTotal += c.get("./"+remoteFile, target);
 		}
 	}
 
 	@Override
-	public long readPartial(long offset, long length, OutputStream target) throws IOException {
-		try(UFTPSessionClient c=new UFTPSessionClient(serverHosts, serverPort)){
+	public long read(long offset, long length, OutputStream target) throws IOException {
+		try(UFTPSessionClient c = new UFTPSessionClient(serverHosts, serverPort)){
 			configureClient(c);
 			c.connect();
-			return c.get("./"+remoteFile, offset, length, target);
+			long n = c.get("./"+remoteFile, offset, length, target);
+			lastTotal += n;
+			return n;
 		}
 		catch(AuthorizationFailureException e){
 			throw new IOException(e);
@@ -111,20 +116,20 @@ public class UFTPFileTransferClient extends FiletransferClient
 	}
 
 	@Override
-	public void writeAllData(InputStream source) throws Exception {	
-		writeAllData(source, -1);
+	public void write(InputStream source) throws Exception {	
+		write(source, -1);
 	}
 
 	@Override
-	public void writeAllData(InputStream source, long numBytes) throws Exception {	
-		try(UFTPSessionClient c=new UFTPSessionClient(serverHosts,serverPort)){
+	public void write(InputStream source, long numBytes) throws Exception {	
+		try(UFTPSessionClient c = new UFTPSessionClient(serverHosts,serverPort)){
 			configureClient(c);
 			c.connect();
 			if(append){
-				c.append("./"+remoteFile, numBytes, source);
+				lastTotal += c.append("./"+remoteFile, numBytes, source);
 			}
 			else{
-				c.put("./"+remoteFile, numBytes, source);
+				lastTotal += c.put("./"+remoteFile, numBytes, source);
 			}
 		}
 	}
@@ -137,12 +142,11 @@ public class UFTPFileTransferClient extends FiletransferClient
 		if(listener!=null)c.setProgressListener(this);
 	}
 
-	
 	@Override
 	public void setProgressListener(ProgressListener<Long> listener) {
 		this.listener=listener;
 	}
-	
+
 	public InetAddress[] getServerHosts() {
 		return serverHosts;
 	}
@@ -165,14 +169,14 @@ public class UFTPFileTransferClient extends FiletransferClient
 	public String getEncryptionKey() {
 		return key!=null? Utils.encodeBase64(key) : null;
 	}
-	
+
 	@Override
 	public void setAppend() {
 		append = true;
 	}
-	
-	private long lastTotal=0;
-	
+
+	private long lastTotal = 0;
+
 	@Override
 	public void notifyTotalBytesTransferred(long totalBytesTransferred) {
 		if(listener!=null){
@@ -183,8 +187,8 @@ public class UFTPFileTransferClient extends FiletransferClient
 	}
 
 	public InetAddress[]asHosts(String hostsProperty){
-		List<InetAddress>hostList=new ArrayList<InetAddress>();
-		String[] hosts=hostsProperty.split("[ ,]+");
+		List<InetAddress>hostList = new ArrayList<>();
+		String[] hosts = hostsProperty.split("[ ,]+");
 		for(String h: hosts){
 			try{
 				hostList.add(InetAddress.getByName(h));
@@ -194,9 +198,9 @@ public class UFTPFileTransferClient extends FiletransferClient
 		}
 		return hostList.toArray(new InetAddress[hostList.size()]);
 	}
-	
+
 	public String asString(InetAddress[] ips){
-		StringBuilder sb=new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		for(InetAddress ip: ips){
 			if(sb.length()>0)sb.append(',');
 			sb.append(ip.getHostName());

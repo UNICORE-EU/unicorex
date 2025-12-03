@@ -380,7 +380,7 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 			if(ftc instanceof IMonitorable){
 				((IMonitorable)ftc).setProgressListener(this);
 			}
-			((FiletransferOptions.Read)ftc).readAllData(os);
+			((FiletransferOptions.Read)ftc).readFully(os);
 		}
 	}	
 

@@ -89,10 +89,10 @@ public class TestServerServerTransfer extends Base {
 
 	protected void verifyTargetFolder1Content()throws Exception{
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		target.download("folder1/test11").readAllData(bos);
+		target.download("folder1/test11").readFully(bos);
 		assertTrue("test11".equals(bos.toString()));
 		bos=new ByteArrayOutputStream();
-		target.download("folder1/folder11/test111").readAllData(bos);
+		target.download("folder1/folder11/test111").readFully(bos);
 		assertTrue("test111".equals(bos.toString()));
 	}
 
@@ -248,10 +248,10 @@ public class TestServerServerTransfer extends Base {
 		String testdata = "testdata";
 		source.upload("test%20file").write(testdata.getBytes());
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		source.download("test file").readAllData(bos);
+		source.download("test file").readFully(bos);
 		assertTrue(testdata.equals(bos.toString()));
 		bos = new ByteArrayOutputStream();
-		source.download("test%20file").readAllData(bos);
+		source.download("test%20file").readFully(bos);
 		assertTrue(testdata.equals(bos.toString()));
 
 		TransferControllerClient c1 = source.sendFile("/test file", targetURL+"/files/test%20file", null, "BFT");
@@ -265,7 +265,7 @@ public class TestServerServerTransfer extends Base {
 
 		//get data from sms and check correctness
 		bos.reset();
-		target.download("test file").readAllData(bos);
+		target.download("test file").readFully(bos);
 		assertTrue(testdata.equals(bos.toString()));
 
 		//same story with receiveFile
@@ -283,7 +283,7 @@ public class TestServerServerTransfer extends Base {
 
 		//get data from sms and check correctness
 		bos.reset();
-		source.download("another test file").readAllData(bos);
+		source.download("another test file").readFully(bos);
 		assertTrue(testdata.equals(bos.toString()));
 	}
 

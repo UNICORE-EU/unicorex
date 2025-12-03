@@ -13,13 +13,13 @@ public interface FiletransferOptions {
 	public static interface IChunked{
 		public void setChunksize(int chunksize);
 	}
-	
+
 	/**
 	 * file transfers that support partial reads chunks should 
 	 * implement this interface
 	 */
 	public static interface SupportsPartialRead{
-		
+
 		/**
 		 * @param offset - where to start reading
 		 * @param length - number of bytes to read
@@ -27,10 +27,10 @@ public interface FiletransferOptions {
 		 * @return the number of bytes actually read (always &gt;= 0)
 		 * @throws IOException
 		 */
-		public long readPartial(long offset, long length, OutputStream os)throws IOException;
-		
+		public long read(long offset, long length, OutputStream os)throws IOException;
+
 	}
-	
+
 	/**
 	 * file transfers can implement this interface
 	 * to allow progress monitoring
@@ -38,7 +38,7 @@ public interface FiletransferOptions {
 	public static interface IMonitorable{
 		public void setProgressListener(ProgressListener<Long> listener);
 	}
-	
+
 	/**
 	 * file transfers can implement this interface
 	 * to show they support append
@@ -46,7 +46,7 @@ public interface FiletransferOptions {
 	public static interface IAppendable{
 		public void setAppend();
 	}
-	
+
 	/**
 	 * file transfers supporting reads implement this interface
 	 */
@@ -58,14 +58,14 @@ public interface FiletransferOptions {
 		 * 
 		 * @param sink - a local OutputStream to write the data to
 		 */
-		public void readAllData(OutputStream sink)throws Exception;
+		public void readFully(OutputStream sink)throws Exception;
 	}
-	
+
 	/**
 	 * file transfers supporting writes implement this interface
 	 */
 	public static interface Write{
-		
+
 		/**
 		 * Writes all data from <code>source</code> to the remote location<br/>
 		 * In case the remote file exists, it is overwritten.
@@ -73,7 +73,7 @@ public interface FiletransferOptions {
 		 * @param source - an InputStream supplying local data
 		 * @throws Exception
 		 */
-		public void writeAllData(InputStream source)throws Exception;
+		public void write(InputStream source)throws Exception;
 		
 		/**
 		 * Writes <code>numBytes</code> bytes of data from <code>source</code> to the 
@@ -84,9 +84,8 @@ public interface FiletransferOptions {
 		 * @param source
 		 * @param numBytes - how many bytes to read from the source, or -1 if all data should be read
 		 * @throws Exception
-		 * @since 1.4.0
 		 */
-		public void writeAllData(InputStream source, long numBytes)throws Exception;
+		public void write(InputStream source, long numBytes)throws Exception;
 
 	}
 

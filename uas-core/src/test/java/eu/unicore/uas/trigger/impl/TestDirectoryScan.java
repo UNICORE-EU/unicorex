@@ -39,7 +39,7 @@ public class TestDirectoryScan extends Base {
 		StorageClient sms = smf.createStorage();
 		// write a rule file
 		try(InputStream is=new FileInputStream("src/test/resources/trigger_rules")){
-			sms.upload(RuleFactory.RULE_FILE_NAME).writeAllData(is);
+			sms.upload(RuleFactory.RULE_FILE_NAME).write(is);
 		}
 		// write data files
 		sms.upload("/dir/test.txt").write("test1\n".getBytes());
@@ -101,11 +101,11 @@ public class TestDirectoryScan extends Base {
 		// write toplevel rule file
 		String tlRule = "{'DirectoryScan':{'IncludeDirs':['scan']}}";
 		try(InputStream is = new ByteArrayInputStream(tlRule.getBytes("UTF-8"))){
-			sms.upload(RuleFactory.RULE_FILE_NAME).writeAllData(is);
+			sms.upload(RuleFactory.RULE_FILE_NAME).write(is);
 		}
 		// write per-dir rule file
 		try(InputStream is=new FileInputStream("src/test/resources/trigger_rules")){
-			sms.upload("/scan/"+RuleFactory.RULE_FILE_NAME).writeAllData(is);
+			sms.upload("/scan/"+RuleFactory.RULE_FILE_NAME).write(is);
 		}
 		// write data files
 		sms.upload("/scan/dir/test.txt").write("test1\n".getBytes());
@@ -154,7 +154,7 @@ public class TestDirectoryScan extends Base {
 			System.out.println(e);
 			if(e.size>0) {
 				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				sms.download(e.path).readAllData(os);
+				sms.download(e.path).readFully(os);
 				System.out.println("Trigger run log\n***************\n\n"+os.toString("UTF-8"));
 			}
 		}

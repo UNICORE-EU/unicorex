@@ -25,6 +25,7 @@ import eu.unicore.client.core.EnumerationClient;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
+import eu.unicore.client.data.FiletransferClient;
 import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.client.data.TransferControllerClient.Status;
@@ -33,14 +34,15 @@ import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.RESTException;
 import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
+import eu.unicore.uas.fts.FiletransferOptions.ReadStream;
 
 public class TestStorages extends Base {
 
+	final static String testdata = "test data";
+
 	@BeforeAll
 	public static void createTestFile() throws Exception{
-		try{
-			FileUtils.write(new File("target/unicorex-test/test.txt"), "test data", "UTF-8");
-		}catch(IOException e){throw new RuntimeException(e);}
+		FileUtils.write(new File("target/unicorex-test/test.txt"), testdata, "UTF-8");
 	}
 
 	@Test
@@ -150,6 +152,8 @@ public class TestStorages extends Base {
 		fts.write(content.getBytes());
 		FileListEntry newFile = sms.stat("test123");
 		assertEquals(content.length(), newFile.size);
+		fts.setUpdateInterval(-1);
+		assertEquals(content.length(), fts.getTransferredBytes());
 	}
 
 	@Test
@@ -163,8 +167,17 @@ public class TestStorages extends Base {
 		data.put("file", "foo");
 		RESTException re = assertThrows(RESTException.class,
 				()->bc.post(data));
-		System.out.println("GOT: "+re.getMessage());
 		assertTrue(re.getMessage().contains("not available"));
+	}
+
+	@Test
+	public void testUpload() throws Exception {
+		StorageClient sms = createStorage();
+		HttpFileTransferClient fts = sms.upload("test123");
+		String content = "uploaded via RESTful interface and BFT";
+		fts.write(content.getBytes());
+		FileListEntry newFile = sms.stat("test123");
+		assertEquals(content.length(), newFile.size);
 	}
 
 	@Test
@@ -172,9 +185,10 @@ public class TestStorages extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
 		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), null);
-		HttpFileTransferClient fts = (HttpFileTransferClient)sms.createExport("test.txt", "BFT", null);
-		String content = IOUtils.toString(fts.getInputStream(), "UTF-8");
-		System.out.println(content);
+		FiletransferClient fts = sms.createExport("test.txt", "BFT", null);
+		assertEquals("BFT", fts.getProtocol());
+		assertTrue(fts instanceof ReadStream);
+		assertEquals(testdata, IOUtils.toString(((ReadStream)fts).getInputStream(), "UTF-8"));
 	}
 
 	@Test
@@ -188,8 +202,17 @@ public class TestStorages extends Base {
 		data.put("file", "foo");
 		RESTException re = assertThrows(RESTException.class,
 				()->bc.post(data));
-		System.out.println("GOT: "+re.getMessage());
 		assertTrue(re.getMessage().contains("not available"));
+	}
+
+	@Test
+	public void testDownload() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
+		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
+		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), null);
+		HttpFileTransferClient fts = sms.download("test.txt");
+		String content = IOUtils.toString(fts.getInputStream(), "UTF-8");
+		assertEquals(testdata, content);
 	}
 
 	@Test

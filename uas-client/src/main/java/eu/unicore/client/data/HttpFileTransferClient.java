@@ -59,7 +59,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	 * @throws Exception
 	 */
 	@Override
-	public void readAllData(OutputStream os)throws Exception{
+	public void readFully(OutputStream os)throws Exception{
 		HttpClient client = getClient();
 		HttpGet get = new HttpGet(accessURL);
 		totalBytesTransferred = read(os, get, client);
@@ -84,7 +84,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 		}
 		return response.getEntity().getContent();
 	}
-	
+
 	/**
 	 * uploads the given data (setting the append flag)
 	 * 
@@ -92,43 +92,27 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	 * @throws Exception
 	 */
 	public void append(byte[] data) throws Exception {
-		writeAllData(new ByteArrayInputStream(data), true);
+		this.append = true;
+		write(new ByteArrayInputStream(data));
 	}
 
 	/**
-	 * uploads the given data
-	 * 
+	 * convenience method uploading the given byte array
+	 *
 	 * @param data
 	 * @throws Exception
 	 */
 	public void write(byte[] data)throws Exception {
-		writeAllData(new ByteArrayInputStream(data), false);
+		write(new ByteArrayInputStream(data));
 	}
 
 	@Override
-	public void writeAllData(InputStream source, long numBytes)throws Exception{
-		if(numBytes<0){
-			writeAllData(source);
-		}
-		else{
-			BoundedInputStream bis = BoundedInputStream.builder().
-					setMaxCount(numBytes).setInputStream(source).get();
-			writeAllData(bis);
-		}
+	public void write(InputStream source, long numBytes)throws Exception{
+		InputStream is = numBytes<0 ?
+				source : 
+				BoundedInputStream.builder().setMaxCount(numBytes).setInputStream(source).get();
+		write(is);
 	}
-	
-	/**
-	 * read local data and write to remote location
-	 * 
-	 * @param is -  the InputStream to read from
-	 * @param append - whether to append to an existing file
-	 * @throws Exception
-	 */
-	public void writeAllData(final InputStream is,boolean append)throws Exception{
-		this.append = append;
-		writeAllData(is);
-	}
-
 
 	/**
 	 * read local data and write to remote location
@@ -137,7 +121,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	 * @throws Exception
 	 */
 	@Override
-	public void writeAllData(final InputStream is)throws IOException {
+	public void write(final InputStream is)throws IOException {
 		HttpClient client = getClient();
 		ClassicHttpRequest upload = createMethodForUpload();
 		//monitor transfer progress, costs a bit performance though
@@ -190,7 +174,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 
 
 	@Override
-	public long readPartial(long offset, long length, OutputStream os)
+	public long read(long offset, long length, OutputStream os)
 			throws IOException {
 		HttpClient client = getClient();
 		HttpGet get = new HttpGet(accessURL);
@@ -198,11 +182,11 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 		get.addHeader("Range", "bytes="+offset+"-"+(offset+length-1));
 		return read(os, get, client);
 	}
-	
+
 	/**
 	 * read the given number of bytes from the end of the file
 	 * and write them to the given output stream
-	 * 
+	 *
 	 * @param numberOfBytes - how many bytes to read
 	 * @param os - stream to write to
 	 */
@@ -259,7 +243,8 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	 * to readAllData() or readPartial(). If you need a 'live' value, use a {@link ProgressListener}
 	 * and register it using {@link #setProgressListener(ProgressListener)}
 	 */
-	public long getTotalBytesTransferred(){
+	@Override
+	public Long getTransferredBytes() {
 		return totalBytesTransferred;
 	}
 

@@ -276,7 +276,7 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 	protected void doRun(String localFile) throws Exception {
 		try(InputStream is = getInputStream(localFile)){
 			checkCancelled();
-			((FiletransferOptions.Write)ftc).writeAllData(is);
+			((FiletransferOptions.Write)ftc).write(is);
 		}
 	}
 

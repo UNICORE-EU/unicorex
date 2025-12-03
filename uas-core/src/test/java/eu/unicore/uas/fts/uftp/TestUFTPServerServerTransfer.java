@@ -110,7 +110,7 @@ public class TestUFTPServerServerTransfer {
 			int size) throws Exception {
 		byte[] buf = new byte[size];
 		new Random().nextBytes(buf);
-		sms.upload(filename).writeAllData(new ByteArrayInputStream(buf));
+		sms.upload(filename).write(new ByteArrayInputStream(buf));
 	}
 
 }

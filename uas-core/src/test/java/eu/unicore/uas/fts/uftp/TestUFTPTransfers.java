@@ -227,29 +227,29 @@ public class TestUFTPTransfers {
 	}
 
 	private void doImportFile(boolean encrypt, boolean compress) throws Exception {
-		
 		Map<String,String> ep = new HashMap<>();
 		ep.put(UFTPConstants.PARAM_SECRET, UUID.randomUUID().toString());
 		ep.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
 		ep.put(UFTPConstants.PARAM_ENABLE_COMPRESSION, String.valueOf(compress));
 		ep.put(UFTPConstants.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
-		
+
 		UFTPFileTransferClient ftc = (UFTPFileTransferClient)sms.createImport("test-import",false, -1, "UFTP", ep);
 		assertNotNull(ftc);
 		System.out.println(ftc.getProperties());
-		
+
 		File testFile = new File("target/testfiles/data-"+System.currentTimeMillis());
 		int size = 1024;
 		int n = 100;
 		makeTestFile(testFile, size, n);
 		try(InputStream source = new FileInputStream(testFile)) {
-			ftc.writeAllData(source);
+			ftc.write(source);
 		}
 		Thread.sleep(1000);
 		// check that file has been written...
 		FileListEntry gft = sms.stat("test-import");
 		assertNotNull(gft);
 		assertEquals(size * n, gft.size);
+		assertEquals(gft.size, ftc.getTransferredBytes());
 		assertEquals(Utils.md5(testFile), Utils.md5(new File(sms.getMountPoint(),"test-import")));
 	}
 	
@@ -258,18 +258,16 @@ public class TestUFTPTransfers {
    		Map<String,String>params=new HashMap<String,String>();
    		params.put(UFTPConstants.PARAM_SECRET, "test123");
    		params.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
-   		
    		FiletransferClient ftc = sms.createImport("test-import", false, -1, "UFTP", params);
    		assertNotNull(ftc);
    		assertTrue(ftc instanceof UFTPFileTransferClient);
    		System.out.println(ftc.getProperties());
-   		
    		File testFile = new File("target/testfiles/data-"+System.currentTimeMillis());
    		int size = 1024;
    		int n = 100;
    		makeTestFile(testFile, size, n);
    		try (InputStream source = new FileInputStream(testFile)){
-   			((UFTPFileTransferClient)ftc).writeAllData(source);//testFile.length());
+   			((UFTPFileTransferClient)ftc).write(source);//testFile.length());
    		}
    		Thread.sleep(1000);
    		// check that file has been written...
@@ -302,22 +300,20 @@ public class TestUFTPTransfers {
 		int size = 1024;
 		int n = 100;
 		makeTestFile(testFile, size, n);
-		c.writeAllData(new FileInputStream(testFile));
-
-		// now do export
+		try(InputStream is = new FileInputStream(testFile)){
+			c.write(is);
+		}
+		// now do export via UFTP
 		UFTPFileTransferClient c2 = (UFTPFileTransferClient)sms.createExport("export_test", "UFTP", ep);
-		
-		File testTarget = new File("target/testfiles/export-"
-				+ System.currentTimeMillis());
-		
+		File testTarget = new File("target/testfiles/export-" + System.currentTimeMillis());
 		try (OutputStream target = new FileOutputStream(testTarget)){
-			c2.readAllData(target);
+			c2.readFully(target);
 		}
 		assertTrue(testTarget.exists());
 		assertEquals(size * n, testTarget.length());
 		assertEquals(Utils.md5(testTarget), Utils.md5(testFile));
 	}
-	
+
 	private JSONObject getStageInJob() throws JSONException {
 		JSONObject jdd = new JSONObject();
 		jdd.put("ApplicationName", "Date");
@@ -372,7 +368,7 @@ public class TestUFTPTransfers {
 			int size) throws Exception {
 		byte[] buf = new byte[size];
 		new Random().nextBytes(buf);
-		sms.upload(filename).writeAllData(new ByteArrayInputStream(buf));
+		sms.upload(filename).write(new ByteArrayInputStream(buf));
 	}
 
 	private static void makeTestFile(File file, int chunkSize, int chunks)

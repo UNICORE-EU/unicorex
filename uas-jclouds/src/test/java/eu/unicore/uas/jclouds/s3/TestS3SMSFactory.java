@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,7 +15,6 @@ import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.services.restclient.RESTException;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.UAS;
-import eu.unicore.util.Log;
 
 public class TestS3SMSFactory extends Base {
 
@@ -34,7 +32,7 @@ public class TestS3SMSFactory extends Base {
 		byte[] data = "some test data".getBytes();
 		HttpFileTransferClient ft = ((HttpFileTransferClient) sms.createImport("/data/testdata",
 				false, data.length, "BFT", null));
-		ft.writeAllData(new ByteArrayInputStream("some test data".getBytes()));
+		ft.write("some test data".getBytes());
 		ft.delete();
 		System.out.println(sms.ls("/"));
 	}

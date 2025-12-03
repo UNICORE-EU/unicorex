@@ -23,7 +23,7 @@ public class Metadata {
 
 	public static void writeCrawlerControlFile(StorageClient sms, String baseDir, CrawlerControl control)throws Exception{
 		sms.upload(baseDir+"/"+CRAWLER_CONTROL_FILENAME, -1).
-			writeAllData(IOUtils.toInputStream(control.toString(), "UTF-8"));
+			write(IOUtils.toInputStream(control.toString(), "UTF-8"));
 	}
 
 	public static class CrawlerControl {

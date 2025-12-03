@@ -12,7 +12,7 @@ public abstract class FiletransferClient extends BaseServiceClient {
 	public FiletransferClient(Endpoint endpoint, JSONObject initialProperties, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
-	
+
 	public Long getTransferredBytes() throws Exception {
 		return getProperties().getLong("transferredBytes");
 	}
