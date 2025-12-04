@@ -32,7 +32,8 @@ public class TestUFTP extends EMSTestBase {
 	@BeforeAll
 	public static void startUFTPD() throws Exception {
 		localhost = InetAddress.getByName("127.0.0.1");
-		uftpd = new UFTPDServerRunner();
+		// use non-default ports here to avoid "Address already in use"
+		uftpd = new UFTPDServerRunner(63435, 63434);
 		uftpd.start();
 		waitForUFTPD();
 	}

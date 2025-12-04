@@ -16,7 +16,7 @@ public class UFTPDServerRunner {
 	private InetAddress host;
 
 	private UFTPServer server;
-	
+
 	public UFTPDServerRunner(int serverPort, int jobPort) {
 		this.srvPort = serverPort;
 		this.jobPort = jobPort;
@@ -26,11 +26,11 @@ public class UFTPDServerRunner {
 			throw new RuntimeException(ex);
 		}
 	}
-	
+
 	public UFTPDServerRunner() {
 		this(62435, 62434);
 	}
-	
+
 	public void start() throws Exception {
 		System.out.println("Starting UFTPD server.");
 		server = new UFTPServer(host, jobPort, host, srvPort);
