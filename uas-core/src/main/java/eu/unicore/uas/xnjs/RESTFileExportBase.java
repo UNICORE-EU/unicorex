@@ -43,8 +43,8 @@ public class RESTFileExportBase extends RESTFileTransferBase {
 
 	private FileSet fileSet;
 
-	public RESTFileExportBase(XNJS configuration){
-		super(configuration);
+	public RESTFileExportBase(XNJS xnjs){
+		super(xnjs);
 	}
 
 	public final void run(){

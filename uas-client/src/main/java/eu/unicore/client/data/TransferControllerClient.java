@@ -41,6 +41,10 @@ public class TransferControllerClient extends FiletransferClient {
 		return getProperties().optLong("size", -1);
 	}
 
+	public Long getTransferredBytes() throws Exception{
+		return getProperties().optLong("transferredBytes", -1);
+	}
+
 	public boolean hasFailed() throws Exception {
 		return Status.FAILED.equals(getStatus());
 	}
@@ -49,7 +53,6 @@ public class TransferControllerClient extends FiletransferClient {
 		Status s = getStatus();
 		return Status.DONE.equals(s) || Status.FAILED.equals(s) || Status.ABORTED.equals(s);
 	}
-
 
 	/**
 	 * wait for the transfer to reach the given status (or a later one)

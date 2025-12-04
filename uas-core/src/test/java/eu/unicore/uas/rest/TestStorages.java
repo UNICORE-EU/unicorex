@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -177,6 +178,12 @@ public class TestStorages extends Base {
 		fts.write(content.getBytes());
 		FileListEntry newFile = sms.stat("test123");
 		assertEquals(content.length(), newFile.size);
+		// need new file transfer for appending
+		String appended = "appended stuff";
+		fts = (HttpFileTransferClient)sms.createImport("test123", true, -1, "BFT", null);
+		fts.write(appended.getBytes());
+		newFile = sms.stat("test123");
+		assertEquals(content.length()+appended.length(), newFile.size);
 	}
 
 	@Test
@@ -212,6 +219,20 @@ public class TestStorages extends Base {
 		HttpFileTransferClient fts = sms.download("test.txt");
 		String content = IOUtils.toString(fts.getInputStream(), "UTF-8");
 		assertEquals(testdata, content);
+	}
+
+	@Test
+	public void testDownloadPartial() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
+		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
+		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), null);
+		HttpFileTransferClient fts = sms.download("test.txt");
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		fts.read(4, testdata.length()-4, os);
+		assertEquals(testdata.substring(4), os.toString("UTF-8"));
+		os = new ByteArrayOutputStream();
+		fts.readTail(4, os);
+		assertEquals("data", os.toString("UTF-8"));
 	}
 
 	@Test

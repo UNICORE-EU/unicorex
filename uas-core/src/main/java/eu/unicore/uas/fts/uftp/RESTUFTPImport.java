@@ -15,11 +15,11 @@ import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.uas.xnjs.RESTFileImportBase;
 import eu.unicore.uftp.client.UFTPSessionClient;
 import eu.unicore.xnjs.XNJS;
-import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
+import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.InternalManager;
+import eu.unicore.xnjs.fts.IUFTPRunner;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
-import eu.unicore.xnjs.util.AsyncCommandHelper;
 import eu.unicore.xnjs.util.ResultHolder;
-import eu.unicore.xnjs.util.UFTPUtils;
 
 /**
  * @author schuller
@@ -145,7 +145,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 			}
 			else{
 				// select one of the configured TSI nodes
-				TSIConnectionFactory tcf = configuration.get(TSIConnectionFactory.class);
+				TSIConnectionFactory tcf = xnjs.get(TSIConnectionFactory.class);
 				if(tcf == null){
 					clientHost = getLocalHost();
 				}
@@ -173,44 +173,32 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		}
 	}
 
-	private AsyncCommandHelper ach;
-
-	private void runAsync(String cmd, int cmdtype) throws Exception {
-		ach = new AsyncCommandHelper(configuration, cmd, info.getUniqueId(), info.getParentActionID(), client);
-		ach.setPreferredExecutionHost(clientHost);
-		ach.getSubCommand().type = cmdtype;
-		ach.submit();
-		do{
-			try{
-				checkCancelled();
-			}catch(CancelledException ce){
+	private void checkError(String subActionID) throws Exception {
+		Action sub = xnjs.get(InternalManager.class).getAction(subActionID);
+		if(sub!=null) {
+			ResultHolder res = new ResultHolder(sub, xnjs);
+			if(res.getExitCode()==null || res.getExitCode()!=0){
+				String message="UFTP data download failed.";
 				try{
-					ach.abort();
-				}catch(Exception e){}
-				throw ce;
+					String error = res.getErrorMessage();
+					if(error!=null && error.length()>0)message+=" Error details: "+error;
+				}catch(IOException ex){}
+				throw new Exception(message);
 			}
-			Thread.sleep(2000);
-		}while(!ach.isDone());
-
-		ResultHolder res = ach.getResult();
-		if(res.getExitCode()==null || res.getExitCode()!=0){
-			String message="UFTP data download failed.";
-			try{
-				String error = res.getErrorMessage();
-				if(error!=null && error.length()>0)message+=" Error details: "+error;
-			}catch(IOException ex){}
-			throw new Exception(message);
 		}
 	}
 
 	private void runTSIClient(String from, String to) throws Exception {
 		UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
-		String cmd = UFTPUtils.jsonBuilder()
-				.get().from(from).to(to).workdir(workdir)
-				.secret(secret)
-				.host(uftc.getServerHosts()[0].getHostAddress()).port(uftc.getServerPort())
-				.build().toString();
-		runAsync(cmd, SubCommand.UFTP);
+		IUFTPRunner uftpRunner = xnjs.get(IUFTPRunner.class);
+		uftpRunner.setClient(client);
+		uftpRunner.setParentActionID(info.getParentActionID());
+		uftpRunner.setID(info.getUniqueId());
+		uftpRunner.setClientHost(clientHost);
+		uftpRunner.get(from, to, workdir, uftc.getServerHosts()[0].getHostAddress(), uftc.getServerPort(), secret);
+		if(uftpRunner.getSubactionID()!=null) {
+			checkError(uftpRunner.getSubactionID());
+		}
 	}
 
 	@Override

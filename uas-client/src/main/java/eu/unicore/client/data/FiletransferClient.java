@@ -13,9 +13,7 @@ public abstract class FiletransferClient extends BaseServiceClient {
 		super(endpoint, security, auth);
 	}
 
-	public Long getTransferredBytes() throws Exception {
-		return getProperties().getLong("transferredBytes");
-	}
+	public abstract Long getTransferredBytes() throws Exception;
 
 	public String getProtocol() throws Exception {
 		return getProperties().getString("protocol");

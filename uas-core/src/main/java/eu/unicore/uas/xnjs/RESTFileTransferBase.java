@@ -69,7 +69,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	protected IStorageAdapter storageAdapter;
 
-	protected final XNJS configuration;
+	protected final XNJS xnjs;
 
 	protected final Kernel kernel;
 
@@ -81,9 +81,9 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	protected StatusTracker statusTracker;
 
-	public RESTFileTransferBase(XNJS configuration){
-		this.configuration=configuration;
-		this.kernel=configuration.get(Kernel.class);
+	public RESTFileTransferBase(XNJS xnjs){
+		this.xnjs = xnjs;
+		this.kernel = xnjs.get(Kernel.class);
 		this.info = new TransferInfo(Utilities.newUniqueID(), null, null);
 		this.info.setProtocol("BFT");
 	}
@@ -194,7 +194,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	protected void initSecurityProperties()
 	{
 		try{
-			Kernel kernel = configuration.get(Kernel.class);
+			Kernel kernel = xnjs.get(Kernel.class);
 			sec = kernel.getClientConfiguration();
 			String user = client.getDistinguishedName();
 			auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
@@ -219,7 +219,7 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 	protected synchronized IStorageAdapter getStorageAdapter()throws ExecutionException{
 		if(storageAdapter!=null)return storageAdapter;
 		if(tsi==null){
-			tsi=configuration.getTargetSystemInterface(client, preferredLoginNode);
+			tsi=xnjs.getTargetSystemInterface(client, preferredLoginNode);
 			tsi.setStorageRoot(workdir);
 		}
 		return tsi;

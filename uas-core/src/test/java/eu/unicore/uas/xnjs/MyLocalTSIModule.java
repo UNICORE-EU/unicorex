@@ -9,6 +9,7 @@ import eu.unicore.xnjs.ems.BudgetInfo;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.IExecutionContextManager;
 import eu.unicore.xnjs.ems.LocalECManager;
+import eu.unicore.xnjs.fts.IUFTPRunner;
 import eu.unicore.xnjs.idb.GrounderImpl;
 import eu.unicore.xnjs.idb.IDB;
 import eu.unicore.xnjs.idb.IDBImpl;
@@ -22,6 +23,7 @@ import eu.unicore.xnjs.tsi.IReservation;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.local.LocalTS;
 import eu.unicore.xnjs.tsi.local.LocalTSIModule;
+import eu.unicore.xnjs.tsi.local.UFTPRunnerImpl;
 
 public class MyLocalTSIModule extends LocalTSIModule {
 
@@ -40,6 +42,7 @@ public class MyLocalTSIModule extends LocalTSIModule {
 		bind(IDB.class).to(IDBImpl.class);
 		
 		bind(IFileTransferEngine.class).to(FileTransferEngine.class);
+		bind(IUFTPRunner.class).to(UFTPRunnerImpl.class);
 		bind(IReservation.class).to(MockReservation.class);
 	}
 	

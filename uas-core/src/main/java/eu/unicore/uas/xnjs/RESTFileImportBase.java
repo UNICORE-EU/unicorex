@@ -51,8 +51,8 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 	 */
 	protected final List<Pair<FileListEntry,String>> filesToTransfer = new ArrayList<>();
 
-	public RESTFileImportBase(XNJS configuration){
-		super(configuration);
+	public RESTFileImportBase(XNJS xnjs){
+		super(xnjs);
 	}	
 
 	public final void run(){

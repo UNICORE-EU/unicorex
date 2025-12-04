@@ -52,9 +52,9 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		if(extraParameters==null){
 			throw new IllegalArgumentException("Missing parameters for UFTP");	
 		}
-		m.clientHost=extraParameters.get(PARAM_CLIENT_HOST);
+		m.clientHost = extraParameters.get(PARAM_CLIENT_HOST);
 		if(m.clientHost==null){
-			m.clientHost=getClient().getSecurityTokens().getClientIP();
+			m.clientHost = getClient().getSecurityTokens().getClientIP();
 			if(m.clientHost==null){
 				throw new IllegalArgumentException("Missing parameter: "+PARAM_CLIENT_HOST);
 			}
@@ -82,8 +82,8 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 	public Map<String, String> getProtocolDependentParameters() {
 		Map<String, String> params = super.getProtocolDependentParameters();
 		UFTPFiletransferModel m = getModel();
-		params.put(PARAM_SERVER_HOST, m.getServerHost());
-		params.put(PARAM_SERVER_PORT,String.valueOf(m.getServerPort()));
+		params.put(PARAM_SERVER_HOST, m.serverHost);
+		params.put(PARAM_SERVER_PORT,String.valueOf(m.serverPort));
 		params.put(PARAM_STREAMS,String.valueOf(m.streams));
 		if(m.key!=null){
 			params.put(PARAM_ENCRYPTION_KEY, Utils.encodeBase64(m.key));
@@ -176,7 +176,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		UFTPFiletransferModel m = getModel();
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		boolean append = m.getOverWrite()==false;
-		boolean compress = m.isCompress();
+		boolean compress = m.compress;
 		int rateLimit = cfg.getIntValue(UFTPProperties.PARAM_RATE_LIMIT);
 		InetAddress[] clientHosts = Utils.parseInetAddresses(m.clientHost, null);
 		UFTPSessionRequest job = new UFTPSessionRequest(clientHosts, user, secret, m.getWorkdir()); 
@@ -188,8 +188,8 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		job.setRateLimit(rateLimit);
 		LogicalUFTPServer connector = kernel.getAttribute(LogicalUFTPServer.class);
 		UFTPDInstance uftpd = connector.getUFTPDInstance();
-		m.setServerHost(uftpd.getHost());
-		m.setServerPort(uftpd.getPort());
+		m.serverHost = uftpd.getHost();
+		m.serverPort = uftpd.getPort();
 		return uftpd.sendRequest(job);
 	}
 

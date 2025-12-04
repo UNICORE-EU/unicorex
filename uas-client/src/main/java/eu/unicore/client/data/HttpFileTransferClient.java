@@ -45,7 +45,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	private Long totalBytesTransferred = 0L;
 
 	private boolean append;
-	
+
 	private ProgressListener<Long> observer;
 
 	public HttpFileTransferClient(Endpoint endpoint, JSONObject initialProperties, IClientConfiguration security, IAuthCallback auth) throws Exception {
@@ -83,17 +83,6 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 			throw new IOException("Can't read remote data, server returned "+response.getReasonPhrase());
 		}
 		return response.getEntity().getContent();
-	}
-
-	/**
-	 * uploads the given data (setting the append flag)
-	 * 
-	 * @param data
-	 * @throws Exception
-	 */
-	public void append(byte[] data) throws Exception {
-		this.append = true;
-		write(new ByteArrayInputStream(data));
 	}
 
 	/**
@@ -258,9 +247,9 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 
 	@Override
 	public void setAppend() {
-		append = true;
+		this.append = true;
 	}
-	
+
 	protected ClassicHttpRequest createMethodForUpload(){
 		ClassicHttpRequest upload = accessURL.contains("method=POST") ?
 				new HttpPost(accessURL): new HttpPut(accessURL);

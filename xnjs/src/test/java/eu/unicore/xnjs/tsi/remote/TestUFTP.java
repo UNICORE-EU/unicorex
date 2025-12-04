@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
 import eu.unicore.security.Xlogin;
 import eu.unicore.uftp.dpc.Utils;
@@ -23,6 +24,7 @@ import eu.unicore.uftp.server.requests.UFTPSessionRequest;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ExecutionContext;
 import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
+import eu.unicore.xnjs.fts.IUFTPRunner;
 import eu.unicore.xnjs.util.AsyncCommandHelper;
 import eu.unicore.xnjs.util.UFTPUtils;
 
@@ -30,7 +32,7 @@ public class TestUFTP extends RemoteTSITestCase {
 
 	private static UFTPDServerRunner uftpd = null;
 	private static InetAddress localhost;
-	
+
 	@BeforeAll
 	public static void startUFTPD() throws Exception {
 		localhost = InetAddress.getByName("127.0.0.1");
@@ -281,6 +283,60 @@ public class TestUFTP extends RemoteTSITestCase {
 		while(!ach.isDone())Thread.sleep(1000);
 		assertTrue(ach.getResult().getResult().isSuccessful());
 		assertTrue(mgr.getAction(ach.getActionID()).getLog().toString().contains("#TSI_UFTP"));
+		assertEquals(Utils.md5(source1), Utils.md5(new File(targetDir, "uploaded.test.dat")));
+	}
+
+	@Test
+	public void testUFTPRunnerGet() throws Exception {
+		File sourceDir = mkTmpDir();
+		File source1 = new File(sourceDir, "test.dat");
+		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
+		File targetDir = mkTmpDir();
+		String secret = String.valueOf(System.currentTimeMillis());
+		UFTPSessionRequest job = new UFTPSessionRequest(new InetAddress[] {localhost},
+				"nobody", secret, sourceDir.getAbsolutePath());
+		job.sendTo(localhost, uftpd.jobPort);
+		Action parent = xnjs.makeAction(new JSONObject());
+		parent.setClient(new Client());
+		parent.getClient().setXlogin(new Xlogin(new String[] {"nobody"}));
+		String id = parent.getUUID();
+		mgr.add(parent, parent.getClient());
+		waitUntilDone(id);
+		IUFTPRunner runner = xnjs.get(IUFTPRunner.class);
+		runner.setClient(parent.getClient());
+		runner.setParentActionID(id);
+		runner.setID("UFTP_GET_"+UUID.newUniqueID());
+		runner.get("test.dat", "downloaded.test.dat", targetDir.getAbsolutePath(),
+				"127.0.0.1", uftpd.srvPort, secret);
+		String myID = runner.getSubactionID(); 
+		assertTrue(mgr.getAction(myID).getLog().toString().contains("#TSI_UFTP"));
+		assertEquals(Utils.md5(source1), Utils.md5(new File(targetDir, "downloaded.test.dat")));
+	}
+
+	@Test
+	public void testUFTPRunnerPUT() throws Exception {
+		File sourceDir = mkTmpDir();
+		File source1 = new File(sourceDir, "test.dat");
+		FileUtils.writeStringToFile(source1, "this is some test data\n", "UTF-8");
+		File targetDir = mkTmpDir();
+		String secret = String.valueOf(System.currentTimeMillis());
+		UFTPSessionRequest job = new UFTPSessionRequest(
+				new InetAddress[] {localhost}, "nobody", secret, targetDir.getAbsolutePath());
+		job.sendTo(localhost, uftpd.jobPort);
+		Action parent = xnjs.makeAction(new JSONObject());
+		parent.setClient(new Client());
+		parent.getClient().setXlogin(new Xlogin(new String[] {"nobody"}));
+		String id = parent.getUUID();
+		mgr.add(parent, parent.getClient());
+		waitUntilDone(id);
+		IUFTPRunner runner = xnjs.get(IUFTPRunner.class);
+		runner.setClient(parent.getClient());
+		runner.setParentActionID(id);
+		runner.setID("UFTP_GET_"+UUID.newUniqueID());
+		runner.put(sourceDir.getAbsolutePath()+"/test.dat", "uploaded.test.dat", targetDir.getAbsolutePath(),
+				"127.0.0.1", uftpd.srvPort, secret);
+		String myID = runner.getSubactionID(); 
+		assertTrue(mgr.getAction(myID).getLog().toString().contains("#TSI_UFTP"));
 		assertEquals(Utils.md5(source1), Utils.md5(new File(targetDir, "uploaded.test.dat")));
 	}
 

@@ -15,6 +15,7 @@ import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.XNJSConstants;
 import eu.unicore.xnjs.ems.IExecutionContextManager;
 import eu.unicore.xnjs.ems.LocalECManager;
+import eu.unicore.xnjs.fts.IUFTPRunner;
 import eu.unicore.xnjs.idb.GrounderImpl;
 import eu.unicore.xnjs.idb.IDB;
 import eu.unicore.xnjs.idb.IDBImpl;
@@ -52,6 +53,7 @@ implements ConfigurationSource.MetricProvider, UpdateableConfiguration {
 		bind(TSI.class).to(RemoteTSI.class);
 		bind(Incarnation.class).to(GrounderImpl.class);
 		bind(IFileTransferEngine.class).to(FileTransferEngine.class);
+		bind(IUFTPRunner.class).to(UFTPRunnerImpl.class);
 		bindIDB();
 		bind(IBSSState.class).to(BSSState.class);
 		bindReservation();

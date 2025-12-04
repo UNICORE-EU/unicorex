@@ -118,7 +118,7 @@ public class LocalExecution implements Runnable {
 		this.actionID = actionID;
 		this.cmd=cmd;
 		this.workDir = ec.getWorkingDirectory();
-		this.ec=ec;
+		this.ec = ec;
 		initPool();
 	}
 

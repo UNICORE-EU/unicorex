@@ -23,7 +23,7 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * 
  * @author schuller
  */
-public class UResource extends Resource {
+public class UResource extends 	Resource {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, UResource.class);
 
@@ -38,8 +38,6 @@ public class UResource extends Resource {
 
 	private String lastErrorMessage = null;
 
-	private String contentType = null;
-
 	/**
 	 * creates a Resource object for serving a file
 	 * @param id - the unique ID of the resource, can be <code>null</code> if the resource is only temporary. If non-null,
@@ -50,19 +48,19 @@ public class UResource extends Resource {
 	 */
 	public UResource(String id, String path, IStorageAdapter storage, Kernel kernel){
 		this.id = id;
-		this.path=path;
-		this.storage=storage;
-		this.kernel=kernel;
+		this.path = path;
+		this.storage = storage;
+		this.kernel = kernel;
 	}
-	
+
 	public void setAppend(boolean append){
 		this.append = append;
 	}
-	
+
 	public void setNumberOfBytes(long numberOfBytes){
 		this.numberOfBytes = numberOfBytes;
 	}
-	
+
 	protected void updateTransferredBytes(){
 		if(id!=null){
 			kernel.getAttribute(FileServlet.class).setTransferredBytes(id, transferred);
@@ -88,14 +86,6 @@ public class UResource extends Resource {
 	@Override
 	public File getFile() throws IOException {
 		return null;
-	}
-
-	public String getContentType(){
-		return contentType;
-	}
-
-	public void setContentType(String contentType){
-		this.contentType = contentType;
 	}
 
 	@Override
@@ -173,7 +163,7 @@ public class UResource extends Resource {
 	public OutputStream getOutputStream() throws IOException, SecurityException {
 		try {
 			final OutputStream os = storage.getOutputStream(path, append, numberOfBytes);
-			OutputStream decoratedStream=new OutputStream(){
+			OutputStream decoratedStream = new OutputStream(){
 
 				@Override
 				public void write(int b) throws IOException {
