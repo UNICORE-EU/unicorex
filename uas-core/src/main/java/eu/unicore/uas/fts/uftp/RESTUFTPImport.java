@@ -82,9 +82,9 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 	 */
 	@Override
 	protected void runTransfers() throws Exception {
-		setupSessionMode();
+		setupSession();
 		super.runTransfers();
-		finishSessionMode();
+		finishSession();
 		info.setTransferredBytes(info.getDataSize());
 	}
 
@@ -109,22 +109,18 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		}
 	}
 
-	protected void setupSessionMode()throws Exception{
+	protected void setupSession()throws Exception{
 		Map<String,String>ep = getExtraParameters();
 		ftc = storage.createExport(SESSION_TAG, "UFTP", ep);
-		if(localMode) {
-			UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
-			sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
-			sessionClient.setSecret(secret);
-			sessionClient.setNumConnections(streams);
-			sessionClient.connect();
-		}
+		UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
+		sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
+		sessionClient.setSecret(secret);
+		sessionClient.setNumConnections(streams);
+		sessionClient.connect();
 	}
 
-	protected void finishSessionMode() throws Exception{
-		if(localMode){
-			sessionClient.close();
-		}
+	protected void finishSession() throws Exception{
+		sessionClient.close();
 	}
 
 	protected Map<String,String>getExtraParameters(){
@@ -134,6 +130,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		secret = UUID.randomUUID().toString();
 		result.put(PARAM_SECRET, secret);
 		result.put(PARAM_ENABLE_ENCRYPTION,String.valueOf(useEncryption));
+		result.put("persistent", "true");
 		return result;
 	}
 

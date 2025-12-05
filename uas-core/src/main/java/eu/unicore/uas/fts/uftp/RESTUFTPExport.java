@@ -82,9 +82,9 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	 */
 	@Override
 	protected void runTransfers() throws Exception {
-		setupUFTPSession();
+		setupSession();
 		super.runTransfers();
-		finalizeUFTPSession();
+		finishSession();
 		info.setTransferredBytes(info.getDataSize());
 	}
 
@@ -94,12 +94,10 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	@Override
 	protected void transferFileFromRemote(Pair<String,Long> sourceDesc, String currentTarget) throws Exception {
 		String currentSource = sourceDesc.getM1();
-
 		// chop off leading "/" since UFTPD will otherwise treat it as an
 		// absolute filename
 		while (currentTarget.startsWith("/"))currentTarget = currentTarget.substring(1);
 		while (currentSource.startsWith("/"))currentSource = currentSource.substring(1);
-
 		if (localMode) {
 			long size = sourceDesc.getM2();
 			try(InputStream is = getStorageAdapter().getInputStream(currentSource)){
@@ -111,22 +109,18 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 		}
 	}
 
-	protected void setupUFTPSession()throws Exception{
+	protected void setupSession()throws Exception{
 		Map<String,String>ep = getExtraParameters();
 		ftc = storage.createExport(SESSION_TAG, "UFTP", ep);
-		if(localMode) {
-			UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
-			sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
-			sessionClient.setSecret(secret);
-			sessionClient.setNumConnections(streams);
-			sessionClient.connect();
-		}
+		UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
+		sessionClient=new UFTPSessionClient(uftc.getServerHosts(), uftc.getServerPort());
+		sessionClient.setSecret(secret);
+		sessionClient.setNumConnections(streams);
+		sessionClient.connect();
 	}
 
-	protected void finalizeUFTPSession() throws Exception{
-		if(localMode){
-			sessionClient.close();
-		}
+	protected void finishSession() throws Exception{
+		sessionClient.close();
 	}
 
 	protected Map<String,String>getExtraParameters(){
@@ -136,6 +130,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 		secret = UUID.randomUUID().toString();
 		result.put(PARAM_SECRET, secret);
 		result.put(PARAM_ENABLE_ENCRYPTION,String.valueOf(useEncryption));
+		result.put("persistent", "true");
 		return result;
 	}
 
@@ -198,7 +193,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 	}
 
 	private void runTSIClient(String from, String to) throws Exception {
-		UFTPFileTransferClient uftc=(UFTPFileTransferClient)ftc;
+		UFTPFileTransferClient uftc = (UFTPFileTransferClient)ftc;
 		IUFTPRunner uftpRunner = xnjs.get(IUFTPRunner.class);
 		uftpRunner.setClient(client);
 		uftpRunner.setParentActionID(info.getParentActionID());
@@ -209,7 +204,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 			checkError(uftpRunner.getSubactionID());
 		}
 	}
-	
+
 	@Override
 	protected void copyPermissions(String source, String target) {
 		if(localMode) {

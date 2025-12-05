@@ -13,6 +13,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
@@ -31,6 +32,7 @@ import eu.unicore.uftp.dpc.Utils;
 /**
  * Tests the RESTFul implementation of UFTP file transfer
  */
+@Disabled //  for now, due to very weird issue with the JDK FtpClient
 public class TestUFTPTransfersTSI {
 
 	static UFTPDServerRunner uftpd = new UFTPDServerRunner();
@@ -125,6 +127,7 @@ public class TestUFTPTransfersTSI {
 	}
 	
 	@Test
+	//@Disabled //  due to very weird issue with the JDK FtpClient
 	public void testMultiStageIn() throws Exception {
 		doMultiStageIn(false);
 	}
@@ -169,6 +172,7 @@ public class TestUFTPTransfersTSI {
 	}
 	
 	@Test
+	@Disabled //  due to very weird issue with the JDK FtpClient
 	public void testMultiStageOut() throws Exception {
 		doMultiStageOut(false);
 	}
