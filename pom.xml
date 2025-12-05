@@ -40,7 +40,7 @@
     <guava.version>33.5.0-jre</guava.version>
     <json.version>20250517</json.version>
     <lucene.version>9.11.1</lucene.version>
-    <tika.version>2.9.2</tika.version>
+    <tika.version>3.2.2</tika.version>
     <commons-io.version>2.21.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
