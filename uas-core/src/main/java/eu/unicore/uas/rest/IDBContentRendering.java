@@ -1,6 +1,5 @@
 package eu.unicore.uas.rest;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +26,7 @@ import eu.unicore.xnjs.resources.ValueListResource;
 public class IDBContentRendering {
 
 	public static final String appSeparator = "---v";
-	
+
 	public static Map<String, Object> asMap(ResourceSet rs){
 		Map<String,Object> resources = new HashMap<>();
 		try{
@@ -43,7 +42,9 @@ public class IDBContentRendering {
 		Map<String,Object> resources = new HashMap<>();
 		try{
 			for(Partition p: partitions){
-				resources.put(p.getName(), asMap(p.getResources()));
+				if(isAvailable(p.getName())) {
+					resources.put(p.getName(), asMap(p.getResources()));
+				}
 			}
 		}
 		catch(Exception e){}
@@ -57,11 +58,7 @@ public class IDBContentRendering {
 		}
 		if(r instanceof ValueListResource){
 			ValueListResource vlr = (ValueListResource)r;
-			String[] values = vlr.getValidValues().clone();
-			if(ResourceSet.QUEUE.equals(r.getName()) && haveValidQueues()){
-				values = filter(values);
-			}
-			return Arrays.asList(values);
+			return Arrays.asList(vlr.getValidValues().clone());
 		}
 		if(r instanceof BooleanResource){
 			return new String[]{"true","false"};
@@ -88,24 +85,19 @@ public class IDBContentRendering {
 		return result;
 	}
 
-	public static boolean haveValidQueues(){
+	public static boolean isAvailable(String partition){
 		Client client = AuthZAttributeStore.getClient();
-		return client!=null && 
+		if (client!=null && 
 				client.getQueue()!=null && 
-				client.getQueue().getValidQueues()!=null && 
-				client.getQueue().getValidQueues().length>0; 
-	}
-
-	public static String[] filter(String[]queues){
-		Client client = AuthZAttributeStore.getClient();
-		String[] valid = client.getQueue().getValidQueues(); 
-		List<String>result = new ArrayList<>();
-		for(String q: queues){
-			for(String v: valid){
-				if(v.equals(q))result.add(q);
+				client.getQueue().getValidQueues()!=null &&
+				client.getQueue().getValidQueues().length>0)
+		{
+			for(String q: client.getQueue().getValidQueues()) {
+				if(q.equals(partition))return true;
 			}
+			return false;
 		}
-		return result.toArray(new String[result.size()]);
+		return true;
 	}
 
 	public static Map<String,Map<String,String>> budgetToMap(List<BudgetInfo> budget) {

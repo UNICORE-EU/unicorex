@@ -44,7 +44,7 @@ public class TestAdminActions extends Base {
 		assertTrue(th.isJobSubmissionEnabled());
 		assertEquals("OK", th.getHighMessage());
 	}
-	
+
 	@Test
 	public void testShowServerStatusOverview()throws Exception{
 		Map<String,String>params = new HashMap<>();
@@ -53,29 +53,35 @@ public class TestAdminActions extends Base {
 		System.out.println(res.getMessage());
 		System.out.println(res.getResults());
 	}
-	
+
 	@Test
-	public void testShowJobDetails()throws Exception{
+	public void testJobAdminActions()throws Exception{
 		JobClient job = runJob();
 		Map<String,String>params = new HashMap<>();
 		String jId = job.getEndpoint().getUrl();
 		jId = jId.substring(jId.lastIndexOf("/")+1);
 		params.put("jobID", jId);
-		AdminActionResult res=new ShowJobDetails().invoke(params,uas.getKernel());
+		AdminActionResult res = new ShowJobDetails().invoke(params,uas.getKernel());
 		assertTrue(res.successful());
 		System.out.println(res.getMessage());
 		System.out.println(res.getResults());
-		
-		//check unknown job
+
+		// abort
+		res = new AbortJob().invoke(params,uas.getKernel());
+		assertTrue(res.successful());
+		System.out.println(res.getMessage());
+		System.out.println(res.getResults());
+
+		// check unknown job
 		params=new HashMap<String,String>();
 		params.put("jobID", "no_such_job_should_exist");
-		res=new ShowJobDetails().invoke(params,uas.getKernel());
+		res = new ShowJobDetails().invoke(params,uas.getKernel());
 		assertTrue(res.successful());
 		System.out.println(res.getMessage());
 		System.out.println(res.getResults());
 		assertTrue(res.getResults().get("Info").contains("No such job"));
 	}
-	
+
 	@Test
 	public void testFindCapabilities() throws Exception {
 		List<String>disabled = new ArrayList<>();
@@ -89,7 +95,6 @@ public class TestAdminActions extends Base {
 		assertTrue(ft.size()>0);
 		assertTrue(ft.stream().filter(c->c.getName().contains("SBYTEIO")).count()==0);
 	}
-	
 
 	@Test
 	@SuppressWarnings("unchecked")
@@ -130,5 +135,5 @@ public class TestAdminActions extends Base {
 		job.put("ApplicationName", "Date");
 		return c.getSiteClient().submitJob(job);
 	}
-	
+
 }

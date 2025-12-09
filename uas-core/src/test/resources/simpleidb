@@ -26,6 +26,11 @@
 				"CPUsPerNode" : "1-1:1",
 				"TotalCPUs" : "1-1",
 				"MemoryPerNode" : "1G-1G",
+				"TurboMode": {
+					"Type": "CHOICE",
+ 					"AllowedValues" : ["eco", "normal", "turbo"],
+ 					"Default": "normal"
+				}
 	    	}
    	}
 

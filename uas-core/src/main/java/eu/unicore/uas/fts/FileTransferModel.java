@@ -14,7 +14,7 @@ public class FileTransferModel extends UASBaseModel {
 	public static final int STATUS_RUNNING = 3;
 	public static final int STATUS_DONE = 4;
 	public static final int STATUS_FAILED = 5;
-	
+
 	String source;
 
 	String target;
@@ -25,16 +25,16 @@ public class FileTransferModel extends UASBaseModel {
 
 	String workdir;
 
-	Boolean firstWrite=Boolean.TRUE;
+	Boolean firstWrite = Boolean.TRUE;
 
-	Boolean isExport=null;
+	Boolean isExport = null;
 
-	Boolean overWrite=Boolean.TRUE;
+	Boolean overWrite = Boolean.TRUE;
 
-	Long transferredBytes=0L;
+	Long transferredBytes = 0L;
 
-	Map<String,String>extraParameters=null;
-	
+	Map<String,String>extraParameters = null;
+
 	// class name!
 	private String storageAdapterFactory;
 
@@ -42,10 +42,10 @@ public class FileTransferModel extends UASBaseModel {
 
 	int status=1;
 
-	String description="";
+	String description = "";
 
 	// number of bytes to be read/written, -1 if not known
-	long numberOfBytes=-1l;
+	long numberOfBytes = -1l;
 
 	public String getSource() {
 		return source;

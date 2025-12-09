@@ -43,7 +43,7 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 	}
 
 	private List<Pattern> createPatterns(List<String> patterns){
-		List<Pattern> res=new ArrayList<>();
+		List<Pattern> res = new ArrayList<>();
 		if(patterns!=null){
 			for(String p: patterns){
 				res.add(Pattern.compile(p));
@@ -77,7 +77,6 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 				}
 			}catch(Exception ex) {}
 		}
-  
 		for(String storageURL: storageURLs) {
 			FederatedSearchResult federatedSearchResult = new FederatedSearchResult();
 			StorageClient sms = new StorageClient(new Endpoint(storageURL), kernel.getClientConfiguration(), jwt);

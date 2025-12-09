@@ -5,11 +5,9 @@ import java.util.Calendar;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.util.LogUtil;
-import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.tsi.IReservation;
 import eu.unicore.xnjs.tsi.ReservationStatus;
@@ -47,8 +45,7 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 		lifetime.add(Calendar.SECOND, getDefaultLifetime());
 		super.initialise(new InitParameters(null, lifetime));
 		IReservation reservation = getXNJSFacade().getReservation();
-		if(reservation==null)throw new Exception("Reservation not supported.");	
-		m.reservationReference=reservation.makeReservation(m.resources, startTime, getClient());
+		m.reservationReference = reservation.makeReservation(m.resources, startTime, getClient());
 		m.setParentUID(initParams.tssReference);
 	}
 
@@ -59,13 +56,16 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 	@Override
 	public void destroy() {
 		try{
-			ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
-			m.setServiceName(getServiceName());
-			m.setDeletedResource(getUniqueID());
-			kernel.getMessaging().getChannel(getModel().getParentUID()).publish(m);
+			IReservation reservation = getXNJSFacade().getReservation();
+			ReservationModel m = getModel();
+			reservation.cancelReservation(m.reservationReference, getClient());
+			ResourceDeletedMessage msg = new ResourceDeletedMessage("deleted:"+getUniqueID());
+			msg.setServiceName(getServiceName());
+			msg.setDeletedResource(getUniqueID());
+			kernel.getMessaging().getChannel(m.getParentUID()).publish(msg);
 		}
 		catch(Exception e){
-			LogUtil.logException("Could not send internal message.",e,logger);
+			LogUtil.logException("Error deleting reservation.",e,logger);
 		}
 		super.destroy();
 	}
@@ -86,18 +86,4 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 		getXNJSFacade().getReservation().cancelReservation(getModel().reservationReference, getClient());
 	}
 
-	private Action xnjsAction;
-
-	/**
-	 * Get the underlying XNJS action
-	 */
-	public synchronized Action getXNJSAction() throws Exception {
-		if(xnjsAction == null){
-			xnjsAction = getXNJSFacade().getAction(getUniqueID());
-			if(xnjsAction==null){
-				throw new ResourceUnknownException();
-			}
-		}
-		return xnjsAction;
-	}
 }

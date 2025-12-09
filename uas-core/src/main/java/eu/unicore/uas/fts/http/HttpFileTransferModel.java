@@ -9,16 +9,10 @@ public class HttpFileTransferModel extends FileTransferModel {
 
 	String accessURL;
 
-	String contentType;
-
 	Client client;
 
 	public String getAccessURL() {
 		return accessURL;
-	}
-
-	public void setAccessURL(String accessURL) {
-		this.accessURL = accessURL;
 	}
 
 	public Client getClient() {
@@ -27,14 +21,6 @@ public class HttpFileTransferModel extends FileTransferModel {
 
 	public void setClient(Client client) {
 		this.client = client;
-	}
-
-	public String getContentType() {
-		return contentType;
-	}
-
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
 	}
 
 }

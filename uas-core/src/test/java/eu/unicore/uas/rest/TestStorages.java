@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class TestStorages extends Base {
 	}
 
 	@Test
-	public void testFactory() throws Exception {
+	public void testCreateSMS() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storages";
 		System.out.println("Accessing "+resource);
@@ -68,6 +69,19 @@ public class TestStorages extends Base {
 		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), null);
 		List<StorageFactoryClient>sfcs = client.getStorageFactories();
 		assertTrue(sfcs.size()>0);
+	}
+
+	@Test
+	public void testFactory() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+
+				"/rest/core/storagefactories/DEFAULT";
+		Endpoint resource  = new Endpoint(url);
+		System.out.println("Accessing "+url);
+		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		JSONObject props = smf.getProperties();
+		System.out.println("Factory properties: \n"+props.toString(2));
+		StorageClient sms = smf.createStorage("my new SMS", Collections.emptyMap(), null);
+		System.out.println("New Storage in <"+sms.getMountPoint()+">");
 	}
 
 	@Test
@@ -93,6 +107,8 @@ public class TestStorages extends Base {
 		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
 		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		JSONObject props = smf.getProperties();
+		System.out.println(props.toString(2));
 		try{
 			var params = new HashMap<String,String>();
 			params.put("path", "some/path/");
