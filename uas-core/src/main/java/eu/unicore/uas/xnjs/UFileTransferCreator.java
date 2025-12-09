@@ -58,7 +58,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		if(isREST(target)) {
 			Pair<String,String>urlInfo = extractUrlInfo(target);
 			String protocol = urlInfo.getM1();
-			FileTransferCapability fc=FileTransferCapabilities.getCapability(protocol, kernel);
+			FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
 			if(fc!=null){
 				if(fc.isAvailable()){
 					Endpoint ep = new Endpoint(urlInfo.getM2());
@@ -85,7 +85,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 		if(isREST(source)) {
 			Pair<String,String>urlInfo = extractUrlInfo(source);
 			String protocol = urlInfo.getM1();
-			FileTransferCapability fc=FileTransferCapabilities.getCapability(protocol, kernel);
+			FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
 			if(fc!=null){
 				if(fc.isAvailable()){
 					Endpoint ep = new Endpoint(urlInfo.getM2());

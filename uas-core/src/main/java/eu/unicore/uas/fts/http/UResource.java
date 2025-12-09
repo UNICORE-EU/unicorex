@@ -23,7 +23,7 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * 
  * @author schuller
  */
-public class UResource extends 	Resource {
+public class UResource extends Resource {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, UResource.class);
 
@@ -224,7 +224,12 @@ public class UResource extends 	Resource {
 
 	@Override
 	public long lastModified() {
-		return 0;
+		try{
+			return storage.getProperties(path).getLastModified().getTimeInMillis();
+		}
+		catch(Exception ex){
+			return 0;
+		}
 	}
 
 	@Override

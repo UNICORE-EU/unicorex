@@ -37,7 +37,7 @@ public class UFTPDServerRunner {
 	
 	public void start() throws Exception {
 		System.out.println("Starting UFTPD server.");
-		server = new UFTPServer(host, jobPort, host, srvPort);
+		server = new UFTPServer(host, jobPort, host, srvPort, null, null, false);
 		Thread serverThread = new Thread(server);
 		serverThread.setName("UFTPD-Server-Thread");
 		serverThread.start();

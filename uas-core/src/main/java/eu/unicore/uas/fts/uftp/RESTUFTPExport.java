@@ -3,6 +3,7 @@ package eu.unicore.uas.fts.uftp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 
 	private UFTPSessionClient sessionClient;
 
-	public RESTUFTPExport(XNJS xnjs){
+	public RESTUFTPExport(XNJS xnjs) throws UnknownHostException {
 		super(xnjs);
 		uftpProperties = kernel.getAttribute(UFTPProperties.class);
 		if(uftpProperties==null)throw new IllegalArgumentException("UFTP is not enabled.");
@@ -141,17 +142,17 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 		}
 	}
 
-	private String setupClientHost(){
+	private String setupClientHost() throws UnknownHostException {
 		String clientHost = uftpProperties.getValue(UFTPProperties.PARAM_CLIENT_HOST);
 		if(clientHost==null){
 			if(localMode){
-				clientHost = getLocalHost();
+				clientHost = InetAddress.getLocalHost().getCanonicalHostName();
 			}
 			else{
 				// select one of the configured TSI nodes
-				TSIConnectionFactory tcf = xnjs.get(TSIConnectionFactory.class);
+				TSIConnectionFactory tcf = xnjs.get(TSIConnectionFactory.class, true);
 				if(tcf == null){
-					clientHost = getLocalHost();
+					clientHost = InetAddress.getLocalHost().getCanonicalHostName();
 				}
 				else{
 					Collection<String> tsis = tcf.getTSIHosts();
@@ -167,14 +168,6 @@ public class RESTUFTPExport extends RESTFileExportBase implements UFTPConstants 
 			}
 		}
 		return clientHost;
-	}
-
-	private String getLocalHost(){
-		try{
-			return InetAddress.getLocalHost().getCanonicalHostName();
-		}catch(Exception ex){
-			return "localhost";
-		}
 	}
 
 	private void checkError(String subActionID) throws Exception {

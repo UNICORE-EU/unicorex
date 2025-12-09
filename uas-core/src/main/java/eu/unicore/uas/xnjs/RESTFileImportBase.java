@@ -332,7 +332,6 @@ public class RESTFileImportBase extends RESTFileTransferBase {
 		}
 	}
 
-
 	protected void transferFileFromRemote(FileListEntry source, String localFile)throws Exception{
 		checkCancelled();
 		createNewExport(source);

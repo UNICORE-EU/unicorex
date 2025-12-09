@@ -70,7 +70,6 @@ public class TestUFTPTransfersTSI {
 		Properties cfg = kernel.getContainerProperties().getRawProperties();
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_ENABLE_UFTP, "true");
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_LOCAL, "false");
-		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_HOST, "localhost");
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_SERVER_HOST, "localhost");
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_SERVER_PORT, String.valueOf(uftpd.srvPort));
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_COMMAND_PORT, String.valueOf(uftpd.jobPort));
