@@ -32,7 +32,6 @@ import eu.unicore.uftp.dpc.Utils;
 /**
  * Tests the RESTFul implementation of UFTP file transfer
  */
-@Disabled //  for now, due to very weird issue with the JDK FtpClient
 public class TestUFTPTransfersTSI {
 
 	static UFTPDServerRunner uftpd = new UFTPDServerRunner();
@@ -125,17 +124,15 @@ public class TestUFTPTransfersTSI {
 		assertEquals(1024, result.size);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, "false");
 	}
-	
+
 	@Test
-	//@Disabled //  due to very weird issue with the JDK FtpClient
 	public void testMultiStageIn() throws Exception {
 		doMultiStageIn(false);
 	}
-	
+
 	private void doMultiStageIn(boolean encrypt) throws Exception {
 		UFTPProperties cfg = kernel.getAttribute(UFTPProperties.class);
 		cfg.setProperty(UFTPProperties.PARAM_ENABLE_ENCRYPTION, Boolean.toString(encrypt));
-		
 		JobClient jc = tss.submitJob(getMultiStageInJob());
 		while(!jc.isFinished()) {
 			Thread.sleep(1000);
@@ -170,9 +167,8 @@ public class TestUFTPTransfersTSI {
 		String exported = Utils.md5(new File(sms.getMountPoint(),"test-staged-out"));
 		assertEquals(orig, exported);
 	}
-	
+
 	@Test
-	@Disabled //  due to very weird issue with the JDK FtpClient
 	public void testMultiStageOut() throws Exception {
 		doMultiStageOut(false);
 	}
@@ -250,7 +246,7 @@ public class TestUFTPTransfersTSI {
 		jdd.put("Exports", exports);
 		return jdd;
 	}
-	
+
 	private static void importTestFile(StorageClient sms, String filename,
 			int size) throws Exception {
 		byte[] buf = new byte[size];

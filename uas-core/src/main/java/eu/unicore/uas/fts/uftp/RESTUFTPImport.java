@@ -130,7 +130,7 @@ public class RESTUFTPImport extends RESTFileImportBase implements UFTPConstants 
 		secret = UUID.randomUUID().toString();
 		result.put(PARAM_SECRET, secret);
 		result.put(PARAM_ENABLE_ENCRYPTION,String.valueOf(useEncryption));
-		result.put("persistent", "true");
+		result.put(PARAM_PERSISTENT_SESSION, "true");
 		return result;
 	}
 

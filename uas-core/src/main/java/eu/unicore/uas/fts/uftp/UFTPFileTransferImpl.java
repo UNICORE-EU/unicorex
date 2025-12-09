@@ -1,5 +1,6 @@
 package eu.unicore.uas.fts.uftp;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,6 +8,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.client.data.UFTPConstants;
@@ -47,7 +49,7 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		UFTPFiletransferModel m = getModel();
 		instancesCreated.incrementAndGet();
 		super.initialise(map);
-		logger.debug("Creating new UFTP file transfer for client ", getClient());
+		logger.debug("Creating new UFTP file transfer for client {}", getClient());
 		Map<String,String>extraParameters = m.getExtraParameters();
 		if(extraParameters==null){
 			throw new IllegalArgumentException("Missing parameters for UFTP");	
@@ -70,10 +72,8 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		if(keySpec!=null && Boolean.parseBoolean(keySpec)){
 			m.key = Utils.createKey(EncryptionAlgorithm.BLOWFISH);
 		}
-		String compress = extraParameters.get(PARAM_ENABLE_COMPRESSION);
-		if(compress!=null && Boolean.parseBoolean(compress)){
-			m.compress=true;
-		}
+		m.compress = Boolean.parseBoolean(extraParameters.get(PARAM_ENABLE_COMPRESSION));
+		m.persistent = Boolean.parseBoolean(extraParameters.get(PARAM_PERSISTENT_SESSION));
 		setupUFTP(secret);
 		setReady();
 	}
@@ -186,6 +186,10 @@ public class UFTPFileTransferImpl extends FileTransferImpl implements UFTPConsta
 		job.setCompress(compress);
 		job.setAppend(append);
 		job.setRateLimit(rateLimit);
+		job.setPersistent(m.persistent);
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		job.writeEncoded(os);
+		System.out.println("UFTP request: "+os.toString("UTF-8"));
 		LogicalUFTPServer connector = kernel.getAttribute(LogicalUFTPServer.class);
 		UFTPDInstance uftpd = connector.getUFTPDInstance();
 		m.serverHost = uftpd.getHost();

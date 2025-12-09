@@ -18,4 +18,6 @@ public class UFTPFiletransferModel extends FileTransferModel {
 
 	int serverPort;
 
+	boolean persistent = false;
+
 }
