@@ -25,6 +25,7 @@ import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UAS;
+import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.fts.FileTransferImpl;
 import eu.unicore.uas.fts.FileTransferModel;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
@@ -34,7 +35,10 @@ import eu.unicore.uas.impl.sms.UspaceStorageImpl;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.metadata.ExtractionStatistics;
 import eu.unicore.uas.metadata.ExtractionWatcher;
+import eu.unicore.uas.metadata.FederatedMetadataSearchWatcher;
+import eu.unicore.uas.metadata.FederatedSearchResultCollection;
 import eu.unicore.uas.metadata.MetadataManager;
+import eu.unicore.uas.metadata.MetadataSupport;
 import eu.unicore.uas.metadata.SearchResult;
 import eu.unicore.uas.trigger.xnjs.TriggerProcessor;
 import eu.unicore.uas.util.LogUtil;
@@ -332,6 +336,31 @@ public class Storages extends ServicesBase {
 	}
 
 	/**
+	 * create a new federated search
+	 * using a JSON description (query, urls, parameters, ...) 
+	 */
+	@POST
+	@Path("/search")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public Response launchFederatedMetadataSearch(String jsonString) throws Exception {
+		try{
+			JSONObject params = new JSONObject(jsonString);
+			MetadataManager mm = MetadataSupport.getManager(kernel, kernel.getAttribute(UASProperties.class));
+			String query = params.getString("query");
+			boolean isAdvanced = params.optBoolean("advanced");
+			List<String>resourcesList = new ArrayList<>();
+			JSONArray urls = params.getJSONArray("resources");
+			urls.forEach( u ->resourcesList.add(String.valueOf(u)));
+			Future<FederatedSearchResultCollection> f = mm.federatedMetadataSearch(AuthZAttributeStore.getClient(),
+					query, resourcesList, isAdvanced);
+			String taskURL = makeFedSearchMonitoringTask(f);
+			return Response.created(new URI(taskURL)).build();
+		}catch(Exception ex){
+			return handleError("Error launching federated search", ex, logger);
+		}
+	}
+
+	/**
 	 * handle the named action
 	 * <ul>
 	 * <li>rename: with parameters 'from' and 'to'</li>
@@ -416,7 +445,7 @@ public class Storages extends ServicesBase {
 		}
 	}
 
-	protected JSONObject startMetadataExtraction(JSONObject spec) throws Exception {
+	private JSONObject startMetadataExtraction(JSONObject spec) throws Exception {
 		String path = spec.optString("path", null);
 		if(path==null || path.isEmpty())path="/";
 		if(!path.startsWith("/"))path="/"+path;
@@ -444,29 +473,35 @@ public class Storages extends ServicesBase {
 		Future<ExtractionStatistics> futureResult = mm.startAutoMetadataExtraction(files, dirs);
 		reply.put("status", "OK");
 		reply.put("asyncExtraction", futureResult!=null);
-		String taskHref = makeMonitoringTask(futureResult, path);
-		if(taskHref!=null)reply.put("taskHref", taskHref);
-
+		reply.put("taskHref", makeExtractionMonitoringTask(futureResult, path));
 		return reply;
 	}
 
-	protected String makeMonitoringTask(Future<ExtractionStatistics> f, String path) {
+	private String makeExtractionMonitoringTask(Future<ExtractionStatistics> f, String path) throws Exception {
 		Home taskHome = kernel.getHome(UAS.TASK);
 		if (taskHome == null) {
-			return null;
+			throw new IllegalStateException("Task service is not deployed.");
 		}
 		InitParameters init = new InitParameters();
 		init.parentUUID = resourceID;
 		String base = RESTUtils.makeHref(kernel, "core/storages", getResource().getUniqueID());
 		init.parentServiceName = base+"/files"+path;
-		try {
-			String uid = taskHome.createResource(init);
-			new ExtractionWatcher(f, uid, kernel).run();
-			return kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uid;
-		}catch(Exception ex) {
-			Log.logException("Cannot create task instance", ex);
+		String uid = taskHome.createResource(init);
+		new ExtractionWatcher(f, uid, kernel).run();
+		return kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uid;
+	}
+
+	private String makeFedSearchMonitoringTask(Future<FederatedSearchResultCollection> f) throws Exception {
+		Home taskHome = kernel.getHome(UAS.TASK);
+		if (taskHome == null) {
+			throw new IllegalStateException("Task service is not deployed.");
 		}
-		return null;
+		InitParameters init = new InitParameters();
+		init.parentUUID = null;
+		init.parentServiceName = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages";
+		String uid = taskHome.createResource(init);
+		new FederatedMetadataSearchWatcher(f, uid, kernel).run();
+		return kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uid;
 	}
 
 }

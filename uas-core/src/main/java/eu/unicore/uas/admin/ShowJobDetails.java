@@ -24,26 +24,26 @@ public class ShowJobDetails implements AdminAction {
 		String requestedID=params.get("jobID");
 		boolean success=true;
 		String message = null;
-		StringBuilder info= null;
-		String xnjsReference=params.get("xnjsReference");
+		StringBuilder info = new StringBuilder();
+		String xnjsReference = params.get("xnjsReference");
 		try{
 			if(requestedID != null){
 				message = "Job information for "+requestedID;
 				if(xnjsReference!=null){
 					message+=" on XNJS "+xnjsReference;
 				}
-				info = getSingleActionInfo(requestedID, xnjsReference, kernel);
+				getSingleActionInfo(info, requestedID, xnjsReference, kernel);
 			}
 			else{
 				message = "XNJS Action list";
 				if(xnjsReference!=null){
 					message+=" on XNJS "+xnjsReference;
 				}
-				info = getActionList(xnjsReference, kernel);
+				getActionList(info, xnjsReference, kernel);
 			}
 		}catch(Exception ex){
-			success=false;
-			message=Log.createFaultMessage("Getting info failed", ex);
+			success = false;
+			message = Log.createFaultMessage("Getting info failed", ex);
 		}
 		AdminActionResult res=new AdminActionResult(success,message);
 		res.addResult("Info", info.toString());
@@ -51,9 +51,8 @@ public class ShowJobDetails implements AdminAction {
 
 	}
 
-	private StringBuilder getSingleActionInfo(String requestedID, String xnjsReference,  Kernel kernel)
+	private void getSingleActionInfo(StringBuilder info, String requestedID, String xnjsReference,  Kernel kernel)
 			throws Exception {
-		StringBuilder info=new StringBuilder();
 		Action a = XNJSFacade.get(xnjsReference, kernel).getAction(requestedID);
 		if(a!=null){
 			info.append(a.toString());
@@ -71,15 +70,12 @@ public class ShowJobDetails implements AdminAction {
 		else{
 			info.append("No such job!");
 		}
-		return info;
 	}
 
-	private StringBuilder getActionList(String xnjsReference,  Kernel kernel) throws Exception {
-		StringBuilder info=new StringBuilder();
+	private void getActionList(StringBuilder info, String xnjsReference,  Kernel kernel) throws Exception {
 		for(String id: XNJSFacade.get(xnjsReference, kernel).listJobIDs(null)){
 			info.append(id).append("\n");
 		}
-		return info;
 	}
 
 	@Override

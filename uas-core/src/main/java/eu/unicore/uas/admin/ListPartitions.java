@@ -23,25 +23,23 @@ public class ListPartitions implements AdminAction {
 
 	@Override
 	public AdminActionResult invoke(Map<String, String> params, Kernel kernel) {
-		boolean success = true;
-		String message = null;
 		String xnjsReference = params.get("xnjsReference");
-		Collection<Partition> partitions = null;
+		AdminActionResult result;
 		try{
-			message = "Partitions";
+			String message = "Partitions";
 			if(xnjsReference!=null){
 				message+=" on XNJS "+xnjsReference;
 			}
-			partitions = getPartitions(xnjsReference, kernel);
+			Collection<Partition> partitions = getPartitions(xnjsReference, kernel);
+			result = new AdminActionResult(true, message);
+			for(Partition p: partitions) {
+				result.addResult(p.getName(), p.toString());
+			}
 		}catch(Exception ex){
-			success = false;
-			message = Log.createFaultMessage("Getting partitions failed", ex);
+			result = new AdminActionResult(false,
+					Log.createFaultMessage("Getting partitions failed", ex));
 		}
-		AdminActionResult res = new AdminActionResult(success,message);
-		for(Partition p: partitions) {
-			res.addResult(p.getName(), p.toString());
-		}
-		return res;
+		return result;
 	}
 
 	private Collection<Partition> getPartitions(String xnjsReference, Kernel kernel) throws Exception {

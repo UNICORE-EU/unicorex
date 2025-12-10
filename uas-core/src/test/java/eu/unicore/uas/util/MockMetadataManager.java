@@ -31,7 +31,7 @@ public class MockMetadataManager implements StorageMetadataManager{
 
 	private String basePath;
 
-	private static final Map<String,Map<String,String>>meta=new HashMap<String,Map<String,String>>();
+	private static final Map<String,Map<String,String>>meta = new HashMap<>();
 
 	public void setStorageAdapter(IStorageAdapter storage, String uniqueID) {
 		this.storage = storage;
@@ -83,7 +83,7 @@ public class MockMetadataManager implements StorageMetadataManager{
 
 	@Override
 	public void removeMetadata(String resourceName)
-	throws Exception {
+			throws Exception {
 		meta.remove(resourceName);
 	}
 
@@ -109,29 +109,29 @@ public class MockMetadataManager implements StorageMetadataManager{
 	}
 
 	@Override
-	 public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString, List<String> storagesList, boolean isAdvanced)
-	 {
-		Future<FederatedSearchResultCollection> result = new Future<FederatedSearchResultCollection>() {
-			
+	public Future<FederatedSearchResultCollection> federatedMetadataSearch(Client client, String searchString, List<String> storagesList, boolean isAdvanced)
+	{
+		Future<FederatedSearchResultCollection> result = new Future<>() {
+
 			@Override
 			public boolean isDone() {
 				return true;
 			}
-			
+
 			@Override
 			public boolean isCancelled() {
 				return false;
 			}
-			
+
 			@Override
 			public FederatedSearchResultCollection get(long timeout, TimeUnit unit)
 					throws InterruptedException, ExecutionException, TimeoutException {
 				return get();
 			}
-			
+
 			@Override
 			public FederatedSearchResultCollection get() throws InterruptedException,
-					ExecutionException {
+			ExecutionException {
 				FederatedSearchResultCollection collection = new FederatedSearchResultCollection();
 				Date endDate = new Date();
 				FederatedSearchResult sre = new FederatedSearchResult();
@@ -143,23 +143,23 @@ public class MockMetadataManager implements StorageMetadataManager{
 				collection.setSearchEndTime(endDate);
 				return collection;
 			}
-			
+
 			@Override
 			public boolean cancel(boolean mayInterruptIfRunning) {
 				return false;
 			}
 		};
 		return result;
-	 } 
+	} 
 
 	@Override
 	public Future<ExtractionStatistics> startAutoMetadataExtraction(final List<String>files, final List<Pair<String,Integer>>dirs)
-	throws Exception {
+			throws Exception {
 		return new Future<ExtractionStatistics>(){
-			
+
 			final long start=System.currentTimeMillis();
 			final long duration=3000;
-			
+
 			@Override
 			public boolean cancel(boolean mayInterruptIfRunning) {
 				return false;
@@ -177,7 +177,7 @@ public class MockMetadataManager implements StorageMetadataManager{
 
 			@Override
 			public ExtractionStatistics get() throws InterruptedException,
-					ExecutionException {
+			ExecutionException {
 				while(!isDone())Thread.sleep(1000);
 				ExtractionStatistics res=new ExtractionStatistics();
 				res.setDurationMillis(duration);

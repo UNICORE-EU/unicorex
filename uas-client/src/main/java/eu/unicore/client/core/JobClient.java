@@ -46,7 +46,7 @@ public class JobClient extends BaseServiceClient {
 	/**
 	 * wait for the job to reach the given status (or a later one)
 	 *
-	 * @param status - the status to wait for
+	 * @param status - the status to wait for. If <code>null</code>, wait for SUCCESSFUL
 	 */
 	public void poll(Status status) throws Exception {
 		poll(status, -1);
@@ -55,12 +55,13 @@ public class JobClient extends BaseServiceClient {
 	/**
 	 * wait for the job to reach the given status (or a later one)
 	 *
-	 * @param status - the status to wait for
+	 * @param status - the status to wait for. If <code>null</code>, wait for SUCCESSFUL
 	 * @param timeout - the timeout in seconds (only active if greater that 0)
 	 * @throws TimeoutException  if timeout is exceeded
 	 */
 	public void poll(Status status, int timeout) throws Exception {
 		int i=0;
+		if(status==null)status = Status.SUCCESSFUL;
 		while(getStatus().compareTo(status)<0) {
 			Thread.sleep(1000);
 			i++;

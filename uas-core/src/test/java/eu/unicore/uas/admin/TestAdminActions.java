@@ -48,7 +48,7 @@ public class TestAdminActions extends Base {
 	@Test
 	public void testShowServerStatusOverview()throws Exception{
 		Map<String,String>params = new HashMap<>();
-		AdminActionResult res=new ShowServerUsageOverview().invoke(params,uas.getKernel());
+		AdminActionResult res = new ShowServerUsageOverview().invoke(params,uas.getKernel());
 		assertTrue(res.successful());
 		System.out.println(res.getMessage());
 		System.out.println(res.getResults());
@@ -58,10 +58,15 @@ public class TestAdminActions extends Base {
 	public void testJobAdminActions()throws Exception{
 		JobClient job = runJob();
 		Map<String,String>params = new HashMap<>();
+		AdminActionResult res = new ShowJobDetails().invoke(params,uas.getKernel());
+		assertTrue(res.successful());
+		System.out.println(res.getMessage());
+		System.out.println(res.getResults());
+
 		String jId = job.getEndpoint().getUrl();
 		jId = jId.substring(jId.lastIndexOf("/")+1);
 		params.put("jobID", jId);
-		AdminActionResult res = new ShowJobDetails().invoke(params,uas.getKernel());
+		res = new ShowJobDetails().invoke(params,uas.getKernel());
 		assertTrue(res.successful());
 		System.out.println(res.getMessage());
 		System.out.println(res.getResults());

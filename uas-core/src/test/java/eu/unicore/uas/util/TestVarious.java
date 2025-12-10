@@ -18,7 +18,6 @@ import eu.unicore.services.Capabilities;
 import eu.unicore.services.Capability;
 import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UASProperties;
-import eu.unicore.uas.impl.sms.HomeStorageImpl;
 import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.SMSUtils;
 import eu.unicore.uas.impl.sms.StorageDescription;

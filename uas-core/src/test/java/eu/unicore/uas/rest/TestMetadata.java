@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -16,6 +17,8 @@ import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.FileClient;
+import eu.unicore.client.utils.TaskClient;
+import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.util.MockMetadataManager;
@@ -35,9 +38,9 @@ public class TestMetadata extends Base {
 	public void testMetadata()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storagefactories/default_storage_factory";
-		
+		var auth = new UsernamePassword("demouser", "test123");
 		StorageFactoryClient smfClient = new StorageFactoryClient(new Endpoint(resource),
-				kernel.getClientConfiguration(), new UsernamePassword("demouser", "test123"));
+				kernel.getClientConfiguration(), auth);
 		StorageClient sms = smfClient.createStorage();
 		assertTrue(sms.supportsMetadata());
 
@@ -87,21 +90,21 @@ public class TestMetadata extends Base {
 		assertEquals(1, results.size());
 		assertTrue(results.get(0).contains("foo"));
 
-//		//federated search
-//		TaskClient searchTask=mc.federatedMetadataSearch("foo", new String[0], false);
-//		while( StatusType.SUCCESSFUL != searchTask.getStatus() && StatusType.FAILED != searchTask.getStatus() ){
-//			Thread.sleep(2000);
-//		}
-//		System.out.println("Search task : "+searchTask.getStatus());
-//		System.out.println("Search results : "+searchTask.getResult());
+		// federated search
+		BaseClient bc = new BaseClient(url+"/core/storages/search", kernel.getClientConfiguration(), auth);
+		JSONObject fedSearchJob = new JSONObject();
+		fedSearchJob.put("query", "test");
+		fedSearchJob.put("resources", new JSONArray("[]"));
+		String taskURL = bc.create(fedSearchJob);
+		TaskClient searchTask = new TaskClient(new Endpoint(taskURL), kernel.getClientConfiguration(), auth);
+		searchTask.poll(null);
+		System.out.println("Search task : "+searchTask.getStatus());
+		System.out.println("Search results : "+searchTask.getResult());
 
 		// extraction
 		FileClient baseDir = sms.getFileClient("/");
 		JSONObject reply = baseDir.executeAction("extract", new JSONObject());
 		System.out.println(reply.toString(2));
-		
-
-		// stats etc TBD
 	}
 
 }
