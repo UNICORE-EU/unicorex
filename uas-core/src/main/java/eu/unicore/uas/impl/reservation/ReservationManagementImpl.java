@@ -5,9 +5,11 @@ import java.util.Calendar;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.InitParameters;
+import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.ResourceDeletedMessage;
 import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.util.LogUtil;
+import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.tsi.IReservation;
 import eu.unicore.xnjs.tsi.ReservationStatus;
@@ -86,4 +88,18 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 		getXNJSFacade().getReservation().cancelReservation(getModel().reservationReference, getClient());
 	}
 
+	private Action xnjsAction;
+
+	/**
+	 * Get the underlying XNJS action
+	 */
+	public synchronized Action getXNJSAction() throws Exception {
+		if(xnjsAction == null){
+			xnjsAction = getXNJSFacade().getAction(getUniqueID());
+			if(xnjsAction==null){
+				throw new ResourceUnknownException();
+			}
+		}
+		return xnjsAction;
+	}
 }

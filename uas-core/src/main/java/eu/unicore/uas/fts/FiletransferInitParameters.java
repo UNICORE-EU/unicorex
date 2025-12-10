@@ -27,8 +27,6 @@ public class FiletransferInitParameters extends BaseInitParameters {
 
 	public long numbytes = -1;
 
-	public String mimetype;
-
 	public String[] initialTags;
 
 }

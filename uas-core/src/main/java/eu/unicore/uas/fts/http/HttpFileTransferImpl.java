@@ -41,7 +41,6 @@ public class HttpFileTransferImpl extends FileTransferImpl {
 			HttpFileTransferModel m = getModel();
 			m.setClient(getClient());
 			m.accessURL = makeAccessURL(getUniqueID());
-			m.contentType = ((FiletransferInitParameters)map).mimetype;
 			setOK();
 		}catch(Exception e){
 			LogUtil.logException("Error initialising BFT filetransfer",e,logger);

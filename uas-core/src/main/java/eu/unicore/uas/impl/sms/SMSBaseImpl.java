@@ -298,12 +298,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 		init.source = source;
 		init.isExport = true;
 		init.extraParameters.putAll(extraParameters);
-		if(!source.contains(UFTPConstants.SESSION_TAG) && getMetadataManager()!=null){
-			String ct = getMetadataManager().getMetadataByName(source).get("Content-Type");
-			if(ct!=null){
-				init.mimetype = ct;
-			}
-		}
 		return createFileTransfer(init, protocol);
 	}
 
