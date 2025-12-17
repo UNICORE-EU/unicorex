@@ -79,7 +79,7 @@ public class TaskClient extends BaseServiceClient {
 		String e = getProperties().optString("progress",null);
 		return e!=null ? Float.parseFloat(e) : null;
 	}
-	
+
 	public void abort() throws Exception {
 		executeAction("abort", null);
 	}
@@ -87,5 +87,5 @@ public class TaskClient extends BaseServiceClient {
 	public Map<String,String> getResult() throws Exception {
 		return JSONUtil.asMap(getProperties().getJSONObject("result"));
 	}
-	
+
 }

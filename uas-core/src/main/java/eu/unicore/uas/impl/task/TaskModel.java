@@ -3,6 +3,7 @@ package eu.unicore.uas.impl.task;
 import java.util.Calendar;
 import java.util.Map;
 
+import eu.unicore.client.utils.TaskClient.Status;
 import eu.unicore.uas.impl.UASBaseModel;
 
 public class TaskModel extends UASBaseModel {
@@ -15,8 +16,10 @@ public class TaskModel extends UASBaseModel {
 
 	private Map<String,String> result;
 
-	private String status = "CREATED";
+	private String status = Status.CREATED.toString();
+
 	private String statusMessage = "";
+
 	private Integer exitCode;
 
 	public String getServiceSpec() {
@@ -47,8 +50,9 @@ public class TaskModel extends UASBaseModel {
 		return status;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
+	public void setStatus(Status status) {
+		assert status!=null;
+		this.status = String.valueOf(status);
 	}
 
 	public String getStatusMessage() {

@@ -10,7 +10,6 @@ import eu.unicore.services.messaging.PullPoint;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.fts.FileTransferImpl;
 import eu.unicore.uas.fts.FileTransferModel;
-import eu.unicore.uas.fts.FiletransferInitParameters;
 import eu.unicore.uas.util.LogUtil;
 
 /**

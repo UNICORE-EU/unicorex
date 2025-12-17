@@ -200,7 +200,7 @@ public abstract class S3FileTransferBase implements IFileTransfer, ProgressListe
 		return localStorage;
 	}
 
-	protected IStorageAdapter createS3Adapter() throws IOException {
+	protected IStorageAdapter createS3Adapter() throws Exception {
 		String accessKey = s3Params.get("accessKey");
 		String secretKey = s3Params.get("secretKey");
 		String endpoint = s3Params.get("endpoint");

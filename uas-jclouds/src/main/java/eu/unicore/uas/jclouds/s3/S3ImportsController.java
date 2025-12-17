@@ -1,7 +1,6 @@
 package eu.unicore.uas.jclouds.s3;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
@@ -143,7 +142,7 @@ public class S3ImportsController implements IFTSController {
 		return result;
 	}
 
-	protected IStorageAdapter createS3Adapter() throws IOException {
+	protected IStorageAdapter createS3Adapter() throws Exception {
 		String accessKey = s3Params.get("accessKey");
 		String secretKey = s3Params.get("secretKey");
 		String endpoint = s3Params.get("endpoint");

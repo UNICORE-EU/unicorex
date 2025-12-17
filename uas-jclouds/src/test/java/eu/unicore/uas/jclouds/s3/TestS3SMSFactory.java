@@ -3,10 +3,13 @@ package eu.unicore.uas.jclouds.s3;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.core.StorageClient;
@@ -40,6 +43,11 @@ public class TestS3SMSFactory extends Base {
 	@Test
 	public void testCreateS3WithParams() throws Exception {
 		StorageFactoryClient smf = getStorageFactory("S3");
+		JSONObject smfProps = smf.getProperties();
+		System.out.println(smfProps.toString(2));
+		for(String key: Arrays.asList("accessKey", "secretKey", "path", "bucket", "validate")) {
+			assertTrue(smfProps.getJSONObject("parameters").has(key));
+		}
 		final Map<String,String>params = new HashMap<>();
 		String accessKey = "test123";
 		params.put("accessKey", accessKey);
@@ -47,7 +55,6 @@ public class TestS3SMSFactory extends Base {
 		StorageClient sms = smf.createStorage("my s3", params, null);
 		String url = sms.getEndpoint().getUrl();
 		String uid = url.substring(url.lastIndexOf("/")+1);
-		System.out.println(uid);
 		// check the SMS model contains our parameters
 		S3Model model = (S3Model)(kernel.getHome(UAS.SMS).get(uid).getModel());
 		String effectiveAccessKey = model.getAccessKey();

@@ -1,6 +1,5 @@
 package eu.unicore.uas.fts;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -17,7 +16,6 @@ import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.uas.xnjs.StorageAdapterFactory;
-import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;
 
@@ -86,7 +84,7 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 		}
 	}
 
-	public IStorageAdapter getStorageAdapter()throws IOException{
+	public IStorageAdapter getStorageAdapter()throws Exception{
 		FileTransferModel m = getModel();
 		StorageAdapterFactory factory=m.getStorageAdapterFactory();
 		if(factory!=null){
@@ -128,17 +126,15 @@ public abstract class FileTransferImpl extends BaseResourceImpl implements DataR
 	
 	/**
 	 * create an input stream for reading from the backend storage
-	 * @throws ExecutionException
 	 */
-	protected InputStream createNewInputStream()throws IOException, ExecutionException{
+	protected InputStream createNewInputStream()throws Exception{
 		return getStorageAdapter().getInputStream(getModel().getSource());
 	}
 
 	/**
 	 * create an output stream for writing to the backend storage
-	 * @throws IOException, ExecutionException
 	 */
-	protected OutputStream createNewOutputStream(boolean append)throws IOException, ExecutionException{
+	protected OutputStream createNewOutputStream(boolean append)throws Exception{
 		return getStorageAdapter().getOutputStream(getModel().getTarget(),append);
 	}
 

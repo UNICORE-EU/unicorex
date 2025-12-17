@@ -33,7 +33,7 @@ public class BaseServiceClient {
 
 	protected final BaseClient bc;
 
-	private long updateInterval=500;
+	private long updateInterval = 500;
 
 	private long lastAccessed;
 

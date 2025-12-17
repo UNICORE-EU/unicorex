@@ -1,7 +1,5 @@
 package eu.unicore.uas.xnjs;
 
-import java.io.IOException;
-
 import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.xnjs.io.IStorageAdapter;
 
@@ -15,6 +13,6 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  */
 public interface StorageAdapterFactory {
 
-	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)throws IOException;
+	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)throws Exception;
 
 }

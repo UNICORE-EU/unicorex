@@ -1,6 +1,5 @@
 package eu.unicore.uas.jclouds.s3;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,17 +41,12 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 	private static final Logger logger = Log.getLogger(Log.SERVICES, S3StorageAdapterFactory.class);
 
 	@Override
-	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent)
-			throws IOException {
+	public IStorageAdapter createStorageAdapter(BaseResourceImpl parent) throws Exception {
 		// load the model of the correct SMS resource: parent can be a file transfer
 		Model m = parent.getModel();
 		if(m instanceof FileTransferModel){
-			try{
-				String uid = ((FileTransferModel)m).getParentUID();
-				m = parent.getKernel().getHome(UAS.SMS).get(uid).getModel();
-			}catch(Exception ex){
-				throw new IOException(ex);
-			}
+			String uid = ((FileTransferModel)m).getParentUID();
+			m = parent.getKernel().getHome(UAS.SMS).get(uid).getModel();
 		}
 		S3Model model = (S3Model)m;
 		String accessKey = model.getAccessKey();
@@ -66,7 +60,7 @@ public class S3StorageAdapterFactory implements StorageAdapterFactory {
 	}
 
 	public IStorageAdapter createStorageAdapter(Kernel kernel, String accessKey, String secretKey, String endpoint, 
-			String provider, String bucket, String region, boolean sslValidate) throws IOException {
+			String provider, String bucket, String region, boolean sslValidate) throws Exception {
 		BlobStore blobStore = null;
 		if("transient".equals(provider)){
 			blobStore = getTransientBlobstore();

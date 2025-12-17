@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+ema<?xml version="1.0" encoding="utf-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>eu.unicore</groupId>
@@ -31,7 +31,7 @@
     <!-- goes into .jar manifests, dist poms and packaging versions -->
     <specification.version>10.4.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>5.5.3</use.version>
+    <use.version>5.5.2</use.version>
     <secutils.version>4.3.0</secutils.version>
     <persistence.version>1.2.9</persistence.version>
     <metrics.version>4.2.37</metrics.version>
