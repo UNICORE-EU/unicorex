@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.exceptions.ResourceUnknownException;
-import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
 import eu.unicore.uas.impl.BaseResourceImpl;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.ems.Action;
@@ -61,10 +61,8 @@ public class ReservationManagementImpl extends BaseResourceImpl {
 			IReservation reservation = getXNJSFacade().getReservation();
 			ReservationModel m = getModel();
 			reservation.cancelReservation(m.reservationReference, getClient());
-			ResourceDeletedMessage msg = new ResourceDeletedMessage("deleted:"+getUniqueID());
-			msg.setServiceName(getServiceName());
-			msg.setDeletedResource(getUniqueID());
-			kernel.getMessaging().getChannel(m.getParentUID()).publish(msg);
+			kernel.getMessaging().getChannel(m.getParentUID()).publish(
+					 new ResourceDeletedMessage(getUniqueID(), getServiceName()));
 		}
 		catch(Exception e){
 			LogUtil.logException("Error deleting reservation.",e,logger);

@@ -31,14 +31,14 @@
     <!-- goes into .jar manifests, dist poms and packaging versions -->
     <specification.version>10.4.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>5.5.3</use.version>
-    <secutils.version>4.3.0</secutils.version>
+    <use.version>5.5.4</use.version>
+    <secutils.version>4.3.1</secutils.version>
     <persistence.version>1.2.9</persistence.version>
     <metrics.version>4.2.37</metrics.version>
     <uftp.version>2.23.2</uftp.version>
     <guice.version>7.0.0</guice.version>
     <guava.version>33.5.0-jre</guava.version>
-    <json.version>20250517</json.version>
+    <json.version>20251224</json.version>
     <lucene.version>9.11.1</lucene.version>
     <tika.version>3.2.3</tika.version>
     <commons-io.version>2.21.0</commons-io.version>

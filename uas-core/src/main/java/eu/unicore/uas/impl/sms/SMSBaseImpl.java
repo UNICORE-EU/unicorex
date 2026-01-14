@@ -14,7 +14,7 @@ import eu.unicore.security.Xlogin;
 import eu.unicore.services.ExtendedResourceStatus;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.fts.FileTransferCapability;
 import eu.unicore.uas.fts.FiletransferInitParameters;
@@ -231,10 +231,8 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 		SMSModel model = getModel();
 		if(model.getParentUID()!=null){
 			try{
-				ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
-				m.setDeletedResource(getUniqueID());
-				m.setServiceName(getServiceName());
-				kernel.getMessaging().getChannel(model.getParentUID()).publish(m);
+				kernel.getMessaging().getChannel(model.getParentUID()).publish(
+						new ResourceDeletedMessage(getUniqueID(), getServiceName()));
 			}
 			catch(Exception e){}
 		}

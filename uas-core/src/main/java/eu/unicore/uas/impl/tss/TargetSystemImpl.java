@@ -14,13 +14,12 @@ import eu.unicore.security.Client;
 import eu.unicore.services.ExtendedResourceStatus;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.Resource;
 import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.Resource;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
-import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
-import eu.unicore.services.messaging.ResourceAddedMessage;
-import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.services.messaging.impl.ResourceAddedMessage;
+import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
 import eu.unicore.services.utils.Utilities;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
@@ -64,10 +63,10 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 		//check for deleted jobs/reservations and remove them
 		try{
 			while(p.hasNext()){
-				Message message=p.next();
+				var message = p.next();
 				if(message instanceof ResourceDeletedMessage){
 					ResourceDeletedMessage rdm = (ResourceDeletedMessage)message;
-					String id = rdm.getDeletedResource();
+					String id = rdm.getDeletedInstance();
 					String service = rdm.getServiceName();
 					if(UAS.JMS.equals(service)){
 						getModel().getJobIDs().remove(id);
@@ -78,7 +77,7 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 				}
 				else if (message instanceof ResourceAddedMessage) {
 					ResourceAddedMessage ram = (ResourceAddedMessage)message;
-					String id = ram.getAddedResource();
+					String id = ram.getAddedInstance();
 					String service = ram.getServiceName();
 					if(UAS.JMS.equals(service)){
 						getModel().getJobIDs().add(id);
@@ -242,10 +241,8 @@ public class TargetSystemImpl extends BaseResourceImpl implements UmaskSupport, 
 	public void destroy() {
 		TSSModel model = getModel();
 		try{
-			ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
-			m.setDeletedResource(getUniqueID());
-			m.setServiceName(getServiceName());
-			kernel.getMessaging().getChannel(model.getParentUID()).publish(m);
+			kernel.getMessaging().getChannel(model.getParentUID()).publish(
+					new ResourceDeletedMessage(getUniqueID(), getServiceName()));
 		}
 		catch(Exception e){}
 		if(uasProperties.getBooleanValue(UASProperties.TSS_FORCE_UNIQUE_STORAGE_IDS)){

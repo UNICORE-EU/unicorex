@@ -9,8 +9,9 @@ import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
+import eu.unicore.services.Resource;
 import eu.unicore.services.exceptions.ResourceUnknownException;
-import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.services.utils.TimeProfile;
 import eu.unicore.uas.UAS;
@@ -21,7 +22,6 @@ import eu.unicore.uas.impl.sms.StorageInitParameters;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.xnjs.ems.Action;
-import eu.unicore.services.Resource;
 
 /**
  * implements a Job resource
@@ -89,11 +89,9 @@ public class JobManagementImpl extends PersistingPreferencesResource {
 	public void destroy() {
 		TimeProfile tp = AuthZAttributeStore.getTimeProfile();
 		try{
-			ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
-			m.setServiceName(getServiceName());
-			m.setDeletedResource(getUniqueID());
 			String tssId = getModel().getParentUID();
-			getKernel().getMessaging().getChannel(tssId).publish(m);
+			getKernel().getMessaging().getChannel(tssId).publish(
+					new ResourceDeletedMessage(getUniqueID(), getServiceName()));
 		}
 		catch(Exception e){}
 		tp.time("sent_deleted_msg");

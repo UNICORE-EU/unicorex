@@ -17,7 +17,7 @@ import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.messaging.ResourceAddedMessage;
+import eu.unicore.services.messaging.impl.ResourceAddedMessage;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.RestServlet;
 import eu.unicore.services.rest.USEResource;
@@ -380,8 +380,7 @@ public class Jobs extends ServicesBase {
 	throws Exception {
 		boolean autoRun = !Boolean.parseBoolean(job.getProperty("haveClientStageIn"));
 		final String id = tss.submit(job.getJSON(), autoRun, null, job.getTags());
-		ResourceAddedMessage m = new ResourceAddedMessage(UAS.JMS, id);
-		kernel.getMessaging().getChannel(tss.getUniqueID()).publish(m);
+		kernel.getMessaging().getChannel(tss.getUniqueID()).publish(new ResourceAddedMessage(id, UAS.JMS));
 		return id;
 	}
 

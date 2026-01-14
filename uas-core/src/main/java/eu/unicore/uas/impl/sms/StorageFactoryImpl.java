@@ -12,6 +12,7 @@ import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.messaging.PullPoint;
+import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
 import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.BaseResourceImpl;
@@ -154,9 +155,9 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		//check for deleted SMSs and remove them...
 		try{
 			while(p.hasNext()){
-				String m = (String)p.next().getBody();
-				if(m.startsWith("deleted:")){
-					String id = m.substring(m.indexOf(":")+1);
+				var msg = p.next();
+				if(msg instanceof ResourceDeletedMessage) {
+					String id = ((ResourceDeletedMessage)msg).getDeletedInstance();
 					logger.debug("Removing Storage with ID <{}>", id);
 					getModel().removeChild(id);
 				}

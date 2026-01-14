@@ -10,7 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import eu.unicore.services.InitParameters;
-import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
 import eu.unicore.services.security.util.AuthZAttributeStore;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.util.LogUtil;
@@ -96,9 +96,7 @@ public class ServerToServerFileTransferImpl extends FileTransferImpl {
 		}
 		//notify parent SMS
 		try{
-			ResourceDeletedMessage m=new ResourceDeletedMessage("deleted:"+getUniqueID());
-			m.setServiceName(getServiceName());
-			m.setDeletedResource(getUniqueID());
+			ResourceDeletedMessage m = new ResourceDeletedMessage(getUniqueID(), getServiceName());
 			getKernel().getMessaging().getChannel(model.serviceSpec).publish(m);
 		}
 		catch(Exception ex){}

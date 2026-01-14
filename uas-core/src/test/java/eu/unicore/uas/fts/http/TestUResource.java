@@ -63,7 +63,7 @@ public class TestUResource extends Base {
 		// check message on Kernel messaging channel
 		PullPoint pp = kernel.getMessaging().getPullPoint(rname);
 		assertTrue(pp.hasNext());
-		String msg = pp.next().getBody();
+		String msg = pp.next().toString();
 		assertTrue(msg.contains("no_such_file"));
 
 		// test write error
@@ -80,7 +80,7 @@ public class TestUResource extends Base {
 		// check message on Kernel messaging channel
 		PullPoint pp2 = kernel.getMessaging().getPullPoint(rname);
 		assertTrue(pp2.hasNext());
-		msg = pp2.next().getBody();
+		msg = pp2.next().toString();
 		assertTrue(msg.toLowerCase().contains("no such file"));
 	}
 }

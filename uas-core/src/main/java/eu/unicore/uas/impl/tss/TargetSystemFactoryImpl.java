@@ -7,9 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.InitParameters.TerminationMode;
-import eu.unicore.services.messaging.Message;
 import eu.unicore.services.messaging.PullPoint;
-import eu.unicore.services.messaging.ResourceDeletedMessage;
+import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.impl.BaseInitParameters;
@@ -69,9 +68,9 @@ public class TargetSystemFactoryImpl extends BaseResourceImpl {
 	@Override
 	public void processMessages(PullPoint p){
 		while(p.hasNext()){
-			Message msg = p.next();
+			var msg = p.next();
 			if(msg instanceof ResourceDeletedMessage) {
-				String id = ((ResourceDeletedMessage)msg).getDeletedResource();
+				String id = ((ResourceDeletedMessage)msg).getDeletedInstance();
 				logger.debug("Removing TSS with ID <{}>", id);
 				getModel().removeChild(id);
 			}

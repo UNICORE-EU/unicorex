@@ -90,7 +90,7 @@ public class HttpFileTransferImpl extends FileTransferImpl {
 	@Override
 	public void processMessages(PullPoint messageIterator) {
 		while(messageIterator.hasNext()){
-			getModel().setDescription(messageIterator.next().getBody());
+			getModel().setDescription(messageIterator.next().toString());
 			getModel().setStatus(FileTransferModel.STATUS_FAILED);
 		}
 	}

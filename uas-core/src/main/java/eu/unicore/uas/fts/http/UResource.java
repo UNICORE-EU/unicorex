@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.util.resource.Resource;
 
 import eu.unicore.services.Kernel;
-import eu.unicore.services.messaging.Message;
+import eu.unicore.services.messaging.impl.StringMessage;
 import eu.unicore.uas.util.LogUtil;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.io.IStorageAdapter;
@@ -149,8 +149,8 @@ public class UResource extends Resource {
 		sb.append(" path=").append(path);
 		lastErrorMessage = sb.toString();
 		if(id!=null) try{
-			Message message = new Message(lastErrorMessage);
-			kernel.getMessaging().getChannel(id).publish(message);
+			kernel.getMessaging().getChannel(id).publish(
+					new StringMessage(lastErrorMessage));
 		}catch(Exception ex){}
 		return lastErrorMessage;
 	}
