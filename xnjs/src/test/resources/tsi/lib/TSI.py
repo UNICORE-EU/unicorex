@@ -12,7 +12,7 @@ from Log import Logger
 #
 # the TSI version
 #
-MY_VERSION = "10.2.0"
+MY_VERSION = "10.5.0"
 
 # minimum required Python version
 REQUIRED_VERSION = (3, 9, 0)
@@ -88,7 +88,12 @@ def process_config_value(key, value, config):
         allowed_dns.append(dn)
         config['tsi.allowed_dns'] = allowed_dns
     elif key=="tsi.keyfiles":
-        config["tsi.keyfiles"] = value.split(":")
+        kf = []
+        for v in value.split(":"):
+            v = v.strip()
+            if len(v)>0:
+                kf.append(v)
+        config["tsi.keyfiles"] = kf
     elif key=="tsi.njs_machine":
         config["tsi_unicorex_machine"] = value
     elif key=="tsi_njs_port":
@@ -168,7 +173,7 @@ def read_config_file(file_name):
         lines = f.readlines()
     for line in lines:
         # only process lines of the form key=value
-        match = re.match(r"\s*([a-zA-Z0-9.\-_/]+)\s*=\s*(.+)$", line)
+        match = re.match(r"\s*([a-zA-Z0-9.\-_/]+)\s*=\s*(.*)$", line)
         if match:
             key = match.group(1)
             value = match.group(2).strip()
@@ -211,17 +216,50 @@ def get_user_info(message, connector, config, LOG):
         _file = os.path.join(home, keyfile)
         try:
             with open(_file, "r") as f:
-                status += " keyfile %s : OK" % _file
-                for line in f.readlines():
-                    if line.startswith("#"):
-                        continue
-                    response+="Accepted key %d: %s\n" % (i, line.strip())
-                    i+=1
+                status += " keyfile '%s': OK." % _file
+                response, i = _add_userkeys(f.readlines(), response, i)
         except Exception as e:
-            status += " keyfile %s : %s" % (_file, str(e))
+            status += " keyfile '%s': %s\n" % (_file, str(e))
+    use_login_shell = config.get('tsi.use_login_shell', True)
+    get_key_cmd = config.get('tsi.get_userkeys_cmd', None)
+    if get_key_cmd is not None:
+        try:
+            success, out = Utils.run_command(get_key_cmd, login_shell=use_login_shell)
+            if success:
+                status += " key_cmd: OK."
+                response, i = _add_userkeys(out.splitlines(), response, i)
+            else:
+                status += " key_cmd '%s': ERROR %s." % (get_key_cmd, out)
+        except Exception as e:
+            status += " key_cmd '%s': %s." % (get_key_cmd, str(e))
+    get_userinfo_cmd = config.get('tsi.get_userinfo_cmd', None)
+    if get_userinfo_cmd is not None:
+        try:
+            success, out = Utils.run_command(get_userinfo_cmd, login_shell=use_login_shell)
+            if success:
+                status += " info_cmd: OK."
+                response = _add_userinfo(out.splitlines(), response)
+            else:
+                status += " info_cmd '%s': ERROR %s." % (get_userinfo_cmd, out)
+        except Exception as e:
+            status += " info_cmd '%s': %s." % (get_userinfo_cmd, str(e))
     response += "status: %s\n" % status
     connector.write_message(response)
 
+def _add_userkeys(lines, response, index):
+    for line in lines:
+        if line.startswith("#"):
+            continue
+        response+="Accepted key %d: %s\n" % (index, line.strip())
+        index+=1
+    return response, index
+
+def _add_userinfo(lines, response):
+    for line in lines:
+        if line.startswith("#"):
+            continue
+        response+="Attribute: %s\n" % line.strip()
+    return response
 
 def execute_script(message, connector, config, LOG):
     """ Executes a script. If the script contains a line
@@ -277,7 +315,10 @@ def init_functions(bss):
 def handle_function(function, command, message, connector, config, LOG):
     switch_uid = config.get('tsi.switch_uid', True)
     pam_enabled = config.get('tsi.open_user_sessions', False)
-    cmd_spawns = command in [ "TSI_EXECUTESCRIPT", "TSI_SUBMIT", "TSI_UFTP" ]
+    cmd_spawns = command in [ "TSI_EXECUTESCRIPT",
+                             "TSI_RUN_ON_LOGIN_NODE",
+                             "TSI_SUBMIT",
+                             "TSI_UFTP" ]
     open_user_session = pam_enabled and cmd_spawns and switch_uid
     if open_user_session and command!="_START_FORWARDING":
         # fork to avoid TSI process getting put into user slice
@@ -301,8 +342,9 @@ def handle_function(function, command, message, connector, config, LOG):
                 raise RuntimeError(user_switch_status)
         function(message, connector, config, LOG)
     except:
-        connector.failed(str(sys.exc_info()[1]))
-        LOG.error("Error executing %s" % command)
+        msg = str(sys.exc_info()[1])
+        connector.failed(msg)
+        LOG.error("Error executing %s: %s" % (command, msg))
     if switch_uid and command!="_START_FORWARDING":
         BecomeUser.restore_id(config)
         if open_user_session:
@@ -311,7 +353,7 @@ def handle_function(function, command, message, connector, config, LOG):
         os._exit(0)
 
 
-def process(connector, config, LOG):
+def process(connector, config, LOG, one_shot=False):
     """
     Main processing loop. Reads commands from control_in, invokes the
     appropriate function and replies to UNICORE/X.
@@ -344,14 +386,14 @@ def process(connector, config, LOG):
                 function = functions.get(cmd)
                 break
         if function is None:
-            connector.failed("Unknown command %s" % command)
+            connector.failed("Unknown #TSI_* command")
         elif "TSI_PING" == command:
             connector.write_message(MY_VERSION)
         else:
             handle_function(function, command, message, connector, config, LOG)
         connector.write_message("ENDOFMESSAGE")
-        if config.get('tsi.testing', False):
-            LOG.info("Testing mode, exiting main loop")
+        if one_shot or config.get('tsi.testing', False):
+            LOG.info("Exiting main loop")
             break
 
 
@@ -371,12 +413,12 @@ def main(argv=None):
     config = read_config_file(config_file)
     verbose = config['tsi.debug']
     use_syslog = config['tsi.use_syslog']
-    LOG = Logger("TSI-main", verbose, use_syslog)
+    LOG = Logger("UNICORE-TSI-main", verbose, use_syslog)
     LOG.info("Debug logging: %s" % verbose)
     LOG.info("Opening PAM sessions for user tasks: %s" % config['tsi.open_user_sessions'])
     finish_setup(config, LOG)
     bss = BSS.BSS()
-    LOG.info("Starting TSI %s for %s" % (MY_VERSION, bss.get_variant()))
+    LOG.info("Starting UNICORE TSI %s for %s" % (MY_VERSION, bss.get_variant()))
     BecomeUser.initialize(config, LOG)
     os.chdir(config['tsi.safe_dir'])
     bss.init(config, LOG)
@@ -384,12 +426,12 @@ def main(argv=None):
     (socket1, socket2, msg) = Server.connect(config, LOG)
     number = config.get('tsi.worker.id', 1)
     if msg==None:
-        LOG.reinit("TSI-worker", verbose, use_syslog)
+        LOG.reinit("UNICORE-TSI-worker", verbose, use_syslog)
         LOG.info("Worker %s started." % str(number))
         connector = Connector.Connector(socket1, socket2, LOG)
         process(connector, config, LOG)
     else:
-        LOG.reinit("TSI-port-forwarding", verbose, use_syslog)
+        LOG.reinit("UNICORE-TSI-port-forwarding", verbose, use_syslog)
         LOG.info("Port forwarder worker %s started." % str(number))
         forwarder = Connector.Forwarder(socket1, msg, config, LOG)
         handle_function(start_forwarding, "_START_FORWARDING", msg, forwarder, config, LOG)
