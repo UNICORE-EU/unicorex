@@ -10,19 +10,19 @@ public interface BatchMode {
 	 * @throws ExecutionException
 	 */
 	public void startBatch() throws ExecutionException;
-	
+
 	/**
 	 * commit the batch of commands and return the reply from the TSI
 	 * 
 	 * @throws ExecutionException
 	 */
 	public String commitBatch() throws ExecutionException;
-	
+
 	/**
 	 * if something goes wrong, this method can be used to reset the TSI
 	 * 
 	 * @throws ExecutionException
 	 */
 	public void cleanupBatch();
-	
+
 }

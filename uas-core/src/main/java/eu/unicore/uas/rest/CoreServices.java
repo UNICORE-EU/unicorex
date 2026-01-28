@@ -15,7 +15,6 @@ import eu.unicore.services.registry.RegistryImpl;
 import eu.unicore.services.rest.USERestApplication;
 import eu.unicore.services.rest.registry.RegistryHandler;
 import eu.unicore.services.security.pdp.DefaultPDP;
-import eu.unicore.services.security.pdp.UnicoreXPDP;
 import eu.unicore.uas.UAS;
 import eu.unicore.util.Log;
 import jakarta.ws.rs.core.Application;
@@ -29,7 +28,7 @@ public class CoreServices extends Application implements USERestApplication {
 
 	@Override
 	public void initialize(Kernel kernel) throws Exception {
-		DefaultPDP pdp = getPDP(kernel);
+		DefaultPDP pdp = DefaultPDP.get(kernel);
 		if(pdp!=null) {
 			pdp.setServiceRules("core",
 					DefaultPDP.PERMIT_READ,
@@ -83,16 +82,5 @@ public class CoreServices extends Application implements USERestApplication {
 			Log.logException("Could not publish to registry", ex);
 		}
 	}
-	
 
-	/**
-	 * get the configured DefaultPDP for the kernel, or null if not available
-	 */
-	public static DefaultPDP getPDP(Kernel kernel) {
-		UnicoreXPDP pdp = kernel.getSecurityManager().getPdp();
-		if(pdp!=null && pdp instanceof DefaultPDP) {
-			return (DefaultPDP)pdp;
-		}
-		else return null;
-	}
 }

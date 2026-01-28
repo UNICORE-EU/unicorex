@@ -14,6 +14,8 @@ import eu.unicore.xnjs.BaseModule;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.tsi.local.LocalExecution.DataMover;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.server.ServerTSIModule;
 
 /**
  * this  starts a TSI server (on ports 65431/65432)
@@ -51,7 +53,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 	}
 
 	protected AbstractModule getTSIModule(ConfigurationSource cs){
-		return new RemoteTSIModule(cs.getProperties());
+		return new ServerTSIModule(cs.getProperties());
 	}
 
 	protected String getFileSpace(){

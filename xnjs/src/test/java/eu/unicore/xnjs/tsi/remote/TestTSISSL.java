@@ -19,6 +19,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.util.ChannelUtils;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.server.ServerTSIConnection;
 
 public class TestTSISSL extends RemoteTSISSLTestCase{
 
@@ -28,18 +30,18 @@ public class TestTSISSL extends RemoteTSISSLTestCase{
 	public void testBasicSetup()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		try(TSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
+		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
-			assertTrue(c.compareVersion(TSIConnection.RECOMMENDED_TSI_VERSION));
+			assertTrue(c.compareVersion(ServerTSIConnection.RECOMMENDED_TSI_VERSION));
 		}
 
-		try(TSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){
+		try(ServerTSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){
 			InetAddress localhost=InetAddress.getByName("127.0.0.1");
 			assertEquals(localhost,c.getTSIAddress());
 		}
 		int n = f.getNumberOfPooledConnections();
-		try(TSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){}
+		try(ServerTSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
 
 		try{

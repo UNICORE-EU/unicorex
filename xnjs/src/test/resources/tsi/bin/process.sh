@@ -11,4 +11,3 @@ fi
 
 export PYTHONPATH=${PY}
 $PYTHON $PY/Runner.py $PARAM
-

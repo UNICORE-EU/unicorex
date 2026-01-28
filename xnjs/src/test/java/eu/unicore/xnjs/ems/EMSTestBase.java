@@ -28,14 +28,13 @@ public abstract class EMSTestBase extends XNJSTestBase {
 
 	@BeforeEach
 	public void setUp2() throws Exception {
-		internalMgr=xnjs.get(InternalManager.class);
-		mgr=xnjs.get(Manager.class);
+		internalMgr = xnjs.get(InternalManager.class);
+		mgr = xnjs.get(Manager.class);
 	}
 
 	@Override
 	protected AbstractModule getPersistenceModule(){
 		return new AbstractModule() {
-			
 			@Override
 			protected void configure() {
 				bind(IActionStoreFactory.class).to(JDBCActionStoreFactory.class);

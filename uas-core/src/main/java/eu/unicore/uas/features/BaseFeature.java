@@ -3,8 +3,6 @@ package eu.unicore.uas.features;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.StartupTask;
 import eu.unicore.services.rest.RestService;
-import eu.unicore.services.security.pdp.DefaultPDP;
-import eu.unicore.services.security.pdp.UnicoreXPDP;
 import eu.unicore.services.utils.deployment.DeploymentDescriptorImpl;
 import eu.unicore.services.utils.deployment.FeatureImpl;
 import eu.unicore.uas.impl.task.TaskHomeImpl;
@@ -52,15 +50,4 @@ public class BaseFeature extends FeatureImpl {
 		}
 	}
 
-	/**
-	 * get the configured DefaultPDP for the kernel, or null if not available
-	 * TODO should be in USE, remove this once it is
-	 */
-	public static DefaultPDP get(Kernel kernel) {
-		UnicoreXPDP pdp = kernel.getSecurityManager().getPdp();
-		if(pdp!=null && pdp instanceof DefaultPDP) {
-			return (DefaultPDP)pdp;
-		}
-		else return null;
-	}
 }

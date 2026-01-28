@@ -1,4 +1,4 @@
-package eu.unicore.xnjs.tsi.remote;
+package eu.unicore.xnjs.tsi.remote.server;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import eu.unicore.xnjs.tsi.remote.TSIProperties;
+
 /**
  * Pooling of TSIConnections for a number of TSI hosts
  *
@@ -15,7 +17,7 @@ import java.util.Map;
  */
 public class ConnectionPool {
 
-	final Map<String, List<TSIConnection>> pool = new HashMap<>();
+	final Map<String, List<ServerTSIConnection>> pool = new HashMap<>();
 
 	private final Collection<TSIConnector> connectors = new HashSet<>();
 
@@ -33,13 +35,13 @@ public class ConnectionPool {
 		}
 	}
 
-	public TSIConnection get(String preferredHost){
+	public ServerTSIConnection get(String preferredHost){
 		List<String>candidates = getTSIHostNames(preferredHost);
 		synchronized(pool){
 			for(String host: candidates) {
-				List<TSIConnection> connections = getOrCreateConnectionList(host);
+				List<ServerTSIConnection> connections = getOrCreateConnectionList(host);
 				while(connections.size()>0) {
-					TSIConnection conn = connections.remove(0);
+					ServerTSIConnection conn = connections.remove(0);
 					if(!conn.isAlive()) {
 						conn.shutdown();
 					}
@@ -52,9 +54,9 @@ public class ConnectionPool {
 		return null;
 	}
 
-	public boolean offer(TSIConnection connection){
+	public boolean offer(ServerTSIConnection connection){
 		synchronized (pool) {
-			List<TSIConnection> pooled = getOrCreateConnectionList(connection.getTSIHostName());
+			List<ServerTSIConnection> pooled = getOrCreateConnectionList(connection.getTSIHostName());
 			if(pooled.size()<keepConnections && connection.getConnector().isOK()){
 				pooled.add(connection);
 				return true;
@@ -91,8 +93,8 @@ public class ConnectionPool {
 		return candidates;
 	}
 
-	private List<TSIConnection> getOrCreateConnectionList(String hostname){
-		List<TSIConnection> connections = pool.get(hostname);
+	private List<ServerTSIConnection> getOrCreateConnectionList(String hostname){
+		List<ServerTSIConnection> connections = pool.get(hostname);
 		if(connections==null) {
 			connections = new ArrayList<>();
 			pool.put(hostname, connections);
@@ -105,15 +107,15 @@ public class ConnectionPool {
 	 */
 	public int getNumberOfPooledConnections(){
 		int size = 0;
-		for(List<TSIConnection> l: pool.values()) {
+		for(List<ServerTSIConnection> l: pool.values()) {
 			size += l.size();
 		}
 		return size;
 	}
 
 	public void shutdown() {
-		for(List<TSIConnection> cs: pool.values()){
-			for(TSIConnection c: cs) {
+		for(List<ServerTSIConnection> cs: pool.values()){
+			for(ServerTSIConnection c: cs) {
 				try{c.shutdown();}catch(Exception ex){}
 			}
 		}

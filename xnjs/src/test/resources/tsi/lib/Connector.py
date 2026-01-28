@@ -195,7 +195,7 @@ class StreamConnector(Connector):
     def write_data(self, data):
         return self._write_encoded(data, "BASE64")
 
-    _encoders = {"BASE64": base64.b64encode}
+    _encoders = {"BASE64": base64.encodebytes}
 
     def _write_encoded(self, data, encoding = "BASE64"):
         encoder  = self._encoders.get(encoding)

@@ -1,4 +1,4 @@
-package eu.unicore.xnjs.tsi.remote;
+package eu.unicore.xnjs.tsi.remote.server;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -20,6 +20,7 @@ import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import eu.unicore.xnjs.XNJS;
+import eu.unicore.xnjs.tsi.remote.TSIProperties;
 
 /**
  * Helper to create XNJS server and client sockets for communication with TSI. 

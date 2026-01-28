@@ -27,12 +27,12 @@ import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 import eu.unicore.xnjs.tsi.IReservation;
 import eu.unicore.xnjs.tsi.TSI;
 
-public class RemoteTSIModule extends AbstractModule
+public abstract class RemoteTSIModule extends AbstractModule
 implements ConfigurationSource.MetricProvider, UpdateableConfiguration {
 	
 	protected Properties properties;
 
-	private TSIProperties tsiProps;
+	protected TSIProperties tsiProps;
 
 	protected final Histogram mtq = new Histogram(new SlidingWindowReservoir(512));
 
@@ -49,7 +49,7 @@ implements ConfigurationSource.MetricProvider, UpdateableConfiguration {
 	@Override
 	protected void configure(){
 		bind(IExecutionContextManager.class).to(LocalECManager.class);
-		bind(TSIConnectionFactory.class).to(DefaultTSIConnectionFactory.class);
+		bind(TSIConnectionFactory.class).to(getConnectionFactory());
 		bind(TSI.class).to(RemoteTSI.class);
 		bind(Incarnation.class).to(GrounderImpl.class);
 		bind(IFileTransferEngine.class).to(FileTransferEngine.class);
@@ -59,6 +59,8 @@ implements ConfigurationSource.MetricProvider, UpdateableConfiguration {
 		bindReservation();
 		bindExecution();
 	}
+
+	protected abstract Class<? extends TSIConnectionFactory> getConnectionFactory();
 	
 	@Provides
 	public TSIProperties getTSIProperties(){

@@ -1,4 +1,4 @@
-package eu.unicore.xnjs.tsi.remote;
+package eu.unicore.xnjs.tsi.remote.server;
 
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
@@ -21,6 +21,11 @@ import eu.unicore.util.configuration.PropertyChangeListener;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
+import eu.unicore.xnjs.tsi.remote.TSIConnection;
+import eu.unicore.xnjs.tsi.remote.TSIConfigurator;
+import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.TSIMessages;
+import eu.unicore.xnjs.tsi.remote.TSIProperties;
 import eu.unicore.xnjs.util.LogUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -67,16 +72,15 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
+	public ServerTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
-		TSIConnection conn = connectionPool.get(preferredHost);
+		ServerTSIConnection conn = connectionPool.get(preferredHost);
 		if(conn==null){
 			conn = createNewTSIConnection(preferredHost);
 		}
 		conn.setUser(user, group);
-		conn.startUse();
 		return conn;
 	}
 
@@ -89,13 +93,13 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return getTSIConnection(user, group, preferredHost, timeout);
 	}
 
-	protected synchronized TSIConnection createNewTSIConnection(String preferredHost) throws TSIUnavailableException {
+	protected synchronized ServerTSIConnection createNewTSIConnection(String preferredHost) throws TSIUnavailableException {
 		int limit = tsiProperties.getIntValue(TSIProperties.TSI_WORKER_LIMIT);
 		if(limit>0 && liveConnections.get()>=limit){
 			throw new TSIUnavailableException(preferredHost);
 		}
 		log.debug("Creating new TSIConnection to <{}>", preferredHost);
-		TSIConnection connection = null;
+		ServerTSIConnection connection = null;
 		connection = preferredHost==null? doCreate() : doCreate(preferredHost);
 		liveConnections.incrementAndGet();
 		return connection;
@@ -104,7 +108,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	// index of last used TSI connector
 	private RollingIndex pos = null;
 
-	private TSIConnection doCreate() throws TSIUnavailableException {
+	private ServerTSIConnection doCreate() throws TSIUnavailableException {
 		// try all configured TSI hosts at least once
 		for(int i=0;i<connectorList.length;i++){
 			TSIConnector c = connectorList[pos.next()];
@@ -137,7 +141,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	}
 
-	private TSIConnection doCreate(String preferredHost) throws TSIUnavailableException {
+	private ServerTSIConnection doCreate(String preferredHost) throws TSIUnavailableException {
 		List<String>candidates = getTSIHostNames(preferredHost, connectors.values());
 		Exception lastException = null;
 		// try all matching TSI hosts at least once
@@ -156,8 +160,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	@Override
 	public void done(TSIConnection connection){
 		if(connection!=null && !connection.isShutdown()){
-			connection.endUse();
-			connectionPool.offer(connection);
+			connectionPool.offer((ServerTSIConnection)connection);
 		}
 	}
 
@@ -191,7 +194,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}catch(Exception ex) {}
 	}
 
-	protected void configure() throws ConfigurationException {
+	public void configure() throws ConfigurationException {
 		try {
 			if(server==null) {
 				server = new TSISocketFactory(xnjs);
@@ -321,7 +324,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return tsiVersion;
 	}
 
-	TSISocketFactory getTSISocketFactory() {
+	public TSISocketFactory getTSISocketFactory() {
 		return server;
 	}
 

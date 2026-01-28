@@ -1,6 +1,5 @@
-package eu.unicore.xnjs.tsi.remote;
+package eu.unicore.xnjs.tsi.remote.single;
 
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,33 +10,36 @@ import java.util.Map;
 import java.util.Set;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.xnjs.tsi.remote.server.TSIConnector;
+import eu.unicore.xnjs.tsi.remote.TSIProperties;
 
 /**
  * parses TSI connector specification
  *
  * @author schuller 
  */
-public class TSIConfigurator {
+public class Configurator {
 
 	private final TSIProperties tsiProperties;
 
-	private final TSIConnectionFactory factory;
+	private final PerUserTSIProperties perUserTSIProperties;
+
+	private final SSHTSIConnectionFactory factory;
 
 	private final Collection<String> tsiHostCategories = new HashSet<>();
 
-	public TSIConfigurator(TSIProperties tsiProperties, TSIConnectionFactory factory) {
+	public Configurator(TSIProperties tsiProperties, PerUserTSIProperties perUserTSIProperties, SSHTSIConnectionFactory factory) {
 		this.tsiProperties = tsiProperties;
+		this.perUserTSIProperties = perUserTSIProperties;
 		this.factory = factory;
 	}
 
-	public void configure(Map<String,TSIConnector> connectors, Set<String>categories) {
+	public void configure(Map<String, Connector> connectors, Set<String>categories) {
 		tsiHostCategories.clear();
 		try {
 			// standard machine
 			String machine = tsiProperties.getTSIMachine();
 			int port = tsiProperties.getTSIPort();
-			List<TSIConnector> newConnectors = createConnectors(machine, port, null);
+			List<Connector> newConnectors = createConnectors(machine, port, null);
 			// machines in categories
 			updateTSIHostCategories(categories);
 			for(String category: categories){
@@ -45,7 +47,7 @@ public class TSIConfigurator {
 				newConnectors.addAll(createConnectors(machine, port, category));
 			}
 			Collection<String>names = new ArrayList<>();
-			for(TSIConnector tc: newConnectors) {
+			for(Connector tc: newConnectors) {
 				names.add(tc.getHostname());
 			}
 			// handle removed TSI addresses
@@ -57,7 +59,7 @@ public class TSIConfigurator {
 				}
 			}
 			// add new ones
-			for(TSIConnector tc: newConnectors) {
+			for(Connector tc: newConnectors) {
 				connectors.put(tc.getHostname(), tc);
 			}
 		}catch(Exception ex) {
@@ -65,9 +67,9 @@ public class TSIConfigurator {
 		}
 	}
 
-	private List<TSIConnector> createConnectors(String machine, int port, String category)
+	private List<Connector> createConnectors(String machine, int port, String category)
 			throws Exception {
-		List<TSIConnector> newConnectors = new ArrayList<>();
+		List<Connector> newConnectors = new ArrayList<>();
 		// parse 'machine' to extract TSI addresses.
 		// if the port is not included, use the port
 		// given by the separate TSI_PORT property
@@ -77,14 +79,14 @@ public class TSIConfigurator {
 			String host=split[0];
 			int p = split.length>1 ? Integer.parseInt(split[1]) : port;
 			if(p==-1)throw new IllegalArgumentException("Missing port for TSI machine: "+host);
-			TSIConnector tsiConnector = createTSIConnector(host, p, category);
+			Connector tsiConnector = createTSIConnector(host, p, category);
 			newConnectors.add(tsiConnector);
 		}
 		return newConnectors;
 	}
 
-	private TSIConnector createTSIConnector(String hostname, int port, String category) throws UnknownHostException {
-		return new TSIConnector(factory, tsiProperties, InetAddress.getByName(hostname), port, hostname, category);
+	private Connector createTSIConnector(String hostname, int port, String category) throws UnknownHostException {
+		return new Connector(hostname, category, perUserTSIProperties, factory);
 	}
 
 	public void updateTSIHostCategories(Set<String>tsiHostCategories){

@@ -23,6 +23,7 @@ import eu.unicore.xnjs.ems.Manager;
 import eu.unicore.xnjs.io.http.IConnectionFactory;
 import eu.unicore.xnjs.io.http.SimpleConnectionFactory;
 import eu.unicore.xnjs.tsi.local.LocalExecution.DataMover;
+import eu.unicore.xnjs.tsi.remote.server.ServerTSIModule;
 
 /**
  * this  starts a TSI server (on ports 65431/65432)
@@ -35,7 +36,7 @@ public abstract class RemoteTSISSLTestCase extends EMSTestBase {
 	@AfterEach
 	public void tearDown() throws Exception {
 		if(xnjs!=null){
-			((DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class)).stop();
+			xnjs.get(TSIConnectionFactory.class).stop();
 		}
 		super.tearDown();
 	}
@@ -65,7 +66,7 @@ public abstract class RemoteTSISSLTestCase extends EMSTestBase {
 	}
 
 	protected AbstractModule getTSIModule(ConfigurationSource cs){
-		return new RemoteTSIModule(cs.getProperties());
+		return new ServerTSIModule(cs.getProperties());
 	}
 
 

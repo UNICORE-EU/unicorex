@@ -20,7 +20,9 @@ import org.junit.jupiter.api.Test;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
-import eu.unicore.xnjs.tsi.remote.DefaultTSIConnectionFactory.RollingIndex;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.server.ServerTSIConnection;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory.RollingIndex;
 
 public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	
@@ -29,10 +31,10 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		
-		List<TSIConnection>connections = new ArrayList<>();
+		List<ServerTSIConnection>connections = new ArrayList<>();
 		
 		for(int i = 0; i<8; i++){
-			TSIConnection c=f.getTSIConnection("nobody", null, null, -1);
+			ServerTSIConnection c=f.getTSIConnection("nobody", null, null, -1);
 			connections.add(c);
 		}
 		System.out.println("Connections : "+f.getLiveConnections());
@@ -41,7 +43,7 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		assertThrows(TSIUnavailableException.class, ()->
 			f.getTSIConnection("nobody", null, null, -1));
 		// put back into pool
-		for(TSIConnection c: connections){
+		for(ServerTSIConnection c: connections){
 			c.close();
 		}
 		System.out.println("Pooled connections : "+f.getNumberOfPooledConnections());
@@ -52,7 +54,7 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	public void testConnectorRestart() throws Exception {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		TSIConnection c=f.getTSIConnection("nobody", null, null, -1);
+		ServerTSIConnection c=f.getTSIConnection("nobody", null, null, -1);
 		c.close();
 		f.getTSISocketFactory().reInit();
 		c=f.getTSIConnection("nobody", null, null, -1);

@@ -36,6 +36,7 @@ import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 import eu.unicore.xnjs.tsi.TSIBusyException;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSInfo;
 import eu.unicore.xnjs.tsi.remote.Execution.BSS_STATE;
+import eu.unicore.xnjs.tsi.remote.server.ServerTSIModule;
 import eu.unicore.xnjs.util.ErrorCode;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -50,11 +51,11 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	pre_post = "src/test/resources/json/prepost.json";
 
 	@Override
-	protected RemoteTSIModule getTSIModule(ConfigurationSource cs){
+	protected ServerTSIModule getTSIModule(ConfigurationSource cs){
 		return new MyTSIModule(cs.getProperties());
 	}
 
-	public static class MyTSIModule extends RemoteTSIModule{
+	public static class MyTSIModule extends ServerTSIModule{
 		public MyTSIModule(Properties p){
 			super(p);
 		}

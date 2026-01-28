@@ -1,4 +1,4 @@
-package eu.unicore.xnjs.tsi.remote;
+package eu.unicore.xnjs.tsi.remote.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
 import eu.unicore.util.SSLSocketChannel;
+import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.TSIProperties;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
@@ -66,13 +68,13 @@ public class TSIConnector {
 		return category;
 	}
 
-	public TSIConnection createNewTSIConnection(TSISocketFactory server)throws IOException{
+	public ServerTSIConnection createNewTSIConnection(TSISocketFactory server)throws IOException{
 		if(!isOK()){
 			throw new IOException(statusMessage);
 		}
 		try{
 			log.debug("Contacting TSI at {}:{}", address, port);
-			TSIConnection c = doCreateNewTSIConnection(server);
+			ServerTSIConnection c = doCreateNewTSIConnection(server);
 			log.info("Created new TSI connection to {}:{} this is <{}>", address, port, counter.get());
 			OK();
 			return c;
@@ -101,8 +103,8 @@ public class TSIConnector {
 	 * @param server
 	 * @throws IOException
 	 */
-	private TSIConnection doCreateNewTSIConnection(TSISocketFactory server)throws IOException{
-		TSIConnection newConn=null;
+	private ServerTSIConnection doCreateNewTSIConnection(TSISocketFactory server)throws IOException{
+		ServerTSIConnection newConn=null;
 		// Ask shepherd for a new worker
 		InetAddress actualTSIAddress=null;
 		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
@@ -157,7 +159,7 @@ public class TSIConnector {
 			throw new IOException(msg);
 		}
 
-		newConn = new TSIConnection(commands_socket, data_socket, factory, this);
+		newConn = new ServerTSIConnection(commands_socket, data_socket, factory, this);
 		newConn.setSocketTimeouts(readTimeout, true);
 		newConn.setPingTimeout(connectTimeout);
 		newConn.getTSIVersion();

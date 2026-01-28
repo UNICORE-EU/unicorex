@@ -44,6 +44,7 @@
     <commons-io.version>2.21.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
+    <jsch.version>2.27.5</jsch.version>
     <jclouds.version>2.7.0</jclouds.version>
     <junit.version>5.12.0</junit.version>
     <junit.p.version>1.12.0</junit.p.version>
@@ -242,6 +243,11 @@
 	<groupId>org.apache.jclouds.driver</groupId>
 	<artifactId>jclouds-log4j</artifactId>
 	<version>${jclouds.version}</version>
+      </dependency>
+      <dependency>
+	<groupId>com.github.mwiede</groupId>
+	<artifactId>jsch</artifactId>
+	<version>${jsch.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

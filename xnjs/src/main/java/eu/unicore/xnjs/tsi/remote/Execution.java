@@ -142,7 +142,7 @@ public class Execution extends BasicExecution {
 							"Could not acquire TSI submit lock (timeout)", null);
 				}
 				res = conn.send(tsiCmd);
-				idLine = conn.getIdLine();
+				idLine = conn.getUserDescription();
 				if(isFirstSubmit) {
 					job.addLogTrace("Command is: "+tsiCmd);
 				}
@@ -605,11 +605,11 @@ public class Execution extends BasicExecution {
 			return res;
 		}
 	}
-	
+
 	public static enum BSS_STATE {
 		UNKNOWN, QUEUED, RUNNING, COMPLETED, SUSPENDED, CHECKING_FOR_EXIT_CODE;
 	}
-	
+
 	public static class BSSInfo{
 		String bssID;
 		String jobID;
@@ -631,7 +631,6 @@ public class Execution extends BasicExecution {
 		int queued;
 		int total;
 		final Map<String,Integer>queueFilling;
-
 
 		public BSSSummary(List<BSSSummary> parts){
 			Map<String,Integer> fill = new HashMap<>();

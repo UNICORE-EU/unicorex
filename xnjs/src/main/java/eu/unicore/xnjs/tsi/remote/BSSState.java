@@ -95,8 +95,8 @@ public class BSSState implements IBSSState {
 		if(haveInit)return;
 		haveInit = true;
 		updateConfigParameters();
-		//schedule BSS status update
-		Runnable r=new Runnable(){
+		// schedule BSS status update
+		Runnable r = new Runnable(){
 			public void run(){
 				try{
 					if(statusUpdatesEnabled.get()) {
@@ -125,7 +125,7 @@ public class BSSState implements IBSSState {
 		int newInterval = tsiProperties.getIntValue(TSIProperties.BSS_UPDATE_INTERVAL);
 		if(newInterval!=updateInterval){
 			updateInterval = newInterval;
-			log.info("Batch system state will be queried every <"+updateInterval+"> milliseconds.");
+			log.info("Batch system state will be queried every <{}> milliseconds.", updateInterval);
 		}
 	}
 
@@ -171,7 +171,7 @@ public class BSSState implements IBSSState {
 			try {
 				locked = lock.tryLock(120, TimeUnit.SECONDS);
 				if(!locked) {
-					log.error("Can't get process list from ["+tsiNode+"]: can't acquire lock (timeout)");
+					log.error("Can't get process list from [{}]: can't acquire lock (timeout)", tsiNode);
 					continue;
 				}	
 				Set<String>pids = new HashSet<>();

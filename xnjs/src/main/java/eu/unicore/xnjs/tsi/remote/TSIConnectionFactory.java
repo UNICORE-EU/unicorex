@@ -110,4 +110,9 @@ public interface TSIConnectionFactory {
 	public SocketChannel connectToService(String address, String tsiHost, String user, String group)
 			throws TSIUnavailableException, IOException;
 
+	/**
+	 * shutdown
+	 */
+	public void stop();
+	
 }

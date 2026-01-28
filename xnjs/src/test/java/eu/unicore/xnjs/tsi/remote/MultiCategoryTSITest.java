@@ -8,6 +8,8 @@ import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.ConfigurationSource;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.server.ServerTSIConnection;
 
 
 public class MultiCategoryTSITest extends RemoteTSITestCase {
@@ -32,12 +34,12 @@ public class MultiCategoryTSITest extends RemoteTSITestCase {
 				)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		assertEquals(2, f.getTSIConnectorStates().size());
-		try(TSIConnection c=f.getTSIConnection("nobody", null, "127.0.*", -1)){
+		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, "127.0.*", -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());
 		}
-		try(TSIConnection c=f.getTSIConnection("nobody", null, "category:bignodes", -1)){
+		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, "category:bignodes", -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());

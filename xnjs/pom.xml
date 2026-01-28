@@ -65,6 +65,10 @@
 	</exclusion>
       </exclusions>
     </dependency>
+    <dependency>
+      <groupId>com.github.mwiede</groupId>
+      <artifactId>jsch</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <plugins>

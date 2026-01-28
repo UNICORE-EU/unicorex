@@ -41,7 +41,7 @@ public interface TSI extends IStorageAdapter{
 	 * @throws ExecutionException
 	 */
 	public String getHomePath() throws ExecutionException;
-	
+
 	/**
 	 * get an environment variable for the current client
 	 * 
@@ -50,7 +50,7 @@ public interface TSI extends IStorageAdapter{
 	 * @throws ExecutionException
 	 */
 	public String getEnvironment(String name) throws ExecutionException;
-	
+
 	/**
 	 * Resolve a name in the current environment, e.g.
 	 * /tmp/$ENV/foo.txt
@@ -60,7 +60,7 @@ public interface TSI extends IStorageAdapter{
 	 * @throws ExecutionException
 	 */
 	public String resolve(String name) throws ExecutionException;
-	
+
 	/**
 	 * execute a command asynchronously
 	 * 
@@ -70,7 +70,7 @@ public interface TSI extends IStorageAdapter{
 	 * @throws ExecutionException
 	 */
 	public void exec(String what, ExecutionContext ec) throws TSIBusyException,ExecutionException;
-	
+
 	/**
 	 * execute a command synchronously
 	 * 
@@ -80,12 +80,12 @@ public interface TSI extends IStorageAdapter{
 	 * @throws ExecutionException
 	 */
 	public void execAndWait(String what, ExecutionContext ec) throws TSIBusyException,ExecutionException;
-	
+
 	/**
 	 * set the client for which this TSI is performing work
 	 */
 	public void setClient(Client client);
-	
+
 	/**
 	 * get the groups the current client is in
 	 * @return list of groups

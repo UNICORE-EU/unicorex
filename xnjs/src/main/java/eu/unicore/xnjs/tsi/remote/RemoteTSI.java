@@ -777,7 +777,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 				}
 			}
 			conn.getData(buf,0,av);
-			String line = conn.getLine(); // extra 'ENDOFMESSAGE' line
+			String line = conn.getLine(); // extra 'ENDOFMESSAGE' line!
 			if(!"ENDOFMESSAGE".equals(line)) {
 				conn.shutdown();
 				throw new IOException(line);
