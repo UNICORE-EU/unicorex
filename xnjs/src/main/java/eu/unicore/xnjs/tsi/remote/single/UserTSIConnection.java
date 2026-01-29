@@ -8,16 +8,15 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
-import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
@@ -27,7 +26,7 @@ import eu.unicore.xnjs.util.LogUtil;
  */
 public class UserTSIConnection implements TSIConnection {
 
-	private static final Logger logger = LogUtil.getLogger(LogUtil.TSI,UserTSIConnection.class);
+	private static final Logger logger = LogUtil.getLogger(LogUtil.TSI, TSIConnection.class);
 
 	private final String idLine;
 
@@ -35,7 +34,7 @@ public class UserTSIConnection implements TSIConnection {
 
 	private final PrintWriter output;
 	
-	private final SSHTSIConnectionFactory factory;
+	private final PerUserTSIConnectionFactory factory;
 
 	private String tsiVersion;
 
@@ -54,7 +53,7 @@ public class UserTSIConnection implements TSIConnection {
 	 * @param connector - the TSI connector
 	 * @throws IOException
 	 */
-	public UserTSIConnection(InputStream in, OutputStream out, SSHTSIConnectionFactory factory, Connector connector, String user,
+	public UserTSIConnection(InputStream in, OutputStream out, PerUserTSIConnectionFactory factory, Connector connector, String user,
 			Closeable closeCallback)
 			throws IOException {
 		input  = new BufferedReader(new InputStreamReader(in,"UTF-8"));
@@ -141,34 +140,45 @@ public class UserTSIConnection implements TSIConnection {
 		return reply;
 	}
 
+	private static final String _begin_data = "---BEGIN DATA BASE64---";
+	private static final String _end_data = "---END DATA---";
+	
 	@Override
 	public void sendData(byte[] buffer, int offset, int number) throws IOException {
+		logger.debug("--> [{}] {}", idLine, _begin_data);
 		output.println("---BEGIN DATA BASE64---");
 		String base64;
 		if(number==buffer.length) {
-			base64 = Base64.encodeBase64String(buffer);
+			base64 = Base64.getEncoder().encodeToString(buffer);
 		}
 		else {
 			byte[]buf = new byte[number];
 			System.arraycopy(buffer, 0, buf, 0, number);
-			base64 = Base64.encodeBase64String(buf);
+			base64 = Base64.getEncoder().encodeToString(buf);
 		}
+		logger.debug("--> [{}] ({} bytes of encoded data)", idLine, number);
 		output.println(base64);
-		output.println("---END DATA---");
+		logger.debug("--> [{}] {}", idLine, _end_data);
+		output.println(_end_data);
 		output.flush();
 	}
 
 	@Override
 	public void getData(byte[] buffer, int offset, int number) throws IOException {
 		String line = getLine();
+		logger.debug("<-- {}", line);
 		if(!line.startsWith("---BEGIN DATA "))throw new IOException("TSI protocol error - expected BEGIN DATA tag");
 		StringBuilder sb = new StringBuilder();
+		int i = 0;
 		do {
 			line = getLine();
 			if("---END DATA---".equals(line))break;
+			i++;
 			sb.append(line).append("\n");
 		}while(line!=null);
-		byte[]buf = Base64.decodeBase64(sb.toString().getBytes());
+		byte[]buf = Base64.getDecoder().decode(sb.toString().strip());
+		logger.debug("<-- <{}> bytes of encoded data in {} lines.", buf.length, i);
+		logger.debug("<-- {}", _end_data);
 		if(buf.length!=number)throw new IOException("TSI protocol error - expected <"+number+"> bytes, got <"+buf.length+">");
 		System.arraycopy(buf, 0, buffer, offset, number);
 	}
@@ -198,15 +208,6 @@ public class UserTSIConnection implements TSIConnection {
 		connector.notOK(message);
 	}
 
-	/**
-	 * The user of the TSIConnection has finished with the TSIConnection.
-	 * <p>
-	 * This must <em>always</em> be called as the {@link TSIConnectionFactory}
-	 * caches and reuses connections and while allocated TSIConnections are
-	 * not available to other users. Also, a TSIConnection holds open sockets
-	 * corresponding to TSI processes.
-	 * <p>
-	 */
 	@Override
 	public void close() {
 		IOUtils.closeQuietly(closeCallback);

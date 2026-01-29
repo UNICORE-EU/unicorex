@@ -23,11 +23,11 @@ public class Configurator {
 
 	private final PerUserTSIProperties perUserTSIProperties;
 
-	private final SSHTSIConnectionFactory factory;
+	private final PerUserTSIConnectionFactory factory;
 
 	private final Collection<String> tsiHostCategories = new HashSet<>();
 
-	public Configurator(TSIProperties tsiProperties, PerUserTSIProperties perUserTSIProperties, SSHTSIConnectionFactory factory) {
+	public Configurator(TSIProperties tsiProperties, PerUserTSIProperties perUserTSIProperties, PerUserTSIConnectionFactory factory) {
 		this.tsiProperties = tsiProperties;
 		this.perUserTSIProperties = perUserTSIProperties;
 		this.factory = factory;

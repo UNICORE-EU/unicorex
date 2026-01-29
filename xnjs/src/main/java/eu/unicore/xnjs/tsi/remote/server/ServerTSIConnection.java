@@ -33,7 +33,7 @@ import eu.unicore.xnjs.util.LogUtil;
  */
 public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnection {
 
-	private static final Logger logger=LogUtil.getLogger(LogUtil.TSI,ServerTSIConnection.class);
+	private static final Logger logger = LogUtil.getLogger(LogUtil.TSI, TSIConnection.class);
 
 	private String idLine;
 

@@ -785,7 +785,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			return av;
 		}
 	}
-	
+
 	@Override
 	public ReadableByteChannel getReadChannel(String file) {
 		throw new RuntimeException("not yet implemented");
@@ -835,7 +835,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		try (TSIConnection conn = getConnection()){
 			String permissions = TSIMessages.getFilePerm(umask) ;
 			String tsicmd = tsiMessages.makePutFileChunkCommand(file, permissions, numBytes, append);
-			String res=conn.send(tsicmd);
+			String res = conn.send(tsicmd);
 			if(!res.contains("TSI_OK")){
 				throw new IOException("Execution on TSI <"+lastUsedTSIHost+"> failed. Reply was "+res);
 			}

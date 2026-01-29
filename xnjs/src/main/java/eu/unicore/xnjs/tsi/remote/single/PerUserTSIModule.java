@@ -17,7 +17,7 @@ public class PerUserTSIModule extends RemoteTSIModule {
 
 	@Override
 	protected Class<? extends TSIConnectionFactory> getConnectionFactory(){
-		return SSHTSIConnectionFactory.class;
+		return PerUserTSIConnectionFactory.class;
 	}
 
 	@Provides

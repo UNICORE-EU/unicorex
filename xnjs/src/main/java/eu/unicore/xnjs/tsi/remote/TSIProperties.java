@@ -38,7 +38,7 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String TSI_DISABLE_SSL="ssl.disable";
 	public static final String TSI_WORKER_LIMIT ="limitTSIConnections";
 	public static final String TSI_POOL_SIZE ="pooledTSIConnections";
-	
+
 	// TSI commands
 	public static final String TSI_CD="CD";
 	public static final String TSI_CP="CP";
@@ -53,13 +53,13 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String TSI_UMASK="UMASK";
 	public static final String TSI_KILL="KILL";
 	public static final String TSI_BUFFERSIZE="BUFFERSIZE";
-	
+
 	// various
 	public static final String BSS_UPDATE_INTERVAL="statusupdate.interval";
 	public static final String BSS_MAX_RUNTIME_FOR_INTERACTIVE_APPS="interactive_execution.maxtime";
 	public static final String BSS_NO_USER_INTERACTIVE_APPS="interactive_execution.disable";
 	public static final String BSS_PS="PS";
-	
+
 	public static final String TSI_FILESYSTEM_ID="FSID";
 
 	/**

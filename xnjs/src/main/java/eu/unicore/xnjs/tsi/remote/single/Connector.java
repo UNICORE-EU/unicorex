@@ -10,9 +10,9 @@ public class Connector {
 	
 	private final PerUserTSIProperties properties;
 
-	private final SSHTSIConnectionFactory factory;
+	private final PerUserTSIConnectionFactory factory;
 
-	public Connector(String hostname, String category, PerUserTSIProperties properties, SSHTSIConnectionFactory factory) {
+	public Connector(String hostname, String category, PerUserTSIProperties properties, PerUserTSIConnectionFactory factory) {
 		this.hostname = hostname;
 		this.category = category;
 		this.properties = properties;

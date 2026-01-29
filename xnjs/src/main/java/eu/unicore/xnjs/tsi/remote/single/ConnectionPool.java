@@ -69,11 +69,11 @@ public class ConnectionPool {
 		for(Connector conn: connectors){
 		String name = conn.getHostname();
 			if(categoryPattern!=null) {
-				if(SSHTSIConnectionFactory.matches(categoryPattern, conn.getCategory())) {
+				if(PerUserTSIConnectionFactory.matches(categoryPattern, conn.getCategory())) {
 					candidates.add(name);
 				}
 			}
-			else if(SSHTSIConnectionFactory.matches(hostnamePattern, name)) {
+			else if(PerUserTSIConnectionFactory.matches(hostnamePattern, name)) {
 				candidates.add(name);
 			}
 		}

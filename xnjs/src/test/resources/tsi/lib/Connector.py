@@ -157,7 +157,7 @@ class StreamConnector(Connector):
         self.LOG = LOG
         self.buf_size = 32768
 
-    def read_message(self, termination="ENDOFMESSAGE\n"):
+    def read_message(self, termination="ENDOFMESSAGE"):
         """ Read message terminated by ENDOFMESSAGE from control channel """
         message = ''
         while True:
@@ -165,7 +165,7 @@ class StreamConnector(Connector):
             if len(line) == 0:
                 continue
             self.LOG.debug(line)
-            if line == termination:
+            if line.strip() == termination:
                 break
             message += line
         return message
@@ -195,7 +195,7 @@ class StreamConnector(Connector):
     def write_data(self, data):
         return self._write_encoded(data, "BASE64")
 
-    _encoders = {"BASE64": base64.encodebytes}
+    _encoders = {"BASE64": base64.b64encode}
 
     def _write_encoded(self, data, encoding = "BASE64"):
         encoder  = self._encoders.get(encoding)
@@ -208,6 +208,8 @@ class StreamConnector(Connector):
 
     def _read_encoded(self):
         msg  = self.read_message(termination="---END DATA---")
+        with open("/tmp/tsi.msg", "w") as f:
+            f.write(msg)
         header, msg = msg.split("\n", 1)
         if not header.startswith("---BEGIN DATA"):
             raise ValueError("Expected encoded data chunk")

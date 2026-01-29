@@ -34,9 +34,9 @@ import jakarta.inject.Singleton;
  * @author schuller
  */
 @Singleton
-public class SSHTSIConnectionFactory implements TSIConnectionFactory, PropertyChangeListener {
+public class PerUserTSIConnectionFactory implements TSIConnectionFactory, PropertyChangeListener {
 
-	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,SSHTSIConnectionFactory.class);
+	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,PerUserTSIConnectionFactory.class);
 
 	// count how many connections are currently alive
 	private final AtomicInteger liveConnections=new AtomicInteger(0);
@@ -60,7 +60,7 @@ public class SSHTSIConnectionFactory implements TSIConnectionFactory, PropertyCh
 	private final ConnectionPool connectionPool;
 
 	@Inject
-	public SSHTSIConnectionFactory(XNJS xnjs){
+	public PerUserTSIConnectionFactory(XNJS xnjs){
 		this.tsiProperties = xnjs.get(TSIProperties.class);
 		this.perUserTsiProperties = xnjs.get(PerUserTSIProperties.class);
 		this.connectionPool = new ConnectionPool(tsiProperties);

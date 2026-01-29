@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
@@ -47,7 +46,6 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	}
 
 	@Test
-	@Disabled
 	public void testPutFile() throws Exception {
 		RemoteTSI tsi = makeTSI();
 		File x = new File("src/test/resources/tsi/conf/tsi.properties");
