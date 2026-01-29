@@ -48,7 +48,7 @@ import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 import eu.unicore.xnjs.tsi.IReservation;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.local.LocalTSIModule;
-import eu.unicore.xnjs.tsi.remote.RemoteTSIModule;
+import eu.unicore.xnjs.tsi.remote.server.ServerTSIModule;
 
 /**
  * This facade class wrap some XNJS specifics to reduce
@@ -126,7 +126,7 @@ public class XNJSFacade implements ISubSystem {
 			cs.addModule(new LocalTSIModule(properties));
 		}
 		else if(TSI_MODE.remote.equals(mode)){
-			cs.addModule(new RemoteTSIModule(properties));
+			cs.addModule(new ServerTSIModule(properties));
 		}
 		else if(TSI_MODE.custom.equals(mode)){
 			String clazz = uasProps.getValue(UASProperties.TSF_TSI_CUSTOM_MODULE);
