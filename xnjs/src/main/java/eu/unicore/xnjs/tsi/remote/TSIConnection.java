@@ -72,13 +72,17 @@ public interface TSIConnection extends AutoCloseable {
 	void getData(byte[] buffer, int offset, int number) throws IOException;
 
 	/**
-	 * set the socket timeouts on command and data, as well as the keepAlive feature
+	 * set the read/write timeouts on command and data, as well as the keepAlive feature
 	 * 
 	 * @param timeout - timeout in millis
 	 * @param keepAlive - whether to enable keepAlive
 	 */
-	void setSocketTimeouts(int timeout, boolean keepAlive);
+	void setTimeouts(int timeout, boolean keepAlive);
 
+	/**
+	 * set the timeout for a "PING" status check
+	 * @param timeout
+	 */
 	void setPingTimeout(int timeout);
 
 	/**

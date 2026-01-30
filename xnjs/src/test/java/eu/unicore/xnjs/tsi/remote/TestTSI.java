@@ -431,7 +431,7 @@ public class TestTSI extends RemoteTSITestCase{
 		String message = tsiMessages.makeExecuteScript("sleep 10", ec, null);
 		try (ServerTSIConnection c = f.getTSIConnection("nobody", null, "127.0.0.1", -1)){
 			assertEquals(localhost,c.getTSIAddress());
-			c.setSocketTimeouts(3000, false);
+			c.setTimeouts(3000, false);
 			c.send(message);
 		}catch(IOException ex) {
 			assertTrue(ex.getMessage().contains("TSI <127.0.0.1>"), "Got TSI error: "+ex.getMessage());

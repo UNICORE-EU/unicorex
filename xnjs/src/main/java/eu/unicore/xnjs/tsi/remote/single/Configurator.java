@@ -27,10 +27,14 @@ public class Configurator {
 
 	private final Collection<String> tsiHostCategories = new HashSet<>();
 
-	public Configurator(TSIProperties tsiProperties, PerUserTSIProperties perUserTSIProperties, PerUserTSIConnectionFactory factory) {
+	private final IdentityStore identityStore;
+
+	public Configurator(TSIProperties tsiProperties, PerUserTSIProperties perUserTSIProperties, 
+			PerUserTSIConnectionFactory factory, IdentityStore identityStore) {
 		this.tsiProperties = tsiProperties;
 		this.perUserTSIProperties = perUserTSIProperties;
 		this.factory = factory;
+		this.identityStore = identityStore;
 	}
 
 	public void configure(Map<String, Connector> connectors, Set<String>categories) {
@@ -86,7 +90,7 @@ public class Configurator {
 	}
 
 	private Connector createTSIConnector(String hostname, int port, String category) throws UnknownHostException {
-		return new Connector(hostname, category, perUserTSIProperties, factory);
+		return new Connector(hostname, category, perUserTSIProperties, factory, identityStore);
 	}
 
 	public void updateTSIHostCategories(Set<String>tsiHostCategories){

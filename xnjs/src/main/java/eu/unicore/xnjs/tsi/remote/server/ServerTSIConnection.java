@@ -156,7 +156,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	 * @param keepAlive - whether to enable keepAlive
 	 */
 	@Override
-	public void setSocketTimeouts(int timeout, boolean keepAlive) {
+	public void setTimeouts(int timeout, boolean keepAlive) {
 		try{
 			data.socket.setSoTimeout(timeout);
 			data.socket.setKeepAlive(keepAlive);
@@ -514,7 +514,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 			throw new IOException(e);
 		}
 		finally{
-			setSocketTimeouts(readTimeout, true);
+			setTimeouts(readTimeout, true);
 		}
 		return v;
 	}

@@ -7,6 +7,8 @@ import org.junit.jupiter.api.AfterEach;
 
 import com.google.inject.AbstractModule;
 
+import eu.unicore.security.Client;
+import eu.unicore.security.Xlogin;
 import eu.unicore.xnjs.BaseModule;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.ems.EMSTestBase;
@@ -27,8 +29,17 @@ public abstract class PerUserTSITestCase extends EMSTestBase {
 		super.tearDown();
 	}
 
-	protected RemoteTSI makeTSI(){
-		return (RemoteTSI)xnjs.getTargetSystemInterface(null);
+	protected RemoteTSI makeTSI() {
+		return makeTSI(null);
+	}
+
+	protected RemoteTSI makeTSI(String user){
+		Client c = null;
+		if(user!=null) {
+			c = new Client();
+			c.setXlogin(new Xlogin(new String[] {user}));
+		}
+		return (RemoteTSI)xnjs.getTargetSystemInterface(c);
 	}
 
 	@Override

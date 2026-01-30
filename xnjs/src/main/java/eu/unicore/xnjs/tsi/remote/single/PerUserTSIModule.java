@@ -27,5 +27,12 @@ public class PerUserTSIModule extends RemoteTSIModule {
 		}
 		return perUserTSIProps;
 	}
-	
+
+
+	@Override
+	protected void configure(){
+		super.configure();
+		bind(IdentityStore.class).to(DefaultidentityStore.class);
+	}
+
 }

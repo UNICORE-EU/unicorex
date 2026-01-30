@@ -15,7 +15,10 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
+import com.jcraft.jsch.Session;
+
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
 import eu.unicore.xnjs.util.LogUtil;
 
@@ -24,15 +27,15 @@ import eu.unicore.xnjs.util.LogUtil;
  * 
  * @author schuller
  */
-public class UserTSIConnection implements TSIConnection {
+public class PerUserTSIConnection implements TSIConnection {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TSI, TSIConnection.class);
 
-	private final String idLine;
+	private final String user;
 
-	private final BufferedReader input;
+	private BufferedReader input;
 
-	private final PrintWriter output;
+	private PrintWriter output;
 	
 	private final PerUserTSIConnectionFactory factory;
 
@@ -40,11 +43,13 @@ public class UserTSIConnection implements TSIConnection {
 
 	private String connectionID;
 
-	private int readTimeout = 180000;
+	private int timeout = 180000;
 
 	private final Connector connector;
 
-	private final Closeable closeCallback;
+	private Closeable closeCallback;
+
+	private Session sshSession;
 
 	/**
 	 * @param in - input
@@ -53,16 +58,51 @@ public class UserTSIConnection implements TSIConnection {
 	 * @param connector - the TSI connector
 	 * @throws IOException
 	 */
-	public UserTSIConnection(InputStream in, OutputStream out, PerUserTSIConnectionFactory factory, Connector connector, String user,
-			Closeable closeCallback)
+	public PerUserTSIConnection(PerUserTSIConnectionFactory factory, Connector connector, String user)
 			throws IOException {
-		input  = new BufferedReader(new InputStreamReader(in,"UTF-8"));
-		output = new PrintWriter(new OutputStreamWriter(out,"UTF-8"));
 		this.factory = factory;
 		this.connector = connector;
-		this.idLine = user;
+		this.user = user;
 		this.connectionID = user+"@"+connector.getHostname();
-		this.closeCallback = closeCallback;
+	}
+
+	public void setInput(InputStream in) throws IOException {
+		this.input  = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+	}
+
+	public void setOutput(OutputStream out) throws IOException {
+		this.output = new PrintWriter(new OutputStreamWriter(out,"UTF-8"));
+	}
+
+	public void setCloseCallback(Closeable closeable) {
+		this.closeCallback = closeable;
+	}
+
+	public void setSession(Session sshSession) {
+		this.sshSession = sshSession;
+	}
+
+	public Session getSession() {
+		return sshSession;
+	}
+
+	/**
+	 * the Unix user name on the remote system
+	 */
+	public String getUser(){
+		return user;
+	}
+
+	/**
+	 * make ready for use
+	 */
+	public void activate() throws TSIUnavailableException {
+		try{
+			connector.activate(this);
+		}catch(Exception e) {
+			throw new TSIUnavailableException("Cannot activate connection for "
+					+getUserDescription(), e);
+		}
 	}
 
 	@Override
@@ -72,7 +112,7 @@ public class UserTSIConnection implements TSIConnection {
 
 	@Override
 	public String getUserDescription() {
-		return idLine;
+		return user;
 	}
 
 	/**
@@ -93,9 +133,9 @@ public class UserTSIConnection implements TSIConnection {
 			}
 		}
 		try {
-			logger.debug("--> [{}] {}", idLine, data);
+			logger.debug("--> [{}] {}", user, data);
 			output.println(data);
-			output.println("#TSI_IDENTITY " + idLine);
+			output.println("#TSI_IDENTITY " + user);
 			output.println("ENDOFMESSAGE");
 			output.flush();
 		} catch (Exception e) {
@@ -145,7 +185,7 @@ public class UserTSIConnection implements TSIConnection {
 	
 	@Override
 	public void sendData(byte[] buffer, int offset, int number) throws IOException {
-		logger.debug("--> [{}] {}", idLine, _begin_data);
+		logger.debug("--> [{}] {}", user, _begin_data);
 		output.println("---BEGIN DATA BASE64---");
 		String base64;
 		if(number==buffer.length) {
@@ -156,9 +196,9 @@ public class UserTSIConnection implements TSIConnection {
 			System.arraycopy(buffer, 0, buf, 0, number);
 			base64 = Base64.getEncoder().encodeToString(buf);
 		}
-		logger.debug("--> [{}] ({} bytes of encoded data)", idLine, number);
+		logger.debug("--> [{}] ({} bytes of encoded data)", user, number);
 		output.println(base64);
-		logger.debug("--> [{}] {}", idLine, _end_data);
+		logger.debug("--> [{}] {}", user, _end_data);
 		output.println(_end_data);
 		output.flush();
 	}
@@ -169,26 +209,25 @@ public class UserTSIConnection implements TSIConnection {
 		logger.debug("<-- {}", line);
 		if(!line.startsWith("---BEGIN DATA "))throw new IOException("TSI protocol error - expected BEGIN DATA tag");
 		StringBuilder sb = new StringBuilder();
-		int i = 0;
 		do {
 			line = getLine();
 			if("---END DATA---".equals(line))break;
-			i++;
-			sb.append(line).append("\n");
+			if(sb.length()>0)sb.append("\n");
+			sb.append(line);
 		}while(line!=null);
-		byte[]buf = Base64.getDecoder().decode(sb.toString().strip());
-		logger.debug("<-- <{}> bytes of encoded data in {} lines.", buf.length, i);
+		byte[]buf = Base64.getDecoder().decode(sb.toString());
+		logger.debug("<-- <{}> bytes of encoded data", buf.length);
 		logger.debug("<-- {}", _end_data);
 		if(buf.length!=number)throw new IOException("TSI protocol error - expected <"+number+"> bytes, got <"+buf.length+">");
 		System.arraycopy(buf, 0, buffer, offset, number);
 	}
 
 	@Override
-	public void setSocketTimeouts(int timeout, boolean keepAlive) {
+	public void setTimeouts(int timeout, boolean keepAlive) {
 		try{
 	
 		}catch(Exception ex){}
-		this.readTimeout = timeout;
+		this.timeout = timeout;
 	}
 
 	@Override
@@ -198,6 +237,7 @@ public class UserTSIConnection implements TSIConnection {
 
 	@Override
 	public boolean isAlive() {
+		// TODO check SSH session status
 		return connector.isOK();
 	}
 
@@ -236,7 +276,7 @@ public class UserTSIConnection implements TSIConnection {
 	public String toString(){
 		StringBuilder sb=new StringBuilder();
 		sb.append("TSIConnection[");
-		sb.append(idLine).append("@").append(getTSIHostName());
+		sb.append(user).append("@").append(getTSIHostName());
 		sb.append("]");
 		return sb.toString();
 	}
@@ -250,7 +290,7 @@ public class UserTSIConnection implements TSIConnection {
 
 	private static final Map<String, Boolean> issuedWarnings = new HashMap<>();
 
-	public static final String RECOMMENDED_TSI_VERSION = "9.1.0";
+	public static final String RECOMMENDED_TSI_VERSION = "10.5.0";
 
 	/**
 	 * get the TSI version
@@ -291,7 +331,7 @@ public class UserTSIConnection implements TSIConnection {
 			throw new IOException(e);
 		}
 		finally{
-			setSocketTimeouts(readTimeout, true);
+			setTimeouts(timeout, true);
 		}
 		return v;
 	}

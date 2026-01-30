@@ -59,20 +59,23 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private final ConnectionPool connectionPool;
 
+	private final IdentityStore identityStore;
+
 	@Inject
 	public PerUserTSIConnectionFactory(XNJS xnjs){
 		this.tsiProperties = xnjs.get(TSIProperties.class);
 		this.perUserTsiProperties = xnjs.get(PerUserTSIProperties.class);
 		this.connectionPool = new ConnectionPool(tsiProperties);
+		this.identityStore = xnjs.get(IdentityStore.class, true);
 		start();
 	}
 
 	@Override
-	public UserTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
+	public PerUserTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
-		UserTSIConnection conn = connectionPool.get(user, preferredHost);
+		PerUserTSIConnection conn = connectionPool.get(user, preferredHost);
 		if(conn==null){
 			conn = createNewTSIConnection(user, preferredHost);
 		}
@@ -80,7 +83,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public UserTSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
+	public PerUserTSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		String user = client.getXlogin().getUserName();
@@ -88,14 +91,15 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return getTSIConnection(user, group, preferredHost, timeout);
 	}
 
-	protected synchronized UserTSIConnection createNewTSIConnection(String user, String preferredHost) throws TSIUnavailableException {
+	protected synchronized PerUserTSIConnection createNewTSIConnection(String user, String preferredHost) throws TSIUnavailableException {
 		int limit = tsiProperties.getIntValue(TSIProperties.TSI_WORKER_LIMIT);
 		if(limit>0 && liveConnections.get()>=limit){
 			throw new TSIUnavailableException(preferredHost);
 		}
 		log.debug("Creating new TSIConnection to <{}>", preferredHost);
-		UserTSIConnection connection = preferredHost==null ?
+		PerUserTSIConnection connection = preferredHost==null ?
 				doCreate(user) : doCreate(user, preferredHost);
+		connection.activate();
 		liveConnections.incrementAndGet();
 		return connection;
 	}
@@ -103,7 +107,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	// index of last used TSI connector
 	private RollingIndex pos = null;
 
-	private UserTSIConnection doCreate(String user) throws TSIUnavailableException {
+	private PerUserTSIConnection doCreate(String user) throws TSIUnavailableException {
 		// try all configured TSI hosts at least once
 		for(int i=0;i<connectorList.length;i++){
 			Connector c = connectorList[pos.next()];
@@ -117,7 +121,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		throw new TSIUnavailableException();
 	}
 
-	private UserTSIConnection doCreate(String user, String preferredHost) throws TSIUnavailableException {
+	private PerUserTSIConnection doCreate(String user, String preferredHost) throws TSIUnavailableException {
 		List<String>candidates = getTSIHostNames(preferredHost, connectors.values());
 		Exception lastException = null;
 		// try all matching TSI hosts at least once
@@ -136,7 +140,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	@Override
 	public void done(TSIConnection connection){
 		if(connection!=null && !connection.isShutdown()){
-			connectionPool.offer((UserTSIConnection)connection);
+			connectionPool.offer((PerUserTSIConnection)connection);
 		}
 	}
 
@@ -172,7 +176,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	protected void configure() throws ConfigurationException {
 		try {
-			new Configurator(tsiProperties, perUserTsiProperties, this).
+			new Configurator(tsiProperties, perUserTsiProperties, this, identityStore).
 				configure(connectors, tsiHostCategories);
 			connectorList = connectors.values().toArray(Connector[]::new);
 			StringBuilder machineSpec = new StringBuilder();
@@ -261,7 +265,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	public synchronized String getTSIVersion(){
 		if(tsiVersion==null){
 			for(String h: connectors.keySet()){
-				try(UserTSIConnection conn = getTSIConnection("nobody", null, h, -1)){
+				try(PerUserTSIConnection conn = getTSIConnection("nobody", null, h, -1)){
 					tsiVersion = conn.getTSIVersion();
 					if(tsiVersion!=null)break;
 				}

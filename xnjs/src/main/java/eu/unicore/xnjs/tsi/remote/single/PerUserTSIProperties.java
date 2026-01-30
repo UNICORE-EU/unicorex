@@ -53,5 +53,5 @@ public class PerUserTSIProperties extends PropertiesHelper {
 	public String getCommand(){
 		return getValue(TSI_LAUNCH);
 	}
-	
+
 }

@@ -160,7 +160,7 @@ public class TSIConnector {
 		}
 
 		newConn = new ServerTSIConnection(commands_socket, data_socket, factory, this);
-		newConn.setSocketTimeouts(readTimeout, true);
+		newConn.setTimeouts(readTimeout, true);
 		newConn.setPingTimeout(connectTimeout);
 		newConn.getTSIVersion();
 		newConn.setConnectionID(address+":"+port+"_"+counter.incrementAndGet());

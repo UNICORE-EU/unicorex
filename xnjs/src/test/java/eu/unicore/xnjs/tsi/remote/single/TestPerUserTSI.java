@@ -28,7 +28,7 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 
 	@Test
 	public void testPing() throws Exception {
-		UserTSIConnection tC = (UserTSIConnection)xnjs.get(TSIConnectionFactory.class).
+		PerUserTSIConnection tC = (PerUserTSIConnection)xnjs.get(TSIConnectionFactory.class).
 				getTSIConnection("nobody", "foo", null, -1);
 		String reply = tC.send("#TSI_PING");
 		System.out.println("TSI PING reply: " + reply);

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIProperties;
 
 /**
@@ -18,7 +19,7 @@ import eu.unicore.xnjs.tsi.remote.TSIProperties;
  */
 public class ConnectionPool {
 
-	final Map<String, List<UserTSIConnection>> pool = new HashMap<>();
+	final Map<String, List<PerUserTSIConnection>> pool = new HashMap<>();
 
 	private final Collection<Connector> connectors = new HashSet<>();
 
@@ -31,19 +32,20 @@ public class ConnectionPool {
 		}
 	}
 
-	public UserTSIConnection get(String user, String preferredHost){
+	public PerUserTSIConnection get(String user, String preferredHost) throws TSIUnavailableException {
 		List<String>candidates = getTSIHostNames(preferredHost);
 		synchronized(pool){
-			List<UserTSIConnection> connections = getOrCreateConnectionList(user);
-			Iterator<UserTSIConnection> iter = connections.iterator();
+			List<PerUserTSIConnection> connections = getOrCreateConnectionList(user);
+			Iterator<PerUserTSIConnection> iter = connections.iterator();
 			while(iter.hasNext()) {
-				UserTSIConnection conn = iter.next();
+				PerUserTSIConnection conn = iter.next();
 				if(!conn.isAlive()) {
 					conn.shutdown();
 					iter.remove();
 				}
 				else if(candidates.contains(conn.getTSIHostName())) {
 					iter.remove();
+					conn.activate();
 					return conn;
 				}
 			}
@@ -51,9 +53,9 @@ public class ConnectionPool {
 		return null;
 	}
 
-	public boolean offer(UserTSIConnection connection){
+	public boolean offer(PerUserTSIConnection connection){
 		synchronized (pool) {
-			List<UserTSIConnection> pooled = getOrCreateConnectionList(connection.getTSIHostName());
+			List<PerUserTSIConnection> pooled = getOrCreateConnectionList(connection.getTSIHostName());
 			pooled.add(connection);
 			return true;
 		}
@@ -84,8 +86,8 @@ public class ConnectionPool {
 		return candidates;
 	}
 
-	private List<UserTSIConnection> getOrCreateConnectionList(String user){
-		List<UserTSIConnection> connections = pool.get(user);
+	private List<PerUserTSIConnection> getOrCreateConnectionList(String user){
+		List<PerUserTSIConnection> connections = pool.get(user);
 		if(connections==null) {
 			connections = new ArrayList<>();
 			pool.put(user, connections);
@@ -94,8 +96,8 @@ public class ConnectionPool {
 	}
 
 	public void shutdown() {
-		for(List<UserTSIConnection> cs: pool.values()){
-			for(UserTSIConnection c: cs) {
+		for(List<PerUserTSIConnection> cs: pool.values()){
+			for(PerUserTSIConnection c: cs) {
 				try{c.shutdown();}catch(Exception ex){}
 			}
 		}
