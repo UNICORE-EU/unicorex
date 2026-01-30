@@ -53,6 +53,8 @@ public abstract class PerUserTSITestCase extends EMSTestBase {
 		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"2000");
 
 		props.put(PerUserTSIProperties.PREFIX+"executable","src/test/resources/tsi/bin/process.sh");
+		props.put(PerUserTSIProperties.PREFIX+"unittesting","true");
+
 	}
 
 	protected void addModules(ConfigurationSource cs){

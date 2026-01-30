@@ -49,8 +49,7 @@ public class Connector {
 	}
 
 	public void activate(PerUserTSIConnection conn) throws Exception {
-		if(identityStore==null){
-			// TODO: ssh mode
+		if(identityStore==null || properties.isTesting()){
 			runLocally(conn);
 		}
 		else {

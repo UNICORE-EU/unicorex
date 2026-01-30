@@ -36,6 +36,8 @@ public class PerUserTSIProperties extends PropertiesHelper {
 	{
 		META.put(TSI_LAUNCH, new PropertyMD().
 				setDescription("Command used to launch the TSI."));
+		META.put("unittesting", new PropertyMD("false").setBoolean().
+				setDescription("(TODO unit testing mode)"));
 	}
 
 	public PerUserTSIProperties() throws ConfigurationException {
@@ -53,5 +55,8 @@ public class PerUserTSIProperties extends PropertiesHelper {
 	public String getCommand(){
 		return getValue(TSI_LAUNCH);
 	}
-
+	
+	public boolean isTesting() {
+		return getBooleanValue("unittesting");
+	}
 }
