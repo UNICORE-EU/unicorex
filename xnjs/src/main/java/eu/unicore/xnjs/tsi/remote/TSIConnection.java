@@ -6,10 +6,6 @@ import eu.unicore.xnjs.tsi.remote.server.TSIConnector;
 
 public interface TSIConnection extends AutoCloseable {
 
-	String TSI_OK = "TSI_OK";
-
-	//InetAddress getTSIAddress();
-
 	String getTSIHostName();
 
 	/**

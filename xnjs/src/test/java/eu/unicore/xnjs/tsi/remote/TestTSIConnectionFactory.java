@@ -17,6 +17,7 @@ import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
@@ -30,18 +31,17 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	public void testConnectionFactory()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		
 		List<ServerTSIConnection>connections = new ArrayList<>();
-		
+		Client cl = TSIMessages.createMinimalClient("nobody");
 		for(int i = 0; i<8; i++){
-			ServerTSIConnection c=f.getTSIConnection("nobody", null, null, -1);
+			ServerTSIConnection c=f.getTSIConnection(cl, null, -1);
 			connections.add(c);
 		}
 		System.out.println("Connections : "+f.getLiveConnections());
 		assertEquals(8, f.getLiveConnections());
 		// check limit is respected
 		assertThrows(TSIUnavailableException.class, ()->
-			f.getTSIConnection("nobody", null, null, -1));
+			f.getTSIConnection(cl, null, -1));
 		// put back into pool
 		for(ServerTSIConnection c: connections){
 			c.close();
@@ -54,10 +54,11 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	public void testConnectorRestart() throws Exception {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		ServerTSIConnection c=f.getTSIConnection("nobody", null, null, -1);
+		Client cl = TSIMessages.createMinimalClient("nobody");
+		ServerTSIConnection c = f.getTSIConnection(cl, null, -1);
 		c.close();
 		f.getTSISocketFactory().reInit();
-		c=f.getTSIConnection("nobody", null, null, -1);
+		c = f.getTSIConnection(cl, null, -1);
 		c.close();
 	}
 

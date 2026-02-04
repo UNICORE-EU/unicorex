@@ -1,7 +1,6 @@
 package eu.unicore.xnjs.tsi.remote;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -260,8 +259,7 @@ public class TestUFTP extends RemoteTSITestCase {
 		job.sendTo(localhost, uftpd.jobPort);
 
 		Action parent = xnjs.makeAction(new JSONObject());
-		parent.setClient(new Client());
-		parent.getClient().setXlogin(new Xlogin(new String[] {"nobody"}));
+		parent.setClient(TSIMessages.createMinimalClient("nobody"));
 		String id = parent.getUUID();
 		mgr.add(parent, parent.getClient());
 		waitUntilDone(id);
@@ -341,8 +339,7 @@ public class TestUFTP extends RemoteTSITestCase {
 	}
 
 	private void runCommand(String command, String outcomeDir) throws Exception {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
-		assertNotNull(tsi);
+		RemoteTSI tsi = makeTSI();
 		tsi.runTSICommand(command);
 		tsi.setStorageRoot(outcomeDir);
 		Thread.sleep(1000);
@@ -359,7 +356,7 @@ public class TestUFTP extends RemoteTSITestCase {
 	}
 
 	private void assertFileLength(File file, long length) throws Exception {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
+		RemoteTSI tsi = makeTSI();
 		assertEquals(length, tsi.getProperties(file.getAbsolutePath()).getSize());
 	}
 }

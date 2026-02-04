@@ -18,6 +18,7 @@ public class TSIFactory {
 	 * @param preferredHost - the preferred TSI host (if applicable, can be null to use any host)
 	 */
 	public TSI createTSI(Client client, String preferredHost){
+		if(client==null)throw new NullPointerException("Client cannot be null");
 		TSI tsi = xnjs.get(TSI.class);
 		tsi.setClient(client);
 		if(tsi instanceof MultiNodeTSI){

@@ -39,7 +39,7 @@ public class TestPortForwarding extends RemoteTSITestCase {
 
 	@Test
 	public void testForwarding() throws Exception {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
+		RemoteTSI tsi = makeTSI();
 		assertNotNull(tsi);
 		SocketChannel s = tsi.openConnection("127.0.0.1:"+echo.getServerPort());
 		PrintWriter w = new PrintWriter(new OutputStreamWriter(ChannelUtils.newOutputStream(s, 65536)), true);

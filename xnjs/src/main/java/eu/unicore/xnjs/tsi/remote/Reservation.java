@@ -36,10 +36,7 @@ public class Reservation implements IReservation {
 	
 	@Inject
 	private TSIConnectionFactory tsiConnectionFactory;
-	
-	@Inject
-	private TSIProperties tsiProperties;
-	
+
 	@Inject
 	private TSIMessages tsiMessages;
 	
@@ -136,25 +133,10 @@ public class Reservation implements IReservation {
 		}
 		return rs;
 	}
-	
-	/**
-	 * Get the configured user ID for managing reservations. 
-	 * If not set, use the user ID from the client object.
-	 * 
-	 * @param client
-	 */
-	protected String getReservationAdmin(Client client){
-		String admin=tsiProperties.getValue(TSIProperties.RES_ADMIN_USER);
-		if(admin==null && client!=null && client.getXlogin()!=null){
-			admin=client.getXlogin().getUserName();
-		}
-		return admin;
-	}
 
 	protected TSIConnection getTSIConnection(Client client) throws TSIUnavailableException {
-		String admin=getReservationAdmin(client);
 		lastTSIHost = "n/a";
-		TSIConnection c = tsiConnectionFactory.getTSIConnection(admin, null, null, -1);
+		TSIConnection c = tsiConnectionFactory.getTSIConnection(client, null, -1);
 		lastTSIHost = c.getTSIHostName();
 		return c;
 	}

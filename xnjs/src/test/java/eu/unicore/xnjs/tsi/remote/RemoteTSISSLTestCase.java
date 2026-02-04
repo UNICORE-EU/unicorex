@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 
+import eu.unicore.security.Client;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ClientProperties;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -40,9 +41,10 @@ public abstract class RemoteTSISSLTestCase extends EMSTestBase {
 		}
 		super.tearDown();
 	}
-	
+
 	protected RemoteTSI makeTSI(){
-		return (RemoteTSI)xnjs.getTargetSystemInterface(null);
+		Client cl = TSIMessages.createMinimalClient("nobody");
+		return (RemoteTSI)xnjs.getTargetSystemInterface(cl);
 	}
 
 	@Override

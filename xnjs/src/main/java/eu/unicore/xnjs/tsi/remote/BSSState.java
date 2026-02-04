@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 
+import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.InternalManager;
@@ -144,11 +145,12 @@ public class BSSState implements IBSSState {
 			bssLocked = bssLock.tryLock(120, TimeUnit.SECONDS);
 			if(bssLocked) {
 				String res = null;
-				try(TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", null, timeout)){
+				Client c = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
+				try(TSIConnection conn = connectionFactory.getTSIConnection(c, null, timeout)){
 					res = conn.send(tsiMessages.makeStatusCommand(null));
 					log.trace("BSS Status listing: \n{}", res);
 				}
-				parts.add(updateBatchJobStates(bssInfo, res, eventHandler));
+				parts.add(updateBatchJobStates(bssInfo, TSIMessages.trim(res), eventHandler));
 			}else {
 				log.error("Can't get BSS status listing: can't acquire lock (timeout)");
 			}
@@ -383,7 +385,8 @@ public class BSSState implements IBSSState {
 	 */
 	public Set<String> getProcessList(String tsiNode)throws IOException, TSIProblem {
 		Set<String>result = new HashSet<>();
-		try(TSIConnection conn = connectionFactory.getTSIConnection(tsiProperties.getBSSUser(),"NONE", tsiNode, timeout)){
+		Client c = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
+		try(TSIConnection conn = connectionFactory.getTSIConnection(c, tsiNode, timeout)){
 			String res = doGetProcessListing(conn);
 			log.trace("Process listing on [{}]: \n{}", tsiNode, res);
 			if(res==null || !res.startsWith("TSI_OK")){
@@ -397,7 +400,6 @@ public class BSSState implements IBSSState {
 		}
 		return result;
 	}
-
 
 	private static final Pattern psPattern=Pattern.compile("\\s*(\\d+)\\s*.*");
 
@@ -452,15 +454,7 @@ public class BSSState implements IBSSState {
 	}
 
 	private String doGetProcessListing(TSIConnection tsiConnection) throws IOException {
-		String res = null;
-		if(tsiConnection.compareVersion("8.3.0")) {
-			res = tsiConnection.send(tsiMessages.makeGetProcessListCommand());
-		}
-		else {
-			String script = tsiProperties.getValue(TSIProperties.BSS_PS);
-			res = tsiConnection.send(tsiMessages.makeExecuteScript(script, null, null));
-		}
-		return res;
+		return tsiConnection.send(tsiMessages.makeGetProcessListCommand());
 	}
 
 }

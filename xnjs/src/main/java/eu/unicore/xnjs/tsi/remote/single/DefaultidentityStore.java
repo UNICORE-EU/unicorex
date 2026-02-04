@@ -1,12 +1,15 @@
 package eu.unicore.xnjs.tsi.remote.single;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 
 import eu.unicore.security.AuthorisationException;
+import eu.unicore.security.Client;
 import eu.unicore.util.Pair;
 import jakarta.inject.Singleton;
 
@@ -18,10 +21,16 @@ public class DefaultidentityStore implements IdentityStore {
 
 	private final Map<String, byte[]> passphrases = new HashMap<>();
 
+	private final Set<IdentityResolver> resolvers = new HashSet<>();
+	
 	public DefaultidentityStore() {}
 
 	@Override
-	public void addIdentity(JSch jsch, String user) throws AuthorisationException {
+	public void addIdentity(JSch jsch, Client client) throws AuthorisationException {
+		String user = client.getSelectedXloginName();
+		if(user==null) {
+			throw new AuthorisationException("Required Unix user is null.");
+		}
 		Pair<byte[], byte[]> kp = keys.get(user);
 		if(kp==null) {
 			throw new AuthorisationException("No key available for '"+user+"'");
@@ -43,4 +52,7 @@ public class DefaultidentityStore implements IdentityStore {
 		}
 	}
 
+	public void registerResolver(IdentityResolver resolver) {
+		
+	}
 }

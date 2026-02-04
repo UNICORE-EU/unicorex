@@ -49,7 +49,6 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String TSI_MKDIR="MKDIR";
 	public static final String TSI_CHMOD="CHMOD";
 	public static final String TSI_CHGRP="CHGRP";
-	public static final String TSI_GROUPS="GROUPS";
 	public static final String TSI_UMASK="UMASK";
 	public static final String TSI_KILL="KILL";
 	public static final String TSI_BUFFERSIZE="BUFFERSIZE";
@@ -68,8 +67,6 @@ public class TSIProperties extends PropertiesHelper {
 	public static final String BSS_GRACE_PERIOD="statusupdate.grace";
 
 	public static final String RES_ENABLED="reservationEnabled";
-	
-	public static final String RES_ADMIN_USER="reservationAdminUser";
 	
 	/**
 	 * limit on queued + running jobs - mostly useful with NOBATCH TSI
@@ -122,8 +119,6 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("Unix 'chmod' command."));
 		META.put(TSI_CHGRP, new PropertyMD("/bin/chgrp").
 				setDescription("Unix 'chgrp' command."));
-		META.put(TSI_GROUPS, new PropertyMD("groups").
-				setDescription("Unix 'groups' command."));
 		META.put(TSI_UMASK, new PropertyMD("umask").
 				setDescription("Unix 'umask' command."));
 		META.put(TSI_KILL, new PropertyMD(
@@ -148,8 +143,6 @@ public class TSIProperties extends PropertiesHelper {
 		META.put(TSI_FILESYSTEM_ID, new PropertyMD().setDescription("TSI filesystem identifier which "
 				+ "uniquely identifies the file system. "
 						+ "The default value uses the '" + PREFIX + "machine' property."));
-		META.put(RES_ADMIN_USER, new PropertyMD("unicore").
-				setDescription("Account used for making reservations (cannot be 'root'). If null, the current user's login will be used."));
 		META.put(RES_ENABLED, new PropertyMD("false").setBoolean().
 				setDescription("Whether to enable the reservation interface."));
 	}

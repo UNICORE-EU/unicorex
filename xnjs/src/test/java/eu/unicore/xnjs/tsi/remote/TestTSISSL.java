@@ -18,6 +18,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import eu.unicore.security.Client;
 import eu.unicore.util.ChannelUtils;
 import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.server.ServerTSIConnection;
@@ -30,36 +31,33 @@ public class TestTSISSL extends RemoteTSISSLTestCase{
 	public void testBasicSetup()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
+		Client cl = TSIMessages.createMinimalClient("nobody");
+		try(ServerTSIConnection c = f.getTSIConnection(cl, null, -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			assertTrue(c.compareVersion(ServerTSIConnection.RECOMMENDED_TSI_VERSION));
 		}
-
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){
-			InetAddress localhost=InetAddress.getByName("127.0.0.1");
+		try(ServerTSIConnection c = f.getTSIConnection(cl,"127.0.0.1",-1)){
+			InetAddress localhost = InetAddress.getByName("127.0.0.1");
 			assertEquals(localhost,c.getTSIAddress());
 		}
 		int n = f.getNumberOfPooledConnections();
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1",-1)){}
+		try(ServerTSIConnection c = f.getTSIConnection(cl,"127.0.0.1",-1)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
-
 		try{
-			f.getTSIConnection("nobody", null, "no-such-host", -1);
+			f.getTSIConnection(cl, "no-such-host", -1);
 			fail("expected exception here");
 		}catch(IllegalArgumentException e){
 			assertTrue(e.getMessage().contains("No TSI is configured at 'no-such-host'"));
 		}
-
-		RemoteTSI tsi=makeTSI();
+		RemoteTSI tsi = makeTSI();
 		assertNotNull(tsi);
 		assertEquals("UNICORE TSI at 127.0.0.1",tsi.getFileSystemIdentifier());
 	}
 
 	@Test
 	public void testForwardingSSL() throws Exception {
-		RemoteTSI tsi=(RemoteTSI)xnjs.getTargetSystemInterface(null);
-		assertNotNull(tsi);
+		RemoteTSI tsi = makeTSI();
 		SocketChannel s = tsi.openConnection("127.0.0.1:"+echo.getServerPort());
 		PrintWriter w = new PrintWriter(new OutputStreamWriter(ChannelUtils.newOutputStream(s, 65536)), true);
 		Reader r = new InputStreamReader(ChannelUtils.newInputStream(s, 65536));
@@ -72,9 +70,9 @@ public class TestTSISSL extends RemoteTSISSLTestCase{
 		System.out.println("<-- "+reply);
 		assertEquals(line, reply);
 	}
-	
+
 	private static EchoServer echo = null;
-	
+
 	@BeforeAll
 	public static void startBackend() throws Exception {
 		echo = new EchoServer();

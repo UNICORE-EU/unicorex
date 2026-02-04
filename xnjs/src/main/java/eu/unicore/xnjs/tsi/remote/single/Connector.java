@@ -6,6 +6,8 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
+import eu.unicore.security.Client;
+
 public class Connector {
 
 	private final String hostname;
@@ -35,7 +37,7 @@ public class Connector {
 		return category;
 	}
 
-	public PerUserTSIConnection createConnection(String user) throws Exception {
+	public PerUserTSIConnection createConnection(Client user) throws Exception {
 		return new PerUserTSIConnection(factory, this, user);
 	}
 
@@ -54,7 +56,7 @@ public class Connector {
 		}
 		else {
 			if(conn.getSession()==null) {
-				conn.setSession(createSession(conn.getUser()));
+				conn.setSession(createSession(conn.getClient()));
 			}
 			Session session = conn.getSession();
 			ChannelExec channel = (ChannelExec) session.openChannel("exec");
@@ -66,11 +68,12 @@ public class Connector {
 		}
 	}
 
-	private Session createSession(String user) throws Exception {
+	private Session createSession(Client client) throws Exception {
 		Session session = null;
 		JSch.setLogger(new Log());
 		JSch jsch = new JSch();
-		identityStore.addIdentity(jsch, user);
+		identityStore.addIdentity(jsch, client);
+		String user = client.getSelectedXloginName();
 		session = jsch.getSession(user, hostname);
 		session.setConfig("StrictHostKeyChecking", "no");
 		session.setConfig("PreferredAuthentications", "publickey");

@@ -72,7 +72,14 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public ServerTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
+	public ServerTSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
+			throws TSIUnavailableException{
+		String user = client.getXlogin().getUserName();
+		String group = TSIMessages.prepareGroupsString(client);
+		return getTSIConnection(user, group, preferredHost, timeout);
+	}
+
+	protected ServerTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
@@ -82,15 +89,6 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}
 		conn.setUser(user, group);
 		return conn;
-	}
-
-	@Override
-	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
-			throws TSIUnavailableException{
-		if(!isRunning)throw new TSIUnavailableException();
-		String user = client.getXlogin().getUserName();
-		String group = TSIMessages.prepareGroupsString(client);
-		return getTSIConnection(user, group, preferredHost, timeout);
 	}
 
 	protected synchronized ServerTSIConnection createNewTSIConnection(String preferredHost) throws TSIUnavailableException {
@@ -329,8 +327,10 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public SocketChannel connectToService(String serviceAddress, String tsiHost, String user, String group)
+	public SocketChannel connectToService(String serviceAddress, String tsiHost, Client client)
 			throws TSIUnavailableException, IOException{
+		String user = client.getSelectedXloginName();
+		String group = TSIMessages.prepareGroupsString(client);
 		if(tsiHost!=null) {
 			return getConnector(tsiHost).connectToService(server, serviceAddress, user, group);
 		}else {

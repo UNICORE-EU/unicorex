@@ -152,7 +152,7 @@ public class Execution extends BasicExecution {
 				}
 			}
 			job.addLogTrace("TSI reply: submission OK.");
-			String bssid = res.trim();
+			String bssid = TSIMessages.trim(res);
 			msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
 			String internalID = bssid;
 			BSS_STATE initialState = BSS_STATE.QUEUED;
@@ -210,8 +210,8 @@ public class Execution extends BasicExecution {
 	private long readPID(Action job, String preferredTSINode)throws IOException, ExecutionException, InterruptedException {
 		Thread.sleep(3000); // async submit, so PID file may not yet be written - let's try and avoid errors later
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
-		ExecutionContext ec=job.getExecutionContext();
-		String pidFile=ec.getOutputDirectory()+"/"+ec.getPIDFileName();
+		ExecutionContext ec = job.getExecutionContext();
+		String pidFile = ec.getOutputDirectory()+"/"+ec.getPIDFileName();
 		jobExecLogger.debug("Reading PID from <{}>",pidFile);
 		long pid=0;
 		for(int i=0; i<3; i++){
@@ -594,9 +594,10 @@ public class Execution extends BasicExecution {
 	 * @throws Exception if the TSI reply is not "TSI_OK"
 	 */
 	protected String runTSICommand(String command, Client client, String preferredTSIHost, boolean check) throws Exception {
-		try(TSIConnection conn = client!=null ?
-				connectionFactory.getTSIConnection(client, preferredTSIHost, -1) :
-				connectionFactory.getTSIConnection(tsiProperties.getBSSUser(), "NONE", preferredTSIHost, -1))
+		if(client==null) {
+			client = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
+		}
+		try(TSIConnection conn = connectionFactory.getTSIConnection(client, preferredTSIHost, -1))
 		{
 			String res = conn.send(command);
 			if(check && !res.contains("TSI_OK")){
@@ -677,9 +678,10 @@ public class Execution extends BasicExecution {
 
 	public Collection<Partition> getPartitionInfo() throws Exception {
 		Collection<Partition> result = new HashSet<>();
-		String infoS = runTSICommand(tsiMessages.makeGetPartitionsCommand(), null, null, true);
-		infoS = infoS.replace("TSI_OK", "").trim();
-		System.out.println(infoS);
+		String bssUser = tsiProperties.getBSSUser();
+		Client cl = TSIMessages.createMinimalClient(bssUser);
+		String infoS = runTSICommand(tsiMessages.makeGetPartitionsCommand(), cl, null, true);
+		infoS = TSIMessages.trim(infoS);
 		JSONObject jo = new JSONObject(infoS);
 		for(String partitionName: jo.keySet()) {
 			JSONObject partitionInfo = jo.getJSONObject(partitionName);

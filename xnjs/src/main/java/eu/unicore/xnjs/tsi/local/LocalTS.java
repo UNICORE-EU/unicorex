@@ -459,13 +459,8 @@ public class LocalTS implements TSI {
 	}
 
 	public void setStorageRoot(String storageRoot) {
-		//make absolute, which is possible since we are local
+		// make absolute, which is possible since we are local
 		this.storageRoot = new File(storageRoot).getAbsolutePath();
-	}
-
-	@Override
-	public String[] getGroups() throws TSIBusyException, ExecutionException {
-		return new String[0];
 	}
 
 	@Override

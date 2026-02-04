@@ -87,12 +87,6 @@ public interface TSI extends IStorageAdapter{
 	public void setClient(Client client);
 
 	/**
-	 * get the groups the current client is in
-	 * @return list of groups
-	 */
-	public String[]getGroups() throws TSIBusyException, ExecutionException;
-
-	/**
 	 * have the TSI make a connection to the service listening on the given address
 	 * the address can be of the form "host:port" for a normal TCP socket,
 	 * or "file:socketfile" for a UNIX domain socket

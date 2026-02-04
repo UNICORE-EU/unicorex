@@ -17,6 +17,7 @@ import eu.unicore.persist.util.UUID;
 import eu.unicore.uftp.dpc.Utils;
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.TSIMessages;
 
 public class TestPerUserTSI extends PerUserTSITestCase {
 
@@ -29,7 +30,7 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	@Test
 	public void testPing() throws Exception {
 		PerUserTSIConnection tC = (PerUserTSIConnection)xnjs.get(TSIConnectionFactory.class).
-				getTSIConnection("nobody", "foo", null, -1);
+				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, -1);
 		String reply = tC.send("#TSI_PING");
 		System.out.println("TSI PING reply: " + reply);
 		assertTrue(reply.contains("10."));

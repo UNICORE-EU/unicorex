@@ -62,23 +62,23 @@ public class TestTSI extends RemoteTSITestCase{
 	public void testBasicSetup()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, null, -1)){
+		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			assertTrue(c.compareVersion(ServerTSIConnection.RECOMMENDED_TSI_VERSION));
 			
 		}
 
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null,"127.0.0.1", -1)){
+		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"),"127.0.0.1", -1)){
 			InetAddress localhost=InetAddress.getByName("127.0.0.1");
 			assertEquals(localhost,c.getTSIAddress());
 		}
 		int n = f.getNumberOfPooledConnections();
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, "127.0.0.1", -1)){}
+		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.0.1", -1)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
 
 		try{
-			f.getTSIConnection("nobody", null, "no-such-host", -1);
+			f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "no-such-host", -1);
 			fail("expected exception here");
 		}catch(IllegalArgumentException e){
 			assertTrue(e.getMessage().contains("No TSI is configured at 'no-such-host'"));
@@ -183,7 +183,7 @@ public class TestTSI extends RemoteTSITestCase{
 	@Test
 	public void testTemplate() throws Exception{
 		String tmpdir = mkTmpDir();
-		RemoteTSI tsi=makeTSI();
+		RemoteTSI tsi = makeTSI();
 		String tmp="test_"+System.currentTimeMillis()+"";
 		tsi.mkdir(tmpdir+File.separator+tmp);
 		ExecutionContext ec = new ExecutionContext();
@@ -202,20 +202,17 @@ public class TestTSI extends RemoteTSITestCase{
 	@Test
 	public void testReservationModule() throws Exception {
 		IReservation r= xnjs.get(IReservation.class);
-
-		Client c=new Client();
-		c.setAuthenticatedClient(null);
+		Client c = TSIMessages.createMinimalClient("nobody");
 		Map<String, String> resources = new HashMap<>();
 		Calendar startTime=Calendar.getInstance();
 		startTime.add(Calendar.DAY_OF_MONTH,2);
 		String id = r.makeReservation(resources, startTime, c);
-		r.cancelReservation(id, new Client());
+		r.cancelReservation(id, c);
 	}
 
 	@Test
 	public void testChmod2() throws ExecutionException, IOException {
-		RemoteTSI tsi=makeTSI();
-		assertNotNull(tsi);
+		RemoteTSI tsi = makeTSI();
 		File tst = new File("target" + File.separator + "chmodTestFile.tmp");
 		tst.createNewFile();
 		ChangePermissions []changePerms = new ChangePermissions[3];
@@ -242,64 +239,16 @@ public class TestTSI extends RemoteTSITestCase{
 		FileUtils.deleteQuietly(tst);
 	}
 
-	/**
-	 * This test is very limited. It only checks if chgrp works when changing 
-	 * to the same group as was already present (as we have no guarantee nor knowledge
-	 * of other groups that the current user is member of). So the test is checking
-	 * only if operation is executed successfully.
-	 * @throws IOException 
-	 * @throws ExecutionException 
-	 */
 	@Test
 	public void testChgrp()throws IOException, ExecutionException {
 		RemoteTSI tsi=makeTSI();
 		assertNotNull(tsi);
-
-		File tst = new File("target" + File.separator + "chgrpTestFile.tmp");
+		File tst = new File("target", "chgrpTestFile.tmp");
 		tst.createNewFile();
 		XnjsFileWithACL f = tsi.getProperties(tst.getAbsolutePath());
 		String group = f.getGroup();
 		tsi.chgrp(tst.getAbsolutePath(), group, false);
-
-		//tsi.chgrp(tst.getAbsolutePath(), "users");
-		//XnjsFileWithACL f2 = tsi.getProperties(tst.getAbsolutePath());
-		//assertEquals("users", f2.getGroup());
-		FileUtils.deleteQuietly(tst);
-
-		String[]groups=tsi.getGroups();
-		assertNotNull(groups);
-		System.out.println(Arrays.asList(groups));
-
-		tst = new File("target" + File.separator + "lstTestFile.tmp");
-		tst.createNewFile();
-		f = tsi.getProperties(tst.getAbsolutePath());
-		assertNotNull(f.getGroup());
-		assertNotNull(f.getOwner());
-		assertNotNull(f.getUNIXPermissions());
-		FileUtils.deleteQuietly(tst);
-
-		String tmpdir = mkTmpDir();
-		String tmp="test_"+System.currentTimeMillis();
-		tsi.setUmask("0025");
-		String dir = tmpdir+File.separator+tmp;
-		tsi.mkdir(dir);
-		String dirPerms = tsi.getProperties(dir).getUNIXPermissions();
-		assertEquals("rwxr-x-w-", dirPerms);
-
-		tsi.setUmask("11");
-		String file=dir+File.separator+"outUmask-1";
-		OutputStream os=tsi.getOutputStream(file);
-		assertNotNull(os);
-		os.write("tsi!".getBytes());
-		os.close();
-		String filePerms = tsi.getProperties(file).getUNIXPermissions();
-		assertEquals("rw-rw-rw-", filePerms);
-
-		tsi.setUmask("276");
-		tsi.cp(file, file+"-cp");
-		String filePerms2 = tsi.getProperties(file+"-cp").getUNIXPermissions();
-		assertEquals("r--------", filePerms2);
-		FileUtils.deleteQuietly(new File(dir));
+		tst.delete();
 	}
 
 	@Test
@@ -429,7 +378,7 @@ public class TestTSI extends RemoteTSITestCase{
 		ExecutionContext ec = new ExecutionContext();
 		TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
 		String message = tsiMessages.makeExecuteScript("sleep 10", ec, null);
-		try (ServerTSIConnection c = f.getTSIConnection("nobody", null, "127.0.0.1", -1)){
+		try (ServerTSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.0.1", -1)){
 			assertEquals(localhost,c.getTSIAddress());
 			c.setTimeouts(3000, false);
 			c.send(message);

@@ -17,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.jcraft.jsch.Session;
 
+import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
@@ -31,12 +32,12 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TSI, TSIConnection.class);
 
-	private final String user;
+	private Client client;
 
 	private BufferedReader input;
 
 	private PrintWriter output;
-	
+
 	private final PerUserTSIConnectionFactory factory;
 
 	private String tsiVersion;
@@ -52,18 +53,17 @@ public class PerUserTSIConnection implements TSIConnection {
 	private Session sshSession;
 
 	/**
-	 * @param in - input
-	 * @param out - output
 	 * @param factory - the parent factory
 	 * @param connector - the TSI connector
+	 * @param client
 	 * @throws IOException
 	 */
-	public PerUserTSIConnection(PerUserTSIConnectionFactory factory, Connector connector, String user)
+	public PerUserTSIConnection(PerUserTSIConnectionFactory factory, Connector connector, Client client)
 			throws IOException {
 		this.factory = factory;
 		this.connector = connector;
-		this.user = user;
-		this.connectionID = user+"@"+connector.getHostname();
+		this.client = client;
+		this.connectionID = getUserDescription()+"@"+connector.getHostname();
 	}
 
 	public void setInput(InputStream in) throws IOException {
@@ -89,8 +89,8 @@ public class PerUserTSIConnection implements TSIConnection {
 	/**
 	 * the Unix user name on the remote system
 	 */
-	public String getUser(){
-		return user;
+	public Client getClient(){
+		return client;
 	}
 
 	/**
@@ -112,7 +112,7 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	@Override
 	public String getUserDescription() {
-		return user;
+		return client.getSelectedXloginName();
 	}
 
 	/**
@@ -133,9 +133,10 @@ public class PerUserTSIConnection implements TSIConnection {
 			}
 		}
 		try {
+			String user = client.getSelectedXloginName();
 			logger.debug("--> [{}] {}", user, data);
 			output.println(data);
-			output.println("#TSI_IDENTITY " + user);
+			output.println("#TSI_IDENTITY " + user + " NONE");
 			output.println("ENDOFMESSAGE");
 			output.flush();
 		} catch (Exception e) {
@@ -185,6 +186,7 @@ public class PerUserTSIConnection implements TSIConnection {
 	
 	@Override
 	public void sendData(byte[] buffer, int offset, int number) throws IOException {
+		String user = client.getSelectedXloginName();
 		logger.debug("--> [{}] {}", user, _begin_data);
 		output.println("---BEGIN DATA BASE64---");
 		String base64;
@@ -276,7 +278,7 @@ public class PerUserTSIConnection implements TSIConnection {
 	public String toString(){
 		StringBuilder sb=new StringBuilder();
 		sb.append("TSIConnection[");
-		sb.append(user).append("@").append(getTSIHostName());
+		sb.append(getUserDescription()).append("@").append(getTSIHostName());
 		sb.append("]");
 		return sb.toString();
 	}

@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 
+import eu.unicore.security.Client;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.server.ServerTSIConnection;
@@ -26,20 +27,20 @@ public class MultiCategoryTSITest extends RemoteTSITestCase {
 		Properties props = cs.getProperties();
 		props.put(p+TSIProperties.TSI_MACHINE+".bignodes", "127.0.0.1");
 	}
-	
-	
+
 	@Test
 	public void testConnectionFactory()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory
 				)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		assertEquals(2, f.getTSIConnectorStates().size());
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, "127.0.*", -1)){
+		Client cl = TSIMessages.createMinimalClient("nobody");
+		try(ServerTSIConnection c = f.getTSIConnection(cl, "127.0.*", -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());
 		}
-		try(ServerTSIConnection c=f.getTSIConnection("nobody", null, "category:bignodes", -1)){
+		try(ServerTSIConnection c = f.getTSIConnection(cl, "category:bignodes", -1)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());

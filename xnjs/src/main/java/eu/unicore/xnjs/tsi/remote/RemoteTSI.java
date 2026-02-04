@@ -71,8 +71,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private final XNJSProperties xnjsProperties;
 
-	private String user = "nobody";
-	private String group = "NONE";
 	private ExecutionContext ec;
 	private boolean autoCommit;
 
@@ -110,13 +108,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Override
 	public void setClient(Client client){
 		this.client=client;
-		if(client!=null){
-			user=client.getSelectedXloginName();
-			group = TSIMessages.prepareGroupsString(client);
-		} else {
-			user="nobody";
-			group="NONE";
-		}
 	}
 
 	protected String extractCredentials(){
@@ -199,24 +190,12 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private TSIConnection getConnection() throws TSIUnavailableException {
 		lastUsedTSIHost = "n/a";
-		TSIConnection c = factory.getTSIConnection(user, group, preferredHost, timeout);
+		TSIConnection c = factory.getTSIConnection(client, preferredHost, timeout);
 		lastUsedTSIHost = c.getTSIHostName();
 		return c;
 	}
 
 	private String doTSICommand(String tsiCmd)throws ExecutionException{
-		return doTSICommandLowLevel(tsiCmd, group);
-	}
-
-	private String doTSICommandWithAllGroups(String tsiCmd) throws ExecutionException{
-		String groups = null;
-		if (client!=null){
-			groups = TSIMessages.prepareAllGroupsString(client);
-		}
-		return doTSICommandLowLevel(tsiCmd, groups);
-	}
-
-	private String doTSICommandLowLevel(String tsiCmd, String groups) throws ExecutionException {
 		String res="";
 		try(TSIConnection c = getConnection()){
 			res = c.send(tsiCmd);
@@ -456,8 +435,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 	@Override
 	public XnjsFile[] ls(String base,int offset, int limit, boolean filter)throws ExecutionException{
 		String res = doLS(base,true,false);
-		List<XnjsFile>files=new ArrayList<>();
-		BufferedReader br=new BufferedReader(new StringReader(res+"\n"));
+		List<XnjsFile>files = new ArrayList<>();
+		BufferedReader br = new BufferedReader(new StringReader(res+"\n"));
 		int pos=0;
 		while(true){
 			try {
@@ -465,7 +444,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 				if(lines[0]==null)break;
 				pos++;
 				if(pos<=offset)continue;
-				XnjsFile xFile=parseLine(lines);
+				XnjsFile xFile = parseLine(lines);
 				if (!filter || xFile.isOwnedByCaller() 
 						|| xFile.getPermissions().isAccessible()) {
 					files.add(xFile);
@@ -476,7 +455,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 			if(files.size()==limit)break;
 		}
 		return (XnjsFile[])files.toArray(new XnjsFile[0]);
-
 	}
 
 	@Override
@@ -879,19 +857,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return storageRoot;
 	}
 
-	@Override
-	public String[] getGroups() throws ExecutionException {
-		String cmd = tsiMessages.makeExecuteScript(tsiProperties.getValue(TSIProperties.TSI_GROUPS), ec, extractCredentials());
-		String reply = doTSICommandWithAllGroups(cmd);
-		try{
-			String groups = tsiMessages.readTSIDFLine(new BufferedReader(new StringReader(reply)));
-			return groups.split("\\s+");
-		}
-		catch(Exception ex){
-			throw new ExecutionException(ex);
-		}
-	}
-
 	private String faclCommon(String file, String command)  throws ExecutionException {
 		String target = makeTarget(file);
 		String tsicmd = command + 
@@ -1071,6 +1036,6 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	@Override
 	public SocketChannel openConnection(String address) throws Exception {
-		return factory.connectToService(address, preferredHost, user, group);
+		return factory.connectToService(address, preferredHost, client);
 	}
 }

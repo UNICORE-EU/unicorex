@@ -30,7 +30,7 @@ public abstract class PerUserTSITestCase extends EMSTestBase {
 	}
 
 	protected RemoteTSI makeTSI() {
-		return makeTSI(null);
+		return makeTSI("nobody");
 	}
 
 	protected RemoteTSI makeTSI(String user){

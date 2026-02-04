@@ -37,6 +37,9 @@ import eu.unicore.xnjs.util.ErrorCode;
  */
 public class TSIMessages {
 
+	public static final String TSI_OK = "TSI_OK";
+	public static final String TSI_FAILED = "TSI_FAILED";
+
 	public static final String EXITCODE_FILENAME = "UNICORE_SCRIPT_EXIT_CODE";
 	public static final String PID_FILENAME = "UNICORE_SCRIPT_PID";
 	public static final String ALLOCATION_ID = "UNICORE_ALLOCATION_ID";
@@ -52,6 +55,10 @@ public class TSIMessages {
 	public TSIMessages(XNJS xnjs) {
 		this.xnjs = xnjs;
 		this.ioProperties = xnjs.getIOProperties();
+	}
+
+	public static String trim(String tsiReply) {
+		return tsiReply.replaceFirst(TSI_OK, "").trim();
 	}
 
 	/**
@@ -408,7 +415,7 @@ public class TSIMessages {
 		return commands.toString();
 	}
 
-	private static final String [] ls_ignored = new String[] {"TSI_OK", "END_LISTING", "START_LISTING", "<", "-"};
+	private static final String [] ls_ignored = new String[] {TSI_OK, "END_LISTING", "START_LISTING", "<", "-"};
 
 	/**
 	 * read a line from a TSI LS result, skipping irrelevant lines
@@ -447,7 +454,7 @@ public class TSIMessages {
 		return lines;
 	}
 
-	private String [] df_ignored = new String[] {"TSI_OK", "END_DF", "START_DF"};
+	private String [] df_ignored = new String[] {TSI_OK, "END_DF", "START_DF"};
 
 	public String readTSIDFLine(BufferedReader br) throws ExecutionException{
 		String line = "";
@@ -906,7 +913,19 @@ public class TSIMessages {
 		} catch (Exception e) {}
 	}
 
-	
+	/**
+	 * for some internal cases, create a "minimal" client for use of the remote TSI 
+	 * - only the Unix ID is set
+	 * 
+	 * @param user - Unix user ID
+	 * @return
+	 */
+	public static Client createMinimalClient(String user) {
+		Client c = new Client();
+		c.setXlogin(new Xlogin(new String[]{user}));
+		return c;
+	}
+
 	/**
 	 * Prepares a standard groups string for a TSI call requesting membership in all groups configured
 	 * by attribute sources and possibly refined by user preferences.
@@ -940,7 +959,6 @@ public class TSIMessages {
 		if (xlogin.isAddDefaultGroups())
 			sb.append(":DEFAULT_GID");
 		return sb.toString();
-
 	}
 
 	/**
@@ -1046,9 +1064,9 @@ public class TSIMessages {
 	 * @throws ExecutionException
 	 */
 	public static void checkNoErrors(String reply, String tsiHost) throws ExecutionException {
-		if (reply==null || !reply.startsWith("TSI_OK")
-			||  reply.replaceFirst("TSI_OK", "").trim().length()>0) {
-			String error = reply!=null? reply.replace("TSI_OK", "").trim() : "TSI reply is null";
+		if (reply==null || !reply.startsWith(TSI_OK)
+			||  trim(reply).length()>0) {
+			String error = reply!=null? trim(reply) : "TSI reply is null";
 			throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, "TSI <"+tsiHost+"> ERROR: '"+error+"'");
 		}
 	}

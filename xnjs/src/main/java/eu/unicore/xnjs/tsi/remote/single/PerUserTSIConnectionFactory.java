@@ -70,16 +70,11 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		start();
 	}
 
-	@Override
-	public PerUserTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
+	protected PerUserTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
-		PerUserTSIConnection conn = connectionPool.get(user, preferredHost);
-		if(conn==null){
-			conn = createNewTSIConnection(user, preferredHost);
-		}
-		return conn;
+		return connectionPool.get(user, preferredHost);
 	}
 
 	@Override
@@ -87,11 +82,16 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		String user = client.getXlogin().getUserName();
+		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
 		String group = TSIMessages.prepareGroupsString(client);
-		return getTSIConnection(user, group, preferredHost, timeout);
+		PerUserTSIConnection conn = getTSIConnection(user, group, preferredHost, timeout);
+		if(conn==null){
+			conn = createNewTSIConnection(client, preferredHost);
+		}
+		return conn;
 	}
 
-	protected synchronized PerUserTSIConnection createNewTSIConnection(String user, String preferredHost) throws TSIUnavailableException {
+	protected synchronized PerUserTSIConnection createNewTSIConnection(Client user, String preferredHost) throws TSIUnavailableException {
 		int limit = tsiProperties.getIntValue(TSIProperties.TSI_WORKER_LIMIT);
 		if(limit>0 && liveConnections.get()>=limit){
 			throw new TSIUnavailableException(preferredHost);
@@ -107,7 +107,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	// index of last used TSI connector
 	private RollingIndex pos = null;
 
-	private PerUserTSIConnection doCreate(String user) throws TSIUnavailableException {
+	private PerUserTSIConnection doCreate(Client user) throws TSIUnavailableException {
 		// try all configured TSI hosts at least once
 		for(int i=0;i<connectorList.length;i++){
 			Connector c = connectorList[pos.next()];
@@ -121,7 +121,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		throw new TSIUnavailableException();
 	}
 
-	private PerUserTSIConnection doCreate(String user, String preferredHost) throws TSIUnavailableException {
+	private PerUserTSIConnection doCreate(Client user, String preferredHost) throws TSIUnavailableException {
 		List<String>candidates = getTSIHostNames(preferredHost, connectors.values());
 		Exception lastException = null;
 		// try all matching TSI hosts at least once
@@ -276,7 +276,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public SocketChannel connectToService(String serviceAddress, String tsiHost, String user, String group)
+	public SocketChannel connectToService(String serviceAddress, String tsiHost, Client client)
 			throws TSIUnavailableException, IOException{
 		throw new TSIUnavailableException();
 	}

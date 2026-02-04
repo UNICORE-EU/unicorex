@@ -29,8 +29,8 @@ public interface TSIConnectionFactory {
 	 * @throws TSIUnavailableException if TSI is down
 	 * @throws IllegalArgumentException - if user is <code>null</code>
 	 */
-	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeoutMillis)
-			throws TSIUnavailableException;
+//	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeoutMillis)
+//			throws TSIUnavailableException;
 
 	/**
 	 * Return a connection that executes commands under the given user id. 
@@ -101,13 +101,12 @@ public interface TSIConnectionFactory {
 	 * 
 	 * @param address - service to connect to
 	 * @param tsiHost - the TSI node to use (can be null, if that makes sense)
-	 * @param user
-	 * @param group
+	 * @param client
 	 * @return connected SocketChannel
 	 * @throws TSIUnavailableException
 	 * @throws IOException
 	 */
-	public SocketChannel connectToService(String address, String tsiHost, String user, String group)
+	public SocketChannel connectToService(String address, String tsiHost, Client client)
 			throws TSIUnavailableException, IOException;
 
 	/**
