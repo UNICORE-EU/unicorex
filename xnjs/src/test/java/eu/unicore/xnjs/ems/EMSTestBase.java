@@ -13,9 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 
 import com.google.inject.AbstractModule;
 
-import eu.unicore.security.Client;
-import eu.unicore.security.SecurityTokens;
-import eu.unicore.security.Xlogin;
 import eu.unicore.xnjs.XNJSTestBase;
 import eu.unicore.xnjs.persistence.IActionStoreFactory;
 import eu.unicore.xnjs.persistence.JDBCActionStoreFactory;
@@ -142,13 +139,4 @@ public abstract class EMSTestBase extends XNJSTestBase {
 		a.printLogTrace();
 	}
 
-	// create a dummy client
-	protected Client createClient(){
-		Client c = new Client();
-		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		SecurityTokens st = new SecurityTokens();
-		st.setUserName("CN=test");
-		c.setAuthenticatedClient(st);
-		return c;
-	}
 }

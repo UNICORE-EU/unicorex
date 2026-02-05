@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 
+import eu.unicore.security.Client;
 import eu.unicore.xnjs.ConfigurationSource.ProcessorChain;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
@@ -26,10 +27,11 @@ public class TestComponentManagement extends XNJSTestBase {
 
 	@Test
 	public void testXNJSSetupAndStart(){
+		Client c = createClient();
 		assertNotNull(xnjs);
-		TSI tsi1 = xnjs.getTargetSystemInterface(null);
+		TSI tsi1 = xnjs.getTargetSystemInterface(c);
 		assertNotNull(tsi1);
-		TSI tsi2 = xnjs.getTargetSystemInterface(null);
+		TSI tsi2 = xnjs.getTargetSystemInterface(c);
 		assertNotSame(tsi1,tsi2);
 	}
 

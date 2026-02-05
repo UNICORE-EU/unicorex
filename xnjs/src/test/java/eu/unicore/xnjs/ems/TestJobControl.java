@@ -3,6 +3,7 @@ package eu.unicore.xnjs.ems;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -22,7 +23,7 @@ public class TestJobControl extends EMSTestBase {
 	d1="src/test/resources/json/date.json",
 	d2="src/test/resources/json/sleep.json";
 	
-	private Client client=new Client();
+	private Client client = createClient();
 
 	@Override
 	protected void addProperties(ConfigurationSource cs){
@@ -50,12 +51,11 @@ public class TestJobControl extends EMSTestBase {
 	public void testAbort() throws Exception {
 		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
-		mgr.add(action,client);
+		mgr.add(action, client);
 		waitUntilReady(id);
-		mgr.abort(id,null);
+		mgr.abort(id, client);
 		waitUntilDone(id);
 		Thread.sleep(1000);
-
 		Action a1=((BasicManager)mgr).getActionForUpdate(id);
 		assertNotNull(a1);
 		System.out.println(a1.getUUID()+" is "+a1.getStatusAsString());
@@ -66,19 +66,16 @@ public class TestJobControl extends EMSTestBase {
 
 	@Test
 	public void testDestroy() throws Exception {
-		Action action=xnjs.makeAction(loadJSONObject(d1));
-		String id=action.getUUID();
-		mgr.add(action,client);
+		Action action = xnjs.makeAction(loadJSONObject(d1));
+		String id = action.getUUID();
+		mgr.add(action, client);
 		waitUntilReady(id);
-		mgr.destroy(id,client);
+		mgr.destroy(id, client);
 		Thread.sleep(1000);
-		try{
-			mgr.getStatus(id, client);
-			fail();
-		}catch(ExecutionException te){
-			assertTrue(te.getMessage().contains("No such action"));
-			System.out.println("OK: exception "+LogUtil.createFaultMessage("", te));
-		}
+		ExecutionException te = assertThrows(ExecutionException.class,
+				()->mgr.getStatus(id, client));
+		assertTrue(te.getMessage().contains("No such action"));
+		assertTrue(te.getMessage().contains(id));
 	}
 
 	@Test
@@ -103,9 +100,9 @@ public class TestJobControl extends EMSTestBase {
 	public void testRestart() throws Exception {
 		Action action=xnjs.makeAction(loadJSONObject(d1));
 		String id=action.getUUID();
-		mgr.add(action,null);
+		mgr.add(action, client);
 		doRun(id);
-		mgr.restart(id, null);
+		mgr.restart(id, client);
 		waitUntilDone(id);
 		Action a=((BasicManager)mgr).getAction(id);
 		a.printLogTrace();
@@ -118,8 +115,8 @@ public class TestJobControl extends EMSTestBase {
 	public void testPause() throws Exception {
 		Action action=xnjs.makeAction(loadJSONObject(d2));
 		String id=action.getUUID();
-		mgr.add(action,null);
-		mgr.run(id,null);
+		mgr.add(action, client);
+		mgr.run(id, client);
 		waitUntilRunning(id);
 		mgr.pause(id, client);
 		Thread.sleep(200);
@@ -132,8 +129,8 @@ public class TestJobControl extends EMSTestBase {
 	public void testConcurrency() throws Exception {
 		Action action=xnjs.makeAction(loadJSONObject(d2));
 		String id=action.getUUID();
-		mgr.add(action,null);
-		mgr.run(id,null);
+		mgr.add(action, client);
+		mgr.run(id, client);
 		waitUntilRunning(id);
 		BasicManager bmgr = (BasicManager)mgr;
 		action = bmgr.getActionForUpdate(id);

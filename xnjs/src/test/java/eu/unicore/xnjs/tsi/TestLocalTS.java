@@ -28,7 +28,7 @@ public class TestLocalTS extends EMSTestBase {
 
 	protected TSI tsi;
 
-	protected final String tmpDir=new File("target", "xnjs_test-"+System.currentTimeMillis()).getPath();
+	protected final String tmpDir = new File("target", "xnjs_test-"+UUID.newUniqueID()).getPath();
 
 	@BeforeEach
 	public void setUp3()throws Exception{
@@ -41,7 +41,7 @@ public class TestLocalTS extends EMSTestBase {
 	}
 
 	protected void initTSI()throws Exception{
-		tsi = xnjs.getTargetSystemInterface(null);
+		tsi = xnjs.getTargetSystemInterface(createClient());
 		tsi.setStorageRoot(tmpDir);
 	}
 
@@ -89,9 +89,7 @@ public class TestLocalTS extends EMSTestBase {
 			assertTrue(file1.getPermissions().isReadable());
 			assertTrue(file1.getPermissions().isWritable());
 			assertTrue(file1.getPermissions().isExecutable());
-			
 			tsi.rmdir(dir2);
-			
 			tsi.setUmask("0722");
 			tsi.mkdir(dir2);
 			XnjsFile file2 = tsi.ls(baseDir)[0];
@@ -100,9 +98,7 @@ public class TestLocalTS extends EMSTestBase {
 			assertFalse(file2.getPermissions().isReadable());
 			assertFalse(file2.getPermissions().isWritable());
 			assertFalse(file2.getPermissions().isExecutable());
-			
 			tsi.rmdir(dir2);
-			
 		} finally {
 			tsi.rmdir(baseDir);
 		}

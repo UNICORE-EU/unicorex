@@ -10,6 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 
 import com.google.inject.AbstractModule;
 
+import eu.unicore.security.Client;
+import eu.unicore.security.SecurityTokens;
+import eu.unicore.security.Xlogin;
 import eu.unicore.xnjs.ems.ActionStateChangeListener;
 import eu.unicore.xnjs.ems.MockChangeListener;
 import eu.unicore.xnjs.persistence.BasicActionStoreFactory;
@@ -20,9 +23,9 @@ import eu.unicore.xnjs.tsi.local.LocalTSIModule;
  * base for XNJS tests
  */
 public abstract class XNJSTestBase {
-   
+
 	protected XNJS xnjs;
-    
+
 	@BeforeEach
 	public void setUp() throws Exception {
 		File fileSpace=new File("target","xnjs_filespace");
@@ -33,13 +36,12 @@ public abstract class XNJSTestBase {
 		preStart();
 		xnjs.start();
 	}
-	
-    
+
 	@AfterEach
 	public void tearDown() throws Exception {
 		if(xnjs!=null)xnjs.stop();
 	}
-	
+
 	protected ConfigurationSource getConfigurationSource() throws IOException {
 		ConfigurationSource cs = new ConfigurationSource();
 		addProperties(cs);
@@ -58,20 +60,19 @@ public abstract class XNJSTestBase {
 		p.put("XNJS."+XNJSProperties.XNJSWORKERS, "2");
 	}
 	
-	protected void addProcessing(ConfigurationSource cs){
-	}
-	
+	protected void addProcessing(ConfigurationSource cs){}
+
 	protected void addModules(ConfigurationSource cs){
 		cs.addModule(new BaseModule(cs.getProperties()));
 		cs.addModule(getPersistenceModule());
 		cs.addModule(getTSIModule(cs.getProperties()));
 		cs.addModule(getNotificationModule());
 	}
-	
+
 	protected AbstractModule getTSIModule(Properties properties){
 		return new LocalTSIModule(properties);
 	};
-	
+
 	protected AbstractModule getPersistenceModule(){
 		return new AbstractModule() {
 			@Override
@@ -80,8 +81,7 @@ public abstract class XNJSTestBase {
 			}
 		};
 	}
-	
-	
+
 	protected AbstractModule getNotificationModule(){
 		return new AbstractModule() {
 			@Override
@@ -90,7 +90,16 @@ public abstract class XNJSTestBase {
 			}
 		};
 	};
-	
+
 	protected void preStart() throws Exception {}
-	
+
+	// create a dummy client
+	protected Client createClient(){
+		Client c = new Client();
+		c.setXlogin(new Xlogin(new String[] {"nobody"}));
+		SecurityTokens st = new SecurityTokens();
+		st.setUserName("CN=test");
+		c.setAuthenticatedClient(st);
+		return c;
+	}
 }

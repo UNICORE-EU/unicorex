@@ -1,5 +1,7 @@
 package eu.unicore.xnjs.fts;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.File;
 
 import org.json.JSONObject;
@@ -18,10 +20,9 @@ public class TestFTSProcessing extends EMSTestBase {
 		j.put("source", "inline://foo");
 		j.put("data", "test123");
 		j.put("workdir", new File("target").getAbsolutePath());
-		
 		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
-		assert e!=null;
-		String id=(String)mgr.add(xnjs.makeAction(j, "FTS", UUID.newUniqueID()),null);
+		assertNotNull(e);
+		String id=(String)mgr.add(xnjs.makeAction(j, "FTS", UUID.newUniqueID()), createClient());
 		waitUntilDone(id);
 		mgr.getAction(id).printLogTrace();
 		System.out.println(mgr.getAction(id).getResult().toString());
