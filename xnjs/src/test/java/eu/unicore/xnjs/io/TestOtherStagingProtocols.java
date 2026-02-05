@@ -22,8 +22,6 @@ import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
 import eu.unicore.security.Client;
-import eu.unicore.security.SecurityTokens;
-import eu.unicore.security.Xlogin;
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import eu.unicore.xnjs.io.TransferInfo.Status;
@@ -53,7 +51,6 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 	}
 
 	private void setupFTPServer(){
-		//if(ftpServer!=null)ftpServer.stop();
 		ftpServer = new FakeFtpServer();
 		ftpServer.setServerControlPort(0);
 		UserAccount anonymous=new UserAccount("anonymous", null, "/");
@@ -125,29 +122,23 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 	}
 
 	@Test
-	public void testPublicFTPDownload(){
-		try{
-			File localFile=File.createTempFile("xnjs", "ftp");
-			localFile.deleteOnExit();
-			xnjs.getIOProperties().setProperty(IOProperties.CURL, null);
-			URI source=new URI("ftp://localhost:"+ftpServer.getServerControlPort()+"/data/infile");
-
-			DataStageInInfo info = new DataStageInInfo();
-			info.setSources(new URI[]{source});
-			info.setFileName(localFile.getAbsolutePath());
-			info.setOverwritePolicy(OverwritePolicy.OVERWRITE);
-
-			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(null, "/", info);
-			assertNotNull(ft);
-			ft.run();
-			TransferInfo fti = ft.getInfo();
-			assertEquals(Status.DONE,fti.getStatus());
-			long transferred=fti.getTransferredBytes();
-			System.out.println("Downloaded "+transferred);
-			assertTrue(transferred>0);
-		}catch(Exception e){
-			e.printStackTrace();
-		}
+	public void testPublicFTPDownload() throws Exception{
+		File localFile=File.createTempFile("xnjs", "ftp");
+		localFile.deleteOnExit();
+		xnjs.getIOProperties().setProperty(IOProperties.CURL, null);
+		URI source=new URI("ftp://localhost:"+ftpServer.getServerControlPort()+"/data/infile");
+		DataStageInInfo info = new DataStageInInfo();
+		info.setSources(new URI[]{source});
+		info.setFileName(localFile.getAbsolutePath());
+		info.setOverwritePolicy(OverwritePolicy.OVERWRITE);
+		IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(createClient(), "/", info);
+		assertNotNull(ft);
+		ft.run();
+		TransferInfo fti = ft.getInfo();
+		assertEquals(Status.DONE,fti.getStatus());
+		long transferred=fti.getTransferredBytes();
+		System.out.println("Downloaded "+transferred);
+		assertTrue(transferred>0);
 	}
 
 	@Test
@@ -170,7 +161,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 			info.setOverwritePolicy(OverwritePolicy.OVERWRITE);
 
 			IFileTransfer ft=new FileTransferEngine(xnjs).
-					createFileImport(null, "/", info);
+					createFileImport(createClient(), "/", info);
 			assertNotNull(ft);
 			ft.run();
 			TransferInfo fti = ft.getInfo();
@@ -192,7 +183,6 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	@Test
 	public void testFTPUpload() throws Exception {
-
 		File localFile=new File("target", "ftpupload-"+System.currentTimeMillis());
 		localFile.deleteOnExit();
 		FileUtils.writeStringToFile(localFile, "testdata", "UTF-8");
@@ -204,7 +194,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		info.setFileName(localFile.getName());
 
 		FTPUpload ft=(FTPUpload)new FileTransferEngine(xnjs).
-				createFileExport(null, "target", info);
+				createFileExport(createClient(), "target", info);
 		assertNotNull(ft);
 		ft.run();
 		TransferInfo fti = ft.getInfo();
@@ -214,9 +204,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 	@Test
 	public void testFileTransferCreator()throws Exception{
 		DefaultTransferCreator fc=new DefaultTransferCreator(xnjs);
-
-		Client client=createClient();
-
+		Client client = createClient();
 		// exports
 		for(String p: fc.getStageOutProtocols()){
 			String protocol=p.trim();
@@ -260,7 +248,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		info.setInlineData(testdata);
 		info.setExtraParameters(new HashMap<>());
 		IFileTransfer ft=new FileTransferEngine(xnjs).
-				createFileImport(null, testDir.getAbsolutePath(), info);
+				createFileImport(createClient(), testDir.getAbsolutePath(), info);
 		assertNotNull(ft);
 		ft.run();
 		TransferInfo fti = ft.getInfo();
@@ -272,7 +260,7 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	private String createDummyParent()throws Exception{
 		JSONObject jD = new JSONObject("{'ApplicationName': 'Date'}");
-		String id = (String)mgr.add(xnjs.makeAction(jD), null);
+		String id = (String)mgr.add(xnjs.makeAction(jD), createClient());
 		waitUntilReady(id);
 		return id;
 	}
@@ -281,12 +269,4 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 		return internalMgr.getAction(actionID).getExecutionContext().getWorkingDirectory();
 	}
 
-	private Client createClient(){
-		Client c=new Client();
-		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		SecurityTokens st=new SecurityTokens();
-		st.setUserName("CN=test");
-		c.setAuthenticatedClient(st);
-		return c;
-	}
 }

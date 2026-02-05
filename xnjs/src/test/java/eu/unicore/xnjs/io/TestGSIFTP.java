@@ -9,8 +9,6 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.security.Client;
-import eu.unicore.security.SecurityTokens;
-import eu.unicore.security.Xlogin;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.ems.ExecutionContext;
@@ -122,7 +120,7 @@ public class TestGSIFTP extends EMSTestBase {
 		JSONObject j = new JSONObject();
 		j.put("ApplicationName","Date");
 		Action job=xnjs.makeAction(j);
-		String id = (String)mgr.add(job, null);
+		String id = (String)mgr.add(job, createClient());
 		waitUntilReady(id);
 		return id;
 	}
@@ -132,12 +130,8 @@ public class TestGSIFTP extends EMSTestBase {
 	}
 	
 	private Client createClient(String proxy){
-		Client c=new Client();
-		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		SecurityTokens st=new SecurityTokens();
-		if(proxy!=null)st.getContext().put("Proxy",proxy);
-		st.setUserName("CN=test");
-		c.setAuthenticatedClient(st);
+		Client c = super.createClient();
+		if(proxy!=null)c.getSecurityTokens().getContext().put("Proxy",proxy);
 		return c;
 	}
 }

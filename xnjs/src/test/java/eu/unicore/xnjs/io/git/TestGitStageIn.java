@@ -34,7 +34,8 @@ public class TestGitStageIn extends EMSTestBase {
 			Map<String,String>params = new HashMap<>();
 			params.put("commit", "26fc7091");
 			info.setExtraParameters(params);
-			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(null, wd.getAbsolutePath(), info);
+			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(createClient(),
+					wd.getAbsolutePath(), info);
 			assertNotNull(ft);
 			assertTrue(ft instanceof GitStageIn);
 			ft.run();
@@ -58,7 +59,8 @@ public class TestGitStageIn extends EMSTestBase {
 			DataStageInInfo info = new DataStageInInfo();
 			info.setSources(new URI[]{source});
 			info.setFileName("testrepo2");
-			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(null, wd.getAbsolutePath(), info);
+			IFileTransfer ft = new FileTransferEngine(xnjs).createFileImport(createClient(),
+					wd.getAbsolutePath(), info);
 			assertNotNull(ft);
 			assertTrue(ft instanceof GitStageIn);
 			ft.run();

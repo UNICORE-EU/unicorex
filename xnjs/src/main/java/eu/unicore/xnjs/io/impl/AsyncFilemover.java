@@ -83,8 +83,7 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 	 * It can be used to customize, e.g. set environment variables.<br/>
 	 * (The default implementation does nothing)
 	 */
-	protected void preSubmit()throws Exception{
-	}
+	protected void preSubmit() throws Exception{}
 
 	protected abstract boolean isImport();
 
@@ -140,6 +139,9 @@ public abstract class AsyncFilemover implements IFileTransfer,Observer<XnjsFile>
 		ach.submit();
 		while(!ach.isDone()){
 			Thread.sleep(2000);
+		}
+		if(monitor!=null) {
+			monitor.dispose();
 		}
 		ResultHolder res=ach.getResult();
 		if(res.getExitCode()!=null && res.getExitCode()==0){

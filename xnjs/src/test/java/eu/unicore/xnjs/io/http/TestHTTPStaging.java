@@ -2,6 +2,7 @@ package eu.unicore.xnjs.io.http;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
+import eu.unicore.security.Client;
 import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.BasicManager;
 import eu.unicore.xnjs.ems.EMSTestBase;
@@ -52,7 +54,7 @@ public class TestHTTPStaging extends EMSTestBase {
 		File tFile=new File("target", target);
 		server.setRequireAuth(true);
 		UsernamePassword up = new UsernamePassword("user", "test123");
-		HTTPFileDownload hfd=new HTTPFileDownload(null,"target",source,target,xnjs,up);
+		HTTPFileDownload hfd=new HTTPFileDownload(createClient(),"target",source,target,xnjs,up);
 		hfd.run();
 		long bytes=hfd.getInfo().getTransferredBytes();
 		assertEquals(answer.length(),bytes);
@@ -65,7 +67,7 @@ public class TestHTTPStaging extends EMSTestBase {
 	public void testRunJobWithStagein()throws Exception{
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
-			String id=(String)mgr.add(xnjs.makeAction(makeJob()),null);
+			String id=(String)mgr.add(xnjs.makeAction(makeJob()), createClient());
 			assertNotNull(id);
 			doRun(id);
 			assertSuccessful(id);
@@ -80,7 +82,7 @@ public class TestHTTPStaging extends EMSTestBase {
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
 			server.setVerySlowMode(true);
-			String id=(String)mgr.add(xnjs.makeAction(makeJob()),null);
+			String id=(String)mgr.add(xnjs.makeAction(makeJob()), createClient());
 			assertNotNull(id);
 			doRun(id);
 			assertSuccessful(id);
@@ -94,11 +96,12 @@ public class TestHTTPStaging extends EMSTestBase {
 	public void testAbortJobWithStagein()throws Exception{
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
+			Client cl = createClient(); 
 			server.setVerySlowMode(true);
-			String id=(String)mgr.add(xnjs.makeAction(makeJob()),null);
+			String id=(String)mgr.add(xnjs.makeAction(makeJob()), cl);
 			assertNotNull(id);
 			Thread.sleep(4000);
-			System.out.println(mgr.abort(id, null));
+			System.out.println(mgr.abort(id, cl));
 			waitUntilDone(id);
 			assertEquals(ActionResult.USER_ABORTED,mgr.getAction(id).getResult().getStatusCode());
 			Thread.sleep(2000);
@@ -125,7 +128,6 @@ public class TestHTTPStaging extends EMSTestBase {
 		File tFile=new File("target","xnjs_test"+System.currentTimeMillis());
 		String content = "this is a test";
 		FileUtils.write(tFile, content, "UTF-8");
-		
 		JSONObject j = new JSONObject();
 		j.put("file", tFile.getName());
 		j.put("target", server.getURI());
@@ -135,15 +137,15 @@ public class TestHTTPStaging extends EMSTestBase {
 		creds.put("Password", "test123");
 		j.put("credentials", creds);
 		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
-		assert e!=null;
-		String id=(String)mgr.add(xnjs.makeAction(j, "FTS", UUID.newUniqueID()), null);
+		assertNotNull(e);
+		String id=(String)mgr.add(xnjs.makeAction(j, "FTS", UUID.newUniqueID()), createClient());
 		waitUntilDone(id);
 		mgr.getAction(id).printLogTrace();
 		System.out.println(mgr.getAction(id).getResult().toString());
-		assert server.getLastAuthNHeader()!=null;
+		assertNotNull(server.getLastAuthNHeader());
 		System.out.println(server.getLastAuthNHeader());
 		System.out.println(server.getLastRequest());
-		assert server.getLastRequest().contains(content);
+		assertTrue(server.getLastRequest().contains(content));
 	}
 	
 	@Test
@@ -154,13 +156,14 @@ public class TestHTTPStaging extends EMSTestBase {
 		j.put("source", server.getURI());
 		j.put("workdir", new File("target").getAbsolutePath());
 		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
-		assert e!=null;
-		String id=(String)mgr.add(xnjs.makeAction(j, "FTS", UUID.newUniqueID()),null);
+		assertNotNull(e);
+		String id = (String)mgr.add(xnjs.makeAction(j, "FTS",
+				UUID.newUniqueID()), createClient());
 		waitUntilDone(id);
 		mgr.getAction(id).printLogTrace();
 		System.out.println(mgr.getAction(id).getResult().toString());
 		System.out.println(server.getLastRequest());
-		assert answer.equals(FileUtils.readFileToString(tFile, "UTF-8"));
+		assertEquals(FileUtils.readFileToString(tFile, "UTF-8"), answer);
 	}
 	
 	private JSONObject makeJob() throws JSONException {
