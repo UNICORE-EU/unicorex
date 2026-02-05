@@ -61,10 +61,11 @@ public class TestUFTPTransfersTSI {
 		File f = new File("target/testfiles");
 		if (!f.exists())f.mkdirs();
 		UAS uas = new UAS(getConfigPath());
+		kernel = uas.getKernel();
+		makePathsAbsolute();
 		uas.startSynchronous();
 		System.out.println("Startup time: "
 				+ (System.currentTimeMillis() - start) + " ms.");
-		kernel = uas.getKernel();
 		kernel.getAttribute(UASProperties.class).setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, "true");
 		Properties cfg = kernel.getContainerProperties().getRawProperties();
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_ENABLE_UFTP, "true");
@@ -87,6 +88,19 @@ public class TestUFTPTransfersTSI {
 		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core/factories/default_target_system_factory");
 		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), null);
 		tss = tsf.getOrCreateSite();
+	}
+
+	static void makePathsAbsolute() throws Exception{
+		Properties props = kernel.getContainerProperties().getRawProperties();
+		for(Object o: props.keySet()) {
+			String key = String.valueOf(o);
+			if(key.endsWith(".path") && (key.contains(".sms.") || key.contains(".storage."))) {
+				String val = props.getProperty(key);
+				val = new File(val).getAbsolutePath();
+				props.setProperty(key, val);
+			}
+		}
+		kernel.setAttribute(UASProperties.class, new UASProperties(props));
 	}
 
 	@Test

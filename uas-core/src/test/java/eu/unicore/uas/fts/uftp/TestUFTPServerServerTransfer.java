@@ -45,9 +45,7 @@ public class TestUFTPServerServerTransfer {
 
 	@BeforeAll
 	public static void init() throws Exception {
-		
 		uftpd.start();
-
 		// start UNICORE
 		long start = System.currentTimeMillis();
 		// clear data directories
@@ -60,6 +58,7 @@ public class TestUFTPServerServerTransfer {
 		System.out.println("Startup time: "
 				+ (System.currentTimeMillis() - start) + " ms.");
 		kernel = uas.getKernel();
+		makePathsAbsolute();
 		kernel.getAttribute(UASProperties.class).setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, "true");
 		Properties cfg = kernel.getContainerProperties().getRawProperties();
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_CLIENT_LOCAL, "true");
@@ -76,6 +75,19 @@ public class TestUFTPServerServerTransfer {
 		sms1 = smf.createStorage();
 		importTestFile(sms1, "test", 1024);
 		sms2 = smf.createStorage();
+	}
+	
+	static void makePathsAbsolute() throws Exception{
+		Properties props = kernel.getContainerProperties().getRawProperties();
+		for(Object o: props.keySet()) {
+			String key = String.valueOf(o);
+			if(key.endsWith(".path") && (key.contains(".sms.") || key.contains(".storage."))) {
+				String val = props.getProperty(key);
+				val = new File(val).getAbsolutePath();
+				props.setProperty(key, val);
+			}
+		}
+		kernel.setAttribute(UASProperties.class, new UASProperties(props));
 	}
 
 	@Test

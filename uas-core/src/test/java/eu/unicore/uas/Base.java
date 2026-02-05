@@ -1,6 +1,7 @@
 package eu.unicore.uas;
 
 import java.io.File;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -36,8 +37,22 @@ public abstract class Base{
 		initDirectories();
 		uas = new UAS(configPath);
 		kernel = uas.getKernel();
+		makePathsAbsolute();
 		uas.startSynchronous();
 		System.err.println("UNICORE/X startup time: "+(System.currentTimeMillis()-start)+" ms.");
+	}
+
+	static void makePathsAbsolute() throws Exception{
+		Properties props = kernel.getContainerProperties().getRawProperties();
+		for(Object o: props.keySet()) {
+			String key = String.valueOf(o);
+			if(key.endsWith(".path") && (key.contains(".sms.") || key.contains(".storage."))) {
+				String val = props.getProperty(key);
+				val = new File(val).getAbsolutePath();
+				props.setProperty(key, val);
+			}
+		}
+		kernel.setAttribute(UASProperties.class, new UASProperties(props));
 	}
 
 	@AfterAll
