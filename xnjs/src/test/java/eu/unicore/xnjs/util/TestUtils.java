@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
+import eu.unicore.security.Client;
 import eu.unicore.xnjs.BaseModule;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.XNJS;
@@ -198,7 +199,8 @@ public class TestUtils {
 		fos.close();
 		assertTrue(target.exists());
 		//create a monitor for the target file
-		FileMonitor f=new FileMonitor("target",target.getName(),null,xnjs,null,200,TimeUnit.MILLISECONDS);
+		Client c = TSIMessages.createMinimalClient("nobody");
+		FileMonitor f=new FileMonitor("target",target.getName(),c,xnjs,null,200,TimeUnit.MILLISECONDS);
 		XnjsFile info=f.getInfo();
 		assertNotNull(info);
 		assertEquals(name, info.getPath());
