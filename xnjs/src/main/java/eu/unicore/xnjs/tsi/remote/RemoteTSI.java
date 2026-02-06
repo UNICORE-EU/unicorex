@@ -532,7 +532,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 					String msg="Command execution on TSI <"+lastUsedTSIHost+"> failed. TSI reply:" + res;
 					throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION, msg);
 				}
-				return res.replace("TSI_OK", "").trim();
+				return TSIMessages.trim(res);
 			}catch(IOException ioe) {
 				throw new TSIProblem(lastUsedTSIHost, ErrorCode.ERR_TSI_COMMUNICATION,
 						"Command execution failed", ioe);

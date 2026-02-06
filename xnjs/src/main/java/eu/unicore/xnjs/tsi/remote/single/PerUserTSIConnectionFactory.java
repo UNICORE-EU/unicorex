@@ -1,29 +1,32 @@
 package eu.unicore.xnjs.tsi.remote.single;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.PropertyChangeListener;
+import eu.unicore.util.configuration.PropertyGroupHelper;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.xnjs.tsi.remote.TSIProperties;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory.RollingIndex;
 import eu.unicore.xnjs.util.LogUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -67,7 +70,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		this.perUserTsiProperties = xnjs.get(PerUserTSIProperties.class);
 		this.connectionPool = new ConnectionPool(tsiProperties);
 		this.identityStore = xnjs.get(IdentityStore.class, true);
-		start();
+		start(xnjs);
 	}
 
 	protected PerUserTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
@@ -122,7 +125,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	private PerUserTSIConnection doCreate(Client user, String preferredHost) throws TSIUnavailableException {
-		List<String>candidates = getTSIHostNames(preferredHost, connectors.values());
+		List<String>candidates = DefaultTSIConnectionFactory.getTSIHostNames(preferredHost, connectors.values());
 		Exception lastException = null;
 		// try all matching TSI hosts at least once
 		for(String name: candidates){
@@ -155,10 +158,11 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	/**
 	 * startup the factory and create connectors to all configured TSI hosts
 	 */
-	public synchronized void start() {
+	public synchronized void start(XNJS xnjs) {
 		if(isRunning)return;
 		try {
 			configure();
+			setupIdentityResolvers(xnjs);
 			isRunning = true;
 			log.info("UNICORE per-user TSI-via-SSH connector");
 			log.info("TSI connection: {}", getConnectionStatus());
@@ -174,7 +178,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}catch(Exception ex) {}
 	}
 
-	protected void configure() throws ConfigurationException {
+	private void configure() throws ConfigurationException {
 		try {
 			new Configurator(tsiProperties, perUserTsiProperties, this, identityStore).
 				configure(connectors, tsiHostCategories);
@@ -191,6 +195,42 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}catch(Exception ex) {
 			throw new ConfigurationException("Error (re-)configuring remote TSI connector.",ex);
 		}
+	}
+
+	private void setupIdentityResolvers(XNJS xnjs) throws ConfigurationException {
+		try {
+			Properties props = perUserTsiProperties.getRawProperties();
+			String basePrefix = PerUserTSIProperties.PREFIX+PerUserTSIProperties.ID_RESOLVERS+".";
+			int num = 1;
+			while(true) {
+				String prefix = basePrefix+num+".";
+				if(props.getProperty(prefix+"class")==null) {
+					break;
+				}
+				identityStore.registerResolver(createResolver(prefix, props, xnjs));
+				num++;
+			}
+		} catch(Exception ex) {
+			throw new ConfigurationException("Error setting up IdentityStore", ex);
+		}
+	}
+
+	private IdentityResolver createResolver(String prefix, Properties props, XNJS xnjs) throws Exception {
+		String clazz = props.getProperty(prefix+"class");
+		IdentityResolver r = (IdentityResolver)Class.forName(clazz).getConstructor().newInstance();
+		Map<String,String>params = new PropertyGroupHelper(props, new String[]{prefix}).getFilteredMap();
+			params.remove(prefix+"class");
+		mapParams(r,params);
+		Method xnjsSetter = findSetter(r.getClass(), "xnjs");
+		if (xnjsSetter != null && xnjsSetter.getParameterTypes()[0].isAssignableFrom(XNJS.class))
+		{
+			try {
+				xnjsSetter.invoke(r, new Object[]{xnjs});
+			}catch(Exception ex) {
+				log.warn(ex);
+			}
+		}
+		return r;
 	}
 
 	/**
@@ -292,52 +332,61 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		configure();
 	}
 
-	public static List<String> getTSIHostNames(String preferredHost, Collection<Connector> connectors) {
-		List<String>candidates = new ArrayList<>();
-		String categoryPattern = null;
-		String hostnamePattern = preferredHost;
-		if(preferredHost!=null && preferredHost.contains(":")) {
-			categoryPattern = preferredHost.split(":")[1];
+	private Method findSetter(Class<?> clazz, String paramName){
+		for(Method m: clazz.getMethods()){
+			if(m.getName().equalsIgnoreCase("set"+paramName) &&
+					m.getParameterTypes().length > 0)return m;
 		}
-		for(Connector conn: connectors){
-			String name = conn.getHostname();
-			if(categoryPattern!=null) {
-				if(matches(categoryPattern, conn.getCategory())) {
-					candidates.add(name);
-				}
-			}
-			else if(matches(hostnamePattern, name)) {
-				candidates.add(name);
-			}
-		}
-		if(candidates.size()==0){
-			throw new IllegalArgumentException("No TSI is configured at '"+preferredHost+"'");
-		}
-		if(candidates.size()>1)Collections.shuffle(candidates);
-		return candidates;
+		return null;
 	}
 
-	public static boolean matches(String preferredHost, String actualHost) {
-		if(preferredHost==null)return true;
-		if(actualHost==null)return false;
-		if(preferredHost.contains("*") || preferredHost.contains("?")) {
-			return FilenameUtils.wildcardMatch(actualHost, preferredHost);
+	/**
+	 * Set properties on the given object using the parameter map.
+	 * The method attempts to find matching setters for the parameter names 
+	 * 
+	 * @param obj
+	 * @param params
+	 * @param logger - can be null, if non-null, errors and warnings will be logged
+	 */
+	private void mapParams(Object obj, Map<String,String>params){
+		Class<?> clazz = obj.getClass();
+		for(Map.Entry<String,String> en: params.entrySet()){
+			String s = en.getKey();
+			String paramName = s.substring(s.lastIndexOf(".")+1);
+			Method m = findSetter(clazz, paramName);
+			if(m==null){
+				log.warn("Can't map parameter <"+s+">");
+				continue;
+			}
+			try{
+				setParam(obj,m,en.getValue());
+			}
+			catch(Exception ex){
+				log.warn("Can't set value <"+en.getValue()+"> for parameter <"+s+">");
+			}
 		}
-		return actualHost.equals(preferredHost) || actualHost.startsWith(preferredHost+".");
 	}
 
-
-	public static class RollingIndex {
-		private final int max;
-		private int count = -1; // want to start at zero
-
-		public RollingIndex(int max) {
-			this.max = max;
+	private void setParam(Object obj, Method m, String valueString)throws Exception{
+		Object arg=valueString;
+		if(m.getParameterTypes()[0].isAssignableFrom(int.class)){
+			arg=Integer.parseInt(valueString);
 		}
-
-		public synchronized int next() {
-			count = (count + 1) % max;
-			return count;
+		else if(m.getParameterTypes()[0].isAssignableFrom(Integer.class)){
+			arg=Integer.parseInt(valueString);
 		}
+		else if(m.getParameterTypes()[0].isAssignableFrom(long.class)){
+			arg=Long.parseLong(valueString);
+		}
+		else if(m.getParameterTypes()[0].isAssignableFrom(Long.class)){
+			arg=Long.parseLong(valueString);
+		}
+		else if(m.getParameterTypes()[0].isAssignableFrom(boolean.class)){
+			arg=Boolean.valueOf(valueString);
+		}
+		else if(m.getParameterTypes()[0].isAssignableFrom(Boolean.class)){
+			arg=Boolean.valueOf(valueString);
+		}
+		m.invoke(obj, new Object[]{arg});
 	}
 }

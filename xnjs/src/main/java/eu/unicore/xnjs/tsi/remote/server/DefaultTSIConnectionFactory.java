@@ -22,6 +22,7 @@ import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
+import eu.unicore.xnjs.tsi.remote.IConnector;
 import eu.unicore.xnjs.tsi.remote.TSIConfigurator;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
@@ -363,14 +364,14 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		configure();
 	}
 
-	public static List<String> getTSIHostNames(String preferredHost, Collection<TSIConnector> connectors) {
+	public static List<String> getTSIHostNames(String preferredHost, Collection<? extends IConnector> connectors) {
 		List<String>candidates = new ArrayList<>();
 		String categoryPattern = null;
 		String hostnamePattern = preferredHost;
 		if(preferredHost!=null && preferredHost.contains(":")) {
 			categoryPattern = preferredHost.split(":")[1];
 		}
-		for(TSIConnector conn: connectors){
+		for(IConnector conn: connectors){
 			String name = conn.getHostname();
 			if(categoryPattern!=null) {
 				if(matches(categoryPattern, conn.getCategory())) {

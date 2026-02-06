@@ -31,4 +31,10 @@ public interface IdentityStore {
 	 */
 	public void register(String user, byte[]privateKey, byte[]publicKey, byte[] passphrase); 
 
+	/**
+	 * register an identity resolver that is used to get/update identities for users
+	 * @param identityResolver
+	 */
+	public void registerResolver(IdentityResolver identityResolver); 
+
 }

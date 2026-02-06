@@ -7,8 +7,9 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.tsi.remote.IConnector;
 
-public class Connector {
+public class Connector implements IConnector {
 
 	private final String hostname;
 
@@ -29,10 +30,12 @@ public class Connector {
 		this.identityStore = identityStore;
 	}
 
+	@Override
 	public String getHostname() {
 		return hostname;
 	}
 
+	@Override
 	public String getCategory() {
 		return category;
 	}

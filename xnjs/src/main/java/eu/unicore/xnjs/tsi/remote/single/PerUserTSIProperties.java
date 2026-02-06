@@ -32,10 +32,14 @@ public class PerUserTSIProperties extends PropertiesHelper {
 
 	public static final String TSI_LAUNCH = "executable";
 
+	public static final String ID_RESOLVERS = "identityResolver";
+
 	static
 	{
 		META.put(TSI_LAUNCH, new PropertyMD().
 				setDescription("Command used to launch the TSI."));
+		META.put(ID_RESOLVERS, new PropertyMD().setCanHaveSubkeys().
+				setDescription("Configure identity resolvers. See documentation for details."));	
 		META.put("unittesting", new PropertyMD("false").setBoolean().
 				setDescription("(TODO unit testing mode)"));
 	}

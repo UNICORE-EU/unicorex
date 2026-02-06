@@ -11,6 +11,7 @@ import java.util.Map;
 
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIProperties;
+import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
 
 /**
  * Pooling of UserTSIConnection for users
@@ -71,11 +72,11 @@ public class ConnectionPool {
 		for(Connector conn: connectors){
 		String name = conn.getHostname();
 			if(categoryPattern!=null) {
-				if(PerUserTSIConnectionFactory.matches(categoryPattern, conn.getCategory())) {
+				if(DefaultTSIConnectionFactory.matches(categoryPattern, conn.getCategory())) {
 					candidates.add(name);
 				}
 			}
-			else if(PerUserTSIConnectionFactory.matches(hostnamePattern, name)) {
+			else if(DefaultTSIConnectionFactory.matches(hostnamePattern, name)) {
 				candidates.add(name);
 			}
 		}

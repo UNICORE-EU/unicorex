@@ -1,20 +1,27 @@
 package eu.unicore.xnjs.tsi.remote.single;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 
 import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
+import eu.unicore.util.Log;
 import eu.unicore.util.Pair;
 import jakarta.inject.Singleton;
 
 @Singleton
-public class DefaultidentityStore implements IdentityStore {
+public class DefaultIdentityStore implements IdentityStore {
+
+	private static final Logger logger = Log.getLogger(Log.SECURITY, DefaultIdentityStore.class);
 
 	// user name mapped to Pair with private&public key
 	private final Map<String, Pair<byte[], byte[]>> keys = new HashMap<>();
@@ -23,7 +30,7 @@ public class DefaultidentityStore implements IdentityStore {
 
 	private final Set<IdentityResolver> resolvers = new HashSet<>();
 	
-	public DefaultidentityStore() {}
+	public DefaultIdentityStore() {}
 
 	@Override
 	public void addIdentity(JSch jsch, Client client) throws AuthorisationException {
@@ -32,6 +39,11 @@ public class DefaultidentityStore implements IdentityStore {
 			throw new AuthorisationException("Required Unix user is null.");
 		}
 		Pair<byte[], byte[]> kp = keys.get(user);
+		if(kp==null) {
+			// try our resolvers
+			runUpdate(client);
+			kp = keys.get(user);
+		}
 		if(kp==null) {
 			throw new AuthorisationException("No key available for '"+user+"'");
 		}
@@ -52,7 +64,22 @@ public class DefaultidentityStore implements IdentityStore {
 		}
 	}
 
+	@Override
 	public void registerResolver(IdentityResolver resolver) {
-		
+		resolvers.add(resolver);
+	}
+
+	private void runUpdate(Client client) {
+		for(IdentityResolver r: resolvers) {
+			try {
+				r.updateIdentities(client, this);
+			}catch(Exception e) {
+				logger.debug("Error running identity resolver {}: {}", r, e);
+			}
+		}
+	}
+
+	Collection<IdentityResolver>getResolvers(){
+		return Collections.unmodifiableCollection(resolvers);
 	}
 }

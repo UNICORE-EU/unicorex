@@ -9,11 +9,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
+import com.jcraft.jsch.Identity;
+import com.jcraft.jsch.JSch;
+
 import eu.unicore.persist.util.UUID;
+import eu.unicore.security.Client;
 import eu.unicore.uftp.dpc.Utils;
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
@@ -28,10 +33,25 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	}
 
 	@Test
+	public void testIdentityResolver() throws Exception {
+		DefaultIdentityStore ids = (DefaultIdentityStore)xnjs.get(IdentityStore.class);
+		Collection<IdentityResolver> resolvers = ids.getResolvers();
+		FileIdentityResolver fir = (FileIdentityResolver)resolvers.iterator().next();
+		int numRead = fir.update(ids);
+		assertEquals(2, numRead);
+		Client c = TSIMessages.createMinimalClient("nobody");
+		JSch.setLogger(new Log());
+		JSch jsch = new JSch();
+		ids.addIdentity(jsch, c);
+		Identity id = jsch.getIdentityRepository().getIdentities().get(0);
+		assertEquals("nobody", id.getName());
+	}
+
+	@Test
 	public void testPing() throws Exception {
 		PerUserTSIConnection tC = (PerUserTSIConnection)xnjs.get(TSIConnectionFactory.class).
 				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, -1);
-		String reply = tC.send("#TSI_PING");
+		String reply = TSIMessages.trim(tC.send("#TSI_PING"));
 		System.out.println("TSI PING reply: " + reply);
 		assertTrue(reply.contains("10."));
 	}

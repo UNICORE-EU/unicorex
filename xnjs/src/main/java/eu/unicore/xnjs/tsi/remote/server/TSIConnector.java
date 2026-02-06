@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
 import eu.unicore.util.SSLSocketChannel;
+import eu.unicore.xnjs.tsi.remote.IConnector;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.TSIProperties;
 import eu.unicore.xnjs.util.LogUtil;
@@ -23,7 +24,7 @@ import eu.unicore.xnjs.util.LogUtil;
  *
  * @author schuller
  */
-public class TSIConnector {
+public class TSIConnector implements IConnector {
 
 	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,TSIConnector.class);
 
@@ -56,6 +57,7 @@ public class TSIConnector {
 		this.waitingPeriod = 5 * properties.getIntValue(TSIProperties.BSS_UPDATE_INTERVAL);
 	}
 
+	@Override
 	public String getHostname() {
 		return hostname;
 	}
@@ -64,6 +66,7 @@ public class TSIConnector {
 		return address;
 	}
 
+	@Override
 	public String getCategory() {
 		return category;
 	}

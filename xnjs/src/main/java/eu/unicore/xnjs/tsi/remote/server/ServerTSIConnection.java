@@ -3,6 +3,7 @@ package eu.unicore.xnjs.tsi.remote.server;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
+import eu.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.xnjs.util.LogUtil;
 
 /**
@@ -61,8 +63,8 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	 * @throws IOException
 	 */
 	public ServerTSIConnection(Socket commandSocket, Socket dataSocket, TSIConnectionFactory factory, TSIConnector connector) throws IOException {
-		command = new Command(commandSocket);
-		data = new Data(dataSocket);
+		this.command = new Command(commandSocket);
+		this.data = new Data(dataSocket);
 		this.factory = factory;
 		this.connector = connector;
 	}
@@ -84,22 +86,17 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	 * Messages to the TSI must conform to the TSI protocol. This method must
 	 * append the message terminator (ENDOFMESSAGE\n) to the message when
 	 * sending it to the TSI. The TSI will reply with a message when it has
-	 * processed the message. This will be terminated by the message terminator
-	 * (which should be stripped and not returned). Lines starting TSI_COMMENT
-	 * should also be stripped (can be logged).
+	 * processed the message. The reply will start either with TSI_OK or TSI_FAILED, 
+	 * but the ENDOFMESSAGE terminator will be stripped and not returned.
 	 * 
-	 * @param message
-	 *            The message to send to the TSI. This must conform to the TSI
-	 *            protocol.
-	 * @return The reply from the TSI.
+	 * @param message - the message to send to the TSI. 
+	 * @return The reply from the TSI, starting with TSI_OK or TSI_FAILED
 	 * 
-	 * @throws java.io.IOException
-	 *             An error occurred during the data send. The TSIConnection is
-	 *             unusable.
+	 * @throws IOException - an error occurred, and the connection is unusable.
 	 * 
 	 */
 	@Override
-	public String send(String message) throws java.io.IOException {
+	public String send(String message) throws IOException {
 		return command.send(message);
 	}
 
@@ -112,7 +109,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	 * @return The line read from the TSI.
 	 */
 	@Override
-	public String getLine() throws java.io.IOException {
+	public String getLine() throws IOException {
 		return command.getLine();
 	}
 
@@ -128,8 +125,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	 * 
 	 */
 	@Override
-	public void sendData(byte[] buffer, int offset, int number)
-			throws java.io.IOException {
+	public void sendData(byte[] buffer, int offset, int number) throws IOException {
 		data.sendData(buffer, offset, number);
 	}
 
@@ -144,8 +140,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	 *            Number of bytes to read from TSI.
 	 */
 	@Override
-	public void getData(byte[] buffer, int offset, int number)
-			throws java.io.IOException {
+	public void getData(byte[] buffer, int offset, int number) throws IOException {
 		data.getData(buffer, offset, number);
 	}
 
@@ -215,8 +210,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 		if(!shutDown) {
 			logger.debug("Connection {} shutdown.", getConnectionID());
 			shutDown = true;
-			command.close();
-			data.close();
+			IOUtils.closeQuietly(command, data);
 			factory.notifyConnectionDied();
 		}
 	}
@@ -257,7 +251,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	/**
 	 * Sends commands (text) to a particular TSI process.
 	 */
-	class Command {
+	class Command implements Closeable {
 
 		private final Socket socket;
 
@@ -271,9 +265,8 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 		public Command(Socket socket) throws IOException {
 			this.socket = socket;
 			try {
-				// build formatted command IO streams on the socket
-				input = new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));
-				output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),"UTF-8"));
+				this.input = new BufferedReader(new InputStreamReader(socket.getInputStream(),"UTF-8"));
+				this.output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),"UTF-8"));
 			} catch (IOException ex) {
 				IOUtils.closeQuietly(socket);
 				throw ex;
@@ -347,6 +340,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 			return reply;
 		}
 
+		@Override
 		public void close() {
 			IOUtils.closeQuietly(input, output, socket);
 		}
@@ -396,7 +390,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	/**
 	 * Send and receive data from a particular TSI process
 	 */
-	public class Data {
+	public class Data implements Closeable {
 
 		private final Socket socket;
 
@@ -407,9 +401,8 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 		public Data(Socket socket) throws IOException {
 			this.socket = socket;
 			try {
-				// build unformatted data IO streams on the socket
-				input = new BufferedInputStream(socket.getInputStream(), 65536);
-				output = new BufferedOutputStream(socket.getOutputStream(), 65536);
+				this.input = new BufferedInputStream(socket.getInputStream(), 65536);
+				this.output = new BufferedOutputStream(socket.getOutputStream(), 65536);
 			} catch (IOException ex) {
 				IOUtils.closeQuietly(socket);
 				throw ex;
@@ -446,6 +439,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 			return;
 		}
 
+		@Override
 		public void close() {
 			IOUtils.closeQuietly(input, output, socket);;
 		}
@@ -506,7 +500,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 			command.socket.setSoTimeout(pingTimeout);
 			String reply = send("#TSI_PING");
 			if(reply!=null && reply.length()>0){
-				v=reply.trim();
+				v = TSIMessages.trim(reply);
 			}
 		}catch(IOException se){
 			throw se;
@@ -519,9 +513,6 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 		return v;
 	}
 
-	void setTSIVersion(String version){
-		this.tsiVersion=version;
-	}
 	void setConnectionID(String id){
 		this.connectionID=id;
 	}

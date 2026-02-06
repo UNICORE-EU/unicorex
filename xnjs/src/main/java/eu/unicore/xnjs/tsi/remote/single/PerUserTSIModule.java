@@ -32,7 +32,7 @@ public class PerUserTSIModule extends RemoteTSIModule {
 	@Override
 	protected void configure(){
 		super.configure();
-		bind(IdentityStore.class).to(DefaultidentityStore.class);
+		bind(IdentityStore.class).to(DefaultIdentityStore.class);
 	}
 
 }
