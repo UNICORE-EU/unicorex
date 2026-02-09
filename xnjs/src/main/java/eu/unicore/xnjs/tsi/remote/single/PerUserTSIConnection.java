@@ -256,7 +256,6 @@ public class PerUserTSIConnection implements TSIConnection {
 		if(!shutDown){
 			factory.done(this);
 		}
-		IOUtils.closeQuietly(closeCallback);
 	}
 
 	@Override
@@ -265,6 +264,11 @@ public class PerUserTSIConnection implements TSIConnection {
 			logger.debug("Connection {} shutdown.", connectionID);
 			shutDown = true;
 			IOUtils.closeQuietly(input, output);
+			if(sshSession!=null){
+				try{
+					sshSession.disconnect();
+				}catch(Exception e) { /*ignored*/ }
+			}
 			factory.notifyConnectionDied();
 		}
 	}

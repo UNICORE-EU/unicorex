@@ -91,6 +91,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		if(conn==null){
 			conn = createNewTSIConnection(client, preferredHost);
 		}
+		if(conn!=null)conn.activate();
 		return conn;
 	}
 
@@ -99,10 +100,9 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		if(limit>0 && liveConnections.get()>=limit){
 			throw new TSIUnavailableException(preferredHost);
 		}
-		log.debug("Creating new TSIConnection to <{}>", preferredHost);
+		log.info("Creating new TSIConnection for <{}> to <{}>", user, preferredHost);
 		PerUserTSIConnection connection = preferredHost==null ?
 				doCreate(user) : doCreate(user, preferredHost);
-		connection.activate();
 		liveConnections.incrementAndGet();
 		return connection;
 	}

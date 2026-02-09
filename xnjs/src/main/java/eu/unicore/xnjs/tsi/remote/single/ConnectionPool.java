@@ -46,7 +46,6 @@ public class ConnectionPool {
 				}
 				else if(candidates.contains(conn.getTSIHostName())) {
 					iter.remove();
-					conn.activate();
 					return conn;
 				}
 			}
@@ -56,7 +55,8 @@ public class ConnectionPool {
 
 	public boolean offer(PerUserTSIConnection connection){
 		synchronized (pool) {
-			List<PerUserTSIConnection> pooled = getOrCreateConnectionList(connection.getTSIHostName());
+			String user = connection.getClient().getSelectedXloginName();
+			List<PerUserTSIConnection> pooled = getOrCreateConnectionList(user);
 			pooled.add(connection);
 			return true;
 		}

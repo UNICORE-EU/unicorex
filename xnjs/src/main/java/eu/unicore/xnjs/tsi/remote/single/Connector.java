@@ -2,14 +2,19 @@ package eu.unicore.xnjs.tsi.remote.single;
 
 import java.io.File;
 
+import org.apache.logging.log4j.Logger;
+
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.tsi.remote.IConnector;
+import eu.unicore.xnjs.util.LogUtil;
 
 public class Connector implements IConnector {
+
+	private static final Logger logger = LogUtil.getLogger(LogUtil.TSI, Connector.class);
 
 	private final String hostname;
 
@@ -58,7 +63,8 @@ public class Connector implements IConnector {
 			runLocally(conn);
 		}
 		else {
-			if(conn.getSession()==null) {
+			if(conn.getSession()==null || !conn.getSession().isConnected()) {
+				logger.info("Creating new SSH session for <{}>", conn.getUserDescription());
 				conn.setSession(createSession(conn.getClient()));
 			}
 			Session session = conn.getSession();
