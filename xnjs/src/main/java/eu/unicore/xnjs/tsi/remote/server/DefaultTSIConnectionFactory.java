@@ -225,7 +225,6 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	public void stop() {
 		if(!isRunning)return;
 		isRunning = false;
-		//kill incoming socket
 		try{
 			log.info("Shutting down TSI listener socket");
 			server.close();

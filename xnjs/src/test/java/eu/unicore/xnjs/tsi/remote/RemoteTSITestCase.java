@@ -26,7 +26,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 	@AfterEach
 	public void tearDown() throws Exception {
 		if(xnjs!=null){
-			((DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class)).stop();
+			xnjs.get(TSIConnectionFactory.class).stop();
 		}
 		super.tearDown();
 	}
