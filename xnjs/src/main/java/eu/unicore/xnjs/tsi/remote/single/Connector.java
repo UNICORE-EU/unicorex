@@ -74,6 +74,9 @@ public class Connector implements IConnector {
 	}
 
 	private Session createSession(Client client) throws Exception {
+		if(properties.isTesting()) {
+			return null;
+		}
 		logger.info("Creating new SSH session for <{}>", client.getSelectedXloginName());
 		Session session = null;
 		JSch.setLogger(new JSchLogAdapter());
