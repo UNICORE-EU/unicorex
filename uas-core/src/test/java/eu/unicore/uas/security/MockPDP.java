@@ -29,6 +29,9 @@ public class MockPDP implements UnicoreXPDP
 		if (c.getRole().getName().equals("user"))
 			return new PDPResult(Decision.PERMIT, "");
 		
+		if (d!=null && "files".equals(d.getServiceName()))
+			return new PDPResult(Decision.PERMIT, "");
+		
 		return new PDPResult(Decision.DENY, "");
 	}
 

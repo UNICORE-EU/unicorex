@@ -10,7 +10,6 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import com.codahale.metrics.Metric;
 import com.google.common.collect.Lists;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -194,11 +193,6 @@ public class XNJSFacade implements ISubSystem {
 	@Override
 	public String getStatusDescription() {
 		return "OK";
-	}
-
-	@Override
-	public Map<String, Metric> getMetrics(){
-		return xnjs.getMetrics();
 	}
 
 	@Override

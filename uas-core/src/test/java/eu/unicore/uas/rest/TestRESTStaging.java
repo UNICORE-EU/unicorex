@@ -19,6 +19,7 @@ import eu.unicore.client.core.SiteClient;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.SecuredBase;
+import eu.unicore.uas.UASProperties;
 
 public class TestRESTStaging extends SecuredBase {
 	
@@ -30,10 +31,18 @@ public class TestRESTStaging extends SecuredBase {
 			FileUtils.write(new File("target/unicorex-test/test3.dat"), "even more test data", "UTF-8");
 		}catch(IOException e){throw new RuntimeException(e);}
 	}
-	
-	
+
 	@Test
 	public void testStageIn() throws Exception {
+		UASProperties cfg = kernel.getAttribute(UASProperties.class);
+		for(String noOpt: new String[]{"true", "false"}){
+			System.out.println("Forcing remote transfer: "+noOpt);
+			cfg.setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, noOpt);
+			doStageIn();
+		}
+	}
+	
+	private void doStageIn()throws Exception {	
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		IAuthCallback auth = new UsernamePassword("demouser", "test123");
 		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
@@ -71,6 +80,15 @@ public class TestRESTStaging extends SecuredBase {
 
 	@Test
 	public void testStageOut() throws Exception {
+		UASProperties cfg = kernel.getAttribute(UASProperties.class);
+		for(String noOpt: new String[]{"true", "false"}){
+			System.out.println("Forcing remote transfer: "+noOpt);
+			cfg.setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, noOpt);
+			doStageOut();
+		}
+	}
+
+	private void doStageOut() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		IAuthCallback auth = new UsernamePassword("demouser", "test123");
 		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);

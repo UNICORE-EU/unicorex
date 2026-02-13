@@ -1,8 +1,6 @@
 package eu.unicore.uas.fts.http;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,23 +25,10 @@ public class TestUResource extends Base {
 		IStorageAdapter tsi = XNJSFacade.get(null, kernel).getStorageTSI("/", c, null);
 		File rootFile = new File(".");
 		String root = rootFile.getAbsolutePath();
-		try(UResource r = new UResource("test-uresource1", root, tsi, kernel)){
-			assertEquals(root, r.getName());
-			assertEquals(rootFile.lastModified(), r.lastModified());
-			assertEquals(rootFile.length(), r.length());
-			// invoke all the dummy methods
-			assertNull(r.addPath(""));
-			assertFalse(r.delete());
-			assertTrue(r.exists());
-			assertNull(r.getAlias());
-			assertNull(r.getFile());
-			assertNull(r.getReadableByteChannel());
-			assertNull(r.getURI());
-			assertFalse(r.isContainedIn(null));
-			assertFalse(r.isDirectory());
-			assertNull(r.list());
-			assertFalse(r.renameTo(null));
-		}
+		UResource r = new UResource("test-uresource1", root, tsi, kernel);
+		assertEquals(root, r.getName());
+		assertEquals(rootFile.lastModified(), r.lastModified());
+		assertEquals(rootFile.length(), r.length());
 	}
 
 	@Test
@@ -55,11 +40,10 @@ public class TestUResource extends Base {
 		File rootFile = new File("./target/no_such_file_"+UUID.newUniqueID());
 		String root = rootFile.getAbsolutePath();
 		String rname = "test-uresource2";
-		try(UResource r = new UResource(rname, root, tsi, kernel)){
-			IOException e = assertThrows(IOException.class, ()->r.getInputStream());
-			assertTrue(e.getMessage().contains("no_such_file"));
-			Thread.sleep(100); // message writing is async
-		}
+		final UResource r = new UResource(rname, root, tsi, kernel);
+		IOException e = assertThrows(IOException.class, ()->r.getInputStream());
+		assertTrue(e.getMessage().contains("no_such_file"));
+		Thread.sleep(100); // message writing is async
 		// check message on Kernel messaging channel
 		PullPoint pp = kernel.getMessaging().getPullPoint(rname);
 		assertTrue(pp.hasNext());
@@ -69,14 +53,13 @@ public class TestUResource extends Base {
 		// test write error
 		rootFile = new File("/foo/no_such_file_"+UUID.newUniqueID());
 		root = rootFile.getAbsolutePath();
-		try(UResource r = new UResource(rname, root, tsi, kernel)){
-			IOException e = assertThrows(IOException.class, ()->{
-				OutputStream o = r.getOutputStream();
-				o.write("test".getBytes());
-			});
-			assertTrue(e.getMessage().toLowerCase().contains("no such file"));
-			Thread.sleep(100); // message writing is async
-		}
+		final UResource r1 = new UResource(rname, root, tsi, kernel);
+		IOException e1 = assertThrows(IOException.class, ()->{
+			OutputStream o = r1.getOutputStream();
+			o.write("test".getBytes());
+		});
+		assertTrue(e1.getMessage().toLowerCase().contains("no such file"));
+		Thread.sleep(100); // message writing is async
 		// check message on Kernel messaging channel
 		PullPoint pp2 = kernel.getMessaging().getPullPoint(rname);
 		assertTrue(pp2.hasNext());

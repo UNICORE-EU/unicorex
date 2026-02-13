@@ -15,7 +15,7 @@
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicorex-parent</artifactId>
-    <version>2.9.4</version>
+    <version>3.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 

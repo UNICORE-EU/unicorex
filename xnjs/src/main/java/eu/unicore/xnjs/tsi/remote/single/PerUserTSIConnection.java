@@ -50,7 +50,7 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	private Closeable closeCallback;
 
-	private Session sshSession;
+	private final Session sshSession;
 
 	/**
 	 * @param factory - the parent factory
@@ -58,8 +58,9 @@ public class PerUserTSIConnection implements TSIConnection {
 	 * @param client
 	 * @throws IOException
 	 */
-	public PerUserTSIConnection(PerUserTSIConnectionFactory factory, Connector connector, Client client)
+	public PerUserTSIConnection(Session sshSession, PerUserTSIConnectionFactory factory, Connector connector, Client client)
 			throws IOException {
+		this.sshSession = sshSession;
 		this.factory = factory;
 		this.connector = connector;
 		this.client = client;
@@ -76,10 +77,6 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	public void setCloseCallback(Closeable closeable) {
 		this.closeCallback = closeable;
-	}
-
-	public void setSession(Session sshSession) {
-		this.sshSession = sshSession;
 	}
 
 	public Session getSession() {
@@ -239,8 +236,7 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	@Override
 	public boolean isAlive() {
-		// TODO check SSH session status
-		return connector.isOK();
+		return sshSession.isConnected();
 	}
 
 	private boolean shutDown = false;

@@ -2,6 +2,8 @@ package eu.unicore.uas.features;
 
 import eu.unicore.services.Kernel;
 import eu.unicore.services.StartupTask;
+import eu.unicore.services.rest.RestService;
+import eu.unicore.services.utils.deployment.DeploymentDescriptorImpl;
 import eu.unicore.services.utils.deployment.FeatureImpl;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.fts.FileTransferHomeImpl;
@@ -10,6 +12,7 @@ import eu.unicore.uas.impl.sms.InitSharedStorages;
 import eu.unicore.uas.impl.sms.InitStorageFactories;
 import eu.unicore.uas.impl.sms.StorageFactoryHomeImpl;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl;
+import eu.unicore.uas.rest.HTTPFileAccessService;
 
 /**
  * Storage access feature: provides Storage, StorageFactory,
@@ -30,6 +33,7 @@ public class StorageAccessFeature extends FeatureImpl {
 		homeClasses.put(UAS.SMF, StorageFactoryHomeImpl.class);
 		homeClasses.put(UAS.SERVER_FTS, FileTransferHomeImpl.class);
 		homeClasses.put(UAS.CLIENT_FTS, FileTransferHomeImpl.class);
+		services.add(new FileAccessSD(kernel));
 		getStartupTasks().add(new Startup(kernel));
 	}
 
@@ -68,4 +72,13 @@ public class StorageAccessFeature extends FeatureImpl {
 
 	}
 
+	public static class FileAccessSD extends DeploymentDescriptorImpl {
+		public FileAccessSD(Kernel kernel){
+			super();
+			this.name = "files";
+			this.type = RestService.TYPE;
+			this.implementationClass = HTTPFileAccessService.class;
+			setKernel(kernel);
+		}
+	}
 }

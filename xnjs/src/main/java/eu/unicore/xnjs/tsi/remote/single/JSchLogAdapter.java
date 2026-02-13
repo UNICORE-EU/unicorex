@@ -4,9 +4,9 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 /**
- * adapter to get JSch to log via Log4j
+ * Get JSch to log via Log4j
  */
-public class Log implements com.jcraft.jsch.Logger {
+public class JSchLogAdapter implements com.jcraft.jsch.Logger {
 
 	private static final Logger logger = eu.unicore.util.Log.getLogger("unicore.xnjs.tsi.ssh");
 

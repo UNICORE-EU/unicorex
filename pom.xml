@@ -6,13 +6,13 @@
   <packaging>pom</packaging>
   <description>UNICORE/X web services layer</description>
   <inceptionYear>2006</inceptionYear>
-  <version>2.9.4</version>
+  <version>3.0.0</version>
   <name>UNICORE/X Parent</name>
   
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicore-parent</artifactId>
-    <version>3.1.1</version>
+    <version>4.1.0</version>
   </parent>
 
   <scm>
@@ -29,10 +29,10 @@
 
   <properties>
     <!-- goes into .jar manifests, dist poms and packaging versions -->
-    <specification.version>10.4.0</specification.version>
+    <specification.version>11.0.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>5.5.4</use.version>
-    <secutils.version>4.3.1</secutils.version>
+    <use.version>5.6.0</use.version>
+    <secutils.version>5.0.0</secutils.version>
     <persistence.version>1.2.9</persistence.version>
     <metrics.version>4.2.37</metrics.version>
     <uftp.version>2.23.2</uftp.version>
@@ -150,11 +150,6 @@
 	    <artifactId>log4j</artifactId>
 	  </exclusion>
 	</exclusions>
-      </dependency>
-      <dependency>
-	<groupId>com.jcraft</groupId>
-	<artifactId>jsch</artifactId>
-	<version>0.1.55</version>
       </dependency>
       <dependency>
 	<groupId>org.apache.lucene</groupId>

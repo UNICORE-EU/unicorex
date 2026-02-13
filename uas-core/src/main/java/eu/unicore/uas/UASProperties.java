@@ -96,14 +96,6 @@ public class UASProperties extends PropertiesHelper {
 	 */
 	public final static String SMS_TRANSFER_FORCEREMOTE = "filetransfer.forceremote";
 
-	@Deprecated
-	public static final String SMS_DIRECT_FILETRANSFER = "filetransfer.direct";
-
-	@Deprecated
-	public static final String SMS_STAGING_MAXTHREADS = "filetransfer.maxthreads";
-
-	public static final String FTS_HTTP_PREFER_POST = "filetransfer.httpPreferPost";
-
 	/**
 	 * prefix for configuring the set of "shared SMS"
 	 */
@@ -164,9 +156,6 @@ public class UASProperties extends PropertiesHelper {
 				setDescription("Space separated list of names of enabled storages. If this property is left undefined then all defined shares are enabled. "
 						+ "If this property value is empty then all are disabled."));
 
-		META.put(FTS_HTTP_PREFER_POST, new PropertyMD("false").
-				setDescription("Controls whether to use HTTP POST for the HTTP filetransfers."));
-
 		META.put(USPACE_SMS_PREFIX, new PropertyMD().setCanHaveSubkeys().
 				setDescription("Properties with this prefix are used to configure the job working directory storage (i.e. the storage bound to each job). See documentation of storage factories for details."));
 
@@ -194,14 +183,10 @@ public class UASProperties extends PropertiesHelper {
 		// deprecated stuff
 		META.put(SMS_PROTOCOLS, new PropertyMD().setUpdateable().setDeprecated().
 				setDescription("(DEPRECATED, UNUSED)"));
-		META.put(SMS_DIRECT_FILETRANSFER, new PropertyMD("false").setDeprecated().
-				setDescription("(DEPRECATED, UNUSED)"));
 		META.put(SMS_SHARE_PREFIX_old, new PropertyMD().setCanHaveSubkeys().setDeprecated().
 				setDescription("DEPRECATED, use coreServices.sms.storage.* instead"));		
 		META.put(SMS_ENABLED_SHARES_old, new PropertyMD((String)null).setDeprecated().
 				setDescription("DEPRECATED, use coreServices.sms.enabledStorages instead"));
-		META.put(SMS_STAGING_MAXTHREADS, new PropertyMD().setDeprecated().
-				setDescription("DEPRECATED, use XNJS.staging.threads"));
 	}
 
 	public UASProperties(Properties properties) throws ConfigurationException, IOException {

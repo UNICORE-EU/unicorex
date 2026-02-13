@@ -1,7 +1,5 @@
 package eu.unicore.uas.rest;
 
-import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
@@ -21,9 +19,6 @@ public class TestAdmin extends Base {
     	assert client.getProperties().toString().contains("connectionStatus");
     	for(AdminCommand ac: client.getCommands()) {
     		System.out.println(ac);
-    	}
-    	for(Map.Entry<String, String> e: client.getMetrics().entrySet()) {
-    		System.out.println(e.getKey()+": "+e.getValue());
     	}
     	System.out.println(client.runCommand("ShowServerUsageOverview", null));
     }

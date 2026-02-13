@@ -1,12 +1,8 @@
 package eu.unicore.uas.fts.http;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.nio.channels.ReadableByteChannel;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.util.resource.Resource;
@@ -23,7 +19,7 @@ import eu.unicore.xnjs.io.IStorageAdapter;
  * 
  * @author schuller
  */
-public class UResource extends Resource {
+public class UResource {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.DATA, UResource.class);
 
@@ -41,7 +37,7 @@ public class UResource extends Resource {
 	/**
 	 * creates a Resource object for serving a file
 	 * @param id - the unique ID of the resource, can be <code>null</code> if the resource is only temporary. If non-null,
-	 * the transferred bytes will be reported via {@link FileServlet#setTransferredBytes(String, Long)}
+	 * the transferred bytes will be reported via {@link FileAccessStatus#setTransferredBytes(String, Long)}
 	 * @param path - the path of the file relative to storage root
 	 * @param storage
 	 * @param kernel
@@ -63,32 +59,10 @@ public class UResource extends Resource {
 
 	protected void updateTransferredBytes(){
 		if(id!=null){
-			kernel.getAttribute(FileServlet.class).setTransferredBytes(id, transferred);
+			kernel.getAttribute(FileAccessStatus.class).setTransferredBytes(id, transferred);
 		}
 	}
 
-	@Override
-	public Resource addPath(String path) throws IOException,
-			MalformedURLException {
-		return null;
-	}
-
-	@Override
-	public boolean delete() throws SecurityException {
-		return false;
-	}
-
-	@Override
-	public boolean exists() {
-		return true;
-	}
-
-	@Override
-	public File getFile() throws IOException {
-		return null;
-	}
-
-	@Override
 	public InputStream getInputStream() throws IOException {
 		try {
 			final InputStream is = storage.getInputStream(path);
@@ -155,7 +129,6 @@ public class UResource extends Resource {
 		return lastErrorMessage;
 	}
 
-	@Override
 	public String getName() {
 		return path;
 	}
@@ -212,17 +185,6 @@ public class UResource extends Resource {
 		}
 	}
 
-	@Override
-	public URI getURI() {
-		return null;
-	}
-
-	@Override
-	public boolean isDirectory() {
-		return false;
-	}
-
-	@Override
 	public long lastModified() {
 		try{
 			return storage.getProperties(path).getLastModified().getTimeInMillis();
@@ -232,7 +194,6 @@ public class UResource extends Resource {
 		}
 	}
 
-	@Override
 	public long length() {
 		try{
 			return storage.getProperties(path).getSize();
@@ -241,30 +202,4 @@ public class UResource extends Resource {
 			return 0;
 		}
 	}
-
-	@Override
-	public String[] list() {
-		return null;
-	}
-
-	@Override
-	public boolean renameTo(Resource dest) throws SecurityException {
-		return false;
-	}
-
-	@Override
-	public boolean isContainedIn(Resource r) throws MalformedURLException
-	{
-		return false;
-	}
-
-	@Override
-	public void close() {
-	}
-
-	@Override
-	public ReadableByteChannel getReadableByteChannel() throws IOException {
-		return null;
-	}
-
 }

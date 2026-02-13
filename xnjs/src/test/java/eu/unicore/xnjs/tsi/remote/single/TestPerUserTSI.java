@@ -40,7 +40,7 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 		int numRead = fir.update(ids);
 		assertEquals(2, numRead);
 		Client c = TSIMessages.createMinimalClient("nobody");
-		JSch.setLogger(new Log());
+		JSch.setLogger(new JSchLogAdapter());
 		JSch jsch = new JSch();
 		ids.addIdentity(jsch, c);
 		Identity id = jsch.getIdentityRepository().getIdentities().get(0);

@@ -62,7 +62,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	public void readFully(OutputStream os)throws Exception{
 		HttpClient client = getClient();
 		HttpGet get = new HttpGet(accessURL);
-		totalBytesTransferred = read(os, get, client);
+		totalBytesTransferred += read(os, get, client);
 	}
 
 	protected long read(OutputStream os, HttpGet get, HttpClient client)throws IOException{
@@ -169,7 +169,9 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 		HttpGet get = new HttpGet(accessURL);
 		//Note: byte range is inclusive!
 		get.addHeader("Range", "bytes="+offset+"-"+(offset+length-1));
-		return read(os, get, client);
+		long n = read(os, get, client);
+		totalBytesTransferred+=n;
+		return n;
 	}
 
 	/**
@@ -184,7 +186,9 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 		HttpClient client = getClient();
 		HttpGet get = new HttpGet(accessURL);
 		get.addHeader("Range", "bytes=-"+numberOfBytes);
-		return read(os, get, client);
+		long n = read(os, get, client);
+		totalBytesTransferred+=n;
+		return n;
 	}
 
 	//copy all data from an input stream to an output stream
@@ -228,8 +232,9 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 	}
 
 	/**
-	 * the total bytes transferred. Note: this will only be updated once per call
-	 * to readAllData() or readPartial(). If you need a 'live' value, use a {@link ProgressListener}
+	 * the total bytes transferred using this client instance. <br/>
+	 * Note: this will only be updated once per call to one of the 
+	 * transfer functions. If you need a 'live' value, use a {@link ProgressListener}
 	 * and register it using {@link #setProgressListener(ProgressListener)}
 	 */
 	@Override

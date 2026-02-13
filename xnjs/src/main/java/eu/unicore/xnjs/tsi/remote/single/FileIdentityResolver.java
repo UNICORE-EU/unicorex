@@ -29,9 +29,9 @@ public class FileIdentityResolver implements IdentityResolver {
 	public void setFile(String file) {
 		this.idFile = new File(file);
 	}
-	
+
 	int update(IdentityStore store) {
-		int num=0;
+		int num = 0;
 		try(FileInputStream fis = new FileInputStream(idFile)){
 			JSONObject ids = new JSONObject(IOUtils.toString(fis, "UTF-8"));
 			for(String uid: ids.keySet()) {
@@ -48,6 +48,7 @@ public class FileIdentityResolver implements IdentityResolver {
 					try(FileInputStream in = new FileInputStream(pubfile)){
 						pub = IOUtils.toString(in, "UTF-8").getBytes();
 					}
+					logger.debug("Registering keypair for <{}>", uid);
 					store.register(uid, priv, pub, pass);
 					num++;
 				}catch(Exception ex) {

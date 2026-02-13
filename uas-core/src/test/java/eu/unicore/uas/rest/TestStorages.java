@@ -247,8 +247,9 @@ public class TestStorages extends Base {
 		fts.read(4, testdata.length()-4, os);
 		assertEquals(testdata.substring(4), os.toString("UTF-8"));
 		os = new ByteArrayOutputStream();
-		fts.readTail(4, os);
+		long n = fts.readTail(4, os);
 		assertEquals("data", os.toString("UTF-8"));
+		assertEquals(4, n);
 	}
 
 	@Test

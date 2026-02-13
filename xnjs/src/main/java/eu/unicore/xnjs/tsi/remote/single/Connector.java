@@ -46,7 +46,7 @@ public class Connector implements IConnector {
 	}
 
 	public PerUserTSIConnection createConnection(Client user) throws Exception {
-		return new PerUserTSIConnection(factory, this, user);
+		return new PerUserTSIConnection(createSession(user), factory, this, user);
 	}
 
 	public boolean isOK() {
@@ -63,10 +63,6 @@ public class Connector implements IConnector {
 			runLocally(conn);
 		}
 		else {
-			if(conn.getSession()==null || !conn.getSession().isConnected()) {
-				logger.info("Creating new SSH session for <{}>", conn.getUserDescription());
-				conn.setSession(createSession(conn.getClient()));
-			}
 			Session session = conn.getSession();
 			ChannelExec channel = (ChannelExec) session.openChannel("exec");
 			channel.setCommand(properties.getCommand());
@@ -78,8 +74,9 @@ public class Connector implements IConnector {
 	}
 
 	private Session createSession(Client client) throws Exception {
+		logger.info("Creating new SSH session for <{}>", client.getSelectedXloginName());
 		Session session = null;
-		JSch.setLogger(new Log());
+		JSch.setLogger(new JSchLogAdapter());
 		JSch jsch = new JSch();
 		identityStore.addIdentity(jsch, client);
 		String user = client.getSelectedXloginName();

@@ -4,7 +4,7 @@ import eu.unicore.services.InitParameters;
 import eu.unicore.services.Resource;
 import eu.unicore.services.exceptions.ResourceNotCreatedException;
 import eu.unicore.services.impl.DefaultHome;
-import eu.unicore.uas.fts.http.FileServlet;
+import eu.unicore.uas.fts.http.FileAccessStatus;
 
 /**
  * File transfer home<br/>.
@@ -53,7 +53,7 @@ public class FileTransferHomeImpl extends DefaultHome {
 	}
 
 	protected void initBFT(){
-		FileServlet.initialise(kernel);
+		FileAccessStatus.initialise(kernel);
 	}
 
 }
