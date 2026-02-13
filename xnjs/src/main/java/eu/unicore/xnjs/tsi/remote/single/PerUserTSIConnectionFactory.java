@@ -332,6 +332,10 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		configure();
 	}
 
+	boolean isTesting() {
+		return perUserTsiProperties.isTesting();
+	}
+
 	private Method findSetter(Class<?> clazz, String paramName){
 		for(Method m: clazz.getMethods()){
 			if(m.getName().equalsIgnoreCase("set"+paramName) &&

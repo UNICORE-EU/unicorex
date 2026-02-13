@@ -236,7 +236,7 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	@Override
 	public boolean isAlive() {
-		return sshSession.isConnected();
+		return factory.isTesting() || sshSession.isConnected();
 	}
 
 	private boolean shutDown = false;
