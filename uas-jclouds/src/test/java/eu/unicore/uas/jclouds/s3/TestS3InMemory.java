@@ -46,13 +46,13 @@ public class TestS3InMemory {
 		System.out.println(s3.getProperties("/test/mydata"));
 		// upload some stuff
 		final String resource = "/test/mydata/in.1";
-		final byte[] testdata ="this is some test data".getBytes();
-		
+		final byte[] testdata = "this is some test data".getBytes();
 		String md5 = Utils.md5(testdata);
-		OutputStream os = s3.getOutputStream(resource, false, testdata.length);
-		os.write(testdata);
-		os.close();
-		Thread.sleep(1000); // data copy is async - avoid race condition
+		try(OutputStream os = s3.getOutputStream(resource, false, testdata.length)){
+			os.write(testdata);
+			os.flush();
+		}
+		Thread.sleep(5000); // data copy is async - avoid race condition
 		for(XnjsFile f : s3.ls("/")){
 			System.out.println(f+" "+f.getMetadata());
 			if(f.getPath().equals(resource)){
