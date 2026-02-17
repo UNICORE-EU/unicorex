@@ -118,6 +118,7 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 		IOException ie = null;
 		while(System.currentTimeMillis()<=now+connectTimeout) try {
 			s.connect(new InetSocketAddress(source_addr, port), connectTimeout);
+			break;
 		}catch(ConnectException se) {
 			try{
 				ie = se;
