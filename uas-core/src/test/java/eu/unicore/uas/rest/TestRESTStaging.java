@@ -16,12 +16,10 @@ import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
-import eu.unicore.services.restclient.IAuthCallback;
-import eu.unicore.services.restclient.UsernamePassword;
-import eu.unicore.uas.SecuredBase;
+import eu.unicore.uas.Base;
 import eu.unicore.uas.UASProperties;
 
-public class TestRESTStaging extends SecuredBase {
+public class TestRESTStaging extends Base {
 	
 	@BeforeAll
 	public static void createTestFile() throws Exception{
@@ -44,8 +42,7 @@ public class TestRESTStaging extends SecuredBase {
 	
 	private void doStageIn()throws Exception {	
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
+		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
 		SiteClient site = core.getSiteFactoryClient().getOrCreateSite();
 		JSONArray imports = new JSONArray();
 		imports.put(new JSONObject("{"
@@ -90,8 +87,7 @@ public class TestRESTStaging extends SecuredBase {
 
 	private void doStageOut() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
+		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
 		SiteClient site = core.getSiteFactoryClient().getOrCreateSite();
 		JSONArray xports = new JSONArray();
 		xports.put(new JSONObject("{"

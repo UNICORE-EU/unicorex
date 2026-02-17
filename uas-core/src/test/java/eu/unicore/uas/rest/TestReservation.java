@@ -19,7 +19,7 @@ public class TestReservation extends Base {
 		BaseClient c = new BaseClient(
 				kernel.getContainerProperties().getContainerURL()+"/rest/core/reservations",
 				kernel.getClientConfiguration(),
-				new UsernamePassword("demouser", "test123"));
+				getAuth());
 		Job j = new Job();
 		Resources r = j.resources();
 		r.runtime("60m");

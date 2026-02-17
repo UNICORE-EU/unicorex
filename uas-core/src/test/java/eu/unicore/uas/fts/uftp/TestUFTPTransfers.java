@@ -38,6 +38,8 @@ import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uftp.dpc.Utils;
@@ -92,17 +94,22 @@ public class TestUFTPTransfers {
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_COMMAND_SSL_DISABLE, "true");
 		new UFTPStartupTask(kernel).run();
 		// create a storage
-		Endpoint ep = new Endpoint("http://localhost:65321/rest/core/storagefactories/default_storage_factory");
-		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), null);
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
+		Endpoint ep = new Endpoint(url+"/storagefactories/DEFAULT");
+		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), getAuth());
 		sms = smf.createStorage();
 		importTestFile(sms, "test", 1024);
 		for(int i=1;i<=3;i++)
 		{
 			importTestFile(sms, "/dir/test"+i, 1024);
 		}
-		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core/factories/default_target_system_factory");
-		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), null);
+		Endpoint ep1 = new Endpoint(url+"/factories/default_target_system_factory");
+		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), getAuth());
 		tss = tsf.getOrCreateSite();
+	}
+
+	private static IAuthCallback getAuth() {
+		return new UsernamePassword("demouser", "test123");
 	}
 
 	static void makePathsAbsolute() throws Exception{
@@ -120,7 +127,8 @@ public class TestUFTPTransfers {
 
 	@Test
 	public void testUFTPAvail() throws Exception {
-		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core");
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
+		Endpoint ep1 = new Endpoint(url);
 		CoreClient cc = new CoreClient(ep1, kernel.getClientConfiguration(), null);
 		JSONObject status = cc.getProperties();
 		JSONObject ext = status.getJSONObject("server").getJSONObject("externalConnections");

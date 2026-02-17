@@ -25,7 +25,7 @@ public class TestFiles extends Base {
 	@Test
 	public void testModifyFile() throws Exception {
 		String storage = createStorage();
-		BaseClient client = new BaseClient(storage,kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(storage, kernel.getClientConfiguration(), getAuth());
 		String file = storage + "/files/test.txt";
 		putContent("test data", client, file);
 		client.setURL(file);
@@ -78,7 +78,7 @@ public class TestFiles extends Base {
 	public void testDeleteFile() throws Exception {
 		String storage = createStorage();
 		String file = storage + "/files/deleteme.txt";
-		BaseClient client = new BaseClient(file, kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(file, kernel.getClientConfiguration(), getAuth());
 		putContent("test data", client, file);
 		client.delete();
 		assertThrows(Exception.class, ()->{
@@ -90,7 +90,7 @@ public class TestFiles extends Base {
 	public void testCreateDirectory() throws Exception {
 		String storage = createStorage();
 		String file = storage + "/files/new_dir";
-		BaseClient client = new BaseClient(file, kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(file, kernel.getClientConfiguration(), getAuth());
 		client.postQuietly(null);
 		System.out.println(client.getJSON());
 	}
@@ -98,7 +98,7 @@ public class TestFiles extends Base {
 	@Test
 	public void testRename() throws Exception {
 		String storage = createStorage();
-		BaseClient client = new BaseClient(storage,kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(storage,kernel.getClientConfiguration(), getAuth());
 		String file = storage + "/files/test.txt";
 		putContent("test data", client, file);
 		String renameURL = storage + "/actions/rename";
@@ -116,16 +116,14 @@ public class TestFiles extends Base {
 	public void testCopy() throws Exception {
 		String storage = createStorage();
 		String file = storage + "/files/test.txt";
-		BaseClient client = new BaseClient(file, kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(file, kernel.getClientConfiguration(), getAuth());
 		putContent("test data", client, file);
-
 		String copyURL = storage + "/actions/rename";
 		JSONObject copy = new JSONObject();
 		copy.put("from","test.txt");
 		copy.put("to","test_copy.txt");
 		client.setURL(copyURL);
 		client.post(copy);
-
 		String renamed = storage + "/files/test_copy.txt";
 		client.setURL(renamed);
 		System.out.println(client.getJSON());
@@ -134,7 +132,7 @@ public class TestFiles extends Base {
 	@Test
 	public void testGetFile() throws Exception {
 		String storage = createStorage();
-		BaseClient client = new BaseClient(storage,kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(storage, kernel.getClientConfiguration(), getAuth());
 		System.out.println("Accessing "+storage);
 		String file = storage + "/files/test.txt";
 		putContent("test data", client, file);
@@ -158,7 +156,7 @@ public class TestFiles extends Base {
 		String storage = createStorage();
 		System.out.println("Accessing "+storage);
 		String file = storage + "/files/test.txt";
-		BaseClient client = new BaseClient(file,kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(file, kernel.getClientConfiguration(), getAuth());
 		byte[] testData ="test data".getBytes();
 		InputStream is = new ByteArrayInputStream(testData);
 		putContent(is, client, file);
@@ -192,7 +190,7 @@ public class TestFiles extends Base {
 	private String createStorage() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storages";
-		BaseClient client = new BaseClient(resource,kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration(), getAuth());
 		System.out.println("Accessing "+resource);
 		return client.create(new JSONObject());
 	}
@@ -221,7 +219,6 @@ public class TestFiles extends Base {
 
 	private String getTailOfContent(BaseClient client, String file, long tail) throws Exception {
 		String range = "bytes=-"+tail;
-		
 		Map<String,String>headers = new HashMap<>();
 		headers.put("Range", range);
 		client.setURL(file);

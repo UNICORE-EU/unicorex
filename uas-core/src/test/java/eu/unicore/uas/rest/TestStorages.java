@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,9 +32,7 @@ import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.client.data.TransferControllerClient.Status;
 import eu.unicore.services.restclient.BaseClient;
-import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.RESTException;
-import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.fts.FiletransferOptions.ReadStream;
 
@@ -51,11 +50,11 @@ public class TestStorages extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storages";
 		System.out.println("Accessing "+resource);
-		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration(), getAuth());
 		JSONObject smsDesc = new JSONObject();
 		smsDesc.put("name", "my new SMS");
 		String smsUrl = client.create(smsDesc);
-		StorageClient sms = new StorageClient(new Endpoint(smsUrl), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(new Endpoint(smsUrl), kernel.getClientConfiguration(), getAuth());
 		sms.setUpdateInterval(-1);
 		System.out.println("created: "+smsUrl);
 		JSONObject p = new JSONObject();
@@ -71,9 +70,23 @@ public class TestStorages extends Base {
 	}
 
 	@Test
+	public void testDirectoryScan()throws Exception{
+		String url = kernel.getContainerProperties().getContainerURL()
+				+"/rest/core/storagefactories/DEFAULT";
+		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
+				kernel.getClientConfiguration(), getAuth());
+		Map<String,String>params = new HashMap<>();
+		params.put("enableTrigger", "true");
+		StorageClient sms = smf.createStorage("test123", params, null);
+		Thread.sleep(1000);
+		System.out.println(sms.getProperties().toString(2));
+	}
+	
+	
+	@Test
 	public void testFindFactories() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
 		List<StorageFactoryClient>sfcs = client.getStorageFactories();
 		assertTrue(sfcs.size()>0);
 	}
@@ -84,7 +97,7 @@ public class TestStorages extends Base {
 				"/rest/core/storagefactories/DEFAULT";
 		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), getAuth());
 		smf.setUpdateInterval(-1);
 		JSONObject props = smf.getProperties();
 		System.out.println("Factory properties: \n"+props.toString(2));
@@ -101,7 +114,7 @@ public class TestStorages extends Base {
 				"/rest/core/storagefactories/default_storage_factory";
 		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), getAuth());
 		try{
 			smf.createStorage("non-existing-type","my new SMS", null, null);
 		}catch(RESTException e) {
@@ -116,7 +129,7 @@ public class TestStorages extends Base {
 				"/rest/core/storagefactories/DEFAULT";
 		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), getAuth());
 		JSONObject props = smf.getProperties();
 		System.out.println(props.toString(2));
 		try{
@@ -134,7 +147,7 @@ public class TestStorages extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storages";
 		System.out.println("Accessing "+resource);
-		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration(), getAuth());
 		JSONObject storageList = client.getJSON();
 		int status = client.getLastHttpStatus();
 		assertEquals(HttpStatus.SC_OK, status);
@@ -187,7 +200,7 @@ public class TestStorages extends Base {
 		StorageClient sms = createStorage();
 		assertThrows(IllegalArgumentException.class,
 				()->sms.createImport("test123", false, -1, "NOSUCHPROTOCOL", null));
-		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/imports", sms.getSecurityConfiguration());
+		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/imports", sms.getSecurityConfiguration(), getAuth());
 		JSONObject data = new JSONObject();
 		data.put("protocol", "NOSUCHPROTOCOL");
 		data.put("file", "foo");
@@ -216,7 +229,7 @@ public class TestStorages extends Base {
 	public void testExportFile() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
-		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), getAuth());
 		FiletransferClient fts = sms.createExport("test.txt", "BFT", null);
 		assertEquals("BFT", fts.getProtocol());
 		assertTrue(fts instanceof ReadStream);
@@ -241,7 +254,7 @@ public class TestStorages extends Base {
 	public void testDownload() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
-		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), getAuth());
 		HttpFileTransferClient fts = sms.download("test.txt");
 		String content = IOUtils.toString(fts.getInputStream(), "UTF-8");
 		assertEquals(testdata, content);
@@ -251,7 +264,7 @@ public class TestStorages extends Base {
 	public void testDownloadPartial() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
-		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), getAuth());
 		HttpFileTransferClient fts = sms.download("test.txt");
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		fts.read(4, testdata.length()-4, os);
@@ -278,7 +291,7 @@ public class TestStorages extends Base {
 	@Test
 	public void testSearch() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
 		List<String> fileListing = sms.searchMetadata("foo");
 		System.out.println(fileListing);
 	}
@@ -286,9 +299,7 @@ public class TestStorages extends Base {
 	@Test
 	public void testChmodNonExistentFile() throws Exception {
 		Endpoint ep = new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK");
-		StorageClient client = new StorageClient(ep,
-				kernel.getClientConfiguration(),
-				new UsernamePassword("demouser",  "test123"));
+		StorageClient client = new StorageClient(ep, kernel.getClientConfiguration(), getAuth());
 		assertThrows(RESTException.class, ()->{
 			client.chmod("nonexistentpath", "rw-");
 		});
@@ -298,7 +309,7 @@ public class TestStorages extends Base {
 	public void testListStorages()throws Exception {
 		String baseUrl = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/";
-		CoreClient base = new CoreClient(new Endpoint(baseUrl), kernel.getClientConfiguration(), null);
+		CoreClient base = new CoreClient(new Endpoint(baseUrl), kernel.getClientConfiguration(), getAuth());
 		base.getSiteClient(); // make sure all per-user storages are created
 		EnumerationClient ec = base.getStoragesList();
 		ec.setUpdateInterval(-1);
@@ -317,8 +328,7 @@ public class TestStorages extends Base {
 	private void runJob() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
 		System.out.println("Accessing "+url);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), auth);
+		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), getAuth());
 		JSONObject task = new JSONObject();
 		String jobUrl = client.create(task);
 		System.out.println("created: "+jobUrl);
@@ -332,7 +342,7 @@ public class TestStorages extends Base {
 				"/rest/core/storagefactories/default_storage_factory";
 		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(),  getAuth());
 		return smf.createStorage();
 	}
 	

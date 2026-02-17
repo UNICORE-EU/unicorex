@@ -16,7 +16,7 @@ public class TestApplications extends Base {
 	@Test
 	public void testCreateTSSAndListApps() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/sites";
-		BaseClient client = new BaseClient(url, kernel.getClientConfiguration());
+		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), getAuth());
 		System.out.println("Accessing "+url);
 		String tssUrl = client.create(new JSONObject());
 		System.out.println("created: "+tssUrl);

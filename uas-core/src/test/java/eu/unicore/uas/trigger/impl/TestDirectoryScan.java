@@ -33,7 +33,7 @@ public class TestDirectoryScan extends Base {
 	@Test
 	public void testDirectoryScan()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()
-				+"/rest/core/storagefactories/default_storage_factory";
+				+"/rest/core/storagefactories/DEFAULT";
 		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
 				kernel.getClientConfiguration(), null);
 		StorageClient sms = smf.createStorage();
@@ -88,13 +88,14 @@ public class TestDirectoryScan extends Base {
 		for(FileListEntry e: logfiles.list()) {
 			System.out.println(e);
 		}
+		System.out.println(sms.getProperties().toString(2));
 	}
 	
 	
 	@Test
 	public void testDirectoryScanSharedMode()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()
-				+"/rest/core/storagefactories/default_storage_factory";
+				+"/rest/core/storagefactories/DEFAULT";
 		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
 				kernel.getClientConfiguration(), null);
 		StorageClient sms = smf.createStorage();

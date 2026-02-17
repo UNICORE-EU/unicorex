@@ -12,7 +12,6 @@ import eu.unicore.client.core.AllocationClient;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
-import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 
 public class TestAllocations extends Base {
@@ -22,7 +21,7 @@ public class TestAllocations extends Base {
 		CoreClient c = new CoreClient(
 				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
 				kernel.getClientConfiguration(),
-				new UsernamePassword("demouser", "test123"));
+				getAuth());
 		SiteClient site = c.getSiteClient();
 		Job j = new Job();
 		Resources r = j.resources();
@@ -50,7 +49,6 @@ public class TestAllocations extends Base {
 		}
 		assertEquals("ON_LOGIN_NODE", jobClient.getProperties().get("jobType"));
 		System.out.println(jobClient.getProperties().toString(2));
-		
 	}
 
 }

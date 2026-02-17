@@ -298,7 +298,7 @@ public class Jobs extends ServicesBase {
 			job.restart();
 		}
 		else {
-			throw new IllegalArgumentException("No such action: <"+action+">");
+			return super.doHandleAction(action, param);
 		}
 		return reply;
 	}

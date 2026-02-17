@@ -77,7 +77,8 @@ public class TestUFTPTransfersTSI {
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_COMMAND_SSL_DISABLE, "true");
 		new UFTPStartupTask(kernel).run();
 		// create a storage
-		Endpoint ep = new Endpoint("http://localhost:65321/rest/core/storagefactories/default_storage_factory");
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
+		Endpoint ep = new Endpoint(url+"/storagefactories/DEFAULT");
 		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), null);
 		sms = smf.createStorage();
 		importTestFile(sms, "test", 1024);
@@ -85,7 +86,7 @@ public class TestUFTPTransfersTSI {
 		{
 			importTestFile(sms, "/dir/test"+i, 1024);
 		}
-		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core/factories/default_target_system_factory");
+		Endpoint ep1 = new Endpoint(url+"/factories/default_target_system_factory");
 		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), null);
 		tss = tsf.getOrCreateSite();
 	}
@@ -105,7 +106,7 @@ public class TestUFTPTransfersTSI {
 
 	@Test
 	public void testUFTPAvail() throws Exception {
-		Endpoint ep1 = new Endpoint("http://localhost:65321/rest/core");
+		Endpoint ep1 = new Endpoint("https://localhost:65321/rest/core");
 		CoreClient cc = new CoreClient(ep1, kernel.getClientConfiguration(), null);
 		JSONObject status = cc.getProperties();
 		JSONObject ext = status.getJSONObject("server").getJSONObject("externalConnections");

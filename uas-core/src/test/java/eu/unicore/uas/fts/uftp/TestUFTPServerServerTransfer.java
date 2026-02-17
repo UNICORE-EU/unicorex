@@ -18,6 +18,8 @@ import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.TransferControllerClient;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
 
@@ -70,8 +72,9 @@ public class TestUFTPServerServerTransfer {
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_COMMAND_SSL_DISABLE, "true");
 		new UFTPStartupTask(kernel).run();
 		// create a storage
-		Endpoint ep = new Endpoint("http://localhost:65321/rest/core/storagefactories/default_storage_factory");
-		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), null);
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
+		Endpoint ep = new Endpoint(url+"/storagefactories/DEFAULT");
+		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), getAuth());
 		sms1 = smf.createStorage();
 		importTestFile(sms1, "test", 1024);
 		sms2 = smf.createStorage();
@@ -125,4 +128,7 @@ public class TestUFTPServerServerTransfer {
 		sms.upload(filename).write(new ByteArrayInputStream(buf));
 	}
 
+	private static IAuthCallback getAuth() {
+		return new UsernamePassword("demouser", "test123");
+	}
 }

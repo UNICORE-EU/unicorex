@@ -51,10 +51,14 @@ public class Tasks extends ServicesBase {
 	@Override
 	protected JSONObject doHandleAction(String action, JSONObject param) throws Exception {
 		TaskImpl task = getResource();
+		JSONObject reply = null;
 		if("abort".equals(action)){
 			task.cancel();
 		}
-		return null;
+		else {
+			reply = super.doHandleAction(action, param);
+		}
+		return reply;
 	}
 
 	@Override

@@ -12,7 +12,6 @@ import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.TransferControllerClient;
-import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.UASProperties;
 
@@ -32,8 +31,7 @@ public class TestServerServerTransfer extends Base {
 	public void testTransfer()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
-		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
-				new UsernamePassword("demouser", "test123"));
+		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(), getAuth());
 		initSource();
 		UASProperties cfg = kernel.getAttribute(UASProperties.class);
 		for(String noOpt: new String[]{"true", "false"}){
@@ -49,8 +47,7 @@ public class TestServerServerTransfer extends Base {
 	public void testTransferWildcards()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
-		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
-				new UsernamePassword("demouser", "test123"));
+		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(), getAuth());
 		
 		initSource();
 		UASProperties cfg = kernel.getAttribute(UASProperties.class);

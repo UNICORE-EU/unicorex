@@ -15,7 +15,7 @@ public class TestAdmin extends Base {
     	AdminServiceClient client = new AdminServiceClient(
     			new Endpoint(url),
     			kernel.getClientConfiguration(),
-    			null);
+    			getAuth());
     	assert client.getProperties().toString().contains("connectionStatus");
     	for(AdminCommand ac: client.getCommands()) {
     		System.out.println(ac);

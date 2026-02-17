@@ -15,6 +15,7 @@ import eu.unicore.services.ExtendedResourceStatus;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.messaging.impl.ResourceDeletedMessage;
+import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.fts.FileTransferCapability;
 import eu.unicore.uas.fts.FiletransferInitParameters;
@@ -433,7 +434,9 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 
 	@Override
 	public void setUmask(String umask) {
-		getModel().umask=umask;
+		if (!SMSProperties.umaskPattern.matcher(umask).matches())
+			throw new IllegalArgumentException("Specified umask must be an octal number from 0 to 777.");
+		getModel().umask = umask;
 	}
 
 	/**

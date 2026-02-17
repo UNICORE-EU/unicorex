@@ -14,7 +14,6 @@ import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.SiteFactoryClient;
 import eu.unicore.services.restclient.IAuthCallback;
-import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 
 public class TestSites extends Base {
@@ -25,7 +24,7 @@ public class TestSites extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource = url+"/core/factories/default_target_system_factory";
 		System.out.println("Accessing "+resource);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		SiteFactoryClient client = new SiteFactoryClient(new Endpoint(resource), kernel.getClientConfiguration(), auth);	
 
 		// get its properties
@@ -53,7 +52,7 @@ public class TestSites extends Base {
 	@Test
 	public void testCreateTSSAndSubmitJob() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
 		// create a new TSS
 		SiteClient tss = client.getSiteFactoryClient().createSite();
 		System.out.println(tss.getProperties().toString(2));
@@ -73,7 +72,7 @@ public class TestSites extends Base {
 	@Test
 	public void testGetOrCreateTSS() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
 		SiteClient sc = core.getSiteFactoryClient().getOrCreateSite();
 		String u1 = sc.getEndpoint().getUrl();

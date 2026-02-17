@@ -19,7 +19,6 @@ import eu.unicore.client.utils.TaskClient.Status;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.restclient.IAuthCallback;
-import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.impl.task.TaskImpl;
 import eu.unicore.uas.xnjs.XNJSFacade;
@@ -35,7 +34,7 @@ public class TestHelpers extends Base {
 		String URL = kernel.getContainerProperties().getContainerURL()+"/rest/storages/123";
 		String uuid = createNewInstance(URL);
 		String task = kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uuid;
-		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), null);
+		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), getAuth());
 		c.setUpdateInterval(-1);
 		JSONObject properties = c.getProperties();
 		System.out.println(properties.toString(2));
@@ -48,15 +47,12 @@ public class TestHelpers extends Base {
 	@Test
 	public void createResultTest()throws Exception{
 		String URL = kernel.getContainerProperties().getContainerURL()+"/rest/test/123";
-		
 		String uuid = createNewInstance(URL);
 		String task = kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uuid;
-		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), null);
-		
+		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), getAuth());
 		assertTrue(c.getResult().size()==0);
 		createAndStoreResult(uuid);
 		c.setUpdateInterval(-1);
-		
 		Map<String,String> result = c.getResult();
 		String text = result.get("test");
 		assertTrue("testresult".equals(text));
@@ -65,7 +61,7 @@ public class TestHelpers extends Base {
 		assertEquals("test123", c.getStatusMessage());	
 		System.out.println(c.getProperties().toString(2));
 	}
-	
+
 	private void createAndStoreResult(String uuid)throws Exception{
 		Map<String,String> result = new HashMap<>();
 		result.put("test", "testresult");
@@ -73,9 +69,7 @@ public class TestHelpers extends Base {
 	}
 	
 	private String createNewInstance(String submissionServiceURL) throws Exception{
-		Home taskHome=kernel.getHome("Task");
-		if(taskHome==null)throw new Exception("Task service is not deployed");
-		
+		Home taskHome = kernel.getHome("Task");
 		InitParameters initP = new InitParameters();
 		initP.parentServiceName = submissionServiceURL;
 		initP.parentUUID = "123";
@@ -90,7 +84,7 @@ public class TestHelpers extends Base {
 	
 	private void testRecreate()throws Exception{
 		ClientProperties security = kernel.getClientConfiguration();
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		CoreClient c = new CoreClient(
 				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
 				security, auth);
@@ -107,14 +101,11 @@ public class TestHelpers extends Base {
 			new JobClient(new Endpoint(url), security, auth).delete();
 		}
 		runJob(tss);
-		
 		// these jobs we want to re-create
 		tss = tsf.createSite();
 		assertTrue(tsf.getSiteList().getUrls(0, 100).size()==2);
-
 		int existingJobs = tss.getJobsList().getUrls(0, 100).size();
 		int numJobs=3;
-
 		for(int i=0;i<numJobs;i++){
 			runJob(tss);
 		}
@@ -123,16 +114,14 @@ public class TestHelpers extends Base {
 		long nj = tss.getJobsList().getUrls(0, 100).size();
 		assertEquals(existingJobs+numJobs,nj);
 		tss.delete();
-
 		tss = tsf.createSite();
 		waitUntilReady(tss);
-
 		assertEquals(existingJobs+numJobs, tss.getJobsList().getUrls(0, 100).size());
 	}
 
 	private void testRecreateXNJS()throws Exception{
 		ClientProperties security = kernel.getClientConfiguration();
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		CoreClient c = new CoreClient(
 				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
 				security, auth);

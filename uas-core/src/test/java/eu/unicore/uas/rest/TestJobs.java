@@ -30,18 +30,17 @@ import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.ForwardingHelper;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.RESTException;
-import eu.unicore.services.restclient.UsernamePassword;
-import eu.unicore.uas.SecuredBase;
+import eu.unicore.uas.Base;
 import eu.unicore.uas.util.EchoServer;
 import eu.unicore.util.ChannelUtils;
 
-public class TestJobs extends SecuredBase {
+public class TestJobs extends Base {
 
 	@Test
 	public void testJobSubmission() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
 		System.out.println("Accessing "+url);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), auth);
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
@@ -90,7 +89,7 @@ public class TestJobs extends SecuredBase {
 	public void testTaggedJobs() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
 		System.out.println("Accessing "+url);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		BaseClient client = new BaseClient(url,kernel.getClientConfiguration(), auth);
 
 		JSONObject task = new JSONObject();
@@ -123,7 +122,7 @@ public class TestJobs extends SecuredBase {
 	public void testJobDirectoryHandling() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		System.out.println("Accessing "+url);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		CoreClient cc = new CoreClient(new Endpoint(url),kernel.getClientConfiguration(), auth);
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
@@ -139,7 +138,7 @@ public class TestJobs extends SecuredBase {
 	public void testJobControl() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
 		System.out.println("Accessing "+url);
-		final IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		final IAuthCallback auth = getAuth();
 		final BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), auth);
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
@@ -160,7 +159,7 @@ public class TestJobs extends SecuredBase {
 	public void testPortForwarding() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
 		System.out.println("Accessing "+url);
-		final IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		final IAuthCallback auth = getAuth();
 		final BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), auth);
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");

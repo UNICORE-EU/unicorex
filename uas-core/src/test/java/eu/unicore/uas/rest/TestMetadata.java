@@ -19,7 +19,6 @@ import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.client.data.FileClient;
 import eu.unicore.client.utils.TaskClient;
 import eu.unicore.services.restclient.BaseClient;
-import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.util.MockMetadataManager;
 
@@ -38,7 +37,7 @@ public class TestMetadata extends Base {
 	public void testMetadata()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storagefactories/default_storage_factory";
-		var auth = new UsernamePassword("demouser", "test123");
+		var auth = getAuth();
 		StorageFactoryClient smfClient = new StorageFactoryClient(new Endpoint(resource),
 				kernel.getClientConfiguration(), auth);
 		StorageClient sms = smfClient.createStorage();

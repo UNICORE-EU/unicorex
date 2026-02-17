@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.InitParameters;
 import eu.unicore.services.exceptions.InvalidModificationException;
@@ -23,7 +22,6 @@ import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
 import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.services.security.util.AuthZAttributeStore;
-import eu.unicore.uas.SMSProperties;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uas.fts.FileTransferImpl;
@@ -260,7 +258,7 @@ public class Storages extends ServicesBase {
 	public JSONObject getTriggeredProcessingInfo() throws Exception {
 		JSONObject o = new JSONObject();
 		String id = resourceID+"-scan";
-		Action action = XNJSFacade.get(null, kernel).getAction(id);
+		Action action = XNJSFacade.get(getModel().getXnjsReference(), kernel).getAction(id);
 		if(action!=null) {
 			o.put("status", ActionStatus.toString(action.getStatus()));
 			long lastRun = TriggerProcessor.getLastRun(action);
@@ -368,9 +366,10 @@ public class Storages extends ServicesBase {
 	 * </ul>
 	 */
 	protected JSONObject doHandleAction(String name, JSONObject o) throws Exception {
+		JSONObject reply = null;
 		if("rename".equals(name)){
 			String source = o.optString("from", null);
-			String target= o.optString("to", null);
+			String target = o.optString("to", null);
 			if(source == null || target==null){
 				throw new WebApplicationException("Parameters 'from' and 'to' are required.", Response.Status.BAD_REQUEST);
 			}
@@ -386,25 +385,22 @@ public class Storages extends ServicesBase {
 		}
 		else if("stop-processing".equals(name)){
 			String id = resourceID+"-scan";
-			XNJSFacade.get(null, kernel).getManager().abort(id, AuthZAttributeStore.getClient());
+			XNJSFacade.get(getModel().getXnjsReference(), kernel).getManager().abort(id, AuthZAttributeStore.getClient());
 			getModel().getStorageDescription().setEnableTrigger(false);
 		}
 		else if("extract".equals(name)){
-			return startMetadataExtraction(o);
+			reply = startMetadataExtraction(o);
 		}
-
 		else{
-			throw new WebApplicationException("Action '"+name+"' not available.", 404);
+			reply = super.doHandleAction(name, o);
 		}
-		return null;
+		return reply;
 	}
 
 	@Override
 	protected boolean doSetProperty(String name, Object value) throws Exception {
 		if("umask".equals(name)){
-			if (!SMSProperties.umaskPattern.matcher(String.valueOf(value)).matches())
-				throw new InvalidModificationException("Specified umask must be an octal number from 0 to 777.");
-			getModel().setUmask(String.valueOf(value));
+			getResource().setUmask(String.valueOf(value));
 			return true;
 		}
 		if("description".equals(name)){
@@ -424,8 +420,7 @@ public class Storages extends ServicesBase {
 		if(home == null) {
 			throw new IllegalStateException("StorageFactory service is not available at this site!");	
 		}
-		Client client = AuthZAttributeStore.getClient();
-		return home.getAccessibleResources(client).get(0);
+		return home.getAccessibleResources(AuthZAttributeStore.getClient()).get(0);
 	}
 
 	@Override

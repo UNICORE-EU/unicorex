@@ -8,6 +8,8 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
 import eu.unicore.services.Kernel;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UsernamePassword;
 
 /**
  * base class for functional tests. Starts a "clean" UNICORE/X server.
@@ -60,4 +62,7 @@ public abstract class Base{
 		kernel.shutdown();
 	}
 
+	protected IAuthCallback getAuth() {
+		return new UsernamePassword("demouser", "test123");
+	}
 }

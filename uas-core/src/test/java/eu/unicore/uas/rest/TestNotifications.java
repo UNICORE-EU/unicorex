@@ -11,16 +11,15 @@ import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.services.restclient.IAuthCallback;
-import eu.unicore.services.restclient.UsernamePassword;
-import eu.unicore.uas.SecuredBase;
+import eu.unicore.uas.Base;
 import eu.unicore.uas.notification.Notifications;
 
-public class TestNotifications extends SecuredBase {
+public class TestNotifications extends Base {
 
 	@Test
 	public void testNotifications() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		IAuthCallback auth = getAuth();
 		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
 		SiteClient site = core.getSiteFactoryClient().getOrCreateSite();
 		
