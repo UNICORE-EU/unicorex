@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-22.04
-    continue-on-error: true
     timeout-minutes: 60
     steps:
     - uses: actions/checkout@v2
@@ -24,8 +22,3 @@ jobs:
       with:
         name: code-coverage-report
         path: unicorex-dist/target/site/jacoco-aggregate/**
-    - uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: tsi-test-logs
-        path: xnjs/target/tsi-logs/**

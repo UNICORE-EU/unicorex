@@ -2,6 +2,7 @@ package eu.unicore.xnjs.tsi.remote.server;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -113,7 +114,17 @@ public class TSISocketFactory implements AutoCloseable, Closeable {
 		else{
 			s = getSSLContext().getSocketFactory().createSocket();
 		}
-		s.connect(new InetSocketAddress(source_addr, port), connectTimeout);
+		long now = System.currentTimeMillis();
+		IOException ie = null;
+		while(System.currentTimeMillis()<=now+connectTimeout) try {
+			s.connect(new InetSocketAddress(source_addr, port), connectTimeout);
+		}catch(ConnectException se) {
+			try{
+				ie = se;
+				Thread.sleep(1000);
+			}catch(Exception e) {}
+		}
+		if(ie!=null)throw ie;
 		return s;
 	}
 
