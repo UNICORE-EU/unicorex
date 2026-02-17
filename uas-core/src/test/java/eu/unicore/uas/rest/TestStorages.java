@@ -52,15 +52,22 @@ public class TestStorages extends Base {
 		String resource  = url+"/core/storages";
 		System.out.println("Accessing "+resource);
 		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration());
-		// create a new SMS
 		JSONObject smsDesc = new JSONObject();
 		smsDesc.put("name", "my new SMS");
 		String smsUrl = client.create(smsDesc);
+		StorageClient sms = new StorageClient(new Endpoint(smsUrl), kernel.getClientConfiguration(), null);
+		sms.setUpdateInterval(-1);
 		System.out.println("created: "+smsUrl);
-		// get SMS properties
-		client.setURL(smsUrl);
-		JSONObject smsProps = client.getJSON();
-		System.out.println(smsProps.toString(2));	
+		JSONObject p = new JSONObject();
+		p.put("umask", "022");
+		p.put("description", "Just a test");
+		JSONObject r = sms.setProperties(p);
+		assertEquals("OK", r.getString("umask"));
+		assertEquals("OK", r.getString("description"));
+		assertEquals("022", sms.getProperties().getString("umask"));
+		JSONObject smsProps = sms.getProperties();
+		System.out.println(smsProps.toString(2));
+		sms.delete();
 	}
 
 	@Test
@@ -78,10 +85,13 @@ public class TestStorages extends Base {
 		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
 		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), null);
+		smf.setUpdateInterval(-1);
 		JSONObject props = smf.getProperties();
 		System.out.println("Factory properties: \n"+props.toString(2));
 		StorageClient sms = smf.createStorage("my new SMS", Collections.emptyMap(), null);
 		System.out.println("New Storage in <"+sms.getMountPoint()+">");
+		sms.delete();
+		props = smf.getProperties();
 	}
 
 	@Test

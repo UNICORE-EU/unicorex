@@ -28,9 +28,6 @@ import eu.unicore.uas.util.LogUtil;
 import eu.unicore.uas.xnjs.StorageAdapterFactory;
 import eu.unicore.uas.xnjs.TSIStorageAdapterFactory;
 import eu.unicore.xnjs.ems.ExecutionException;
-import eu.unicore.xnjs.io.ACLEntry.Type;
-import eu.unicore.xnjs.io.ChangeACL;
-import eu.unicore.xnjs.io.ChangeACL.ACLChangeMode;
 import eu.unicore.xnjs.io.FileSet;
 import eu.unicore.xnjs.io.IStorageAdapter;
 import eu.unicore.xnjs.io.XnjsFile;
@@ -437,16 +434,6 @@ public abstract class SMSBaseImpl extends PersistingPreferencesResource
 	@Override
 	public void setUmask(String umask) {
 		getModel().umask=umask;
-	}
-
-	public StorageDescription getStorageDescription() {
-		return getModel().storageDescription;
-	}
-
-	protected void setNormalAndDefACL(String gid, String aclSpec) throws Exception {
-		ChangeACL change = new ChangeACL(Type.GROUP, gid, aclSpec, false, ACLChangeMode.MODIFY);
-		ChangeACL change2 = new ChangeACL(Type.GROUP, gid, aclSpec, true, ACLChangeMode.MODIFY);
-		getStorageAdapter().setfacl(getStorageRoot(), false, new ChangeACL[] {change, change2}, true);
 	}
 
 	/**

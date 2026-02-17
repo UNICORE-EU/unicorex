@@ -60,7 +60,6 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 	public String createSMS(String storageBackendType, String name, Calendar tt, Map<String,String>parameters)
 	throws Exception 
 	{
-		String clientName = (getClient()!=null?getClient().getDistinguishedName():"<no client>");
 		Map<String, StorageDescription> factories = uasProperties.getStorageFactories();
 		if(storageBackendType == null){
 			List<String>types = new ArrayList<>();
@@ -112,7 +111,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		initMap.appendUniqueID = appendUniqueID;	
 		initMap.storageDescription = factoryDesc;
 		initMap.factoryID = getUniqueID();
-
+		initMap.ownerDN = (getClient()!=null?getClient().getDistinguishedName():null);
 		if(parameters.get(SMSProperties.ENABLE_TRIGGER)!=null){
 			factoryDesc.setEnableTrigger(Boolean.parseBoolean(parameters.get(SMSProperties.ENABLE_TRIGGER)));
 			if(factoryDesc.isEnableTrigger() && !factoryDesc.isAllowTrigger()) {
@@ -131,7 +130,7 @@ public class StorageFactoryImpl extends BaseResourceImpl {
 		initMap.userParameters.putAll(parameters);
 		String smsID = createStorageResource(initMap);
 		initStorage(smsID);
-		logger.info("Created new <{}> StorageManagement resource <{}> for <{}>", storageBackendType, smsID, clientName);
+		logger.info("Created new <{}> StorageManagement resource <{}> for <{}>", storageBackendType, smsID, initMap.ownerDN);
 		return smsID;
 	}
 

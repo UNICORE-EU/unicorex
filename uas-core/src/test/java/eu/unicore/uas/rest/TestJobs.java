@@ -1,6 +1,7 @@
 package eu.unicore.uas.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.BufferedReader;
@@ -28,6 +29,7 @@ import eu.unicore.client.core.StorageClient;
 import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.ForwardingHelper;
 import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.RESTException;
 import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.SecuredBase;
 import eu.unicore.uas.util.EchoServer;
@@ -131,6 +133,27 @@ public class TestJobs extends SecuredBase {
 		while(!jc.isFinished())Thread.sleep(1000);
 		System.out.println(sc.getProperties().toString(2));
 		Thread.sleep(500);
+	}
+	
+	@Test
+	public void testJobControl() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
+		System.out.println("Accessing "+url);
+		final IAuthCallback auth = new UsernamePassword("demouser", "test123");
+		final BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), auth);
+		JSONObject task = new JSONObject();
+		task.put("ApplicationName", "Date");
+		String jobUrl = client.create(task);
+		System.out.println("created: "+jobUrl);
+		JobClient job = new JobClient(new Endpoint(jobUrl), kernel.getClientConfiguration(), auth);
+		job.poll(null);
+		job.restart();
+		Thread.sleep(1000);
+		job.abort();
+		Thread.sleep(1000);
+		job.delete();
+		RESTException e = assertThrows(RESTException.class, ()->job.restart());
+		assertEquals(404, e.getStatus());
 	}
 
 	@Test

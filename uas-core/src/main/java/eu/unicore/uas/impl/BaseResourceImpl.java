@@ -64,25 +64,6 @@ public abstract class BaseResourceImpl extends ResourceImpl implements XNJSResou
 		}
 		return xnjs;
 	}
-	
-	public void refreshSystemInfo(){
-		if(getModel().getLastSystemInfoRefreshInstant()+30000 
-				< System.currentTimeMillis()){
-			return;
-		}
-		getModel().setLastSystemInfoRefreshInstant(System.currentTimeMillis());
-		try{
-			doRefreshSystemInfo();
-		}catch(Exception ex){
-			Log.logException("Error getting info from TSI", ex, logger);
-		}
-	}
-
-	/**
-	 * perform any updates of system-level info, invoked from
-	 * refreshSystemInfo() if necessary
-	 */
-	protected void doRefreshSystemInfo() throws Exception {}
 
 	public UASProperties getProperties() {
 		return uasProperties;

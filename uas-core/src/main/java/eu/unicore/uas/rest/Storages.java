@@ -407,6 +407,14 @@ public class Storages extends ServicesBase {
 			getModel().setUmask(String.valueOf(value));
 			return true;
 		}
+		if("description".equals(name)){
+			String v = String.valueOf(value);
+			if(v.length()>256) {
+				throw new InvalidModificationException("Description too long.");
+			}
+			getModel().getStorageDescription().setDescription(v);
+			return true;
+		}
 		return super.doSetProperty(name, value);
 	}
 

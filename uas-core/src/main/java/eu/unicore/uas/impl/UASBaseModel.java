@@ -13,12 +13,6 @@ public class UASBaseModel extends BaseModel {
 	 */
 	private String xnjsReference;
 
-
-	/**
-	 *  used to prevent too-frequent refreshes of system info
-	 */
-	private long lastSystemInfoRefreshInstant;
-	
 	public String getXnjsReference() {
 		return xnjsReference;
 	}
@@ -27,12 +21,4 @@ public class UASBaseModel extends BaseModel {
 		this.xnjsReference = xnjsReference;
 	}
 
-	public long getLastSystemInfoRefreshInstant() {
-		return lastSystemInfoRefreshInstant;
-	}
-
-	public void setLastSystemInfoRefreshInstant(long lastSystemInfoRefreshInstant) {
-		this.lastSystemInfoRefreshInstant = lastSystemInfoRefreshInstant;
-	}
-	
 }
