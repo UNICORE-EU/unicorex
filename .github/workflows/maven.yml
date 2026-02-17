@@ -25,7 +25,7 @@ jobs:
         name: code-coverage-report
         path: unicorex-dist/target/site/jacoco-aggregate/**
     - uses: actions/upload-artifact@v4
-      if: always()
+      if: failure()
       with:
         name: tsi-test-logs
         path: xnjs/target/tsi-logs/**
