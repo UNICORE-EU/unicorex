@@ -15,7 +15,6 @@ import eu.unicore.xnjs.BaseModule;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.tsi.local.LocalExecution.DataMover;
-import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.server.ServerTSIModule;
 
 /**
@@ -73,13 +72,13 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 
 	@BeforeAll
 	public static void startTSI() throws Exception {
-		ProcessBuilder pb=new ProcessBuilder();
-		File tsiExec=new File("src/test/resources/tsi/bin/start.sh");
+		ProcessBuilder pb = new ProcessBuilder();
+		File tsiExec = new File("src/test/resources/tsi/bin/start.sh");
 		pb.command(tsiExec.getAbsolutePath());
-		Process p=pb.start();
-		DataMover m=new DataMover(p.getInputStream(),System.out);
-		m.run();
-		int exitCode=p.waitFor();
+		pb.redirectErrorStream(true);
+		Process p = pb.start();
+		new DataMover(p.getInputStream(), System.out).run();
+		int exitCode = p.waitFor();
 		Thread.sleep(500);
 		System.out.println("TSI started.");
 		if(exitCode!=0)throw new IOException("TSI start returned non-zero exit code <"+exitCode+">");
@@ -87,14 +86,14 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 
 	@AfterAll
 	public static void stopTSI() throws Exception {
-		ProcessBuilder pb=new ProcessBuilder();
-		File tsiExec=new File("src/test/resources/tsi/bin/stop.sh");
+		ProcessBuilder pb = new ProcessBuilder();
+		File tsiExec = new File("src/test/resources/tsi/bin/stop.sh");
 		pb.command(tsiExec.getAbsolutePath());
-		Process p=pb.start();
-		DataMover m=new DataMover(p.getInputStream(),System.out);
-		m.run();
-		int exitCode=p.waitFor();
-		if(exitCode!=0)throw new IOException("TSI stop returned non-zero exit code");
+		pb.redirectErrorStream(true);
+		Process p = pb.start();
+		new DataMover(p.getInputStream(), System.out).run();
+		int exitCode = p.waitFor();
+		if(exitCode!=0)throw new IOException("TSI stop returned non-zero exit code <"+exitCode+">");
 	}
 
 }
