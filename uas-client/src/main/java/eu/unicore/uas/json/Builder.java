@@ -42,14 +42,10 @@ public class Builder {
 	 * Creates the builder from the supplied JSON string
 	 * 
 	 * @param jsonString
-	 * @throws IllegalArgumentException on JSON parsing errors
+	 * @throws JSONException
 	 */
-	public Builder(String jsonString) {
-		try{
-			json=JSONUtil.read(jsonString);
-		}catch(JSONException ex){
-			throw new IllegalArgumentException(JSONUtil.makeParseErrorMessage(jsonString, ex));
-		}
+	public Builder(String jsonString) throws JSONException {
+		json = new JSONObject(jsonString);
 	}
 
 	/**
@@ -83,8 +79,8 @@ public class Builder {
 	}
 
 	protected void extractRequirements(){
-		String appName=JSONUtil.getString(json,"ApplicationName");
-		String appVersion=JSONUtil.getString(json,"ApplicationVersion");
+		String appName = json.optString("ApplicationName", null);
+		String appVersion = json.optString("ApplicationVersion", null);
 		if(appName!=null){
 			requirements.add(new ApplicationRequirement(appName,appVersion));
 		}
@@ -106,11 +102,11 @@ public class Builder {
 	 * @param key - the property key 
 	 */
 	public String getProperty(String key) {
-		return JSONUtil.getString(json, key);
+		return json.optString(key, null);
 	}
 
-	public String getProperty(String key,String defaultValue) {
-		return JSONUtil.getString(json, key,defaultValue);
+	public String getProperty(String key, String defaultValue) {
+		return json.optString(key,defaultValue);
 	}
 	
 	public void setJobType(Job.Type jobType) {

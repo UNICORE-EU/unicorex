@@ -2,12 +2,13 @@ package eu.unicore.uas.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -22,48 +23,12 @@ public class TestJSONUtil {
 	}
 	
 	@Test
-	public void testCommentParse()throws JSONException{
-		JSONObject o=JSONUtil.read(
-				"{\n" +
-		        "#\n" +
-				"#this is a comment \n" +
-				"#\n" +
-			    "   # also a comment \n" +
-				"foo : \"bar#nocomment\" }");
-		assertNotNull(o);
-		assertEquals("bar#nocomment", o.getString("foo"));
-		
-		o=JSONUtil.read(
-					"{\n" +
-		 "From: \"url/#xx\"," + 
-		"\n}");
-		assertNotNull(o);
-		assertEquals("url/#xx", o.getString("From"));
-	}
-	
-	
-	@Test
 	public void testErrorReporting(){
-		String json="{ foo : bar \n \n ";
-		try{
-			new JSONObject(json);
-			fail("Expected parse exception");
-		}catch(JSONException ex){
-			String msg=JSONUtil.makeParseErrorMessage(json, ex);
-			assertTrue(msg.contains("line 3"));
-		}
-	}
-	
-	@Test
-	public void testErrorReporting2(){
-		String json="#foocomment\n{ foo : bar \n \n }";
-		try{
-			new JSONObject(json);
-			fail("Expected parse exception");
-		}catch(JSONException ex){
-			String msg=JSONUtil.makeParseErrorMessage(json, ex);
-			assertTrue(msg.contains("must begin with"));
-		}
+		String json = "{ foo : bar \n \n ";
+		JSONException ex = assertThrows(JSONException.class, ()->new JSONObject(json));
+		String msg = ex.getMessage();
+		System.out.println(msg);
+		assertTrue(msg.contains("line 3"));
 	}
 	
 	@Test
@@ -83,5 +48,21 @@ public class TestJSONUtil {
 		JSONObject o=JSONUtil.asJSON(map);
 		assertEquals("y",o.getString("x"));
 		assertEquals("bar",o.getString("foo"));
+	}
+	
+	@Test
+	public void testMultiLine() throws Exception {
+		JSONObject j = new JSONObject();
+		JSONArray a = new JSONArray();
+		a.put("1");
+		a.put("2");
+		j.put("data", a);
+		String l = JSONUtil.readMultiLine("data", null, j);
+		assertEquals("1\n2\n", l);
+		j.put("data", "1\n2\n");
+		assertEquals("1\n2\n", JSONUtil.readMultiLine("data", null, j));
+		j.remove("data");
+		assertEquals("def", JSONUtil.readMultiLine("data", "def", j));
+		
 	}
 }

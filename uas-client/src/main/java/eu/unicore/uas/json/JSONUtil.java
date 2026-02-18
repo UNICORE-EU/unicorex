@@ -15,38 +15,14 @@ import org.json.JSONObject;
 
 
 /**
- * JSON utilities to work around some small issues with the JSON.org parser 
- * 
+ * JSON utilities
+ *
  * @author schuller
  */
 public class JSONUtil {
-	
+
 	private JSONUtil(){}
-	
-	/**
-	 * get the requested value
-	 * @param obj - the json object
-	 * @param key - the key
-	 * @param defaultValue - the default value
-	 */
-	public static String getString(JSONObject obj, String key, String defaultValue){
-		try{
-			return String.valueOf(obj.get(key));
-		}
-		catch(JSONException je){
-			return defaultValue;
-		}
-	}
-	
-	/**
-	 * get the requested value or <code>null</code> if it does not exist in the json
-	 * @param obj
-	 * @param key
-	 */
-	public static String getString(JSONObject obj, String key){
-		return getString(obj, key, null);
-	}
-	
+
 	public static void putQuietly(JSONObject obj, String key, String val){
 		try{
 			if(obj!=null)obj.put(key, val);
@@ -54,7 +30,7 @@ public class JSONUtil {
 		catch(JSONException je){
 		}
 	}
-	
+
 	public static void putQuietly(JSONObject obj, String key, JSONArray val){
 		try{
 			if(obj!=null)obj.put(key, val);
@@ -70,39 +46,7 @@ public class JSONUtil {
 		catch(JSONException je){
 		}
 	}
-	
-	/**
-	 * improve the error message by including the line number (not just the position)
-	 * @param json
-	 * @param ex
-	 * @return error message containing the line number in the JSON
-	 */
-	public static String makeParseErrorMessage(String json, JSONException ex){
-		String line="unknown";
-		String[] parts=ex.getMessage().split("at character ");
-		if(parts.length>1){
-			try{
-				int pos=Integer.parseInt(parts[1]);
-				line=String.valueOf(getLineNumber(json, pos));
-			}
-			catch(Exception e){}
-		}
-		return "Error parsing (around line "+line+ ") "+ex.getMessage();
-	}
-	
-	private static int getLineNumber(String s, int pos)throws IOException{
-		int l=0;
-		List<String>lines = lines(s);
-		int c=0;
-		for(String line: lines){
-			if(line.matches(commentPattern))continue;
-			c+=line.length();
-			if(c>=pos)break;
-			l++;
-		}
-		return l;
-	}
-	
+
 	public static Map<String,String>asMap(JSONObject o){
 		Map<String,String>result=new HashMap<>();
 		if(o!=null){
@@ -143,17 +87,7 @@ public class JSONUtil {
 		List<String> result = toList(array);
 		return (String[])result.toArray(new String[result.size()]);
 	}
-	
-	private static String commentPattern = "(?m)^\\s*#.*\\n";
-	
-	/**
-	 * read the JSONObject, ignoring comments
-	 * @param json
-	 */
-	public static JSONObject read(String json) throws JSONException {
-		return new JSONObject(json.replace("\r\n", "\n").replaceAll(commentPattern, "\n"));
-	}
-	
+
 	public static List<String> lines(String json) throws IOException {
 		return IOUtils.readLines(new StringReader(json.replace("\r\n", "\n").replace("\r","\n")));
 	}

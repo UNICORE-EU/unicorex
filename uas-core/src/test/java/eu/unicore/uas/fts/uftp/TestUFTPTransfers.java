@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -43,6 +44,7 @@ import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
+import eu.unicore.uas.fts.ProgressListener;
 import eu.unicore.uftp.dpc.Utils;
 
 /**
@@ -257,6 +259,20 @@ public class TestUFTPTransfers {
 		assertNotNull(ftc);
 		assertEquals(encrypt, ftc.getEncryptionKey()!=null);
 		assertEquals(compress, ftc.isCompressionEnabled());
+		assertEquals(1, ftc.getStreams());
+		final AtomicBoolean notified = new AtomicBoolean();
+		ProgressListener<Long>p =new ProgressListener<>() {
+			@Override
+			public void notifyProgress(Long amount) {
+				notified.set(true);
+			}
+			@Override
+			public boolean isCancelled() {
+				return false;
+			}
+			
+		};
+		ftc.setProgressListener(p);
 		System.out.println(ftc.getProperties());	
 		File testFile = new File("target/testfiles/data-"+UUID.newUniqueID());
 		int size = 1024;
@@ -265,6 +281,7 @@ public class TestUFTPTransfers {
 		try(InputStream source = new FileInputStream(testFile)) {
 			ftc.write(source);
 		}
+		assertTrue(notified.get());
 		Thread.sleep(1000);
 		// check that file has been written...
 		FileListEntry gft = sms.stat("test-import");

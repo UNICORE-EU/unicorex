@@ -80,7 +80,7 @@ public class RuleFactory {
 		try{
 			List<Rule> result = new ArrayList<>();
 			String source = IOUtils.toString(input, "UTF-8");
-			JSONObject json = JSONUtil.read(source);
+			JSONObject json = new JSONObject(source);
 			JSONArray rules = json.optJSONArray("Rules");
 			if(rules!=null) {
 				for(int i=0; i<rules.length(); i++){
@@ -131,8 +131,7 @@ public class RuleFactory {
 	public void updateSettings(ScanSettings settings, InputStream source) throws IOException, JSONException {
 		JSONObject json= new JSONObject(IOUtils.toString(source, "UTF-8")).optJSONObject(SCAN_SETTINGS);
 		if(json==null)return;
-
-		String interval = JSONUtil.getString(json, UPD_INTERVAL, "60");
+		String interval = json.optString(UPD_INTERVAL, "60");
 		int request = (int)UnitParser.getTimeParser(0).getDoubleValue(interval);
 		// do not allow intervals below 30 secs
 		settings.updateInterval = Math.max(30, request);
@@ -145,7 +144,7 @@ public class RuleFactory {
 		if(excl!=null){
 			settings.excludes = JSONUtil.toArray(excl);
 		}
-		settings.maxDepth = Integer.parseInt(JSONUtil.getString(json, MAXDEPTH, "10"));
+		settings.maxDepth = Integer.parseInt(json.optString(MAXDEPTH, "10"));
 		settings.enabled = json.optBoolean(ENABLED, true);
 		settings.enableLogging = json.optBoolean(LOGGING, true);
 	}

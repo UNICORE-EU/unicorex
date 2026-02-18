@@ -199,12 +199,4 @@ public class UFTPFileTransferClient extends FiletransferClient
 		return hostList.toArray(new InetAddress[hostList.size()]);
 	}
 
-	public String asString(InetAddress[] ips){
-		StringBuilder sb = new StringBuilder();
-		for(InetAddress ip: ips){
-			if(sb.length()>0)sb.append(',');
-			sb.append(ip.getHostName());
-		}
-		return sb.toString();
-	}
 }
