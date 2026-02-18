@@ -1,6 +1,7 @@
 package eu.unicore.uas.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
@@ -14,6 +15,7 @@ import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.SiteFactoryClient;
 import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.RESTException;
 import eu.unicore.uas.Base;
 
 public class TestSites extends Base {
@@ -80,7 +82,18 @@ public class TestSites extends Base {
 		sc = core.getSiteFactoryClient().getOrCreateSite();
 		assertEquals(u1, sc.getEndpoint().getUrl());
 	}
-	
+
+	@Test
+	public void testAccesControl()throws Exception {
+		String ep = kernel.getContainerProperties().getContainerURL()+
+				"/rest/core/factories/default_target_system_factory";
+		SiteFactoryClient sms = new SiteFactoryClient(new Endpoint(ep), kernel.getClientConfiguration(), getAuth());
+		RESTException re = assertThrows(RESTException.class, ()->sms.delete());
+		assertEquals(403, re.getStatus());
+		RESTException re1 = assertThrows(RESTException.class, ()->sms.setProperties(new JSONObject()));
+		assertEquals(403, re1.getStatus());
+	}
+
 	private JobClient submitJob(SiteClient client) throws Exception{
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");

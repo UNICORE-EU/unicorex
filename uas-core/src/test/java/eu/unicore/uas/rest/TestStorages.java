@@ -324,26 +324,44 @@ public class TestStorages extends Base {
 		assertTrue(p.length()>l1, "working dirs should be listed");
 	}
 
-	// runs empty job to create a working directory
-	private void runJob() throws Exception {
-		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
-		System.out.println("Accessing "+url);
-		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), getAuth());
-		JSONObject task = new JSONObject();
-		String jobUrl = client.create(task);
-		System.out.println("created: "+jobUrl);
+	@Test
+	public void testSharedStorageAccessControl()throws Exception {
+		String ep = kernel.getContainerProperties().getContainerURL()+
+				"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(new Endpoint(ep),
+				kernel.getClientConfiguration(), getAuth());
+		RESTException re = assertThrows(RESTException.class, ()->sms.delete());
+		assertEquals(403, re.getStatus());
+		RESTException re1 = assertThrows(RESTException.class, ()->sms.setProperties(new JSONObject()));
+		assertEquals(403, re1.getStatus());
 	}
 
-	/**
-	 * creates a new empty storage and return a client for it
-	 */
+	@Test
+	public void testStorageFactoryAccessControl()throws Exception {
+		String ep = kernel.getContainerProperties().getContainerURL()+
+				"/rest/core/storagefactories/DEFAULT";
+		StorageFactoryClient sms = new StorageFactoryClient(new Endpoint(ep),
+				kernel.getClientConfiguration(), getAuth());
+		RESTException re = assertThrows(RESTException.class, ()->sms.delete());
+		assertEquals(403, re.getStatus());
+		RESTException re1 = assertThrows(RESTException.class, ()->sms.setProperties(new JSONObject()));
+		assertEquals(403, re1.getStatus());
+	}
+
+	// runs empty job to create a working directory
+	private String runJob() throws Exception {
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
+		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), getAuth());
+		JSONObject task = new JSONObject();
+		return client.create(task);
+	}
+
+	// creates a new empty storage and return a client for it
 	private StorageClient createStorage() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
-				"/rest/core/storagefactories/default_storage_factory";
-		Endpoint resource  = new Endpoint(url);
-		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(),  getAuth());
-		return smf.createStorage();
+				"/rest/core/storagefactories/DEFAULT";
+		return new StorageFactoryClient(new Endpoint(url), kernel.getClientConfiguration(),
+				getAuth()).createStorage();
 	}
-	
+
 }

@@ -255,10 +255,17 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 		this.append = true;
 	}
 
-	protected ClassicHttpRequest createMethodForUpload(){
+	protected ClassicHttpRequest createMethodForUpload() throws IOException {
 		ClassicHttpRequest upload = accessURL.contains("method=POST") ?
 				new HttpPost(accessURL): new HttpPut(accessURL);
 		if(append)upload.addHeader("X-UNICORE-AppendData", "true");
+		if(auth!=null) {
+			try {
+				auth.addAuthenticationHeaders(upload);
+			} catch (Exception e) {
+				throw new IOException(e);
+			}
+		}
 		return upload;
 	}
 

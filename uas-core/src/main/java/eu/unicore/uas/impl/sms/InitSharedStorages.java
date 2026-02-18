@@ -48,11 +48,6 @@ public class InitSharedStorages implements Runnable{
 	@SuppressWarnings("deprecation")
 	protected void createSharedStorages()throws ResourceNotCreatedException,PersistenceException{
 		Home smsHome = kernel.getHome(UAS.SMS);
-		if(smsHome==null){
-			logger.info("No StorageManagement service configured for this site!");
-			return;
-		}
-		//get "global" lock
 		LockSupport ls = kernel.getPersistenceManager().getLockSupport();
 		Lock lock = ls.getOrCreateLock(InitSharedStorages.class.getName());
 		if(lock.tryLock()){

@@ -42,10 +42,6 @@ public class InitStorageFactories implements Runnable {
 	public void run(){
 		try{
 			Home smfHome = kernel.getHome(UAS.SMF);
-			if(smfHome==null){
-				logger.info("No StorageFactory service configured for this site!");
-				return;
-			}
 			for(String id: smfHome.getStore().getUniqueIDs()){
 				try{
 					if(!StorageFactoryHomeImpl.DEFAULT_SMF_NAME.equals(id)) {
@@ -57,11 +53,9 @@ public class InitStorageFactories implements Runnable {
 			}
 			UASProperties props = kernel.getAttribute(UASProperties.class);
 			Map<String, StorageDescription> factories = props.getStorageFactories();
-			LockSupport ls=kernel.getPersistenceManager().getLockSupport();
-			Lock smfLock=ls.getOrCreateLock(InitStorageFactories.class.getName());
-			if(smfLock.tryLock()){
-			}
-			try{
+			LockSupport ls = kernel.getPersistenceManager().getLockSupport();
+			Lock smfLock = ls.getOrCreateLock(InitStorageFactories.class.getName());
+			if(smfLock.tryLock()) try {
 				for(String smfID: factories.keySet()) {
 					BaseInitParameters init = new BaseInitParameters(smfID, TerminationMode.NEVER);
 					Class<?>clazz = props.getClassValue(UASProperties.SMS_FACTORY_CLASS, StorageFactoryImpl.class);
@@ -89,14 +83,9 @@ public class InitStorageFactories implements Runnable {
 	@Deprecated
 	private void createDefaultStorageFactoryIfNotExists()throws ResourceNotCreatedException,PersistenceException{
 		Home smfHome=kernel.getHome(UAS.SMF);
-		if(smfHome==null){
-			logger.info("No StorageFactory service configured for this site!");
-			return;
-		}
-		//get "global" lock
-		LockSupport ls=kernel.getPersistenceManager().getLockSupport();
-		Lock smfLock=ls.getOrCreateLock(InitStorageFactories.class.getName());
-		String defaultSmfName=StorageFactoryHomeImpl.DEFAULT_SMF_NAME;
+		LockSupport ls = kernel.getPersistenceManager().getLockSupport();
+		Lock smfLock = ls.getOrCreateLock(InitStorageFactories.class.getName());
+		String defaultSmfName = StorageFactoryHomeImpl.DEFAULT_SMF_NAME;
 		if(smfLock.tryLock()){
 			try{
 				//this will throw ResourceUnknowException if resource does not exist

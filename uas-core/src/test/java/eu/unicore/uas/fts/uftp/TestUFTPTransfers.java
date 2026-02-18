@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -15,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
-import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -37,6 +37,7 @@ import eu.unicore.client.data.FiletransferClient;
 import eu.unicore.client.data.HttpFileTransferClient;
 import eu.unicore.client.data.UFTPConstants;
 import eu.unicore.client.data.UFTPFileTransferClient;
+import eu.unicore.persist.util.UUID;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.UsernamePassword;
@@ -70,7 +71,6 @@ public class TestUFTPTransfers {
 	public static void init() throws Exception {
 		uftpd.start();
 		// start UNICORE
-		long start = System.currentTimeMillis();
 		// clear data directories
 		FileUtils.deleteQuietly(new File("target", "data"));
 		FileUtils.deleteQuietly(new File("target", "testfiles"));
@@ -80,8 +80,6 @@ public class TestUFTPTransfers {
 		kernel = uas.getKernel();
 		makePathsAbsolute();
 		uas.startSynchronous();
-		System.out.println("Startup time: "
-				+ (System.currentTimeMillis() - start) + " ms.");
 		kernel.getAttribute(UASProperties.class).setProperty(UASProperties.SMS_TRANSFER_FORCEREMOTE, "true");
 		Properties cfg = kernel.getContainerProperties().getRawProperties();
 		cfg.setProperty("coreServices.uftp."+UFTPProperties.PARAM_ENABLE_UFTP, "true");
@@ -250,16 +248,17 @@ public class TestUFTPTransfers {
 
 	private void doImportFile(boolean encrypt, boolean compress) throws Exception {
 		Map<String,String> ep = new HashMap<>();
-		ep.put(UFTPConstants.PARAM_SECRET, UUID.randomUUID().toString());
+		ep.put(UFTPConstants.PARAM_SECRET, UUID.newUniqueID());
 		ep.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
 		ep.put(UFTPConstants.PARAM_ENABLE_COMPRESSION, String.valueOf(compress));
 		ep.put(UFTPConstants.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
 
 		UFTPFileTransferClient ftc = (UFTPFileTransferClient)sms.createImport("test-import",false, -1, "UFTP", ep);
 		assertNotNull(ftc);
-		System.out.println(ftc.getProperties());
-
-		File testFile = new File("target/testfiles/data-"+System.currentTimeMillis());
+		assertEquals(encrypt, ftc.getEncryptionKey()!=null);
+		assertEquals(compress, ftc.isCompressionEnabled());
+		System.out.println(ftc.getProperties());	
+		File testFile = new File("target/testfiles/data-"+UUID.newUniqueID());
 		int size = 1024;
 		int n = 100;
 		makeTestFile(testFile, size, n);
@@ -277,27 +276,38 @@ public class TestUFTPTransfers {
 	
     @Test
    	public void testImportFileUsingStorageClient() throws Exception {
-   		Map<String,String>params=new HashMap<String,String>();
+   		Map<String,String>params = new HashMap<>();
    		params.put(UFTPConstants.PARAM_SECRET, "test123");
    		params.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
    		FiletransferClient ftc = sms.createImport("test-import", false, -1, "UFTP", params);
    		assertNotNull(ftc);
    		assertTrue(ftc instanceof UFTPFileTransferClient);
    		System.out.println(ftc.getProperties());
-   		File testFile = new File("target/testfiles/data-"+System.currentTimeMillis());
+   		File testFile = new File("target/testfiles/data-"+UUID.newUniqueID());
    		int size = 1024;
    		int n = 100;
    		makeTestFile(testFile, size, n);
    		try (InputStream source = new FileInputStream(testFile)){
-   			((UFTPFileTransferClient)ftc).write(source);//testFile.length());
+   			((UFTPFileTransferClient)ftc).write(source);
    		}
    		Thread.sleep(1000);
-   		// check that file has been written...
    		FileListEntry gft = sms.stat("test-import");
    		assertNotNull(gft);
    		assertEquals(size * n, gft.size);
    	}
-	
+
+    @Test
+	public void testReadPartial() throws Exception {
+    	Map<String,String> ep = new HashMap<>();
+		ep.put(UFTPConstants.PARAM_SECRET, UUID.newUniqueID());
+		String f = "partial-"+UUID.newUniqueID();
+		sms.upload(f).write("test data".getBytes());
+		UFTPFileTransferClient uftp = (UFTPFileTransferClient)sms.createExport(f, "UFTP", ep);
+		ByteArrayOutputStream target = new ByteArrayOutputStream();
+		uftp.read(5,4,target);
+		assertEquals("data", target.toString("UTF-8"));
+	}
+
 	@Test
 	public void testExportFile() throws Exception {
 		doExportFile(false, false);
@@ -310,7 +320,7 @@ public class TestUFTPTransfers {
 
 	private void doExportFile(boolean encrypt, boolean compress) throws Exception {
 		Map<String,String> ep = new HashMap<>();
-		ep.put(UFTPConstants.PARAM_SECRET, UUID.randomUUID().toString());
+		ep.put(UFTPConstants.PARAM_SECRET, UUID.newUniqueID());
 		ep.put(UFTPConstants.PARAM_CLIENT_HOST, "localhost");
 		ep.put(UFTPConstants.PARAM_ENABLE_COMPRESSION, String.valueOf(compress));
 		ep.put(UFTPConstants.PARAM_ENABLE_ENCRYPTION, String.valueOf(encrypt));
@@ -318,7 +328,7 @@ public class TestUFTPTransfers {
 		// import first via BFT
 		HttpFileTransferClient c = (HttpFileTransferClient)sms.createImport("export_test", false, -1, "BFT", null);
 		File testFile = new File("target/testfiles/data-"
-				+ System.currentTimeMillis());
+				+ UUID.newUniqueID());
 		int size = 1024;
 		int n = 100;
 		makeTestFile(testFile, size, n);
@@ -327,7 +337,9 @@ public class TestUFTPTransfers {
 		}
 		// now do export via UFTP
 		UFTPFileTransferClient c2 = (UFTPFileTransferClient)sms.createExport("export_test", "UFTP", ep);
-		File testTarget = new File("target/testfiles/export-" + System.currentTimeMillis());
+		assertEquals(encrypt, c2.getEncryptionKey()!=null);
+		assertEquals(compress, c2.isCompressionEnabled());
+		File testTarget = new File("target/testfiles/export-" + UUID.newUniqueID());
 		try (OutputStream target = new FileOutputStream(testTarget)){
 			c2.readFully(target);
 		}

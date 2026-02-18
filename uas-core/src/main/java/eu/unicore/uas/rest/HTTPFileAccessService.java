@@ -3,7 +3,6 @@ package eu.unicore.uas.rest;
 import java.util.HashSet;
 import java.util.Set;
 
-import eu.unicore.security.OperationType;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.USERestApplication;
 import eu.unicore.services.security.pdp.DefaultPDP;
@@ -21,7 +20,7 @@ public class HTTPFileAccessService extends Application implements USERestApplica
 		DefaultPDP pdp = DefaultPDP.get(kernel);
 		if(pdp!=null) {
 			pdp.setServiceRules("files",
-					DefaultPDP.PERMIT_READ, PERMIT_WRITE);
+					PERMIT);
 		}
 		// TODO
 		HTTPFileAccess.kernel = kernel;
@@ -34,9 +33,8 @@ public class HTTPFileAccessService extends Application implements USERestApplica
 		return classes;
 	}
 
-	
-	private static final Rule PERMIT_WRITE = (c,a,d)-> {
-		if(OperationType.write==a.getActionType()) {
+	public static final Rule PERMIT = (c,a,d)-> {
+		if(!"DELETE".equals(a.getAction())) {
 			return Decision.PERMIT;
 		}
 		return Decision.UNCLEAR;
