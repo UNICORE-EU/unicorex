@@ -28,7 +28,7 @@
     "Match": ".*\\.txt",
     "Action": 
     {
-       "Notification": "http://localhost:65321/rest/notification",
+       "Notification": "https://localhost:65321/rest/notification",
        "Settings": { "ref": "test123" }
     }
   }

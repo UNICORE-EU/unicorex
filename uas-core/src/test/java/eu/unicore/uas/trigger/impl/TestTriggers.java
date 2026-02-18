@@ -63,10 +63,8 @@ public class TestTriggers {
 		assertEquals(3600, sc.updateInterval);
 		assertEquals(2, sc.includes.length);
 		assertEquals(1, sc.excludes.length);
-		
 	}
-	
-	
+
 	private Rule getRule(String name, List<Rule>rules){
 		for(Rule r: rules){
 			if(name.equals(((SimpleRule)r).getName()))return r;

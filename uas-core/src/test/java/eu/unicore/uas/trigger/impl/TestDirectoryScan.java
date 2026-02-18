@@ -160,14 +160,13 @@ public class TestDirectoryScan extends Base {
 			}
 		}
 	}
-	
+
 	private boolean hasRun(XNJS xnjs, String actionID)throws Exception{
 		Action a=xnjs.get(InternalManager.class).getAction(actionID);
 		Long l = a.getProcessingContext().getAs(TriggerProcessor.LAST_RUN_TIME, Long.class);
 		return l!=null && l>0 && l<System.currentTimeMillis();
 	}
-	
-	
+
 	@SuppressWarnings("unchecked")
 	private Set<String> getActionIDs(XNJS xnjs, String actionID)throws Exception{
 		Action a=xnjs.get(InternalManager.class).getAction(actionID);
