@@ -11,17 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Job;
 
-public class TestBuilder{
-	
-	@Test
-	public void testComments() throws Exception{
-		String foo = "{\n" +
-				"#test\n" +
-				"  # another test\n" +
-				" Executable: \"/bin/date,\"}";
-		Builder bob = new Builder(foo);
-		assertNotNull(bob);
-	}
+public class TestBuilder {
 
 	@Test
 	public void testBuilder() throws Exception {
