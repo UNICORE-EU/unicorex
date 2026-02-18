@@ -24,6 +24,8 @@ import eu.unicore.client.core.SiteFactoryClient;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.UASProperties;
 import eu.unicore.uftp.dpc.Utils;
@@ -79,7 +81,7 @@ public class TestUFTPTransfersTSI {
 		// create a storage
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		Endpoint ep = new Endpoint(url+"/storagefactories/DEFAULT");
-		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), null);
+		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), getAuth());
 		sms = smf.createStorage();
 		importTestFile(sms, "test", 1024);
 		for(int i=1;i<=3;i++)
@@ -87,7 +89,7 @@ public class TestUFTPTransfersTSI {
 			importTestFile(sms, "/dir/test"+i, 1024);
 		}
 		Endpoint ep1 = new Endpoint(url+"/factories/default_target_system_factory");
-		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), null);
+		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), getAuth());
 		tss = tsf.getOrCreateSite();
 	}
 
@@ -107,7 +109,7 @@ public class TestUFTPTransfersTSI {
 	@Test
 	public void testUFTPAvail() throws Exception {
 		Endpoint ep1 = new Endpoint("https://localhost:65321/rest/core");
-		CoreClient cc = new CoreClient(ep1, kernel.getClientConfiguration(), null);
+		CoreClient cc = new CoreClient(ep1, kernel.getClientConfiguration(), getAuth());
 		JSONObject status = cc.getProperties();
 		JSONObject ext = status.getJSONObject("server").getJSONObject("externalConnections");
 		System.out.println(ext.toString(2));
@@ -267,4 +269,7 @@ public class TestUFTPTransfersTSI {
 		sms.upload(filename).write(new ByteArrayInputStream(buf));
 	}
 
+	private static IAuthCallback getAuth() {
+		return new UsernamePassword("demouser", "test123");
+	}
 }

@@ -241,7 +241,8 @@ public class TestStorages extends Base {
 		StorageClient sms = createStorage();
 		assertThrows(IllegalArgumentException.class,
 				()->sms.createExport("test123", "NOSUCHPROTOCOL", null));
-		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/exports", sms.getSecurityConfiguration());
+		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/exports",
+				sms.getSecurityConfiguration(), getAuth());
 		JSONObject data = new JSONObject();
 		data.put("protocol", "NOSUCHPROTOCOL");
 		data.put("file", "foo");

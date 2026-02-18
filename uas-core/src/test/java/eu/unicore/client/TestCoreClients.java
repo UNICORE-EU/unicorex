@@ -31,8 +31,6 @@ import eu.unicore.client.registry.RegistryClient;
 import eu.unicore.security.wsutil.client.authn.AuthenticationProvider;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProvider;
 import eu.unicore.security.wsutil.client.authn.SecuritySessionPersistence;
-import eu.unicore.services.restclient.IAuthCallback;
-import eu.unicore.services.restclient.UsernamePassword;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.json.Builder;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -45,8 +43,7 @@ public class TestCoreClients extends Base {
 		String resource = url+"/core";
 		System.out.println("Accessing "+resource);
 		Endpoint ep = new Endpoint(resource);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), auth);
+		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), getAuth());
 		System.out.println("Client info: " +client.getClientInfo().toString(2));
 	}
 
@@ -105,12 +102,12 @@ public class TestCoreClients extends Base {
 		};
 
 		TargetSystemFinder tsf1 = new TargetSystemFinder(null);
-		SiteClient site = tsf1.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null);
+		SiteClient site = tsf1.findTSS(registry, ccp, getAuth(), b, null);
 		assertNotNull(site);
 
 		ExecutorService es = kernel.getContainerProperties().getThreadingServices().getExecutorService();
 		final TargetSystemFinder tsf = new TargetSystemFinder(es);
-		site = tsf.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null);
+		site = tsf.findTSS(registry, ccp, getAuth(), b, null);
 		assertNotNull(site);
 		System.out.println(site.getEndpoint().getUrl());
 		AddressFilter f = new AcceptAllFilter();
@@ -127,7 +124,7 @@ public class TestCoreClients extends Base {
 		assertFalse(f.accept(site.getEndpoint().getUrl()));
 		b.setProperty("blacklist", "core");
 		assertThrows(Exception.class, 
-				()->tsf.findTSS(registry, ccp, new UsernamePassword("demouser", "test123"), b, null));
+				()->tsf.findTSS(registry, ccp, getAuth(), b, null));
 	}
 
 	@Test
@@ -135,8 +132,7 @@ public class TestCoreClients extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		System.out.println("Accessing "+url);
 		Endpoint ep = new Endpoint(url);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), auth);
+		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), getAuth());
 		SiteFactoryClient sfc = client.getSiteFactoryClient();
 		SiteClient sc = sfc.getOrCreateSite();
 		JSONObject job = new JSONObject();
@@ -144,10 +140,8 @@ public class TestCoreClients extends Base {
 		JobClient jc = sc.submitJob(job);
 		jc.setUpdateInterval(-1);
 		waitForFinish(jc);
-		
 		StorageClient usp = jc.getWorkingDirectory();
 		System.out.println(usp.getProperties().toString(2));
-		
 		FileList fl = usp.ls("/");
 		List<FileListEntry> files = fl.list(0,50);
 		for(FileListEntry fle: files)System.out.println(fle);
@@ -161,7 +155,8 @@ public class TestCoreClients extends Base {
 	@Test
 	public void testStorageClient() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient storage = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient storage = new StorageClient(new Endpoint(url),
+				kernel.getClientConfiguration(), getAuth());
 		System.out.println(storage.getProperties().toString(2));
 		for(FileListEntry e: storage.ls(".").list(0, 1000)) {
 			System.out.println(e);
@@ -177,8 +172,7 @@ public class TestCoreClients extends Base {
 		String resource = url+"/core";
 		System.out.println("Accessing "+resource);
 		Endpoint ep = new Endpoint(resource);
-		IAuthCallback auth = new UsernamePassword("demouser", "test123");
-		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), auth);
+		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), getAuth());
 		SiteFactoryClient sfc = client.getSiteFactoryClient();
 		SiteClient sc = sfc.getOrCreateSite();
 		JSONObject job = new JSONObject();

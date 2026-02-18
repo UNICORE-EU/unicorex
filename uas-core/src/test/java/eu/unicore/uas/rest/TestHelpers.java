@@ -73,6 +73,7 @@ public class TestHelpers extends Base {
 		InitParameters initP = new InitParameters();
 		initP.parentServiceName = submissionServiceURL;
 		initP.parentUUID = "123";
+		initP.ownerDN = "CN=Demo User,O=UNICORE,C=EU";
 		return taskHome.createResource(initP);
 	}
 	

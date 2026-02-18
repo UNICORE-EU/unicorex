@@ -35,7 +35,7 @@ public class TestDirectoryScan extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()
 				+"/rest/core/storagefactories/DEFAULT";
 		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
-				kernel.getClientConfiguration(), null);
+				kernel.getClientConfiguration(), getAuth());
 		StorageClient sms = smf.createStorage();
 		// write a rule file
 		try(InputStream is=new FileInputStream("src/test/resources/trigger_rules")){
@@ -97,7 +97,7 @@ public class TestDirectoryScan extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()
 				+"/rest/core/storagefactories/DEFAULT";
 		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
-				kernel.getClientConfiguration(), null);
+				kernel.getClientConfiguration(), getAuth());
 		StorageClient sms = smf.createStorage();
 		// write toplevel rule file
 		String tlRule = "{'DirectoryScan':{'IncludeDirs':['scan']}}";

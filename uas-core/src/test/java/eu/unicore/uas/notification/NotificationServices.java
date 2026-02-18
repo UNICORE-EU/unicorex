@@ -5,6 +5,8 @@ import java.util.Set;
 
 import eu.unicore.services.Kernel;
 import eu.unicore.services.rest.USERestApplication;
+import eu.unicore.services.security.pdp.DefaultPDP;
+import eu.unicore.services.security.pdp.PDPResult.Decision;
 import jakarta.ws.rs.core.Application;
 
 /**
@@ -15,7 +17,12 @@ import jakarta.ws.rs.core.Application;
 public class NotificationServices extends Application implements USERestApplication {
 
 	@Override
-	public void initialize(Kernel kernel) throws Exception {}
+	public void initialize(Kernel kernel) throws Exception {
+		DefaultPDP pdp = DefaultPDP.get(kernel);
+		if(pdp!=null) {
+			pdp.setServiceRules("notification", (c,a,d)->Decision.PERMIT);
+		}
+	}
 
 	@Override
 	public Set<Class<?>> getClasses() {
