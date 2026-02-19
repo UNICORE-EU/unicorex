@@ -6,6 +6,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.utils.TaskClient;
 import eu.unicore.security.AuthenticationException;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
@@ -87,9 +88,10 @@ public class CoreClient extends BaseServiceClient {
 		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
 	}
 
-	public StorageFactoryClient getStorageFactory() throws Exception {
+	public StorageFactoryClient getStorageFactory(String type) throws Exception {
 		String url = getLinkUrl("storagefactories");
-		Endpoint ep = endpoint.cloneTo(url+"/default_storage_factory");
+		if(type==null)type = "DEFAULT";
+		Endpoint ep = endpoint.cloneTo(url+"/"+type);
 		return new StorageFactoryClient(ep, security, auth);
 	}
 
@@ -102,4 +104,13 @@ public class CoreClient extends BaseServiceClient {
 		});
 		return res;
 	}
+
+	public TaskClient launchFederatedSearch(JSONObject spec) throws Exception {
+		String url = getLinkUrl("storages")+"/search";
+		bc.pushURL(url);
+		String taskURL = bc.create(spec);
+		bc.popURL();
+		return new TaskClient(new Endpoint(taskURL), security, auth);
+	}
+
 }

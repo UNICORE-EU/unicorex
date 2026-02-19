@@ -1,0 +1,13 @@
+{
+
+  "CN=Demo User, O=UNICORE, C=EU": {
+    "role": "user",
+    "xlogin": ["tester", "tester_2"],
+    "group": ["users", "audio"],
+  },
+
+  "CN=Admin, O=UNICORE": {
+   "role": "admin",
+  }
+
+}

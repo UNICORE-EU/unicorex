@@ -9,17 +9,17 @@ import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.EnumerationClient;
-import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.registry.IRegistry;
+import eu.unicore.services.rest.jwt.JWTDelegation;
+import eu.unicore.services.rest.jwt.JWTServerProperties;
 import eu.unicore.services.rest.registry.RegistryHandler;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.RegistryClient;
-import eu.unicore.services.rest.jwt.JWTDelegation;
-import eu.unicore.services.rest.jwt.JWTServerProperties;
 
 
 /**
@@ -66,9 +66,8 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 				Map<String,String> entry = entries.next();
 				if("CoreServices".equals(entry.get(RegistryClient.INTERFACE_NAME))) {
 					String url = entry.get(RegistryClient.ENDPOINT);
-					SiteClient site = new SiteClient(new Endpoint(url), kernel.getClientConfiguration(), jwt);
-					String storagesURL = site.getLinkUrl("storages");
-					EnumerationClient ec = new EnumerationClient(new Endpoint(storagesURL), kernel.getClientConfiguration(), jwt);
+					CoreClient cc = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), jwt);
+					EnumerationClient ec = cc.getStoragesList();
 					Iterator<String> urls = ec.iterator();
 					while(urls.hasNext()) {
 						String storageURL = urls.next();

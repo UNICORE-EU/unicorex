@@ -6,17 +6,21 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Endpoint;
+import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.FileList;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
@@ -24,6 +28,8 @@ import eu.unicore.client.data.FileClient;
 import eu.unicore.client.data.Metadata;
 import eu.unicore.client.utils.TaskClient;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.restclient.IAuthCallback;
+import eu.unicore.services.restclient.UsernamePassword;
 
 /**
  * Metadata functional tests
@@ -330,14 +336,43 @@ public class TestMetadataFunctional {
 	@Test
 	public void testFederatedSearch() throws Exception
 	{
-		//TBD
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
+		StorageClient sms = new StorageClient(new Endpoint(url+"/storages/WORK"), kernel.getClientConfiguration(), getAuth());
+		String mDir = sms.getProperties().getString("mountPoint");
+		FileUtils.forceMkdir(new File(mDir));
+		FileUtils.cleanDirectory(new File(mDir));
+		sms.upload("foo.a").write("this is some test content...".getBytes());
+		Map<String, String> meta = new HashMap<>();
+		meta.put("Author", "Some One");
+		meta.put("Title", "Review letters");
+		sms.getFileClient("foo.a").putMetadata(meta);
+		sms.upload("bar.a").write("not this one".getBytes());
+		Map<String, String> meta2 = new HashMap<>();
+		meta2.put("Author", "Not Me");
+		meta2.put("Title", "Journal of Useless Research");
+		sms.getFileClient("bar.a").putMetadata(meta2);
+
+		CoreClient cc = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		JSONObject fedSearch = new JSONObject();
+		fedSearch.put("query", "Author:S*");
+		JSONArray resources = new JSONArray();
+		resources.put(url+"/storages/WORK");
+		fedSearch.put("resources", resources);
+		TaskClient tc = cc.launchFederatedSearch(fedSearch);
+		tc.poll(null);
+		System.out.println("Search finished. Status: "+tc.getStatus()+", status message: "+tc.getStatusMessage());
+		Map<String,String> result = tc.getResult();
+		System.out.println(result);
+		assertEquals("1", result.get("storageCount"));
+		assertEquals("1", result.get("resourceCount"));
+		assertEquals("foo.a", new File(new URL(result.get("search-result-1")).getPath()).getName());
 	}
 
 
 	@Test
 	public void testSearch() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -404,4 +439,7 @@ public class TestMetadataFunctional {
 		assertTrue(true);
 	}
 
+	private IAuthCallback getAuth() {
+		return new UsernamePassword("demouser", "test123");
+	}
 }

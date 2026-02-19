@@ -30,7 +30,7 @@ import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
 /**
- * storage access
+ * Client for accessing an individual storage
  * 
  * @author schuller
  */
