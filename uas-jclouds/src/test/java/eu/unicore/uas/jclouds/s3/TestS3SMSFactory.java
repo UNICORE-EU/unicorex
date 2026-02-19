@@ -70,4 +70,14 @@ public class TestS3SMSFactory extends Base {
 		params.put("endpoint", endpoint);
 		assertThrows(RESTException.class, ()->smf.createStorage("my s3", params, null));
 	}
+
+	@Test
+	public void testCreateAWS() throws Exception {
+		String access = "test";
+		String secret = "123";
+		String endpoint = "https://foo.org";
+		String bucket = "test";
+		String provider = "aws-s3";
+		new S3StorageAdapterFactory().createStorageAdapter(null,access,secret,endpoint,provider,bucket,null,false);
+	}
 }

@@ -36,18 +36,20 @@ public abstract class Base{
 	
 	@BeforeAll
 	public static void startUNICORE() throws Exception{
-		long start=System.currentTimeMillis();
 		System.out.println("Starting UNICORE/X...");
 		initDirectories();
-		uas=new UAS(configPath);
-		kernel=uas.getKernel();
-		uas.startSynchronous();
-		System.err.println("UNICORE/X startup time: "+(System.currentTimeMillis()-start)+" ms.");
+		uas = new UAS(configPath);
+		kernel = uas.getKernel();
+		try{
+			uas.startSynchronous();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@AfterAll
 	public static void stopUNICORE() throws Exception{
-		kernel.shutdown();
+		if(kernel!=null)kernel.shutdown();
 	}
 	
 	protected StorageFactoryClient getStorageFactory(String type) throws Exception {

@@ -24,7 +24,7 @@ public class MetadataFileTest {
 
     @Test
     public void testSetMdStates() {
-        MetadataFile file = new MetadataFile(null);
+        MetadataFile file = new MetadataFile();
         assertNotNull(file);
         file.setMdStates(MetadataFile.MD_State.NEW);
         MD_State mdStates = file.getMdStates();

@@ -2,8 +2,6 @@ package eu.unicore.uas.metadata;
 
 import org.apache.commons.io.FilenameUtils;
 
-import eu.unicore.xnjs.io.XnjsFile;
-
 public class MetadataFile {
 
 	public static final String MD_FILE_EXTENSION = "metadata";
@@ -14,13 +12,7 @@ public class MetadataFile {
    
 	private static final String MD_NAME_FORMATER = ".%s."+MD_FILE_EXTENSION;
 
-    private XnjsFile gridFile;
-
     private MD_State mdStates;
-
-    public MetadataFile(XnjsFile gridFile) {
-        this.gridFile = gridFile;
-    }
 
     public MD_State getMdStates() {
         return mdStates;
@@ -28,33 +20,6 @@ public class MetadataFile {
 
     public void setMdStates(MD_State mdStates) {
         this.mdStates = mdStates;
-    }
-
-    private boolean isAlreadyGenerated;
-
-    public XnjsFile getGridFile() {
-        return gridFile;
-    }
-
-    public void setGridFile(XnjsFile gridFile) {
-        this.gridFile = gridFile;
-    }
-
-    public boolean isAlreadyGenerated() {
-        return isAlreadyGenerated;
-    }
-
-    public void setAlreadyGenerated(boolean isAlreadyGenerated) {
-        this.isAlreadyGenerated = isAlreadyGenerated;
-    }
-
-    @Override
-    public String toString() {
-        return new StringBuffer("-- Path: ")
-        		.append(this.gridFile.getPath())
-        		.append("-- State:")
-        		.append(this.mdStates)
-        		.toString();
     }
 
     /**

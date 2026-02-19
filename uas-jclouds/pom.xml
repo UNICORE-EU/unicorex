@@ -22,7 +22,6 @@
       <groupId>eu.unicore</groupId>
       <artifactId>uas-core</artifactId>
       <version>${project.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
