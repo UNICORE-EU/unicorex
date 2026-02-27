@@ -25,11 +25,9 @@ public interface IdentityStore {
 	 * register a key pair for the given Unix user
 	 *
 	 * @param user
-	 * @param privateKey
-	 * @param publicKey
-	 * @param passphrase
+	 * @param keyPair
 	 */
-	public void register(String user, byte[]privateKey, byte[]publicKey, byte[] passphrase); 
+	public void register(String user, KeyPairHolder keyPair); 
 
 	/**
 	 * register an identity resolver that is used to get/update identities for users
@@ -37,4 +35,27 @@ public interface IdentityStore {
 	 */
 	public void registerResolver(IdentityResolver identityResolver); 
 
+	public static class KeyPairHolder {
+
+		public final byte[] privateKey;
+		public final byte[] publicKey;
+		public final byte[] passphrase;
+		private final ValidityCheck checker;
+
+		public KeyPairHolder (byte[] privateKey, byte[] publicKey, byte[] passphrase, ValidityCheck checker){
+			this.privateKey = privateKey;
+			this.publicKey = publicKey;
+			this.passphrase = passphrase;
+			this.checker = checker;
+		}
+
+		public boolean isValid() {
+			return checker!=null? checker.isValid(this) :  true;
+		}
+
+	}
+
+	public static interface ValidityCheck {
+		public boolean isValid(KeyPairHolder kp);
+	}
 }

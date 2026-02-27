@@ -9,6 +9,7 @@ import org.json.JSONObject;
 
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
+import eu.unicore.xnjs.tsi.remote.single.IdentityStore.KeyPairHolder;
 
 public class FileIdentityResolver implements IdentityResolver {
 
@@ -49,7 +50,7 @@ public class FileIdentityResolver implements IdentityResolver {
 						pub = IOUtils.toString(in, "UTF-8").getBytes();
 					}
 					logger.debug("Registering keypair for <{}>", uid);
-					store.register(uid, priv, pub, pass);
+					store.register(uid, new KeyPairHolder(priv, pub, pass, null));
 					num++;
 				}catch(Exception ex) {
 					logger.error("Could not read SSH identity for user <{}>: {}", uid, ex);

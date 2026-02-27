@@ -58,6 +58,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response.Status;
 
 /**
  * REST interface to storages
@@ -235,8 +236,8 @@ public class Storages extends ServicesBase {
 	 */
 	@Path("/{uniqueID}/files")
 	public Files getFilesResource() {
-		String filesURL = getBaseURL()+"/"+getResourcesName()+"/"+resourceID+"/files";
-		return new Files(kernel, getResource(), filesURL);
+		return new Files(kernel, getResource(),
+				getBaseURL() + "/" + getResourcesName() + "/" + resourceID + "/files");
 	}
 
 	public JSONObject getFiletransferProperties(String id, String protocol) throws Exception {
@@ -273,9 +274,7 @@ public class Storages extends ServicesBase {
 	}
 
 	/**
-	 * search 
-	 * 
-	 * TODO search should be generic and a sub-resource
+	 * metadata search 
 	 */
 	@GET
 	@Path("/{uniqueID}/search")
@@ -285,27 +284,18 @@ public class Storages extends ServicesBase {
 		try{
 			JSONObject res = new JSONObject();
 			MetadataManager mm = getResource().getMetadataManager();
-			if(query==null) {
-				res.put("status", "failed");
-				res.put("statusMessage", "Query cannot be null.");
+			assertParams(query, mm);
+			res.put("status", "OK");
+			List<SearchResult> results = mm.searchMetadataByContent(query, true);
+			res.put("numberOfResults", results.size());
+			String base = getBaseURL()+"/storages/"+resource.getUniqueID();
+			int index = 1;
+			for(SearchResult sr : results){
+				links.add(new Link("search-result-"+index,
+						base+FilenameUtils.normalize("/files/"+sr.getResourceName(), true)));
+				index++;
 			}
-			else if(mm == null){
-				res.put("status", "failed");
-				res.put("statusMessage", "No metadata manager available for this storage.");
-			}
-			else{
-				res.put("status", "OK");
-				List<SearchResult> results = mm.searchMetadataByContent(query, true);
-				res.put("numberOfResults", results.size());
-				String base = getBaseURL()+"/storages/"+resource.getUniqueID();
-				int index = 1;
-				for(SearchResult sr : results){
-					links.add(new Link("search-result-"+index,
-							base+FilenameUtils.normalize("/files/"+sr.getResourceName(), true)));
-					index++;
-				}
-				renderJSONLinks(res);
-			}
+			renderJSONLinks(res);
 			res.put("query", query);
 			return Response.ok(res.toString(), MediaType.APPLICATION_JSON).build();
 		}catch(Exception ex){
@@ -344,11 +334,12 @@ public class Storages extends ServicesBase {
 		try{
 			JSONObject params = new JSONObject(jsonString);
 			MetadataManager mm = MetadataSupport.getManager(kernel, kernel.getAttribute(UASProperties.class));
-			String query = params.getString("query");
+			String query = params.optString("query", null);
+			assertParams(query, mm);
 			boolean isAdvanced = params.optBoolean("advanced");
 			List<String>resourcesList = new ArrayList<>();
-			JSONArray urls = params.getJSONArray("resources");
-			urls.forEach( u ->resourcesList.add(String.valueOf(u)));
+			JSONArray urls = params.optJSONArray("resources");
+			if(urls!=null)urls.forEach( u ->resourcesList.add(String.valueOf(u)));
 			Future<FederatedSearchResultCollection> f = mm.federatedMetadataSearch(AuthZAttributeStore.getClient(),
 					query, resourcesList, isAdvanced);
 			String taskURL = makeFedSearchMonitoringTask(f);
@@ -478,6 +469,15 @@ public class Storages extends ServicesBase {
 		reply.put("asyncExtraction", futureResult!=null);
 		reply.put("taskHref", makeExtractionMonitoringTask(futureResult, path));
 		return reply;
+	}
+
+	static void assertParams(String query, MetadataManager mm) throws WebApplicationException {
+		if(query==null) {
+			throw new WebApplicationException("Query cannot be null", Status.BAD_REQUEST);
+		}
+		if(mm == null){
+			throw new WebApplicationException(Status.NOT_FOUND);
+		}
 	}
 
 	private String makeExtractionMonitoringTask(Future<ExtractionStatistics> f, String path) throws Exception {

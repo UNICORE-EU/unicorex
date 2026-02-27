@@ -1,13 +1,4 @@
-#!/bin/sh
-
-# Read basic settings
-. src/test/resources/tsi/conf/startup.properties
-
-PARAM=$*
-if [ "$PARAM" = "" ]
-then
-  PARAM=src/test/resources/tsi/conf/tsi.properties
-fi
-
-export PYTHONPATH=${PY}
-$PYTHON $PY/Runner.py $PARAM
+#!/bin/bash
+export PYTHON="python3"
+export PYTHONPATH=src/test/resources/tsi/lib
+$PYTHON src/test/resources/tsi/lib/Runner.py

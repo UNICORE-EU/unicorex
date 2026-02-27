@@ -79,7 +79,6 @@ public class Connector implements IConnector {
 		}
 		logger.info("Creating new SSH session for <{}>", client.getSelectedXloginName());
 		Session session = null;
-		JSch.setLogger(new JSchLogAdapter());
 		JSch jsch = new JSch();
 		identityStore.addIdentity(jsch, client);
 		String user = client.getSelectedXloginName();

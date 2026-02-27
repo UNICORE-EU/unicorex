@@ -2,6 +2,8 @@ package eu.unicore.uas.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,6 +37,7 @@ import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.RESTException;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.fts.FiletransferOptions.ReadStream;
+import jakarta.ws.rs.WebApplicationException;
 
 public class TestStorages extends Base {
 
@@ -78,8 +81,14 @@ public class TestStorages extends Base {
 		Map<String,String>params = new HashMap<>();
 		params.put("enableTrigger", "true");
 		StorageClient sms = smf.createStorage("test123", params, null);
+		sms.setUpdateInterval(-1);
 		Thread.sleep(1000);
-		System.out.println(sms.getProperties().toString(2));
+		JSONObject props = sms.getProperties();
+		System.out.println(props.toString(2));
+		assertNotNull(props.optJSONObject("dataTriggeredProcessing"));
+		sms.executeAction("stop-processing", null);
+		props = sms.getProperties();
+		assertNull(props.optJSONObject("dataTriggeredProcessing"));
 	}
 	
 	
@@ -347,6 +356,15 @@ public class TestStorages extends Base {
 		assertEquals(403, re.getStatus());
 		RESTException re1 = assertThrows(RESTException.class, ()->sms.setProperties(new JSONObject()));
 		assertEquals(403, re1.getStatus());
+	}
+
+	@Test
+	public void testVarious() throws Exception {
+		WebApplicationException we = assertThrows(WebApplicationException.class, ()->Storages.assertParams(null, null));
+		assertEquals(400, we.getResponse().getStatus());
+
+		we = assertThrows(WebApplicationException.class, ()->Storages.assertParams("test", null));
+		assertEquals(404, we.getResponse().getStatus());		
 	}
 
 	// runs empty job to create a working directory
