@@ -58,11 +58,6 @@ public interface IExecutionSystemInformation {
 	 * @return compute budget (one per project) or empty list if not applicable 
 	 */
 	public List<BudgetInfo> getComputeTimeBudget(Client client) throws ExecutionException;
-	
-	/**
-	 * get (measured) mean time (seconds) for jobs in the queue(s)
-	 */
-	public long getMeanTimeQueued();
 
 	/**
 	 * on startup, initialize required data structures

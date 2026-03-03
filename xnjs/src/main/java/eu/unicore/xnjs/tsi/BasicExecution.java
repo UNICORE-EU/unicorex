@@ -14,8 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 
-import com.codahale.metrics.Histogram;
-
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.XNJSProperties;
 import eu.unicore.xnjs.ems.Action;
@@ -68,9 +66,6 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	
 	@Inject
 	protected InternalManager manager;
-
-	@Inject
-	protected Histogram mtq;
 
 	/**
 	 * A custom grace period, defined in milliseconds. 
@@ -375,13 +370,6 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 
 	public Map<String,Integer>getQueueFill(){
 		return null;
-	}
-
-	public long getMeanTimeQueued(){
-		try{
-			return (long)mtq.getSnapshot().getMean();
-		}catch(Exception ex){}
-		return -1l;
 	}
 
 	@Override

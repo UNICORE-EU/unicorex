@@ -2,9 +2,7 @@ package eu.unicore.xnjs;
 
 import java.lang.reflect.Constructor;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -14,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import com.codahale.metrics.Metric;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -75,8 +72,6 @@ public class XNJS implements UpdateableConfiguration {
 	private static final AtomicInteger id=new AtomicInteger(0);
 
 	private final String uniqueID;
-
-	private final Map<String, Metric> metrics = new HashMap<>();
 
 	private final TSIFactory tsiFactory;
 
@@ -156,8 +151,6 @@ public class XNJS implements UpdateableConfiguration {
 		configSource.addModule(common);
 		List<AbstractModule> configuredModules = configSource.getModules();
 		injector = Guice.createInjector(configuredModules.toArray(new AbstractModule[configuredModules.size()]));
-		configSource.getMetrics().entrySet().forEach(entry ->
-				metrics.put(entry.getKey()+"-"+uniqueID, entry.getValue()));
 	}
 
 	public static final String getVersion(){
@@ -324,10 +317,6 @@ public class XNJS implements UpdateableConfiguration {
 
 	public final ScheduledExecutorService getScheduledExecutor(){
 		return es;
-	}
-
-	public Map<String, Metric> getMetrics(){
-		return metrics;
 	}
 
 	public String getID(){

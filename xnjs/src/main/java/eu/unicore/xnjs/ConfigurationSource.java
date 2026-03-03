@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.codahale.metrics.Metric;
 import com.google.inject.AbstractModule;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -23,7 +22,6 @@ public class ConfigurationSource implements UpdateableConfiguration {
 
 	protected final Map<String,ProcessorChain> processingChains = new HashMap<>();
 	protected final List<AbstractModule> modules = new ArrayList<>();
-	protected final Map<String, Metric> metrics = new HashMap<>();
 	protected Properties properties = new Properties();
 
 	/**
@@ -60,20 +58,13 @@ public class ConfigurationSource implements UpdateableConfiguration {
 
 	public void addModule(AbstractModule m){
 		modules.add(m);
-		if(m instanceof MetricProvider) {
-			getMetrics().putAll(((MetricProvider)m).getMetrics());
-		}
 	}
 	
 	/** read-only, use addModule() to add modules **/
 	public List<AbstractModule> getModules(){
 		return Collections.unmodifiableList(modules);
 	}
-	
-	public Map<String, Metric> getMetrics(){
-		return metrics;
-	}
-	
+
 	@Override
 	public void setProperties(Properties newProperties) throws ConfigurationException {
 		this.properties = new Properties();
@@ -150,7 +141,4 @@ public class ConfigurationSource implements UpdateableConfiguration {
 		}
 	}
 
-	public static interface MetricProvider {
-		public Map<String, Metric> getMetrics();
-	}
 }

@@ -12,9 +12,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.MetricRegistry;
-
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.ConfigurationSource.ProcessorChain;
 import eu.unicore.xnjs.ems.Action;
@@ -86,15 +83,6 @@ public class TestComponentManagement extends XNJSTestBase {
 		assertNotNull(l2);
 		List<String>l3=pc.getAs("foo",List.class);
 		assertNotNull(l3);
-	}
-
-	@Test
-	public void testMetricsRegistry() throws Exception {
-		MetricRegistry m = new MetricRegistry();
-		xnjs.getMetrics().entrySet().forEach(entry->
-			m.register(entry.getKey(), entry.getValue()));
-		ConsoleReporter r = ConsoleReporter.forRegistry(m).build();
-		r.report();
 	}
 
 	public static class DummyProcessor2 extends DummyProcessor {

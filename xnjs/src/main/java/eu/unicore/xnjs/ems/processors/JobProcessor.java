@@ -12,8 +12,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
-import com.codahale.metrics.Histogram;
-
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
@@ -875,14 +873,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		return new TimeProfile(context);
 	}
 
-	protected void updateQueuedStats(ProcessingContext context){
-		Long timeQueued = getTimeQueued(context);
-		if(timeQueued!=null){
-			Histogram h = (Histogram)xnjs.getMetrics().get(XNJSConstants.MEAN_TIME_QUEUED);
-			if (h!=null)h.update(timeQueued.intValue());
-		}
-	}
-
 	protected void addStageIn() throws Exception{
 		List<DataStageInInfo>toStage = action.getStageIns();
 		StagingInfo stageInfo = new StagingInfo(toStage);
@@ -956,7 +946,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		action.setResult(new ActionResult(ActionResult.SUCCESSFUL,"Success.",exitcode));
 		deleteFiles();
 		action.addLogTrace(getTimeProfile(action.getProcessingContext()));
-		updateQueuedStats(action.getProcessingContext());
 		logger.info("Action <{}> SUCCESSFUL.", action.getUUID());
 	}
 
@@ -964,7 +953,6 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected void setToDoneAndFailed(String reason){
 		super.setToDoneAndFailed(reason);
 		action.addLogTrace("Status set to DONE - failure.");
-		updateQueuedStats(action.getProcessingContext());
 		logger.info("Action <{}> FAILED{}", action.getUUID(),(reason!=null?": "+reason:"."));
 	}
 
