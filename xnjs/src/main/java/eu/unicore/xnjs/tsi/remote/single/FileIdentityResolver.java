@@ -40,14 +40,14 @@ public class FileIdentityResolver implements IdentityResolver {
 					JSONObject idspec = ids.getJSONObject(uid);
 					String keyfile = idspec.getString("key");
 					String pubfile = idspec.optString("pub", keyfile+".pub");
-					byte[] pass = idspec.optString("passphrase", "").getBytes();
-					byte[] priv = null;
-					byte[] pub = null;
+					char[] pass = idspec.optString("passphrase", "").toCharArray();
+					String priv = null;
+					String pub = null;
 					try(FileInputStream in = new FileInputStream(keyfile)){
-						priv = IOUtils.toString(in, "UTF-8").getBytes();
+						priv = IOUtils.toString(in, "UTF-8");
 					}
 					try(FileInputStream in = new FileInputStream(pubfile)){
-						pub = IOUtils.toString(in, "UTF-8").getBytes();
+						pub = IOUtils.toString(in, "UTF-8");
 					}
 					logger.debug("Registering keypair for <{}>", uid);
 					store.register(uid, new KeyPairHolder(priv, pub, pass, null));

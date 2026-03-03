@@ -4,19 +4,24 @@ import java.io.File;
 
 import org.apache.logging.log4j.Logger;
 
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
-
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.tsi.remote.IConnector;
 import eu.unicore.xnjs.util.LogUtil;
+import net.schmizz.sshj.DefaultConfig;
+import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.direct.Session.Command;
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier;
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
+import net.schmizz.sshj.userauth.method.AuthPublickey;
 
 public class Connector implements IConnector {
 
 	private static final Logger logger = LogUtil.getLogger(LogUtil.TSI, Connector.class);
 
 	private final String hostname;
+
+	private final int port;
 
 	private final String category;
 	
@@ -26,9 +31,10 @@ public class Connector implements IConnector {
 
 	private final IdentityStore identityStore;
 
-	public Connector(String hostname, String category, PerUserTSIProperties properties, 
+	public Connector(String hostname, int port, String category, PerUserTSIProperties properties, 
 			PerUserTSIConnectionFactory factory, IdentityStore identityStore) {
 		this.hostname = hostname;
+		this.port = port;
 		this.category = category;
 		this.properties = properties;
 		this.factory = factory;
@@ -63,30 +69,29 @@ public class Connector implements IConnector {
 			runLocally(conn);
 		}
 		else {
-			Session session = conn.getSession();
-			ChannelExec channel = (ChannelExec) session.openChannel("exec");
-			channel.setCommand(properties.getCommand());
-			conn.setInput(channel.getInputStream());
-			conn.setOutput(channel.getOutputStream());
-			channel.connect();
-			conn.setCloseCallback(()->channel.disconnect());
+			SSHClient ssh = conn.getSSH();
+			Session session = ssh.startSession();
+			Command cmd = session.exec(properties.getCommand());
+			conn.setInput(cmd.getInputStream());
+			conn.setOutput(cmd.getOutputStream());
+			conn.setCloseCallback(()->session.close());
 		}
 	}
 
-	private Session createSession(Client client) throws Exception {
+	private SSHClient createSession(Client client) throws Exception {
 		if(factory.isTesting()) {
 			return null;
 		}
-		logger.info("Creating new SSH session for <{}>", client.getSelectedXloginName());
-		Session session = null;
-		JSch jsch = new JSch();
-		identityStore.addIdentity(jsch, client);
+		logger.info("Creating new SSHClient for <{}>", client.getSelectedXloginName());
+		DefaultConfig c = new DefaultConfig();
+		c.setVerifyHostKeyCertificates(false);
+		SSHClient ssh = new SSHClient(c);
+		ssh.addHostKeyVerifier(new PromiscuousVerifier());
+		ssh.connect(hostname, port);
+		KeyProvider kProv = identityStore.getIdentity(client);
 		String user = client.getSelectedXloginName();
-		session = jsch.getSession(user, hostname);
-		session.setConfig("StrictHostKeyChecking", "no");
-		session.setConfig("PreferredAuthentications", "publickey");
-		session.connect();
-		return session;
+		ssh.auth(user, new AuthPublickey(kProv));
+		return ssh;
 	}
 
 	private void runLocally(PerUserTSIConnection conn) throws Exception {
@@ -98,4 +103,5 @@ public class Connector implements IConnector {
 		conn.setOutput(p.getOutputStream());
 		conn.setCloseCallback(()->p.destroyForcibly());
 	}
+
 }

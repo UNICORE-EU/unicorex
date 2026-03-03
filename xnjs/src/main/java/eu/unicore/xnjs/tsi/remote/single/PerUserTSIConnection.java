@@ -15,13 +15,12 @@ import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
-import com.jcraft.jsch.Session;
-
 import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
 import eu.unicore.xnjs.util.LogUtil;
+import net.schmizz.sshj.SSHClient;
 
 /**
  * Provides TSI command and data channel via a single in/out stream
@@ -50,17 +49,18 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	private Closeable closeCallback;
 
-	private final Session sshSession;
+	private final SSHClient ssh;
 
 	/**
+	 * @param ssh
 	 * @param factory - the parent factory
 	 * @param connector - the TSI connector
 	 * @param client
 	 * @throws IOException
 	 */
-	public PerUserTSIConnection(Session sshSession, PerUserTSIConnectionFactory factory, Connector connector, Client client)
+	public PerUserTSIConnection(SSHClient ssh, PerUserTSIConnectionFactory factory, Connector connector, Client client)
 			throws IOException {
-		this.sshSession = sshSession;
+		this.ssh = ssh;
 		this.factory = factory;
 		this.connector = connector;
 		this.client = client;
@@ -79,8 +79,8 @@ public class PerUserTSIConnection implements TSIConnection {
 		this.closeCallback = closeable;
 	}
 
-	public Session getSession() {
-		return sshSession;
+	public SSHClient getSSH() {
+		return ssh;
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	@Override
 	public boolean isAlive() {
-		return factory.isTesting() || sshSession.isConnected();
+		return factory.isTesting() || ssh.isConnected();
 	}
 
 	private boolean shutDown = false;
@@ -260,9 +260,9 @@ public class PerUserTSIConnection implements TSIConnection {
 			logger.debug("Connection {} shutdown.", connectionID);
 			shutDown = true;
 			IOUtils.closeQuietly(input, output);
-			if(sshSession!=null){
+			if(ssh!=null){
 				try{
-					sshSession.disconnect();
+					ssh.disconnect();
 				}catch(Exception e) { /*ignored*/ }
 			}
 			factory.notifyConnectionDied();

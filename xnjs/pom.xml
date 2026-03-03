@@ -66,8 +66,8 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.github.mwiede</groupId>
-      <artifactId>jsch</artifactId>
+      <groupId>com.hierynomus</groupId>
+      <artifactId>sshj</artifactId>
     </dependency>
   </dependencies>
   <build>

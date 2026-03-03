@@ -3,7 +3,6 @@ package eu.unicore.xnjs.tsi.remote.single;
 import java.util.Properties;
 
 import com.google.inject.Provides;
-import com.jcraft.jsch.JSch;
 
 import eu.unicore.xnjs.tsi.remote.RemoteTSIModule;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
@@ -34,7 +33,6 @@ public class PerUserTSIModule extends RemoteTSIModule {
 	protected void configure(){
 		super.configure();
 		bind(IdentityStore.class).to(DefaultIdentityStore.class);
-		JSch.setLogger(new JSchLogAdapter());
 	}
 
 }

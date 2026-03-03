@@ -14,15 +14,13 @@ import java.util.Collection;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import com.jcraft.jsch.Identity;
-import com.jcraft.jsch.JSch;
-
 import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
 import eu.unicore.uftp.dpc.Utils;
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 
 public class TestPerUserTSI extends PerUserTSITestCase {
 
@@ -40,11 +38,8 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 		int numRead = fir.update(ids);
 		assertEquals(2, numRead);
 		Client c = TSIMessages.createMinimalClient("nobody");
-		JSch.setLogger(new JSchLogAdapter());
-		JSch jsch = new JSch();
-		ids.addIdentity(jsch, c);
-		Identity id = jsch.getIdentityRepository().getIdentities().get(0);
-		assertEquals("nobody", id.getName());
+		KeyProvider kp = ids.getIdentity(c);
+		assertNotNull(kp);
 	}
 
 	@Test

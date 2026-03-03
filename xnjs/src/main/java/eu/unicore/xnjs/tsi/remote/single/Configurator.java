@@ -90,7 +90,7 @@ public class Configurator {
 	}
 
 	private Connector createTSIConnector(String hostname, int port, String category) throws UnknownHostException {
-		return new Connector(hostname, category, perUserTSIProperties, factory, identityStore);
+		return new Connector(hostname, port, category, perUserTSIProperties, factory, identityStore);
 	}
 
 	public void updateTSIHostCategories(Set<String>tsiHostCategories){

@@ -1,9 +1,8 @@
 package eu.unicore.xnjs.tsi.remote.single;
 
-import com.jcraft.jsch.JSch;
-
 import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
+import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 
 /**
  * handles SSH identities (key pairs) to be able to connect to the back-end
@@ -13,13 +12,12 @@ import eu.unicore.security.Client;
 public interface IdentityStore {
 
 	/**
-	 * configure the SSH connector with the identity for the given user
+	 * get a valid key for the given user
 	 *
-	 * @param jsch
 	 * @param client
-	 * @throws AuthorisationException if no identity is available for the given user
+	 * @throws AuthorisationException if no key is available for the given user
 	 */
-	public void addIdentity(JSch jsch, Client client) throws AuthorisationException;
+	public KeyProvider getIdentity(Client client) throws AuthorisationException;
 
 	/**
 	 * register a key pair for the given Unix user
@@ -37,12 +35,12 @@ public interface IdentityStore {
 
 	public static class KeyPairHolder {
 
-		public final byte[] privateKey;
-		public final byte[] publicKey;
-		public final byte[] passphrase;
+		public final String privateKey;
+		public final String publicKey;
+		public final char[] passphrase;
 		private final ValidityCheck checker;
 
-		public KeyPairHolder (byte[] privateKey, byte[] publicKey, byte[] passphrase, ValidityCheck checker){
+		public KeyPairHolder (String privateKey, String publicKey, char[] passphrase, ValidityCheck checker){
 			this.privateKey = privateKey;
 			this.publicKey = publicKey;
 			this.passphrase = passphrase;

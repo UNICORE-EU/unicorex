@@ -33,7 +33,7 @@
     <compiler.fork>false</compiler.fork>
     <use.version>5.6.0</use.version>
     <secutils.version>5.0.0</secutils.version>
-    <persistence.version>1.2.9</persistence.version>
+    <persistence.version>1.3.0</persistence.version>
     <metrics.version>4.2.37</metrics.version>
     <uftp.version>2.23.2</uftp.version>
     <guice.version>7.0.0</guice.version>
@@ -44,7 +44,7 @@
     <commons-io.version>2.21.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
-    <jsch.version>2.27.5</jsch.version>
+    <sshj.version>0.40.0</sshj.version>
     <jclouds.version>2.7.0</jclouds.version>
     <log4j.version>2.25.3</log4j.version>
     <junit.version>5.12.0</junit.version>
@@ -245,12 +245,21 @@
             <artifactId>*</artifactId>
           </exclusion>
 	</exclusions>
-
       </dependency>
       <dependency>
-	<groupId>com.github.mwiede</groupId>
-	<artifactId>jsch</artifactId>
-	<version>${jsch.version}</version>
+	<groupId>com.hierynomus</groupId>
+	<artifactId>sshj</artifactId>
+	<version>${sshj.version}</version>
+	<exclusions>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+          </exclusion>
+	</exclusions>
       </dependency>
     </dependencies>
   </dependencyManagement>
