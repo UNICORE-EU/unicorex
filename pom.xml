@@ -201,11 +201,23 @@
 	<groupId>org.apache.jclouds</groupId>
 	<artifactId>jclouds-blobstore</artifactId>
 	<version>${jclouds.version}</version>
+	<exclusions>
+          <exclusion>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+	</exclusions>
       </dependency>
       <dependency>
 	<groupId>org.apache.jclouds.provider</groupId>
 	<artifactId>aws-s3</artifactId>
 	<version>${jclouds.version}</version>
+	<exclusions>
+          <exclusion>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+	</exclusions>
       </dependency>
       <dependency>
 	<groupId>org.apache.jclouds.driver</groupId>

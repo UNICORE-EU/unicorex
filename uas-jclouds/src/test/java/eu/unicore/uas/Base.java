@@ -40,11 +40,7 @@ public abstract class Base{
 		initDirectories();
 		uas = new UAS(configPath);
 		kernel = uas.getKernel();
-		try{
-			uas.startSynchronous();
-		}catch(Exception e) {
-			e.printStackTrace();
-		}
+		uas.startSynchronous();
 	}
 
 	@AfterAll
