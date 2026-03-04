@@ -78,8 +78,9 @@ public class HTTPFileAccess implements KernelInjectable {
 		Response r = null;
 		try{
 			UResource resource = getResorce(uniqueID);
-			OutputStream out = resource.getOutputStream();
-			IOUtils.copy(content, out);
+			try(OutputStream out = resource.getOutputStream()){
+				IOUtils.copy(content, out);
+			}
 			r = Response.noContent().build();
 		}catch(ResourceUnknownException rue) {
 			r = RESTRendererBase.createErrorResponse(404, "Not found.");
