@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
+import eu.unicore.services.KernelInjectable;
 import eu.unicore.services.exceptions.ResourceUnknownException;
 import eu.unicore.services.rest.impl.RESTRendererBase;
 import eu.unicore.services.security.util.AuthZAttributeStore;
@@ -30,10 +31,14 @@ import jakarta.ws.rs.core.Response.Status;
  * @author schuller
  */
 @Path("/")
-public class HTTPFileAccess {
+public class HTTPFileAccess implements KernelInjectable {
 
-	// workaround for TODO: USERestInvoker should honor KernelInjectable
-	static Kernel kernel;
+	private Kernel kernel;
+
+	@Override
+	public void setKernel(Kernel kernel) {
+		this.kernel = kernel;
+	}
 
 	@GET
 	@Path("{uniqueID}")
@@ -104,6 +109,7 @@ public class HTTPFileAccess {
 	}
 
 	private static class Range {
+
 		private static final String err = "Range header cannot be parsed";
 
 		public long offset;
@@ -111,7 +117,7 @@ public class HTTPFileAccess {
 		public long length;
 
 		public boolean haveRange = false;
-	
+
 		public Range(String rangeHeader, long totalLength) {
 			offset = 0;
 			length = -1;

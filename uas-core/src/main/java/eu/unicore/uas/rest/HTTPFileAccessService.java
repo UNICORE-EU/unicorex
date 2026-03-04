@@ -22,8 +22,6 @@ public class HTTPFileAccessService extends Application implements USERestApplica
 			pdp.setServiceRules("files",
 					PERMIT);
 		}
-		// TODO
-		HTTPFileAccess.kernel = kernel;
 	}
 
 	@Override
