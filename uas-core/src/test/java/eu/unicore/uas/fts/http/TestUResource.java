@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
@@ -32,10 +35,24 @@ public class TestUResource extends Base {
 	}
 
 	@Test
+	public void testPartialRead()throws Exception {
+		Client c = new Client();
+		IStorageAdapter tsi = XNJSFacade.get(null, kernel).getStorageTSI("/", c, null);
+		String id = UUID.newUniqueID();
+		File file = new File("./target/testfile_"+id);
+		FileUtils.write(file, "test123", "UTF-8");
+		String path = file.getAbsolutePath();
+		final UResource r = new UResource(id, path, tsi, kernel);
+		r.setNumberOfBytes(4);
+		try (InputStream is = r.getInputStream()){
+			assertEquals("test", IOUtils.toString(is, "UTF-8"));
+		}
+	}
+
+	@Test
 	public void testErrors()throws Exception {
 		Client c = new Client();
 		IStorageAdapter tsi = XNJSFacade.get(null, kernel).getStorageTSI("/", c, null);
-
 		// test read error
 		File rootFile = new File("./target/no_such_file_"+UUID.newUniqueID());
 		String root = rootFile.getAbsolutePath();

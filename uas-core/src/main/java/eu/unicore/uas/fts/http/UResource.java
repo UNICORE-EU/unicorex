@@ -66,12 +66,15 @@ public class UResource {
 	public InputStream getInputStream() throws IOException {
 		try {
 			final InputStream is = storage.getInputStream(path);
-			InputStream decoratedStream = new InputStream(){
-
+			final InputStream decoratedStream = new InputStream(){
+				long remaining = numberOfBytes>-1? numberOfBytes : Long.MAX_VALUE;
 				@Override
 				public int read() throws IOException {
 					try{
-						return is.read();
+						if(remaining>0) {
+							remaining--;
+							return is.read();
+						}else return -1;
 					}
 					catch(Exception e){
 						throw handleException("Error reading data", e);
@@ -81,8 +84,11 @@ public class UResource {
 				@Override
 				public int read(byte[] b, int off, int len) throws IOException {
 					try{
-						int r=is.read(b, off, len);
+						long want = Math.min(remaining, len);
+						if(want==0)return -1;
+						int r = is.read(b, off, (int)want);
 						if(r>0){
+							remaining -=r;
 							transferred+=r;
 							updateTransferredBytes();
 						}
