@@ -100,6 +100,15 @@ public class UResource {
 				}
 
 				@Override
+				public long skip(long toSkip) throws IOException {
+					// must preserve this
+					long _r = remaining;
+					long skipped = is.skip(toSkip);
+					remaining = _r;
+					return skipped;
+				}
+
+				@Override
 				public void close() throws IOException {
 					is.close();
 				}

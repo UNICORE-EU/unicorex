@@ -45,7 +45,8 @@ public class TestUResource extends Base {
 		final UResource r = new UResource(id, path, tsi, kernel);
 		r.setNumberOfBytes(4);
 		try (InputStream is = r.getInputStream()){
-			assertEquals("test", IOUtils.toString(is, "UTF-8"));
+			is.skip(1);
+			assertEquals("est1", IOUtils.toString(is, "UTF-8"));
 		}
 	}
 
