@@ -1,6 +1,7 @@
 package eu.unicore.uas.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -22,6 +23,7 @@ import eu.unicore.uas.impl.sms.SMSBaseImpl;
 import eu.unicore.uas.impl.sms.SMSUtils;
 import eu.unicore.uas.impl.sms.StorageDescription;
 import eu.unicore.uas.impl.sms.StorageManagementHomeImpl.StorageTypes;
+import eu.unicore.uas.rest.HTTPFileAccess.Range;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.xnjs.io.ChangePermissions;
 import eu.unicore.xnjs.io.ChangePermissions.PermissionsClass;
@@ -233,4 +235,27 @@ public class TestVarious {
 		assertEquals("MY_WORK", asd.getPathSpec());
 	}
 	
+	
+	@Test
+	public void testHTTPRangeHeaderParsing() throws Exception {
+		Range r = new Range(null, 100);
+		assertFalse(r.haveRange);
+		
+		String rSpec = "bytes=1-4";
+		r = new Range(rSpec, 100);
+		assertTrue(r.haveRange);
+		assertEquals(1, r.offset); 
+		assertEquals(4, r.length);
+		assertEquals("bytes=1-4/100", r.toPartialContentHeader());
+
+		rSpec = "bytes=90-";
+		r = new Range(rSpec, 100);
+		assertTrue(r.haveRange);
+		assertEquals("bytes=90-99/100", r.toPartialContentHeader());
+
+		rSpec = "bytes=-10";
+		r = new Range(rSpec, 100);
+		assertTrue(r.haveRange);
+		assertEquals("bytes=90-99/100", r.toPartialContentHeader());
+	}
 }

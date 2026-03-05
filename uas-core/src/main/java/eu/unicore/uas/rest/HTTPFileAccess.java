@@ -52,8 +52,7 @@ public class HTTPFileAccess implements KernelInjectable {
 			rb.header("Content-Disposition", "attachment; filename=\""+fileName+"\"");
 			if(range.haveRange) {
 				resource.setNumberOfBytes(range.length);
-				rb.header("Content-Range", String.format("bytes %d-%d/%d",
-						range.offset, range.length+1, resource.length()));
+				rb.header("Content-Range", range.toPartialContentHeader());
 			}
 			final InputStream in = resource.getInputStream();
 			if(range.haveRange) {
@@ -109,7 +108,11 @@ public class HTTPFileAccess implements KernelInjectable {
 		}
 	}
 
-	private static class Range {
+	/**
+	 * HTTP Range header parsing according to
+	 * https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Range
+	 */
+	public static class Range {
 
 		private static final String err = "Range header cannot be parsed";
 
@@ -119,9 +122,12 @@ public class HTTPFileAccess implements KernelInjectable {
 
 		public boolean haveRange = false;
 
+		public final long totalLength;
+
 		public Range(String rangeHeader, long totalLength) {
 			offset = 0;
 			length = -1;
+			this.totalLength = totalLength;
 			if(rangeHeader!=null) {
 				haveRange = true;
 				String[] rangeSpec = rangeHeader.split("=");
@@ -142,12 +148,19 @@ public class HTTPFileAccess implements KernelInjectable {
 				else {
 					// normal range
 					offset = Long.parseLong(tok[0]);
-					long last = Long.parseLong(tok[1]);
+					long last = Math.min(totalLength, Long.parseLong(tok[1]));
 					if(last<offset)throw new IllegalArgumentException(err);
 					length = last+1-offset;
 				}
 				if(offset<0)throw new IllegalArgumentException(err);
 			}
+		}
+
+		/**
+		 * get the value for the Partial-Content header corresponding to this range
+		 */
+		public String toPartialContentHeader() {
+			return String.format("bytes=%d-%d/%d", offset, offset+length-1, totalLength);
 		}
 	}
 }
