@@ -6,7 +6,7 @@
   <packaging>pom</packaging>
   <description>UNICORE/X web services layer</description>
   <inceptionYear>2006</inceptionYear>
-  <version>3.0.0</version>
+  <version>3.0.1</version>
   <name>UNICORE/X Parent</name>
   
   <parent>
@@ -31,10 +31,10 @@
     <!-- goes into .jar manifests, dist poms and packaging versions -->
     <specification.version>11.0.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>6.0.0</use.version>
-    <secutils.version>5.0.1</secutils.version>
+    <use.version>6.0.1</use.version>
+    <secutils.version>5.0.2</secutils.version>
     <persistence.version>1.3.0</persistence.version>
-    <uftp.version>2.24.0</uftp.version>
+    <uftp.version>2.24.3</uftp.version>
     <guice.version>7.0.0</guice.version>
     <guava.version>33.5.0-jre</guava.version>
     <json.version>20251224</json.version>

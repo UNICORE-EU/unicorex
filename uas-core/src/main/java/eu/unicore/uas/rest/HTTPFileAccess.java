@@ -50,13 +50,15 @@ public class HTTPFileAccess implements KernelInjectable {
 			final String fileName = new File(resource.getName()).getName();
 			ResponseBuilder rb = rangeHeader!=null? Response.status(Status.PARTIAL_CONTENT) : Response.ok();
 			rb.header("Content-Disposition", "attachment; filename=\""+fileName+"\"");
+			if(range.haveRange) {
+				resource.setNumberOfBytes(range.length);
+			}
 			final InputStream in = resource.getInputStream();
 			if(range.haveRange) {
 				long toSkip = range.offset;
 				while(toSkip>0) {
 					toSkip -= in.skip(toSkip);
 				}
-				resource.setNumberOfBytes(range.length);
 				rb.header("Content-Range", range.toPartialContentHeader());
 			}
 			rb.entity(in);
