@@ -13,7 +13,7 @@
   <parent>
     <groupId>eu.unicore</groupId>
     <artifactId>unicorex-parent</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -26,11 +26,6 @@
   </properties>
 
   <dependencies>
-    <dependency>
-      <groupId>eu.unicore.security</groupId>
-      <artifactId>secutils-cxf</artifactId>
-      <version>5.0.1</version>
-    </dependency>
     <dependency>
       <groupId>eu.unicore</groupId>
       <artifactId>uas-core</artifactId>
