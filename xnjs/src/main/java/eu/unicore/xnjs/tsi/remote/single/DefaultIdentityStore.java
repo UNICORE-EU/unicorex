@@ -1,10 +1,9 @@
 package eu.unicore.xnjs.tsi.remote.single;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
@@ -27,7 +26,7 @@ public class DefaultIdentityStore implements IdentityStore {
 	// user name mapped to key pair
 	private final Map<String, KeyPairHolder> keys = new ConcurrentHashMap<>();
 
-	private final Set<IdentityResolver> resolvers = new HashSet<>();
+	private final List<IdentityResolver> resolvers = new ArrayList<>();
 
 	public DefaultIdentityStore() {}
 
@@ -81,7 +80,7 @@ public class DefaultIdentityStore implements IdentityStore {
 		}
 	}
 
-	Collection<IdentityResolver>getResolvers(){
-		return Collections.unmodifiableCollection(resolvers);
+	List<IdentityResolver>getResolvers(){
+		return Collections.unmodifiableList(resolvers);
 	}
 }

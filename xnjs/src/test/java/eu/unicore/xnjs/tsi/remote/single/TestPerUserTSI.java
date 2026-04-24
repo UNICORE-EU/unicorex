@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -40,15 +41,11 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	@Test
 	public void testIdentityResolver() throws Exception {
 		DefaultIdentityStore ids = (DefaultIdentityStore)xnjs.get(IdentityStore.class);
-		Collection<IdentityResolver> resolvers = ids.getResolvers();
+		List<IdentityResolver> resolvers = ids.getResolvers();
 		assertEquals(2, resolvers.size());
-		FileIdentityResolver fir = null;
-		for(IdentityResolver r: resolvers) {
-			if(r instanceof FileIdentityResolver) {
-				 fir = (FileIdentityResolver)r;
-			}
-		}
-		assertNotNull(fir);
+		assertTrue(resolvers.get(0) instanceof FileIdentityResolver);
+		assertTrue(resolvers.get(1) instanceof MockIdentityResolver);
+		FileIdentityResolver fir = (FileIdentityResolver)resolvers.get(0);
 		int numRead = fir.update(ids);
 		assertEquals(2, numRead);
 		Client c = TSIMessages.createMinimalClient("nobody");
