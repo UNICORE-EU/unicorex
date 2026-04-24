@@ -41,8 +41,14 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	public void testIdentityResolver() throws Exception {
 		DefaultIdentityStore ids = (DefaultIdentityStore)xnjs.get(IdentityStore.class);
 		Collection<IdentityResolver> resolvers = ids.getResolvers();
-		assertEquals(2, resolvers.size());	
-		FileIdentityResolver fir = (FileIdentityResolver)resolvers.iterator().next();
+		assertEquals(2, resolvers.size());
+		FileIdentityResolver fir = null;
+		for(IdentityResolver r: resolvers) {
+			if(r instanceof FileIdentityResolver) {
+				 fir = (FileIdentityResolver)r;
+			}
+		}
+		assertNotNull(fir);
 		int numRead = fir.update(ids);
 		assertEquals(2, numRead);
 		Client c = TSIMessages.createMinimalClient("nobody");
