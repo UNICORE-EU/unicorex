@@ -163,10 +163,12 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		}
 	}
 
+	@Override
 	public void notifyConnectionDied(){
 		liveConnections.decrementAndGet();
 	}
 
+	@Override
 	public boolean isRunning() {
 		return isRunning;
 	}
@@ -222,6 +224,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	/**
 	 * shutdown the factory
 	 */
+	@Override
 	public void stop() {
 		if(!isRunning)return;
 		isRunning = false;
@@ -247,6 +250,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return tsiProperties;
 	}
 
+	@Override
 	public String getConnectionStatus(){
 		if(!isRunning){
 			return "N/A [not started]";

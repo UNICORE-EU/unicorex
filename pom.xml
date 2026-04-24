@@ -29,18 +29,18 @@
 
   <properties>
     <!-- goes into .jar manifests, dist poms and packaging versions -->
-    <specification.version>11.0.0</specification.version>
+    <specification.version>11.0.1</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>6.0.1</use.version>
+    <use.version>6.0.2</use.version>
     <secutils.version>5.0.2</secutils.version>
     <persistence.version>1.3.0</persistence.version>
-    <uftp.version>2.24.3</uftp.version>
+    <uftp.version>2.24.4</uftp.version>
     <guice.version>7.0.0</guice.version>
-    <guava.version>33.5.0-jre</guava.version>
+    <guava.version>33.6.0-jre</guava.version>
     <json.version>20251224</json.version>
     <lucene.version>9.11.1</lucene.version>
-    <tika.version>3.2.3</tika.version>
-    <commons-io.version>2.21.0</commons-io.version>
+    <tika.version>3.3.0</tika.version>
+    <commons-io.version>2.22.0</commons-io.version>
     <mvel.version>2.5.2.Final</mvel.version>
     <jgit.version>6.9.0.202403050737-r</jgit.version>
     <sshj.version>0.40.0</sshj.version>

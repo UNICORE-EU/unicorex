@@ -1,71 +1,47 @@
 package eu.unicore.uas.xnjs;
 
-import eu.unicore.services.ExternalSystemConnector;
+import eu.unicore.services.Kernel;
+import eu.unicore.services.utils.ExternalConnectorHelper;
 import eu.unicore.uas.UASProperties.TSI_MODE;
 import eu.unicore.util.Log;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 
-public class TSIStatusChecker implements ExternalSystemConnector {
+public class TSIStatusChecker extends ExternalConnectorHelper {
 
 	private final XNJS xnjs;
+
 	private final TSI_MODE mode;
-
-	private Status status=Status.UNKNOWN;
-
-	private String statusMessage;
-
-	private String name;
-
-	private long lastChecked;
 
 	public TSIStatusChecker(XNJS xnjs, TSI_MODE mode) {
 		this.xnjs = xnjs;
 		this.mode = mode;
+		setExternalSystemName("TSI "+xnjs.getID());
+		setCheckService(xnjs.get(Kernel.class).getExecutorService());
+		setCheckSupplier(()->checkConnection());
 	}
 
-	@Override
-	public String getConnectionStatusMessage() {
-		checkConnection();
-		return statusMessage;
-	}
-
-	@Override
-	public Status getConnectionStatus() {
-		checkConnection();
-		return status;
-	}
-
-	@Override
-	public String getExternalSystemName() {
-		checkConnection();
-		return name;
-	}
-
-	private void checkConnection(){
-		if (lastChecked+2000>System.currentTimeMillis())
-			return;
-		name = "TSI "+xnjs.getID();
+	private Pair<Boolean, String> checkConnection(){
+		boolean ok = true;
+		String msg = null;
 		try{
 			if(TSI_MODE.embedded.equals(mode)){
-				statusMessage = "OK [using embedded TSI]";
-				status = Status.OK;
+				msg = "OK [using embedded TSI]";
 			}
 			else if(TSI_MODE.remote.equals(mode)){
-				TSIConnectionFactory tsif=xnjs.get(TSIConnectionFactory.class);
-				statusMessage = tsif.getConnectionStatus();
-				status = statusMessage.startsWith("OK")? Status.OK : Status.DOWN;
+				TSIConnectionFactory tsif = xnjs.get(TSIConnectionFactory.class);
+				msg = tsif.getConnectionStatus();
+				ok = msg.startsWith("OK");
 			}
 			else{
-				statusMessage = "N/A";
-				status = Status.OK;
+				msg = "N/A";
 			}
 		}catch(Exception ex){
-			status=Status.DOWN;
-			statusMessage = Log.createFaultMessage("Error! ",ex);
+			ok = false;
+			msg = Log.getDetailMessage(ex);
 		}
-		
-		lastChecked=System.currentTimeMillis();
+		return new Pair<>(ok, msg);
 	}
 
 }

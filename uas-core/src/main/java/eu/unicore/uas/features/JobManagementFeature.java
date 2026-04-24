@@ -81,17 +81,12 @@ public class JobManagementFeature extends FeatureImpl {
 		 * add a "default" target system factory if it does not yet exist	
 		 */
 		protected void createDefaultTSFIfNotExists() throws ResourceNotCreatedException {
-			Home tsfHome = kernel.getHome(UAS.TSF);
-			if(tsfHome==null){
-				logger.info("No TSF service configured for this site!");
-				return;
-			}
-			logger.info("Initialising backend.");
 			XNJSFacade.get(null,kernel);
 			String defaultTsfName = TargetSystemFactoryHomeImpl.DEFAULT_TSF;
 			LockSupport ls = kernel.getPersistenceManager().getLockSupport();
 			Lock tsfLock = ls.getOrCreateLock(getName());
 			if(tsfLock.tryLock()){
+				Home tsfHome = kernel.getHome(UAS.TSF);
 				try{
 					//this will throw ResourceUnknowException if resource does not exist
 					tsfHome.get(defaultTsfName);
@@ -107,7 +102,7 @@ public class JobManagementFeature extends FeatureImpl {
 		}
 
 		private void doCreateTSF(Home tsfHome)throws ResourceNotCreatedException{
-			String defaultTsfName=TargetSystemFactoryHomeImpl.DEFAULT_TSF;
+			String defaultTsfName = TargetSystemFactoryHomeImpl.DEFAULT_TSF;
 			BaseInitParameters init = new BaseInitParameters(defaultTsfName, TerminationMode.NEVER);
 			UASProperties props = kernel.getAttribute(UASProperties.class);
 			Class<?>clazz = props.getClassValue(UASProperties.TSF_CLASS, TargetSystemFactoryImpl.class);

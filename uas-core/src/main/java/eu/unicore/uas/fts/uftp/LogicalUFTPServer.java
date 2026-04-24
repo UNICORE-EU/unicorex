@@ -118,20 +118,21 @@ public class LogicalUFTPServer implements ISubSystem {
 		isUp = false;
 		int avail = 0;
 		for(UFTPDInstance i: instances){
-			if(i.isUFTPAvailable()) {
+			String state = "DOWN";
+			if(i.isOK()) {
 				isUp = true;
+				state = "UP";
 				avail++;
-				log.debug("UFTPD server {}:{} is UP: {}",i.getCommandHost(),i.getCommandPort(),i.getConnectionStatusMessage());
 			}
-			else {
-				log.debug("UFTPD server {}:{} is DOWN: {}",i.getCommandHost(),i.getCommandPort(),i.getConnectionStatusMessage());
-			}
+			log.debug("UFTPD server {}:{} is {}: {}",i.getCommandHost(),i.getCommandPort(),
+					state, i.getConnectionStatusMessage());
 		}
 		if(instances.size()>1) {
-			statusMessage = "OK ["+avail+" of "+instances.size()+" UFTPD servers available]";
-		}else if(instances.size()==1){
-			statusMessage = instances.get(0).getConnectionStatusMessage();	
-		}else {
+			statusMessage = (isUp? "OK": "DOWN") +
+					" ["+avail+" of "+instances.size()+" UFTPD servers available]";
+		} else if(instances.size()==1) {
+			statusMessage = (isUp? "OK": "DOWN");
+		} else {
 			statusMessage = "No UFTPD server configured.";
 		}
 	}
@@ -144,7 +145,7 @@ public class LogicalUFTPServer implements ISubSystem {
 			UFTPDInstance i = instances.get(index);
 			index++;
 			if(index==instances.size())index=0;
-			if(i.isUFTPAvailable()) {
+			if(i.isOK()) {
 				log.debug("Using {}: {}",index,i);
 				return i;
 			}

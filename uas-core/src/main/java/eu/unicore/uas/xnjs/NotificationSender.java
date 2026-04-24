@@ -56,7 +56,7 @@ public class NotificationSender implements INotificationSender {
 						new BaseClient(url, security, auth).postQuietly(message);
 						return "OK";
 					},
-				kernel.getContainerProperties().getThreadingServices(), 30, TimeUnit.SECONDS).call();
+				kernel.getExecutorService(), 30, TimeUnit.SECONDS).call();
 		if(res==null)throw new TimeoutException();
 	}
 

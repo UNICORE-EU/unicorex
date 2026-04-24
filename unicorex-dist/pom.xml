@@ -50,6 +50,12 @@
       <groupId>eu.unicore</groupId>
       <artifactId>uas-jclouds</artifactId>
       <version>${ux.version}</version>
+	<exclusions>
+          <exclusion>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>*</artifactId>
+          </exclusion>
+	</exclusions>
     </dependency>
   </dependencies>
 
