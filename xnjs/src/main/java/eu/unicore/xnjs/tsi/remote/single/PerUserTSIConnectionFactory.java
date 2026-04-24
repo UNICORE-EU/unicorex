@@ -222,13 +222,11 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 			params.remove(prefix+"class");
 		mapParams(r,params);
 		Method xnjsSetter = findSetter(r.getClass(), "xnjs");
-		if (xnjsSetter != null && xnjsSetter.getParameterTypes()[0].isAssignableFrom(XNJS.class))
+		if (xnjsSetter != null &&
+				xnjsSetter.getParameterTypes().length==1 &&
+				xnjsSetter.getParameterTypes()[0].isAssignableFrom(XNJS.class))
 		{
-			try {
-				xnjsSetter.invoke(r, new Object[]{xnjs});
-			}catch(Exception ex) {
-				log.warn(ex);
-			}
+			xnjsSetter.invoke(r, new Object[]{xnjs});
 		}
 		return r;
 	}
@@ -350,23 +348,21 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	 * 
 	 * @param obj
 	 * @param params
-	 * @param logger - can be null, if non-null, errors and warnings will be logged
 	 */
-	private void mapParams(Object obj, Map<String,String>params){
+	private void mapParams(Object obj, Map<String,String>params) throws ConfigurationException {
 		Class<?> clazz = obj.getClass();
 		for(Map.Entry<String,String> en: params.entrySet()){
 			String s = en.getKey();
 			String paramName = s.substring(s.lastIndexOf(".")+1);
 			Method m = findSetter(clazz, paramName);
 			if(m==null){
-				log.warn("Can't map parameter <"+s+">");
-				continue;
+				throw new ConfigurationException("Can't map parameter <"+s+">");
 			}
 			try{
 				setParam(obj,m,en.getValue());
 			}
 			catch(Exception ex){
-				log.warn("Can't set value <"+en.getValue()+"> for parameter <"+s+">");
+				throw new ConfigurationException("Can't set value <"+en.getValue()+"> for parameter <"+s+">");
 			}
 		}
 	}

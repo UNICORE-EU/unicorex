@@ -56,6 +56,15 @@ public abstract class PerUserTSITestCase extends EMSTestBase {
 		props.put(PerUserTSIProperties.PREFIX+"identityResolver.1.class", FileIdentityResolver.class.getName());
 		props.put(PerUserTSIProperties.PREFIX+"identityResolver.1.file", "src/test/resources/certs/identities.json");
 
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.class", MockIdentityResolver.class.getName());
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.int", "1");
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.integer", "2");
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.long", "3");
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.long2", "4");
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.string", "5");
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.boolean", "true");
+		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.boolean2", "false");
+
 		props.put(PerUserTSIProperties.PREFIX+"unittesting","true");
 	}
 

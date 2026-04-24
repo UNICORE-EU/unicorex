@@ -27,6 +27,13 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	@Test
 	public void testSetup() throws Exception {
 		assertNotNull(xnjs.get(PerUserTSIProperties.class));
+		PerUserTSIConnectionFactory factory = (PerUserTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
+		assertEquals(1, factory.getTSIHosts().size());
+		assertEquals(getTSIMachine(), factory.getTSIMachine());
+		assertNotNull(factory.getTSIProperties());
+		System.out.println(factory.getConnectionStatus());
+		System.out.println(factory.getTSIConnectorStates());
+		assertNotNull(factory.createNewTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.0.1"));
 		assertNotNull(makeTSI());
 	}
 
@@ -34,6 +41,7 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	public void testIdentityResolver() throws Exception {
 		DefaultIdentityStore ids = (DefaultIdentityStore)xnjs.get(IdentityStore.class);
 		Collection<IdentityResolver> resolvers = ids.getResolvers();
+		assertEquals(2, resolvers.size());	
 		FileIdentityResolver fir = (FileIdentityResolver)resolvers.iterator().next();
 		int numRead = fir.update(ids);
 		assertEquals(2, numRead);

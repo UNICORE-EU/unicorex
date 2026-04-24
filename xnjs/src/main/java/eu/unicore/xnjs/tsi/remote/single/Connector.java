@@ -64,6 +64,11 @@ public class Connector implements IConnector {
 		// TODO
 	}
 
+	@Override
+	public String toString() {
+		return String.format("Connector %s:%s%s", hostname, port, (category!=null? "["+category+"]":"") );
+	}
+
 	public void activate(PerUserTSIConnection conn) throws Exception {
 		if(identityStore==null || properties.isTesting()){
 			runLocally(conn);
