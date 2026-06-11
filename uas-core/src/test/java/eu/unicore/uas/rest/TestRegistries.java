@@ -34,6 +34,7 @@ public class TestRegistries extends Base {
 			}
 		}
 		assertTrue(found);
+		client.close();
 	}
 
 }

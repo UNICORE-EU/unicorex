@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.security.Client;
@@ -47,7 +46,7 @@ public class ImportsController implements IFTSController {
 
 	private StorageClient remoteStorage;
 
-	private final Endpoint remoteEndpoint;
+	private final String remoteEndpoint;
 
 	private final String source;
 
@@ -59,7 +58,7 @@ public class ImportsController implements IFTSController {
 
 	private String protocol;
 
-	public ImportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageInInfo dsi, String workingDirectory) {
+	public ImportsController(XNJS xnjs, Client client, String remoteEndpoint, DataStageInInfo dsi, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.kernel = xnjs.get(Kernel.class);
 		this.client = client;
@@ -167,9 +166,8 @@ public class ImportsController implements IFTSController {
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
 		setup();
-		String source = remoteEndpoint.getUrl() +
-				FilenameUtils.normalize("/files"+from.getPath(), true);
-		if(protocol!=null)source=protocol+":"+source;
+		String source = remoteEndpoint + FilenameUtils.normalize("/files"+from.getPath(), true);
+		if(protocol!=null)source = protocol+":"+source;
 		DataStageInInfo info = dsi.clone();
 		info.setSources(new URI[]{new URI(source)});
 		info.setFileName(to);

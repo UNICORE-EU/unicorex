@@ -53,7 +53,7 @@ public class TestFiles extends Base {
 		md.put("foo", "spam");
 		md.put("Content-Type", "text/plain");
 
-		client.put(mod);
+		client.putQuietly(mod);
 		prop2 = client.getJSON();
 		// check metadata was updated
 		assertEquals("spam",prop2.getJSONObject("metadata").getString("foo"));
@@ -72,6 +72,7 @@ public class TestFiles extends Base {
 		System.out.println("posting to "+u);
 		client.setURL(u);
 		client.postQuietly(settings);
+		client.close();
 	}
 
 	@Test
@@ -90,9 +91,10 @@ public class TestFiles extends Base {
 	public void testCreateDirectory() throws Exception {
 		String storage = createStorage();
 		String file = storage + "/files/new_dir";
-		BaseClient client = new BaseClient(file, kernel.getClientConfiguration(), getAuth());
-		client.postQuietly(null);
-		System.out.println(client.getJSON());
+		try(BaseClient client = new BaseClient(file, kernel.getClientConfiguration(), getAuth())){
+			client.postQuietly(null);
+			System.out.println(client.getJSON());
+		}
 	}
 
 	@Test
@@ -110,6 +112,7 @@ public class TestFiles extends Base {
 		String renamed = storage + "/files/test_new.txt";
 		client.setURL(renamed);
 		System.out.println(client.getJSON());
+		client.close();
 	}
 
 	@Test
@@ -127,6 +130,7 @@ public class TestFiles extends Base {
 		String renamed = storage + "/files/test_copy.txt";
 		client.setURL(renamed);
 		System.out.println(client.getJSON());
+		client.close();
 	}
 
 	@Test
@@ -149,6 +153,7 @@ public class TestFiles extends Base {
 	
 		partial = getTailOfContent(client, file, 4);
 		assertEquals("data", partial);
+		client.close();
 	}
 
 	@Test
@@ -182,6 +187,7 @@ public class TestFiles extends Base {
 
 		client.delete();
 		assertEquals(HttpStatus.SC_NO_CONTENT, client.getLastHttpStatus());
+		client.close();
 	}
 
 	/**
@@ -190,9 +196,10 @@ public class TestFiles extends Base {
 	private String createStorage() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storages";
-		BaseClient client = new BaseClient(resource, kernel.getClientConfiguration(), getAuth());
-		System.out.println("Accessing "+resource);
-		return client.create(new JSONObject());
+		try(BaseClient client = new BaseClient(resource, kernel.getClientConfiguration(), getAuth())){
+			System.out.println("Accessing "+resource);
+			return client.create(new JSONObject());
+		}
 	}
 
 	private String getContent(BaseClient client, String file) throws Exception {

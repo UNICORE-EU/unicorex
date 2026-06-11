@@ -1,26 +1,24 @@
 package eu.unicore.client.registry;
 
 import java.util.List;
-
-import eu.unicore.client.Endpoint;
+import java.util.Map;
 
 public interface IRegistryClient {
 	
 	/**
 	 * list services of the given type and matching the given filter
 	 */
-	public List<Endpoint> listEntries(ServiceListFilter acceptFilter) throws Exception;
+	public List<String> listEntries(ServiceListFilter acceptFilter) throws Exception;
 
 	/**
 	 * list the entries in this registry
 	 */
-	public abstract List<Endpoint> listEntries()throws Exception;
+	public abstract List<String> listEntries()throws Exception;
 	
 	/**
 	 * list the entries in this registry matching the given service type / "interface name"
-	 * @see Endpoint#getInterfaceName()
 	 */
-	public abstract List<Endpoint> listEntries(String type)throws Exception;
+	public abstract List<String> listEntries(String type)throws Exception;
 	
 	/**
 	 * check the connection status to the service
@@ -41,7 +39,7 @@ public interface IRegistryClient {
 	 * returned by the registry client
 	 */
 	public static interface ServiceListFilter {
-		public boolean accept(Endpoint endpoint);
+		public boolean accept(Map<String,String>epData);
 	}
 	
 }

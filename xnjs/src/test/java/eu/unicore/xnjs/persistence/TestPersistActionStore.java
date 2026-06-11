@@ -5,13 +5,14 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.persist.impl.PersistImpl;
+import eu.unicore.persist.PersistenceProperties;
 import eu.unicore.persist.util.Export;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.ems.Action;
@@ -59,7 +60,12 @@ public class TestPersistActionStore extends EMSTestBase {
 		File f = new File("target","testdata_TestPersistActionStore");
 		FileUtils.deleteQuietly(f);
 		try{
-			Export exporter = new Export((PersistImpl<?>)as.getDoneJobsStorage(), f.getAbsolutePath());
+			Properties p = new Properties();
+			p.setProperty("class", DoneAction.class.getName());
+			p.setProperty("tableName", "FINISHED_JOBS");
+			p.setProperty("persistence.class", as.getDoneJobsStorage().getClass().getName());
+			p.putAll(xnjs.get(PersistenceProperties.class).getRawProperties());	
+			Export exporter = new Export(p, f.getAbsolutePath());
 			exporter.doExport();
 		}
 		finally {

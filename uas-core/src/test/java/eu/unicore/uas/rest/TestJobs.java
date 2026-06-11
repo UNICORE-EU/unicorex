@@ -15,6 +15,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.StorageClient;
@@ -46,7 +46,7 @@ public class TestJobs extends Base {
 		task.put("ApplicationName", "Date");
 		String jobUrl = client.create(task);
 		System.out.println("created: "+jobUrl);
-		JobClient job = new JobClient(new Endpoint(jobUrl), kernel.getClientConfiguration(), auth);
+		JobClient job = new JobClient(jobUrl, kernel.getClientConfiguration(), auth);
 		// get job properties
 		JSONObject jobProps = job.getProperties();
 		System.out.println("*** new job: ");
@@ -83,6 +83,7 @@ public class TestJobs extends Base {
 		JSONObject wdProps = job.getWorkingDirectory().getProperties();
 		System.out.println("*** working directory: ");
 		System.out.println(wdProps.toString(2));
+		IOUtils.closeQuietly(job, client);
 	}
 
 	@Test
@@ -116,6 +117,7 @@ public class TestJobs extends Base {
 		client.setURL(url+"?tags=nope");
 		taggedJobs = client.getJSON().getJSONArray("jobs");
 		assertEquals(0, taggedJobs.length());
+		client.close();
 	}
 
 	@Test
@@ -123,7 +125,7 @@ public class TestJobs extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		System.out.println("Accessing "+url);
 		IAuthCallback auth = getAuth();
-		CoreClient cc = new CoreClient(new Endpoint(url),kernel.getClientConfiguration(), auth);
+		CoreClient cc = new CoreClient(url,kernel.getClientConfiguration(), auth);
 		JSONObject task = new JSONObject();
 		task.put("ApplicationName", "Date");
 		JobClient jc = cc.getSiteClient().submitJob(task);
@@ -132,6 +134,7 @@ public class TestJobs extends Base {
 		while(!jc.isFinished())Thread.sleep(1000);
 		System.out.println(sc.getProperties().toString(2));
 		Thread.sleep(500);
+		cc.close();
 	}
 	
 	@Test
@@ -144,7 +147,7 @@ public class TestJobs extends Base {
 		task.put("ApplicationName", "Date");
 		String jobUrl = client.create(task);
 		System.out.println("created: "+jobUrl);
-		JobClient job = new JobClient(new Endpoint(jobUrl), kernel.getClientConfiguration(), auth);
+		JobClient job = new JobClient(jobUrl, kernel.getClientConfiguration(), auth);
 		job.poll(null);
 		job.restart();
 		Thread.sleep(1000);
@@ -153,6 +156,7 @@ public class TestJobs extends Base {
 		job.delete();
 		RESTException e = assertThrows(RESTException.class, ()->job.restart());
 		assertEquals(404, e.getStatus());
+		IOUtils.closeQuietly(job, client);
 	}
 
 	@Test
@@ -165,7 +169,7 @@ public class TestJobs extends Base {
 		task.put("ApplicationName", "Date");
 		String jobUrl = client.create(task);
 		System.out.println("created: "+jobUrl);
-		JobClient job = new JobClient(new Endpoint(jobUrl), kernel.getClientConfiguration(), auth);
+		JobClient job = new JobClient(jobUrl, kernel.getClientConfiguration(), auth);
 		job.poll(null);
 		System.out.println("Job is: "+job.getStatus()+", starting port forwarding.");
 		String forwardURL = job.getLinkUrl("forwarding")+"?port="+echo.getServerPort();
@@ -205,6 +209,7 @@ public class TestJobs extends Base {
 			System.out.println("<-- "+reply);
 			assertEquals(line, reply);
 		}
+		IOUtils.closeQuietly(job, client);
 	}
 
 	private boolean contains(JSONArray array, Object o) throws JSONException {

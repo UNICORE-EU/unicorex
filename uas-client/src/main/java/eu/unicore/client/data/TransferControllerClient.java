@@ -4,7 +4,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
@@ -25,7 +24,7 @@ public class TransferControllerClient extends FiletransferClient {
 		 ABORTED
 	}
 
-	public TransferControllerClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public TransferControllerClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, new JSONObject(), security, auth);
 	}
 

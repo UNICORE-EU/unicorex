@@ -13,7 +13,6 @@ import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -31,10 +30,10 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 
 	protected String filterSpec;
 
-	public EnumerationClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public EnumerationClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 		try{
-			resourcesName = new File(new URL(endpoint.getUrl()).getPath()).getName();
+			resourcesName = new File(new URL(endpoint).getPath()).getName();
 		}catch(Exception ex){};
 	}
 
@@ -126,8 +125,8 @@ public class EnumerationClient extends BaseServiceClient implements Iterable<Str
 	}
 
 	public <T extends BaseServiceClient> T createClient(String url, Class<T> clazz) throws Exception { 
-		return clazz.getConstructor(Endpoint.class, IClientConfiguration.class, IAuthCallback.class)
-				.newInstance(endpoint.cloneTo(url), security, auth);
+		return clazz.getConstructor(String.class, IClientConfiguration.class, IAuthCallback.class)
+				.newInstance(url, security, auth);
 	}
 
 }

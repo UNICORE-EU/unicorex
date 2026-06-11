@@ -11,7 +11,6 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.utils.Configurable;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.fts.FiletransferOptions;
@@ -54,7 +53,7 @@ public class UFTPFileTransferClient extends FiletransferClient
 
 	private boolean append;
 
-	public UFTPFileTransferClient(Endpoint endpoint, JSONObject initialProperties, IClientConfiguration security, IAuthCallback auth) throws Exception {
+	public UFTPFileTransferClient(String endpoint, JSONObject initialProperties, IClientConfiguration security, IAuthCallback auth) throws Exception {
 		super(endpoint, initialProperties, security, auth);
 		Map<String,String>params = JSONUtil.asMap(initialProperties);
 		updateServerHost(params.get(PARAM_SERVER_HOST));

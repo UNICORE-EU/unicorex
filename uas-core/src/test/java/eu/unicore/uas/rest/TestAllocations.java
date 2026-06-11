@@ -2,9 +2,9 @@ package eu.unicore.uas.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.Job;
 import eu.unicore.client.Job.Resources;
 import eu.unicore.client.Job.Type;
@@ -19,7 +19,7 @@ public class TestAllocations extends Base {
 	@Test
 	public void test1() throws Exception{
 		CoreClient c = new CoreClient(
-				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+				kernel.getContainerProperties().getContainerURL()+"/rest/core",
 				kernel.getClientConfiguration(),
 				getAuth());
 		SiteClient site = c.getSiteClient();
@@ -49,6 +49,7 @@ public class TestAllocations extends Base {
 		}
 		assertEquals("ON_LOGIN_NODE", jobClient.getProperties().get("jobType"));
 		System.out.println(jobClient.getProperties().toString(2));
+		IOUtils.closeQuietly(c, site, alloc);
 	}
 
 }

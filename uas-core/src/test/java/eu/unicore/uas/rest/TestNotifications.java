@@ -2,11 +2,11 @@ package eu.unicore.uas.rest;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
@@ -20,7 +20,7 @@ public class TestNotifications extends Base {
 	public void testNotifications() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		IAuthCallback auth = getAuth();
-		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
+		CoreClient core = new CoreClient(url, kernel.getClientConfiguration(), auth);
 		SiteClient site = core.getSiteFactoryClient().getOrCreateSite();
 		
 		JSONObject task = new JSONObject();
@@ -29,7 +29,7 @@ public class TestNotifications extends Base {
 		task.put("Notification", notificationURL);
 		JobClient job = site.submitJob(task);
 		
-		System.out.println("*** new job: "+job.getEndpoint().getUrl());
+		System.out.println("*** new job: "+job.getEndpoint());
 		while(!job.isFinished()) {
 			Thread.sleep(1000);
 		}
@@ -46,7 +46,7 @@ public class TestNotifications extends Base {
 		task.put("NotificationSettings", notifications);
 		job = site.submitJob(task);
 		
-		System.out.println("*** new job: "+job.getEndpoint().getUrl());
+		System.out.println("*** new job: "+job.getEndpoint());
 		while(!job.isFinished()) {
 			Thread.sleep(1000);
 		}
@@ -58,6 +58,7 @@ public class TestNotifications extends Base {
 		for(JSONObject n: Notifications.notifications) {
 			System.out.println(n.toString(2));
 		}
+		IOUtils.closeQuietly(job, core, site);
 	}
 
 }

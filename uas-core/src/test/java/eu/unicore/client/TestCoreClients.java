@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -42,9 +43,11 @@ public class TestCoreClients extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource = url+"/core";
 		System.out.println("Accessing "+resource);
-		Endpoint ep = new Endpoint(resource);
-		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), getAuth());
-		System.out.println("Client info: " +client.getClientInfo().toString(2));
+		try(CoreClient client = new CoreClient(resource, kernel.getClientConfiguration(), getAuth())){
+			client.setUpdateInterval(-1);
+			System.out.println("Client info: " +client.getClientInfo().toString(2));
+			System.out.println(client.getProperties().toString(2));
+		}
 	}
 
 	@Test
@@ -53,17 +56,9 @@ public class TestCoreClients extends Base {
 		String resource = url+"/registries/default_registry";
 		System.out.println("Accessing "+resource);
 		RegistryClient registry = new RegistryClient(resource, kernel.getClientConfiguration(), null);
-		List<Endpoint> entries = registry.listEntries();
-		boolean found = false;
-		for (int i=0; i<entries.size(); i++){
-			Endpoint ep = entries.get(i);
-			System.out.println(ep.getUrl()+" : "+ep.getInterfaceName());
-			if(ep.getInterfaceName().equals("CoreServices")){
-				found = true;
-				break;
-			}
-		}
-		assertTrue(found);
+		List<String> entries = registry.listEntries("CoreServices");
+		assertTrue(entries.size()>0);
+		registry.close();
 	}
 
 	@Test
@@ -109,30 +104,31 @@ public class TestCoreClients extends Base {
 		final TargetSystemFinder tsf = new TargetSystemFinder(es);
 		site = tsf.findTSS(registry, ccp, getAuth(), b, null);
 		assertNotNull(site);
-		System.out.println(site.getEndpoint().getUrl());
+		System.out.println(site.getEndpoint());
 		AddressFilter f = new AcceptAllFilter();
 		assertTrue(f.accept(site));
 		assertTrue(f.accept(site.getEndpoint()));
-		assertTrue(f.accept(site.getEndpoint().getUrl()));
+		assertTrue(f.accept(site.getEndpoint()));
 		f = new SiteNameFilter(null);
 		assertTrue(f.accept(site));
 		assertTrue(f.accept(site.getEndpoint()));
-		assertTrue(f.accept(site.getEndpoint().getUrl()));
+		assertTrue(f.accept(site.getEndpoint()));
 		f = new SiteNameFilter("nope");
 		assertFalse(f.accept(site));
 		assertFalse(f.accept(site.getEndpoint()));
-		assertFalse(f.accept(site.getEndpoint().getUrl()));
+		assertFalse(f.accept(site.getEndpoint()));
 		b.setProperty("blacklist", "core");
 		assertThrows(Exception.class, 
-				()->tsf.findTSS(registry, ccp, getAuth(), b, null));
+				()->{
+					tsf.findTSS(registry, ccp, getAuth(), b, null).close();	
+				});
 	}
 
 	@Test
 	public void testWorkingDir() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		System.out.println("Accessing "+url);
-		Endpoint ep = new Endpoint(url);
-		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), getAuth());
+		CoreClient client = new CoreClient(url, kernel.getClientConfiguration(), getAuth());
 		SiteFactoryClient sfc = client.getSiteFactoryClient();
 		SiteClient sc = sfc.getOrCreateSite();
 		JSONObject job = new JSONObject();
@@ -150,12 +146,13 @@ public class TestCoreClients extends Base {
 		assertEquals(3, files.size());
 		files = fl.list(0,2);
 		assertEquals(2, files.size());
+		IOUtils.closeQuietly(client, jc, sc, usp);
 	}
 
 	@Test
 	public void testStorageClient() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient storage = new StorageClient(new Endpoint(url),
+		StorageClient storage = new StorageClient(url,
 				kernel.getClientConfiguration(), getAuth());
 		System.out.println(storage.getProperties().toString(2));
 		for(FileListEntry e: storage.ls(".").list(0, 1000)) {
@@ -164,6 +161,7 @@ public class TestCoreClients extends Base {
 		System.out.println(storage.stat("/"));
 		System.out.println("MP: "+storage.getMountPoint());
 		System.out.println("FS: "+storage.getFileSystemDescription());
+		storage.close();
 	}
 
 	@Test
@@ -171,8 +169,7 @@ public class TestCoreClients extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource = url+"/core";
 		System.out.println("Accessing "+resource);
-		Endpoint ep = new Endpoint(resource);
-		CoreClient client = new CoreClient(ep, kernel.getClientConfiguration(), getAuth());
+		CoreClient client = new CoreClient(resource, kernel.getClientConfiguration(), getAuth());
 		SiteFactoryClient sfc = client.getSiteFactoryClient();
 		SiteClient sc = sfc.getOrCreateSite();
 		JSONObject job = new JSONObject();
@@ -189,6 +186,7 @@ public class TestCoreClients extends Base {
 		assertTrue(jL.size()>0);
 		List<String> jL2 = jobList.getUrls(0, 100, "date");
 		assertEquals(1, jL2.size());
+		IOUtils.closeQuietly(client, sfc, sc, jc, jobList);
 	}
 
 	protected void waitForFinish(JobClient jc) throws Exception {

@@ -20,7 +20,7 @@ public class RandomSelection implements SiteSelectionStrategy{
 	public SiteClient select(List<SiteClient> available) {
 		SiteClient selectedTSS = available.get(random.nextInt(available.size()));
 		try{
-			String name = selectedTSS.getEndpoint().getUrl();
+			String name = selectedTSS.getEndpoint();
 			synchronized(this){
 				AtomicInteger val = selected.get(name);
 				if(val==null) {

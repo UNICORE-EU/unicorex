@@ -13,7 +13,6 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.data.FileClient;
 import eu.unicore.client.data.FiletransferClient;
@@ -38,14 +37,13 @@ public class StorageClient extends BaseServiceClient {
 
 	protected final static Map<String, Class<? extends FiletransferClient>> registeredClients = new HashMap<>();
 
-	public StorageClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public StorageClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 		initRegisteredClients();
 	}
 
 	public FileList ls(String basedir) throws Exception {
-		Endpoint ep = endpoint.cloneTo(getLinkUrl("files")+normalize(basedir));
-		return new FileList(this, basedir, ep, security, auth);
+		return new FileList(this, basedir, getLinkUrl("files")+normalize(basedir), security, auth);
 	}
 
 	/**
@@ -55,13 +53,15 @@ public class StorageClient extends BaseServiceClient {
 	 * @throws Exception
 	 */
 	public FileListEntry stat(String path) throws Exception {
-		Endpoint ep = endpoint.cloneTo(getLinkUrl("files")+normalize(path));
-		JSONObject props = new BaseServiceClient(ep, security, auth).getProperties();
+		String ep = getLinkUrl("files")+normalize(path);
+		bc.pushURL(ep);
+		JSONObject props = bc.getJSON();
+		bc.popURL();
 		return new FileListEntry(path, props);
 	}
 
 	public FileClient getFileClient(String path) throws Exception {
-		Endpoint ep = endpoint.cloneTo(getLinkUrl("files")+normalize(path));
+		String ep = getLinkUrl("files")+normalize(path);
 		return new FileClient(ep, security, auth);
 	}
 
@@ -92,23 +92,25 @@ public class StorageClient extends BaseServiceClient {
 	}
 
 	public List<String> searchMetadata(String query) throws Exception {
-		BaseClient bc = createTransport(endpoint.getUrl()+"/search", security, auth);
-		URIBuilder ub = new URIBuilder(bc.getURL());
-		ub.addParameter("q", query);
-		bc.setURL(ub.build().toString());
-		JSONObject searchResult = bc.getJSON();
-		if(!"OK".equals(searchResult.getString("status"))){
-			String msg = "Error searching metadata: "+searchResult.optString("statusMessage", "n/a");
-			throw new Exception(msg);
-		}
-		List<String> result = new ArrayList<>();
-		JSONObject links = searchResult.getJSONObject("_links");
-		for(String name: links.keySet()) {
-			if(name.startsWith("search-result")) {
-				result.add(links.getJSONObject(name).getString("href"));
+		try(BaseClient bc = createTransport(endpoint+"/search", security, auth))
+		{
+			URIBuilder ub = new URIBuilder(bc.getURL());
+			ub.addParameter("q", query);
+			bc.setURL(ub.build().toString());
+			JSONObject searchResult = bc.getJSON();
+			if(!"OK".equals(searchResult.getString("status"))){
+				String msg = "Error searching metadata: "+searchResult.optString("statusMessage", "n/a");
+				throw new Exception(msg);
 			}
+			List<String> result = new ArrayList<>();
+			JSONObject links = searchResult.getJSONObject("_links");
+			for(String name: links.keySet()) {
+				if(name.startsWith("search-result")) {
+					result.add(links.getJSONObject(name).getString("href"));
+				}
+			}
+			return result;
 		}
-		return result;
 	}
 
 	public String getMountPoint() throws Exception {
@@ -129,12 +131,13 @@ public class StorageClient extends BaseServiceClient {
 		json.put("extraParameters", JSONUtil.asJSON(extraParameters));
 		if(numBytes>-1)json.put("numBytes", BigInteger.valueOf(numBytes));
 
-		BaseClient c = createTransport(endpoint.getUrl()+"/imports", security, auth);
-		try(ClassicHttpResponse res = c.post(json)){
+		try(BaseClient c = createTransport(endpoint+"/imports", security, auth);
+			ClassicHttpResponse res = c.post(json))
+		{
 			JSONObject response = c.asJSON(res);
-			Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
+			String ep = res.getFirstHeader("Location").getValue();
 			FiletransferClient fts = clazz.getConstructor(new Class[] { 
-					Endpoint.class, JSONObject.class, 
+					String.class, JSONObject.class, 
 					IClientConfiguration.class, IAuthCallback.class }
 					).newInstance(new Object[] { ep, response, security, auth});
 			if(append) {
@@ -176,12 +179,13 @@ public class StorageClient extends BaseServiceClient {
 		json.put("protocol",protocol);
 		json.put("extraParameters", JSONUtil.asJSON(extraParameters));
 
-		BaseClient c = createTransport(endpoint.getUrl()+"/exports", security, auth);
-		try(ClassicHttpResponse res = c.post(json)){
+		try(BaseClient c = createTransport(endpoint+"/exports", security, auth);
+			ClassicHttpResponse res = c.post(json))
+		{
 			JSONObject response = c.asJSON(res);
-			Endpoint ep = new Endpoint(res.getFirstHeader("Location").getValue());
+			String ep = res.getFirstHeader("Location").getValue();
 			FiletransferClient fts = clazz.getConstructor(
-					new Class[] { Endpoint.class, JSONObject.class, IClientConfiguration.class, IAuthCallback.class }
+					new Class[] { String.class, JSONObject.class, IClientConfiguration.class, IAuthCallback.class }
 					).newInstance(
 							new Object[] { ep, response, security, auth});
 			if(fts instanceof Configurable){
@@ -215,9 +219,9 @@ public class StorageClient extends BaseServiceClient {
 			json.put("extraParameters", JSONUtil.asJSON(extraParameters));
 		}
 		if(protocol!=null)json.put("protocol",protocol);
-		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
-		Endpoint ep = new Endpoint(c.create(json));
-		return new TransferControllerClient(ep, security, auth);
+		try(BaseClient c = createTransport(endpoint+"/transfers", security, auth)){
+			return new TransferControllerClient(c.create(json), security, auth);
+		}
 	}
 
 	/**
@@ -237,9 +241,10 @@ public class StorageClient extends BaseServiceClient {
 			json.put("extraParameters", JSONUtil.asJSON(extraParameters));
 		}
 		if(protocol!=null)json.put("protocol",protocol);
-		BaseClient c = createTransport(endpoint.getUrl()+"/transfers", security, auth);
-		Endpoint ep = new Endpoint(c.create(json));
-		return new TransferControllerClient(ep, security, auth);
+		try(BaseClient c = createTransport(endpoint+"/transfers", security, auth))
+		{
+			return new TransferControllerClient(c.create(json), security, auth);
+		}
 	}
 
 	@SuppressWarnings("unchecked")

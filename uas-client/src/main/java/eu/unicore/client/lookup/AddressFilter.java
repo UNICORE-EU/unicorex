@@ -1,7 +1,5 @@
 package eu.unicore.client.lookup;
 
-import eu.unicore.client.Endpoint;
-
 /**
  * used to accept/reject certain site/service addresses during lookup<br/>
  *
@@ -9,8 +7,6 @@ import eu.unicore.client.Endpoint;
  */
 public interface AddressFilter extends Filter {
 
-	public boolean accept(Endpoint ep);
-	
 	public boolean accept(String uri);
 
 }

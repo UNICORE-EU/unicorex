@@ -3,7 +3,6 @@ package eu.unicore.client.utils;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
@@ -25,7 +24,7 @@ public class TaskClient extends BaseServiceClient {
 	    ABORTED
 	}
 
-	public TaskClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public TaskClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 

@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
@@ -15,7 +14,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
 
 public class AdminServiceClient extends BaseServiceClient {
 
-	public AdminServiceClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public AdminServiceClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 

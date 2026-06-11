@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.inject.Singleton;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.uas.fts.FileTransferCapabilities;
@@ -61,7 +60,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
 			if(fc!=null){
 				if(fc.isAvailable()){
-					Endpoint ep = new Endpoint(urlInfo.getM2());
+					String ep = urlInfo.getM2();
 					IFileTransfer f = createExportREST(ep, fc.getExporter(),client,workdir,source,target,creds);
 					f.setOverwritePolicy(info.getOverwritePolicy());
 					if(info.getExtraParameters()!=null){
@@ -88,7 +87,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 			FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
 			if(fc!=null){
 				if(fc.isAvailable()){
-					Endpoint ep = new Endpoint(urlInfo.getM2());
+					String ep = urlInfo.getM2();
 					IFileTransfer f = createImportREST(ep, fc.getImporter(),client,workdir,source,target,creds);
 					f.setOverwritePolicy(in.getOverwritePolicy());
 					if(in.getExtraParameters()!=null){
@@ -126,7 +125,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	 *
 	 * @return IFileTransfer instance
 	 */
-	private IFileTransfer createImportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, URI source, String targetFile, DataStagingCredentials creds){
+	private IFileTransfer createImportREST(String ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, URI source, String targetFile, DataStagingCredentials creds){
 		String sourceFile = getFileSpec(source.toString());
 		try{
 			RESTFileTransferBase ft=(RESTFileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
@@ -152,7 +151,7 @@ public class UFileTransferCreator implements IFileTransferCreator{
 	 *
 	 * @return IFileTransfer instance
 	 */
-	private IFileTransfer createExportREST(Endpoint ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, String sourceFile, URI target, DataStagingCredentials credentials){
+	private IFileTransfer createExportREST(String ep, Class<? extends IFileTransfer> clazz, Client client, String workdir, String sourceFile, URI target, DataStagingCredentials credentials){
 		String targetFile = getFileSpec(target.toString());
 		try{
 			RESTFileTransferBase ft = (RESTFileTransferBase)clazz.getConstructor(XNJS.class).newInstance(xnjs);
@@ -227,14 +226,14 @@ public class UFileTransferCreator implements IFileTransferCreator{
 
 		Pair<String,String>urlInfo = extractUrlInfo(source);
 		String protocol = urlInfo.getM1();
-		Endpoint ep = new Endpoint(urlInfo.getM2());
+		String ep = urlInfo.getM2();
 		FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
 		if(fc==null || fc.getFTSImportsController()==null) {
 			throw new IOException("Server-to-Server transfer not available for protocol "+protocol);
 		}
 		try{
 			IFTSController fts = fc.getFTSImportsController().getConstructor(
-					XNJS.class, Client.class, Endpoint.class, DataStageInInfo.class, String.class).
+					XNJS.class, Client.class, String.class, DataStageInInfo.class, String.class).
 					newInstance(xnjs, client, ep, info, workingDirectory);
 			fts.setProtocol(protocol);
 			fts.setOverwritePolicy(info.getOverwritePolicy());
@@ -256,14 +255,14 @@ public class UFileTransferCreator implements IFileTransferCreator{
 
 		Pair<String,String>urlInfo = extractUrlInfo(target);
 		String protocol = urlInfo.getM1();
-		Endpoint ep = new Endpoint(urlInfo.getM2());
+		String ep = urlInfo.getM2();
 		FileTransferCapability fc = FileTransferCapabilities.getCapability(protocol, kernel);
 		if(fc==null || fc.getFTSExportsController()==null) {
 			throw new IOException("Server-to-Server transfer not available for protocol "+protocol);
 		}
 		try{
 			IFTSController fts = fc.getFTSExportsController().getConstructor(
-					XNJS.class, Client.class, Endpoint.class, DataStageOutInfo.class, String.class).
+					XNJS.class, Client.class, String.class, DataStageOutInfo.class, String.class).
 					newInstance(xnjs, client, ep, info, workingDirectory);
 			fts.setProtocol(protocol);
 			return fts;

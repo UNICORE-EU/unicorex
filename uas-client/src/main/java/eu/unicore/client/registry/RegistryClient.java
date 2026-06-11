@@ -8,8 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
-import eu.unicore.services.restclient.BaseClient;
+import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.Log;
@@ -20,42 +19,28 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  *  
  * @author schuller
  */
-public class RegistryClient implements IRegistryClient {
+public class RegistryClient extends BaseServiceClient implements IRegistryClient {
 
 	private static final Logger logger = Log.getLogger(Log.CLIENT, RegistryClient.class);
 
-	private final Endpoint endpoint;
-
-	private final IClientConfiguration security;
-
-	private final IAuthCallback auth;
-
-	protected final BaseClient bc;
-
-	private final static ServiceListFilter acceptAll = new ServiceListFilter(){
-		public boolean accept(Endpoint ep){return true;}
+	private final static ServiceListFilter acceptAll = (epData) -> {
+		return true;
 	};
 
 	public RegistryClient(String url, IClientConfiguration security, IAuthCallback auth) {
-		this.endpoint = new Endpoint(url);
-		this.security = security;
-		this.auth = auth;
-		this.bc = createTransport(url, security, auth);
-	}
-
-	protected BaseClient createTransport(String url, IClientConfiguration security, IAuthCallback auth){
-		return new BaseClient(endpoint.getUrl(), security, auth);
+		super(url, security, auth);
 	}
 
 	@Override
-	public List<Endpoint> listEntries(ServiceListFilter acceptFilter) throws Exception {
-		List<Endpoint>endpoints = new ArrayList<>();
+	public List<String> listEntries(ServiceListFilter acceptFilter) throws Exception {
+		List<String>endpoints = new ArrayList<>();
 		JSONArray js = bc.getJSON().getJSONArray("entries");
 		for(int i=0; i<js.length(); i++){
 			JSONObject o = js.getJSONObject(i);
 			try{
-				Endpoint ep = toEP(JSONUtil.asMap(o));
-				if(acceptFilter!=null && !acceptFilter.accept(ep))continue;
+				Map<String,String>epData = JSONUtil.asMap(o);
+				String ep = getEP(epData);
+				if(acceptFilter!=null && !acceptFilter.accept(epData))continue;
 				endpoints.add(ep);
 			}catch(Exception ex){
 				logger.debug("Could not convert entry "+o.toString(2));
@@ -65,12 +50,12 @@ public class RegistryClient implements IRegistryClient {
 	}
 
 	@Override
-	public List<Endpoint> listEntries() throws Exception {
+	public List<String> listEntries() throws Exception {
 		return listEntries(acceptAll);
 	}
 
 	@Override
-	public List<Endpoint> listEntries(String type) throws Exception {
+	public List<String> listEntries(String type) throws Exception {
 		return listEntries(new ServiceTypeFilter(type));
 	}
 
@@ -92,7 +77,7 @@ public class RegistryClient implements IRegistryClient {
 		return true;
 	}
 
-	public Endpoint getEndpoint() {
+	public String getEndpoint() {
 		return endpoint;
 	}
 
@@ -104,12 +89,8 @@ public class RegistryClient implements IRegistryClient {
 		return auth;
 	}
 
-	public static Endpoint toEP(Map<String,String>content){
-		Endpoint ep = new Endpoint(content.get(ENDPOINT));
-		ep.setInterfaceName(content.get(INTERFACE_NAME));
-		ep.setServerPublicKey(content.get(SERVER_PUBKEY));
-		ep.setServerIdentity(content.get(SERVER_IDENTITY));
-		return ep;
+	public static String getEP(Map<String,String>content){
+		return content.get(ENDPOINT);
 	}
 
 	public static final String ENDPOINT = "href";
@@ -125,8 +106,9 @@ public class RegistryClient implements IRegistryClient {
 			this.type = type;
 		}
 
-		public boolean accept(Endpoint ep){
-			return ep!=null && type.equals(ep.getInterfaceName());
+		@Override
+		public boolean accept(Map<String,String>epData){
+			return epData!=null && type.equals(epData.get(INTERFACE_NAME));
 		}
 
 	};

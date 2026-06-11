@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
@@ -27,7 +27,7 @@ public class TestSites extends Base {
 		String resource = url+"/core/factories/default_target_system_factory";
 		System.out.println("Accessing "+resource);
 		IAuthCallback auth = getAuth();
-		SiteFactoryClient client = new SiteFactoryClient(new Endpoint(resource), kernel.getClientConfiguration(), auth);	
+		SiteFactoryClient client = new SiteFactoryClient(resource, kernel.getClientConfiguration(), auth);	
 
 		// get its properties
 		JSONObject tsfProps = client.getProperties();
@@ -35,12 +35,12 @@ public class TestSites extends Base {
 		
 		// get apps list
 		String appsUrl = resource+"/applications";
-		BaseServiceClient bc = new BaseServiceClient(new Endpoint(appsUrl), kernel.getClientConfiguration(), auth);
+		BaseServiceClient bc = new BaseServiceClient(appsUrl, kernel.getClientConfiguration(), auth);
 		System.out.println(bc.getProperties().toString(2));
 	
 		// create a new TSS
 		SiteClient sc = client.getOrCreateSite();
-		System.out.println("created: "+sc.getEndpoint().getUrl());
+		System.out.println("created: "+sc.getEndpoint());
 
 		// check TSS properties
 		System.out.println(sc.getProperties().toString(2));
@@ -49,12 +49,13 @@ public class TestSites extends Base {
 		assertEquals(1, sc.getSiteSpecificStorages().size());
 
 		sc.delete();
+		IOUtils.closeQuietly(sc, client, bc);
 	}
 
 	@Test
 	public void testCreateTSSAndSubmitJob() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		CoreClient client = new CoreClient(url, kernel.getClientConfiguration(), getAuth());
 		// create a new TSS
 		SiteClient tss = client.getSiteFactoryClient().createSite();
 		System.out.println(tss.getProperties().toString(2));
@@ -69,29 +70,33 @@ public class TestSites extends Base {
 		}
 		List<String> jobList = tss.getJobsList().getUrls(0, 5);
 		System.out.println(jobList);
+		IOUtils.closeQuietly(tss, client);
 	}
 
 	@Test
 	public void testGetOrCreateTSS() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
 		IAuthCallback auth = getAuth();
-		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
+		CoreClient core = new CoreClient(url, kernel.getClientConfiguration(), auth);
 		SiteClient sc = core.getSiteFactoryClient().getOrCreateSite();
-		String u1 = sc.getEndpoint().getUrl();
+		String u1 = sc.getEndpoint();
 		System.out.println("Created: "+u1);
 		sc = core.getSiteFactoryClient().getOrCreateSite();
-		assertEquals(u1, sc.getEndpoint().getUrl());
+		assertEquals(u1, sc.getEndpoint());
+		IOUtils.closeQuietly(core, sc);
+
 	}
 
 	@Test
 	public void testAccesControl()throws Exception {
 		String ep = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/factories/default_target_system_factory";
-		SiteFactoryClient sms = new SiteFactoryClient(new Endpoint(ep), kernel.getClientConfiguration(), getAuth());
+		SiteFactoryClient sms = new SiteFactoryClient(ep, kernel.getClientConfiguration(), getAuth());
 		RESTException re = assertThrows(RESTException.class, ()->sms.delete());
 		assertEquals(403, re.getStatus());
 		RESTException re1 = assertThrows(RESTException.class, ()->sms.setProperties(new JSONObject()));
 		assertEquals(403, re1.getStatus());
+		sms.close();
 	}
 
 	private JobClient submitJob(SiteClient client) throws Exception{

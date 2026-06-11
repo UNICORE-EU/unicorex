@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
@@ -34,7 +34,7 @@ public class TestHelpers extends Base {
 		String URL = kernel.getContainerProperties().getContainerURL()+"/rest/storages/123";
 		String uuid = createNewInstance(URL);
 		String task = kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uuid;
-		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), getAuth());
+		TaskClient c = new TaskClient(task, kernel.getClientConfiguration(), getAuth());
 		c.setUpdateInterval(-1);
 		JSONObject properties = c.getProperties();
 		System.out.println(properties.toString(2));
@@ -42,6 +42,7 @@ public class TestHelpers extends Base {
 		assertEquals(Status.RUNNING, c.getStatus());
 		c.executeAction("abort", new JSONObject());
 		assertEquals(Status.FAILED, c.getStatus());
+		c.close();
 	}
 	
 	@Test
@@ -49,7 +50,7 @@ public class TestHelpers extends Base {
 		String URL = kernel.getContainerProperties().getContainerURL()+"/rest/test/123";
 		String uuid = createNewInstance(URL);
 		String task = kernel.getContainerProperties().getContainerURL()+"/rest/core/tasks/"+uuid;
-		TaskClient c = new TaskClient(new Endpoint(task), kernel.getClientConfiguration(), getAuth());
+		TaskClient c = new TaskClient(task, kernel.getClientConfiguration(), getAuth());
 		assertTrue(c.getResult().size()==0);
 		createAndStoreResult(uuid);
 		c.setUpdateInterval(-1);
@@ -60,6 +61,7 @@ public class TestHelpers extends Base {
 		assertEquals(Integer.valueOf(13), c.getExitCode());
 		assertEquals("test123", c.getStatusMessage());	
 		System.out.println(c.getProperties().toString(2));
+		c.close();
 	}
 
 	private void createAndStoreResult(String uuid)throws Exception{
@@ -87,19 +89,27 @@ public class TestHelpers extends Base {
 		ClientProperties security = kernel.getClientConfiguration();
 		IAuthCallback auth = getAuth();
 		CoreClient c = new CoreClient(
-				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+				kernel.getContainerProperties().getContainerURL()+"/rest/core",
 				security, auth);
 		SiteFactoryClient tsf = c.getSiteFactoryClient();
-		for(String url : tsf.getSiteList()) {
-			new SiteClient(new Endpoint(url), security, auth).delete();
+		try(var ec = tsf.getSiteList()){
+			for(String url : ec) {
+				var sc = new SiteClient(url, security, auth);
+				sc.delete();
+				sc.close();
+			}
 		}
 		// create two TSS - we only want to re-create jobs that 
 		// are not listed by another TSS
 		SiteClient tss = tsf.createSite();
 		waitUntilReady(tss);
 		// make sure no jobs exist
-		for(String url: tss.getJobsList()){
-			new JobClient(new Endpoint(url), security, auth).delete();
+		try(var ec = tss.getJobsList()){
+			for(String url: ec){
+				var jc = new JobClient(url, security, auth);
+				jc.delete();
+				jc.close();
+			}
 		}
 		runJob(tss);
 		// these jobs we want to re-create
@@ -118,17 +128,22 @@ public class TestHelpers extends Base {
 		tss = tsf.createSite();
 		waitUntilReady(tss);
 		assertEquals(existingJobs+numJobs, tss.getJobsList().getUrls(0, 100).size());
+		IOUtils.closeQuietly(tss, tsf, c);
 	}
 
 	private void testRecreateXNJS()throws Exception{
 		ClientProperties security = kernel.getClientConfiguration();
 		IAuthCallback auth = getAuth();
 		CoreClient c = new CoreClient(
-				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+				kernel.getContainerProperties().getContainerURL()+"/rest/core",
 				security, auth);
 		SiteFactoryClient tsf = c.getSiteFactoryClient();
-		for(String url : tsf.getSiteList()) {
-			new SiteClient(new Endpoint(url), security, auth).delete();
+		try(var ec = tsf.getSiteList()){
+			for(String url : ec) {
+				var sc = new SiteClient(url, security, auth);
+				sc.delete();
+				sc.close();
+			}
 		}
 		SiteClient tss = tsf.createSite();
 		waitUntilReady(tss);
@@ -156,9 +171,10 @@ public class TestHelpers extends Base {
 		assertEquals(existingJobs+numJobs, tss.getJobsList().getUrls(0, 100).size());
 
 		// check some properties of the re-generated jobs
-		JobClient j = new JobClient(new Endpoint(tss.getJobsList().getUrls(0, 100).get(0)),
+		JobClient j = new JobClient(tss.getJobsList().getUrls(0, 100).get(0),
 				security, auth);
 		System.out.println(j.getProperties().toString(2));
+		IOUtils.closeQuietly(j, c, tss, tsf);
 	}
 
 

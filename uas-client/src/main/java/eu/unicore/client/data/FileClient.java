@@ -5,7 +5,6 @@ import java.util.Map;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 import eu.unicore.client.utils.TaskClient;
 import eu.unicore.services.restclient.IAuthCallback;
@@ -14,7 +13,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
 
 public class FileClient extends BaseServiceClient {
 
-	public FileClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public FileClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
@@ -59,6 +58,6 @@ public class FileClient extends BaseServiceClient {
 		JSONObject response = executeAction("extract", op);
 		String href = response.optString("taskHref", null);
 		return href!=null? 
-			new TaskClient(new Endpoint(href), security, auth) : null;
+			new TaskClient(href, security, auth) : null;
 	}
 }

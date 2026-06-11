@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.data.FiletransferClient;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
@@ -49,9 +48,9 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 
 	protected Client client;
 
-	protected Endpoint storageEndpoint;
+	protected String storageEndpoint;
 
-	protected Endpoint fileTransferEndpoint;
+	protected String fileTransferEndpoint;
 
 	protected IClientConfiguration sec;
 
@@ -178,11 +177,11 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		return client;
 	}
 
-	public Endpoint getStorageEndpoint() {
+	public String getStorageEndpoint() {
 		return storageEndpoint;
 	}
 
-	public void setStorageEndpoint(Endpoint storageEndpoint) {
+	public void setStorageEndpoint(String storageEndpoint) {
 		this.storageEndpoint = storageEndpoint;
 	}
 
@@ -357,11 +356,10 @@ public abstract class RESTFileTransferBase implements IFileTransfer, ProgressLis
 		long r = (long)((float)dataSize/(float)consumedMillis);
 		String what=isExport()?"Sent":"Received";
 		String dn=client!=null?client.getDistinguishedName():"anonymous";
-		String url=storageEndpoint.getUrl();
 		logger.debug("{} {} bytes in {} milliseconds, data rate={} kB/s)", what, dataSize, consumedMillis, r);
 		usageLogger.info("[{}] [{}] [{}] [{} kB/s] [{}] [{}] [{}] [{}] [{}]"
 				    ,dn, what, dataSize, r,
-				    url, info.getSource(), info.getTarget(), info.getProtocol(),
+				    storageEndpoint, info.getSource(), info.getTarget(), info.getProtocol(),
 				    info.getParentActionID());
 	}
 

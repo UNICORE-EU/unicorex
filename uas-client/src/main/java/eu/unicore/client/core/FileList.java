@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.hc.core5.net.URIBuilder;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -25,7 +24,7 @@ public class FileList extends BaseServiceClient {
 
 	protected String baseDir;
 
-	public FileList(StorageClient parentStorage, String baseDir, Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public FileList(StorageClient parentStorage, String baseDir, String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 		this.parentStorage = parentStorage;
 		this.baseDir = baseDir;
@@ -59,7 +58,7 @@ public class FileList extends BaseServiceClient {
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Files @ ").append(parentStorage.getEndpoint().getUrl()).append("/files/").append(baseDir);
+		sb.append("Files @ ").append(parentStorage.getEndpoint()).append("/files/").append(baseDir);
 		sb.append("\n");
 		try {
 			for(FileListEntry fle: list()) {

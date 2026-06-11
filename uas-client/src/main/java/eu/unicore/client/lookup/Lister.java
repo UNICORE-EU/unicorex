@@ -9,7 +9,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 
 /**
@@ -149,11 +148,6 @@ public class Lister<T extends BaseServiceClient> implements Iterable<T>{
 	}
 
 	public static class AcceptAllFilter implements AddressFilter {
-
-		@Override
-		public boolean accept(Endpoint epr) {
-			return true;
-		}
 
 		@Override
 		public boolean accept(String uri) {

@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.utils.TaskClient;
 import eu.unicore.security.AuthenticationException;
 import eu.unicore.services.restclient.IAuthCallback;
@@ -19,7 +18,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  */
 public class CoreClient extends BaseServiceClient {
 
-	public CoreClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public CoreClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
@@ -70,39 +69,35 @@ public class CoreClient extends BaseServiceClient {
 
 	public SiteFactoryClient getSiteFactoryClient() throws Exception {
 		String url = getLinkUrl("factories")+"/default_target_system_factory";
-		return new SiteFactoryClient(endpoint.cloneTo(url), security, auth);
+		return new SiteFactoryClient(url, security, auth);
 	}
 
 	public EnumerationClient getJobsList() throws Exception {
-		String url = getLinkUrl("jobs");
-		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
+		return new EnumerationClient(getLinkUrl("jobs"), security, auth);
 	}
 
 	public EnumerationClient getStoragesList() throws Exception {
-		String url = getLinkUrl("storages");
-		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
+		return new EnumerationClient(getLinkUrl("storages"), security, auth);
 	}
 
 	public EnumerationClient getTransfersList() throws Exception {
-		String url = getLinkUrl("transfers");
-		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
+		return new EnumerationClient(getLinkUrl("transfers"), security, auth);
 	}
 
 	public StorageFactoryClient getStorageFactory(String type) throws Exception {
-		String url = getLinkUrl("storagefactories");
 		if(type==null)type = "DEFAULT";
-		Endpoint ep = endpoint.cloneTo(url+"/"+type);
-		return new StorageFactoryClient(ep, security, auth);
+		return new StorageFactoryClient(getLinkUrl("storagefactories")+"/"+type, security, auth);
 	}
 
 	public List<StorageFactoryClient> getStorageFactories() throws Exception {
 		List<StorageFactoryClient>res = new ArrayList<>();
-		String url = getLinkUrl("storagefactories");
-		EnumerationClient ec = new EnumerationClient(endpoint.cloneTo(url), security, auth);
-		ec.forEach((smf)->{
-			res.add(new StorageFactoryClient(endpoint.cloneTo(smf), security, auth));
-		});
-		return res;
+		try(EnumerationClient ec = new EnumerationClient(getLinkUrl("storagefactories"), security, auth))
+		{
+			ec.forEach((smf)->{
+				res.add(new StorageFactoryClient(smf, security, auth));
+			});
+			return res;
+		}
 	}
 
 	public TaskClient launchFederatedSearch(JSONObject spec) throws Exception {
@@ -110,7 +105,7 @@ public class CoreClient extends BaseServiceClient {
 		bc.pushURL(url);
 		String taskURL = bc.create(spec);
 		bc.popURL();
-		return new TaskClient(new Endpoint(taskURL), security, auth);
+		return new TaskClient(taskURL, security, auth);
 	}
 
 }

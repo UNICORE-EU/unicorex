@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
@@ -38,7 +38,7 @@ public class TestMetadata extends Base {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
 		String resource  = url+"/core/storagefactories/default_storage_factory";
 		var auth = getAuth();
-		StorageFactoryClient smfClient = new StorageFactoryClient(new Endpoint(resource),
+		StorageFactoryClient smfClient = new StorageFactoryClient(resource,
 				kernel.getClientConfiguration(), auth);
 		StorageClient sms = smfClient.createStorage();
 		assertTrue(sms.supportsMetadata());
@@ -95,7 +95,7 @@ public class TestMetadata extends Base {
 		fedSearchJob.put("query", "test");
 		fedSearchJob.put("resources", new JSONArray("[]"));
 		String taskURL = bc.create(fedSearchJob);
-		TaskClient searchTask = new TaskClient(new Endpoint(taskURL), kernel.getClientConfiguration(), auth);
+		TaskClient searchTask = new TaskClient(taskURL, kernel.getClientConfiguration(), auth);
 		searchTask.poll(null);
 		System.out.println("Search task : "+searchTask.getStatus());
 		System.out.println("Search results : "+searchTask.getResult());
@@ -104,6 +104,7 @@ public class TestMetadata extends Base {
 		FileClient baseDir = sms.getFileClient("/");
 		JSONObject reply = baseDir.executeAction("extract", new JSONObject());
 		System.out.println(reply.toString(2));
+		IOUtils.closeQuietly(bc, smfClient, sms, baseDir, searchTask);
 	}
 
 }

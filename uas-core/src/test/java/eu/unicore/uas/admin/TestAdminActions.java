@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.services.admin.AdminActionResult;
@@ -63,7 +62,7 @@ public class TestAdminActions extends Base {
 		System.out.println(res.getMessage());
 		System.out.println(res.getResults());
 
-		String jId = job.getEndpoint().getUrl();
+		String jId = job.getEndpoint();
 		jId = jId.substring(jId.lastIndexOf("/")+1);
 		params.put("jobID", jId);
 		res = new ShowJobDetails().invoke(params,uas.getKernel());
@@ -85,6 +84,7 @@ public class TestAdminActions extends Base {
 		System.out.println(res.getMessage());
 		System.out.println(res.getResults());
 		assertTrue(res.getResults().get("Info").contains("No such job"));
+		job.close();
 	}
 
 	@Test
@@ -132,13 +132,15 @@ public class TestAdminActions extends Base {
 	}
 
 	private JobClient runJob() throws Exception {
-		CoreClient c = new CoreClient(
-				new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core"),
+		try(CoreClient c = new CoreClient(
+				kernel.getContainerProperties().getContainerURL()+"/rest/core",
 				kernel.getClientConfiguration(),
-				new UsernamePassword("demouser", "test123"));
-		JSONObject job = new JSONObject();
-		job.put("ApplicationName", "Date");
-		return c.getSiteClient().submitJob(job);
+				new UsernamePassword("demouser", "test123")))
+		{
+			JSONObject job = new JSONObject();
+			job.put("ApplicationName", "Date");
+			return c.getSiteClient().submitJob(job);
+		}
 	}
 
 }

@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.registry.IRegistryClient;
 import eu.unicore.client.registry.RegistryClient;
@@ -53,11 +52,11 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 	}
 
 	protected void setupProducers()throws Exception {
-		List<Endpoint>sites = registry.listEntries(new RegistryClient.ServiceTypeFilter("CoreServices"));
-		for(Endpoint site: sites){
+		List<String>sites = registry.listEntries(new RegistryClient.ServiceTypeFilter("CoreServices"));
+		for(String site: sites){
 			if(addressFilter.accept(site)){
 				addProducer(new CoreClientProducer(site, 
-						configurationProvider.getClientConfiguration(site.getUrl()),
+						configurationProvider.getClientConfiguration(site),
 						auth, 
 						addressFilter));
 			}
@@ -66,13 +65,13 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 
 	public static class CoreClientProducer implements Producer<CoreClient>{
 
-		private final Endpoint epr;
+		private final String epr;
 
 		protected final IClientConfiguration securityProperties;
 
 		protected final IAuthCallback auth;
 
-		protected final List<Pair<Endpoint,String>>errors = new ArrayList<>();
+		protected final List<Pair<String,String>>errors = new ArrayList<>();
 
 		private AtomicInteger runCount;
 
@@ -80,7 +79,7 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 
 		protected AddressFilter addressFilter;
 
-		public CoreClientProducer(Endpoint epr, IClientConfiguration securityProperties, IAuthCallback auth, AddressFilter addressFilter) {
+		public CoreClientProducer(String epr, IClientConfiguration securityProperties, IAuthCallback auth, AddressFilter addressFilter) {
 			this.epr = epr;
 			this.securityProperties = securityProperties;
 			this.auth = auth;
@@ -90,7 +89,7 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 		@Override
 		public void run() {
 			try{
-				log.debug("Processing site at {}", epr.getUrl());
+				log.debug("Processing site at {}", epr);
 				handleEndpoint(epr);
 			}
 			catch(Exception ex){
@@ -101,7 +100,7 @@ public class CoreEndpointLister extends Lister<CoreClient>{
 			}
 		}
 
-		public void handleEndpoint(Endpoint epr) throws Exception{
+		public void handleEndpoint(String epr) throws Exception{
 			CoreClient c = new CoreClient(epr, securityProperties, auth);
 			if(addressFilter.accept(c)) {
 				target.put(c);

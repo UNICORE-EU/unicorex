@@ -6,7 +6,6 @@ import java.io.ByteArrayOutputStream;
 
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
@@ -30,7 +29,7 @@ public class TestServerServerTransfer extends Base {
 	@Test
 	public void testTransfer()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
+		String sfcEndpoint = url+"/core/storagefactories/default_storage_factory";
 		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(), getAuth());
 		initSource();
 		UASProperties cfg = kernel.getAttribute(UASProperties.class);
@@ -46,7 +45,7 @@ public class TestServerServerTransfer extends Base {
 	@Test
 	public void testTransferWildcards()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
+		String sfcEndpoint = url+"/core/storagefactories/default_storage_factory";
 		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(), getAuth());
 		
 		initSource();
@@ -81,7 +80,7 @@ public class TestServerServerTransfer extends Base {
 		source.upload("folder2/test21").write("test12".getBytes());
 		source.upload("test.txt").write("this is a test".getBytes());
 		source.upload("test1.txt").write("this is a test".getBytes());
-		sourceURL = source.getEndpoint().getUrl();
+		sourceURL = source.getEndpoint();
 	}
 
 	protected void verifyTargetFolder1Content()throws Exception{
@@ -107,7 +106,7 @@ public class TestServerServerTransfer extends Base {
 
 	protected void reInitTarget() throws Exception {
 		target = sfc.createStorage();
-		targetURL = target.getEndpoint().getUrl();
+		targetURL = target.getEndpoint();
 	}
 
 	protected void dataTransfer()throws Exception{

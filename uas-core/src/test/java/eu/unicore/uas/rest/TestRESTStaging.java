@@ -7,12 +7,12 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
@@ -42,7 +42,7 @@ public class TestRESTStaging extends Base {
 	
 	private void doStageIn()throws Exception {	
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		CoreClient core = new CoreClient(url, kernel.getClientConfiguration(), getAuth());
 		SiteClient site = core.getSiteFactoryClient().getOrCreateSite();
 		JSONArray imports = new JSONArray();
 		imports.put(new JSONObject("{"
@@ -58,7 +58,7 @@ public class TestRESTStaging extends Base {
 		task.put("Imports", imports);
 		JobClient job = site.submitJob(task);
 		
-		System.out.println("*** new job: "+job.getEndpoint().getUrl());
+		System.out.println("*** new job: "+job.getEndpoint());
 		System.out.println(job.getProperties().toString(2));
 		while(!job.isFinished()) {
 			Thread.sleep(1000);
@@ -73,6 +73,7 @@ public class TestRESTStaging extends Base {
 			assertEquals(FileUtils.checksumCRC32(new File("target/unicorex-test/"+f)),
 					FileUtils.checksumCRC32(i1));
 		}
+		IOUtils.closeQuietly(core, site, job);
 	}
 
 	@Test
@@ -87,7 +88,7 @@ public class TestRESTStaging extends Base {
 
 	private void doStageOut() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		CoreClient core = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		CoreClient core = new CoreClient(url, kernel.getClientConfiguration(), getAuth());
 		SiteClient site = core.getSiteFactoryClient().getOrCreateSite();
 		JSONArray xports = new JSONArray();
 		xports.put(new JSONObject("{"
@@ -101,14 +102,13 @@ public class TestRESTStaging extends Base {
 		task.put("Exports", xports);
 		JobClient job = site.submitJob(task);
 		
-		System.out.println("*** new job: "+job.getEndpoint().getUrl());
+		System.out.println("*** new job: "+job.getEndpoint());
 		System.out.println(job.getProperties().toString(2));
 		while(!job.isFinished()) {
 			Thread.sleep(1000);
 		}
 		System.out.println(job.getProperties().toString(2));
 		String wd = job.getWorkingDirectory().getProperties().getString("mountPoint");
-		
 		String[] files = { "stdout" };
 		for(String f: files) {
 			File i1 = new File(wd+"/"+f);
@@ -116,6 +116,7 @@ public class TestRESTStaging extends Base {
 			assertEquals(FileUtils.checksumCRC32(new File("target/unicorex-test/out/"+f)),
 					FileUtils.checksumCRC32(i1));
 		}
+		IOUtils.closeQuietly(core, site, job);
 	}
 	
 }

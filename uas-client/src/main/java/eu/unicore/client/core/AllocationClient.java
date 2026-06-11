@@ -2,7 +2,6 @@ package eu.unicore.client.core;
 
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.util.httpclient.IClientConfiguration;
 
@@ -15,12 +14,11 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  */
 public class AllocationClient extends JobClient implements IJobSubmission {
 
-	public AllocationClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public AllocationClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
 	public JobClient submitJob(JSONObject job) throws Exception {
-		String url = bc.create(job);
-		return new JobClient(endpoint.cloneTo(url), security, auth);
+		return new JobClient(bc.create(job), security, auth);
 	}
 }

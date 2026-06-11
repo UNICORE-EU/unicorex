@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.Job;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -18,7 +17,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  */
 public class SiteClient extends BaseServiceClient implements IJobSubmission {
 
-	public SiteClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public SiteClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
@@ -30,21 +29,19 @@ public class SiteClient extends BaseServiceClient implements IJobSubmission {
 		String newJob = bc.create(job);
 		String type = job.optString("Job type", "n/a");
 		if("ALLOCATE".equalsIgnoreCase(type)) {
-			return new AllocationClient(endpoint.cloneTo(newJob), security, auth);
+			return new AllocationClient(newJob, security, auth);
 		}
 		else {
-			return new JobClient(endpoint.cloneTo(newJob), security, auth);
+			return new JobClient(newJob, security, auth);
 		}
 	}
 
 	public EnumerationClient getJobsList() throws Exception {
-		String url = getLinkUrl("jobs");
-		return new EnumerationClient(endpoint.cloneTo(url), security, auth);
+		return new EnumerationClient(getLinkUrl("jobs"), security, auth);
 	}
 
 	public AllocationClient createAllocation(JSONObject allocation) throws Exception {
-		String allocationURL = bc.create(allocation);
-		return new AllocationClient( endpoint.cloneTo(allocationURL), security, auth);
+		return new AllocationClient(bc.create(allocation), security, auth);
 	}
 
 	/**
@@ -56,7 +53,7 @@ public class SiteClient extends BaseServiceClient implements IJobSubmission {
 		JSONObject ls = getProperties().getJSONObject("_links");
 		for(String k: ls.keySet()) {
 			if(k.startsWith("storage:")) {
-				Endpoint ep = endpoint.cloneTo(ls.getJSONObject(k).getString("href"));
+				String ep = ls.getJSONObject(k).getString("href");
 				res.add(new StorageClient(ep, security, auth));
 			}
 		}

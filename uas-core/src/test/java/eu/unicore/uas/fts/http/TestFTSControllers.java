@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.security.Client;
@@ -38,7 +37,7 @@ public class TestFTSControllers extends Base {
 	@Test	
 	public void testCollectImportFileList()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
+		String sfcEndpoint = url+"/core/storagefactories/default_storage_factory";
 		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
 				new UsernamePassword("demouser", "test123"));
 		Pair<Integer, Long> numberOfFiles = initSource();
@@ -50,7 +49,7 @@ public class TestFTSControllers extends Base {
 		client.setAuthenticatedClient(t);
 		File wd = new File("target/test_imports");
 		DataStageInInfo dsi = new DataStageInInfo();
-		String sources = source.getEndpoint().getUrl()+"/files/";
+		String sources = source.getEndpoint()+"/files/";
 		dsi.setSources(new URI[] {new URI(sources)});
 		dsi.setFileName("/");
 		ImportsController bft = new ImportsController(xnjs, client, source.getEndpoint(), 
@@ -66,7 +65,7 @@ public class TestFTSControllers extends Base {
 	@Test
 	public void testCollectExportFileList()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		Endpoint sfcEndpoint = new Endpoint(url+"/core/storagefactories/default_storage_factory");
+		String sfcEndpoint = url+"/core/storagefactories/default_storage_factory";
 		sfc = new StorageFactoryClient(sfcEndpoint, kernel.getClientConfiguration(),
 				new UsernamePassword("demouser", "test123"));
 		Pair<Integer, Long> numberOfFiles = initSource();
@@ -79,7 +78,7 @@ public class TestFTSControllers extends Base {
 		client.setAuthenticatedClient(t);
 		DataStageOutInfo dso = new DataStageOutInfo();
 		String workingDirectory = source.getMountPoint();
-		dso.setTarget(new URI(target.getEndpoint().getUrl()+"/files/"));
+		dso.setTarget(new URI(target.getEndpoint()+"/files/"));
 		dso.setFileName("/");
 		ExportsController bft = new ExportsController(xnjs, client, source.getEndpoint(), 
 				dso, 
@@ -101,7 +100,7 @@ public class TestFTSControllers extends Base {
 		source.upload("folder2/test21").write("test12".getBytes());
 		source.upload("test.txt").write("this is a test".getBytes());
 		source.upload("test1.txt").write("this is a test".getBytes());
-		sourceURL = source.getEndpoint().getUrl();
+		sourceURL = source.getEndpoint();
 		return new Pair<Integer, Long>(7, 3*6l + 7 + 2*14);
 	}
 

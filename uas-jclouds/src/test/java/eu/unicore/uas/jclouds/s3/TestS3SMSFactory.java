@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -38,6 +39,7 @@ public class TestS3SMSFactory extends Base {
 		ft.write("some test data".getBytes());
 		ft.delete();
 		System.out.println(sms.ls("/"));
+		IOUtils.closeQuietly(sms,smf);
 	}
 
 	@Test
@@ -53,7 +55,7 @@ public class TestS3SMSFactory extends Base {
 		params.put("accessKey", accessKey);
 		params.put("bucket", "test");
 		StorageClient sms = smf.createStorage("my s3", params, null);
-		String url = sms.getEndpoint().getUrl();
+		String url = sms.getEndpoint();
 		String uid = url.substring(url.lastIndexOf("/")+1);
 		// check the SMS model contains our parameters
 		S3Model model = (S3Model)(kernel.getHome(UAS.SMS).get(uid).getModel());
@@ -68,7 +70,10 @@ public class TestS3SMSFactory extends Base {
 		params.clear();
 		String endpoint = "my_ep";
 		params.put("endpoint", endpoint);
-		assertThrows(RESTException.class, ()->smf.createStorage("my s3", params, null));
+		assertThrows(RESTException.class, ()->{
+			smf.createStorage("my s3", params, null).close();	
+		});
+		IOUtils.closeQuietly(sms,smf);
 	}
 
 	@Test

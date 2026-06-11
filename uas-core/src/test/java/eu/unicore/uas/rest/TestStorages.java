@@ -23,7 +23,6 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.EnumerationClient;
 import eu.unicore.client.core.FileList.FileListEntry;
@@ -57,7 +56,7 @@ public class TestStorages extends Base {
 		JSONObject smsDesc = new JSONObject();
 		smsDesc.put("name", "my new SMS");
 		String smsUrl = client.create(smsDesc);
-		StorageClient sms = new StorageClient(new Endpoint(smsUrl), kernel.getClientConfiguration(), getAuth());
+		StorageClient sms = new StorageClient(smsUrl, kernel.getClientConfiguration(), getAuth());
 		sms.setUpdateInterval(-1);
 		System.out.println("created: "+smsUrl);
 		JSONObject p = new JSONObject();
@@ -70,13 +69,14 @@ public class TestStorages extends Base {
 		JSONObject smsProps = sms.getProperties();
 		System.out.println(smsProps.toString(2));
 		sms.delete();
+		IOUtils.closeQuietly(sms, client);
 	}
 
 	@Test
 	public void testDirectoryScan()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()
 				+"/rest/core/storagefactories/DEFAULT";
-		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
+		StorageFactoryClient smf = new StorageFactoryClient(url, 
 				kernel.getClientConfiguration(), getAuth());
 		Map<String,String>params = new HashMap<>();
 		params.put("enableTrigger", "true");
@@ -89,24 +89,26 @@ public class TestStorages extends Base {
 		sms.executeAction("stop-processing", null);
 		props = sms.getProperties();
 		assertNull(props.optJSONObject("dataTriggeredProcessing"));
+		IOUtils.closeQuietly(sms, smf);
 	}
 	
 	
 	@Test
 	public void testFindFactories() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		CoreClient client = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		CoreClient client = new CoreClient(url, kernel.getClientConfiguration(), getAuth());
 		List<StorageFactoryClient>sfcs = client.getStorageFactories();
 		assertTrue(sfcs.size()>0);
+		client.close();
+		sfcs.forEach((x)->x.close());
 	}
 
 	@Test
 	public void testFactory() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/DEFAULT";
-		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), getAuth());
+		StorageFactoryClient smf = new StorageFactoryClient(url, kernel.getClientConfiguration(), getAuth());
 		smf.setUpdateInterval(-1);
 		JSONObject props = smf.getProperties();
 		System.out.println("Factory properties: \n"+props.toString(2));
@@ -114,6 +116,7 @@ public class TestStorages extends Base {
 		System.out.println("New Storage in <"+sms.getMountPoint()+">");
 		sms.delete();
 		props = smf.getProperties();
+		IOUtils.closeQuietly(sms, smf);
 	}
 
 	@Test
@@ -121,34 +124,34 @@ public class TestStorages extends Base {
 	public void testFactoryErrorType() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/default_storage_factory";
-		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), getAuth());
+		StorageFactoryClient smf = new StorageFactoryClient(url, kernel.getClientConfiguration(), getAuth());
 		try{
 			smf.createStorage("non-existing-type","my new SMS", null, null);
 		}catch(RESTException e) {
 			assertTrue(500 == e.getStatus());
 			assertTrue(e.getErrorMessage().contains("non-existing-type"));
 		}
+		IOUtils.closeQuietly(smf);
 	}
 
 	@Test
 	public void testFactoryErrorPath() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/DEFAULT";
-		Endpoint resource  = new Endpoint(url);
 		System.out.println("Accessing "+url);
-		StorageFactoryClient smf = new StorageFactoryClient(resource, kernel.getClientConfiguration(), getAuth());
+		StorageFactoryClient smf = new StorageFactoryClient(url, kernel.getClientConfiguration(), getAuth());
 		JSONObject props = smf.getProperties();
 		System.out.println(props.toString(2));
 		try{
 			var params = new HashMap<String,String>();
 			params.put("path", "some/path/");
-			smf.createStorage("my new SMS", params, null);
+			smf.createStorage("my new SMS", params, null).close();
 		}catch(RESTException e) {
 			assertTrue(500 == e.getStatus());
 			assertTrue(e.getErrorMessage().contains("not allowed"));
 		}
+		smf.close();
 	}
 
 	@Test
@@ -190,6 +193,7 @@ public class TestStorages extends Base {
 		System.out.println("*** File properties '/test.txt':");
 		System.out.println(fileListing.toString(2));
 		assertFalse(fileListing.getBoolean("isDirectory"));
+		client.close();
 	}
 
 	@Test
@@ -202,20 +206,25 @@ public class TestStorages extends Base {
 		assertEquals(content.length(), newFile.size);
 		fts.setUpdateInterval(-1);
 		assertEquals(content.length(), fts.getTransferredBytes());
+		sms.close();
 	}
 
 	@Test
 	public void testImportError1() throws Exception {
 		StorageClient sms = createStorage();
 		assertThrows(IllegalArgumentException.class,
-				()->sms.createImport("test123", false, -1, "NOSUCHPROTOCOL", null));
-		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/imports", sms.getSecurityConfiguration(), getAuth());
+				()->{
+					 sms.createImport("test123", false, -1, "NOSUCHPROTOCOL", null).close();
+				});
+		BaseClient bc = new BaseClient(sms.getEndpoint()+"/imports", sms.getSecurityConfiguration(), getAuth());
 		JSONObject data = new JSONObject();
 		data.put("protocol", "NOSUCHPROTOCOL");
 		data.put("file", "foo");
 		RESTException re = assertThrows(RESTException.class,
-				()->bc.post(data));
+				()->bc.create(data));
 		assertTrue(re.getMessage().contains("not available"));
+		sms.close();
+		bc.close();
 	}
 
 	@Test
@@ -237,44 +246,47 @@ public class TestStorages extends Base {
 	@Test
 	public void testExportFile() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
+		String storage = url + "/core/storages/WORK";
 		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), getAuth());
 		FiletransferClient fts = sms.createExport("test.txt", "BFT", null);
 		assertEquals("BFT", fts.getProtocol());
 		assertTrue(fts instanceof ReadStream);
 		assertEquals(testdata, IOUtils.toString(((ReadStream)fts).getInputStream(), "UTF-8"));
+		IOUtils.closeQuietly(fts, sms);
 	}
 
 	@Test
 	public void testExportError1() throws Exception {
 		StorageClient sms = createStorage();
 		assertThrows(IllegalArgumentException.class,
-				()->sms.createExport("test123", "NOSUCHPROTOCOL", null));
-		BaseClient bc = new BaseClient(sms.getEndpoint().getUrl()+"/exports",
+				()->{
+					sms.createExport("test123", "NOSUCHPROTOCOL", null).close();	
+				});
+		BaseClient bc = new BaseClient(sms.getEndpoint()+"/exports",
 				sms.getSecurityConfiguration(), getAuth());
 		JSONObject data = new JSONObject();
 		data.put("protocol", "NOSUCHPROTOCOL");
 		data.put("file", "foo");
 		RESTException re = assertThrows(RESTException.class,
-				()->bc.post(data));
+				()->bc.create(data));
 		assertTrue(re.getMessage().contains("not available"));
+		IOUtils.closeQuietly(bc, sms);
 	}
 
 	@Test
 	public void testDownload() throws Exception {
-		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
-		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), getAuth());
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), getAuth());
 		HttpFileTransferClient fts = sms.download("test.txt");
 		String content = IOUtils.toString(fts.getInputStream(), "UTF-8");
 		assertEquals(testdata, content);
+		IOUtils.closeQuietly(fts, sms);
 	}
 
 	@Test
 	public void testDownloadPartial() throws Exception {
-		String url = kernel.getContainerProperties().getContainerURL()+"/rest";
-		Endpoint storage = new Endpoint(url + "/core/storages/WORK");
-		StorageClient sms = new StorageClient(storage, kernel.getClientConfiguration(), getAuth());
+		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), getAuth());
 		HttpFileTransferClient fts = sms.download("test.txt");
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		fts.read(4, testdata.length()-4, os);
@@ -283,6 +295,7 @@ public class TestStorages extends Base {
 		long n = fts.readTail(4, os);
 		assertEquals("data", os.toString("UTF-8"));
 		assertEquals(4, n);
+		IOUtils.closeQuietly(fts, sms);
 	}
 
 	@Test
@@ -296,30 +309,33 @@ public class TestStorages extends Base {
 		System.out.println(tcc.getProperties().toString(2));
 		assertEquals(Status.DONE, tcc.getStatus());
 		assertEquals("test", tcc.getProperties().getJSONArray("tags").get(0));
+		IOUtils.closeQuietly(tcc, sms);
 	}
 
 	@Test
 	public void testSearch() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), getAuth());
 		List<String> fileListing = sms.searchMetadata("foo");
 		System.out.println(fileListing);
+		sms.close();
 	}
 
 	@Test
 	public void testChmodNonExistentFile() throws Exception {
-		Endpoint ep = new Endpoint(kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK");
+		String ep = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
 		StorageClient client = new StorageClient(ep, kernel.getClientConfiguration(), getAuth());
 		assertThrows(RESTException.class, ()->{
 			client.chmod("nonexistentpath", "rw-");
 		});
+		client.close();
 	}
 
 	@Test
 	public void testListStorages()throws Exception {
 		String baseUrl = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/";
-		CoreClient base = new CoreClient(new Endpoint(baseUrl), kernel.getClientConfiguration(), getAuth());
+		CoreClient base = new CoreClient(baseUrl, kernel.getClientConfiguration(), getAuth());
 		base.getSiteClient(); // make sure all per-user storages are created
 		EnumerationClient ec = base.getStoragesList();
 		ec.setUpdateInterval(-1);
@@ -332,37 +348,39 @@ public class TestStorages extends Base {
 		p = ec.getProperties().getJSONArray("storages");
 		System.out.println(p);
 		assertTrue(p.length()>l1, "working dirs should be listed");
+		IOUtils.closeQuietly(ec, base);
 	}
 
 	@Test
 	public void testSharedStorageAccessControl()throws Exception {
 		String ep = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(ep),
+		StorageClient sms = new StorageClient(ep,
 				kernel.getClientConfiguration(), getAuth());
 		RESTException re = assertThrows(RESTException.class, ()->sms.delete());
 		assertEquals(403, re.getStatus());
 		RESTException re1 = assertThrows(RESTException.class, ()->sms.setProperties(new JSONObject()));
 		assertEquals(403, re1.getStatus());
+		sms.close();
 	}
 
 	@Test
 	public void testStorageFactoryAccessControl()throws Exception {
 		String ep = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/DEFAULT";
-		StorageFactoryClient sms = new StorageFactoryClient(new Endpoint(ep),
+		StorageFactoryClient sms = new StorageFactoryClient(ep,
 				kernel.getClientConfiguration(), getAuth());
 		RESTException re = assertThrows(RESTException.class, ()->sms.delete());
 		assertEquals(403, re.getStatus());
 		RESTException re1 = assertThrows(RESTException.class, ()->sms.setProperties(new JSONObject()));
 		assertEquals(403, re1.getStatus());
+		sms.close();
 	}
 
 	@Test
 	public void testVarious() throws Exception {
 		WebApplicationException we = assertThrows(WebApplicationException.class, ()->Storages.assertParams(null, null));
 		assertEquals(400, we.getResponse().getStatus());
-
 		we = assertThrows(WebApplicationException.class, ()->Storages.assertParams("test", null));
 		assertEquals(404, we.getResponse().getStatus());		
 	}
@@ -370,17 +388,19 @@ public class TestStorages extends Base {
 	// runs empty job to create a working directory
 	private String runJob() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/jobs";
-		BaseClient client = new BaseClient(url, kernel.getClientConfiguration(), getAuth());
-		JSONObject task = new JSONObject();
-		return client.create(task);
+		try(var bc =  new BaseClient(url, kernel.getClientConfiguration(), getAuth())){
+			return bc.create(new JSONObject());
+		}
 	}
 
 	// creates a new empty storage and return a client for it
 	private StorageClient createStorage() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/DEFAULT";
-		return new StorageFactoryClient(new Endpoint(url), kernel.getClientConfiguration(),
-				getAuth()).createStorage();
+		try(var smf = new StorageFactoryClient(url, kernel.getClientConfiguration(), getAuth()))
+		{
+			return smf.createStorage();
+		}
 	}
 
 }

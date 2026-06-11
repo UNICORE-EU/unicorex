@@ -8,11 +8,11 @@ import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.core.StorageFactoryClient;
@@ -43,6 +43,7 @@ public class TestUFTPServerServerTransfer {
 	public static void shutdown() throws Exception {
 		uftpd.stop();
 		kernel.shutdown();
+		IOUtils.closeQuietly(sms1, sms2);
 	}
 
 	@BeforeAll
@@ -73,11 +74,13 @@ public class TestUFTPServerServerTransfer {
 		new UFTPStartupTask(kernel).run();
 		// create a storage
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		Endpoint ep = new Endpoint(url+"/storagefactories/DEFAULT");
-		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), getAuth());
-		sms1 = smf.createStorage();
-		importTestFile(sms1, "test", 1024);
-		sms2 = smf.createStorage();
+		String ep = url+"/storagefactories/DEFAULT";
+		try(StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), getAuth()))
+		{
+			sms1 = smf.createStorage();
+			importTestFile(sms1, "test", 1024);
+			sms2 = smf.createStorage();
+		}
 	}
 	
 	static void makePathsAbsolute() throws Exception{
@@ -96,7 +99,7 @@ public class TestUFTPServerServerTransfer {
 	@Test
 	public void testSend() throws Exception {
 		TransferControllerClient tcc = sms1.sendFile("test", 
-				sms2.getEndpoint().getUrl()+"/files/test-sent", null, "UFTP");
+				sms2.getEndpoint()+"/files/test-sent", null, "UFTP");
 		int c=0;
 		while(!tcc.isComplete() && c<30) {
 			Thread.sleep(3000);
@@ -105,11 +108,12 @@ public class TestUFTPServerServerTransfer {
 		assertEquals(TransferControllerClient.Status.DONE, tcc.getStatus());
 		FileListEntry result = sms2.stat("test-sent");
 		assertEquals(1024, result.size);
+		tcc.close();
 	}
 	
 	@Test
 	public void testReceive() throws Exception {
-		TransferControllerClient tcc = sms2.fetchFile(sms1.getEndpoint().getUrl()+"/files/test",
+		TransferControllerClient tcc = sms2.fetchFile(sms1.getEndpoint()+"/files/test",
 				"test-received", null, "UFTP");
 		int c=0;
 		while(!tcc.isComplete() && c<30) {
@@ -119,6 +123,7 @@ public class TestUFTPServerServerTransfer {
 		assertEquals(TransferControllerClient.Status.DONE, tcc.getStatus());
 		FileListEntry result = sms2.stat("test-received");
 		assertEquals(1024, result.size);
+		tcc.close();
 	}
 
 	private static void importTestFile(StorageClient sms, String filename,

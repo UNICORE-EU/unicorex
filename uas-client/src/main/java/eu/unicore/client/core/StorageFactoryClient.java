@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.util.UnitParser;
@@ -18,7 +17,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  */
 public class StorageFactoryClient extends BaseServiceClient {
 
-	public StorageFactoryClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public StorageFactoryClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
@@ -33,8 +32,7 @@ public class StorageFactoryClient extends BaseServiceClient {
 			json.put("terminationTime", UnitParser.getISO8601().format(tt.getTime()));
 		}
 		json.put("parameters", JSONUtil.asJSON(parameters));
-		String url = bc.create(json);
-		return new StorageClient(new Endpoint(url), security, auth);
+		return new StorageClient(bc.create(json), security, auth);
 	}
 
 	/**
@@ -51,8 +49,7 @@ public class StorageFactoryClient extends BaseServiceClient {
 			json.put("terminationTime", UnitParser.getISO8601().format(tt.getTime()));
 		}
 		json.put("parameters", JSONUtil.asJSON(parameters));
-		String url = bc.create(json);
-		return new StorageClient(new Endpoint(url), security, auth);
+		return new StorageClient(bc.create(json), security, auth);
 	}
 
 }

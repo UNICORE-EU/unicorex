@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.FileList;
 import eu.unicore.client.core.FileList.FileListEntry;
@@ -55,7 +55,7 @@ public class TestMetadataFunctional {
 	@Test
 	public void testAbsoluteRelative() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), null);
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -86,12 +86,13 @@ public class TestMetadataFunctional {
 		}catch(Exception e){
 			System.out.println("Exception when deleting file: "+e);
 		}
+		IOUtils.closeQuietly(mc,sms);
 	}
 
 	@Test
 	public void testRetrieval() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(url , kernel.getClientConfiguration(), null);
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -118,14 +119,16 @@ public class TestMetadataFunctional {
 			assertEquals(meta.get(key), extractMetadataType.get(key));
 			System.out.println(key + "-->" + extractMetadataType.get(key));
 		}
-		sms.getFileClient(fileName).putMetadata(Collections.emptyMap());
-		sms.getFileClient(fileName).delete();
+		FileClient mc = sms.getFileClient(fileName);
+		mc.putMetadata(Collections.emptyMap());
+		mc.delete();
+		IOUtils.closeQuietly(mc,sms);
 	}
 
 	@Test
 	public void testCreate() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), null);
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -149,14 +152,16 @@ public class TestMetadataFunctional {
 			assertEquals(metadata.get(key), metadata1.get(key));
 			System.out.println("Key: " + key + " --> " + metadata1.get(key));
 		}
-		sms.getFileClient(fileName).putMetadata(Collections.emptyMap());
-		sms.getFileClient(fileName).delete();
+		FileClient mc = sms.getFileClient(fileName);
+		mc.putMetadata(Collections.emptyMap());
+		mc.delete();
+		IOUtils.closeQuietly(mc,sms);
 	}
 
 	@Test
 	public void testUpdate() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), null);
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -200,12 +205,13 @@ public class TestMetadataFunctional {
 
 		fc.putMetadata(Collections.emptyMap());
 		fc.delete();
+		IOUtils.closeQuietly(fc, sms);
 	}
 		
 	@Test
 	public void testCrawling() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), null);
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -256,7 +262,6 @@ public class TestMetadataFunctional {
 			for (String key : metadata.keySet()) {
 				System.out.printf("\t%s-->%s\n", key, metadata.get(key));
 			}
-
 		}
 
 		System.out.printf("Searching for keyword %s\n", keyword);
@@ -265,11 +270,12 @@ public class TestMetadataFunctional {
 		for (String match : found) {
 			System.out.println("Matching document is: " + match);
 			System.out.println("Its metadata are:");
-			FileClient fc1 = new FileClient(new Endpoint(match), kernel.getClientConfiguration(), null);
+			FileClient fc1 = new FileClient(match, kernel.getClientConfiguration(), null);
 			Map<String, String> meta = fc1.getMetadata();
 			for (String key : meta.keySet()) {
 				System.out.printf("\t%s-->%s\n", key, meta.get(key));
 			}
+			fc1.close();
 		}
 
 		// update metadata for a single file
@@ -283,7 +289,6 @@ public class TestMetadataFunctional {
 		fc.startMetadataExtraction(1);
 		// TODO - task impl for REST API
 		Thread.sleep(5000);
-				
 		found = sms.searchMetadata("MY_KEY");
 		assertEquals(1, found.size());
 		fc = sms.getFileClient("/foo.a");
@@ -296,13 +301,14 @@ public class TestMetadataFunctional {
 		// metadata is removed from index?
 		found = sms.searchMetadata("MY_KEY");
 		assertEquals(0, found.size());
+		IOUtils.closeQuietly(fc, sms, extractTask);
 	}
 
 
 	@Test
 	public void testCrawlingWithControlFile() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), null);
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), null);
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -337,7 +343,7 @@ public class TestMetadataFunctional {
 	public void testFederatedSearch() throws Exception
 	{
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		StorageClient sms = new StorageClient(new Endpoint(url+"/storages/WORK"), kernel.getClientConfiguration(), getAuth());
+		StorageClient sms = new StorageClient(url+"/storages/WORK", kernel.getClientConfiguration(), getAuth());
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -351,8 +357,7 @@ public class TestMetadataFunctional {
 		meta2.put("Author", "Not Me");
 		meta2.put("Title", "Journal of Useless Research");
 		sms.getFileClient("bar.a").putMetadata(meta2);
-
-		CoreClient cc = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		CoreClient cc = new CoreClient(url, kernel.getClientConfiguration(), getAuth());
 		JSONObject fedSearch = new JSONObject();
 		fedSearch.put("query", "Author:S*");
 		JSONArray resources = new JSONArray();
@@ -366,13 +371,14 @@ public class TestMetadataFunctional {
 		assertEquals("1", result.get("storageCount"));
 		assertEquals("1", result.get("resourceCount"));
 		assertEquals("foo.a", new File(new URL(result.get("search-result-1")).getPath()).getName());
+		IOUtils.closeQuietly(sms, cc);
 	}
 
 
 	@Test
 	public void testSearch() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core/storages/WORK";
-		StorageClient sms = new StorageClient(new Endpoint(url), kernel.getClientConfiguration(), getAuth());
+		StorageClient sms = new StorageClient(url, kernel.getClientConfiguration(), getAuth());
 		String mDir = sms.getProperties().getString("mountPoint");
 		FileUtils.forceMkdir(new File(mDir));
 		FileUtils.cleanDirectory(new File(mDir));
@@ -427,6 +433,7 @@ public class TestMetadataFunctional {
 		for (String hit : result) {
 			System.out.println("\t:" + hit);
 		}
+		IOUtils.closeQuietly(sms);
 	}
 
 	@Test

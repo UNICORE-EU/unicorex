@@ -1,6 +1,5 @@
 package eu.unicore.client.lookup;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 
 /**
@@ -15,11 +14,6 @@ public class Blacklist implements AddressFilter {
 
 	public Blacklist(String[]patterns){
 		this.patterns=patterns;
-	}
-		
-	@Override
-	public boolean accept(Endpoint epr) {
-		return accept(epr.getUrl());
 	}
 
 	@Override

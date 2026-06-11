@@ -47,17 +47,4 @@ public class TestUtils {
 		assertTrue(cc2.isUseDefaultExcludes());
 	}
 
-	@Test
-	public void testEndpoint()throws IOException{
-		Endpoint ep1 = new Endpoint("http://foo");
-		ep1.setInterfaceName("test");
-		ep1.setServerIdentity("cn=test");
-		ep1.setServerPublicKey("...");
-		Endpoint ep2 = ep1.cloneTo("http://foo");
-		assertEquals(ep1, ep2);
-		assertEquals(ep1.hashCode(), ep2.hashCode());
-		assertEquals("cn=test", ep2.getServerIdentity());
-		assertEquals("...", ep2.getServerPublicKey());
-		assertEquals("test", ep2.getInterfaceName());
-	}
 }

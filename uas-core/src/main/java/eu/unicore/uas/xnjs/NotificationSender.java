@@ -53,8 +53,10 @@ public class NotificationSender implements INotificationSender {
 		final IAuthCallback auth = new JWTDelegation(kernel.getContainerSecurityConfiguration(),
 				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()), userDN);
 		String res = new TimeoutRunner<>( ()->{
-						new BaseClient(url, security, auth).postQuietly(message);
-						return "OK";
+						try(BaseClient bc = new BaseClient(url, security, auth)){
+							bc.postQuietly(message);
+							return "OK";
+						}
 					},
 				kernel.getExecutorService(), 30, TimeUnit.SECONDS).call();
 		if(res==null)throw new TimeoutException();

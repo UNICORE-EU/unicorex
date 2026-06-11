@@ -2,7 +2,6 @@ package eu.unicore.client.lookup;
 
 import java.util.Collection;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.registry.IRegistryClient;
 import eu.unicore.security.wsutil.client.authn.ClientConfigurationProvider;
@@ -22,7 +21,7 @@ public interface Broker {
 	/**
 	 * List those sites that can run the given job
 	 */
-	public Collection<Endpoint> listCandidates(IRegistryClient registry,
+	public Collection<String> listCandidates(IRegistryClient registry,
 			ClientConfigurationProvider configurationProvider, IAuthCallback auth,
 			Builder builder) 
 			throws Exception;

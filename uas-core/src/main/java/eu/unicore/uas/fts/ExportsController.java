@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.security.Client;
 import eu.unicore.uas.xnjs.UFileTransferCreator;
 import eu.unicore.xnjs.XNJS;
@@ -41,7 +40,7 @@ public class ExportsController implements IFTSController {
 
 	private DataStageOutInfo dso;
 
-	private final Endpoint remoteEndpoint;
+	private final String remoteEndpoint;
 
 	private final String target;
 
@@ -51,7 +50,7 @@ public class ExportsController implements IFTSController {
 
 	private String protocol;
 
-	public ExportsController(XNJS xnjs, Client client, Endpoint remoteEndpoint, DataStageOutInfo dso, String workingDirectory) {
+	public ExportsController(XNJS xnjs, Client client, String remoteEndpoint, DataStageOutInfo dso, String workingDirectory) {
 		this.xnjs = xnjs;
 		this.client = client;
 		this.remoteEndpoint = remoteEndpoint;
@@ -168,9 +167,8 @@ public class ExportsController implements IFTSController {
 
 	@Override
 	public IFileTransfer createTransfer(SourceFileInfo from, String to) throws Exception {
-		String target = remoteEndpoint.getUrl() +
-				FilenameUtils.normalize("/files/"+to, true);
-		if(protocol!=null)target=protocol+":"+target;
+		String target = remoteEndpoint + FilenameUtils.normalize("/files/"+to, true);
+		if(protocol!=null)target = protocol+":"+target;
 		DataStageOutInfo info = dso.clone();
 		info.setTarget(new URI(target));
 		info.setFileName(from.getPath());

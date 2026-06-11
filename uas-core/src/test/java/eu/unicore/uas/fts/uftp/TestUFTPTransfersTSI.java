@@ -8,6 +8,7 @@ import java.util.Properties;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,7 +16,6 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.JobClient;
@@ -50,6 +50,7 @@ public class TestUFTPTransfersTSI {
 	public static void shutdown() throws Exception {
 		uftpd.stop();
 		kernel.shutdown();
+		IOUtils.closeQuietly(sms, tss);
 	}
 
 	@BeforeAll
@@ -80,17 +81,21 @@ public class TestUFTPTransfersTSI {
 		new UFTPStartupTask(kernel).run();
 		// create a storage
 		String url = kernel.getContainerProperties().getContainerURL()+"/rest/core";
-		Endpoint ep = new Endpoint(url+"/storagefactories/DEFAULT");
-		StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), getAuth());
-		sms = smf.createStorage();
+		String ep = url+"/storagefactories/DEFAULT";
+		try(StorageFactoryClient smf = new StorageFactoryClient(ep, kernel.getClientConfiguration(), getAuth()))
+		{
+			sms = smf.createStorage();
+		}
 		importTestFile(sms, "test", 1024);
 		for(int i=1;i<=3;i++)
 		{
 			importTestFile(sms, "/dir/test"+i, 1024);
 		}
-		Endpoint ep1 = new Endpoint(url+"/factories/default_target_system_factory");
-		SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), getAuth());
-		tss = tsf.getOrCreateSite();
+		String ep1 = url+"/factories/default_target_system_factory";
+		try(SiteFactoryClient tsf = new SiteFactoryClient(ep1, kernel.getClientConfiguration(), getAuth()))
+		{
+			tss = tsf.getOrCreateSite();
+		}
 	}
 
 	static void makePathsAbsolute() throws Exception{
@@ -108,12 +113,14 @@ public class TestUFTPTransfersTSI {
 
 	@Test
 	public void testUFTPAvail() throws Exception {
-		Endpoint ep1 = new Endpoint("https://localhost:65321/rest/core");
-		CoreClient cc = new CoreClient(ep1, kernel.getClientConfiguration(), getAuth());
-		JSONObject status = cc.getProperties();
-		JSONObject ext = status.getJSONObject("server").getJSONObject("externalConnections");
-		System.out.println(ext.toString(2));
-		assertEquals("OK", ext.get("UFTPD localhost:62435"));
+		String ep1 = "https://localhost:65321/rest/core";
+		try(CoreClient cc = new CoreClient(ep1, kernel.getClientConfiguration(), getAuth()))
+		{
+			JSONObject status = cc.getProperties();
+			JSONObject ext = status.getJSONObject("server").getJSONObject("externalConnections");
+			System.out.println(ext.toString(2));
+			assertEquals("OK", ext.get("UFTPD localhost:62435"));
+		}
 	}
 
 	@Test
@@ -217,7 +224,7 @@ public class TestUFTPTransfersTSI {
 		jdd.put("ApplicationName", "Date");
 		JSONArray imports = new JSONArray();
 		imports.put(new JSONObject("{"
-				+ "From: 'UFTP:" + sms.getEndpoint().getUrl() + "/files/test',"
+				+ "From: 'UFTP:" + sms.getEndpoint() + "/files/test',"
 				+ "To: test-staged-in"
 				+ "}"));
 		jdd.put("Imports", imports);	
@@ -229,7 +236,7 @@ public class TestUFTPTransfersTSI {
 		jdd.put("ApplicationName", "Date");
 		JSONArray xports = new JSONArray();
 		xports.put(new JSONObject("{"
-				+ "To: 'UFTP:" + sms.getEndpoint().getUrl() + "/files/test-staged-out',"
+				+ "To: 'UFTP:" + sms.getEndpoint() + "/files/test-staged-out',"
 				+ "From: stage-out-file"
 				+ "}"));
 		jdd.put("Exports", xports);
@@ -242,7 +249,7 @@ public class TestUFTPTransfersTSI {
 		jdd.put("ApplicationName", "Date");
 		JSONArray imports = new JSONArray();
 		imports.put(new JSONObject("{"
-				+ "From: 'UFTP:" + sms.getEndpoint().getUrl() + "/files/dir/',"
+				+ "From: 'UFTP:" + sms.getEndpoint() + "/files/dir/',"
 				+ "To: 'dir/'"
 				+ "}"));
 		jdd.put("Imports", imports);
@@ -256,7 +263,7 @@ public class TestUFTPTransfersTSI {
 		JSONArray exports = new JSONArray();
 		JSONObject e = new JSONObject();
 		e.put("From", "out/");
-		e.put("To", "UFTP:" + sms.getEndpoint().getUrl() + "/files/out/");
+		e.put("To", "UFTP:" + sms.getEndpoint() + "/files/out/");
 		exports.put(e);
 		jdd.put("Exports", exports);
 		return jdd;

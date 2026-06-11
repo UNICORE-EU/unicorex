@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.uas.util.UnitParser;
@@ -19,7 +18,7 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  */
 public class SiteFactoryClient extends BaseServiceClient {
 
-	public SiteFactoryClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public SiteFactoryClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
@@ -33,8 +32,7 @@ public class SiteFactoryClient extends BaseServiceClient {
 			json.put("terminationTime", UnitParser.getISO8601().format(tt.getTime()));
 		}
 		json.put("parameters", JSONUtil.asJSON(parameters));
-		String url = bc.create(json);
-		return new SiteClient(endpoint.cloneTo(url), security, auth);
+		return new SiteClient(bc.create(json), security, auth);
 	}
 
 	public SiteClient getOrCreateSite() throws Exception {
@@ -46,13 +44,12 @@ public class SiteFactoryClient extends BaseServiceClient {
 				return createSite();
 			}
 			else {
-				return new SiteClient(endpoint.cloneTo(urls.get(0)), security, auth);
+				return new SiteClient(urls.get(0), security, auth);
 			}
 		}
 	}
 
 	public EnumerationClient getSiteList() throws Exception {
-			Endpoint sitesEp = endpoint.cloneTo(getLinkUrl("sites"));
-			return new EnumerationClient(sitesEp, security, auth);
+			return new EnumerationClient(getLinkUrl("sites"), security, auth);
 	}
 }

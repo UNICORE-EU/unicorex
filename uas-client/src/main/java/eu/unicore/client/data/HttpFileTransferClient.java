@@ -18,7 +18,6 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.fts.FiletransferOptions;
 import eu.unicore.uas.fts.ProgressListener;
@@ -48,7 +47,7 @@ implements FiletransferOptions.IMonitorable, FiletransferOptions.SupportsPartial
 
 	private ProgressListener<Long> observer;
 
-	public HttpFileTransferClient(Endpoint endpoint, JSONObject initialProperties, IClientConfiguration security, IAuthCallback auth) throws Exception {
+	public HttpFileTransferClient(String endpoint, JSONObject initialProperties, IClientConfiguration security, IAuthCallback auth) throws Exception {
 		super(endpoint, initialProperties, security, auth);
 		accessURL = initialProperties.getString("accessURL");
 	}

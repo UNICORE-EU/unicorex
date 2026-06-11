@@ -1,6 +1,5 @@
 package eu.unicore.client.lookup;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.BaseServiceClient;
 
 /**
@@ -13,10 +12,6 @@ public class SiteNameFilter implements AddressFilter {
 	public SiteNameFilter(String name){
 		this.name=name;
 	}
-	@Override
-	public boolean accept(Endpoint epr) {
-		return name==null || epr.getUrl().contains("/"+name+"/");
-	}
 
 	@Override
 	public boolean accept(String uri) {
@@ -25,7 +20,7 @@ public class SiteNameFilter implements AddressFilter {
 
 	@Override
 	public boolean accept(BaseServiceClient client) throws Exception {
-		return name==null || client.getEndpoint().getUrl().contains("/"+name+"/");
+		return name==null || client.getEndpoint().contains("/"+name+"/");
 	}
 	
 }

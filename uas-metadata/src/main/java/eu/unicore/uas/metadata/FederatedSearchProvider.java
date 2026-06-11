@@ -1,5 +1,6 @@
 package eu.unicore.uas.metadata;
 
+import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -8,7 +9,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.regex.Pattern;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.EnumerationClient;
 import eu.unicore.client.core.StorageClient;
@@ -56,35 +56,45 @@ public class FederatedSearchProvider implements Callable<FederatedSearchResultCo
 	public FederatedSearchResultCollection call() throws Exception {
 		FederatedSearchResultCollection result = new FederatedSearchResultCollection();
 		IRegistry registryClient = getRegistryClient();
-		IAuthCallback jwt = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
-				new JWTServerProperties(kernel.getContainerProperties().getRawProperties()),
-				client.getDistinguishedName());
-		List<String> storageURLs = new ArrayList<>();
-		Iterator<Map<String,String>> entries = registryClient.listEntries().iterator();
-		while(entries.hasNext()) {
-			try {
-				Map<String,String> entry = entries.next();
-				if("CoreServices".equals(entry.get(RegistryClient.INTERFACE_NAME))) {
-					String url = entry.get(RegistryClient.ENDPOINT);
-					CoreClient cc = new CoreClient(new Endpoint(url), kernel.getClientConfiguration(), jwt);
-					EnumerationClient ec = cc.getStoragesList();
-					Iterator<String> urls = ec.iterator();
-					while(urls.hasNext()) {
-						String storageURL = urls.next();
-						if(acceptURL(storageURL))storageURLs.add(storageURL);
+		try {
+			IAuthCallback jwt = new JWTDelegation(kernel.getContainerSecurityConfiguration(), 
+					new JWTServerProperties(kernel.getContainerProperties().getRawProperties()),
+					client.getDistinguishedName());
+			List<String> storageURLs = new ArrayList<>();
+			Iterator<Map<String,String>> entries = registryClient.listEntries().iterator();
+			while(entries.hasNext()) {
+				try {
+					Map<String,String> entry = entries.next();
+					if("CoreServices".equals(entry.get(RegistryClient.INTERFACE_NAME))) {
+						String url = entry.get(RegistryClient.ENDPOINT);
+						try(CoreClient cc = new CoreClient(url, kernel.getClientConfiguration(), jwt);
+								EnumerationClient ec = cc.getStoragesList())
+						{
+							Iterator<String> urls = ec.iterator();
+							while(urls.hasNext()) {
+								String storageURL = urls.next();
+								if(acceptURL(storageURL))storageURLs.add(storageURL);
+							}
+						}
 					}
+				}catch(Exception ex) {}
+			}
+			for(String storageURL: storageURLs) {
+				FederatedSearchResult federatedSearchResult = new FederatedSearchResult();
+				try(StorageClient sms = new StorageClient(storageURL, kernel.getClientConfiguration(), jwt))
+				{
+					List<String> searchResult = sms.searchMetadata(keyWord);
+					federatedSearchResult.addResourceURLs(searchResult);
+					result.addSearchResult(federatedSearchResult);
 				}
-			}catch(Exception ex) {}
+			}
+			result.setSearchEndTime(new Date());
+			return result;
+		}finally {
+			if(registryClient instanceof Closeable) {
+				((Closeable)registryClient).close();
+			}
 		}
-		for(String storageURL: storageURLs) {
-			FederatedSearchResult federatedSearchResult = new FederatedSearchResult();
-			StorageClient sms = new StorageClient(new Endpoint(storageURL), kernel.getClientConfiguration(), jwt);
-			List<String> searchResult = sms.searchMetadata(keyWord);
-			federatedSearchResult.addResourceURLs(searchResult);
-			result.addSearchResult(federatedSearchResult);
-		}
-		result.setSearchEndTime(new Date());
-		return result;
 	}
 
 	private IRegistry getRegistryClient() throws Exception {

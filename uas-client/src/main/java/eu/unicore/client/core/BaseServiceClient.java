@@ -1,9 +1,11 @@
 package eu.unicore.client.core;
 
+import java.io.Closeable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.net.URIBuilder;
@@ -11,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.services.restclient.UserPreferences;
@@ -23,9 +24,9 @@ import eu.unicore.util.httpclient.IClientConfiguration;
  * 
  * @author schuller
  */
-public class BaseServiceClient {
+public class BaseServiceClient implements Closeable {
 
-	protected final Endpoint endpoint;
+	protected final String endpoint;
 
 	protected final IClientConfiguration security;
 
@@ -37,11 +38,11 @@ public class BaseServiceClient {
 
 	private long lastAccessed;
 
-	public BaseServiceClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public BaseServiceClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		this.endpoint = endpoint;
 		this.security = security;
 		this.auth = auth;
-		this.bc = createTransport(endpoint.getUrl(), security, auth);
+		this.bc = createTransport(endpoint, security, auth);
 	}
 
 	protected BaseClient createTransport(String url, IClientConfiguration security, IAuthCallback auth){
@@ -112,7 +113,7 @@ public class BaseServiceClient {
 	public void setTags(List<String>tags) throws Exception {
 		JSONObject p = new JSONObject();
 		p.put("tags", new JSONArray(tags));
-		bc.put(p);
+		bc.putQuietly(p);
 		cachedProperties = null;
 	}
 
@@ -129,7 +130,7 @@ public class BaseServiceClient {
 		this.updateInterval = updateInterval;
 	}
 
-	public Endpoint getEndpoint() {
+	public String getEndpoint() {
 		return endpoint;
 	}
 
@@ -141,9 +142,7 @@ public class BaseServiceClient {
 			throw new IllegalArgumentException("No such action: "+name, e);
 		}
 		bc.pushURL(url);
-		try {
-			ClassicHttpResponse res = bc.post(params);
-			bc.checkError(res);
+		try(ClassicHttpResponse res = bc.post(params)){
 			if(HttpStatus.SC_NO_CONTENT==res.getCode()) {
 				return new JSONObject();
 			}
@@ -169,5 +168,10 @@ public class BaseServiceClient {
 	 */
 	public JSONObject setProperties(JSONObject properties) throws Exception {
 		return bc.asJSON(bc.put(properties));
+	}
+	
+	@Override
+	public void close(){
+		IOUtils.closeQuietly(bc);
 	}
 }

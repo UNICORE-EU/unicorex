@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.registry.IRegistryClient;
@@ -63,11 +62,11 @@ public class TargetSystemFinder implements Broker {
 
 
 	@Override
-	public Collection<Endpoint>listCandidates(IRegistryClient registry, 
+	public Collection<String>listCandidates(IRegistryClient registry, 
 			ClientConfigurationProvider configurationProvider, IAuthCallback auth,
 			Builder builder) 
 					throws Exception{
-		List<Endpoint>result=new ArrayList<>();
+		List<String>result=new ArrayList<>();
 		List<SiteClient> sites = listSites(registry, configurationProvider, auth, builder);
 		for(SiteClient site: sites){
 			result.add(site.getEndpoint());
@@ -100,7 +99,7 @@ public class TargetSystemFinder implements Broker {
 					break;
 			}
 			else{
-				String current = site.getEndpoint().getUrl();
+				String current = site.getEndpoint();
 				try{
 					ErrorHolder err = new ErrorHolder();
 					SiteClient sc = site.getSiteClient();
@@ -128,7 +127,7 @@ public class TargetSystemFinder implements Broker {
 			for(Requirement r: requirements){
 				if(r.isFulfilled(props))continue;
 				error.code = "ERR_UNMET_REQUIREMENTS";
-				error.message = "Requirement <"+r.getDescription()+"> not fulfilled on "+tssClient.getEndpoint().getUrl();
+				error.message = "Requirement <"+r.getDescription()+"> not fulfilled on "+tssClient.getEndpoint();
 				return false;
 			}
 			return true;

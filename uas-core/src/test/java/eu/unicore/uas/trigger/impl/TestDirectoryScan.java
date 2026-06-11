@@ -14,7 +14,6 @@ import java.util.Set;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.FileList;
 import eu.unicore.client.core.FileList.FileListEntry;
 import eu.unicore.client.core.StorageClient;
@@ -34,7 +33,7 @@ public class TestDirectoryScan extends Base {
 	public void testDirectoryScan()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()
 				+"/rest/core/storagefactories/DEFAULT";
-		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
+		StorageFactoryClient smf = new StorageFactoryClient(url, 
 				kernel.getClientConfiguration(), getAuth());
 		StorageClient sms = smf.createStorage();
 		// write a rule file
@@ -49,7 +48,7 @@ public class TestDirectoryScan extends Base {
 		Thread.sleep(10500);
 		
 		// setup the scan
-		String sID =  new File(new URI(sms.getEndpoint().getUrl()).getPath()).getName();
+		String sID =  new File(new URI(sms.getEndpoint()).getPath()).getName();
 		Client client=new Client();
 		client.setAnonymousClient();
 		XNJS xnjs=XNJSFacade.get(null, kernel).getXNJS();
@@ -89,6 +88,8 @@ public class TestDirectoryScan extends Base {
 			System.out.println(e);
 		}
 		System.out.println(sms.getProperties().toString(2));
+		sms.close();
+		smf.close();
 	}
 	
 	
@@ -96,7 +97,7 @@ public class TestDirectoryScan extends Base {
 	public void testDirectoryScanSharedMode()throws Exception{
 		String url = kernel.getContainerProperties().getContainerURL()
 				+"/rest/core/storagefactories/DEFAULT";
-		StorageFactoryClient smf = new StorageFactoryClient(new Endpoint(url), 
+		StorageFactoryClient smf = new StorageFactoryClient(url, 
 				kernel.getClientConfiguration(), getAuth());
 		StorageClient sms = smf.createStorage();
 		// write toplevel rule file
@@ -116,7 +117,7 @@ public class TestDirectoryScan extends Base {
 		Thread.sleep(10000);
 		
 		// setup the scan
-		String sID =  new File(new URI(sms.getEndpoint().getUrl()).getPath()).getName();
+		String sID =  new File(new URI(sms.getEndpoint()).getPath()).getName();
 		Client client=new Client();
 		client.setAnonymousClient();
 		XNJS xnjs=XNJSFacade.get(null, kernel).getXNJS();
@@ -159,6 +160,8 @@ public class TestDirectoryScan extends Base {
 				System.out.println("Trigger run log\n***************\n\n"+os.toString("UTF-8"));
 			}
 		}
+		sms.close();
+		smf.close();
 	}
 
 	private boolean hasRun(XNJS xnjs, String actionID)throws Exception{

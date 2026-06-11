@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.admin.AdminServiceClient;
 import eu.unicore.client.admin.AdminServiceClient.AdminCommand;
 import eu.unicore.services.restclient.IAuthCallback;
@@ -19,8 +19,7 @@ public class TestAdmin extends Base {
     @Test
     public void testAdminClient() throws Exception {
 		String url = kernel.getServer().getUrls()[0].toExternalForm()+"/rest/admin";
-    	var client = new AdminServiceClient(
-    			new Endpoint(url),
+    	var client = new AdminServiceClient(url,
     			kernel.getClientConfiguration(),
     			getAdminAuth());
     	assertTrue(client.getProperties().toString().contains("connectionStatus"));
@@ -30,11 +29,12 @@ public class TestAdmin extends Base {
     	System.out.println(client.runCommand("ShowServerUsageOverview", null));
 
     	var c2  =  new AdminServiceClient(
-    			new Endpoint(url),
+    			url,
     			kernel.getClientConfiguration(),
     			getAuth());
     	RESTException re = assertThrows(RESTException.class, ()->c2.runCommand("ShowServerUsageOverview", null));
     	assertEquals(403, re.getStatus());
+    	IOUtils.closeQuietly(client, c2);
     }
 
 	protected IAuthCallback getAdminAuth() {

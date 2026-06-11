@@ -1,6 +1,6 @@
 package eu.unicore.xnjs.io;
 
-import java.util.concurrent.TimeUnit;
+import java.time.Duration;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -26,8 +26,8 @@ public class ACLSupportCache {
 	
 	private Cache<String, Boolean> initCache() {
 		Cache<String, Boolean> c = CacheBuilder.newBuilder().concurrencyLevel(4).initialCapacity(1000)
-				.expireAfterAccess(20, TimeUnit.SECONDS)
-				.expireAfterWrite(20, TimeUnit.SECONDS)
+				.expireAfterAccess(Duration.ofSeconds(20))
+				.expireAfterWrite(Duration.ofSeconds(20))
 				.build();
 		return c;
 	}

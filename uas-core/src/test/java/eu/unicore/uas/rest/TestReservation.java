@@ -3,6 +3,7 @@ package eu.unicore.uas.rest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.Job;
@@ -32,6 +33,7 @@ public class TestReservation extends Base {
 		assertTrue(MockReservation.hasReservation(reservationID));
 		c2.delete();
 		assertFalse(MockReservation.hasReservation(reservationID));
+		IOUtils.closeQuietly(c2, c);
 	}
 
 }

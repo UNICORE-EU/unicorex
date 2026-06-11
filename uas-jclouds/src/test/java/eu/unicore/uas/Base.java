@@ -7,7 +7,6 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.client.core.StorageFactoryClient;
 import eu.unicore.services.ContainerProperties;
 import eu.unicore.services.Kernel;
@@ -53,13 +52,13 @@ public abstract class Base{
 				+"/rest/core/storagefactories/"+type;
 		IAuthCallback auth = null;
 		System.out.println("Using StorageFactory at "+url);
-		return new StorageFactoryClient(new Endpoint(url), kernel.getClientConfiguration(), auth);
+		return new StorageFactoryClient(url, kernel.getClientConfiguration(), auth);
 	}
 	
-	protected Endpoint findFirstAccessibleService(List<Endpoint>eps){
-		for(Endpoint ep: eps){
-			try{
-				BaseClient c = new BaseClient(ep.getUrl(), uas.getKernel().getClientConfiguration(), null);
+	protected String findFirstAccessibleService(List<String>eps){
+		for(String ep: eps){
+			try(var c = new BaseClient(ep, uas.getKernel().getClientConfiguration(), null))
+			{
 				c.getJSON();
 				return ep;
 			}catch(Exception e){}

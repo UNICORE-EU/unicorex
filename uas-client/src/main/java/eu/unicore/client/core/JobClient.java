@@ -8,7 +8,6 @@ import java.util.concurrent.TimeoutException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import eu.unicore.client.Endpoint;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -31,7 +30,7 @@ public class JobClient extends BaseServiceClient {
 	    FAILED
 	}
 
-	public JobClient(Endpoint endpoint, IClientConfiguration security, IAuthCallback auth) {
+	public JobClient(String endpoint, IClientConfiguration security, IAuthCallback auth) {
 		super(endpoint, security, auth);
 	}
 
@@ -104,13 +103,11 @@ public class JobClient extends BaseServiceClient {
 	}
 
 	public StorageClient getWorkingDirectory() throws Exception {
-		Endpoint ep = endpoint.cloneTo(getLinkUrl("workingDirectory"));
-		return new StorageClient(ep, security, auth);
+		return new StorageClient(getLinkUrl("workingDirectory"), security, auth);
 	}
 	
 	public SiteClient getParentSite() throws Exception {
-		Endpoint ep = endpoint.cloneTo(getLinkUrl("parentTSS"));
-		return new SiteClient(ep, security, auth);
+		return new SiteClient(getLinkUrl("parentTSS"), security, auth);
 	}
 	
 	public void start() throws Exception {

@@ -1,6 +1,7 @@
 package eu.unicore.xnjs.tsi.remote;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -90,8 +91,8 @@ public class Execution extends BasicExecution {
 
 	private Cache<String, List<BudgetInfo>> buildComputeBudgetCache(){
 		return CacheBuilder.newBuilder().maximumSize(100)
-				.expireAfterAccess(3600, TimeUnit.SECONDS)
-				.expireAfterWrite(3600, TimeUnit.SECONDS)
+				.expireAfterAccess(Duration.ofSeconds(3600))
+				.expireAfterWrite(Duration.ofSeconds(3600))
 				.build();
 	}
 

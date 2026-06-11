@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
