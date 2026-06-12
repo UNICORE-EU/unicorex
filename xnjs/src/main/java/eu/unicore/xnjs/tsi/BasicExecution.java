@@ -91,10 +91,9 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			int current = runningJobCount.get();
 			if(current >= limit)throw new TSIBusyException("Joblimit reached: there are <"+current+"> running jobs");
 		}
-		ApplicationInfo appDescription=job.getApplicationInfo();
-		ExecutionContext ec=job.getExecutionContext();
-		LocalExecution ex=new LocalExecution(job.getUUID(), tsiProperties, manager, buildCommand(job, idb), ec);
-		ex.execute();
+		ApplicationInfo appDescription = job.getApplicationInfo();
+		ExecutionContext ec = job.getExecutionContext();
+		new LocalExecution(job.getUUID(), tsiProperties, manager, buildCommand(job, idb), ec, true).execute();
 		job.addLogTrace("Submitted executable: "+appDescription.getExecutable());
 		runningJobCount.incrementAndGet();
 		runningJobUIDs.add(job.getUUID());

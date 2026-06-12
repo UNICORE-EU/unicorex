@@ -17,6 +17,7 @@ import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.Processor;
 import eu.unicore.xnjs.io.XnjsFile;
 import eu.unicore.xnjs.json.JSONJobProcessor;
+import eu.unicore.xnjs.tsi.local.LocalExecution;
 import eu.unicore.xnjs.tsi.local.LocalTS;
 
 /**
@@ -43,6 +44,7 @@ public class TestLocalTS extends EMSTestBase {
 	protected void initTSI()throws Exception{
 		tsi = xnjs.getTargetSystemInterface(createClient());
 		tsi.setStorageRoot(tmpDir);
+		LocalExecution.resetStats();
 	}
 
 	@Test
@@ -56,6 +58,7 @@ public class TestLocalTS extends EMSTestBase {
 	public void testBasicTSIFunctions()throws Exception{
 		new AbstractTSITest(tmpDir,tsi).run();
 		FileUtils.deleteQuietly(new File(tmpDir));
+		getExecutionSystemInfo();
 	}
 
 	@Test

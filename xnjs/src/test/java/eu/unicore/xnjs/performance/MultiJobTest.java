@@ -38,7 +38,7 @@ public class MultiJobTest extends EMSTestBase {
 	@Test
 	public void testMultipleJobs()throws Exception{
 		((BasicManager)mgr).getActionStore().removeAll();
-		LocalExecution.reset();
+		LocalExecution.resetStats();
 
 		int n = getNumberOfTasks(); //how many jobs
 		assertTrue(xnjs.getXNJSProperties().isAutoSubmitWhenReady());

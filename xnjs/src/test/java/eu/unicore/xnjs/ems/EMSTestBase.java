@@ -16,6 +16,7 @@ import com.google.inject.AbstractModule;
 import eu.unicore.xnjs.XNJSTestBase;
 import eu.unicore.xnjs.persistence.IActionStoreFactory;
 import eu.unicore.xnjs.persistence.JDBCActionStoreFactory;
+import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 
 /**
  * setup tests of the core ems processing
@@ -139,4 +140,14 @@ public abstract class EMSTestBase extends XNJSTestBase {
 		a.printLogTrace();
 	}
 
+	protected void getExecutionSystemInfo()throws Exception{
+		IExecutionSystemInformation i = xnjs.get(IExecutionSystemInformation.class);
+		System.out.println(String.format("Total=%s running=%s queued=%s info=%s queuefill=%s",
+				i.getTotalNumberOfJobs(),
+				i.getNumberOfRunningJobs(),
+				i.getNumberOfQueuedJobs(),
+				i.getPartitionInfo(),
+				i.getQueueFill()
+			));
+	}
 }

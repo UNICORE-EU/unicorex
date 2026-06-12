@@ -25,6 +25,7 @@ import java.util.concurrent.RejectedExecutionException;
 
 import org.apache.logging.log4j.Logger;
 
+import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.XNJSProperties;
 import eu.unicore.xnjs.ems.ExecutionContext;
@@ -339,7 +340,7 @@ public class LocalTS implements TSI {
 	 */
 	public void exec(String command, ExecutionContext ec) throws TSIBusyException,ExecutionException {
 		try{
-			new LocalExecution(null, tsiProperties, manager, command, ec).execute();
+			new LocalExecution(UUID.newUniqueID(), tsiProperties, manager, command, ec, false).execute();
 		}catch(RejectedExecutionException re){
 			throw new TSIBusyException("Execution currently not possible.");
 		}catch(Exception ex){
@@ -351,8 +352,7 @@ public class LocalTS implements TSI {
 	 */
 	public void execAndWait(String orig, ExecutionContext ec) throws TSIBusyException,ExecutionException {
 		try{
-			LocalExecution ex=new LocalExecution(null, tsiProperties, manager, orig, ec);
-			ex.execute(false);
+			new LocalExecution(UUID.newUniqueID(), tsiProperties, manager, orig, ec, false).execute(false);
 		}catch(RejectedExecutionException re){
 			throw new TSIBusyException("Execution currently not possible.");
 		}catch(Exception ex){

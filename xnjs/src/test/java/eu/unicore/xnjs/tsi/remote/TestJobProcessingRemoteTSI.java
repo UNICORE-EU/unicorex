@@ -236,6 +236,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		assertFalse(xnjs.get(IExecution.class).isBeingTracked(a));
 		assertTrue(a.getLog().toString().contains("Paused"));
 		assertTrue(a.getLog().toString().contains("Resumed"));
+		getExecutionSystemInfo();
 	}
 
 	@Test

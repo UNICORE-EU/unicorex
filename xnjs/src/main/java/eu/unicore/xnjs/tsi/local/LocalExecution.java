@@ -22,7 +22,6 @@ import org.apache.commons.io.output.NullOutputStream;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.xnjs.ems.ExecutionContext;
-import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.InternalManager;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import eu.unicore.xnjs.util.LogUtil;
@@ -43,6 +42,7 @@ public class LocalExecution implements Runnable {
 	private final ExecutionContext ec;
 	private final InternalManager manager;
 	private final LocalTSIProperties tsiProperties;
+	private final boolean notify;;
 	
 	private static int rejected=0;
 
@@ -76,9 +76,9 @@ public class LocalExecution implements Runnable {
 		return es.getActiveCount();
 	}
 
-	private static final Set<String> runningJobs=Collections.synchronizedSet(new HashSet<String>());
-	private static final Map<String,Integer> exitCodes=new ConcurrentHashMap<String,Integer>();
-	private static final Map<String,Process> processes=new ConcurrentHashMap<String,Process>();
+	private static final Set<String> runningJobs = Collections.synchronizedSet(new HashSet<>());
+	private static final Map<String,Integer> exitCodes = new ConcurrentHashMap<>();
+	private static final Map<String,Process> processes = new ConcurrentHashMap<>();
 
 	public static boolean isRunning(String actionID){
 		return runningJobs.contains(actionID); 
@@ -112,13 +112,15 @@ public class LocalExecution implements Runnable {
 	 * @param cmd
 	 * @param ec
 	 */
-	public LocalExecution(String actionID, LocalTSIProperties properties, InternalManager manager, String cmd, ExecutionContext ec){
+	public LocalExecution(String actionID, LocalTSIProperties properties, InternalManager manager, String cmd, 
+			ExecutionContext ec, boolean notify){
 		this.manager = manager;
 		this.tsiProperties = properties;
 		this.actionID = actionID;
 		this.cmd=cmd;
 		this.workDir = ec.getWorkingDirectory();
 		this.ec = ec;
+		this.notify = notify;
 		initPool();
 	}
 
@@ -149,61 +151,44 @@ public class LocalExecution implements Runnable {
 		}
 	}
 
+	@Override
 	public void run() {
-
 		OutputStream stdout=null;
 		OutputStream stderr=null;
 		InputStream stdin=null;
 		OutputStream stdinDummy=null;
-		
 		boolean redirectInput=false;
-
 		try{
-			long start=System.currentTimeMillis();
+			long start = System.currentTimeMillis();
 			runningTasks.incrementAndGet();
-			String what=replaceEnvVars(cmd, ec.getEnvironment());
-			logger.info("["+actionID+"] Executing '"+what+"' in "+workDir);
-			ProcessBuilder pb=new ProcessBuilder(); 
+			String what = replaceEnvVars(cmd, ec.getEnvironment());
+			logger.info("[{}] Executing '{}' in {}", actionID, what, workDir);
+			ProcessBuilder pb = new ProcessBuilder(); 
 			pb.directory(new File(workDir));
 			copyEnv(ec.getEnvironment(),pb.environment());
 			if(ec.getStdin()!=null){
-				stdin=new FileInputStream(ec.getWorkingDirectory()+File.separator+ec.getStdin());
-				redirectInput=true;
-				logger.debug("Redirected input from '"+ec.getStdin()+"'");
-
+				stdin = new FileInputStream(ec.getWorkingDirectory()+File.separator+ec.getStdin());
+				redirectInput = true;
+				logger.debug("Redirected input from '{}'", ec.getStdin());
 				//open for writing as well (to support FIFOs properly)
 				stdinDummy=new FileOutputStream(ec.getWorkingDirectory()+File.separator+ec.getStdin(),true);
 			}
 			pb.command(createCommandArray(what));
-
-			Process p=pb.start();
-
-			if(actionID!=null) {
-				processes.put(actionID, p);
-				try{
-				//send continue event so the status gets updated
-					ContinueProcessingEvent cpe=new ContinueProcessingEvent(actionID);
-					manager.handleEvent(cpe);
-				}catch(Exception ex){
-					LogUtil.logException("Error sending continue event", ex, logger);
-				}
+			Process p = pb.start();
+			processes.put(actionID, p);
+			if(notify){
+				ContinueProcessingEvent cpe = new ContinueProcessingEvent(actionID);
+				manager.handleEvent(cpe);
 			}
-
-			//in
 			if(redirectInput){
 				DataMover in=new DataMover(stdin, p.getOutputStream());
 				es2.execute(in);
 			}
-
-			//write stdout/stderr files
 			DataMover out=null;
 			DataMover err=null;
-
-			//err
-			stderr=ec.isDiscardOutput() ? NullOutputStream.INSTANCE
+			stderr = ec.isDiscardOutput() ? NullOutputStream.INSTANCE
 					 : new FileOutputStream(ec.getOutputDirectory()+File.separator+ec.getStderr());
-			err=new DataMover(p.getErrorStream(),stderr);
-
+			err = new DataMover(p.getErrorStream(),stderr);
 			while(true){
 				try{
 					es2.execute(err);
@@ -214,47 +199,32 @@ public class LocalExecution implements Runnable {
 					}catch(InterruptedException ignored){}
 				}
 			}
-			//out
-			stdout=ec.isDiscardOutput() ? NullOutputStream.INSTANCE
+			stdout = ec.isDiscardOutput() ? NullOutputStream.INSTANCE
 			        : new FileOutputStream(ec.getOutputDirectory()+File.separator+ec.getStdout());
-			out=new DataMover(p.getInputStream(),stdout);
+			out = new DataMover(p.getInputStream(),stdout);
 			out.run();
-
-			int exit=p.waitFor();
-
-			//wait for error/output writes to terminate
+			int exit = p.waitFor();
 			while(! (out.isDone() && err.isDone()) ){
 				Thread.sleep(10);
 			}
-
-			long diff=System.currentTimeMillis()-start;
-			logger.info("["+actionID+"] Done with '"+what+"' exit code "+exit+", took "+diff+" ms.");
+			long diff = System.currentTimeMillis()-start;
+			logger.info("[{}] Done with '{}' exit code <{}>, took {} ms.",
+					actionID, what, exit, diff);
 			completedTasks.incrementAndGet();
-
-			//save exit code
 			ec.setExitCode(exit);
-			if(actionID!=null)exitCodes.put(actionID, Integer.valueOf(exit));
-			try{
-				p.destroy();
-			}catch(Exception e){
-				logger.warn("Error while destroying process.",e);
-			}
-			pb=null;
+			exitCodes.put(actionID, Integer.valueOf(exit));
+			p.destroy();
+			pb = null;
 		}catch(Exception ex){
 			throw new RuntimeException(ex);
 		}
 		finally{
 			IOUtils.closeQuietly(stdout, stderr, stdin, stdinDummy);
-			if(actionID!=null){
-				runningJobs.remove(actionID);
-				runningTasks.decrementAndGet();
-				totalTasks.decrementAndGet();
-				
-				try{
-					manager.handleEvent(new ContinueProcessingEvent(actionID));
-				}catch(Exception ex){
-					logger.error("Could not send status change notification",ex);
-				}
+			runningJobs.remove(actionID);
+			runningTasks.decrementAndGet();
+			totalTasks.decrementAndGet();
+			if(notify){
+				manager.handleEvent(new ContinueProcessingEvent(actionID));
 			}
 		}
 	}
@@ -298,26 +268,18 @@ public class LocalExecution implements Runnable {
 		return runningTasks.get();
 	}
 
-
 	public static int getTotalNumberOfJobs() {
 		return totalTasks.get();
 	}
 
-
-	public static void abort(String uuid)throws ExecutionException{
-		try{
-			Process p=processes.get(uuid);
-			if(p!=null){
-				p.destroy();
-			}
-		}
-		catch(Exception e){
-			logger.error("Could not destroy process.",e);
-			throw new ExecutionException(e);
+	public static void abort(String uuid) {
+		Process p = processes.get(uuid);
+		if(p!=null){
+			p.destroy();
 		}
 	}
-	
-	public static void reset() {
+
+	public static void resetStats() {
 		try {
 			 completedTasks.getAndSet(0);
 			 runningTasks.getAndSet(0);
@@ -332,23 +294,23 @@ public class LocalExecution implements Runnable {
 
 		private final OutputStream target;
 
-		private final byte[] buf;
+		private final byte[] buf = new byte[1024];
 
 		private Exception exception;
 
 		public DataMover(InputStream source, OutputStream target){
-			buf=new byte[1024];
-			this.source=source;
-			this.target=target;
+			this.source = source;
+			this.target = target;
 		}
 
-		private boolean done=false;
+		private boolean done = false;
 
 		public boolean isDone() throws Exception{
 			if(exception!=null)throw exception;
 			return done;
 		}
 
+		@Override
 		public void run(){
 			int c;
 			while(!done){
