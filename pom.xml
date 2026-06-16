@@ -31,9 +31,8 @@
     <!-- goes into .jar manifests, dist poms and packaging versions -->
     <specification.version>11.1.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>6.1.0</use.version>
-    <use.restclient.version>6.1.0-2</use.restclient.version>
-    <seclib.version>8.1.4</seclib.version>
+    <use.version>6.1.1</use.version>
+    <seclib.version>8.2.0</seclib.version>
     <secutils.version>5.0.3</secutils.version>
     <persistence.version>1.3.2</persistence.version>
     <uftp.version>2.24.5</uftp.version>
@@ -99,7 +98,7 @@
       <dependency>
 	<groupId>eu.unicore.services</groupId>
 	<artifactId>use-restclient</artifactId>
-	<version>${use.restclient.version}</version>
+	<version>${use.version}</version>
       </dependency>
       <dependency>
 	<groupId>eu.unicore.services</groupId>
