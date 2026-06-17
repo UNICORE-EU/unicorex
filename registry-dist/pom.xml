@@ -22,7 +22,11 @@
   </properties>
 
   <dependencies>
-     <dependency>
+    <dependency>
+      <groupId>eu.unicore.security</groupId>
+      <artifactId>securityLibrary</artifactId>
+    </dependency>
+    <dependency>
       <groupId>eu.unicore</groupId>
       <artifactId>persistence</artifactId>
     </dependency>
