@@ -94,7 +94,8 @@ public class RegistryClient extends BaseServiceClient implements IRegistryClient
 	}
 
 	public static final String ENDPOINT = "href";
-	public static final String INTERFACE_NAME = "type";
+	public static final String TYPE = "type";
+	public static final String INTERFACE_NAME = "InterfaceName";
 	public static final String SERVER_IDENTITY = "ServerIdentity";
 	public static final String SERVER_PUBKEY = "ServerPublicKey";
 
@@ -108,7 +109,8 @@ public class RegistryClient extends BaseServiceClient implements IRegistryClient
 
 		@Override
 		public boolean accept(Map<String,String>epData){
-			return epData!=null && type.equals(epData.get(INTERFACE_NAME));
+			return epData!=null &&
+				type.equals(epData.get(INTERFACE_NAME)) || type.equals(epData.get(TYPE));
 		}
 
 	};

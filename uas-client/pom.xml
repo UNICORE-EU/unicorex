@@ -11,6 +11,7 @@
   </organization>
   <url>http://www.unicore.eu</url>
   <name>UNICORE/X Client-only</name>
+  <version>3.1.0-1</version>
   <properties>
     <automatic.module.name>eu.unicore.unicorex.client</automatic.module.name>
   </properties>
