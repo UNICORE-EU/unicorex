@@ -58,7 +58,7 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, -1);
 		String reply = TSIMessages.trim(tC.send("#TSI_PING"));
 		System.out.println("TSI PING reply: " + reply);
-		assertTrue(reply.contains("10."));
+		assertTrue(reply.contains("11."));
 	}
 
 	@Test
