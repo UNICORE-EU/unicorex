@@ -13,7 +13,7 @@ from Log import Logger
 #
 # the TSI version
 #
-MY_VERSION = "10.5.0"
+MY_VERSION = "11.0.1"
 
 # minimum required Python version
 REQUIRED_VERSION = (3, 9, 0)
@@ -287,7 +287,7 @@ def init_functions(bss):
     ('#TSI_...') to the appropriate TSI function.
     """
     return {
-    	"TSI_PING": ping,
+        "TSI_PING": ping,
         "TSI_PING_UID": ping_uid,
         "TSI_GET_USER_INFO": get_user_info,
         "TSI_EXECUTESCRIPT": execute_script,

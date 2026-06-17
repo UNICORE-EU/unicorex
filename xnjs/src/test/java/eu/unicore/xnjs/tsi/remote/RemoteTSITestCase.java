@@ -79,7 +79,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 		Process p = pb.start();
 		new DataMover(p.getInputStream(), System.out).run();
 		int exitCode = p.waitFor();
-		Thread.sleep(500);
+		Thread.sleep(2000);
 		System.out.println("TSI started.");
 		if(exitCode!=0)throw new IOException("TSI start returned non-zero exit code <"+exitCode+">");
 	}
