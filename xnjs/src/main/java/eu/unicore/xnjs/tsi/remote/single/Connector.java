@@ -1,10 +1,17 @@
 package eu.unicore.xnjs.tsi.remote.single;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
+import eu.unicore.security.SecurityException;
 import eu.unicore.xnjs.tsi.remote.IConnector;
 import eu.unicore.xnjs.util.LogUtil;
 import net.schmizz.sshj.DefaultConfig;
@@ -31,6 +38,8 @@ public class Connector implements IConnector {
 
 	private final IdentityStore identityStore;
 
+	private final Map<String, AtomicInteger> usageCounters = new HashMap<>();
+
 	public Connector(String hostname, int port, String category, PerUserTSIProperties properties, 
 			PerUserTSIConnectionFactory factory, IdentityStore identityStore) {
 		this.hostname = hostname;
@@ -51,8 +60,35 @@ public class Connector implements IConnector {
 		return category;
 	}
 
-	public PerUserTSIConnection createConnection(Client user) throws Exception {
-		return new PerUserTSIConnection(createSession(user), factory, this, user);
+	public PerUserTSIConnection createConnection(Client client) throws Exception {
+		PerUserTSIConnection conn = new PerUserTSIConnection(createSSHClient(client), factory, this, client);
+		String userName = client.getSelectedXloginName();
+		if(userName==null)throw new SecurityException("Required Unix username is null");
+		AtomicInteger i = usageCounters.get(userName);
+		if(i==null) {
+			i = new AtomicInteger();
+			usageCounters.put(userName, i);
+		}
+		int num = i.incrementAndGet();
+		logger.info("Creating new TSIConnection to <{}> for user <{}>, this is <{}>",
+				hostname, userName, num);
+		String setupCommand = properties.getSetupCommand();
+		if(num==1 && setupCommand!=null)
+		{
+			SSHClient ssh = conn.getSSH();
+			try (Session session = ssh.startSession()) {
+				logger.debug("--> {}", setupCommand);
+				Command cmd = session.exec(setupCommand);
+				String output = IOUtils.toString(cmd.getInputStream(), "UTF-8");
+				String error = IOUtils.toString(cmd.getErrorStream(), "UTF-8");
+				cmd.join(5, TimeUnit.SECONDS);
+				logger.debug("<-- {} {}", output, error);
+				if(cmd.getExitStatus()!=0) {
+					throw new IOException("TSI setup command failed: "+output+ " "+error);
+				}
+			}
+		}
+		return conn;
 	}
 
 	public boolean isOK() {
@@ -79,15 +115,20 @@ public class Connector implements IConnector {
 			Command cmd = session.exec(properties.getCommand());
 			conn.setInput(cmd.getInputStream());
 			conn.setOutput(cmd.getOutputStream());
-			conn.setCloseCallback(()->session.close());
+			conn.setError(cmd.getErrorStream());
+			conn.setCloseCallback(()->deactivate(conn, cmd, session));
 		}
 	}
 
-	private SSHClient createSession(Client client) throws Exception {
+	private void deactivate(PerUserTSIConnection conn, Command cmd, Session session) {
+		IOUtils.closeQuietly(cmd);
+		IOUtils.closeQuietly(session);
+	}
+
+	private SSHClient createSSHClient(Client client) throws Exception {
 		if(factory.isTesting()) {
 			return null;
 		}
-		logger.info("Creating new SSHClient for <{}>", client.getSelectedXloginName());
 		DefaultConfig c = new DefaultConfig();
 		c.setVerifyHostKeyCertificates(false);
 		SSHClient ssh = new SSHClient(c);

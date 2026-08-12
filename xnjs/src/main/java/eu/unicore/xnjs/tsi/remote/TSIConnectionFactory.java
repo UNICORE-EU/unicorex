@@ -16,23 +16,6 @@ import eu.unicore.xnjs.tsi.TSIUnavailableException;
 public interface TSIConnectionFactory {
 
 	/**
-	 * return a connection that executes commands under the given user id.
-	 * If a timeout is given (larger than zero), the factory waits for a connection to
-	 * become available before attempting to create a new one.
-	 * 
-	 * @param user - user name (may never be null)
-	 * @param group - group (may be null)
-	 * @param preferredHost - the preferred TSI host (in case multiple hosts are available)
-	 * @param timeoutMillis - timeout for waiting for a connection to become available.
-	 * 
-	 * @return a valid connection object or null in case of errors
-	 * @throws TSIUnavailableException if TSI is down
-	 * @throws IllegalArgumentException - if user is <code>null</code>
-	 */
-//	public TSIConnection getTSIConnection(String user, String group, String preferredHost, int timeoutMillis)
-//			throws TSIUnavailableException;
-
-	/**
 	 * Return a connection that executes commands under the given user id. 
 	 * If a timeout is given (larger than zero), the factory waits for a connection to
 	 * become available before attempting to create a new one.

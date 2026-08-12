@@ -45,6 +45,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	private final AtomicInteger liveConnections=new AtomicInteger(0);
 
 	private final Map<String,Connector> connectors = new HashMap<>();
+
 	private Connector[] connectorList;
 
 	private final Set<String> tsiHostCategories = new HashSet<>();
@@ -100,7 +101,6 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		if(limit>0 && liveConnections.get()>=limit){
 			throw new TSIUnavailableException(preferredHost);
 		}
-		log.info("Creating new TSIConnection for <{}> to <{}>", user, preferredHost);
 		PerUserTSIConnection connection = preferredHost==null ?
 				doCreate(user) : doCreate(user, preferredHost);
 		liveConnections.incrementAndGet();

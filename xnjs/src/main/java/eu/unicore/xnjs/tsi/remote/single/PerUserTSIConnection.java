@@ -37,6 +37,8 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	private PrintWriter output;
 
+	private InputStream error;
+
 	private final PerUserTSIConnectionFactory factory;
 
 	private String tsiVersion;
@@ -68,11 +70,15 @@ public class PerUserTSIConnection implements TSIConnection {
 	}
 
 	public void setInput(InputStream in) throws IOException {
-		this.input  = new BufferedReader(new InputStreamReader(in,"UTF-8"));
+		this.input  = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 	}
 
 	public void setOutput(OutputStream out) throws IOException {
-		this.output = new PrintWriter(new OutputStreamWriter(out,"UTF-8"));
+		this.output = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+	}
+
+	public void setError(InputStream error) throws IOException {
+		this.error = error;
 	}
 
 	public void setCloseCallback(Closeable closeable) {
@@ -140,32 +146,45 @@ public class PerUserTSIConnection implements TSIConnection {
 			shutdown();
 			String msg = Log.getDetailMessage(e);
 			connector.notOK(msg);
+			checkError();
 			throw new IOException("Failure sending request to TSI <" +
 					connector.getHostname()+">: "+msg);
 		}
+		String err = null;
 		try{
 			String line = input.readLine();
 			if(line==null) {
-				throw new IOException("Unexpected end of stream");
+				err = "Unexpected end of stream";
 			}
-			while (!line.equals("ENDOFMESSAGE")) {
+			else while (!line.equals("ENDOFMESSAGE")) {
 				reply.append(line).append("\n");
 				line = input.readLine();
 				if(line==null) {
-					throw new IOException("Unexpected end of stream");
+					err = "Unexpected end of stream";
+					break;
 				}
 			}
 		}catch(Exception e){
 			shutdown();
-			String msg = Log.getDetailMessage(e);
-			connector.notOK(msg);
-			throw new IOException("Failure reading reply from TSI <" +
-					connector.getHostname()+">: "+msg);
+			err = Log.getDetailMessage(e);
+			connector.notOK(err);
+		}
+		if(err!=null) {
+			checkError();
+			throw new IOException("Failure reading reply from TSI <"
+					+ connector.getHostname()+">: "+err);
 		}
 		logger.debug("<-- {}", reply);
 		return reply.toString();
 	}
-	
+
+	void checkError() {
+		try{
+			String err = IOUtils.toString(error, "UTF-8");
+			logger.error("Error communicating with {}: {}", connector.getHostname(), err);
+		}catch(Exception ex) {}
+	}
+
 	@Override
 	public String getLine() throws IOException {
 		String reply = null;

@@ -30,15 +30,19 @@ public class PerUserTSIProperties extends PropertiesHelper {
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
 
-	public static final String TSI_LAUNCH = "executable";
+	public static final String TSI_EXECUTABLE = "executable";
+
+	public static final String SETUP_COMMAND = "setupCommand";
 
 	public static final String ID_RESOLVERS = "identityResolver";
 
 	static
 	{
-		META.put(TSI_LAUNCH, new PropertyMD().
-				setDescription("Command used to launch the TSI."));
-		META.put(ID_RESOLVERS, new PropertyMD().setCanHaveSubkeys().
+		META.put(TSI_EXECUTABLE, new PropertyMD().setMandatory().
+				setDescription("Command used to run the TSI."));
+		META.put(SETUP_COMMAND, new PropertyMD().
+				setDescription("Command used to setup the TSI before the first use."));
+		META.put(ID_RESOLVERS, new PropertyMD().setCanHaveSubkeys().setMandatory().
 				setDescription("Configure identity resolvers. See documentation for details."));	
 		META.put("unittesting", new PropertyMD("false").setBoolean().
 				setDescription("(TODO unit testing mode)"));
@@ -57,9 +61,13 @@ public class PerUserTSIProperties extends PropertiesHelper {
 	}
 
 	public String getCommand(){
-		return getValue(TSI_LAUNCH);
+		return getValue(TSI_EXECUTABLE);
 	}
-	
+
+	public String getSetupCommand(){
+		return getValue(SETUP_COMMAND);
+	}
+
 	public boolean isTesting() {
 		return getBooleanValue("unittesting");
 	}
