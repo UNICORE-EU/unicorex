@@ -81,6 +81,7 @@ public class Base extends ApplicationBaseResource {
 
 	@Override
 	protected void updateLinks() {
+		super.updateLinks();
 		for(int i = 0; i<resources.length; i++){
 			String r = resources[i];
 			String sName = serviceNames[i];
