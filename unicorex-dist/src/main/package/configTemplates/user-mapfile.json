@@ -1,0 +1,11 @@
+{
+  "CN=Demo User, O=UNICORE, C=EU": {
+    "role": [
+      "user"
+    ],
+    "xlogin": [
+      "${USER_NAME}"
+    ],
+    "group": []
+  }
+}

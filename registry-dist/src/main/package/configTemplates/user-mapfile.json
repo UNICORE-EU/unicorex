@@ -1,0 +1,9 @@
+{
+
+   "CN=Demo UNICORE/X,O=UNICORE,C=EU": {
+     "role": "server",
+     "xlogin": "nobody",
+     "group": []
+   }
+   
+}

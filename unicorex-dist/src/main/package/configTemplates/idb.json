@@ -1,0 +1,107 @@
+{
+  "Partitions": {
+    "batch": {
+      "Description": "Default queue",
+      "OperatingSystem": "LINUX",
+      "CPUArchitecture": "x86_64",
+      "Resources": {
+        "Runtime": "60-24h:1h",
+        "Nodes": "1-16:1",
+        "CPUsPerNode": "1-1",
+        "TotalCPUs": "1-16"
+      }
+    }
+  },
+  "Applications": [
+    {
+      "Name": "Date",
+      "Version": "1.0",
+      "Executable": "date"
+    },
+    {
+      "Name": "Bash shell",
+      "Version": "5.1",
+      "Executable": "/bin/bash",
+      "Arguments": [
+        "-d$DEBUG?",
+        "-vVERBOSE?",
+        "$OPTIONS?",
+        "$SOURCE?",
+        "$ARGUMENTS"
+      ],
+      "Parameters": {
+        "SOURCE": {
+          "Type": "filename"
+        },
+        "ARGUMENTS": {
+          "Type": "string"
+        },
+        "DEBUG": {
+          "Type": "boolean"
+        },
+        "VERBOSE": {
+          "Type": "boolean"
+        },
+        "OPTIONS": {
+          "Type": "string"
+        }
+      }
+    },
+    {
+      "Name": "Python script",
+      "Version": "3",
+      "Executable": "/usr/bin/python3",
+      "Arguments": [
+        "-d$DEBUG?",
+        "-vVERBOSE?",
+        "$OPTIONS?",
+        "$SOURCE?",
+        "$ARGUMENTS"
+      ],
+      "Parameters": {
+        "SOURCE": {
+          "Type": "filename"
+        },
+        "ARGUMENTS": {
+          "Type": "string"
+        },
+        "DEBUG": {
+          "Type": "boolean"
+        },
+        "VERBOSE": {
+          "Type": "boolean"
+        },
+        "OPTIONS": {
+          "Type": "string"
+        }
+      }
+    },
+    {
+      "Name": "CONTAINER",
+      "Version": "1.0",
+      "Description": "Runs a Docker image via Apptainer",
+      "PreCommand": "apptainer pull _image.sif docker://$IMAGE_URL",
+      "Executable": "export RUN_OPTS=${RUN_OPTS:-\"--contain --ipc --bind $PWD --pwd $PWD\"}; apptainer exec",
+      "Arguments": [
+        "$RUN_OPTS",
+        "$OPTIONS",
+        "_image.sif",
+        "$COMMAND"
+      ],
+      "Parameters": {
+        "IMAGE_URL": {
+          "Type": "string",
+          "Description": "The Docker image URL"
+        },
+        "OPTIONS": {
+          "Type": "string",
+          "Description": "Options to the 'apptainer exec' command"
+        },
+        "COMMAND": {
+          "Type": "string",
+          "Description": "The command to execute in the container"
+        }
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ License: BSD
 Distribution: RedHat
 Group: System Environment/Daemons
 URL: https://www.unicore.eu
-Requires: java-11-openjdk-headless
+Requires: jre-headless >= 17
 AutoReqProv: no
 BuildArch: @component-architecture@
 Packager: UNICORE unicore-support@lists.sourceforge.net
@@ -33,15 +33,10 @@ This package contains the UNICORE Registry server.
 # Config files
 #
 %dir "/etc/unicore/registry/"
-%dir "/etc/unicore/registry/xacml2Policies"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/startup.properties"
 %config %attr(0644 unicore unicore) "/etc/unicore/registry/logging.properties"
-%config %attr(0644 unicore unicore) "/etc/unicore/registry/simpleuudb"
+%config %attr(0644 unicore unicore) "/etc/unicore/registry/user-mapfile.json"
 %config %attr(0600 unicore unicore) "/etc/unicore/registry/registry.config"
-%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2.config"
-%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/01basicRules.xml"
-%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/30registryServices.xml"
-%config %attr(0644 unicore unicore) "/etc/unicore/registry/xacml2Policies/99finalDeny.xml"
 
 %attr(0644 unicore unicore) "/usr/lib/systemd/system/unicore-registry.service"
 
