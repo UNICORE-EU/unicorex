@@ -39,10 +39,10 @@ import jakarta.inject.Singleton;
 @Singleton
 public class PerUserTSIConnectionFactory implements TSIConnectionFactory, PropertyChangeListener {
 
-	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,PerUserTSIConnectionFactory.class);
+	private static final Logger log = LogUtil.getLogger(LogUtil.TSI, PerUserTSIConnectionFactory.class);
 
 	// count how many connections are currently alive
-	private final AtomicInteger liveConnections=new AtomicInteger(0);
+	private final AtomicInteger liveConnections = new AtomicInteger(0);
 
 	private final Map<String,Connector> connectors = new HashMap<>();
 

@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import eu.unicore.security.Client;
 import eu.unicore.security.SecurityException;
+import eu.unicore.services.utils.CircuitBreaker;
 import eu.unicore.xnjs.tsi.remote.IConnector;
 import eu.unicore.xnjs.util.LogUtil;
 import net.schmizz.sshj.DefaultConfig;
@@ -64,6 +65,9 @@ public class Connector implements IConnector {
 		PerUserTSIConnection conn = new PerUserTSIConnection(createSSHClient(client), factory, this, client);
 		String userName = client.getSelectedXloginName();
 		if(userName==null)throw new SecurityException("Required Unix username is null");
+		if(!isOK(userName)){
+			throw new IOException(getStatusMessage(userName));
+		}
 		AtomicInteger i = usageCounters.get(userName);
 		if(i==null) {
 			i = new AtomicInteger();
@@ -77,12 +81,12 @@ public class Connector implements IConnector {
 		{
 			SSHClient ssh = conn.getSSH();
 			try (Session session = ssh.startSession()) {
-				logger.debug("--> {}", setupCommand);
+				logger.debug("Runnung setup command --> {}", setupCommand);
 				Command cmd = session.exec(setupCommand);
 				String output = IOUtils.toString(cmd.getInputStream(), "UTF-8");
 				String error = IOUtils.toString(cmd.getErrorStream(), "UTF-8");
-				cmd.join(5, TimeUnit.SECONDS);
-				logger.debug("<-- {} {}", output, error);
+				cmd.join(10, TimeUnit.SECONDS);
+				logger.debug("Setup command returned with exit status <{}> and output: '{} {}'", cmd.getExitStatus(), output, error);
 				if(cmd.getExitStatus()!=0) {
 					throw new IOException("TSI setup command failed: "+output+ " "+error);
 				}
@@ -91,13 +95,35 @@ public class Connector implements IConnector {
 		return conn;
 	}
 
+	private final Map<String, CircuitBreaker> cbs = new HashMap<>();
+	private final Map<String, String> msg = new HashMap<>();
+
+	private CircuitBreaker getCB(String user) {
+		synchronized (cbs) {
+			CircuitBreaker cb = cbs.get(user);
+			if(cb==null) {
+				cb = new CircuitBreaker();
+				cbs.put(user, cb);
+			}
+			return cb;
+		}
+	}
+
 	public boolean isOK() {
-		// TODO
 		return true;
 	}
 
-	public void notOK(String message) {
-		// TODO
+	public boolean isOK(String userName) {
+		return getCB(userName).isOK();
+	}
+
+	public void notOK(String userName, String message) {
+		getCB(userName).notOK();
+		msg.put(userName, message);
+	}
+
+	public String getStatusMessage(String userName){
+		return msg.getOrDefault(userName, "N/A");
 	}
 
 	@Override
@@ -121,8 +147,7 @@ public class Connector implements IConnector {
 	}
 
 	private void deactivate(PerUserTSIConnection conn, Command cmd, Session session) {
-		IOUtils.closeQuietly(cmd);
-		IOUtils.closeQuietly(session);
+		IOUtils.closeQuietly(cmd, session);
 	}
 
 	private SSHClient createSSHClient(Client client) throws Exception {

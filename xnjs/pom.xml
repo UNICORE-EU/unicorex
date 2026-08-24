@@ -40,6 +40,10 @@
     </dependency>
     <dependency>
       <groupId>eu.unicore.services</groupId>
+      <artifactId>use-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>eu.unicore.services</groupId>
       <artifactId>use-restclient</artifactId>
     </dependency>
     <dependency>

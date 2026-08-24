@@ -14,7 +14,7 @@ import eu.unicore.xnjs.tsi.remote.TSIProperties;
 import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
 
 /**
- * Pooling of UserTSIConnection for users
+ * Pooling of PerUserTSIConnection
  *
  * @author schuller
  */

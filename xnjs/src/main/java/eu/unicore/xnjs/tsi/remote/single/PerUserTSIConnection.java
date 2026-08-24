@@ -135,8 +135,8 @@ public class PerUserTSIConnection implements TSIConnection {
 						"', this is not allowed");
 			}
 		}
+		String user = client.getSelectedXloginName();
 		try {
-			String user = client.getSelectedXloginName();
 			logger.debug("--> [{}] {}", user, data);
 			output.println(data);
 			output.println("#TSI_IDENTITY " + user + " NONE");
@@ -145,8 +145,8 @@ public class PerUserTSIConnection implements TSIConnection {
 		} catch (Exception e) {
 			shutdown();
 			String msg = Log.getDetailMessage(e);
-			connector.notOK(msg);
-			checkError();
+			readErrorStream(msg);
+			connector.notOK(user, msg);
 			throw new IOException("Failure sending request to TSI <" +
 					connector.getHostname()+">: "+msg);
 		}
@@ -154,23 +154,22 @@ public class PerUserTSIConnection implements TSIConnection {
 		try{
 			String line = input.readLine();
 			if(line==null) {
-				err = "Unexpected end of stream";
+				err = readErrorStream("Unexpected end of stream");
 			}
 			else while (!line.equals("ENDOFMESSAGE")) {
 				reply.append(line).append("\n");
 				line = input.readLine();
 				if(line==null) {
-					err = "Unexpected end of stream";
+					err = readErrorStream("Unexpected end of stream");
 					break;
 				}
 			}
 		}catch(Exception e){
 			shutdown();
 			err = Log.getDetailMessage(e);
-			connector.notOK(err);
+			connector.notOK(user, err);
 		}
 		if(err!=null) {
-			checkError();
 			throw new IOException("Failure reading reply from TSI <"
 					+ connector.getHostname()+">: "+err);
 		}
@@ -178,11 +177,12 @@ public class PerUserTSIConnection implements TSIConnection {
 		return reply.toString();
 	}
 
-	void checkError() {
+	String readErrorStream(String msg) {
 		try{
-			String err = IOUtils.toString(error, "UTF-8");
-			logger.error("Error communicating with {}: {}", connector.getHostname(), err);
+			String e2 = IOUtils.toString(error, "UTF-8");
+			if(e2!=null && e2.length()>0)return msg+": "+e2;
 		}catch(Exception ex) {}
+		return msg;
 	}
 
 	@Override
@@ -262,7 +262,7 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	@Override
 	public void markTSINodeUnavailable(String message) {
-		connector.notOK(message);
+		// NOP
 	}
 
 	@Override
@@ -311,7 +311,7 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	private static final Map<String, Boolean> issuedWarnings = new HashMap<>();
 
-	public static final String RECOMMENDED_TSI_VERSION = "10.5.0";
+	public static final String RECOMMENDED_TSI_VERSION = "11.2.0";
 
 	/**
 	 * get the TSI version
