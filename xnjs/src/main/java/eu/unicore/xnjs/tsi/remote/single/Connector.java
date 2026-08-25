@@ -85,7 +85,9 @@ public class Connector implements IConnector {
 				cmd.join(10, TimeUnit.SECONDS);
 				logger.debug("Setup command returned with exit status <{}> and output: '{} {}'", cmd.getExitStatus(), output, error);
 				if(cmd.getExitStatus()!=0) {
-					throw new IOException("TSI setup command failed: "+output+ " "+error);
+					String err = "TSI setup command failed: "+output+ " "+error;
+					notOK(userName, err);
+					throw new IOException(err);
 				}
 				int num = i.incrementAndGet();
 				logger.info("Created new TSIConnection to <{}> for user <{}>, this is <{}>",
