@@ -73,11 +73,8 @@ public class Connector implements IConnector {
 			i = new AtomicInteger();
 			usageCounters.put(userName, i);
 		}
-		int num = i.incrementAndGet();
-		logger.info("Creating new TSIConnection to <{}> for user <{}>, this is <{}>",
-				hostname, userName, num);
 		String setupCommand = properties.getSetupCommand();
-		if(num==1 && setupCommand!=null)
+		if(i.get()==0 && setupCommand!=null)
 		{
 			SSHClient ssh = conn.getSSH();
 			try (Session session = ssh.startSession()) {
@@ -90,6 +87,9 @@ public class Connector implements IConnector {
 				if(cmd.getExitStatus()!=0) {
 					throw new IOException("TSI setup command failed: "+output+ " "+error);
 				}
+				int num = i.incrementAndGet();
+				logger.info("Created new TSIConnection to <{}> for user <{}>, this is <{}>",
+						hostname, userName, num);
 			}
 		}
 		return conn;
