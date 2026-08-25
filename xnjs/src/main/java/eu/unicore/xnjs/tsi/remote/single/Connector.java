@@ -62,12 +62,12 @@ public class Connector implements IConnector {
 	}
 
 	public PerUserTSIConnection createConnection(Client client) throws Exception {
-		PerUserTSIConnection conn = new PerUserTSIConnection(createSSHClient(client), factory, this, client);
 		String userName = client.getSelectedXloginName();
 		if(userName==null)throw new SecurityException("Required Unix username is null");
 		if(!isOK(userName)){
 			throw new IOException(getStatusMessage(userName));
 		}
+		PerUserTSIConnection conn = new PerUserTSIConnection(createSSHClient(client), factory, this, client);
 		AtomicInteger i = usageCounters.get(userName);
 		if(i==null) {
 			i = new AtomicInteger();
@@ -78,12 +78,12 @@ public class Connector implements IConnector {
 		{
 			SSHClient ssh = conn.getSSH();
 			try (Session session = ssh.startSession()) {
-				logger.debug("Runnung setup command --> {}", setupCommand);
+				logger.debug("Running setup command --> {}", setupCommand);
 				Command cmd = session.exec(setupCommand);
 				String output = IOUtils.toString(cmd.getInputStream(), "UTF-8");
 				String error = IOUtils.toString(cmd.getErrorStream(), "UTF-8");
 				cmd.join(10, TimeUnit.SECONDS);
-				logger.debug("Setup command returned with exit status <{}> and output: '{} {}'", cmd.getExitStatus(), output, error);
+				logger.debug("Setup command returned with: exitcode <{}> {} {}", cmd.getExitStatus(), output, error);
 				if(cmd.getExitStatus()!=0) {
 					String err = "TSI setup command failed: "+output+ " "+error;
 					notOK(userName, err);
