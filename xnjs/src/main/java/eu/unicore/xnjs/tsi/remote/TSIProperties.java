@@ -128,8 +128,8 @@ public class TSIProperties extends PropertiesHelper {
 		META.put(TSI_BUFFERSIZE, new PropertyMD(String.valueOf(1024*1024)).setInt().setPositive().
 				setDescription("Buffer size (in bytes) for transferring data from/to the TSI."));
 
-		META.put(BSS_UPDATE_INTERVAL, new PropertyMD("10000").setInt().setPositive().
-				setDescription("Interval (ms) for updating job statuses on the batch system."));
+		META.put(BSS_UPDATE_INTERVAL, new PropertyMD("10").setInt().setPositive().
+				setDescription("Interval (seconds) for updating job statuses on the batch system."));
 		META.put(BSS_NO_USER_INTERACTIVE_APPS, new PropertyMD("false").setBoolean().
 				setDescription("Disable execution of user commands on the TSI node."));
 		META.put(BSS_PS, new PropertyMD("ps -e").setDeprecated().
@@ -176,7 +176,18 @@ public class TSIProperties extends PropertiesHelper {
 	public String getBSSUser(){
 		return getValue(TSI_BSSUSER);
 	}
-	
+
+	/**
+	 * get the interval for periodic status checks (in seconds)
+	 * (will never be smaller than 5 seconds)
+	 */
+	public int getStatusUpdateInterval(){
+		int x  = getIntValue(BSS_UPDATE_INTERVAL);
+		// sanitize a bit in case of old configuration (which was milliseconds)
+		if(x>1000)x=x/1000;
+		if(x<5)x=5;
+		return x;
+	}
 
 	@Override
 	protected void findUnknown(Properties toCheck) {

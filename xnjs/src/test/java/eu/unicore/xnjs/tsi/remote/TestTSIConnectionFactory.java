@@ -155,6 +155,7 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 			assertEquals(exp[i], index.next());
 		}
 	}
+
 	@Override
 	protected void addProperties(ConfigurationSource cs){
 		super.addProperties(cs);
@@ -162,7 +163,7 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		Properties props = cs.getProperties();
 		props.put(p+TSIProperties.TSI_POOL_SIZE,"4");
 		props.put(p+TSIProperties.TSI_WORKER_LIMIT,"8");
-		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"30000");
+		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"30");
 	}
 
 }

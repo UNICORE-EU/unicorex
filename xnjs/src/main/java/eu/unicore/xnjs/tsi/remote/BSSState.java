@@ -123,10 +123,10 @@ public class BSSState implements IBSSState {
 	}
 
 	private void updateConfigParameters(){
-		int newInterval = tsiProperties.getIntValue(TSIProperties.BSS_UPDATE_INTERVAL);
+		int newInterval = tsiProperties.getStatusUpdateInterval();
 		if(newInterval!=updateInterval){
 			updateInterval = newInterval;
-			log.info("Batch system state will be queried every <{}> milliseconds.", updateInterval);
+			log.info("Batch system state will be queried every <{}> seconds.", updateInterval);
 		}
 	}
 

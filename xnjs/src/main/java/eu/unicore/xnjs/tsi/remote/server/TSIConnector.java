@@ -54,7 +54,7 @@ public class TSIConnector implements IConnector {
 		this.port = tsiPort;
 		this.hostname = hostname;
 		this.category = category;
-		this.waitingPeriod = 5 * properties.getIntValue(TSIProperties.BSS_UPDATE_INTERVAL);
+		this.waitingPeriod = 5 * properties.getStatusUpdateInterval();
 	}
 
 	@Override
@@ -256,8 +256,8 @@ public class TSIConnector implements IConnector {
 
 	private long disabledAt = 0;
 
-	// waiting period in milliseconds
-	private long waitingPeriod = 60 * 1000;
+	// waiting period in seconds
+	private long waitingPeriod = 60;
 
 	private String statusMessage;
 
@@ -271,7 +271,7 @@ public class TSIConnector implements IConnector {
 		if(!ok){
 			// check if waiting period has passed, and if yes
 			// reset the state to "ok"
-			if(disabledAt+waitingPeriod<System.currentTimeMillis()){
+			if(disabledAt+(1000*waitingPeriod)<System.currentTimeMillis()){
 				OK();
 			}
 		}

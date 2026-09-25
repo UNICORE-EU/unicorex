@@ -57,7 +57,7 @@ public abstract class RemoteTSISSLTestCase extends EMSTestBase {
 		props.put(p+TSIProperties.TSI_MYPORT,"65432");
 		props.put(p+TSIProperties.TSI_DISABLE_SSL,"false");
 		props.put(p+TSIProperties.TSI_BSSUSER,System.getProperty("user.name"));
-		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"2000");
+		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"5");
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public abstract class RemoteTSITestCase extends EMSTestBase {
 		props.put(p+TSIProperties.TSI_PORT,getTSIPort());
 		props.put(p+TSIProperties.TSI_MYPORT,"65432");
 		props.put(p+TSIProperties.TSI_BSSUSER,System.getProperty("user.name"));
-		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"2000");
+		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"5");
 	}
 
 	protected void addModules(ConfigurationSource cs){
