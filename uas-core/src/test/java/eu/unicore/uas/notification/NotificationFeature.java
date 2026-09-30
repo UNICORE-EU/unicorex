@@ -12,13 +12,13 @@ import eu.unicore.services.utils.deployment.FeatureImpl;
 public class NotificationFeature extends FeatureImpl {
 
 	public NotificationFeature() {
-		this.name = "NotificationReceiver";
+		super("NotificationReceiver");
 	}
 
+	@Override
 	public void setKernel(Kernel kernel) {
 		super.setKernel(kernel);
 		services.add(new NotificationSD(kernel));	
-		
 	}
 
 	public static class NotificationSD extends DeploymentDescriptorImpl {
@@ -27,7 +27,7 @@ public class NotificationFeature extends FeatureImpl {
 			this();
 			setKernel(kernel);
 		}
-		
+
 		public NotificationSD() {
 			super();
 			this.name = "notification";

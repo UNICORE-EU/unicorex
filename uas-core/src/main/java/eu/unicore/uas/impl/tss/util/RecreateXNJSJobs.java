@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
@@ -26,6 +25,7 @@ import eu.unicore.xnjs.ems.processors.DefaultProcessor;
 import eu.unicore.xnjs.io.XnjsFileWithACL;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
+import io.imunity.tanl.x509.impl.X500NameUtils;
 
 /**
  * re-create "lost" XNJS action instances from uspace information.

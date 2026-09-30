@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import eu.unicore.services.Home;
 import eu.unicore.services.Kernel;
-import eu.unicore.services.Service;
 import eu.unicore.services.admin.AdminAction;
 import eu.unicore.services.admin.AdminActionResult;
 import eu.unicore.services.impl.DefaultHome;
@@ -37,16 +37,16 @@ public class ShowServerUsageOverview implements AdminAction {
 		List<String>serviceNames = new ArrayList<>();
 		List<Map<String,AtomicInteger>>instPerDN = new ArrayList<>();
 
-		for(Service s: kernel.getServices()){
-			DefaultHome home = (DefaultHome)s.getHome();
-			if(home==null)continue;
+		for(Home h: kernel.getHomes()){
+			if(!(h instanceof DefaultHome))continue;
+			DefaultHome home = (DefaultHome)h;
 			//maps client DN to number of instances
 			Map<String,AtomicInteger>perDN = home.getInstancesPerUser();
 			serviceNames.add(home.getServiceName());
 			instPerDN.add(perDN);
 		}
-		merged=merge(requestedDN, serviceNames, instPerDN.toArray(new Map[instPerDN.size()]));
 
+		merged = merge(requestedDN, serviceNames, instPerDN.toArray(new Map[instPerDN.size()]));
 		for(String dn: merged.keySet()){
 			Map<String,Integer>perService = merged.get(dn);
 			StringBuilder sb=new StringBuilder();

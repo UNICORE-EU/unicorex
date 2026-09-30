@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.persist.PersistenceException;
 import eu.unicore.security.Client;
 import eu.unicore.services.Home;
@@ -16,6 +15,7 @@ import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.reservation.ReservationManagementImpl;
 import eu.unicore.uas.impl.tss.TargetSystemImpl;
 import eu.unicore.uas.util.LogUtil;
+import io.imunity.tanl.x509.impl.X500NameUtils;
 
 /**
  * Re-creates the list of accessible reservation references in a TSS as it is created.

@@ -6,7 +6,6 @@ import java.util.concurrent.TimeoutException;
 
 import org.json.JSONObject;
 
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.services.Kernel;
 import eu.unicore.services.USEClientProperties;
 import eu.unicore.services.rest.jwt.JWTDelegation;
@@ -17,6 +16,7 @@ import eu.unicore.services.utils.TimeoutRunner;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.event.INotificationSender;
+import io.imunity.tanl.x509.helpers.BinaryCertChainValidator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 

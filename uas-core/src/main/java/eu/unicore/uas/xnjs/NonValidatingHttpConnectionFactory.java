@@ -2,12 +2,12 @@ package eu.unicore.uas.xnjs;
 
 import org.apache.hc.client5.http.classic.HttpClient;
 
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.security.Client;
 import eu.unicore.services.Kernel;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
 import eu.unicore.xnjs.io.http.IConnectionFactory;
+import io.imunity.tanl.x509.helpers.BinaryCertChainValidator;
 
 /**
  * Creates HTTP(s) connections for (non-UNICORE) data staging

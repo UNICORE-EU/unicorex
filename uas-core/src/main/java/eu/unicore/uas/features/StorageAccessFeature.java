@@ -23,7 +23,7 @@ import eu.unicore.uas.rest.HTTPFileAccessService;
 public class StorageAccessFeature extends FeatureImpl {
 
 	public StorageAccessFeature() {
-		this.name = "StorageAccess";
+		super("StorageAccess");
 	}
 
 	@Override

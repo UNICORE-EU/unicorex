@@ -16,9 +16,10 @@ import eu.unicore.uas.rest.CoreServices;
 public class BaseFeature extends FeatureImpl {
 
 	public BaseFeature() {
-		this.name = "Base";
+		super("Base");
 	}
 
+	@Override
 	public void setKernel(Kernel kernel) {
 		super.setKernel(kernel);
 		homeClasses.put("Task", TaskHomeImpl.class);

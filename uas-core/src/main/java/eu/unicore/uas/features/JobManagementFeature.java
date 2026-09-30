@@ -41,9 +41,10 @@ public class JobManagementFeature extends FeatureImpl {
 	private static final Logger logger = Log.getLogger(Log.UNICORE,JobManagementFeature.class);
 
 	public JobManagementFeature() {
-		this.name = "JobManagement";
+		super("JobManagement");
 	}
 
+	@Override
 	public void setKernel(Kernel kernel) {
 		super.setKernel(kernel);
 
@@ -56,7 +57,7 @@ public class JobManagementFeature extends FeatureImpl {
 		homeClasses.put(UAS.SMF, StorageFactoryHomeImpl.class);
 		homeClasses.put(UAS.SERVER_FTS, FileTransferHomeImpl.class);
 		homeClasses.put(UAS.CLIENT_FTS, FileTransferHomeImpl.class);
-
+	
 		getStartupTasks().add(new Startup(kernel));
 	}
 
