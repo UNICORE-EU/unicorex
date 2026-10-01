@@ -35,7 +35,7 @@
     <seclib.version>8.3.0</seclib.version>
     <secutils.version>5.1.0</secutils.version>
     <persistence.version>1.3.3</persistence.version>
-    <uftp.version>2.24.5</uftp.version>
+    <uftp.version>2.25.0</uftp.version>
     <guice.version>7.0.0</guice.version>
     <guava.version>33.7.2-jre</guava.version>
     <lucene.version>9.11.1</lucene.version>
