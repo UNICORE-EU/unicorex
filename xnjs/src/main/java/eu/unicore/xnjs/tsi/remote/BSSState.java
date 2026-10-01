@@ -77,12 +77,12 @@ public class BSSState implements IBSSState {
 	static final int timeout = 10000;
 
 	/**
-	 * delay (milliseconds) between runs of the qstat query
+	 * delay (seconds) between runs of the qstat query
 	 */
-	private int updateInterval = 30000;
+	private int updateInterval = 30;
 
 	@Override
-	public void toggleStatusUpdates(boolean enable) {
+	public void setUpdatesEnabled(boolean enable) {
 		statusUpdatesEnabled.set(enable);
 	}
 
@@ -107,10 +107,10 @@ public class BSSState implements IBSSState {
 				}catch(Throwable e){
 					Log.logException("Problem updating BSS state", e, log);
 				}
-				xnjs.getScheduledExecutor().schedule(this, updateInterval, TimeUnit.MILLISECONDS);
+				xnjs.getScheduledExecutor().schedule(this, updateInterval, TimeUnit.SECONDS);
 			}
 		};
-		xnjs.getScheduledExecutor().schedule(r, updateInterval, TimeUnit.MILLISECONDS);
+		xnjs.getScheduledExecutor().schedule(r, updateInterval, TimeUnit.SECONDS);
 	}
 
 	private synchronized ReentrantLock getOrCreateLock(String tsiHost) {

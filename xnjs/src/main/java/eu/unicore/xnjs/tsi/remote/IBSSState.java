@@ -13,7 +13,7 @@ public interface IBSSState {
 
 	public void init();
 
-	public void toggleStatusUpdates(boolean enable);
+	public void setUpdatesEnabled(boolean enable);
 
 	public Lock getBSSLock();
 	

@@ -31,6 +31,8 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	public void testConnectionFactory()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
+		BSSState bss = xnjs.get(BSSState.class);
+		bss.setUpdatesEnabled(false);
 		List<ServerTSIConnection>connections = new ArrayList<>();
 		Client cl = TSIMessages.createMinimalClient("nobody");
 		for(int i = 0; i<8; i++){

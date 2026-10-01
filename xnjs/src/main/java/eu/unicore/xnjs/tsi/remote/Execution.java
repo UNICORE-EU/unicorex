@@ -556,7 +556,7 @@ public class Execution extends BasicExecution {
 		}
 		tsiLog.info("Have <{}> active jobs, with <{}> running on login node(s)",
 				ids.size(), interactive);
-		bss.toggleStatusUpdates(true);
+		bss.setUpdatesEnabled(true);
 	}
 
 	@Override
