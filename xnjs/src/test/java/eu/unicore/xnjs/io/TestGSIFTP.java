@@ -119,8 +119,9 @@ public class TestGSIFTP extends EMSTestBase {
 	private String createDummyParent()throws Exception{
 		JSONObject j = new JSONObject();
 		j.put("ApplicationName","Date");
-		Action job=xnjs.makeAction(j);
-		String id = (String)mgr.add(job, createClient());
+		Action job = xnjs.makeAction(j);
+		String id = job.getUUID();
+		mgr.add(job, createClient());
 		waitUntilReady(id);
 		return id;
 	}

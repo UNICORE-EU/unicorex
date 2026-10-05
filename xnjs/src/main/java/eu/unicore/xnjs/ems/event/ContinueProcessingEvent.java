@@ -8,13 +8,13 @@ package eu.unicore.xnjs.ems.event;
 public class ContinueProcessingEvent implements XnjsEvent {
 
 	private final String actionID;
-	
+
 	public ContinueProcessingEvent(String actionID){
-		this.actionID=actionID;
+		this.actionID = actionID;
 	}
-	
+
 	public String getActionID() {
 		return actionID;
 	}
-	
+
 }

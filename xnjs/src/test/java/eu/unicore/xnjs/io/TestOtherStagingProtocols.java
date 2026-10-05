@@ -22,6 +22,7 @@ import org.mockftpserver.fake.filesystem.FileSystem;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.io.IFileTransfer.OverwritePolicy;
 import eu.unicore.xnjs.io.TransferInfo.Status;
@@ -260,7 +261,9 @@ public class TestOtherStagingProtocols extends EMSTestBase {
 
 	private String createDummyParent()throws Exception{
 		JSONObject jD = new JSONObject("{'ApplicationName': 'Date'}");
-		String id = (String)mgr.add(xnjs.makeAction(jD), createClient());
+		Action job = xnjs.makeAction(jD);
+		String id = job.getUUID();
+		mgr.add(job, createClient());
 		waitUntilReady(id);
 		return id;
 	}

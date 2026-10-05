@@ -95,9 +95,9 @@ public abstract class AbstractActionStore implements IActionStore{
 		return toString();
 	}
 
-	public void put(String key, Action value)throws Exception{
-		doStore(value);
-		states.put(key,value.getStatus());
+	public void put(Action action)throws Exception{
+		doStore(action);
+		states.put(action.getUUID(), action.getStatus());
 	}
 
 	public void remove(Action a)throws Exception{

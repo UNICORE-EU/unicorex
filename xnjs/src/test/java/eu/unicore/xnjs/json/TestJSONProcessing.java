@@ -24,7 +24,9 @@ public class TestJSONProcessing extends EMSTestBase {
 	public void testJSONJobs() throws Exception {
 		for(String j: jobs) {
 			System.out.println("Running job: "+j);
-			String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),createClient());
+			Action a = xnjs.makeAction(loadJSONObject(j));
+			String id = a.getUUID();
+			mgr.add(a,createClient());
 			doRun(id);
 			assertSuccessful(id);
 		}
@@ -34,8 +36,10 @@ public class TestJSONProcessing extends EMSTestBase {
 	public void testSingleJSONJob() throws Exception {
 		String j = jobs[1];
 		System.out.println("Running job: "+j);
-		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),createClient());
-		Action a = mgr.getAction(id);
+		Action a = xnjs.makeAction(loadJSONObject(j));
+		String id = a.getUUID();
+		mgr.add(a,createClient());
+		a = mgr.getAction(id);
 		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		doRun(id);
 		assertSuccessful(id);
@@ -49,8 +53,10 @@ public class TestJSONProcessing extends EMSTestBase {
 	public void testSingleJSONJob2() throws Exception {
 		String j = "src/test/resources/json/date_with_stagein.json";
 		System.out.println("Running job: "+j);
-		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),createClient());
-		Action a = mgr.getAction(id);
+		Action a = xnjs.makeAction(loadJSONObject(j));
+		String id = a.getUUID();
+		mgr.add(a,createClient());
+		a = mgr.getAction(id);
 		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		doRun(id);
 		assertSuccessful(id);
@@ -69,9 +75,11 @@ public class TestJSONProcessing extends EMSTestBase {
 	public void testPreCmdFail() throws Exception {
 		String j = pre_post_jobs[0];
 		System.out.println("Running job: "+j);
-		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),createClient());
+		Action a = xnjs.makeAction(loadJSONObject(j));
+		String id = a.getUUID();
+		mgr.add(a,createClient());
 		doRun(id);
-		Action a = mgr.getAction(id);
+		a = mgr.getAction(id);
 		assertTrue(a.getLog().toString().contains("Command exited with non-zero exit code"));
 	}
 
@@ -79,9 +87,11 @@ public class TestJSONProcessing extends EMSTestBase {
 	public void testPrePost() throws Exception {
 		String j = pre_post_jobs[1];
 		System.out.println("Running job: "+j);
-		String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),createClient());
+		Action a = xnjs.makeAction(loadJSONObject(j));
+		String id = a.getUUID();
+		mgr.add(a,createClient());
 		doRun(id);
-		Action a = mgr.getAction(id);
+		a = mgr.getAction(id);
 		assertTrue(a.getLog().toString().contains("Total:"));
 	}
 
@@ -97,7 +107,9 @@ public class TestJSONProcessing extends EMSTestBase {
 			System.out.println("Running job: "+j);
 			JSONObject job = loadJSONObject(j);
 			System.out.println(job.toString(2));
-			String id=(String)mgr.add(xnjs.makeAction(loadJSONObject(j)),createClient());
+			Action a = xnjs.makeAction(loadJSONObject(j));
+			String id = a.getUUID();
+			mgr.add(a,createClient());
 			try {
 				doRun(id);
 				assertSuccessful(id);

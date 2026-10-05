@@ -24,9 +24,9 @@ import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.InternalManager;
-import eu.unicore.xnjs.ems.event.BssStatusChangeEvent;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
 import eu.unicore.xnjs.ems.event.EventHandler;
+import eu.unicore.xnjs.ems.event.Events.BssStatusChangeEvent;
 import eu.unicore.xnjs.tsi.TSIProblem;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.Execution.BSSInfo;
@@ -146,11 +146,13 @@ public class BSSState implements IBSSState {
 			if(bssLocked) {
 				String res = null;
 				Client c = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
+				String tsiNode = null;
 				try(TSIConnection conn = connectionFactory.getTSIConnection(c, null, timeout)){
+					tsiNode = conn.getTSIHostName();
 					res = conn.send(tsiMessages.makeStatusCommand(null));
-					log.trace("BSS Status listing: \n{}", res);
+					log.trace("BSS Status listing [{}]: \n{}", tsiNode, res);
 				}
-				parts.add(updateBatchJobStates(bssInfo, TSIMessages.trim(res), eventHandler));
+				parts.add(updateBatchJobStates(bssInfo, TSIMessages.trim(res), eventHandler, tsiNode));
 			}else {
 				log.error("Can't get BSS status listing: can't acquire lock (timeout)");
 			}
@@ -195,7 +197,7 @@ public class BSSState implements IBSSState {
 		summary = new BSSSummary(parts);
 	}
 
-	public static BSSSummary updateBatchJobStates(final Map<String, BSSInfo> statesMap, String tsiReply, EventHandler handler)
+	public static BSSSummary updateBatchJobStates(final Map<String, BSSInfo> statesMap, String tsiReply, EventHandler handler, String tsiNode)
 	throws IOException {
 		int running=0;
 		int queued=0;
@@ -215,12 +217,11 @@ public class BSSState implements IBSSState {
 		BufferedReader br = new BufferedReader(new StringReader(tsiReply.trim()+"\n"));
 		String line = br.readLine();
 		if (line == null)
-			throw new IOException("Empty reply from TSI");
+			throw new IOException("Empty reply from TSI ["+tsiNode+"]");
 		line = line.trim();
 		if (!line.equalsIgnoreCase("QSTAT")) {
-			throw new IOException("No valid QSTAT listing received. TSI replied: " + line);
+			throw new IOException("No valid QSTAT listing received. TSI ["+tsiNode+"] replied: " + line);
 		}
-
 		Set<String> bssIDs = new HashSet<>();
 		bssIDs.addAll(statesMap.keySet());
 		Map<String,Integer> queueFill = new HashMap<>();
@@ -241,7 +242,7 @@ public class BSSState implements IBSSState {
 				try {
 					newValue = BSS_STATE.valueOf(tok[1].trim());
 				}catch(Exception ex) {
-					throw new IOException("Unexpected status <"+tok[1]+"> Wrong format of QSTAT! Please check the TSI!");
+					throw new IOException("Unexpected status <"+tok[1]+"> Wrong format of QSTAT! Please check the TSI ["+tsiNode+"]!");
 				}
 				// track some stats
 				total++;

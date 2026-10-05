@@ -12,7 +12,8 @@ import eu.unicore.security.Client;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.event.CallbackEvent;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
-import eu.unicore.xnjs.ems.event.StartJobEvent;
+import eu.unicore.xnjs.ems.event.Events.AbortJobEvent;
+import eu.unicore.xnjs.ems.event.Events.StartJobEvent;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.persistence.IActionStore;
@@ -56,7 +57,7 @@ public class BasicManager implements Manager, InternalManager {
 	}
 
 	@Override
-	public Object add(Action action, Client client) throws Exception {
+	public void add(Action action, Client client) throws Exception {
 		if(!isAcceptingNewActions){
 			throw new ExecutionException(ErrorCode.ERR_XNJS_DISABLED,"XNJS does not accept new actions.");
 		}
@@ -66,11 +67,10 @@ public class BasicManager implements Manager, InternalManager {
 			action.addLogTrace("Client: "+client);
 		}
 		ecm.initialiseContext(action);
-		jobs.put(action.getUUID(),action);
+		jobs.put(action);
 		if(!action.isWaiting()){
 			dispatcher.process(action.getUUID());
 		}
-		return action.getUUID();
 	}
 
 	@Override
@@ -82,7 +82,6 @@ public class BasicManager implements Manager, InternalManager {
 	public synchronized void start() throws Exception {
 		if(started)return;
 		jobs = xnjs.getActionStore("JOBS");
-		assert jobs!=null;
 		IExecutionSystemInformation ies = xnjs.get(IExecutionSystemInformation.class, true);
 		if(ies!=null)ies.initialise(jobs);
 		dispatcher = new Dispatcher(xnjs);
@@ -99,7 +98,7 @@ public class BasicManager implements Manager, InternalManager {
 
 	@Override
 	public Integer getStatus(String id, Client client) throws Exception {
-		Action a=jobs.get(id);
+		Action a = jobs.get(id);
 		if(a==null)throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION, "No such action: "+id);
 		return a.getStatus();
 	}
@@ -115,105 +114,83 @@ public class BasicManager implements Manager, InternalManager {
 
 
 	@Override
-	public Object pause(String id, Client client) throws Exception {
+	public void pause(String id, Client client) throws Exception {
 		Action a = null;
 		try{
-			a=getActionForUpdate(id);
+			a = getActionForUpdate(id);
 			if(ActionStatus.canPause(a.getStatus()))
 			{
 				a.setTransitionalStatus(ActionStatus.TRANSITION_PAUSING);
-				return "Action will be paused";
 			}
 			else{
 				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot pause the action.");
 			}
 		}finally{
 			if(a!=null) {
-				jobs.put(id,a);
+				jobs.put(a);
 				dispatcher.process(id);
 			}
 		}
 	}
 
 	@Override
-	public Object resume(String id, Client client) throws Exception {
-		Action a=null;
+	public void resume(String id, Client client) throws Exception {
+		Action a = null;
 		try{
-			a=getActionForUpdate(id);
-			if(ActionStatus.canResume(a.getStatus())){
+			a = getActionForUpdate(id);
+			if(a!=null && ActionStatus.canResume(a.getStatus())){
 				a.setTransitionalStatus(ActionStatus.TRANSITION_RESUMING);
-				return "Action will be resumed";
 			}
 			else{
 				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot resume the action.");
 			}
 		}finally{
 			if(a!=null){
-				jobs.put(id,a);	
+				jobs.put(a);	
 				dispatcher.process(id);
 			}
 		}
 	}
 
 	@Override
-	public Object abort(String id, Client client) throws Exception {
-		Action a=null;
-		try{
-			a=getActionForUpdate(id);
-			if(a==null) return null;
-			if(a.getStatus()==ActionStatus.DONE) return "Action is done.";
-			if(!ActionStatus.canAbort(a.getStatus())){
-				throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot abort the action.");
-			}
-			else{
-				a.addLogTrace("Got 'abort' request.");
-				a.setTransitionalStatus(ActionStatus.TRANSITION_ABORTING);
-				return "Action will be aborted";
-			}
-		}finally{
-			if(a!=null){
-				jobs.put(id,a);
-				dispatcher.process(id);
-			}
+	public void abort(String id, Client client) throws Exception {
+		if(ActionStatus.canAbort(getAction(id).getStatus())){
+			handleEvent(new AbortJobEvent(id));
+		}
+		else{
+			throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot abort the action.");
 		}
 	}
 
 	@Override
-	public Object run(String id, Client client) throws Exception {
-		Action a=getAction(id);
+	public void run(String id, Client client) throws Exception {
+		Action a = getAction(id);
 		if(a==null) {
 			throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"Action with id="+id+" could not be found.");
 		}
-		//check status: must be "READY" or before
-		int s=a.getStatus();
-		if(!ActionStatus.canRun(s)){
-			return null;
+		// check status: must be "READY" or before
+		if(ActionStatus.canRun(a.getStatus())){
+			handleEvent(new StartJobEvent(id));
 		}
-		//handle start as an async event
-		handleEvent(new StartJobEvent(id));
-		return ActionStatus.PENDING;
 	}
 
 	@Override
-	public Object restart(String id, Client client) throws Exception {
+	public void restart(String id, Client client) throws Exception {
 		Action a = getAction(id);
 		if(a==null) {
 			throw new ExecutionException(ErrorCode.ERR_NO_SUCH_ACTION,"Action with id="+id+" could not be found.");
 		}
 		// check status: must be "DONE"
-		int s=a.getStatus();
-		if(!ActionStatus.canRestart(s)){
-			return null;
+		if(ActionStatus.canRestart(a.getStatus())){
+			logger.info("Initiating restart for <{}>", id);
+			// required for move back into active Jobs - a bit dangerous
+			jobs.remove(a);
+			// re-set state so the JobRunner will submit it
+			a.setStatus(ActionStatus.PENDING);
+			a.setTransitionalStatus(ActionStatus.TRANSITION_RESTARTING);
+			jobs.put(a);
+			dispatcher.process(id);
 		}
-		logger.info("Initiating restart for <{}>", id);
-		// required for move back into active Jobs - a bit dangerous
-		jobs.remove(a);
-		// re-set state so the JobRunner will submit it
-		a.setStatus(ActionStatus.PENDING);
-		a.setTransitionalStatus(ActionStatus.TRANSITION_RESTARTING);
-		jobs.put(id,a);
-		dispatcher.process(id);
-		return ActionStatus.PENDING;
 	}
 
 	@Override
@@ -241,7 +218,7 @@ public class BasicManager implements Manager, InternalManager {
 		a.setInternal(true);
 		String actionID = a.getUUID();
 		logger.debug("Adding internal action <{}> of type <{}>", actionID, a.getType());
-		jobs.put(actionID, a);
+		jobs.put(a);
 		dispatcher.process(actionID);
 		return a.getUUID();
 	}
@@ -263,7 +240,7 @@ public class BasicManager implements Manager, InternalManager {
 		}
 		finally{
 			if(a!=null){
-				jobs.put(actionID, a);
+				jobs.put(a);
 				dispatcher.process(actionID);
 			}
 		}
@@ -330,7 +307,7 @@ public class BasicManager implements Manager, InternalManager {
 
 	@Override
 	public void handleEvent(final XnjsEvent event) {
-		final String actionID=event.getActionID();
+		final String actionID = event.getActionID();
 		Runnable r = new Runnable(){
 			public void run(){
 				if(xnjs.isStopped())return;
@@ -354,7 +331,7 @@ public class BasicManager implements Manager, InternalManager {
 					finally{
 						if(a!=null) {
 							try {
-								jobs.put(actionID, a);
+								jobs.put(a);
 							} catch (Exception e) {
 								throw new RuntimeException(e);
 							}

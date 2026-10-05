@@ -149,7 +149,7 @@ public class TSIConnector implements IConnector {
 		if(!no_check && !commands_socket.getInetAddress().equals(actualTSIAddress)) {
 			String msg = "Invalid new TSI connection (wrong machine). "
 					+ "Expected: "+actualTSIAddress
-					+ "Got: " +commands_socket.getInetAddress()
+					+ " Got: " +commands_socket.getInetAddress()
 					+ ". Contact site administration!";
 			IOUtils.closeQuietly(commands_socket, data_socket);
 			try {

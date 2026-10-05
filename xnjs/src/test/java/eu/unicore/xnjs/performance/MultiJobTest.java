@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.ConfigurationSource;
+import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.BasicManager;
 import eu.unicore.xnjs.ems.EMSTestBase;
@@ -50,7 +51,9 @@ public class MultiJobTest extends EMSTestBase {
 		String id;
 		for(int i=0;i<n;i++){
 			if(i%50==0 && i>0)System.out.println("Submitted "+i+" jobs.");
-				id=(String)mgr.add(xnjs.makeAction(job),null);
+			Action a = xnjs.makeAction(job);
+			id = a.getUUID();
+			mgr.add(a,createClient());
 			ids.add(id);
 		}
 

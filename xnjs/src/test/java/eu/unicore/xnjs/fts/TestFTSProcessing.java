@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
+import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.io.IFileTransferEngine;
 
@@ -22,7 +23,9 @@ public class TestFTSProcessing extends EMSTestBase {
 		j.put("workdir", new File("target").getAbsolutePath());
 		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
 		assertNotNull(e);
-		String id=(String)mgr.add(xnjs.makeAction(j, "FTS", UUID.newUniqueID()), createClient());
+		Action a = xnjs.makeAction(j, "FTS", UUID.newUniqueID());
+		mgr.add(a, createClient());
+		String id = a.getUUID();
 		waitUntilDone(id);
 		mgr.getAction(id).printLogTrace();
 		System.out.println(mgr.getAction(id).getResult().toString());

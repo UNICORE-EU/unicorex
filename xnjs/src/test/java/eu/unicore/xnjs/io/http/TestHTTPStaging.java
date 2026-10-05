@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
 import eu.unicore.security.Client;
+import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.BasicManager;
 import eu.unicore.xnjs.ems.EMSTestBase;
@@ -67,7 +68,9 @@ public class TestHTTPStaging extends EMSTestBase {
 	public void testRunJobWithStagein()throws Exception{
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
-			String id=(String)mgr.add(xnjs.makeAction(makeJob()), createClient());
+			Action a = xnjs.makeAction(makeJob());
+			String id = a.getUUID();
+			mgr.add(a, createClient());
 			assertNotNull(id);
 			doRun(id);
 			assertSuccessful(id);
@@ -82,7 +85,9 @@ public class TestHTTPStaging extends EMSTestBase {
 		BasicManager mgr=(BasicManager)internalMgr;
 		try{
 			server.setVerySlowMode(true);
-			String id=(String)mgr.add(xnjs.makeAction(makeJob()), createClient());
+			Action a = xnjs.makeAction(makeJob());
+			String id = a.getUUID();
+			mgr.add(a, createClient());
 			assertNotNull(id);
 			doRun(id);
 			assertSuccessful(id);
@@ -98,10 +103,12 @@ public class TestHTTPStaging extends EMSTestBase {
 		try{
 			Client cl = createClient(); 
 			server.setVerySlowMode(true);
-			String id=(String)mgr.add(xnjs.makeAction(makeJob()), cl);
+			Action a = xnjs.makeAction(makeJob());
+			String id = a.getUUID();
+			mgr.add(a, cl);
 			assertNotNull(id);
 			Thread.sleep(4000);
-			System.out.println(mgr.abort(id, cl));
+			mgr.abort(id, cl);
 			waitUntilDone(id);
 			assertEquals(ActionResult.USER_ABORTED,mgr.getAction(id).getResult().getStatusCode());
 			Thread.sleep(2000);
@@ -138,7 +145,9 @@ public class TestHTTPStaging extends EMSTestBase {
 		j.put("credentials", creds);
 		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
 		assertNotNull(e);
-		String id=(String)mgr.add(xnjs.makeAction(j, "FTS", UUID.newUniqueID()), createClient());
+		Action a = xnjs.makeAction(j, "FTS", UUID.newUniqueID());
+		String id = a.getUUID();
+		mgr.add(a, createClient());
 		waitUntilDone(id);
 		mgr.getAction(id).printLogTrace();
 		System.out.println(mgr.getAction(id).getResult().toString());
@@ -157,8 +166,9 @@ public class TestHTTPStaging extends EMSTestBase {
 		j.put("workdir", new File("target").getAbsolutePath());
 		IFileTransferEngine e = xnjs.get(IFileTransferEngine.class);
 		assertNotNull(e);
-		String id = (String)mgr.add(xnjs.makeAction(j, "FTS",
-				UUID.newUniqueID()), createClient());
+		Action a = xnjs.makeAction(j, "FTS", UUID.newUniqueID());
+		String id = a.getUUID();
+		mgr.add(a, createClient());
 		waitUntilDone(id);
 		mgr.getAction(id).printLogTrace();
 		System.out.println(mgr.getAction(id).getResult().toString());

@@ -72,7 +72,7 @@ public class TestPersistActionStore extends EMSTestBase {
 			FileUtils.deleteQuietly(f);
 		}
 	}
-	
+
 	private void doTest(int n)throws Exception{
 		doTest(n, false, false, smallDoc, 1);
 	}
@@ -82,16 +82,15 @@ public class TestPersistActionStore extends EMSTestBase {
 		
 		long start,end;
 		
-		ArrayList<String> ids=new ArrayList<String>();
+		ArrayList<String> ids = new ArrayList<>();
 		JSONObject job = loadJSONObject(doc);
-		start=System.currentTimeMillis();
+		start = System.currentTimeMillis();
 		System.out.println("adding "+n+" jobs.");
 		try {
-			String id="";
 			for(int i=0;i<n;i++){
-				id=(String)mgr.add(
-						xnjs.makeAction(job),null);
-				ids.add(id);
+				Action a = xnjs.makeAction(job);
+				ids.add(a.getUUID());
+				mgr.add(a, null);
 			}
 		} catch (ExecutionException e) {
 			e.printStackTrace();
@@ -118,7 +117,7 @@ public class TestPersistActionStore extends EMSTestBase {
 		int success = 0;
 		if(checkSuccess){
 			for(String id : ids){
-				Action a = ((BasicManager)mgr).getAction(id);
+				Action a = mgr.getAction(id);
 				if(expectSuccess){
 					if(a.getResult().isSuccessful())success++;
 				}

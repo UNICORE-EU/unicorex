@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.ems.event.ContinueProcessingEvent;
-import eu.unicore.xnjs.ems.event.StateChangeEvent;
+import eu.unicore.xnjs.ems.event.Events.StateChangeEvent;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
 import eu.unicore.xnjs.persistence.IActionStore;
 import eu.unicore.xnjs.util.LogUtil;
@@ -177,20 +177,19 @@ public class ActionRunner extends Thread {
 
 	private void finishProcessing(Action a){
 		try{
-			String id = a.getUUID();
-			if(a.getStatus()== ActionStatus.DESTROYED) {
+			if(a.getStatus() == ActionStatus.DESTROYED) {
 				jobs.remove(a);
-				logger.debug("[{}] Action is destroyed.", id);
+				logger.debug("[{}] Action is destroyed.", a.getUUID());
 			}
 			else {
-				if(a.getStatus()==ActionStatus.DONE){
+				if(a.getStatus() == ActionStatus.DONE){
 					a.setWaiting(false);
-					jobs.put(id, a);
+					jobs.put(a);
 				}
 				else {
-					jobs.put(id, a);
+					jobs.put(a);
 					if(!a.isWaiting()){
-						dispatcher.process(id);
+						dispatcher.process(a.getUUID());
 					}
 				}
 			}

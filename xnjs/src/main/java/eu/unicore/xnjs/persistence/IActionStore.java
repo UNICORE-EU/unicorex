@@ -52,11 +52,11 @@ public interface IActionStore {
 	
 	/**
 	 * store an action but don't add it to the work queue
-	 * @param key
-	 * @param value
+	 * 
+	 * @param action
 	 * @throws PersistenceException
 	 */
-	public void put(String key, Action value) throws Exception;
+	public void put(Action action) throws Exception;
 	
 	/**
 	 * remove an action

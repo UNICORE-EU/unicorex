@@ -28,21 +28,20 @@ public interface Manager {
 	 * add a new job into the EMS on behalf of the client
 	 * @param job
 	 * @param client
-	 * @return job id for querying
-	 * 
+	 *
 	 * @throws ExecutionException
 	 */
-	public Object add(Action job, Client client) throws Exception;
+	public void add(Action job, Client client) throws Exception;
 
 	/** 
 	 * run an Action that is ready
 	 * 
 	 * @param id the ID of the action to run
 	 * @param client
-	 * @return status 
+	 *
 	 * @throws ExecutionException
 	 */
-	public Object run(String id, Client client) throws Exception;
+	public void run(String id, Client client) throws Exception;
 
 	/**
 	 * get the status of the Action identified by id
@@ -51,7 +50,7 @@ public interface Manager {
 	 * 
 	 * @param id Which action
 	 * @param client Who wants the status?
-	 * @return A status object
+	 * @return status
 	 * @throws ExecutionException
 	 */
 	public Integer getStatus(String id, Client client) throws Exception;
@@ -61,30 +60,30 @@ public interface Manager {
 	 * 
 	 * @param id Which action
 	 * @param client Who
-	 * @return A status object
+	 *
 	 * @throws ExecutionException
 	 */
-	public Object pause(String id, Client client) throws Exception;
+	public void pause(String id, Client client) throws Exception;
 	
 	/** 
 	 * resume an Action that has been paused
 	 * 
 	 * @param id Which action
 	 * @param client Who
-	 * @return A status object
+	 *
 	 * @throws ExecutionException
 	 */
-	public Object resume(String id, Client client) throws Exception;
+	public void resume(String id, Client client) throws Exception;
 	
 	/** 
 	 * abort a running/paused action
 	 * 
 	 * @param id Which action
 	 * @param client Who
-	 * @return A status object
+	 *
 	 * @throws ExecutionException
 	 */
-	public Object abort(String id, Client client) throws Exception;
+	public void abort(String id, Client client) throws Exception;
 
 	
 	/** 
@@ -92,10 +91,10 @@ public interface Manager {
 	 * 
 	 * @param id Which action
 	 * @param client Who
-	 * @return A status object
+	 *
 	 * @throws ExecutionException
 	 */
-	public Object restart(String id, Client client) throws Exception;
+	public void restart(String id, Client client) throws Exception;
 
 	/**
 	 * destroys an action and cleans up 
@@ -116,4 +115,5 @@ public interface Manager {
 	 * @throws ExecutionException
 	 */
 	public Collection<String> list(Client client) throws Exception;
+
 }
