@@ -154,12 +154,7 @@ public class BasicManager implements Manager, InternalManager {
 
 	@Override
 	public void abort(String id, Client client) throws Exception {
-		if(ActionStatus.canAbort(getAction(id).getStatus())){
-			handleEvent(new AbortJobEvent(id));
-		}
-		else{
-			throw new ExecutionException(ErrorCode.ERR_OPERATION_NOT_POSSIBLE,"Cannot abort the action.");
-		}
+		handleEvent(new AbortJobEvent(id));
 	}
 
 	@Override
