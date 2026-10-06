@@ -254,14 +254,13 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		long entries=100000;
 		var s1 = new StringBuilder("QSTAT \n");
 		var st = new HashMap<String, BSSInfo>();
-
 		for(int i=1;i<=entries;i++){
 			s1.append(i+" RUNNING DEFAULT_QUEUE\n");
 			st.put(String.valueOf(i), new BSSInfo(String.valueOf(i),"j"+i, BSS_STATE.UNKNOWN));
 		}
 
 		var start = System.currentTimeMillis();
-		BSSState.updateBatchJobStates(st,s1.toString(),this.internalMgr, "");
+		BSSState.updateBatchJobStates(st, s1.toString(), this, "");
 		var end = System.currentTimeMillis();
 		System.out.println("Parsing qstat "+entries+" entries took "+(end-start)+ " msec.");
 		assertEquals(entries,eventsReceived);
