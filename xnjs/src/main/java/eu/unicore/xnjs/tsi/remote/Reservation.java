@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
@@ -136,7 +137,7 @@ public class Reservation implements IReservation {
 
 	protected TSIConnection getTSIConnection(Client client) throws TSIUnavailableException {
 		lastTSIHost = "n/a";
-		TSIConnection c = tsiConnectionFactory.getTSIConnection(client, null, -1);
+		TSIConnection c = tsiConnectionFactory.getTSIConnection(client, null, 30, TimeUnit.SECONDS);
 		lastTSIHost = c.getTSIHostName();
 		return c;
 	}

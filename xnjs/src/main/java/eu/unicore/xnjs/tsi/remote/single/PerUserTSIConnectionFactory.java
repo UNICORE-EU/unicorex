@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.logging.log4j.Logger;
@@ -74,7 +75,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 		start(xnjs);
 	}
 
-	protected PerUserTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
+	protected PerUserTSIConnection getTSIConnection(String user, String group, String preferredHost)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
@@ -82,13 +83,13 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public PerUserTSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
+	public PerUserTSIConnection getTSIConnection(Client client, String preferredHost, int timeout, TimeUnit units)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		String user = client.getXlogin().getUserName();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
 		String group = TSIMessages.prepareGroupsString(client);
-		PerUserTSIConnection conn = getTSIConnection(user, group, preferredHost, timeout);
+		PerUserTSIConnection conn = getTSIConnection(user, group, preferredHost);
 		if(conn==null){
 			conn = createNewTSIConnection(client, preferredHost);
 		}
@@ -303,7 +304,7 @@ public class PerUserTSIConnectionFactory implements TSIConnectionFactory, Proper
 	public synchronized String getTSIVersion(){
 		if(tsiVersion==null){
 			for(String h: connectors.keySet()){
-				try(PerUserTSIConnection conn = getTSIConnection("nobody", null, h, -1)){
+				try(PerUserTSIConnection conn = getTSIConnection("nobody", null, h)){
 					tsiVersion = conn.getTSIVersion();
 					if(tsiVersion!=null)break;
 				}

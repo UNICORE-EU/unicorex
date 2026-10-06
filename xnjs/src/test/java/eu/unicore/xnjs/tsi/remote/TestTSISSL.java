@@ -13,6 +13,7 @@ import java.io.Reader;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -32,20 +33,20 @@ public class TestTSISSL extends RemoteTSISSLTestCase{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		Client cl = TSIMessages.createMinimalClient("nobody");
-		try(ServerTSIConnection c = f.getTSIConnection(cl, null, -1)){
+		try(ServerTSIConnection c = f.getTSIConnection(cl, null, 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			assertTrue(c.compareVersion(ServerTSIConnection.RECOMMENDED_TSI_VERSION));
 		}
-		try(ServerTSIConnection c = f.getTSIConnection(cl,"127.0.0.1",-1)){
+		try(ServerTSIConnection c = f.getTSIConnection(cl,"127.0.0.1", 10, TimeUnit.SECONDS)){
 			InetAddress localhost = InetAddress.getByName("127.0.0.1");
 			assertEquals(localhost,c.getTSIAddress());
 		}
 		int n = f.getNumberOfPooledConnections();
-		try(ServerTSIConnection c = f.getTSIConnection(cl,"127.0.0.1",-1)){}
+		try(ServerTSIConnection c = f.getTSIConnection(cl,"127.0.0.1", 10, TimeUnit.SECONDS)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
 		try{
-			f.getTSIConnection(cl, "no-such-host", -1);
+			f.getTSIConnection(cl, "no-such-host", 10, TimeUnit.SECONDS);
 			fail("expected exception here");
 		}catch(IllegalArgumentException e){
 			assertTrue(e.getMessage().contains("No TSI is configured at 'no-such-host'"));

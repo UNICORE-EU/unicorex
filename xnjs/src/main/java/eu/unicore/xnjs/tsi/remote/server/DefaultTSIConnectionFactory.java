@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FilenameUtils;
@@ -73,14 +74,14 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	}
 
 	@Override
-	public ServerTSIConnection getTSIConnection(Client client, String preferredHost, int timeout)
+	public ServerTSIConnection getTSIConnection(Client client, String preferredHost, int timeout, TimeUnit units)
 			throws TSIUnavailableException{
 		String user = client.getXlogin().getUserName();
 		String group = TSIMessages.prepareGroupsString(client);
-		return getTSIConnection(user, group, preferredHost, timeout);
+		return getTSIConnection(user, group, preferredHost, timeout, units);
 	}
 
-	protected ServerTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout)
+	protected ServerTSIConnection getTSIConnection(String user, String group, String preferredHost, int timeout, TimeUnit units)
 			throws TSIUnavailableException{
 		if(!isRunning)throw new TSIUnavailableException();
 		if(user==null)throw new IllegalArgumentException("Required UNIX user ID is null (security setup problem?)");
@@ -260,7 +261,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		int numTotal = connectors.size();
 
 		for(String h: connectors.keySet()){
-			try(TSIConnection conn = getTSIConnection("nobody", null, h, -1)){
+			try(TSIConnection conn = getTSIConnection("nobody", null, h, 30, TimeUnit.SECONDS)){
 				String version = conn.getTSIVersion();
 				numOK++;
 				tsiVersion = version;
@@ -316,7 +317,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	public synchronized String getTSIVersion(){
 		if(tsiVersion==null){
 			for(String h: connectors.keySet()){
-				try(TSIConnection conn = getTSIConnection("nobody", null, h, -1)){
+				try(TSIConnection conn = getTSIConnection("nobody", null, h, 30, TimeUnit.SECONDS)){
 					tsiVersion = conn.getTSIVersion();
 					if(tsiVersion!=null)break;
 				}

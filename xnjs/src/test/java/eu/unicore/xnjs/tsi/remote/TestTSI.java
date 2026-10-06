@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -62,23 +63,23 @@ public class TestTSI extends RemoteTSITestCase{
 	public void testBasicSetup()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, -1)){
+		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			assertTrue(c.compareVersion(ServerTSIConnection.RECOMMENDED_TSI_VERSION));
 			
 		}
 
-		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"),"127.0.0.1", -1)){
+		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"),"127.0.0.1", 10, TimeUnit.SECONDS)){
 			InetAddress localhost=InetAddress.getByName("127.0.0.1");
 			assertEquals(localhost,c.getTSIAddress());
 		}
 		int n = f.getNumberOfPooledConnections();
-		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.0.1", -1)){}
+		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.0.1", 10, TimeUnit.SECONDS)){}
 		assertEquals(n,f.getNumberOfPooledConnections());
 
 		try{
-			f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "no-such-host", -1);
+			f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "no-such-host", 10, TimeUnit.SECONDS);
 			fail("expected exception here");
 		}catch(IllegalArgumentException e){
 			assertTrue(e.getMessage().contains("No TSI is configured at 'no-such-host'"));
@@ -378,7 +379,7 @@ public class TestTSI extends RemoteTSITestCase{
 		ExecutionContext ec = new ExecutionContext();
 		TSIMessages tsiMessages = xnjs.get(TSIMessages.class);
 		String message = tsiMessages.makeExecuteScript("sleep 10", ec, null);
-		try (ServerTSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.0.1", -1)){
+		try (ServerTSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.0.1", 10, TimeUnit.SECONDS)){
 			assertEquals(localhost,c.getTSIAddress());
 			c.setTimeouts(3000, false);
 			c.send(message);

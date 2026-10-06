@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
 
@@ -35,12 +36,12 @@ public class MultiCategoryTSITest extends RemoteTSITestCase {
 		assertNotNull(f);
 		assertEquals(2, f.getTSIConnectorStates().size());
 		Client cl = TSIMessages.createMinimalClient("nobody");
-		try(ServerTSIConnection c = f.getTSIConnection(cl, "127.0.*", -1)){
+		try(ServerTSIConnection c = f.getTSIConnection(cl, "127.0.*", 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());
 		}
-		try(ServerTSIConnection c = f.getTSIConnection(cl, "category:bignodes", -1)){
+		try(ServerTSIConnection c = f.getTSIConnection(cl, "category:bignodes", 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());

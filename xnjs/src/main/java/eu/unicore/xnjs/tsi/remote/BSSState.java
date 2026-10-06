@@ -73,8 +73,8 @@ public class BSSState implements IBSSState {
 
 	private final ReentrantLock bssLock = new ReentrantLock(true);
 	
-	// timeout waiting for a TSI connection (before creating a new one)
-	static final int timeout = 10000;
+	// timeout (sec) waiting for a TSI connection
+	static final int timeout = 10;
 
 	/**
 	 * delay (seconds) between runs of the qstat query
@@ -147,7 +147,7 @@ public class BSSState implements IBSSState {
 				String res = null;
 				Client c = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
 				String tsiNode = null;
-				try(TSIConnection conn = connectionFactory.getTSIConnection(c, null, timeout)){
+				try(TSIConnection conn = connectionFactory.getTSIConnection(c, null, timeout, TimeUnit.SECONDS)){
 					tsiNode = conn.getTSIHostName();
 					res = conn.send(tsiMessages.makeStatusCommand(null));
 					log.trace("BSS Status listing [{}]: \n{}", tsiNode, res);
@@ -177,7 +177,7 @@ public class BSSState implements IBSSState {
 				if(!locked) {
 					log.error("Can't get process list from [{}]: can't acquire lock (timeout)", tsiNode);
 					continue;
-				}	
+				}
 				Set<String>pids = new HashSet<>();
 				pids.addAll(getProcessList(tsiNode));
 				parts.add(updateInteractiveJobs(bssInfo, tsiNode, pids, eventHandler));
@@ -234,8 +234,7 @@ public class BSSState implements IBSSState {
 				break;
 			String[] tok = inner.trim().split(" ");
 			if (tok.length < 2) {
-				String msg="Wrong format of QSTAT! Please check the TSI!";
-				throw new IOException(msg);
+				throw new IOException("Wrong format of QSTAT! Please check the TSI ["+tsiNode+"]!");
 			} else {
 				String bssID = tok[0].trim();
 				BSS_STATE newValue = null;
@@ -255,7 +254,6 @@ public class BSSState implements IBSSState {
 					queued++;
 					active=true;
 				}
-
 				// track per-queue info if available
 				String queue=null;
 				if(active && tok.length>2){
@@ -267,13 +265,11 @@ public class BSSState implements IBSSState {
 					fill++;
 					queueFill.put(queue,fill);
 				}
-				
 				// real BSS state
 				String rawBssState = null;
 				if(tok.length>3){
 					rawBssState = tok[3];
 				}
-
 				BSSInfo info=statesMap.get(bssID);
 				if(info==null){
 					continue;
@@ -352,9 +348,7 @@ public class BSSState implements IBSSState {
 		
 		for (String s : bssIDs) {
 			BSSInfo info = statesMap.get(s);
-
 			if(!info.bssID.startsWith(marker))continue;
-			
 			if(interactiveProcesses.contains(s)){
 				// make sure status is RUNNING to try 
 				// and recover in case of a transient error
@@ -387,7 +381,7 @@ public class BSSState implements IBSSState {
 	public Set<String> getProcessList(String tsiNode)throws IOException, TSIProblem {
 		Set<String>result = new HashSet<>();
 		Client c = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
-		try(TSIConnection conn = connectionFactory.getTSIConnection(c, tsiNode, timeout)){
+		try(TSIConnection conn = connectionFactory.getTSIConnection(c, tsiNode, timeout, TimeUnit.SECONDS)){
 			String res = doGetProcessListing(conn);
 			log.trace("Process listing on [{}]: \n{}", tsiNode, res);
 			if(res==null || !res.startsWith("TSI_OK")){
@@ -407,11 +401,11 @@ public class BSSState implements IBSSState {
 	public static Set<String> parseTSIProcessList(String processList, String tsiNode) throws IOException {
 		Set<String>result = new HashSet<>();
 		BufferedReader br = new BufferedReader(new StringReader(processList.trim()+"\n"));
-		String line=null;
+		String line = null;
 		while(true){
-			line=br.readLine();
+			line = br.readLine();
 			if(line==null)break;
-			Matcher m=psPattern.matcher(line);
+			Matcher m = psPattern.matcher(line);
 			if(!m.matches())continue;
 			result.add("INTERACTIVE_"+tsiNode+"_"+String.valueOf(m.group(1)));
 		}

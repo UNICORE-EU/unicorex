@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.tsi.remote.server.DefaultTSIConnectionFactory;
@@ -22,7 +24,7 @@ public class MultiAddressTSITest extends RemoteTSITestCase {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		assertEquals(2, f.getTSIConnectorStates().size());
-		try(ServerTSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, -1)){
+		try(ServerTSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());
@@ -33,12 +35,12 @@ public class MultiAddressTSITest extends RemoteTSITestCase {
 	public void testConnectionFactory2()throws Exception{
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
-		try(TSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.*", -1)){
+		try(TSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "127.0.*", 10, TimeUnit.SECONDS)){
 		}catch(Exception ex) {
 			assertTrue(ex.getMessage().contains("No TSI is configured at"));
 			System.out.println("EX: "+ex.getMessage());
 		}
-		try(ServerTSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "localh*", -1)){
+		try(ServerTSIConnection c = f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), "localh*", 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
 			System.out.println(c.getConnectionID());

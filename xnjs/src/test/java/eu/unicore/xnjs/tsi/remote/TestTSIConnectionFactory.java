@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -36,14 +37,14 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		List<ServerTSIConnection>connections = new ArrayList<>();
 		Client cl = TSIMessages.createMinimalClient("nobody");
 		for(int i = 0; i<8; i++){
-			ServerTSIConnection c=f.getTSIConnection(cl, null, -1);
+			ServerTSIConnection c=f.getTSIConnection(cl, null, 10, TimeUnit.SECONDS);
 			connections.add(c);
 		}
 		System.out.println("Connections : "+f.getLiveConnections());
 		assertEquals(8, f.getLiveConnections());
 		// check limit is respected
 		assertThrows(TSIUnavailableException.class, ()->
-			f.getTSIConnection(cl, null, -1));
+			f.getTSIConnection(cl, null, 10, TimeUnit.SECONDS));
 		// put back into pool
 		for(ServerTSIConnection c: connections){
 			c.close();
@@ -57,10 +58,10 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
 		assertNotNull(f);
 		Client cl = TSIMessages.createMinimalClient("nobody");
-		ServerTSIConnection c = f.getTSIConnection(cl, null, -1);
+		ServerTSIConnection c = f.getTSIConnection(cl, null, 10, TimeUnit.SECONDS);
 		c.close();
 		f.getTSISocketFactory().reInit();
-		c = f.getTSIConnection(cl, null, -1);
+		c = f.getTSIConnection(cl, null, 10, TimeUnit.SECONDS);
 		c.close();
 	}
 

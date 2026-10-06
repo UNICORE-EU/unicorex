@@ -73,8 +73,8 @@ public class Execution extends BasicExecution {
 
 	private final TSIProperties tsiProperties;
 
-	// timeout waiting for a TSI connection (before creating a new one)
-	static final int timeout = 10000;
+	// timeout (sec) waiting for a TSI connection
+	static final int timeout = 10;
 
 	//key for storing number of attempts of (re-)submission to BSS
 	public static final String BSS_SUBMIT_COUNT="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_BSSSUBMITCOUNT";
@@ -132,7 +132,7 @@ public class Execution extends BasicExecution {
 		boolean locked = false;
 		boolean runOnLoginSupport = false;
 		try{
-			try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(),preferredTSIHost,-1)){
+			try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(), preferredTSIHost, 30, TimeUnit.SECONDS)){
 				runOnLoginSupport = conn.compareVersion("10.2.0") && !XNJSConstants.asyncCommandType.equals(job.getType());
 				String tsiCmd = createTSIScript(job, runOnLoginSupport);
 				tsiHost = conn.getTSIHostName();
@@ -451,7 +451,7 @@ public class Execution extends BasicExecution {
 		if(!TSIConnection.doCompareVersions(connectionFactory.getTSIVersion(),"9.1.1")){
 			script = "pkill -P "+pid+"; kill "+pid;
 		}
-		try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(), tsiNode, timeout)) {
+		try(TSIConnection conn = connectionFactory.getTSIConnection(job.getClient(), tsiNode, timeout, TimeUnit.SECONDS)) {
 			String res = conn.send(tsiMessages.makeExecuteScript(script, null, extractBSSCredentials(job)));
 			TSIMessages.checkNoErrors(res, conn.getTSIHostName());
 		}
@@ -598,7 +598,7 @@ public class Execution extends BasicExecution {
 		if(client==null) {
 			client = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
 		}
-		try(TSIConnection conn = connectionFactory.getTSIConnection(client, preferredTSIHost, -1))
+		try(TSIConnection conn = connectionFactory.getTSIConnection(client, preferredTSIHost, 30, TimeUnit.SECONDS))
 		{
 			String res = conn.send(command);
 			if(check && !res.contains("TSI_OK")){

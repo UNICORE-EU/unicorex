@@ -12,6 +12,7 @@ import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.Logger;
 
@@ -86,8 +87,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private int umask = -1;
 
-	// timeout waiting for a TSI connection (before creating a new one)
-	static final int timeout = 5000;
+	// timeout (sec) waiting for a TSI connection
+	static final int timeout = 5;
 
 	@Inject
 	public RemoteTSI(XNJSProperties xnjsProperties) {
@@ -122,7 +123,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 		return false;
 	}
 
-	private boolean transactionInProgress=false;
+	private boolean transactionInProgress = false;
 
 	@Override
 	public void startBatch() throws ExecutionException {
@@ -132,12 +133,12 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	@Override
 	public String commitBatch() throws ExecutionException{
-		transactionInProgress=false;
+		transactionInProgress = false;
 		return doCommit();
 	}
 
 	private void doBegin()throws ExecutionException{
-		commands=new StringBuilder();
+		commands = new StringBuilder();
 	}
 
 	private void begin()throws ExecutionException{
@@ -156,8 +157,8 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	@Override
 	public void cleanupBatch(){
-		transactionInProgress=false;
-		commands=new StringBuilder();
+		transactionInProgress = false;
+		commands = new StringBuilder();
 	}
 
 	/**
@@ -190,7 +191,7 @@ public class RemoteTSI implements MultiNodeTSI, BatchMode {
 
 	private TSIConnection getConnection() throws TSIUnavailableException {
 		lastUsedTSIHost = "n/a";
-		TSIConnection c = factory.getTSIConnection(client, preferredHost, timeout);
+		TSIConnection c = factory.getTSIConnection(client, preferredHost, timeout, TimeUnit.SECONDS);
 		lastUsedTSIHost = c.getTSIHostName();
 		return c;
 	}

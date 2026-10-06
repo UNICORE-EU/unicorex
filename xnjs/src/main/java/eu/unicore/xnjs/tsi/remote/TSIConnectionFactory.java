@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
@@ -22,10 +23,11 @@ public interface TSIConnectionFactory {
 	 * 
 	 * @param client - the {@link Client} for which to create the connection
 	 * @param preferredHost - the preferred TSI host (in case multiple hosts are available)
-	 * @param timeoutMillis - timeout for waiting for a connection to become available.
+	 * @param timeout - timeout for waiting for a connection to become available.
+	 * @param units - timeout units
 	 * @return a valid connection object or null in case of errors
 	 */
-	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeoutMillis)
+	public TSIConnection getTSIConnection(Client client, String preferredHost, int timeout, TimeUnit units)
 			throws TSIUnavailableException;
 
 	/**

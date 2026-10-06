@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	@Test
 	public void testPing() throws Exception {
 		PerUserTSIConnection tC = (PerUserTSIConnection)xnjs.get(TSIConnectionFactory.class).
-				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, -1);
+				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, 10, TimeUnit.SECONDS);
 		String reply = TSIMessages.trim(tC.send("#TSI_PING"));
 		System.out.println("TSI PING reply: " + reply);
 		assertTrue(reply.contains("11."));
