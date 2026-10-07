@@ -59,12 +59,6 @@ public class Execution extends BasicExecution {
 	//some events should be logged to the "unicore.xnjs.tsi" category
 	private static final Logger tsiLog=LogUtil.getLogger(LogUtil.TSI, Execution.class);
 
-	/**
-	 * grace time in MILLISECONDS: how much time to allow before deciding that an job was completed,
-	 * in the case the qstat does no longer contain information about the job
-	 */
-	private int gracePeriod = 120*1000;
-
 	private final TSIConnectionFactory connectionFactory;
 
 	private final TSIMessages tsiMessages;
@@ -76,8 +70,11 @@ public class Execution extends BasicExecution {
 	// timeout (sec) waiting for a TSI connection
 	static final int timeout = 10;
 
+	// grace time (sec): how much time to allow for the exit code file to be "missing"
+	private int exitCodeGracePeriod = 30;
+
 	//key for storing number of attempts of (re-)submission to BSS
-	public static final String BSS_SUBMIT_COUNT="JSDL_de.fzj.unicore.xnjs.jsdl.JSDLProcessor_BSSSUBMITCOUNT";
+	public static final String BSS_SUBMIT_COUNT="_BSS_SUBMITCOUNT";
 
 	@Inject
 	public Execution(TSIConnectionFactory factory, IBSSState bss, TSIMessages tsiMessages, TSIProperties tsiProperties){
@@ -85,6 +82,7 @@ public class Execution extends BasicExecution {
 		this.tsiProperties = tsiProperties;
 		this.bss = bss;
 		this.tsiMessages = tsiMessages;
+		this.exitCodeGracePeriod = tsiProperties.getExitCodeGracePeriod();
 		this.bss.init();
 		computeBudgets = buildComputeBudgetCache();
 	}
@@ -311,7 +309,6 @@ public class Execution extends BasicExecution {
 			if(!haveExitCode){
 				if(!hasGracePeriodPassed(job)){
 					jobExecLogger.debug("Waiting for job <{}> BSS id={} to finish and write exit code file.", jobID, bssID);
-					info.bssState = BSS_STATE.CHECKING_FOR_EXIT_CODE;
 				}
 				else {
 					jobExecLogger.debug("Assuming job <{}> BSS id={} is completed.", jobID, bssID);
@@ -394,7 +391,7 @@ public class Execution extends BasicExecution {
 	}
 
 	private boolean hasGracePeriodPassed(Action job){
-		int myGracePeriod = gracePeriod;
+		int myGracePeriod = exitCodeGracePeriod;
 		Long timeOfFirstStatusCheck=(Long)job.getProcessingContext().get(GRACE_PERIOD_start);
 		if(timeOfFirstStatusCheck==null){
 			timeOfFirstStatusCheck = Long.valueOf(System.currentTimeMillis());
@@ -404,7 +401,7 @@ public class Execution extends BasicExecution {
 		//check if a custom grace period has been defined
 		Integer g=(Integer)job.getProcessingContext().get(CUSTOM_GRACE_PERIOD);
 		if(g!=null)myGracePeriod = g;
-		return System.currentTimeMillis()>timeOfFirstStatusCheck+myGracePeriod;
+		return System.currentTimeMillis()>timeOfFirstStatusCheck + (1000*myGracePeriod);
 	}
 	
 	private void resetGracePeriod(Action job){
@@ -625,7 +622,6 @@ public class Execution extends BasicExecution {
 			this.jobID=jobID;
 			this.bssState=bssState;
 		}
-
 	}
 
 	public static class BSSSummary{

@@ -232,7 +232,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	
 	public boolean compareVersion(String minRequired) {
 		if(tsiVersion==null)return false;
-		return TSIConnection.doCompareVersions(tsiVersion, minRequired);
+		return TSIConnection.doCompareVersions(tsiVersion.split("-",2)[0], minRequired);
 	}
 
 	private void appendSocketInfo(Socket s, StringBuilder sb){
@@ -464,13 +464,10 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 
 	private static final Map<String, Boolean> issuedWarnings = new HashMap<>();
 
-	public static final String RECOMMENDED_TSI_VERSION = "10.4.0";
+	public static final String RECOMMENDED_TSI_VERSION = "11.0.0";
 
-	/**
-	 * get the TSI version
-	 */
 	@Override
-	public synchronized String getTSIVersion() throws IOException {
+	public String getTSIVersion() throws IOException {
 		if(tsiVersion==null){
 			tsiVersion = doGetVersion();
 		}
@@ -492,16 +489,11 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 		return tsiVersion;
 	}
 
-	//perform a TSI_PING and return the TSI version
 	private String doGetVersion()throws IOException{
-		String v=null;
 		try{
 			// use the shorter timeout for this
 			command.socket.setSoTimeout(pingTimeout);
-			String reply = send("#TSI_PING");
-			if(reply!=null && reply.length()>0){
-				v = TSIMessages.trim(reply);
-			}
+			return TSIMessages.trim(send("#TSI_PING"));
 		}catch(IOException se){
 			throw se;
 		}catch(Exception e){
@@ -510,7 +502,6 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 		finally{
 			setTimeouts(readTimeout, true);
 		}
-		return v;
 	}
 
 	void setConnectionID(String id){

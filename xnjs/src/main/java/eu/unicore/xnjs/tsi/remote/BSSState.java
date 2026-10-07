@@ -72,12 +72,12 @@ public class BSSState implements IBSSState {
 	private final Map<String, ReentrantLock> perNodeLocks = new HashMap<>();
 
 	private final ReentrantLock bssLock = new ReentrantLock(true);
-	
+
 	// timeout (sec) waiting for a TSI connection
 	static final int timeout = 10;
 
 	/**
-	 * delay (seconds) between runs of the qstat query
+	 * delay (seconds) between runs of the batch system status query
 	 */
 	private int updateInterval = 30;
 
@@ -90,7 +90,7 @@ public class BSSState implements IBSSState {
 	private final long interval = 60*60*1000;
 
 	private boolean haveInit = false;
-	
+
 	@Override
 	public synchronized void init() {
 		if(haveInit)return;
@@ -139,35 +139,45 @@ public class BSSState implements IBSSState {
 			return;
 		}
 		List<BSSSummary> parts = new ArrayList<>();
-		// BSS jobs
-		boolean bssLocked = false;
-		try {
-			bssLocked = bssLock.tryLock(120, TimeUnit.SECONDS);
-			if(bssLocked) {
-				String res = null;
-				Client c = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
-				String tsiNode = null;
-				try(TSIConnection conn = connectionFactory.getTSIConnection(c, null, timeout, TimeUnit.SECONDS)){
-					tsiNode = conn.getTSIHostName();
-					res = conn.send(tsiMessages.makeStatusCommand(null));
-					log.trace("BSS Status listing [{}]: \n{}", tsiNode, res);
-				}
-				parts.add(updateBatchJobStates(bssInfo, TSIMessages.trim(res), eventHandler, tsiNode));
-			}else {
-				log.error("Can't get BSS status listing: can't acquire lock (timeout)");
-			}
-		}
-		catch(TSIUnavailableException tue) {
-			if(System.currentTimeMillis()>lastLoggedTSIFailure+interval) {
-				Log.logException("TSI is not available.",tue, log);
-				lastLoggedTSIFailure = System.currentTimeMillis();
-			}
-		}catch(Exception ex) {
-			Log.logException("Error updating batch job states", ex, log);
-		}finally{
-			if(bssLocked)bssLock.unlock();
-		}
 
+		int attempt = 0;
+		boolean bssLocked = false;
+		String tsiHost = "n/a";
+		while(attempt<3) {
+			try {
+				// BSS jobs
+				bssLocked = bssLock.tryLock(120, TimeUnit.SECONDS);
+				if(bssLocked) {
+					String res = null;
+					Client c = TSIMessages.createMinimalClient(tsiProperties.getBSSUser());
+					try(TSIConnection conn = connectionFactory.getTSIConnection(c, null, timeout, TimeUnit.SECONDS)){
+						tsiHost = conn.getTSIHostName();
+						res = conn.send(tsiMessages.makeStatusCommand(null));
+						log.trace("BSS Status listing [{}]: \n{}", tsiHost, res);
+					}
+					parts.add(updateBatchJobStates(bssInfo, TSIMessages.trim(res), eventHandler));
+				}else {
+					log.error("Can't get BSS status listing: can't acquire lock (timeout)");
+				}
+				// all good
+				break;
+			}
+			catch(TSIUnavailableException tue) {
+				if(System.currentTimeMillis()>lastLoggedTSIFailure+interval) {
+					Log.logException("TSI is not available.",tue, log);
+					lastLoggedTSIFailure = System.currentTimeMillis();
+				}
+				// don't retry
+				break;
+			}catch(Exception ex) {
+				Log.logException("Error updating batch job states via ["+tsiHost+"]", ex, log);
+				// re-try
+				attempt++;
+				Thread.sleep(attempt*5000);
+			}finally{
+				if(bssLocked)bssLock.unlock();
+			}
+		}
 		// interactive processes on all our TSI hosts
 		for(String tsiNode: connectionFactory.getTSIHosts()){
 			Lock lock = getOrCreateLock(tsiNode);
@@ -197,8 +207,8 @@ public class BSSState implements IBSSState {
 		summary = new BSSSummary(parts);
 	}
 
-	public static BSSSummary updateBatchJobStates(final Map<String, BSSInfo> statesMap, String tsiReply, EventHandler handler, String tsiNode)
-	throws IOException {
+	public static BSSSummary updateBatchJobStates(final Map<String, BSSInfo> statesMap, String tsiReply, EventHandler handler)
+			throws IOException {
 		int running=0;
 		int queued=0;
 		int total=0;
@@ -217,10 +227,10 @@ public class BSSState implements IBSSState {
 		BufferedReader br = new BufferedReader(new StringReader(tsiReply.trim()+"\n"));
 		String line = br.readLine();
 		if (line == null)
-			throw new IOException("Empty reply from TSI ["+tsiNode+"]");
+			throw new IOException("Empty reply from TSI");
 		line = line.trim();
 		if (!line.equalsIgnoreCase("QSTAT")) {
-			throw new IOException("No valid QSTAT listing received. TSI ["+tsiNode+"] replied: " + line);
+			throw new IOException("No valid QSTAT listing received. TSI replied: " + line);
 		}
 		Set<String> bssIDs = new HashSet<>();
 		bssIDs.addAll(statesMap.keySet());
@@ -234,14 +244,14 @@ public class BSSState implements IBSSState {
 				break;
 			String[] tok = inner.trim().split(" ");
 			if (tok.length < 2) {
-				throw new IOException("Wrong format of QSTAT! Please check the TSI ["+tsiNode+"]!");
+				throw new IOException("Wrong format of QSTAT");
 			} else {
 				String bssID = tok[0].trim();
 				BSS_STATE newValue = null;
 				try {
 					newValue = BSS_STATE.valueOf(tok[1].trim());
 				}catch(Exception ex) {
-					throw new IOException("Unexpected status <"+tok[1]+"> Wrong format of QSTAT! Please check the TSI ["+tsiNode+"]!");
+					throw new IOException("Unexpected status <"+tok[1]+"> Wrong format of QSTAT!");
 				}
 				// track some stats
 				total++;
@@ -345,7 +355,7 @@ public class BSSState implements IBSSState {
 
 		// only check processes running on the given login node
 		String marker = "INTERACTIVE_"+tsiNode+"_";
-		
+
 		for (String s : bssIDs) {
 			BSSInfo info = statesMap.get(s);
 			if(!info.bssID.startsWith(marker))continue;
@@ -433,14 +443,14 @@ public class BSSState implements IBSSState {
 		// update numbers until the next regular scheduled update
 		summary.total+=1;
 		switch(info.bssState) {
-			case RUNNING:
-				summary.queued+=1;
-				break;
-			case QUEUED:
-				summary.queued+=1;
-				break;
-			default:
-				break;
+		case RUNNING:
+			summary.queued+=1;
+			break;
+		case QUEUED:
+			summary.queued+=1;
+			break;
+		default:
+			break;
 		}
 	}
 

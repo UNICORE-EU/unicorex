@@ -66,6 +66,8 @@ public class TSIProperties extends PropertiesHelper {
 	 */
 	public static final String BSS_GRACE_PERIOD="statusupdate.grace";
 
+	public static final String BSS_GRACE_MISSING_IN_QSTAT="statusupdate.retry_missing";
+
 	public static final String RES_ENABLED="reservationEnabled";
 	
 	/**
@@ -138,7 +140,9 @@ public class TSIProperties extends PropertiesHelper {
 				setDescription("(deprecated)"));
 		META.put(JOBLIMIT, new PropertyMD("-1").setInt().
 				setDescription("Limit number of running jobs (useful with NOBATCH TSI, -1 = no limit)"));
-		META.put(BSS_GRACE_PERIOD, new PropertyMD("2").setInt().setPositive().
+		META.put(BSS_GRACE_PERIOD, new PropertyMD("30").setInt().setPositive().
+				setDescription("How many seconds the XNJS will wait for the exit code file to appear."));
+		META.put(BSS_GRACE_MISSING_IN_QSTAT, new PropertyMD("3").setInt().setPositive().
 				setDescription("How many times the XNJS will re-check job status in case of a 'lost' job."));
 		META.put(TSI_FILESYSTEM_ID, new PropertyMD().setDescription("TSI filesystem identifier which "
 				+ "uniquely identifies the file system. "
@@ -184,6 +188,19 @@ public class TSIProperties extends PropertiesHelper {
 	public int getStatusUpdateInterval(){
 		int x  = getIntValue(BSS_UPDATE_INTERVAL);
 		// sanitize a bit in case of old configuration (which was milliseconds)
+		if(x>1000)x=x/1000;
+		if(x<5)x=5;
+		return x;
+	}
+
+	/**
+	 * time (sec) to wait for the exit code file to appear
+	 * (for slow networked file systems)
+	 * (will never be smaller than 5 seconds)
+	 */
+	public int getExitCodeGracePeriod(){
+		int x  = getIntValue(BSS_GRACE_PERIOD);
+		// sanitize in case of old configuration (which was milliseconds)
 		if(x>1000)x=x/1000;
 		if(x<5)x=5;
 		return x;

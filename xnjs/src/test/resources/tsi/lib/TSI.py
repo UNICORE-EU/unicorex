@@ -188,14 +188,16 @@ def finish_setup(config: dict, LOG: Logger):
     setup_portrange(config, LOG)
 
 
-def ping(connector: Connector):
+def ping(config: dict, connector: Connector):
     """ Returns TSI version."""
-    connector.ok(MY_VERSION)
+    v = config['tsi.bss'].get_variant()
+    connector.ok(MY_VERSION+"-"+v)
 
 
 def ping_uid(msg: str, connector: Connector, config: dict, LOG: Logger):
     """ Returns TSI version and process' UID. Used for unit testing."""
-    connector.ok(MY_VERSION)
+    v = config['tsi.bss'].get_variant()
+    connector.ok(MY_VERSION+"-"+v)
     connector.write_message(" running as UID [%s]" % config.get('tsi.effective_uid', "n/a"))
 
 
@@ -389,7 +391,7 @@ def process(connector: Connector, config: dict, LOG: Logger, one_shot=False):
         if function is None:
             connector.failed("Unknown #TSI_* command")
         elif "TSI_PING" == command:
-            ping(connector)
+            ping(config, connector)
         else:
             handle_function(function, command, message, connector, config, LOG)
         connector.write_message("ENDOFMESSAGE")

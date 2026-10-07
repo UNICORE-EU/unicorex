@@ -48,6 +48,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	private final AtomicInteger liveConnections=new AtomicInteger(0);
 
 	private final Map<String,TSIConnector> connectors = new HashMap<>();
+
 	private TSIConnector[] connectorList;
 
 	private final Set<String> tsiHostCategories = new HashSet<>();
@@ -59,7 +60,7 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 	private TSISocketFactory server=null;
 
 	// TSI machine
-	private String machineID="";
+	private String machineID = "";
 
 	private volatile boolean isRunning = false;
 

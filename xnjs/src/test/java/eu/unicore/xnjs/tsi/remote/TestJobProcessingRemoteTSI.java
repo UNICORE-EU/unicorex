@@ -244,7 +244,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		var s1 = "QSTAT \n 2795100 RUNNING\n 2795100 RUNNING \n";
 		var st = new HashMap<String, BSSInfo>();
 		st.put("2795100", new BSSInfo("2795100", "j1", BSS_STATE.UNKNOWN));
-		BSSState.updateBatchJobStates(st,s1,null, "");
+		BSSState.updateBatchJobStates(st,s1,null);
 		assertEquals(BSS_STATE.RUNNING,st.get("2795100").bssState);
 	}
 
@@ -260,7 +260,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		}
 
 		var start = System.currentTimeMillis();
-		BSSState.updateBatchJobStates(st, s1.toString(), this, "");
+		BSSState.updateBatchJobStates(st, s1.toString(), this);
 		var end = System.currentTimeMillis();
 		System.out.println("Parsing qstat "+entries+" entries took "+(end-start)+ " msec.");
 		assertEquals(entries,eventsReceived);
@@ -273,7 +273,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		st.put("2795100", new BSSInfo("2795100","j1",BSS_STATE.UNKNOWN));
 		st.put("2795101", new BSSInfo("2795101","j1",BSS_STATE.UNKNOWN));
 		st.put("2795102", new BSSInfo("2795102","j1",BSS_STATE.UNKNOWN));
-		var summary = BSSState.updateBatchJobStates(st,s1,null, "");
+		var summary = BSSState.updateBatchJobStates(st,s1,null);
 		assertEquals(BSS_STATE.RUNNING,st.get("2795100").bssState);
 		System.out.println(summary.toString());
 		assertEquals(2, summary.queueFilling.get("NORMAL").intValue());
