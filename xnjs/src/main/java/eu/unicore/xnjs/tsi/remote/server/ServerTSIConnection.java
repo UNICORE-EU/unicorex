@@ -298,10 +298,8 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 				output.flush();
 			} catch (Exception e) {
 				shutdown();
-				String msg = Log.getDetailMessage(e);
-				connector.notOK(msg);
 				throw new IOException("Failure sending request to TSI <" +
-						connector.getHostname()+">: "+msg);
+						connector.getHostname()+">: "+Log.getDetailMessage(e));
 			}
 			try{
 				String line = input.readLine();
@@ -317,10 +315,8 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 				}
 			}catch(Exception e){
 				shutdown();
-				String msg = Log.getDetailMessage(e);
-				connector.notOK(msg);
 				throw new IOException("Failure reading reply from TSI <" +
-						connector.getHostname()+">: "+msg);
+						connector.getHostname()+">: " + Log.getDetailMessage(e));
 			}
 			logger.debug("<-- {}", reply);
 			return reply.toString();
