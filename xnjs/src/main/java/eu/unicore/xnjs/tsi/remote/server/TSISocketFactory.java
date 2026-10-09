@@ -84,9 +84,9 @@ public class TSISocketFactory implements Closeable {
 		Socket data_socket = null;
 		actualTSIAddress = messageTSI("newtsiprocess "+replyport+"\n", address, port);
 		// Wait for TSI callback (commands first, then data)
-		commands_socket = server.accept();
+		commands_socket = accept();
 		try {
-			data_socket = server.accept();
+			data_socket = accept();
 		} catch(IOException ioe) {
 			IOUtils.closeQuietly(commands_socket);
 			throw ioe;
