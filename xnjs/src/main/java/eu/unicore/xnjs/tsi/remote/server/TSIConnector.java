@@ -2,18 +2,14 @@ package eu.unicore.xnjs.tsi.remote.server;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.net.ssl.SSLEngine;
-
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.util.Log;
-import eu.unicore.util.SSLSocketChannel;
+import eu.unicore.util.Pair;
 import eu.unicore.xnjs.tsi.remote.IConnector;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.TSIProperties;
@@ -26,7 +22,7 @@ import eu.unicore.xnjs.util.LogUtil;
  */
 public class TSIConnector implements IConnector {
 
-	private static final Logger log=LogUtil.getLogger(LogUtil.TSI,TSIConnector.class);
+	private static final Logger log = LogUtil.getLogger(LogUtil.TSI,TSIConnector.class);
 
 	private final String hostname;
 	private final InetAddress address;
@@ -89,15 +85,11 @@ public class TSIConnector implements IConnector {
 	}
 
 	public void set(TSISocketFactory server, String key, String value) throws IOException {
-		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
-		synchronized(server) {
-			try {
-				server.setSoTimeout(connectTimeout);
-				messageTSI(server, "set "+key+" "+value+"\n");
-			}catch(IOException ex) {
-				notOK(Log.createFaultMessage("Can't set parameter on TSI"+this, ex));
-				throw ex;
-			}
+		try {
+			server.set(key, value, address, port);
+		}catch(IOException ex) {
+			notOK(Log.createFaultMessage("Can't set parameter on TSI"+this, ex));
+			throw ex;
 		}
 	}
 
@@ -107,62 +99,10 @@ public class TSIConnector implements IConnector {
 	 * @throws IOException
 	 */
 	private ServerTSIConnection doCreateNewTSIConnection(TSISocketFactory server)throws IOException{
-		ServerTSIConnection newConn=null;
-		// Ask shepherd for a new worker
-		InetAddress actualTSIAddress=null;
+		Pair<Socket,Socket> socks = server.createSocketPair(address, port);
 		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
 		int readTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_TIMEOUT);
-		int replyport = properties.getTSIMyPort();
-		Socket commands_socket = null;
-		Socket data_socket = null;
-		synchronized(server) {
-			server.setSoTimeout(connectTimeout);
-			actualTSIAddress = messageTSI(server, "newtsiprocess "+replyport+"\n");
-			// Wait for TSI callback (commands first, then data)
-			commands_socket = server.accept();
-			try {
-				data_socket = server.accept();
-			} catch(IOException ioe) {
-				IOUtils.closeQuietly(commands_socket);
-				throw ioe;
-			}
-		}
-		boolean no_check = properties.getBooleanValue(TSIProperties.TSI_NO_CHECK);
-		// Make sure that pair comes from same machine
-		if(!no_check && !commands_socket.getInetAddress().equals(data_socket.getInetAddress())) {
-			String msg = "TSI problem: data/command socket address mismatch"
-					+ "Data: "+data_socket.getInetAddress()
-					+ "Cmd:  " +commands_socket.getInetAddress()
-					+ ". Contact site administration!";
-			IOUtils.closeQuietly(data_socket, commands_socket);
-			try {
-				// just in case the connect/accept mechanism is messed up 
-				// for some reason (like tsi restarts)
-				synchronized(server) {
-					server.reInit();
-				}
-			}catch(Exception ex) {}
-			throw new IOException(msg);
-		}
-
-		// and want them both to be from the correct place
-		if(!no_check && !commands_socket.getInetAddress().equals(actualTSIAddress)) {
-			String msg = "Invalid new TSI connection (wrong machine). "
-					+ "Expected: "+actualTSIAddress
-					+ " Got: " +commands_socket.getInetAddress()
-					+ ". Contact site administration!";
-			IOUtils.closeQuietly(commands_socket, data_socket);
-			try {
-				// just in case the connect/accept mechanism is messed up 
-				// for some reason (like tsi restarts)
-				synchronized(server) {
-					server.reInit();
-				}
-			}catch(Exception ex) {}
-			throw new IOException(msg);
-		}
-
-		newConn = new ServerTSIConnection(commands_socket, data_socket, factory, this);
+		ServerTSIConnection newConn = new ServerTSIConnection(socks.getM1(), socks.getM2(), this);
 		newConn.setTimeouts(readTimeout, true);
 		newConn.setPingTimeout(connectTimeout);
 		newConn.getTSIVersion();
@@ -176,7 +116,7 @@ public class TSIConnector implements IConnector {
 		}
 		try{
 			log.debug("Contacting TSI at {}", address);
-			SocketChannel s = doConnectToService(server, serviceAddress, user, group);
+			SocketChannel s = server.connectToService(serviceAddress, user, group, address, port);
 			log.info("Started port forwarding to {}", serviceAddress);
 			OK();
 			return s;
@@ -188,68 +128,8 @@ public class TSIConnector implements IConnector {
 		}
 	}
 
-	private SocketChannel doConnectToService(TSISocketFactory server, String serviceAddress, String user, String group)
-			throws IOException {
-		InetAddress actualTSIAddress=null;
-		int connectTimeout = 1000 * properties.getIntValue(TSIProperties.TSI_CONNECT_TIMEOUT);
-		int replyport = properties.getTSIMyPort();
-		SocketChannel base = null;
-		SocketChannel result = null;
-		synchronized(server) {
-			server.setSoTimeout(connectTimeout);
-			String msg = String.format("start-forwarding %s %s %s %s\n", replyport, serviceAddress, user, group);
-			actualTSIAddress = messageTSI(server, msg);
-			base = server.accept(false).getChannel();
-			if(server.useSSL()) {
-				SSLEngine engine = server.getSSLContext().createSSLEngine(hostname, port);
-				engine.setUseClientMode(false);
-				result = new SSLSocketChannel(base, engine, null);
-				result.finishConnect();
-			}
-			else {
-				result = base;
-			}
-		}
-		boolean no_check = properties.getBooleanValue(TSIProperties.TSI_NO_CHECK);
-		if(!no_check) {
-			// want socket to be from the correct place
-			InetSocketAddress remoteAddr = (InetSocketAddress)base.getRemoteAddress();
-			if(!remoteAddr.getAddress().equals(actualTSIAddress)) {
-				String msg = "Invalid new TSI forwarding socket (wrong machine). "
-						+ "Expected: " + actualTSIAddress
-						+ "Got: "  + remoteAddr.getAddress()
-						+ ". Contact site administration!";
-				IOUtils.closeQuietly(result);
-				try {
-					// just in case the connect/accept mechanism is messed up
-					// for some reason (like tsi restarts)
-					server.reInit();
-				}catch(Exception ex) {}
-				throw new IOException(msg);
-			}
-		}
-		result.configureBlocking(false);
-		return result;
-	}
-
 	public String toString(){
 		return "TSI connector @ "+address+":"+port;
-	}
-
-	/**
-	 * send a message to the main TSI process
-	 * 
-	 * @return the peer address (which may be different the from tsiHost parameter in some cases like DNS level redirects)
-	 * @throws Exception
-	 */
-	private InetAddress messageTSI(TSISocketFactory server, String message) throws IOException {
-		log.debug("Messaging main TSI process at {}:{} <{}>", address, port, message);
-		Socket s = server.createSocket(address, port);
-		s.getOutputStream().write(message.getBytes());
-		s.getOutputStream().flush();
-		// Read from the TSI daemon, just an ack that all is OK
-		try {s.getInputStream().read(); s.close();} catch(IOException ex) {}
-		return s.getInetAddress();
 	}
 
 	private boolean ok = true;
@@ -296,4 +176,7 @@ public class TSIConnector implements IConnector {
 		return statusMessage;
 	}
 
+	public TSIConnectionFactory getFactory() {
+		return factory;
+	}
 }

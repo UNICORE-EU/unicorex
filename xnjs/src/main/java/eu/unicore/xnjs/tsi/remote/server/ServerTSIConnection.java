@@ -43,8 +43,6 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 
 	private final Data data;
 
-	private final TSIConnectionFactory factory;
-
 	private String tsiVersion;
 
 	private String connectionID;
@@ -62,10 +60,9 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	 * @param connector - the TSI connector
 	 * @throws IOException
 	 */
-	public ServerTSIConnection(Socket commandSocket, Socket dataSocket, TSIConnectionFactory factory, TSIConnector connector) throws IOException {
+	public ServerTSIConnection(Socket commandSocket, Socket dataSocket, TSIConnector connector) throws IOException {
 		this.command = new Command(commandSocket);
 		this.data = new Data(dataSocket);
-		this.factory = factory;
 		this.connector = connector;
 	}
 
@@ -198,7 +195,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	public void close() {
 		idLine = "";
 		if(!shutDown){
-			factory.done(this);
+			connector.getFactory().done(this);
 		}
 	}
 	
@@ -211,7 +208,7 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 			logger.debug("Connection {} shutdown.", getConnectionID());
 			shutDown = true;
 			IOUtils.closeQuietly(command, data);
-			factory.notifyConnectionDied();
+			connector.getFactory().notifyConnectionDied();
 		}
 	}
 

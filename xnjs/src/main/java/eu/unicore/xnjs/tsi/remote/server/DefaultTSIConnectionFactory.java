@@ -22,9 +22,9 @@ import eu.unicore.util.configuration.PropertyChangeListener;
 import eu.unicore.xnjs.XNJS;
 import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
-import eu.unicore.xnjs.tsi.remote.TSIConnection;
 import eu.unicore.xnjs.tsi.remote.IConnector;
 import eu.unicore.xnjs.tsi.remote.TSIConfigurator;
+import eu.unicore.xnjs.tsi.remote.TSIConnection;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.xnjs.tsi.remote.TSIProperties;
@@ -44,8 +44,8 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 
 	private final XNJS xnjs;
 
-	//count how many connections are currently alive
-	private final AtomicInteger liveConnections=new AtomicInteger(0);
+	// how many connections are currently alive
+	private final AtomicInteger liveConnections = new AtomicInteger(0);
 
 	private final Map<String,TSIConnector> connectors = new HashMap<>();
 
