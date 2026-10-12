@@ -122,7 +122,7 @@ public class JSONParser {
 		}
 		String source = JSONUtils.getStringAlt(spec, "From", "source");
 		if(source==null && JSONUtils.hasKey(spec, "Data")) {
-			source = "inline:/dummy";
+			source = "inline://dummy";
 		}
 		dsi.setFileName(to);
 		dsi.setSources(new URI[]{new URI(source)});

@@ -145,18 +145,6 @@ public class JSONJobProcessor extends JobProcessor<JSONObject> {
 	protected String getUmask() {
 		return JSONParser.parseUmask(getJobDescriptionDocument());
 	}
-	
-	@Override
-	protected boolean hasStageIn() {
-		JSONArray imports = getJobDescriptionDocument().optJSONArray("Imports");
-		return imports!=null && imports.length()>0;
-	}
-
-	@Override
-	protected boolean hasStageOut() {
-		JSONArray exports = getJobDescriptionDocument().optJSONArray("Exports");
-		return exports!=null && exports.length()>0;
-	}
 
 	@Override
 	protected void extractNotBefore() throws ExecutionException {

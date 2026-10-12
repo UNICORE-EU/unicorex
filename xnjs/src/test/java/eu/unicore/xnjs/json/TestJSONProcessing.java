@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.EMSTestBase;
+import eu.unicore.xnjs.io.IOProperties;
 
 public class TestJSONProcessing extends EMSTestBase {
 
@@ -48,6 +49,11 @@ public class TestJSONProcessing extends EMSTestBase {
 		assertNull(a.getStageIns());
 		a.printLogTrace();
 	}
+	
+	//timeout in seconds
+	protected int getTimeOut(){
+		return 100*60;
+	}
 
 	@Test
 	public void testSingleJSONJob2() throws Exception {
@@ -64,7 +70,27 @@ public class TestJSONProcessing extends EMSTestBase {
 		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		assertEquals(2, a.getStageIns().size());
 	}
-	
+
+	@Test
+	public void testSingleJSONJob_withExtras() throws Exception {
+		JSONObject j = loadJSONObject("src/test/resources/json/date_with_stagein.json");
+		j.put("User precommand", "sleep 1");
+		j.put("RunUserPrecommandOnLoginNode", "false");
+		j.getJSONObject("Resources").put("Reservation", "test123");
+		xnjs.getIOProperties().setProperty(IOProperties.STAGING_FS_WAIT, "true");
+		Action a = xnjs.makeAction(j);
+		String id = a.getUUID();
+		mgr.add(a,createClient());
+		a = mgr.getAction(id);
+		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
+		doRun(id);
+		assertSuccessful(id);
+		a = mgr.getAction(id);
+		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
+		assertEquals(2, a.getStageIns().size());
+		xnjs.getIOProperties().setProperty(IOProperties.STAGING_FS_WAIT, "false");
+		a.printLogTrace();
+	}
 
 	private static String[] pre_post_jobs = { 
 					"src/test/resources/json/precommand-fail.json",

@@ -14,5 +14,8 @@
 
   "Exports": {
     "stdout" : {  "To": "file:///dev/null" }
-  }
+  },
+
+  "Resources": { }
+
 }

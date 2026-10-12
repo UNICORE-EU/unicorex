@@ -25,7 +25,7 @@ import eu.unicore.xnjs.io.DataStageOutInfo;
 @JSON(customHandlers={Wrapper.WrapperConverter.class})
 public class Action implements Serializable {
 
-	private static final long serialVersionUID=1L;
+	private static final long serialVersionUID = 1L;
 
 	private String UUID;
 
@@ -37,7 +37,7 @@ public class Action implements Serializable {
 	//optional the id assigned by the batch system
 	private String BSID;
 
-	private String bssDetails="";
+	private String bssDetails = "";
 
 	private Date terminationTime;
 
@@ -68,9 +68,9 @@ public class Action implements Serializable {
 	//the application information
 	private ApplicationInfo applicationInfo;
 
-	private List<DataStageInInfo>stageIns;
+	private final List<DataStageInInfo>stageIns = new ArrayList<>();
 
-	private List<DataStageOutInfo>stageOuts;
+	private final List<DataStageOutInfo>stageOuts = new ArrayList<>();
 
 	// if true, Action needs to be written back into persistence
 	private transient boolean dirty=false;
@@ -292,7 +292,8 @@ public class Action implements Serializable {
 	}
 
 	public void setStageIns(List<DataStageInInfo> stageIns) {
-		this.stageIns = stageIns;
+		this.stageIns.clear();
+		if(stageIns!=null)this.stageIns.addAll(stageIns);
 	}
 
 	public List<DataStageOutInfo> getStageOuts() {
@@ -300,7 +301,8 @@ public class Action implements Serializable {
 	}
 
 	public void setStageOuts(List<DataStageOutInfo> stageOuts) {
-		this.stageOuts = stageOuts;
+		this.stageOuts.clear();
+		if(stageOuts!=null)this.stageOuts.addAll(stageOuts);
 	}
 
 	public void setWaitForClientStageIn(boolean waitForClientStageIn){
