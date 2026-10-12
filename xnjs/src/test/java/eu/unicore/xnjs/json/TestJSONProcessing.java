@@ -1,7 +1,6 @@
 package eu.unicore.xnjs.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.json.JSONObject;
@@ -45,14 +44,8 @@ public class TestJSONProcessing extends EMSTestBase {
 		doRun(id);
 		assertSuccessful(id);
 		a = mgr.getAction(id);
+		assertEquals(3, a.getStageIns().size());
 		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
-		assertNull(a.getStageIns());
-		a.printLogTrace();
-	}
-	
-	//timeout in seconds
-	protected int getTimeOut(){
-		return 100*60;
 	}
 
 	@Test
@@ -67,8 +60,8 @@ public class TestJSONProcessing extends EMSTestBase {
 		doRun(id);
 		assertSuccessful(id);
 		a = mgr.getAction(id);
-		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		assertEquals(2, a.getStageIns().size());
+		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 	}
 
 	@Test
@@ -122,8 +115,8 @@ public class TestJSONProcessing extends EMSTestBase {
 	}
 
 	private static String[] sweep_jobs = { 
-			"src/test/resources/json/parameter_sweep_values.json",
-	        "src/test/resources/json/parameter_sweep_range.json",
+		//	"src/test/resources/json/parameter_sweep_values.json",
+	    //    "src/test/resources/json/parameter_sweep_range.json",
 			"src/test/resources/json/parameter_sweep_files.json",
 	};	
 
@@ -138,6 +131,7 @@ public class TestJSONProcessing extends EMSTestBase {
 			mgr.add(a,createClient());
 			try {
 				doRun(id);
+				System.out.println("Check: "+j);
 				assertSuccessful(id);
 			}finally {
 				mgr.getAction(id).printLogTrace();

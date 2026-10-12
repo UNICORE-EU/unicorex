@@ -15,15 +15,20 @@ public class JSONSweepInstanceProcessor extends JSONJobProcessor {
 
 	//for storing the sweep params
 	static final String SWEEP_PARAMS_KEY = JSONSweepInstanceProcessor.class.getName()+"_SweepParams";
-	
+
 	//for storing the ID of the master job
 	static final String SWEEP_PARENT_JOB_ID_KEY = JSONSweepInstanceProcessor.class.getName()+"_ParentJob_ID";
-	
+
 	//for storing the Uspace location of the master job
 	static final String SWEEP_PARENT_JOB_USPACE_KEY = JSONSweepInstanceProcessor.class.getName()+"_ParentJob_Uspace";
-	
+
 	public JSONSweepInstanceProcessor(XNJS xnjs){
 		super(xnjs);
 	}
-	
+
+	@Override
+	protected boolean hasStageIn() {
+		System.out.println("!!! ");
+		return super.hasStageIn();
+	}
 }

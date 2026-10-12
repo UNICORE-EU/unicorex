@@ -262,7 +262,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 	protected void handleReady() throws ExecutionException {
 		logger.trace("Handling READY state for Action {}",action.getUUID());
 
-		//handle scheduled processing
+		// handle scheduled processing
 		extractNotBefore();
 
 		if(xnjs.getXNJSProperties().isAutoSubmitWhenReady()){

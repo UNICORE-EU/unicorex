@@ -42,7 +42,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 	public static final String sweepInstanceType = "json-sweep-instance";
 
 	public static final String sweepLinkMarker="__json-sweep-linked-stage-in";
-	
+
 	public static final String sweepFileMarker="__json-sweep-stage-in";
 
 	public static final String sweepDescription="__json-sweep-description";
@@ -62,56 +62,46 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 			action.setStageOuts(extractStageOutInfo());
 			action.setDirty();
 		} catch (Exception e) {
-			if(e instanceof ExecutionException){
-				throw (ExecutionException)e;
-			}
-			else{
-				throw new ExecutionException(e);
-			}
+			throw ExecutionException.wrapped(e);
 		}
 	}
 
 	/**
-	 * stage-in handling: perform non-sweeped imports in the parent, sweeped 
-	 * ones in the child
+	 * stage-in handling: create list non-sweeped imports to be done by the parent,
+	 * delegate sweeped ones to the child
 	 */
 	@Override
 	protected List<DataStageInInfo> extractStageInInfo()throws Exception {
-		if(action.getStageIns()==null){
-			JSONObject jd = getJobDescriptionDocument();
-			JSONArray stage = jd.optJSONArray("Imports");
-			if(stage==null)stage = new JSONArray();
+		JSONObject jd = getJobDescriptionDocument();
+		JSONArray stage = jd.optJSONArray("Imports");
+		if(stage==null)stage = new JSONArray();
 
-			JSONArray doneByParent = new JSONArray();
-			List<JSONObject>doneByChild = new ArrayList<>();
-			for(int i=0; i<stage.length(); i++){
-				JSONObject d = stage.getJSONObject(i);
-				if(d.get("From")instanceof JSONArray){
-					JSONArray inputs = d.getJSONArray("From");
-					// will be sweeped
-					d.put("From", sweepFileMarker);
-					jd.put(sweepFileMarker, inputs);
-					doneByChild.add(d);
-				}
-				else{
-					// not sweeped, so the parent must stage it in, but the
-					// child must link to it! So we'll add it to the doneByChild
-					// list, but with a special marker!
-					doneByParent.put(d);
-					JSONObject childDS = new JSONObject(d.toString());
-					childDS.put("From",sweepLinkMarker);
-					doneByChild.add(childDS);
-				}
+		JSONArray doneByParent = new JSONArray();
+		List<JSONObject>doneByChild = new ArrayList<>();
+		for(int i=0; i<stage.length(); i++){
+			JSONObject d = stage.getJSONObject(i);
+			if(d.get("From")instanceof JSONArray){
+				JSONArray inputs = d.getJSONArray("From");
+				// will be sweeped
+				d.put("From", sweepFileMarker);
+				jd.put(sweepFileMarker, inputs);
+				doneByChild.add(d);
 			}
-
-			// create stage-ins for the parent now
-			action.setStageIns(doExtractStageIn(doneByParent));
-
-			// and change the job description for the child to be done later
-			jd.put("Imports", doneByChild.toArray(new JSONObject[0]));
-			action.setAjd(jd.toString());
+			else{
+				// not sweeped, so the parent must stage it in, but the
+				// child must link to it! So we'll add it to the doneByChild
+				// list, but with a special marker!
+				doneByParent.put(d);
+				JSONObject childDS = new JSONObject(d.toString());
+				childDS.put("From", sweepLinkMarker);
+				doneByChild.add(childDS);
+			}
 		}
-		return action.getStageIns();
+		// change the job description for the child to be done later
+		jd.put("Imports", doneByChild.toArray(new JSONObject[0]));
+		action.setAjd(jd.toString());
+		// create stage-ins for the parent now
+		return doExtractStageIn(doneByParent);
 	}
 
 	@Override
@@ -148,7 +138,7 @@ public class JSONSweepProcessor extends JSONJobProcessor {
 
 	protected void forkChildJobs() throws ExecutionException{
 		JSONObject job = getJobDescriptionDocument();
-		List<String>jobs=getOrCreateJobList();
+		List<String>jobs = getOrCreateJobList();
 		try{
 			int limit = xnjs.getXNJSProperties().getIntValue(XNJSProperties.SWEEP_LIMIT);
 			DocumentSweep ds = createSweep();
