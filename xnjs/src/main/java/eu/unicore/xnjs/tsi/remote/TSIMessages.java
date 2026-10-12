@@ -507,20 +507,6 @@ public class TSIMessages {
 	}
 
 	/**
-	 * make a Cancel command
-	 * 
-	 * @param bssid
-	 * @return command string to send to the TSI
-	 */
-	public String makeCancelCommand(String bssid) {
-		StringBuffer commands = new StringBuffer();
-		commands.append("#TSI_CANCELJOB\n");
-		commands.append("#TSI_BSSID ").append(bssid).append("\n");
-		return commands.toString();
-	}
-
-
-	/**
 	 * make a "get job info" command
 	 * 
 	 * @param bssid

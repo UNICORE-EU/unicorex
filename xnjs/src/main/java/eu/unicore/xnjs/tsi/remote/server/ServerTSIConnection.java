@@ -56,7 +56,6 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 	/**
 	 * @param commandSocket - command socket
 	 * @param dataSocket - data socket
-	 * @param factory - the parent factory
 	 * @param connector - the TSI connector
 	 * @throws IOException
 	 */

@@ -152,7 +152,7 @@ public class Execution extends BasicExecution {
 			}
 			job.addLogTrace("TSI reply: submission OK.");
 			String bssid = TSIMessages.trim(res);
-			msg="Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
+			msg = "Submitted to TSI as ["+idLine+"] with BSSID="+bssid;
 			String internalID = bssid;
 			BSS_STATE initialState = BSS_STATE.QUEUED;
 			if(executeOnLoginNode || allocateOnly){
@@ -204,15 +204,15 @@ public class Execution extends BasicExecution {
 				tsiMessages.makeRunOnLoginNodeCommand(job, extractBSSCredentials(job), runOnLoginSupport) : 
 				tsiMessages.makeSubmitCommand(job, extractBSSCredentials(job));
 	}
-	
-	//for async script execution, read the PID of the submitted script
+
+	// for async script execution, read the PID of the submitted script
 	private long readPID(Action job, String preferredTSINode)throws IOException, ExecutionException, InterruptedException {
-		Thread.sleep(3000); // async submit, so PID file may not yet be written - let's try and avoid errors later
+		Thread.sleep(3000); // PID file may not yet be written - let's try and avoid errors later
 		TSI tsi = tsiFactory.createTSI(job.getClient(), preferredTSINode);
 		ExecutionContext ec = job.getExecutionContext();
 		String pidFile = ec.getOutputDirectory()+"/"+ec.getPIDFileName();
-		jobExecLogger.debug("Reading PID from <{}>",pidFile);
-		long pid=0;
+		jobExecLogger.debug("Reading PID from <{}>", pidFile);
+		long pid = 0;
 		for(int i=0; i<3; i++){
 			try{
 				pid = Long.valueOf(IOUtils.readTSIFile(tsi, pidFile, 1024).trim());
@@ -260,7 +260,7 @@ public class Execution extends BasicExecution {
 
 	public void updateStatus(Action job) throws ExecutionException {
 		try{		
-			final String bssID=job.getBSID();
+			final String bssID = job.getBSID();
 			if(bssID==null){
 				throw new Exception("Status check can't be done: action <"+job.getUUID()+"> does not have a batch system ID.");
 			}

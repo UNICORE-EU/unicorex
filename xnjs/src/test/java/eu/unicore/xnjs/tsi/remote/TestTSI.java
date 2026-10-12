@@ -3,6 +3,7 @@ package eu.unicore.xnjs.tsi.remote;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -208,7 +209,14 @@ public class TestTSI extends RemoteTSITestCase{
 		Calendar startTime=Calendar.getInstance();
 		startTime.add(Calendar.DAY_OF_MONTH,2);
 		String id = r.makeReservation(resources, startTime, c);
+		System.out.println("Reservation <"+id+"> is <"+r.queryReservation(id, c).getStatus()+">");
 		r.cancelReservation(id, c);
+		assertThrows(Exception.class, ()->{
+			r.queryReservation("no_such_reservation", c);
+		});
+		assertThrows(Exception.class, ()->{
+			r.cancelReservation("no_such_reservation", c);
+		});
 	}
 
 	@Test

@@ -54,7 +54,7 @@ public class Reservation implements IReservation {
 			try(TSIConnection conn = getTSIConnection(client)){
 				String res=conn.send(tsiCmd);
 				if(res.contains("TSI_FAILED")){
-					String msg="Resource reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
+					String msg="Cancel reservation on TSI <"+lastTSIHost+"> failed. Reply was <"+res+">";
 					throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,msg);
 				}
 			}
@@ -128,7 +128,7 @@ public class Reservation implements IReservation {
 					throw new ExecutionException(ErrorCode.ERR_TSI_EXECUTION,msg);
 				}
 			}
-			rs=parseTSIReply(res);
+			rs = parseTSIReply(res);
 		}catch(Exception e){
 			throw ExecutionException.wrapped(e);
 		}
@@ -151,26 +151,23 @@ public class Reservation implements IReservation {
 	 * optional second line is description
 	 */
 	protected ReservationStatus parseTSIReply(String tsiReply)throws Exception{
-		ReservationStatus rs=new ReservationStatus();
-		
-		BufferedReader br=new BufferedReader(new StringReader(tsiReply));
-		
-		String line=br.readLine();
+		ReservationStatus rs = new ReservationStatus();
+		BufferedReader br = new BufferedReader(new StringReader(tsiReply));
+		String line = br.readLine();
 		if(line==null || !"TSI_OK".equals(line)){
 			throw new Exception("TSI reply <"+tsiReply+"> has wrong format: expect TSI_OK as first line");
 		}
-		
-		line=br.readLine();
-		String[] reply=line.trim().split(" ");
+		line = br.readLine();
+		String[] reply = line.trim().split(" ");
 		rs.setStatus(Status.valueOf(reply[0].trim()));
 		if(reply.length>1){
-			SimpleDateFormat sf=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-			Calendar c=Calendar.getInstance();
+			SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+			Calendar c = Calendar.getInstance();
 			c.setTime(sf.parse(reply[1]));
 			rs.setStartTime(c);
 		}
 		//last line is optional description
-		line=br.readLine();
+		line = br.readLine();
 		if(line!=null){
 			rs.setDescription(line);
 		}

@@ -69,6 +69,8 @@ public class TestJSONProcessing extends EMSTestBase {
 		JSONObject j = loadJSONObject("src/test/resources/json/date_with_stagein.json");
 		j.put("User precommand", "sleep 1");
 		j.put("RunUserPrecommandOnLoginNode", "false");
+		j.put("User postcommand", "sleep 1");
+		j.put("RunUserPostcommandOnLoginNode", "false");
 		j.getJSONObject("Resources").put("Reservation", "test123");
 		xnjs.getIOProperties().setProperty(IOProperties.STAGING_FS_WAIT, "true");
 		Action a = xnjs.makeAction(j);
@@ -115,8 +117,8 @@ public class TestJSONProcessing extends EMSTestBase {
 	}
 
 	private static String[] sweep_jobs = { 
-		//	"src/test/resources/json/parameter_sweep_values.json",
-	    //    "src/test/resources/json/parameter_sweep_range.json",
+			"src/test/resources/json/parameter_sweep_values.json",
+	    	"src/test/resources/json/parameter_sweep_range.json",
 			"src/test/resources/json/parameter_sweep_files.json",
 	};	
 
