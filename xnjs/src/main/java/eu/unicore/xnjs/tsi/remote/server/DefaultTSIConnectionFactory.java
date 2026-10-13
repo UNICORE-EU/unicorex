@@ -257,10 +257,9 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		if(!isRunning){
 			return "N/A [not started]";
 		}
-		StringBuilder sb=new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 		int numOK = 0;
 		int numTotal = connectors.size();
-
 		for(String h: connectors.keySet()){
 			try(TSIConnection conn = getTSIConnection("nobody", null, h, 30, TimeUnit.SECONDS)){
 				String version = conn.getTSIVersion();
@@ -311,20 +310,8 @@ public class DefaultTSIConnectionFactory implements TSIConnectionFactory, Proper
 		return res;
 	}
 
-	/**
-	 * gets the TSI version as returned by the TSI_PING command
-	 */
 	@Override
 	public synchronized String getTSIVersion(){
-		if(tsiVersion==null){
-			for(String h: connectors.keySet()){
-				try(TSIConnection conn = getTSIConnection("nobody", null, h, 30, TimeUnit.SECONDS)){
-					tsiVersion = conn.getTSIVersion();
-					if(tsiVersion!=null)break;
-				}
-				catch(Exception e){}
-			}
-		}
 		return tsiVersion;
 	}
 

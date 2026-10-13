@@ -41,6 +41,7 @@ import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.IDB;
 import eu.unicore.xnjs.idb.Incarnation;
 import eu.unicore.xnjs.io.http.IConnectionFactory;
+import eu.unicore.xnjs.io.http.SimpleConnectionFactory;
 import eu.unicore.xnjs.persistence.IActionStoreFactory;
 import eu.unicore.xnjs.persistence.JDBCActionStoreFactory;
 import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
@@ -170,7 +171,7 @@ public class XNJSFacade implements ISubSystem {
 
 		@Provides
 		public IConnectionFactory getConnectionFactory(){
-			return new NonValidatingHttpConnectionFactory(getKernel());
+			return new SimpleConnectionFactory();
 		}
 
 	}

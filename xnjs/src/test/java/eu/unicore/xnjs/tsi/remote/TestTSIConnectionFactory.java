@@ -87,7 +87,7 @@ public class TestTSIConnectionFactory extends RemoteTSITestCase {
 	@Test
 	public void testIOError() throws Exception {
 		DefaultTSIConnectionFactory f = (DefaultTSIConnectionFactory)xnjs.get(TSIConnectionFactory.class);
-		f.changeSetting(null, "fail_io", "1");
+		f.changeSetting(getTSIMachine(), "fail_io", "1");
 		RemoteTSI t  = makeTSI();
 		File p = new File("./target/x.dat");
 		try(OutputStream os = t.getOutputStream(p.getAbsolutePath())){

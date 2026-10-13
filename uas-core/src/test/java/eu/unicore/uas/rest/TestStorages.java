@@ -101,6 +101,8 @@ public class TestStorages extends Base {
 		assertTrue(sfcs.size()>0);
 		client.close();
 		sfcs.forEach((x)->x.close());
+		StorageFactoryClient sfc = client.getStorageFactory("DEFAULT");
+		sfc.close();
 	}
 
 	@Test
@@ -121,18 +123,20 @@ public class TestStorages extends Base {
 
 	@Test
 	@SuppressWarnings("deprecation")
-	public void testFactoryErrorType() throws Exception {
+	public void testDeprecatedDefaultFactory() throws Exception {
 		String url = kernel.getContainerProperties().getContainerURL()+
 				"/rest/core/storagefactories/default_storage_factory";
 		System.out.println("Accessing "+url);
 		StorageFactoryClient smf = new StorageFactoryClient(url, kernel.getClientConfiguration(), getAuth());
-		try{
+		assertNotNull(smf.getProperties().getJSONObject("storageDescriptions"));
+		StorageClient sc = smf.createStorage("DEFAULT", null, null);
+		System.out.println("Created "+sc.getEndpoint());
+		RESTException e = assertThrows(RESTException.class, ()->{
 			smf.createStorage("non-existing-type","my new SMS", null, null);
-		}catch(RESTException e) {
-			assertTrue(500 == e.getStatus());
-			assertTrue(e.getErrorMessage().contains("non-existing-type"));
-		}
-		IOUtils.closeQuietly(smf);
+		});
+		assertTrue(500 == e.getStatus());
+		assertTrue(e.getErrorMessage().contains("non-existing-type"));
+		IOUtils.closeQuietly(smf, sc);
 	}
 
 	@Test

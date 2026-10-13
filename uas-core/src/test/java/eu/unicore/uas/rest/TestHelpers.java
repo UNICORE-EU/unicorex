@@ -3,6 +3,7 @@ package eu.unicore.uas.rest;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,9 +12,11 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.core.CoreClient;
+import eu.unicore.client.core.EnumerationClient;
 import eu.unicore.client.core.JobClient;
 import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.SiteFactoryClient;
+import eu.unicore.client.core.StorageClient;
 import eu.unicore.client.utils.TaskClient;
 import eu.unicore.client.utils.TaskClient.Status;
 import eu.unicore.services.Home;
@@ -28,6 +31,40 @@ import eu.unicore.xnjs.ems.InternalManager;
 
 public class TestHelpers extends Base {
 	String url;
+
+	@Test
+	public void testCoreClient() throws Exception{
+		CoreClient c = new CoreClient(
+				kernel.getContainerProperties().getContainerURL()+"/rest/core",
+				kernel.getClientConfiguration(),
+				getAuth());
+		System.out.println("Client at "+c.getEndpoint());
+		System.out.println(" * auth info "+c.getClientInfo().toString(2));
+		System.out.println("   * xlogin " +c.getUID()+" "+ Arrays.asList(c.getUIDs()));
+		System.out.println("   * group  " +c.getGroup()+" "+ Arrays.asList(c.getGroups()));
+		System.out.println(" * links:");
+		System.out.println("   * jobs      "+c.getJobsList().getEndpoint());
+		System.out.println("   * transfers "+c.getTransfersList().getEndpoint());
+		System.out.println("   * storages  "+c.getStoragesList().getEndpoint());
+		System.out.println("   * tasks     "+c.getTasksList().getEndpoint());
+		c.close();
+	}
+
+	@Test
+	public void testEnumerationClient() throws Exception{
+		CoreClient c = new CoreClient(
+				kernel.getContainerProperties().getContainerURL()+"/rest/core",
+				kernel.getClientConfiguration(),
+				getAuth());
+		EnumerationClient ec = c.getStoragesList();
+		String u = ec.getUrls(0,1).get(0);
+		System.out.println("List at "+ec.getEndpoint());
+		StorageClient sc = ec.createClient(u, StorageClient.class);
+		System.out.println(" * storage <"+sc.getEndpoint()+"> on "+sc.getMountPoint());
+		ec.setDefaultTags(new String[]{"foo", "bar"});
+		assertEquals(0, ec.getUrls(0, 1).size());
+		IOUtils.closeQuietly(c, ec, sc);
+	}
 
 	@Test
 	public void testTaskService()throws Exception{

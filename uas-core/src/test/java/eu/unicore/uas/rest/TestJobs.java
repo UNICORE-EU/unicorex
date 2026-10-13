@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.client.core.CoreClient;
 import eu.unicore.client.core.JobClient;
+import eu.unicore.client.core.SiteClient;
 import eu.unicore.client.core.StorageClient;
 import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.ForwardingHelper;
@@ -53,13 +54,12 @@ public class TestJobs extends Base {
 		System.out.println(jobProps.toString(2));
 
 		// access parent TSS
-		String tssUrl = job.getLinkUrl("parentTSS");
-		client.setURL(tssUrl);
-		JSONObject tssProps = client.getJSON();
+		SiteClient tss = job.getParentSite();
+		JSONObject tssProps = tss.getProperties();
 		System.out.println("*** parent TSS: ");
 		System.out.println(tssProps.toString(2));
 
-		String jobsURL=client.getLink("jobs");
+		String jobsURL = tss.getLinkUrl("jobs");
 		client.setURL(jobsURL);
 		// check that the job URL is listed
 		System.out.println(client.getJSON().toString(2));
@@ -70,19 +70,24 @@ public class TestJobs extends Base {
 		System.out.println("*** retrieving submitted job: ");
 		System.out.println(submitted.toString(2));
 		assertEquals("Date",submitted.getString("ApplicationName"));
-
-		// details
-		JSONObject details = job.getBSSDetails();
+		job.poll(null);
+		System.out.println(" * name "+job.getJobName());
+		System.out.println(" * time "+job.getSubmissionTime());
+		System.out.println(" * status "+job.getStatus()+" "+job.getStatusMessage());
+		
 		System.out.println("*** bss details: ");
+		JSONObject details = job.getBSSDetails();
 		System.out.println(details.toString(2));
-		// with query params
 		details = job.getBSSDetails("rawDetailsData");
 		assertEquals(1, details.length());
-
-		// working directory
-		JSONObject wdProps = job.getWorkingDirectory().getProperties();
+		System.out.println(" * queue "+job.getQueue());
+		System.out.println(" * exitcode "+job.getExitCode());
+		System.out.println(" * progress "+job.getProgress());
+		
 		System.out.println("*** working directory: ");
+		JSONObject wdProps = job.getWorkingDirectory().getProperties();
 		System.out.println(wdProps.toString(2));
+		
 		IOUtils.closeQuietly(job, client);
 	}
 

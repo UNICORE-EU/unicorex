@@ -6,7 +6,6 @@ import java.util.List;
 import org.json.JSONObject;
 
 import eu.unicore.client.utils.TaskClient;
-import eu.unicore.security.AuthenticationException;
 import eu.unicore.services.restclient.IAuthCallback;
 import eu.unicore.uas.json.JSONUtil;
 import eu.unicore.util.httpclient.IClientConfiguration;
@@ -26,38 +25,22 @@ public class CoreClient extends BaseServiceClient {
 		return getProperties().getJSONObject("client");
 	}
 
-	public String getUID() throws AuthenticationException {
-		try{
-			return getClientInfo().getJSONObject("xlogin").getString("uid");
-		}catch(Exception e){
-			throw new AuthenticationException();
-		}
+	public String getUID() throws Exception {
+		return getClientInfo().getJSONObject("xlogin").getString("UID");
 	}
 
-	public String[] getUIDs() throws AuthenticationException {
-		try{
-			JSONObject json = getClientInfo().getJSONObject("xlogin");
-			return JSONUtil.toArray(json.getJSONArray("availableUIDs"));
-		}catch(Exception e){
-			throw new AuthenticationException();
-		}
+	public String[] getUIDs() throws Exception {
+		JSONObject json = getClientInfo().getJSONObject("xlogin");
+		return JSONUtil.toArray(json.getJSONArray("availableUIDs"));
 	}
 
-	public String getGroup() throws AuthenticationException {
-		try{
-			return getClientInfo().getJSONObject("xlogin").getString("group");
-		}catch(Exception e){
-			throw new AuthenticationException();
-		}
+	public String getGroup() throws Exception {
+		return getClientInfo().getJSONObject("xlogin").getString("group");
 	}
 
-	public String[] getGroups() throws AuthenticationException {
-		try{
-			JSONObject json = getClientInfo().getJSONObject("xlogin");
-			return JSONUtil.toArray(json.getJSONArray("availableGroups"));
-		}catch(Exception e){
-			throw new AuthenticationException();
-		}
+	public String[] getGroups() throws Exception {
+		JSONObject json = getClientInfo().getJSONObject("xlogin");
+		return JSONUtil.toArray(json.getJSONArray("availableGroups"));
 	}
 
 	/**
@@ -82,6 +65,10 @@ public class CoreClient extends BaseServiceClient {
 
 	public EnumerationClient getTransfersList() throws Exception {
 		return new EnumerationClient(getLinkUrl("transfers"), security, auth);
+	}
+
+	public EnumerationClient getTasksList() throws Exception {
+		return new EnumerationClient(getLinkUrl("tasks"), security, auth);
 	}
 
 	public StorageFactoryClient getStorageFactory(String type) throws Exception {
