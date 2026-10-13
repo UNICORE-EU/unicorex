@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -25,7 +24,6 @@ import eu.unicore.uas.UASProperties.TSI_MODE;
 import eu.unicore.uas.trigger.xnjs.SharedTriggerProcessor;
 import eu.unicore.uas.trigger.xnjs.TriggerProcessor;
 import eu.unicore.uas.util.LogUtil;
-import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.IClientConfiguration;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.XNJS;
@@ -39,7 +37,6 @@ import eu.unicore.xnjs.ems.Manager;
 import eu.unicore.xnjs.ems.event.INotificationSender;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.IDB;
-import eu.unicore.xnjs.idb.Incarnation;
 import eu.unicore.xnjs.io.http.IConnectionFactory;
 import eu.unicore.xnjs.io.http.SimpleConnectionFactory;
 import eu.unicore.xnjs.persistence.IActionStoreFactory;
@@ -122,18 +119,18 @@ public class XNJSFacade implements ISubSystem {
 		ConfigurationSource cs = new ConfigurationSource();
 		cs.getProperties().putAll(properties);
 		cs.addModule(new UASBaseModule(kernel));
-		if(TSI_MODE.embedded.equals(mode)){
-			cs.addModule(new LocalTSIModule(properties));
+		switch(mode) {
+			case embedded:
+				cs.addModule(new LocalTSIModule(properties));
+				break;
+			case remote:
+				cs.addModule(new ServerTSIModule(properties));
+				break;
+			case custom:
+				String clazz = uasProps.getValue(UASProperties.TSF_TSI_CUSTOM_MODULE);
+				AbstractModule m = (AbstractModule)(Class.forName(clazz).getConstructor(Properties.class).newInstance(properties));
+				cs.addModule(m);
 		}
-		else if(TSI_MODE.remote.equals(mode)){
-			cs.addModule(new ServerTSIModule(properties));
-		}
-		else if(TSI_MODE.custom.equals(mode)){
-			String clazz = uasProps.getValue(UASProperties.TSF_TSI_CUSTOM_MODULE);
-			AbstractModule m = (AbstractModule)(Class.forName(clazz).getConstructor(Properties.class).newInstance(properties));
-			cs.addModule(m);
-		}
-		else throw new ConfigurationException("Invalid / unsupported TSI mode <"+mode+">");
 		xnjs = new XNJS(cs);
 		configure(xnjs);
 		xnjs.start();
@@ -239,14 +236,6 @@ public class XNJSFacade implements ISubSystem {
 		}
 	}
 
-	public final Kernel getKernel(){
-		return kernel;
-	}
-
-	public String getWorkdir(String actionID) throws Exception {
-		return ems.getAction(actionID).getExecutionContext().getWorkingDirectory();
-	}
-
 	public Action makeAction(JSONObject doc) throws Exception {
 		return xnjs.makeAction(doc);
 	}
@@ -266,27 +255,14 @@ public class XNJSFacade implements ISubSystem {
 	 * Retrieve the exit code of an action
 	 */
 	public final Integer getExitCode(String id, Client client) throws Exception {
-		Action a = mgr.getAction(id);
-		if(a!=null)return a.getExecutionContext().getExitCode();
-		else return null;
+		return mgr.getAction(id).getExecutionContext().getExitCode();
 	}
 
 	/**
 	 * Retrieve the progress of an action
 	 */
 	public final Float getProgress(String id, Client client) throws Exception {
-		Action a = mgr.getAction(id);
-		if(a!=null)return a.getExecutionContext().getProgress();
-		return null;
-	}
-
-	/**
-	 * Retrieve the progress of an action
-	 */
-	public final String getJobDescription(String id) throws Exception {
-		Action a = mgr.getAction(id);
-		if(a!=null)return String.valueOf(a.getAjd());
-		return "n/a";
+		return mgr.getAction(id).getExecutionContext().getProgress();
 	}
 
 	/**
@@ -302,34 +278,12 @@ public class XNJSFacade implements ISubSystem {
 		return ems;
 	}
 
-	public final Incarnation getGrounder(){
-		return xnjs.get(Incarnation.class);
-	}
-
 	public final IDB getIDB(){
 		return xnjs.get(IDB.class);
 	}
 
-	/**
-	 * returns the XNJS object
-	 */
 	public final XNJS getXNJS(){
 		return xnjs;
-	}
-
-	/**
-	 * Returns the number of active jobs (RUNNING/QUEUED) in the various queues. 
-	 * The result may be <code>null</code>, if the system does not have queues 
-	 */
-	public Map<String,Integer>getQueueFill(){
-		return xnjs.get(IExecutionSystemInformation.class).getQueueFill();
-	}
-
-	/**
-	 * Returns the number of active jobs (RUNNING/QUEUED) on the XNJS 
-	 */
-	public int getNumberOfJobs(){
-		return xnjs.get(IExecutionSystemInformation.class).getTotalNumberOfJobs();
 	}
 
 	/**
@@ -354,7 +308,7 @@ public class XNJSFacade implements ISubSystem {
 	 * @return TSI
 	 */
 	public final TSI getStorageTSI(String storageRoot, Client client, String preferredLoginNode){
-		TSI tsi=xnjs.getTargetSystemInterface(client, preferredLoginNode);
+		TSI tsi = xnjs.getTargetSystemInterface(client, preferredLoginNode);
 		tsi.setStorageRoot(storageRoot);
 		return tsi;
 	}
