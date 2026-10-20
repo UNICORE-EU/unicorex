@@ -435,7 +435,7 @@ public class BSSState implements IBSSState {
 	}
 
 	public BSSInfo getBSSInfo(String bssid) {
-		return bssInfo.get(bssid);
+		return bssid!=null? bssInfo.get(bssid) : null;
 	}
 
 	public void putBSSInfo(BSSInfo info) {
@@ -455,7 +455,7 @@ public class BSSState implements IBSSState {
 	}
 
 	public void removeBSSInfo(String bssid) {
-		bssInfo.remove(bssid);
+		if(bssid!=null)bssInfo.remove(bssid);
 	}
 
 	private String doGetProcessListing(TSIConnection tsiConnection) throws IOException {

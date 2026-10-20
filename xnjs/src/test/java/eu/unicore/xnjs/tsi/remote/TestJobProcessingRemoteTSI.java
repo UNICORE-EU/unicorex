@@ -2,6 +2,7 @@ package eu.unicore.xnjs.tsi.remote;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -31,6 +32,7 @@ import eu.unicore.xnjs.ems.event.EventHandler;
 import eu.unicore.xnjs.ems.event.INotificationSender;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
 import eu.unicore.xnjs.idb.ApplicationInfo.JobType;
+import eu.unicore.xnjs.tsi.BasicExecution;
 import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
 import eu.unicore.xnjs.tsi.TSIBusyException;
@@ -212,6 +214,22 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 	}
 
 	@Test
+	public void testDelayedExitCodeFile() throws Exception {
+		MyExec.delayExitCode = true;
+		JSONObject job = loadJSONObject(date);
+		Action a = xnjs.makeAction(job);
+		Client c = createClient();
+		a.setClient(c);
+		String id = a.getUUID();
+		mgr.add(a,c);
+		doRun(id);
+		assertSuccessful(id);
+		MyExec.delayExitCode = false;
+		a = mgr.getAction(id);
+		assertNotNull(a.getProcessingContext().get(BasicExecution.exitCodeGracePeriod_start));
+	}
+
+	@Test
 	public void testJobControl() throws Exception {
 		JSONObject job = loadJSONObject(sleep);
 		job.put("Job type", JobType.ON_LOGIN_NODE.toString());
@@ -382,7 +400,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			super(factory, bss, tsiMessages, props);
 		}
 
-		public static boolean failSubmits=false;
+		public static boolean failSubmits = false;
 
 		boolean ok = false;
 
@@ -398,8 +416,27 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 			}
 			return super.submit(job);
 		}
+
+		public static boolean delayExitCode = false;
+
+		@Override
+		public boolean readExitCode(Action job) throws ExecutionException {
+			if(delayExitCode) {
+				Long timeOfFirstStatusCheck = (Long)job.getProcessingContext().get(exitCodeGracePeriod_start);
+				if(timeOfFirstStatusCheck==null) {
+					return false;
+				}
+				else {// delay a little bit 
+					return System.currentTimeMillis()< timeOfFirstStatusCheck+500? 
+						false : super.readExitCode(job);
+				}
+			}
+			else {
+				return super.readExitCode(job);
+			}
+		}
 	}
-	
+
 	@Singleton
 	public static class MockNotificationSender implements INotificationSender, ActionStateChangeListener {
 

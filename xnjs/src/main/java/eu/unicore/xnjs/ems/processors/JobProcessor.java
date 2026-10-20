@@ -34,6 +34,7 @@ import eu.unicore.xnjs.io.DataStageOutInfo;
 import eu.unicore.xnjs.io.DataStagingInfo;
 import eu.unicore.xnjs.io.IOProperties;
 import eu.unicore.xnjs.io.StagingInfo;
+import eu.unicore.xnjs.tsi.BasicExecution;
 import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.TSI;
 import eu.unicore.xnjs.tsi.TSIBusyException;
@@ -1024,6 +1025,7 @@ public abstract class JobProcessor<T> extends DefaultProcessor {
 		action.getProcessingContext().remove(TIME_END_MAIN);
 		action.getProcessingContext().remove(TIME_START_POST);
 		action.getProcessingContext().remove(TIME_START_STAGEOUT);
+		action.getProcessingContext().remove(BasicExecution.exitCodeGracePeriod_start);
 		action.setBSID(null);
 		action.setStatus(ActionStatus.PENDING);
 		action.addLogTrace("Status set to PENDING.");

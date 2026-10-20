@@ -29,7 +29,6 @@ import eu.unicore.xnjs.ems.ExecutionException;
 import eu.unicore.xnjs.ems.processors.AsyncCommandProcessor.SubCommand;
 import eu.unicore.xnjs.idb.ApplicationInfo;
 import eu.unicore.xnjs.idb.Partition;
-import eu.unicore.xnjs.io.IOProperties;
 import eu.unicore.xnjs.persistence.IActionStore;
 import eu.unicore.xnjs.resources.IntResource;
 import eu.unicore.xnjs.resources.Resource.Category;
@@ -362,9 +361,7 @@ public class Execution extends BasicExecution {
 			//No exit code. For example, due to NFS problems it might occur that we need to re-check
 			if(job.getProcessingContext().get(EXITCODE_RECHECK)==null){
 				job.getProcessingContext().put(EXITCODE_RECHECK, Boolean.TRUE);
-				int timeout = 1000 * ioProperties.getIntValue(IOProperties.STAGING_FS_GRACE);
-				job.getProcessingContext().put(CUSTOM_GRACE_PERIOD, Integer.valueOf(timeout));
-				job.getProcessingContext().put(GRACE_PERIOD_start, System.currentTimeMillis());
+				job.getProcessingContext().put(exitCodeGracePeriod_start, System.currentTimeMillis());
 				job.setDirty();
 				jobExecLogger.debug("Will allow job {} a grace period of {} millis for exit code file.", jobID, timeout);
 			}
@@ -391,48 +388,39 @@ public class Execution extends BasicExecution {
 	}
 
 	private boolean hasGracePeriodPassed(Action job){
-		int myGracePeriod = exitCodeGracePeriod;
-		Long timeOfFirstStatusCheck=(Long)job.getProcessingContext().get(GRACE_PERIOD_start);
+		Long timeOfFirstStatusCheck = (Long)job.getProcessingContext().get(exitCodeGracePeriod_start);
 		if(timeOfFirstStatusCheck==null){
 			timeOfFirstStatusCheck = Long.valueOf(System.currentTimeMillis());
-			job.getProcessingContext().put(GRACE_PERIOD_start, timeOfFirstStatusCheck);
+			job.getProcessingContext().put(exitCodeGracePeriod_start, timeOfFirstStatusCheck);
 			job.setDirty();
 		}
-		//check if a custom grace period has been defined
-		Integer g=(Integer)job.getProcessingContext().get(CUSTOM_GRACE_PERIOD);
-		if(g!=null)myGracePeriod = g;
-		return System.currentTimeMillis()>timeOfFirstStatusCheck + (1000*myGracePeriod);
+		return System.currentTimeMillis()>timeOfFirstStatusCheck + (1000*exitCodeGracePeriod);
 	}
-	
+
 	private void resetGracePeriod(Action job){
-		job.getProcessingContext().remove(GRACE_PERIOD_start);
+		job.getProcessingContext().remove(exitCodeGracePeriod_start);
 		job.setDirty();
 	}
 
 	@Override
 	public void abort(Action job) throws ExecutionException {
-		//if job has been submitted, abort it on the BSS
-		final String bssid=job.getBSID();
-		if(bssid==null){
-			throw new IllegalArgumentException("Can't abort: no batch system ID.");
-		}
-		else{
-			try{
-				BSSInfo info = bss.getBSSInfo(bssid);
-				bss.removeBSSInfo(bssid);
-				BSS_STATE status  = info!=null ? info.bssState : null;
-				if(status!=null) { 
-					jobExecLogger.debug("Aborting job <{}> on TSI server", bssid);
-					if(job.getExecutionContext().isRunOnLoginNode()){
-						terminateInteractiveJob(job);
-					}
-					else{
-						runTSICommand(tsiMessages.makeAbortCommand(bssid), job.getClient(), null, true);
-					}
+		// if job has been submitted, abort it on the BSS
+		final String bssid = job.getBSID();
+		try{
+			BSSInfo info = bss.getBSSInfo(bssid);
+			bss.removeBSSInfo(bssid);
+			BSS_STATE status  = info!=null ? info.bssState : null;
+			if(status!=null) { 
+				jobExecLogger.debug("Aborting job <{}> on TSI server", bssid);
+				if(job.getExecutionContext().isRunOnLoginNode()){
+					terminateInteractiveJob(job);
 				}
-			}catch(Exception ex){
-				throw ExecutionException.wrapped(ex);
+				else{
+					runTSICommand(tsiMessages.makeAbortCommand(bssid), job.getClient(), null, true);
+				}
 			}
+		}catch(Exception ex){
+			throw ExecutionException.wrapped(ex);
 		}
 	}
 
@@ -496,10 +484,6 @@ public class Execution extends BasicExecution {
 	@Override
 	public void resume(Action job) throws ExecutionException {
 		final String bssid = job.getBSID();
-		if(bssid == null) {
-			throw new IllegalArgumentException("Can't abort: no batch system ID.");
-		}
-
 		try {
 			BSSInfo info = bss.getBSSInfo(bssid);
 			BSS_STATE status = info!=null ? info.bssState : null;

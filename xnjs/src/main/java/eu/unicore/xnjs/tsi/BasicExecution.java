@@ -67,18 +67,11 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 	@Inject
 	protected InternalManager manager;
 
-	/**
-	 * A custom grace period, defined in milliseconds. 
-	 * Using this key, the usual grace period can be overridden 
-	 * (and stored in the action's processing context)
-	 */
-	public static final String CUSTOM_GRACE_PERIOD="CLASSICTSI.statusupdate.grace.custom";
-
-	protected static final String GRACE_PERIOD_start="CLASSICTSI.statusupdate.grace.start";
-	protected static final String EXITCODE_RECHECK="CLASSICTSI.statusupdate.exitcode.recheck";
+	public static final String exitCodeGracePeriod_start="exitCodeGracePeriod.start";
+	protected static final String EXITCODE_RECHECK="exitCode.recheck";
 
 	// for limiting the number of concurrently running jobs (embedded TSI!)
-	private final Set<String>runningJobUIDs = Collections.synchronizedSet(new HashSet<>());
+	private final Set<String> runningJobUIDs = Collections.synchronizedSet(new HashSet<>());
 	private final AtomicInteger runningJobCount = new AtomicInteger(0);
 	private final AtomicInteger jobIndex = new AtomicInteger(0);
 
@@ -242,20 +235,14 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 		
 		boolean haveExitCode=readExitCode(job);
 		if(!haveExitCode){
-			int myGracePeriod=0;
-
-			Long timeOfFirstStatusCheck=(Long)job.getProcessingContext().get(GRACE_PERIOD_start);
+			int gracePeriod = 1000 * ioProperties.getIntValue(IOProperties.STAGING_FS_GRACE);
+			Long timeOfFirstStatusCheck = (Long)job.getProcessingContext().get(exitCodeGracePeriod_start);
 			if(timeOfFirstStatusCheck==null){
-				timeOfFirstStatusCheck=Long.valueOf(System.currentTimeMillis());
-				job.getProcessingContext().put(GRACE_PERIOD_start, timeOfFirstStatusCheck);
+				timeOfFirstStatusCheck = Long.valueOf(System.currentTimeMillis());
+				job.getProcessingContext().put(exitCodeGracePeriod_start, timeOfFirstStatusCheck);
 				job.setDirty();
 			}
-
-			//check for a custom grace period
-			Integer g=(Integer)job.getProcessingContext().get(CUSTOM_GRACE_PERIOD);
-			if(g!=null)myGracePeriod=g.intValue();
-
-			if(System.currentTimeMillis()<timeOfFirstStatusCheck+myGracePeriod){
+			if(System.currentTimeMillis()<timeOfFirstStatusCheck + gracePeriod){
 				jobExecLogger.debug("No exit code found for {}, assuming it is still running.", uid);
 			}
 			else {
