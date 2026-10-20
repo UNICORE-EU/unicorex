@@ -131,7 +131,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		mgr.add(a,c);
 		doRun(id);
 		a = internalMgr.getAction(id);
-		a.printLogTrace();
+		printActionLog(a);
 		assertEquals("myout",a.getExecutionContext().getStdout());
 		assertEquals("myerr",a.getExecutionContext().getStderr());
 		File f=new File(a.getExecutionContext().getWorkingDirectory(),a.getExecutionContext().getStdout());
@@ -173,8 +173,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		doRun(id, check);
 
 		Action a1 = internalMgr.getAction(id);
-
-		a1.printLogTrace();
+		printActionLog(a1);
 		String bsid=a1.getBSID();
 		System.out.println("BSID: "+bsid);
 	}
@@ -307,7 +306,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		assertSuccessful(id);
 		a = mgr.getAction(id);
 		assertEquals("123456", a.getBSID());
-		a.printLogTrace();
+		printActionLog(a);
 	}
 
 	@Test
@@ -340,7 +339,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		doRun(id);
 		assertSuccessful(id);
 		a = mgr.getAction(id);
-		a.printLogTrace();
+		printActionLog(a);
 	}
 
 	@Test
@@ -365,7 +364,7 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 		doRun(id);
 		assertSuccessful(id);
 		a = mgr.getAction(id);
-		a.printLogTrace();
+		printActionLog(a);
 	}
 
 	private int eventsReceived=0;

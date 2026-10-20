@@ -2,13 +2,14 @@ package eu.unicore.uas.rest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.services.restclient.BaseClient;
+import eu.unicore.services.restclient.RESTException;
 import eu.unicore.uas.Base;
 
 public class TestApplications extends Base {
@@ -34,18 +35,15 @@ public class TestApplications extends Base {
 
 			// get single app
 			client.setURL(appsUrl+"/Date---v1.0");
+			
 			JSONObject date = client.getJSON();
 			System.out.println(date.toString(2));
 			assertNotNull(date.getString("ApplicationName"));
-
+			assertEquals(2, date.getJSONObject("Options").keySet().size());
 			// test non existing one
-			try{
-				client.setURL(appsUrl+"/no_such_app---v1.0");
-				client.getJSON();
-				fail("Expect a 404");
-			}catch(Exception ex){
-				assertEquals(404, client.getLastHttpStatus());
-			}
+			client.setURL(appsUrl+"/no_such_app---v1.0");
+			RESTException re = assertThrows(RESTException.class, ()->{	client.getJSON();});
+			assertEquals(404, re.getStatus());
 		}
 	}
 }

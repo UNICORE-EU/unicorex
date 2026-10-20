@@ -51,10 +51,8 @@ public class TestComponentManagement extends XNJSTestBase {
 		Action a=new Action();
 		a.addLogTrace("test123");
 		a.addLogTrace("Another test");
-		StringWriter sw=new StringWriter();
-		PrintWriter pw=new PrintWriter(sw);
-		a.printLogTrace(pw);
-		assertTrue(sw.toString().contains("test123"));
+		printActionLog(a);
+		assertTrue(a.getLog().toString().contains("test123"));
 		a.fail("some error message");
 		String s = a.toString();
 		assertTrue(s.contains("some error message"));

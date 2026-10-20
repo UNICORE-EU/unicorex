@@ -27,7 +27,7 @@ public class TestFTSProcessing extends EMSTestBase {
 		mgr.add(a, createClient());
 		String id = a.getUUID();
 		waitUntilDone(id);
-		mgr.getAction(id).printLogTrace();
+		printActionLog(id);
 		System.out.println(mgr.getAction(id).getResult().toString());
 	}
 

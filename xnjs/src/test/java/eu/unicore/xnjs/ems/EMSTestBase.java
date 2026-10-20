@@ -82,7 +82,7 @@ public abstract class EMSTestBase extends XNJSTestBase {
 			count++;
 		}while(count<getTimeOut() && !("DONE".equals(ActionStatus.toString(status))));
 		if(count>=getTimeOut()) {
-			mgr.getAction(actionID).printLogTrace();
+			printActionLog(actionID);
 			throw new Exception("Timeout");
 		}
 	}
@@ -133,13 +133,7 @@ public abstract class EMSTestBase extends XNJSTestBase {
 		assertNotNull(a);
 		assertTrue(ActionResult.SUCCESSFUL!=a.getResult().getStatusCode());
 	}
-	
-	protected void printActionLog(String actionID)throws Exception{
-		Action a=xnjs.get(InternalManager.class).getAction(actionID);
-		assertNotNull(a);
-		a.printLogTrace();
-	}
-
+			
 	protected void getExecutionSystemInfo()throws Exception{
 		IExecutionSystemInformation i = xnjs.get(IExecutionSystemInformation.class);
 		System.out.println(String.format("Total=%s running=%s queued=%s info=%s queuefill=%s",

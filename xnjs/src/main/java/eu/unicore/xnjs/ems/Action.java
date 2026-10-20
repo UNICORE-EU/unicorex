@@ -1,6 +1,5 @@
 package eu.unicore.xnjs.ems;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,8 +38,6 @@ public class Action implements Serializable {
 
 	private String bssDetails = "";
 
-	private Date terminationTime;
-
 	//the EMS status of the action
 	private int status = ActionStatus.CREATED;
 
@@ -49,23 +46,21 @@ public class Action implements Serializable {
 
 	private Client client;
 
-	//human readable name
 	private String jobName;
 
-	//the description of the action as submitted
+	// the description of the action, more or less as submitted
+	// (might be "size-optimized" to save DB space,
+	// (for example inĺine staging data gets removed)
 	private Wrapper<Serializable> ajd;
 
 	private ActionResult result = new ActionResult();
 
 	private final List<String> log = new ArrayList<>();
 
-	//for storing state information used during processing
 	private ProcessingContext processingContext = new ProcessingContext();
 
-	//the context during execution
 	private final ExecutionContext executionContext = new ExecutionContext();
 
-	//the application information
 	private ApplicationInfo applicationInfo;
 
 	private final List<DataStageInInfo>stageIns = new ArrayList<>();
@@ -73,31 +68,26 @@ public class Action implements Serializable {
 	private final List<DataStageOutInfo>stageOuts = new ArrayList<>();
 
 	// if true, Action needs to be written back into persistence
-	private transient boolean dirty=false;
+	private transient boolean dirty = false;
 
 	// if true, the action will wait for a wake-up event before continuing to be processed
-	private transient boolean waiting=false;
+	private transient boolean waiting = false;
 
-	//the instant until this action should not be processed further
 	private long notBefore;
 
-	//Optional umask setting for this action. Is carried here as it is set by the TSS.
 	private String umask;
 
-	//the ID of the "parent" action
 	private String parentActionID;
 
-	//the ID of the "root" action
 	private String rootActionID;
 
-	public static final String AUTO_SUBMIT="EMS_AUTOSUBMIT";
+	public static final String AUTO_SUBMIT = "EMS_AUTOSUBMIT";
 
-	//list of URLs to send notifications to
-	private List<String>notificationURls;
-	//list of states to send notifications for
-	private List<String>notifyStates;
-	//list of raw BSS states to send notifications for
-	private List<String>notifyBSSStates;
+	private List<String> notificationURls;
+
+	private List<String> notifyStates;
+
+	private List<String> notifyBSSStates;
 
 	/**
 	 * creates a new action with a pre-defined UUID</br>
@@ -107,7 +97,7 @@ public class Action implements Serializable {
 	 */
 	public Action(String uuid){
 		if(uuid==null)throw new IllegalArgumentException("UUID must be non-null.");
-		UUID=uuid;
+		UUID = uuid;
 		dirty = true;
 	}
 
@@ -167,15 +157,6 @@ public class Action implements Serializable {
 		setDirty();
 	}
 
-	public Date getTerminationTime() {
-		return terminationTime!=null?(Date)terminationTime.clone():null;
-	}
-
-	public void setTerminationTime(Date terminationTime) {
-		this.terminationTime = terminationTime!=null?(Date)terminationTime.clone():null;
-		setDirty();
-	}
-
 	/**
 	 * Returns the job description
 	 */
@@ -210,24 +191,6 @@ public class Action implements Serializable {
 		setDirty();
 	}
 
-	/**
-	 * print the full logtrace to stdout
-	 */
-	public void printLogTrace(){
-		PrintWriter pw=new PrintWriter(System.out);
-		printLogTrace(pw);
-		pw.flush();
-	}
-
-	/**
-	 * print the full logtrace to the given PrintWriter
-	 */
-	public void printLogTrace(PrintWriter writer){
-		writer.println("Action id: "+getUUID());
-		for(String s: log){
-			writer.println(s);
-		}
-	}
 	/**
 	 * append an actions logtrace to the logtrace of this action
 	 * @param a the source of the logtrace
@@ -422,20 +385,13 @@ public class Action implements Serializable {
 
 	/**
 	 * helper method that sets the action to "FAILED"
-	 */
-	public void fail(){
-		fail(null);
-	}
-	
-	/**
-	 * helper method that sets the action to "FAILED"
 	 * 
 	 * @param errorMessage
 	 */
 	public void fail(String errorMessage){
-		String msg=errorMessage!=null?"Failed: "+errorMessage:"Failed.";
-		ActionResult res=new ActionResult(ActionResult.NOT_SUCCESSFUL,msg);
-		if(executionContext!=null && executionContext.getExitCode()!=null){
+		String msg = errorMessage!=null? "Failed: "+errorMessage : "Failed.";
+		ActionResult res = new ActionResult(ActionResult.NOT_SUCCESSFUL, msg);
+		if(executionContext.getExitCode()!=null){
 			res.setExitCode(executionContext.getExitCode());
 		}
 		setResult(res);

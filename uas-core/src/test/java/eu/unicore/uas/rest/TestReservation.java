@@ -3,6 +3,8 @@ package eu.unicore.uas.rest;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Date;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +12,7 @@ import eu.unicore.client.Job;
 import eu.unicore.client.Job.Resources;
 import eu.unicore.services.restclient.BaseClient;
 import eu.unicore.services.restclient.UsernamePassword;
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.uas.Base;
 import eu.unicore.uas.xnjs.MockReservation;
 
@@ -25,6 +28,8 @@ public class TestReservation extends Base {
 		Resources r = j.resources();
 		r.runtime("60m");
 		r.nodes(1);
+		j.getJSON().put("Start time", UnitParser.getISO8601().format(
+				new Date(System.currentTimeMillis()+60*60*1000)));
 		String url = c.create(j.getJSON());
 		BaseClient c2 = new BaseClient(url, kernel.getClientConfiguration(),
 				new UsernamePassword("demouser", "test123"));

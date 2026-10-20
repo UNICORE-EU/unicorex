@@ -3,9 +3,12 @@ package eu.unicore.xnjs.json;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Date;
+
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.EMSTestBase;
 import eu.unicore.xnjs.io.IOProperties;
@@ -71,6 +74,7 @@ public class TestJSONProcessing extends EMSTestBase {
 		j.put("RunUserPrecommandOnLoginNode", "false");
 		j.put("User postcommand", "sleep 1");
 		j.put("RunUserPostcommandOnLoginNode", "false");
+		j.put("Not before", UnitParser.getISO8601().format(new Date()));
 		j.getJSONObject("Resources").put("Reservation", "test123");
 		xnjs.getIOProperties().setProperty(IOProperties.STAGING_FS_WAIT, "true");
 		Action a = xnjs.makeAction(j);
@@ -84,7 +88,7 @@ public class TestJSONProcessing extends EMSTestBase {
 		System.out.println(new JSONObject((String)a.getAjd()).toString(2));
 		assertEquals(2, a.getStageIns().size());
 		xnjs.getIOProperties().setProperty(IOProperties.STAGING_FS_WAIT, "false");
-		a.printLogTrace();
+		printActionLog(a);
 	}
 
 	private static String[] pre_post_jobs = { 
@@ -136,7 +140,7 @@ public class TestJSONProcessing extends EMSTestBase {
 				System.out.println("Check: "+j);
 				assertSuccessful(id);
 			}finally {
-				mgr.getAction(id).printLogTrace();
+				printActionLog(id);
 			}
 		}
 	}

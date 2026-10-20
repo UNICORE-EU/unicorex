@@ -149,7 +149,7 @@ public class TestHTTPStaging extends EMSTestBase {
 		String id = a.getUUID();
 		mgr.add(a, createClient());
 		waitUntilDone(id);
-		mgr.getAction(id).printLogTrace();
+		printActionLog(id);
 		System.out.println(mgr.getAction(id).getResult().toString());
 		assertNotNull(server.getLastAuthNHeader());
 		System.out.println(server.getLastAuthNHeader());
@@ -170,7 +170,7 @@ public class TestHTTPStaging extends EMSTestBase {
 		String id = a.getUUID();
 		mgr.add(a, createClient());
 		waitUntilDone(id);
-		mgr.getAction(id).printLogTrace();
+		printActionLog(id);
 		System.out.println(mgr.getAction(id).getResult().toString());
 		System.out.println(server.getLastRequest());
 		assertEquals(FileUtils.readFileToString(tFile, "UTF-8"), answer);

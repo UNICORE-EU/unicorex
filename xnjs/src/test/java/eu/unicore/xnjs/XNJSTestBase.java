@@ -1,5 +1,7 @@
 package eu.unicore.xnjs;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
@@ -13,7 +15,9 @@ import com.google.inject.AbstractModule;
 import eu.unicore.security.Client;
 import eu.unicore.security.SecurityTokens;
 import eu.unicore.security.Xlogin;
+import eu.unicore.xnjs.ems.Action;
 import eu.unicore.xnjs.ems.ActionStateChangeListener;
+import eu.unicore.xnjs.ems.InternalManager;
 import eu.unicore.xnjs.ems.MockChangeListener;
 import eu.unicore.xnjs.persistence.BasicActionStoreFactory;
 import eu.unicore.xnjs.persistence.IActionStoreFactory;
@@ -102,4 +106,15 @@ public abstract class XNJSTestBase {
 		c.setAuthenticatedClient(st);
 		return c;
 	}
+
+	protected void printActionLog(String actionID)throws Exception {
+		printActionLog(xnjs.get(InternalManager.class).getAction(actionID));	
+	}
+
+	protected void printActionLog(Action a) {
+		assertNotNull(a);
+		for(String l: a.getLog())
+			System.out.println(l);
+	}
+
 }

@@ -105,7 +105,7 @@ public class TestJobControl extends EMSTestBase {
 		mgr.restart(id, client);
 		waitUntilDone(id);
 		Action a=((BasicManager)mgr).getAction(id);
-		a.printLogTrace();
+		printActionLog(id);
 		assertTrue(a.getLog().toString().contains("RESTARTING"));
 		String timeProfile = JobProcessor.getTimeProfile(a.getProcessingContext());
 		System.out.println(timeProfile);

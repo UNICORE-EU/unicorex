@@ -1,9 +1,7 @@
 package eu.unicore.uas.rest;
 
 import java.net.URI;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -15,21 +13,17 @@ import eu.unicore.security.AuthorisationException;
 import eu.unicore.services.rest.Link;
 import eu.unicore.services.rest.USEResource;
 import eu.unicore.services.rest.impl.ServicesBase;
+import eu.unicore.services.restclient.utils.UnitParser;
 import eu.unicore.uas.UAS;
 import eu.unicore.uas.impl.reservation.ReservationManagementImpl;
 import eu.unicore.uas.impl.reservation.ReservationModel;
 import eu.unicore.uas.impl.tss.TargetSystemImpl;
 import eu.unicore.uas.json.JSONUtil;
-import eu.unicore.uas.xnjs.XNJSFacade;
 import eu.unicore.util.ConcurrentAccess;
 import eu.unicore.util.Log;
-import eu.unicore.xnjs.ems.Action;
-import eu.unicore.xnjs.tsi.IExecution;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -50,33 +44,7 @@ public class Reservations extends ServicesBase {
 	}
 
 	/**
-	 * get the BSS job details for this reservation
-	 */
-	@GET
-	@Path("/{uniqueID}/details")
-	@Produces(MediaType.APPLICATION_JSON)
-	public Response details() {
-		try{
-			ReservationManagementImpl resource = getResource();
-			String xnjsReference = resource.getXNJSReference();
-			Action action = resource.getXNJSAction();
-			XNJSFacade xnjs = XNJSFacade.get(xnjsReference,kernel);
-			String detailString = xnjs.getXNJS().get(IExecution.class).getBSSJobDetails(action);
-			JSONObject details;
-			try {
-				details = new JSONObject(detailString);
-			}catch(JSONException ex) {
-				details = new JSONObject();
-				details.put("rawDetailsData", detailString);
-			}
-			return Response.ok(details.toString()).build();
-		}catch(Exception ex){
-			return handleError("Could not get job details", ex, logger);
-		}
-	}
-
-	/**
-	 * create a new allocation / reservation on any of our accessible target system instances
+	 * create a new reservation on any of our accessible target system instances
 	 * 
 	 * @param json - incoming JSON describing the requested reservation
 	 * 
@@ -139,8 +107,7 @@ public class Reservations extends ServicesBase {
 		String startTimeS = spec.optString("Start time", null);
 		Calendar startTime = Calendar.getInstance();
 		if(startTimeS!=null) {
-			Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(startTimeS);
-			startTime.setTime(date);
+			startTime.setTime(UnitParser.getISO8601().parse(startTimeS));
 		}
 		try(TargetSystemImpl tss2 = (TargetSystemImpl)tss.getHome().getForUpdate(tss.getUniqueID())){
 			return tss2.createReservationResource(resources, startTime);

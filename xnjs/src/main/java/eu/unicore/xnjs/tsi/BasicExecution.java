@@ -222,7 +222,7 @@ public class BasicExecution implements IExecution, IExecutionSystemInformation {
 			Integer exit=LocalExecution.getExitCode(uid);
 			if(exit==null){
 				//failure during execution
-				job.fail();
+				job.fail("Job did not complete normally.");
 			}
 			else{
 				job.getExecutionContext().setExitCode(exit);

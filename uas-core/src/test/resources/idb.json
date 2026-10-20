@@ -6,7 +6,15 @@
 	"Name": "Date",
 	"Version": "1.0",
 	"Executable": "/bin/date",
-	"Arguments": ["$ARGUMENTS?"]
+	"Arguments": ["-R$RFC? $ARGUMENTS?", "--iso-8601=$ISOFORMAT?"],
+	"Parameters" : {
+	  "RFC": { "Type": "boolean",
+	           "Description": "Output date and time in RFC 5322 format" },
+	  "ISOFORMAT": { "Type": "choice",
+	  		   "ValidValues": ["date", "hours", "minutes", "seconds", "ns"],
+	           "Description": "Output date/time in ISO 8601 format, to the indicated precision"
+	         }  
+    }
   },
   
   {
@@ -30,6 +38,10 @@
 					"Type": "CHOICE",
  					"AllowedValues" : ["eco", "normal", "turbo"],
  					"Default": "normal"
+				},
+				"NetworkBooster": {
+					"Type": "BOOLEAN",
+ 					"Default": "true"
 				}
 	    	}
    	}

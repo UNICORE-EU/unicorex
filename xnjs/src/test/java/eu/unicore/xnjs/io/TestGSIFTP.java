@@ -62,7 +62,7 @@ public class TestGSIFTP extends EMSTestBase {
 		d.getInfo().setParentActionID(dummyParent);
 		assertEquals(Status.CREATED, d.getInfo().getStatus());
 		d.run();
-		d.getResult().getAction().printLogTrace();
+		printActionLog(d.getResult().getAction());
 		ExecutionContext ctx=d.getResult().getAction().getExecutionContext();
 		//we are using shell mode, so bash will exit with code 127 when executable was not found
 		assertEquals(Integer.valueOf(127), ctx.getExitCode());

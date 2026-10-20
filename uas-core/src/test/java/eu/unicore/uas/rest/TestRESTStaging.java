@@ -53,6 +53,11 @@ public class TestRESTStaging extends Base {
 				+ "From: 'https://localhost:65321/rest/core/storages/WORK/files/*.dat',"
 				+ "To: '.'"
 				+ "}"));
+		// this is "plain https"
+		imports.put(new JSONObject("{"
+				+ "From: 'https://localhost:65321/rest',"
+				+ "To: 'foo.page'"
+				+ "}"));
 		JSONObject task = new JSONObject();
 		task.put("Executable", "ls");
 		task.put("Imports", imports);
@@ -66,13 +71,14 @@ public class TestRESTStaging extends Base {
 		System.out.println(job.getProperties().toString(2));
 		String wd = job.getWorkingDirectory().getProperties().getString("mountPoint");
 		
-		String[] files = { "test1.txt", "test2.dat", "test3.dat" };
+		String[] files = { "test1.txt", "test2.dat", "test3.dat"};
 		for(String f: files) {
-			File i1 = new File(wd+"/"+f);
+			File i1 = new File(wd, f);
 			assertTrue(i1.exists());
 			assertEquals(FileUtils.checksumCRC32(new File("target/unicorex-test/"+f)),
 					FileUtils.checksumCRC32(i1));
 		}
+		assertTrue(new File(wd, "foo.page").exists());
 		IOUtils.closeQuietly(core, site, job);
 	}
 
@@ -101,7 +107,7 @@ public class TestRESTStaging extends Base {
 		task.put("Arguments", args);
 		task.put("Exports", xports);
 		JobClient job = site.submitJob(task);
-		
+
 		System.out.println("*** new job: "+job.getEndpoint());
 		System.out.println(job.getProperties().toString(2));
 		while(!job.isFinished()) {
