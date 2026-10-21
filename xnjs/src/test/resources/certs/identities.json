@@ -7,7 +7,7 @@
 
   "nobody2": {
     "key": "src/test/resources/certs/test_ed25519",
-	"passphrase": ""
+	"passphrase": "just-for-testing"
   }
 
 }

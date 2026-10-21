@@ -51,11 +51,10 @@ public abstract class PerUserTSITestCase extends EMSTestBase {
 		props.put(p+TSIProperties.TSI_PORT, "22");
 		props.put(p+TSIProperties.TSI_BSSUSER,System.getProperty("user.name"));
 		props.put(p+TSIProperties.BSS_UPDATE_INTERVAL,"5");
-
+		
 		props.put(PerUserTSIProperties.PREFIX+"executable","src/test/resources/tsi/bin/process.sh");
 		props.put(PerUserTSIProperties.PREFIX+"identityResolver.1.class", FileIdentityResolver.class.getName());
 		props.put(PerUserTSIProperties.PREFIX+"identityResolver.1.file", "src/test/resources/certs/identities.json");
-
 		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.class", MockIdentityResolver.class.getName());
 		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.int", "1");
 		props.put(PerUserTSIProperties.PREFIX+"identityResolver.2.integer", "2");

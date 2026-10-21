@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
@@ -44,6 +46,16 @@ public class TestApplications extends Base {
 			client.setURL(appsUrl+"/no_such_app---v1.0");
 			RESTException re = assertThrows(RESTException.class, ()->{	client.getJSON();});
 			assertEquals(404, re.getStatus());
+			
+			// check the html representation
+			client.setURL(appsUrl);
+			try(ClassicHttpResponse r = client.get(ContentType.TEXT_HTML)){
+				assertEquals(200, r.getCode());
+			}
+			client.setURL(appsUrl+"/Date---v1.0");
+			try(ClassicHttpResponse r = client.get(ContentType.TEXT_HTML)){
+				assertEquals(200, r.getCode());
+			}
 		}
 	}
 }

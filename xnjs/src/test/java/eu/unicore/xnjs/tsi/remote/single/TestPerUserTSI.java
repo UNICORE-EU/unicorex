@@ -1,7 +1,9 @@
 package eu.unicore.xnjs.tsi.remote.single;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -9,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -16,12 +19,14 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.persist.util.UUID;
+import eu.unicore.security.AuthorisationException;
 import eu.unicore.security.Client;
 import eu.unicore.uftp.dpc.Utils;
 import eu.unicore.xnjs.tsi.remote.RemoteTSI;
 import eu.unicore.xnjs.tsi.remote.TSIConnectionFactory;
 import eu.unicore.xnjs.tsi.remote.TSIMessages;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
+import net.schmizz.sshj.userauth.password.PasswordFinder;
 
 public class TestPerUserTSI extends PerUserTSITestCase {
 
@@ -48,9 +53,28 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 		FileIdentityResolver fir = (FileIdentityResolver)resolvers.get(0);
 		int numRead = fir.update(ids);
 		assertEquals(2, numRead);
+
 		Client c = TSIMessages.createMinimalClient("nobody");
 		KeyProvider kp = ids.getIdentity(c);
 		assertNotNull(kp);
+
+		Client c1 = TSIMessages.createMinimalClient("nobody2");
+		KeyProvider kp1 = ids.getIdentity(c1);
+		Field f = kp1.getClass().getSuperclass().getDeclaredField("pwdf");
+		f.setAccessible(true);
+		PasswordFinder pf = (PasswordFinder)f.get(kp1);
+		assertFalse(pf.shouldRetry(null));
+		char[] pwd = pf.reqPassword(null);
+		assertEquals("just-for-testing", new String(pwd));
+
+		Client c2 = TSIMessages.createMinimalClient("unknown-user");
+		AuthorisationException ae = assertThrows(AuthorisationException.class, ()->{ ids.getIdentity(c2); });
+		assertTrue(ae.getMessage().contains("No key available"));
+		assertTrue(ae.getMessage().contains("unknown-user"));
+
+		Client c3 = TSIMessages.createMinimalClient(null);
+		AuthorisationException ae2 = assertThrows(AuthorisationException.class, ()->{ ids.getIdentity(c3); });
+		assertTrue(ae2.getMessage().contains("Required Unix user is null."));
 	}
 
 	@Test

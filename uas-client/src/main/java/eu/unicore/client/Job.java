@@ -1,5 +1,7 @@
 package eu.unicore.client;
 
+import java.util.Arrays;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,11 +54,7 @@ public class Job {
 	}
 
 	public Job arguments(String ... args) {
-		JSONArray myargs = JSONUtil.getOrCreateArray(json, "Arguments");
-		for(String arg: args) {
-			myargs.put(arg);
-		}
-		return this;
+		return arguments(Arrays.asList(args));
 	}
 
 	public Job environment(String name, String value) {
@@ -266,14 +264,10 @@ public class Job {
 
 	public static class Resources {
 
-		protected final JSONObject resources;
+		protected JSONObject resources;
 
 		public Resources(JSONObject resources) {
 			this.resources = resources;
-		}
-
-		public Resources() {
-			this(new JSONObject());
 		}
 
 		public final JSONObject getJSON() {

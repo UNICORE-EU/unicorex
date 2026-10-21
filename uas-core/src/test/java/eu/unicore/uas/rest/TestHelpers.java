@@ -77,7 +77,7 @@ public class TestHelpers extends Base {
 		System.out.println(properties.toString(2));
 		assertEquals(URL, properties.getString("submissionService"));
 		assertEquals(Status.RUNNING, c.getStatus());
-		c.executeAction("abort", new JSONObject());
+		c.abort();
 		assertEquals(Status.FAILED, c.getStatus());
 		c.close();
 	}

@@ -74,11 +74,6 @@ public class TaskClient extends BaseServiceClient {
 		return e!=null ? Integer.parseInt(e) : null;
 	}
 
-	public Float getProgress() throws Exception {
-		String e = getProperties().optString("progress",null);
-		return e!=null ? Float.parseFloat(e) : null;
-	}
-
 	public void abort() throws Exception {
 		executeAction("abort", null);
 	}

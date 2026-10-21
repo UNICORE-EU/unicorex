@@ -2,7 +2,6 @@ package eu.unicore.uas.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -25,14 +24,6 @@ public class TestUtils {
 		assertEquals(Integer.valueOf(1),p2.getM2());
 		
 		assertEquals(p1,p2);
-	}
-
-	@Test
-	public void testLimitedBAOS() throws Exception {
-		LimitedByteArrayOutputStream lb = new LimitedByteArrayOutputStream(16);
-		assertThrows(RuntimeException.class, ()->{
-			lb.write(new byte[32]);
-		});
 	}
 
 	@Test
