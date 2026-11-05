@@ -947,26 +947,6 @@ public class TSIMessages {
 		return sb.toString();
 	}
 
-	/**
-	 * Prepares a groups string for a TSI call requesting membership in all groups allowed for the user
-	 * in attribute sources + all default OS groups.
-	 * @param client
-	 */
-	public static String prepareAllGroupsString(Client client) {
-		Xlogin xlogin = client.getXlogin();
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("DEFAULT_GID");
-
-		//add all allowed groups
-		if (xlogin.getEncodedGroups() != null && xlogin.getEncodedGroups().length() > 0)
-			sb.append(":").append(xlogin.getEncodedGroups());
-
-		//get all OS supplementary groups too
-		sb.append(":DEFAULT_GID");
-		return sb.toString();
-	}
-
 	public String makePauseCommand(String bssid) {
 		final StringBuffer commands = new StringBuffer();
 		commands.append("#TSI_HOLDJOB\n");

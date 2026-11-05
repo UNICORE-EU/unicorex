@@ -10,10 +10,8 @@ import ACL, BecomeUser, BSS, PAM, Reservation, Server, IO, UFTP, Utils
 from Connector import Connector, Forwarder
 from Log import Logger
 
-#
-# the TSI version
-#
-MY_VERSION = "11.0.1"
+# TSI version
+MY_VERSION = "11.3.0"
 
 # minimum required Python version
 REQUIRED_VERSION = (3, 9, 0)
@@ -49,7 +47,7 @@ def get_default_config() -> dict:
     config['tsi.local_portrange'] = None
     config['tsi.safe_dir'] = '/tmp'
     config['tsi.keyfiles'] = ['.ssh/authorized_keys']
-    config['tsi.use_login_shell'] = True
+    config['tsi.use_login_shell'] = False
     config['tsi.child_pids'] = []
     config['tsi.testing'] = False
     return config
@@ -188,16 +186,14 @@ def finish_setup(config: dict, LOG: Logger):
     setup_portrange(config, LOG)
 
 
-def ping(config: dict, connector: Connector):
+def ping(connector: Connector):
     """ Returns TSI version."""
-    v = config['tsi.bss'].get_variant()
-    connector.ok(MY_VERSION+"-"+v)
+    connector.ok(MY_VERSION)
 
 
 def ping_uid(msg: str, connector: Connector, config: dict, LOG: Logger):
     """ Returns TSI version and process' UID. Used for unit testing."""
-    v = config['tsi.bss'].get_variant()
-    connector.ok(MY_VERSION+"-"+v)
+    connector.ok(MY_VERSION)
     connector.write_message(" running as UID [%s]" % config.get('tsi.effective_uid', "n/a"))
 
 
@@ -391,7 +387,7 @@ def process(connector: Connector, config: dict, LOG: Logger, one_shot=False):
         if function is None:
             connector.failed("Unknown #TSI_* command")
         elif "TSI_PING" == command:
-            ping(config, connector)
+            ping(connector)
         else:
             handle_function(function, command, message, connector, config, LOG)
         connector.write_message("ENDOFMESSAGE")

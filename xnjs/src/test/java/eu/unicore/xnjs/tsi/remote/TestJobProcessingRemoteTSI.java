@@ -24,6 +24,7 @@ import eu.unicore.util.Log;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.XNJSProperties;
 import eu.unicore.xnjs.ems.Action;
+import eu.unicore.xnjs.ems.ActionResult;
 import eu.unicore.xnjs.ems.ActionStateChangeListener;
 import eu.unicore.xnjs.ems.ActionStatus;
 import eu.unicore.xnjs.ems.ExecutionException;
@@ -31,7 +32,6 @@ import eu.unicore.xnjs.ems.IExecutionContextManager;
 import eu.unicore.xnjs.ems.event.EventHandler;
 import eu.unicore.xnjs.ems.event.INotificationSender;
 import eu.unicore.xnjs.ems.event.XnjsEvent;
-import eu.unicore.xnjs.idb.ApplicationInfo.JobType;
 import eu.unicore.xnjs.tsi.BasicExecution;
 import eu.unicore.xnjs.tsi.IExecution;
 import eu.unicore.xnjs.tsi.IExecutionSystemInformation;
@@ -231,28 +231,30 @@ public class TestJobProcessingRemoteTSI extends RemoteTSITestCase implements Eve
 
 	@Test
 	public void testJobControl() throws Exception {
-		JSONObject job = loadJSONObject(sleep);
-		job.put("Job type", JobType.ON_LOGIN_NODE.toString());
-		Action a=xnjs.makeAction(job);
-		Client c=new Client();
-		a.setClient(c);
-		c.setXlogin(new Xlogin(new String[] {"nobody"}));
-		String id=a.getUUID();
-		mgr.add(a,c);
-		mgr.run(id,	c);
-		Thread.sleep(1000);		
-		mgr.pause(id, c);
-		Thread.sleep(500);
-		mgr.resume(id, c);
-		Thread.sleep(500);
-		mgr.abort(id, c);
-		Thread.sleep(3000);
-		a = mgr.getAction(id);
-		assertDone(id);
-		assertNotSuccessful(id);
-		assertFalse(xnjs.get(IExecution.class).isBeingTracked(a));
-		assertTrue(a.getLog().toString().contains("Paused"));
-		assertTrue(a.getLog().toString().contains("Resumed"));
+		for(var jobtype: new String[]{"ON_LOGIN_NODE", "BATCH"}) {
+			JSONObject job = loadJSONObject(sleep);
+			job.put("Job type", jobtype);
+			Action a = xnjs.makeAction(job);
+			Client c = TSIMessages.createMinimalClient("nobody");
+			a.setClient(c);
+			String id = a.getUUID();
+			mgr.add(a,c);
+			mgr.run(id,	c);
+			waitUntilRunning(id);	
+			mgr.pause(id, c);
+			Thread.sleep(500);
+			mgr.resume(id, c);
+			Thread.sleep(500);
+			mgr.abort(id, c);
+			Thread.sleep(3000);
+			a = mgr.getAction(id);
+			assertDone(id);
+			assertNotSuccessful(id);
+			assertFalse(xnjs.get(IExecution.class).isBeingTracked(a));
+			assertTrue(a.getLog().toString().contains("Paused"));
+			assertTrue(a.getLog().toString().contains("Resumed"));
+			assertEquals(ActionResult.USER_ABORTED, a.getResult().getStatusCode());
+		}
 		getExecutionSystemInfo();
 	}
 
