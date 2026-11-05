@@ -29,15 +29,15 @@
 
   <properties>
     <!-- goes into .jar manifests, dist poms and packaging versions -->
-    <specification.version>11.2.1</specification.version>
+    <specification.version>11.3.0</specification.version>
     <compiler.fork>false</compiler.fork>
-    <use.version>6.2.0</use.version>
+    <use.version>6.3.0</use.version>
     <seclib.version>8.3.0</seclib.version>
     <secutils.version>5.1.0</secutils.version>
-    <persistence.version>1.3.3</persistence.version>
-    <uftp.version>2.25.0</uftp.version>
+    <persistence.version>1.4.1</persistence.version>
+    <uftp.version>2.26.1</uftp.version>
     <guice.version>7.0.0</guice.version>
-    <guava.version>33.7.2-jre</guava.version>
+    <guava.version>33.8.0-jre</guava.version>
     <lucene.version>9.12.3</lucene.version>
     <tika.version>3.3.3</tika.version>
     <commons-io.version>2.22.0</commons-io.version>

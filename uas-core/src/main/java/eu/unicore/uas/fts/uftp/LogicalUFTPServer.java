@@ -75,7 +75,6 @@ public class LogicalUFTPServer implements ISubSystem {
 		UFTPDInstance server = new UFTPDInstance(kernel);
 		UFTPProperties props = new UFTPProperties(prefix, properties);
 		server.configure(props);
-		if(server.getHost()==null)throw new ConfigurationException("Property 'host' not set!");
 		log.info("Configured {}", server);
 		// needed by staging / transfers
 		kernel.setAttribute(UFTPProperties.class, props);

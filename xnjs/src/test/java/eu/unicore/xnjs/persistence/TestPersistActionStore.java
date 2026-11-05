@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import eu.unicore.persist.PersistenceProperties;
 import eu.unicore.persist.util.Export;
 import eu.unicore.xnjs.ConfigurationSource;
 import eu.unicore.xnjs.ems.Action;
@@ -64,7 +63,7 @@ public class TestPersistActionStore extends EMSTestBase {
 			p.setProperty("class", DoneAction.class.getName());
 			p.setProperty("tableName", "FINISHED_JOBS");
 			p.setProperty("persistence.class", as.getDoneJobsStorage().getClass().getName());
-			p.putAll(xnjs.get(PersistenceProperties.class).getRawProperties());	
+			p.setProperty("persistence.directory", "/opt/development/unicorex/xnjs/target/xnjs_state");
 			Export exporter = new Export(p, f.getAbsolutePath());
 			exporter.doExport();
 		}

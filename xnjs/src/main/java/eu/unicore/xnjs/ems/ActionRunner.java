@@ -40,7 +40,7 @@ public class ActionRunner extends Thread {
 
 	private final Dispatcher dispatcher;
 
-	volatile boolean isInterrupted=false;
+	volatile boolean isInterrupted = false;
 
 	private static final AtomicInteger count = new AtomicInteger(0);
 
@@ -53,13 +53,14 @@ public class ActionRunner extends Thread {
 		this.jobs = xnjs.getActionStore("JOBS");
 		int n = count.incrementAndGet();
 		super.setName("XNJS-"+xnjs.getID()+"-JobRunner-"+n);
-		logger.debug("Action runner thread {} starting", n);
+		logger.debug("Worker {} starting", getName());
 	}
 
+	@Override
 	public synchronized void interrupt() {
 		if(isInterrupted)return;
-		isInterrupted=true;
-		logger.debug("{} stopping", getName());
+		isInterrupted = true;
+		logger.debug("Worker {} stopping.", getName());
 		count.decrementAndGet();
 		super.interrupt();
 	}
@@ -79,7 +80,6 @@ public class ActionRunner extends Thread {
 	 *   </ul> 
 	 */
 	public void run() {
-		logger.info("Worker {} starting.", getName());
 		try{
 			while(!isInterrupted){
 				while(mgr.isPaused())Thread.sleep(300);
@@ -102,7 +102,7 @@ public class ActionRunner extends Thread {
 				}
 			}
 		}catch(Exception ie){
-			logger.info("Worker {} stopped.", getName());
+			logger.info("Worker {} exiting.", getName());
 			return;
 		}
 	}

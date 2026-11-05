@@ -30,14 +30,14 @@ public class UFTPDInstance extends UFTPDInstanceBase implements ExternalSystemCo
 	}
 
 	public void configure(UFTPProperties properties) {
-		setCommandHost(properties.getValue(UFTPProperties.PARAM_COMMAND_HOST));
-		setCommandPort(properties.getIntValue(UFTPProperties.PARAM_COMMAND_PORT));
-		setSsl(!properties.getBooleanValue(UFTPProperties.PARAM_COMMAND_SSL_DISABLE));
-		setHost(properties.getValue(UFTPProperties.PARAM_SERVER_HOST));
-		setPort(properties.getIntValue(UFTPProperties.PARAM_SERVER_PORT));
+		this.commandHost = properties.getValue(UFTPProperties.PARAM_COMMAND_HOST);
+		this.commandPort = properties.getIntValue(UFTPProperties.PARAM_COMMAND_PORT);
+		this.ssl = !properties.getBooleanValue(UFTPProperties.PARAM_COMMAND_SSL_DISABLE);
+		this.host = properties.getValue(UFTPProperties.PARAM_SERVER_HOST);
+		this.port = properties.getIntValue(UFTPProperties.PARAM_SERVER_PORT);
 		ech.setCheckService(kernel.getExecutorService());
 		ech.setCheckSupplier(()-> checkConnection());
-		ech.setExternalSystemName("UFTPD "+getHost()+":"+getPort());
+		ech.setExternalSystemName("UFTPD "+host+":"+port);
 	}
 
 	private final ExternalConnectorHelper ech = new ExternalConnectorHelper();

@@ -1,7 +1,5 @@
 package eu.unicore.uas;
 
-import java.util.Properties;
-
 import eu.unicore.services.USEContainer;
 import eu.unicore.util.Log;
 
@@ -27,14 +25,6 @@ public class UAS extends USEContainer {
 
 	public UAS(String configFile) throws Exception {
 		super(configFile, "UNICORE/X");
-		initCommon();
-	}
-
-	/**
-	 * @param properties - Server configuration
-	 */
-	public UAS(Properties properties) throws Exception {
-		super(properties, "UNICORE/X");
 		initCommon();
 	}
 

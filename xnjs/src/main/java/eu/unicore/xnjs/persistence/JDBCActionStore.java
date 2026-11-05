@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import eu.unicore.persist.DataVersionException;
 import eu.unicore.persist.Persist;
 import eu.unicore.persist.PersistenceException;
 import eu.unicore.persist.PersistenceFactory;
@@ -101,7 +100,7 @@ public class JDBCActionStore extends AbstractActionStore {
 			if(ids.size()>0){
 				p.read(ids.iterator().next());
 			}
-		}catch(DataVersionException v){
+		}catch(Exception v){
 			//check if we really should delete all unreadable data
 			if(!Boolean.getBoolean("unicore.update.force")){
 				throw v;
@@ -111,7 +110,7 @@ public class JDBCActionStore extends AbstractActionStore {
 				try{
 					p.read(id);
 				}
-				catch(DataVersionException ex){
+				catch(Exception ex){
 					try{
 						p.remove(id);
 					}catch(PersistenceException pe){

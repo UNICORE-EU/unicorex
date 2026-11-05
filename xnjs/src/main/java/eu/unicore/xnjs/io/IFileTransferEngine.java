@@ -1,7 +1,6 @@
 package eu.unicore.xnjs.io;
 
 import eu.unicore.persist.Persist;
-import eu.unicore.persist.PersistenceException;
 import eu.unicore.security.Client;
 import eu.unicore.xnjs.fts.FTSInfo;
 import eu.unicore.xnjs.fts.IFTSController;
@@ -105,6 +104,6 @@ public interface IFileTransferEngine {
 	/**
 	 * get a DB connector for storing information about FTS instances
 	 */
-	public Persist<FTSInfo> getFTSStorage() throws PersistenceException;
+	public Persist<FTSInfo> getFTSStorage() throws Exception;
 
 }

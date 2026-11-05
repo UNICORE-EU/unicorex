@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.persist.Persist;
-import eu.unicore.persist.PersistenceException;
 import eu.unicore.persist.PersistenceFactory;
 import eu.unicore.persist.PersistenceProperties;
 import eu.unicore.persist.impl.PersistImpl;
@@ -157,7 +156,7 @@ public class FileTransferEngine implements IFileTransferEngine{
 	private Persist<FTSInfo> ftsStorage;
 
 	@Override
-	public synchronized Persist<FTSInfo> getFTSStorage() throws PersistenceException {
+	public synchronized Persist<FTSInfo> getFTSStorage() throws Exception {
 		if(ftsStorage==null) {
 			ftsStorage = (PersistImpl<FTSInfo>)PersistenceFactory.get(persistenceProperties).getPersist(FTSInfo.class);
 		}

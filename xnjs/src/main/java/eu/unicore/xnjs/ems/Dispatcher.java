@@ -55,15 +55,15 @@ public class Dispatcher extends Thread {
 	}
 
 	private void setup() {
-		int nWorkers=xnjs.getXNJSProperties().getIntValue(XNJSProperties.XNJSWORKERS);
-		workers=new ActionRunner[nWorkers];
+		int nWorkers = xnjs.getXNJSProperties().getIntValue(XNJSProperties.XNJSWORKERS);
+		workers = new ActionRunner[nWorkers];
 		availableRunners = new ArrayBlockingQueue<>(nWorkers);
 		for(int i=0;i<workers.length;i++){
 			workers[i] = new ActionRunner(xnjs, this);
 			workers[i].start();
 			notifyAvailable(workers[i]);
 		}
-		logger.info("Started {} worker threads.", workers.length);
+		logger.info("Started, using {} worker threads", workers.length);
 		refillQueue();
 	}
 
@@ -71,15 +71,16 @@ public class Dispatcher extends Thread {
 		availableRunners.offer(runner);
 	}
 
+	@Override
 	public synchronized void interrupt() {
 		if(isInterrupted)return;
 		isInterrupted = true;
-		logger.debug("{} stopping", getName());
+		logger.debug("Stopping");
 		super.interrupt();
 	}
 
+	@Override
 	public void run(){
-		logger.info("Starting dispatcher thread");
 		try{
 			setup();
 		}catch(Exception ex){
