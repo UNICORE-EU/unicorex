@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
@@ -280,7 +281,7 @@ public class MetadataCrawler implements Callable<ExtractionStatistics> {
 		Map<String, String> ret = new HashMap<>();
 		Metadata meta = new Metadata();
 		meta.add(LuceneIndexer.RESOURCE_NAME_KEY, file);
-		try(InputStream is = storage.getInputStream(file)){
+		try(TikaInputStream is = TikaInputStream.get(storage.getInputStream(file))){
 			parser.parse(is, handler, meta, parseContext);
 		}
 		for (String key : meta.names()) {

@@ -29,7 +29,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NIOFSDirectory;
-import org.apache.tika.metadata.TikaCoreProperties;
 
 import eu.unicore.uas.util.LogUtil;
 
@@ -65,7 +64,7 @@ public class LuceneIndexer {
 
 	private static final String SEARCH_KEY = CONTENT_KEY;
 
-	public static final String RESOURCE_NAME_KEY = TikaCoreProperties.RESOURCE_NAME_KEY;
+	public static final String RESOURCE_NAME_KEY = "resourceName";
 
 	private final String dataDirectory;
 

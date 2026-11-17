@@ -39,7 +39,7 @@
     <guice.version>7.0.0</guice.version>
     <guava.version>33.8.0-jre</guava.version>
     <lucene.version>9.12.3</lucene.version>
-    <tika.version>3.3.3</tika.version>
+    <tika.version>4.2.0</tika.version>
     <commons-io.version>2.22.0</commons-io.version>
     <mvel.version>2.6.0.Final</mvel.version>
     <jgit.version>7.8.0.202609011348-r</jgit.version>
@@ -152,6 +152,7 @@
       <dependency>
        <groupId>org.apache.tika</groupId>
        <artifactId>tika-parsers-standard-package</artifactId>
+       <type>pom</type>
        <version>${tika.version}</version>
        <scope>test</scope>
        <exclusions>

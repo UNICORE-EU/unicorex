@@ -1,14 +1,14 @@
 package eu.unicore.uas.metadata.utils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Set;
+
 import org.apache.commons.io.FilenameUtils;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.ParseContext;
-
 import org.apache.tika.parser.Parser;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -36,7 +36,7 @@ public class ExtensionParser implements Parser {
     }
 
     @Override
-    public void parse(InputStream stream, ContentHandler handler, Metadata metadata, ParseContext context) throws IOException, SAXException, TikaException {
+    public void parse(TikaInputStream stream, ContentHandler handler, Metadata metadata, ParseContext context) throws IOException, SAXException, TikaException {
         String path = metadata.get(LuceneIndexer.RESOURCE_NAME_KEY);               
         String ext = FilenameUtils.getExtension(path);
         if (!ext.isEmpty()) {
