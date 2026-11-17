@@ -78,12 +78,25 @@ public class TestPerUserTSI extends PerUserTSITestCase {
 	}
 
 	@Test
+	public void testGetVersion() throws Exception {
+		try(PerUserTSIConnection tC = (PerUserTSIConnection)xnjs.get(TSIConnectionFactory.class).
+				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, 10, TimeUnit.SECONDS))
+		{
+			String reply = tC.getTSIVersion();
+			System.out.println(tC.toString()+" version: " + reply);
+			assertTrue(reply.startsWith("11."));
+		}
+	}
+
+	@Test
 	public void testPing() throws Exception {
-		PerUserTSIConnection tC = (PerUserTSIConnection)xnjs.get(TSIConnectionFactory.class).
-				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, 10, TimeUnit.SECONDS);
-		String reply = TSIMessages.trim(tC.send("#TSI_PING"));
-		System.out.println("TSI PING reply: " + reply);
-		assertTrue(reply.contains("11."));
+		try(PerUserTSIConnection tC = (PerUserTSIConnection)xnjs.get(TSIConnectionFactory.class).
+				getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, 10, TimeUnit.SECONDS))
+		{
+			String reply = TSIMessages.trim(tC.send("#TSI_PING"));
+			System.out.println("TSI PING reply: " + reply);
+			assertTrue(reply.contains("11."));
+		}
 	}
 
 	@Test

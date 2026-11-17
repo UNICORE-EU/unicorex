@@ -19,6 +19,7 @@ import eu.unicore.security.Client;
 import eu.unicore.util.Log;
 import eu.unicore.xnjs.tsi.TSIUnavailableException;
 import eu.unicore.xnjs.tsi.remote.TSIConnection;
+import eu.unicore.xnjs.tsi.remote.TSIMessages;
 import eu.unicore.xnjs.util.LogUtil;
 import net.schmizz.sshj.SSHClient;
 
@@ -204,16 +205,10 @@ public class PerUserTSIConnection implements TSIConnection {
 	public void sendData(byte[] buffer, int offset, int number) throws IOException {
 		String user = client.getSelectedXloginName();
 		logger.debug("--> [{}] {}", user, _begin_data);
-		output.println("---BEGIN DATA BASE64---");
-		String base64;
-		if(number==buffer.length) {
-			base64 = Base64.getEncoder().encodeToString(buffer);
-		}
-		else {
-			byte[]buf = new byte[number];
-			System.arraycopy(buffer, 0, buf, 0, number);
-			base64 = Base64.getEncoder().encodeToString(buf);
-		}
+		output.println(_begin_data);
+		byte[]buf = new byte[number];
+		System.arraycopy(buffer, 0, buf, 0, number);
+		String base64 = Base64.getEncoder().encodeToString(buf);
 		logger.debug("--> [{}] ({} bytes of encoded data)", user, number);
 		output.println(base64);
 		logger.debug("--> [{}] {}", user, _end_data);
@@ -229,7 +224,7 @@ public class PerUserTSIConnection implements TSIConnection {
 		StringBuilder sb = new StringBuilder();
 		do {
 			line = getLine();
-			if("---END DATA---".equals(line))break;
+			if(_end_data.equals(line))break;
 			if(sb.length()>0)sb.append("\n");
 			sb.append(line);
 		}while(line!=null);
@@ -311,8 +306,6 @@ public class PerUserTSIConnection implements TSIConnection {
 
 	private static final Map<String, Boolean> issuedWarnings = new HashMap<>();
 
-	public static final String RECOMMENDED_TSI_VERSION = "11.2.0";
-
 	/**
 	 * get the TSI version
 	 */
@@ -326,11 +319,11 @@ public class PerUserTSIConnection implements TSIConnection {
 				Boolean issuedWarning = issuedWarnings.get(tsiHost);
 				if(issuedWarning==null) {
 					issuedWarnings.put(tsiHost, Boolean.TRUE);
-					if(!compareVersion(RECOMMENDED_TSI_VERSION)){
+					if(!compareVersion(TSIMessages.RECOMMENDED_VERSION)){
 						logger.warn("TSI host <{}> runs version <{}> which is outdated. "
 							+ "Some features may not work as expected. " +
 							"It is suggested to update your TSI to version <{}> or higher.",
-							tsiHost, tsiVersion, RECOMMENDED_TSI_VERSION);
+							tsiHost, tsiVersion, TSIMessages.RECOMMENDED_VERSION);
 					}
 				}
 			}catch(Exception e) {}
@@ -338,13 +331,13 @@ public class PerUserTSIConnection implements TSIConnection {
 		return tsiVersion;
 	}
 
-	// perform a TSI_PING and return the TSI version
+	// get the TSI version via TSI_PING
 	private String doGetVersion()throws IOException{
 		String v = null;
 		try{
 			String reply = send("#TSI_PING");
 			if(reply!=null && reply.length()>0){
-				v = reply.trim();
+				v = TSIMessages.trim(reply);
 			}
 		}catch(IOException se){
 			throw se;

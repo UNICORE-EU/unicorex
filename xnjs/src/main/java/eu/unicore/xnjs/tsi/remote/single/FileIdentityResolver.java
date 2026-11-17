@@ -23,7 +23,6 @@ public class FileIdentityResolver implements IdentityResolver {
 	public void updateIdentities(Client client, IdentityStore store) {
 		if(idFile!=null && idFile.lastModified() > lastUpdate) {
 			update(store);
-			lastUpdate = idFile.lastModified();
 		}
 	}
 
@@ -60,6 +59,7 @@ public class FileIdentityResolver implements IdentityResolver {
 			logger.error("Could not read SSH identities from {}: {}", idFile, ex);
 		}
 		logger.info("Read <{}> identities from {}", num, idFile);
+		lastUpdate = idFile.lastModified();
 		return num;
 	}
 }

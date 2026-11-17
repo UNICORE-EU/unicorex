@@ -456,8 +456,6 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 
 	private static final Map<String, Boolean> issuedWarnings = new HashMap<>();
 
-	public static final String RECOMMENDED_TSI_VERSION = "11.0.0";
-
 	@Override
 	public String getTSIVersion() throws IOException {
 		if(tsiVersion==null){
@@ -469,11 +467,11 @@ public class ServerTSIConnection implements eu.unicore.xnjs.tsi.remote.TSIConnec
 				Boolean issuedWarning = issuedWarnings.get(tsiHost);
 				if(issuedWarning==null) {
 					issuedWarnings.put(tsiHost, Boolean.TRUE);
-					if(!compareVersion(RECOMMENDED_TSI_VERSION)){
+					if(!compareVersion(TSIMessages.RECOMMENDED_VERSION)){
 						logger.warn("TSI host <{}> runs version <{}> which is outdated. "
 							+ "Some features may not work as expected. " +
 							"It is suggested to update your TSI to version <{}> or higher.",
-							tsiHost, tsiVersion, RECOMMENDED_TSI_VERSION);
+							tsiHost, tsiVersion, TSIMessages.RECOMMENDED_VERSION);
 					}
 				}
 			}catch(Exception e) {}

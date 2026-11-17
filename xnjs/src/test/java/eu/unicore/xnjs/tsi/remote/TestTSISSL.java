@@ -36,7 +36,7 @@ public class TestTSISSL extends RemoteTSISSLTestCase{
 		try(ServerTSIConnection c = f.getTSIConnection(cl, null, 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
-			assertTrue(c.compareVersion(ServerTSIConnection.RECOMMENDED_TSI_VERSION));
+			assertTrue(c.compareVersion(TSIMessages.RECOMMENDED_VERSION));
 		}
 		try(ServerTSIConnection c = f.getTSIConnection(cl,"127.0.0.1", 10, TimeUnit.SECONDS)){
 			InetAddress localhost = InetAddress.getByName("127.0.0.1");

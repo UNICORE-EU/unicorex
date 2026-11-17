@@ -67,7 +67,7 @@ public class TestTSI extends RemoteTSITestCase{
 		try(ServerTSIConnection c=f.getTSIConnection(TSIMessages.createMinimalClient("nobody"), null, 10, TimeUnit.SECONDS)){
 			System.out.println("TSI "+c.getTSIVersion()+" isAlive="+c.isAlive());
 			System.out.println(c);
-			assertTrue(c.compareVersion(ServerTSIConnection.RECOMMENDED_TSI_VERSION));
+			assertTrue(c.compareVersion(TSIMessages.RECOMMENDED_VERSION));
 			
 		}
 

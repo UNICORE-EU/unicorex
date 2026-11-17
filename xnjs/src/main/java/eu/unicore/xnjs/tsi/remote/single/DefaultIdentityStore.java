@@ -36,12 +36,12 @@ public class DefaultIdentityStore implements IdentityStore {
 		if(user==null) {
 			throw new AuthorisationException("Required Unix user is null.");
 		}
-		if(keys.get(user)==null) {
-			// try our resolvers
+		KeyPairHolder _kp = keys.get(user);
+		if(_kp==null || !_kp.isValid()) {
 			runUpdate(client);
 		}
 		final KeyPairHolder kp = keys.get(user);
-		if(kp==null) {
+		if(kp==null || !kp.isValid()) {
 			throw new AuthorisationException("No key available for '"+user+"'");
 		}
 		OpenSSHKeyV1KeyFile keyProvider = new OpenSSHKeyV1KeyFile();

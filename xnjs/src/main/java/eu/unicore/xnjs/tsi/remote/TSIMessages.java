@@ -40,6 +40,8 @@ public class TSIMessages {
 	public static final String TSI_OK = "TSI_OK";
 	public static final String TSI_FAILED = "TSI_FAILED";
 
+	public static final String RECOMMENDED_VERSION = "11.2.0";
+
 	public static final String EXITCODE_FILENAME = "UNICORE_SCRIPT_EXIT_CODE";
 	public static final String PID_FILENAME = "UNICORE_SCRIPT_PID";
 	public static final String ALLOCATION_ID = "UNICORE_ALLOCATION_ID";
